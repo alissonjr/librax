@@ -273,12 +273,17 @@
   "exerciseFingerspell": {
     "cameraFeed": "Camera feed",
     "cameraUnavailable": "Camera unavailable",
-    "complete": "Complete!",
-    "currentLetter": "Current letter: {letter}",
-    "manualNote": "Practice spelling \"{word}\" manually. Automatic recognition for these letters is coming soon.",
+    "complete": "Word spelled!",
+    "currentLetterCount": "Letter {n} of {total}: {letter}",
+    "detected": "We saw {gesture}. Make the letter {letter}",
+    "letterDone": "Letter {letter} done",
+    "makeLetter": "Make the letter {letter}",
+    "positionHand": "Show your hand in the frame",
+    "progress": "Letters done: {done} of {total}",
+    "releaseRepeat": "Move your hand away or change shape, then make {letter} again",
     "retry": "Try again",
-    "spell": "Spell:",
-    "spellTitle": "Spell:",
+    "skipExercise": "Skip this exercise",
+    "spellWord": "Spell: {word}",
     "starting": "Starting...",
     "wordComplete": "Word complete!"
   },
@@ -333,6 +338,17 @@
     "prompt": "Which sign is this?",
     "replay": "Watch again",
     "resumeVideo": "Resume video"
+  },
+  "exerciseWordChooseVideo": {
+    "chooseLabel": "Choose option {n}",
+    "correct": "Correct!",
+    "correctAnswer": "The right answer is option {n}:",
+    "hide": "Stop",
+    "option": "Option {n}",
+    "prompt": "Which is the sign for",
+    "stageEmpty": "Tap Watch to see each option, one at a time. Then choose the right one.",
+    "view": "Watch",
+    "viewLabel": "Watch the demonstration of option {n}"
   },
   "feedback": {
     "almost": "Almost!",

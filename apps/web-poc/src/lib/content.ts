@@ -78,9 +78,11 @@ export type RenderedExerciseType =
   | 'sign_intro'
   | 'perform_sign'
   | 'watch_choose_word'
+  | 'word_choose_video'
   | 'match_pairs'
   | 'order_sequence'
   | 'build_phrase'
+  | 'fingerspell'
   | 'mirror_practice';
 
 /** Exercício pronto para a tela: o do bundle com os sorteios da sessão já feitos. */
@@ -92,8 +94,14 @@ export interface Exercise {
   pairSignIds?: string[];
   steps?: string[];
   correctOrder?: number[];
-  /** order_sequence de soletração: a palavra soletrada (as letras ficam em `steps`). */
+  /** order_sequence de soletração e fingerspell: a palavra soletrada. */
   word?: string;
+  /** fingerspell: as letras da palavra, na ordem. */
+  letters?: string[];
+  /** fingerspell: confiança mínima por letra (null = padrão do reconhecedor). */
+  perLetterConfidence?: number | null;
+  /** word_choose_video: os sinais das 4 demonstrações, em ordem sorteada (`signId` é o certo). */
+  videoOptions?: string[];
   /** build_phrase: frase da unidade (glosas na ordem certa + tradução). */
   phrase?: Phrase;
   /** build_phrase: blocos embaralhados (glosas da frase + distratores). */
@@ -106,7 +114,7 @@ export interface Lesson {
   order: number;
   xpReward: number;
   signIds: string[];
-  /** Nomes soletrados na lição (U4); viram order_sequence no bundle. */
+  /** Nomes soletrados na lição (U4); viram fingerspell no bundle. */
   spellWords?: string[];
 }
 
@@ -241,9 +249,11 @@ export interface ResolveOptions {
  * Transforma os exercicios do bundle no que a tela mostra, com os sorteios da sessao:
  * - watch_choose_word sem `options` ganha 3 distratores (mesma categoria primeiro) e ordem sorteada;
  * - build_phrase sorteia os distratores e a ordem dos blocos;
+ * - word_choose_video sorteia a ordem das 4 demonstracoes;
  * - perform_sign de sinal que a camera nao avalia vira mirror_practice (pratica livre, sem nota,
  *   para nao contar erro que a pessoa nao cometeu) e a pratica livre repetida do mesmo sinal sai;
- * - fingerspell, enquanto nao tem tela, vira order_sequence com as letras da palavra.
+ * - fingerspell so usa a camera quando ela avalia todas as letras da palavra; senao vira
+ *   order_sequence com as letras (a pessoa poe as letras na ordem).
  * `lessonSignIds[0]` e o sinal de referencia dos exercicios que nao tem um sinal so.
  */
 export function resolveExercises(items: BundleExercise[], lessonSignIds: string[], opts: ResolveOptions = {}): Exercise[] {
@@ -297,8 +307,13 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
         break;
       }
       case 'fingerspell': {
-        const { word, letters } = item.payload;
-        out.push({ id, type: 'order_sequence', signId: `letra-${letters[0]}`, steps: letters, correctOrder: letters.map((_, i) => i), word });
+        const { word, letters, per_letter_confidence } = item.payload;
+        const signId = `letra-${letters[0]}`;
+        if (letters.every((l) => canEvaluate(map[`letra-${l}`]))) {
+          out.push({ id, type: 'fingerspell', signId, word, letters, perLetterConfidence: per_letter_confidence });
+        } else {
+          out.push({ id, type: 'order_sequence', signId, steps: letters, correctOrder: letters.map((_, i) => i), word });
+        }
         break;
       }
       case 'build_phrase': {
@@ -306,9 +321,11 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
         out.push({ id, type: 'build_phrase', signId: firstSign, phrase: { pt, glosses, source }, tiles: phraseTiles(glosses, distractors) });
         break;
       }
-      case 'word_choose_video':
-        // Ainda sem tela: fica fora da sessao ate existir o componente
+      case 'word_choose_video': {
+        const { correct_sign_id, video_options } = item.payload;
+        out.push({ id, type: 'word_choose_video', signId: correct_sign_id, videoOptions: shuffle(video_options) });
         break;
+      }
     }
   }
   return out;
