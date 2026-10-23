@@ -213,6 +213,7 @@
     "greetingAfternoon": "Boa tarde",
     "greetingEvening": "Boa noite",
     "greetingMorning": "Bom dia",
+    "lessonLocked": "Essa lição ainda está bloqueada. Faça as anteriores para abrir.",
     "mastery": "Domínio: {count} de 3",
     "nodeAria": "Lição {num}, {title}, {status}",
     "profileAria": "Perfil",
@@ -273,12 +274,17 @@
   "exerciseFingerspell": {
     "cameraFeed": "Feed da câmera",
     "cameraUnavailable": "Câmera indisponível",
-    "complete": "Completo!",
-    "currentLetter": "Letra atual: {letter}",
-    "manualNote": "Pratique soletrar \"{word}\" manualmente. O reconhecimento automático para estas letras chegará em breve.",
+    "complete": "Palavra soletrada!",
+    "currentLetterCount": "Letra {n} de {total}: {letter}",
+    "detected": "Vimos {gesture}. Faça a letra {letter}",
+    "letterDone": "Letra {letter} feita",
+    "makeLetter": "Faça a letra {letter}",
+    "positionHand": "Mostre a mão no quadro",
+    "progress": "Letras feitas: {done} de {total}",
+    "releaseRepeat": "Tire a mão ou mude de forma e faça {letter} de novo",
     "retry": "Tentar novamente",
-    "spell": "Soletre:",
-    "spellTitle": "Soletre:",
+    "skipExercise": "Pular este exercício",
+    "spellWord": "Soletre: {word}",
     "starting": "Iniciando...",
     "wordComplete": "Palavra completa!"
   },
@@ -333,6 +339,17 @@
     "prompt": "Qual é este sinal?",
     "replay": "Ver de novo",
     "resumeVideo": "Retomar vídeo"
+  },
+  "exerciseWordChooseVideo": {
+    "chooseLabel": "Escolher a opção {n}",
+    "correct": "Correto!",
+    "correctAnswer": "A resposta certa é a opção {n}:",
+    "hide": "Parar",
+    "option": "Opção {n}",
+    "prompt": "Qual é o sinal de",
+    "stageEmpty": "Toque em Ver para assistir cada opção, uma de cada vez. Depois escolha a certa.",
+    "view": "Ver",
+    "viewLabel": "Ver a demonstração da opção {n}"
   },
   "feedback": {
     "almost": "Quase!",

@@ -936,7 +936,10 @@ Regras:
   "Sair da lição?" da seção 2.4. Cancelar mantém a pessoa no exercício em que estava; confirmar volta para o
   mapa. O botão de sair fica sempre no canto superior esquerdo da lição.
 - **Sheets e modais**: abrir um bottom sheet ou modal cria uma entrada no histórico; o voltar fecha o sheet em
-  vez de sair da tela. (Ainda não implementado no web-poc.)
+  vez de sair da tela. No web-poc: hook `useCloseOnBack`, usado pelo `Dialog` e pelos sheets. Com o "Sair da
+  lição?" aberto, um novo voltar fecha o diálogo e mantém a pessoa na lição.
+- **Lição bloqueada**: `/licao/:id` de uma lição ainda bloqueada no mapa volta ao mapa com um toast. A regra de
+  desbloqueio é uma só, em `src/lib/progress.ts`, usada pelo mapa e pela rota.
 - **Telas de conclusão** substituem a entrada da lição (`replace`): voltar a partir delas leva ao mapa, nunca
   de novo para a lição terminada. Sem o resultado na memória (página recarregada na conclusão), a rota leva ao
   mapa.
@@ -946,7 +949,8 @@ Regras:
   desenvolvimento e o `vite preview` respondem `index.html` para as rotas; o service worker faz o mesmo
   (`navigateFallback`) e o CDN de produção precisa da mesma regra.
 - **Rolagem**: tela nova abre no topo (inclusive cada exercício da lição); ao voltar, a posição anterior é
-  restaurada.
+  restaurada. Telas que leem os dados depois de aparecer (o mapa) restauram só quando o conteúdo já está na tela
+  (`useScrollRestore`).
 - **Convite**: o link `/convite/:code` é resolvido antes da verificação de conta, para o código não se perder
   no caminho do login.
 - Ao trocar de rota, o foco vai para o título da nova tela (`<h1>` com `tabindex="-1"`) e o título da aba do

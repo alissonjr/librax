@@ -14,285 +14,113 @@
     {
       "id": "u5-l2-ex02",
       "lesson_id": "u5-l2",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-COMO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "COMO"
       }
     },
     {
       "id": "u5-l2-ex03",
       "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-COMO",
-        "correct": "COMO"
+        "sign_id": "sinal-QUANDO"
       }
     },
     {
       "id": "u5-l2-ex04",
       "lesson_id": "u5-l2",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-COMO"
+        "word": "QUANDO",
+        "video_options": [
+          "sinal-QUANDO",
+          "sinal-COMO",
+          "sinal-QUAL",
+          "sinal-ONDE"
+        ],
+        "correct_sign_id": "sinal-QUANDO"
       }
     },
     {
       "id": "u5-l2-ex05",
       "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-COMO",
-        "correct": "COMO"
+        "sign_id": "sinal-POR-QUE"
       }
     },
     {
       "id": "u5-l2-ex06",
       "lesson_id": "u5-l2",
-      "type": "sign_intro",
+      "type": "watch_choose_word",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-QUANDO"
+        "sign_id": "sinal-POR-QUE",
+        "correct": "POR-QUE"
       }
     },
     {
       "id": "u5-l2-ex07",
       "lesson_id": "u5-l2",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-QUANDO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-QUANTO"
       }
     },
     {
       "id": "u5-l2-ex08",
       "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
+      "type": "word_choose_video",
       "order": 8,
       "payload": {
-        "sign_id": "sinal-QUANDO",
-        "correct": "QUANDO"
+        "word": "QUANTO",
+        "video_options": [
+          "sinal-QUANTO",
+          "sinal-COMO",
+          "sinal-QUANDO",
+          "sinal-POR-QUE"
+        ],
+        "correct_sign_id": "sinal-QUANTO"
       }
     },
     {
       "id": "u5-l2-ex09",
       "lesson_id": "u5-l2",
-      "type": "mirror_practice",
+      "type": "perform_sign",
       "order": 9,
       "payload": {
-        "sign_id": "sinal-QUANDO"
+        "sign_id": "sinal-COMO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
       "id": "u5-l2-ex10",
       "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
+      "type": "perform_sign",
       "order": 10,
       "payload": {
         "sign_id": "sinal-QUANDO",
-        "correct": "QUANDO"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
       "id": "u5-l2-ex11",
       "lesson_id": "u5-l2",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-POR-QUE"
-      }
-    },
-    {
-      "id": "u5-l2-ex12",
-      "lesson_id": "u5-l2",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-POR-QUE",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u5-l2-ex13",
-      "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-POR-QUE",
-        "correct": "POR-QUE"
-      }
-    },
-    {
-      "id": "u5-l2-ex14",
-      "lesson_id": "u5-l2",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-POR-QUE"
-      }
-    },
-    {
-      "id": "u5-l2-ex15",
-      "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-POR-QUE",
-        "correct": "POR-QUE"
-      }
-    },
-    {
-      "id": "u5-l2-ex16",
-      "lesson_id": "u5-l2",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-QUANTO"
-      }
-    },
-    {
-      "id": "u5-l2-ex17",
-      "lesson_id": "u5-l2",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-QUANTO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u5-l2-ex18",
-      "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-QUANTO",
-        "correct": "QUANTO"
-      }
-    },
-    {
-      "id": "u5-l2-ex19",
-      "lesson_id": "u5-l2",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-QUANTO"
-      }
-    },
-    {
-      "id": "u5-l2-ex20",
-      "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-QUANTO",
-        "correct": "QUANTO"
-      }
-    },
-    {
-      "id": "u5-l2-ex21",
-      "lesson_id": "u5-l2",
-      "type": "match_pairs",
-      "order": 21,
-      "payload": {
-        "pairs": [
-          {
-            "sign_id": "sinal-COMO",
-            "gloss": "COMO"
-          },
-          {
-            "sign_id": "sinal-QUANDO",
-            "gloss": "QUANDO"
-          },
-          {
-            "sign_id": "sinal-POR-QUE",
-            "gloss": "POR-QUE"
-          }
-        ]
-      }
-    },
-    {
-      "id": "u5-l2-ex22",
-      "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-COMO",
-        "correct": "COMO"
-      }
-    },
-    {
-      "id": "u5-l2-ex23",
-      "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-QUANDO",
-        "correct": "QUANDO"
-      }
-    },
-    {
-      "id": "u5-l2-ex24",
-      "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-POR-QUE",
-        "correct": "POR-QUE"
-      }
-    },
-    {
-      "id": "u5-l2-ex25",
-      "lesson_id": "u5-l2",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-QUANTO",
-        "correct": "QUANTO"
-      }
-    },
-    {
-      "id": "u5-l2-ex26",
-      "lesson_id": "u5-l2",
-      "type": "order_sequence",
-      "order": 26,
-      "payload": {
-        "steps": [
-          "COMO",
-          "QUANDO",
-          "POR-QUE",
-          "QUANTO"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u5-l2-ex27",
-      "lesson_id": "u5-l2",
       "type": "build_phrase",
-      "order": 27,
+      "order": 11,
       "payload": {
         "pt": "Onde está o lápis?",
         "glosses": [

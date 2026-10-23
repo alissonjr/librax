@@ -14,43 +14,45 @@
     {
       "id": "u9-l2-ex02",
       "lesson_id": "u9-l2",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-VERDE",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "VERDE"
       }
     },
     {
       "id": "u9-l2-ex03",
       "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-VERDE",
-        "correct": "VERDE"
+        "sign_id": "sinal-LARANJA"
       }
     },
     {
       "id": "u9-l2-ex04",
       "lesson_id": "u9-l2",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-VERDE"
+        "word": "LARANJA",
+        "video_options": [
+          "sinal-LARANJA",
+          "sinal-VERDE",
+          "sinal-AMARELO",
+          "sinal-AZUL"
+        ],
+        "correct_sign_id": "sinal-LARANJA"
       }
     },
     {
       "id": "u9-l2-ex05",
       "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-VERDE",
-        "correct": "VERDE"
+        "sign_id": "sinal-ROSA"
       }
     },
     {
@@ -59,362 +61,84 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-LARANJA"
+        "sign_id": "sinal-ROXO"
       }
     },
     {
       "id": "u9-l2-ex07",
       "lesson_id": "u9-l2",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-LARANJA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-MARROM"
       }
     },
     {
       "id": "u9-l2-ex08",
       "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 8,
       "payload": {
-        "sign_id": "sinal-LARANJA",
-        "correct": "LARANJA"
+        "sign_id": "sinal-CINZA"
       }
     },
     {
       "id": "u9-l2-ex09",
       "lesson_id": "u9-l2",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "sinal-LARANJA"
-      }
-    },
-    {
-      "id": "u9-l2-ex10",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "sinal-LARANJA",
-        "correct": "LARANJA"
-      }
-    },
-    {
-      "id": "u9-l2-ex11",
-      "lesson_id": "u9-l2",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-ROSA"
-      }
-    },
-    {
-      "id": "u9-l2-ex12",
-      "lesson_id": "u9-l2",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-ROSA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u9-l2-ex13",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-ROSA",
-        "correct": "ROSA"
-      }
-    },
-    {
-      "id": "u9-l2-ex14",
-      "lesson_id": "u9-l2",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-ROSA"
-      }
-    },
-    {
-      "id": "u9-l2-ex15",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-ROSA",
-        "correct": "ROSA"
-      }
-    },
-    {
-      "id": "u9-l2-ex16",
-      "lesson_id": "u9-l2",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-ROXO"
-      }
-    },
-    {
-      "id": "u9-l2-ex17",
-      "lesson_id": "u9-l2",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-ROXO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u9-l2-ex18",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-ROXO",
-        "correct": "ROXO"
-      }
-    },
-    {
-      "id": "u9-l2-ex19",
-      "lesson_id": "u9-l2",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-ROXO"
-      }
-    },
-    {
-      "id": "u9-l2-ex20",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-ROXO",
-        "correct": "ROXO"
-      }
-    },
-    {
-      "id": "u9-l2-ex21",
-      "lesson_id": "u9-l2",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "sinal-MARROM"
-      }
-    },
-    {
-      "id": "u9-l2-ex22",
-      "lesson_id": "u9-l2",
-      "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-MARROM",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u9-l2-ex23",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-MARROM",
-        "correct": "MARROM"
-      }
-    },
-    {
-      "id": "u9-l2-ex24",
-      "lesson_id": "u9-l2",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-MARROM"
-      }
-    },
-    {
-      "id": "u9-l2-ex25",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-MARROM",
-        "correct": "MARROM"
-      }
-    },
-    {
-      "id": "u9-l2-ex26",
-      "lesson_id": "u9-l2",
-      "type": "sign_intro",
-      "order": 26,
-      "payload": {
-        "sign_id": "sinal-CINZA"
-      }
-    },
-    {
-      "id": "u9-l2-ex27",
-      "lesson_id": "u9-l2",
-      "type": "perform_sign",
-      "order": 27,
-      "payload": {
-        "sign_id": "sinal-CINZA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u9-l2-ex28",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 28,
-      "payload": {
-        "sign_id": "sinal-CINZA",
-        "correct": "CINZA"
-      }
-    },
-    {
-      "id": "u9-l2-ex29",
-      "lesson_id": "u9-l2",
-      "type": "mirror_practice",
-      "order": 29,
-      "payload": {
-        "sign_id": "sinal-CINZA"
-      }
-    },
-    {
-      "id": "u9-l2-ex30",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "sinal-CINZA",
-        "correct": "CINZA"
-      }
-    },
-    {
-      "id": "u9-l2-ex31",
-      "lesson_id": "u9-l2",
       "type": "match_pairs",
-      "order": 31,
+      "order": 9,
       "payload": {
         "pairs": [
           {
-            "sign_id": "sinal-VERDE",
-            "gloss": "VERDE"
-          },
-          {
-            "sign_id": "sinal-LARANJA",
-            "gloss": "LARANJA"
-          },
-          {
             "sign_id": "sinal-ROSA",
             "gloss": "ROSA"
+          },
+          {
+            "sign_id": "sinal-ROXO",
+            "gloss": "ROXO"
+          },
+          {
+            "sign_id": "sinal-MARROM",
+            "gloss": "MARROM"
+          },
+          {
+            "sign_id": "sinal-CINZA",
+            "gloss": "CINZA"
           }
         ]
       }
     },
     {
-      "id": "u9-l2-ex32",
+      "id": "u9-l2-ex10",
       "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 32,
+      "type": "perform_sign",
+      "order": 10,
       "payload": {
         "sign_id": "sinal-VERDE",
-        "correct": "VERDE"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u9-l2-ex33",
+      "id": "u9-l2-ex11",
       "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 33,
+      "type": "perform_sign",
+      "order": 11,
       "payload": {
         "sign_id": "sinal-LARANJA",
-        "correct": "LARANJA"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u9-l2-ex34",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 34,
-      "payload": {
-        "sign_id": "sinal-ROSA",
-        "correct": "ROSA"
-      }
-    },
-    {
-      "id": "u9-l2-ex35",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 35,
-      "payload": {
-        "sign_id": "sinal-ROXO",
-        "correct": "ROXO"
-      }
-    },
-    {
-      "id": "u9-l2-ex36",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 36,
-      "payload": {
-        "sign_id": "sinal-MARROM",
-        "correct": "MARROM"
-      }
-    },
-    {
-      "id": "u9-l2-ex37",
-      "lesson_id": "u9-l2",
-      "type": "watch_choose_word",
-      "order": 37,
-      "payload": {
-        "sign_id": "sinal-CINZA",
-        "correct": "CINZA"
-      }
-    },
-    {
-      "id": "u9-l2-ex38",
-      "lesson_id": "u9-l2",
-      "type": "order_sequence",
-      "order": 38,
-      "payload": {
-        "steps": [
-          "VERDE",
-          "LARANJA",
-          "ROSA",
-          "ROXO"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u9-l2-ex39",
+      "id": "u9-l2-ex12",
       "lesson_id": "u9-l2",
       "type": "build_phrase",
-      "order": 39,
+      "order": 12,
       "payload": {
         "pt": "Eu comprei um sapato marrom.",
         "glosses": [

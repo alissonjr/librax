@@ -14,43 +14,45 @@
     {
       "id": "u3-l2-ex02",
       "lesson_id": "u3-l2",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-TUDO-BEM",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "TUDO-BEM"
       }
     },
     {
       "id": "u3-l2-ex03",
       "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-TUDO-BEM",
-        "correct": "TUDO-BEM"
+        "sign_id": "sinal-PRAZER"
       }
     },
     {
       "id": "u3-l2-ex04",
       "lesson_id": "u3-l2",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-TUDO-BEM"
+        "word": "PRAZER",
+        "video_options": [
+          "sinal-PRAZER",
+          "sinal-TUDO-BEM",
+          "sinal-BEM-VINDO",
+          "sinal-ATE-LOGO"
+        ],
+        "correct_sign_id": "sinal-PRAZER"
       }
     },
     {
       "id": "u3-l2-ex05",
       "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-TUDO-BEM",
-        "correct": "TUDO-BEM"
+        "sign_id": "sinal-BEM-VINDO"
       }
     },
     {
@@ -59,301 +61,71 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-PRAZER"
+        "sign_id": "sinal-ATE-LOGO"
       }
     },
     {
       "id": "u3-l2-ex07",
       "lesson_id": "u3-l2",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-PRAZER",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-PARABENS"
       }
     },
     {
       "id": "u3-l2-ex08",
       "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 8,
-      "payload": {
-        "sign_id": "sinal-PRAZER",
-        "correct": "PRAZER"
-      }
-    },
-    {
-      "id": "u3-l2-ex09",
-      "lesson_id": "u3-l2",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "sinal-PRAZER"
-      }
-    },
-    {
-      "id": "u3-l2-ex10",
-      "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "sinal-PRAZER",
-        "correct": "PRAZER"
-      }
-    },
-    {
-      "id": "u3-l2-ex11",
-      "lesson_id": "u3-l2",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-BEM-VINDO"
-      }
-    },
-    {
-      "id": "u3-l2-ex12",
-      "lesson_id": "u3-l2",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-BEM-VINDO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u3-l2-ex13",
-      "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-BEM-VINDO",
-        "correct": "BEM-VINDO"
-      }
-    },
-    {
-      "id": "u3-l2-ex14",
-      "lesson_id": "u3-l2",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-BEM-VINDO"
-      }
-    },
-    {
-      "id": "u3-l2-ex15",
-      "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-BEM-VINDO",
-        "correct": "BEM-VINDO"
-      }
-    },
-    {
-      "id": "u3-l2-ex16",
-      "lesson_id": "u3-l2",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-ATE-LOGO"
-      }
-    },
-    {
-      "id": "u3-l2-ex17",
-      "lesson_id": "u3-l2",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-ATE-LOGO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u3-l2-ex18",
-      "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-ATE-LOGO",
-        "correct": "ATÉ-LOGO"
-      }
-    },
-    {
-      "id": "u3-l2-ex19",
-      "lesson_id": "u3-l2",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-ATE-LOGO"
-      }
-    },
-    {
-      "id": "u3-l2-ex20",
-      "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-ATE-LOGO",
-        "correct": "ATÉ-LOGO"
-      }
-    },
-    {
-      "id": "u3-l2-ex21",
-      "lesson_id": "u3-l2",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "sinal-PARABENS"
-      }
-    },
-    {
-      "id": "u3-l2-ex22",
-      "lesson_id": "u3-l2",
-      "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-PARABENS",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u3-l2-ex23",
-      "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-PARABENS",
-        "correct": "PARABÉNS"
-      }
-    },
-    {
-      "id": "u3-l2-ex24",
-      "lesson_id": "u3-l2",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-PARABENS"
-      }
-    },
-    {
-      "id": "u3-l2-ex25",
-      "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-PARABENS",
-        "correct": "PARABÉNS"
-      }
-    },
-    {
-      "id": "u3-l2-ex26",
-      "lesson_id": "u3-l2",
       "type": "match_pairs",
-      "order": 26,
+      "order": 8,
       "payload": {
         "pairs": [
           {
-            "sign_id": "sinal-TUDO-BEM",
-            "gloss": "TUDO-BEM"
-          },
-          {
-            "sign_id": "sinal-PRAZER",
-            "gloss": "PRAZER"
-          },
-          {
             "sign_id": "sinal-BEM-VINDO",
             "gloss": "BEM-VINDO"
+          },
+          {
+            "sign_id": "sinal-ATE-LOGO",
+            "gloss": "ATÉ-LOGO"
+          },
+          {
+            "sign_id": "sinal-PARABENS",
+            "gloss": "PARABÉNS"
           }
         ]
       }
     },
     {
-      "id": "u3-l2-ex27",
+      "id": "u3-l2-ex09",
       "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 27,
+      "type": "perform_sign",
+      "order": 9,
       "payload": {
         "sign_id": "sinal-TUDO-BEM",
-        "correct": "TUDO-BEM"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u3-l2-ex28",
+      "id": "u3-l2-ex10",
       "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 28,
+      "type": "perform_sign",
+      "order": 10,
       "payload": {
         "sign_id": "sinal-PRAZER",
-        "correct": "PRAZER"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u3-l2-ex29",
-      "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 29,
-      "payload": {
-        "sign_id": "sinal-BEM-VINDO",
-        "correct": "BEM-VINDO"
-      }
-    },
-    {
-      "id": "u3-l2-ex30",
-      "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "sinal-ATE-LOGO",
-        "correct": "ATÉ-LOGO"
-      }
-    },
-    {
-      "id": "u3-l2-ex31",
-      "lesson_id": "u3-l2",
-      "type": "watch_choose_word",
-      "order": 31,
-      "payload": {
-        "sign_id": "sinal-PARABENS",
-        "correct": "PARABÉNS"
-      }
-    },
-    {
-      "id": "u3-l2-ex32",
-      "lesson_id": "u3-l2",
-      "type": "order_sequence",
-      "order": 32,
-      "payload": {
-        "steps": [
-          "TUDO-BEM",
-          "PRAZER",
-          "BEM-VINDO",
-          "ATÉ-LOGO"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u3-l2-ex33",
+      "id": "u3-l2-ex11",
       "lesson_id": "u3-l2",
       "type": "build_phrase",
-      "order": 33,
+      "order": 11,
       "payload": {
         "pt": "Tchau! Amanhã nos encontramos no cinema.",
         "glosses": [

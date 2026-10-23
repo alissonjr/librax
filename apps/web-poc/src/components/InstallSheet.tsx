@@ -1,6 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
+import { useCloseOnBack } from '../hooks/useCloseOnBack';
 import { getInstallMode, promptInstall, subscribeInstall, type InstallMode } from '../lib/install';
 
 /** Modo de instalação disponível agora (atualiza quando o Chrome libera o pedido ou o app é instalado). */
@@ -20,6 +21,8 @@ interface Props {
 export function InstallSheet({ mode, onClose }: Props) {
   const { t } = useT();
   const [visible, setVisible] = useState(false);
+  // Voltar fecha o sheet (design-system 11.13)
+  useCloseOnBack(true, onClose);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 50);

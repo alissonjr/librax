@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import type { Sign } from '../lib/content';
+import { maskGloss, shuffle, type Sign } from '../lib/content';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
 import { Sfx } from '../lib/sound';
 
 interface Props {
   signs: Sign[];
-  onComplete: (allCorrect: boolean) => void;
+  /** `missed`: sinais que tiveram par errado (para o SRS revisar mais cedo). */
+  onComplete: (allCorrect: boolean, missed: string[]) => void;
 }
 
 type PairState = 'idle' | 'correct' | 'wrong';
@@ -23,8 +24,10 @@ export function ExerciseMatchPairs({ signs, onComplete }: Props) {
     signs.map(s => ({ signId: s.id, pairState: 'idle', matchedGloss: null })),
   );
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
-  const [errors, setErrors] = useState(0);
+  const [missed, setMissed] = useState<string[]>([]);
   const [done, setDone] = useState(false);
+  // A coluna das palavras não segue a ordem das descrições (senão a posição entrega o par)
+  const [glossOrder] = useState(() => shuffle(signs));
 
   const signMap = Object.fromEntries(signs.map(s => [s.id, s]));
 
@@ -53,7 +56,7 @@ export function ExerciseMatchPairs({ signs, onComplete }: Props) {
     if (isCorrect) Sfx.correct(); else Sfx.neutral();
 
     if (!isCorrect) {
-      setErrors(e => e + 1);
+      if (!missed.includes(selectedCard)) setMissed([...missed, selectedCard]);
       setTimeout(() => {
         setCards(prev =>
           prev.map(c => c.signId === selectedCard ? { ...c, pairState: 'idle', matchedGloss: null } : c),
@@ -65,7 +68,7 @@ export function ExerciseMatchPairs({ signs, onComplete }: Props) {
     const allDone = next.every(c => c.pairState === 'correct');
     if (allDone) {
       setDone(true);
-      onComplete(errors === 0);
+      onComplete(missed.length === 0, missed);
     }
   }
 
@@ -102,14 +105,15 @@ export function ExerciseMatchPairs({ signs, onComplete }: Props) {
                 {card.pairState === 'wrong' && (
                   <Icon name="close" className="pair-icon pair-icon--err" />
                 )}
-                <span>{sign?.video_caption}</span>
+                {/* A descrição não pode trazer a palavra de nenhum par */}
+                <span>{sign ? signs.reduce((text, s) => maskGloss(text, s.gloss), sign.video_caption) : null}</span>
               </button>
             );
           })}
         </div>
 
         <div className="pairs-glosses">
-          {signs.map(sign => (
+          {glossOrder.map(sign => (
             <button
               key={sign.id}
               className={`mc-choice${matchedGlosses.has(sign.gloss) ? ' selected-correct' : ''}`}

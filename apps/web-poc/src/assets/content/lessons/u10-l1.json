@@ -14,43 +14,45 @@
     {
       "id": "u10-l1-ex02",
       "lesson_id": "u10-l1",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-COMER",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "COMER"
       }
     },
     {
       "id": "u10-l1-ex03",
       "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-COMER",
-        "correct": "COMER"
+        "sign_id": "sinal-BEBER"
       }
     },
     {
       "id": "u10-l1-ex04",
       "lesson_id": "u10-l1",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-COMER"
+        "word": "BEBER",
+        "video_options": [
+          "sinal-BEBER",
+          "sinal-COMER",
+          "sinal-AGUA",
+          "sinal-CAFE"
+        ],
+        "correct_sign_id": "sinal-BEBER"
       }
     },
     {
       "id": "u10-l1-ex05",
       "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-COMER",
-        "correct": "COMER"
+        "sign_id": "sinal-AGUA"
       }
     },
     {
@@ -59,301 +61,71 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-BEBER"
+        "sign_id": "sinal-CAFE"
       }
     },
     {
       "id": "u10-l1-ex07",
       "lesson_id": "u10-l1",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-BEBER",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-LEITE"
       }
     },
     {
       "id": "u10-l1-ex08",
       "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 8,
-      "payload": {
-        "sign_id": "sinal-BEBER",
-        "correct": "BEBER"
-      }
-    },
-    {
-      "id": "u10-l1-ex09",
-      "lesson_id": "u10-l1",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "sinal-BEBER"
-      }
-    },
-    {
-      "id": "u10-l1-ex10",
-      "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "sinal-BEBER",
-        "correct": "BEBER"
-      }
-    },
-    {
-      "id": "u10-l1-ex11",
-      "lesson_id": "u10-l1",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-AGUA"
-      }
-    },
-    {
-      "id": "u10-l1-ex12",
-      "lesson_id": "u10-l1",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-AGUA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u10-l1-ex13",
-      "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-AGUA",
-        "correct": "ÁGUA"
-      }
-    },
-    {
-      "id": "u10-l1-ex14",
-      "lesson_id": "u10-l1",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-AGUA"
-      }
-    },
-    {
-      "id": "u10-l1-ex15",
-      "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-AGUA",
-        "correct": "ÁGUA"
-      }
-    },
-    {
-      "id": "u10-l1-ex16",
-      "lesson_id": "u10-l1",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-CAFE"
-      }
-    },
-    {
-      "id": "u10-l1-ex17",
-      "lesson_id": "u10-l1",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-CAFE",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u10-l1-ex18",
-      "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-CAFE",
-        "correct": "CAFÉ"
-      }
-    },
-    {
-      "id": "u10-l1-ex19",
-      "lesson_id": "u10-l1",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-CAFE"
-      }
-    },
-    {
-      "id": "u10-l1-ex20",
-      "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-CAFE",
-        "correct": "CAFÉ"
-      }
-    },
-    {
-      "id": "u10-l1-ex21",
-      "lesson_id": "u10-l1",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "sinal-LEITE"
-      }
-    },
-    {
-      "id": "u10-l1-ex22",
-      "lesson_id": "u10-l1",
-      "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-LEITE",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u10-l1-ex23",
-      "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-LEITE",
-        "correct": "LEITE"
-      }
-    },
-    {
-      "id": "u10-l1-ex24",
-      "lesson_id": "u10-l1",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-LEITE"
-      }
-    },
-    {
-      "id": "u10-l1-ex25",
-      "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-LEITE",
-        "correct": "LEITE"
-      }
-    },
-    {
-      "id": "u10-l1-ex26",
-      "lesson_id": "u10-l1",
       "type": "match_pairs",
-      "order": 26,
+      "order": 8,
       "payload": {
         "pairs": [
           {
-            "sign_id": "sinal-COMER",
-            "gloss": "COMER"
-          },
-          {
-            "sign_id": "sinal-BEBER",
-            "gloss": "BEBER"
-          },
-          {
             "sign_id": "sinal-AGUA",
             "gloss": "ÁGUA"
+          },
+          {
+            "sign_id": "sinal-CAFE",
+            "gloss": "CAFÉ"
+          },
+          {
+            "sign_id": "sinal-LEITE",
+            "gloss": "LEITE"
           }
         ]
       }
     },
     {
-      "id": "u10-l1-ex27",
+      "id": "u10-l1-ex09",
       "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 27,
+      "type": "perform_sign",
+      "order": 9,
       "payload": {
         "sign_id": "sinal-COMER",
-        "correct": "COMER"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u10-l1-ex28",
+      "id": "u10-l1-ex10",
       "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 28,
+      "type": "perform_sign",
+      "order": 10,
       "payload": {
         "sign_id": "sinal-BEBER",
-        "correct": "BEBER"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u10-l1-ex29",
-      "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 29,
-      "payload": {
-        "sign_id": "sinal-AGUA",
-        "correct": "ÁGUA"
-      }
-    },
-    {
-      "id": "u10-l1-ex30",
-      "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "sinal-CAFE",
-        "correct": "CAFÉ"
-      }
-    },
-    {
-      "id": "u10-l1-ex31",
-      "lesson_id": "u10-l1",
-      "type": "watch_choose_word",
-      "order": 31,
-      "payload": {
-        "sign_id": "sinal-LEITE",
-        "correct": "LEITE"
-      }
-    },
-    {
-      "id": "u10-l1-ex32",
-      "lesson_id": "u10-l1",
-      "type": "order_sequence",
-      "order": 32,
-      "payload": {
-        "steps": [
-          "COMER",
-          "BEBER",
-          "ÁGUA",
-          "CAFÉ"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u10-l1-ex33",
+      "id": "u10-l1-ex11",
       "lesson_id": "u10-l1",
       "type": "build_phrase",
-      "order": 33,
+      "order": 11,
       "payload": {
         "pt": "Meu filho gosta de comer ovo.",
         "glosses": [

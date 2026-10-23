@@ -1,7 +1,16 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { render as rtlRender, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { Dialog } from '../components/Dialog';
+
+// Sheets e diálogos usam o histórico do roteador (useCloseOnBack)
+const render = (ui: ReactElement) => rtlRender(ui, {
+  wrapper: ({ children }) => (
+    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>{children}</MemoryRouter>
+  ),
+});
 
 describe('Dialog', () => {
   it('nao renderiza quando isOpen=false', () => {

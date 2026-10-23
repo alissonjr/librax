@@ -14,43 +14,45 @@
     {
       "id": "u12-l4-ex02",
       "lesson_id": "u12-l4",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-DORMIR",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "DORMIR"
       }
     },
     {
       "id": "u12-l4-ex03",
       "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-DORMIR",
-        "correct": "DORMIR"
+        "sign_id": "sinal-ACORDAR"
       }
     },
     {
       "id": "u12-l4-ex04",
       "lesson_id": "u12-l4",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-DORMIR"
+        "word": "ACORDAR",
+        "video_options": [
+          "sinal-ACORDAR",
+          "sinal-DORMIR",
+          "sinal-FAZER",
+          "sinal-ESCREVER"
+        ],
+        "correct_sign_id": "sinal-ACORDAR"
       }
     },
     {
       "id": "u12-l4-ex05",
       "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-DORMIR",
-        "correct": "DORMIR"
+        "sign_id": "sinal-QUERER"
       }
     },
     {
@@ -59,362 +61,84 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-ACORDAR"
+        "sign_id": "sinal-PODER"
       }
     },
     {
       "id": "u12-l4-ex07",
       "lesson_id": "u12-l4",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-ACORDAR",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-PRECISAR"
       }
     },
     {
       "id": "u12-l4-ex08",
       "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 8,
       "payload": {
-        "sign_id": "sinal-ACORDAR",
-        "correct": "ACORDAR"
+        "sign_id": "sinal-COMPRAR"
       }
     },
     {
       "id": "u12-l4-ex09",
       "lesson_id": "u12-l4",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "sinal-ACORDAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex10",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "sinal-ACORDAR",
-        "correct": "ACORDAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex11",
-      "lesson_id": "u12-l4",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-QUERER"
-      }
-    },
-    {
-      "id": "u12-l4-ex12",
-      "lesson_id": "u12-l4",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-QUERER",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u12-l4-ex13",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-QUERER",
-        "correct": "QUERER"
-      }
-    },
-    {
-      "id": "u12-l4-ex14",
-      "lesson_id": "u12-l4",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-QUERER"
-      }
-    },
-    {
-      "id": "u12-l4-ex15",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-QUERER",
-        "correct": "QUERER"
-      }
-    },
-    {
-      "id": "u12-l4-ex16",
-      "lesson_id": "u12-l4",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-PODER"
-      }
-    },
-    {
-      "id": "u12-l4-ex17",
-      "lesson_id": "u12-l4",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-PODER",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u12-l4-ex18",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-PODER",
-        "correct": "PODER"
-      }
-    },
-    {
-      "id": "u12-l4-ex19",
-      "lesson_id": "u12-l4",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-PODER"
-      }
-    },
-    {
-      "id": "u12-l4-ex20",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-PODER",
-        "correct": "PODER"
-      }
-    },
-    {
-      "id": "u12-l4-ex21",
-      "lesson_id": "u12-l4",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "sinal-PRECISAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex22",
-      "lesson_id": "u12-l4",
-      "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-PRECISAR",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u12-l4-ex23",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-PRECISAR",
-        "correct": "PRECISAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex24",
-      "lesson_id": "u12-l4",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-PRECISAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex25",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-PRECISAR",
-        "correct": "PRECISAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex26",
-      "lesson_id": "u12-l4",
-      "type": "sign_intro",
-      "order": 26,
-      "payload": {
-        "sign_id": "sinal-COMPRAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex27",
-      "lesson_id": "u12-l4",
-      "type": "perform_sign",
-      "order": 27,
-      "payload": {
-        "sign_id": "sinal-COMPRAR",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u12-l4-ex28",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 28,
-      "payload": {
-        "sign_id": "sinal-COMPRAR",
-        "correct": "COMPRAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex29",
-      "lesson_id": "u12-l4",
-      "type": "mirror_practice",
-      "order": 29,
-      "payload": {
-        "sign_id": "sinal-COMPRAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex30",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "sinal-COMPRAR",
-        "correct": "COMPRAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex31",
-      "lesson_id": "u12-l4",
       "type": "match_pairs",
-      "order": 31,
+      "order": 9,
       "payload": {
         "pairs": [
           {
-            "sign_id": "sinal-DORMIR",
-            "gloss": "DORMIR"
-          },
-          {
-            "sign_id": "sinal-ACORDAR",
-            "gloss": "ACORDAR"
-          },
-          {
             "sign_id": "sinal-QUERER",
             "gloss": "QUERER"
+          },
+          {
+            "sign_id": "sinal-PODER",
+            "gloss": "PODER"
+          },
+          {
+            "sign_id": "sinal-PRECISAR",
+            "gloss": "PRECISAR"
+          },
+          {
+            "sign_id": "sinal-COMPRAR",
+            "gloss": "COMPRAR"
           }
         ]
       }
     },
     {
-      "id": "u12-l4-ex32",
+      "id": "u12-l4-ex10",
       "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 32,
+      "type": "perform_sign",
+      "order": 10,
       "payload": {
         "sign_id": "sinal-DORMIR",
-        "correct": "DORMIR"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u12-l4-ex33",
+      "id": "u12-l4-ex11",
       "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 33,
+      "type": "perform_sign",
+      "order": 11,
       "payload": {
         "sign_id": "sinal-ACORDAR",
-        "correct": "ACORDAR"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u12-l4-ex34",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 34,
-      "payload": {
-        "sign_id": "sinal-QUERER",
-        "correct": "QUERER"
-      }
-    },
-    {
-      "id": "u12-l4-ex35",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 35,
-      "payload": {
-        "sign_id": "sinal-PODER",
-        "correct": "PODER"
-      }
-    },
-    {
-      "id": "u12-l4-ex36",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 36,
-      "payload": {
-        "sign_id": "sinal-PRECISAR",
-        "correct": "PRECISAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex37",
-      "lesson_id": "u12-l4",
-      "type": "watch_choose_word",
-      "order": 37,
-      "payload": {
-        "sign_id": "sinal-COMPRAR",
-        "correct": "COMPRAR"
-      }
-    },
-    {
-      "id": "u12-l4-ex38",
-      "lesson_id": "u12-l4",
-      "type": "order_sequence",
-      "order": 38,
-      "payload": {
-        "steps": [
-          "DORMIR",
-          "ACORDAR",
-          "QUERER",
-          "PODER"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u12-l4-ex39",
+      "id": "u12-l4-ex12",
       "lesson_id": "u12-l4",
       "type": "build_phrase",
-      "order": 39,
+      "order": 12,
       "payload": {
         "pt": "Quer que eu te ajude a estudar matemática?",
         "glosses": [

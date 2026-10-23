@@ -14,285 +14,113 @@
     {
       "id": "u5-l1-ex02",
       "lesson_id": "u5-l1",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-O-QUE",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "O-QUE"
       }
     },
     {
       "id": "u5-l1-ex03",
       "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-O-QUE",
-        "correct": "O-QUE"
+        "sign_id": "sinal-QUEM"
       }
     },
     {
       "id": "u5-l1-ex04",
       "lesson_id": "u5-l1",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-O-QUE"
+        "word": "QUEM",
+        "video_options": [
+          "sinal-QUEM",
+          "sinal-O-QUE",
+          "sinal-ONDE",
+          "sinal-QUAL"
+        ],
+        "correct_sign_id": "sinal-QUEM"
       }
     },
     {
       "id": "u5-l1-ex05",
       "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-O-QUE",
-        "correct": "O-QUE"
+        "sign_id": "sinal-ONDE"
       }
     },
     {
       "id": "u5-l1-ex06",
       "lesson_id": "u5-l1",
-      "type": "sign_intro",
+      "type": "watch_choose_word",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-QUEM"
+        "sign_id": "sinal-ONDE",
+        "correct": "ONDE"
       }
     },
     {
       "id": "u5-l1-ex07",
       "lesson_id": "u5-l1",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-QUEM",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-QUAL"
       }
     },
     {
       "id": "u5-l1-ex08",
       "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
+      "type": "word_choose_video",
       "order": 8,
       "payload": {
-        "sign_id": "sinal-QUEM",
-        "correct": "QUEM"
+        "word": "QUAL",
+        "video_options": [
+          "sinal-QUAL",
+          "sinal-O-QUE",
+          "sinal-QUEM",
+          "sinal-ONDE"
+        ],
+        "correct_sign_id": "sinal-QUAL"
       }
     },
     {
       "id": "u5-l1-ex09",
       "lesson_id": "u5-l1",
-      "type": "mirror_practice",
+      "type": "perform_sign",
       "order": 9,
       "payload": {
-        "sign_id": "sinal-QUEM"
+        "sign_id": "sinal-O-QUE",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
       "id": "u5-l1-ex10",
       "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
+      "type": "perform_sign",
       "order": 10,
       "payload": {
         "sign_id": "sinal-QUEM",
-        "correct": "QUEM"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
       "id": "u5-l1-ex11",
       "lesson_id": "u5-l1",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-ONDE"
-      }
-    },
-    {
-      "id": "u5-l1-ex12",
-      "lesson_id": "u5-l1",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-ONDE",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u5-l1-ex13",
-      "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-ONDE",
-        "correct": "ONDE"
-      }
-    },
-    {
-      "id": "u5-l1-ex14",
-      "lesson_id": "u5-l1",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-ONDE"
-      }
-    },
-    {
-      "id": "u5-l1-ex15",
-      "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-ONDE",
-        "correct": "ONDE"
-      }
-    },
-    {
-      "id": "u5-l1-ex16",
-      "lesson_id": "u5-l1",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-QUAL"
-      }
-    },
-    {
-      "id": "u5-l1-ex17",
-      "lesson_id": "u5-l1",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-QUAL",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u5-l1-ex18",
-      "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-QUAL",
-        "correct": "QUAL"
-      }
-    },
-    {
-      "id": "u5-l1-ex19",
-      "lesson_id": "u5-l1",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-QUAL"
-      }
-    },
-    {
-      "id": "u5-l1-ex20",
-      "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-QUAL",
-        "correct": "QUAL"
-      }
-    },
-    {
-      "id": "u5-l1-ex21",
-      "lesson_id": "u5-l1",
-      "type": "match_pairs",
-      "order": 21,
-      "payload": {
-        "pairs": [
-          {
-            "sign_id": "sinal-O-QUE",
-            "gloss": "O-QUE"
-          },
-          {
-            "sign_id": "sinal-QUEM",
-            "gloss": "QUEM"
-          },
-          {
-            "sign_id": "sinal-ONDE",
-            "gloss": "ONDE"
-          }
-        ]
-      }
-    },
-    {
-      "id": "u5-l1-ex22",
-      "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-O-QUE",
-        "correct": "O-QUE"
-      }
-    },
-    {
-      "id": "u5-l1-ex23",
-      "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-QUEM",
-        "correct": "QUEM"
-      }
-    },
-    {
-      "id": "u5-l1-ex24",
-      "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-ONDE",
-        "correct": "ONDE"
-      }
-    },
-    {
-      "id": "u5-l1-ex25",
-      "lesson_id": "u5-l1",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-QUAL",
-        "correct": "QUAL"
-      }
-    },
-    {
-      "id": "u5-l1-ex26",
-      "lesson_id": "u5-l1",
-      "type": "order_sequence",
-      "order": 26,
-      "payload": {
-        "steps": [
-          "O-QUE",
-          "QUEM",
-          "ONDE",
-          "QUAL"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u5-l1-ex27",
-      "lesson_id": "u5-l1",
       "type": "build_phrase",
-      "order": 27,
+      "order": 11,
       "payload": {
         "pt": "O que você quer beber?",
         "glosses": [

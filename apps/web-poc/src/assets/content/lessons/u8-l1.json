@@ -14,43 +14,45 @@
     {
       "id": "u8-l1-ex02",
       "lesson_id": "u8-l1",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-HOJE",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "HOJE"
       }
     },
     {
       "id": "u8-l1-ex03",
       "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-HOJE",
-        "correct": "HOJE"
+        "sign_id": "sinal-ONTEM"
       }
     },
     {
       "id": "u8-l1-ex04",
       "lesson_id": "u8-l1",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-HOJE"
+        "word": "ONTEM",
+        "video_options": [
+          "sinal-ONTEM",
+          "sinal-HOJE",
+          "sinal-AMANHA",
+          "sinal-AGORA"
+        ],
+        "correct_sign_id": "sinal-ONTEM"
       }
     },
     {
       "id": "u8-l1-ex05",
       "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-HOJE",
-        "correct": "HOJE"
+        "sign_id": "sinal-AMANHA"
       }
     },
     {
@@ -59,362 +61,84 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-ONTEM"
+        "sign_id": "sinal-AGORA"
       }
     },
     {
       "id": "u8-l1-ex07",
       "lesson_id": "u8-l1",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-ONTEM",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-DEPOIS"
       }
     },
     {
       "id": "u8-l1-ex08",
       "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 8,
       "payload": {
-        "sign_id": "sinal-ONTEM",
-        "correct": "ONTEM"
+        "sign_id": "sinal-ANTES"
       }
     },
     {
       "id": "u8-l1-ex09",
       "lesson_id": "u8-l1",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "sinal-ONTEM"
-      }
-    },
-    {
-      "id": "u8-l1-ex10",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "sinal-ONTEM",
-        "correct": "ONTEM"
-      }
-    },
-    {
-      "id": "u8-l1-ex11",
-      "lesson_id": "u8-l1",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-AMANHA"
-      }
-    },
-    {
-      "id": "u8-l1-ex12",
-      "lesson_id": "u8-l1",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-AMANHA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u8-l1-ex13",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-AMANHA",
-        "correct": "AMANHÃ"
-      }
-    },
-    {
-      "id": "u8-l1-ex14",
-      "lesson_id": "u8-l1",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-AMANHA"
-      }
-    },
-    {
-      "id": "u8-l1-ex15",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-AMANHA",
-        "correct": "AMANHÃ"
-      }
-    },
-    {
-      "id": "u8-l1-ex16",
-      "lesson_id": "u8-l1",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-AGORA"
-      }
-    },
-    {
-      "id": "u8-l1-ex17",
-      "lesson_id": "u8-l1",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-AGORA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u8-l1-ex18",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-AGORA",
-        "correct": "AGORA"
-      }
-    },
-    {
-      "id": "u8-l1-ex19",
-      "lesson_id": "u8-l1",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-AGORA"
-      }
-    },
-    {
-      "id": "u8-l1-ex20",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-AGORA",
-        "correct": "AGORA"
-      }
-    },
-    {
-      "id": "u8-l1-ex21",
-      "lesson_id": "u8-l1",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "sinal-DEPOIS"
-      }
-    },
-    {
-      "id": "u8-l1-ex22",
-      "lesson_id": "u8-l1",
-      "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-DEPOIS",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u8-l1-ex23",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-DEPOIS",
-        "correct": "DEPOIS"
-      }
-    },
-    {
-      "id": "u8-l1-ex24",
-      "lesson_id": "u8-l1",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-DEPOIS"
-      }
-    },
-    {
-      "id": "u8-l1-ex25",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-DEPOIS",
-        "correct": "DEPOIS"
-      }
-    },
-    {
-      "id": "u8-l1-ex26",
-      "lesson_id": "u8-l1",
-      "type": "sign_intro",
-      "order": 26,
-      "payload": {
-        "sign_id": "sinal-ANTES"
-      }
-    },
-    {
-      "id": "u8-l1-ex27",
-      "lesson_id": "u8-l1",
-      "type": "perform_sign",
-      "order": 27,
-      "payload": {
-        "sign_id": "sinal-ANTES",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u8-l1-ex28",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 28,
-      "payload": {
-        "sign_id": "sinal-ANTES",
-        "correct": "ANTES"
-      }
-    },
-    {
-      "id": "u8-l1-ex29",
-      "lesson_id": "u8-l1",
-      "type": "mirror_practice",
-      "order": 29,
-      "payload": {
-        "sign_id": "sinal-ANTES"
-      }
-    },
-    {
-      "id": "u8-l1-ex30",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "sinal-ANTES",
-        "correct": "ANTES"
-      }
-    },
-    {
-      "id": "u8-l1-ex31",
-      "lesson_id": "u8-l1",
       "type": "match_pairs",
-      "order": 31,
+      "order": 9,
       "payload": {
         "pairs": [
           {
-            "sign_id": "sinal-HOJE",
-            "gloss": "HOJE"
-          },
-          {
-            "sign_id": "sinal-ONTEM",
-            "gloss": "ONTEM"
-          },
-          {
             "sign_id": "sinal-AMANHA",
             "gloss": "AMANHÃ"
+          },
+          {
+            "sign_id": "sinal-AGORA",
+            "gloss": "AGORA"
+          },
+          {
+            "sign_id": "sinal-DEPOIS",
+            "gloss": "DEPOIS"
+          },
+          {
+            "sign_id": "sinal-ANTES",
+            "gloss": "ANTES"
           }
         ]
       }
     },
     {
-      "id": "u8-l1-ex32",
+      "id": "u8-l1-ex10",
       "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 32,
+      "type": "perform_sign",
+      "order": 10,
       "payload": {
         "sign_id": "sinal-HOJE",
-        "correct": "HOJE"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u8-l1-ex33",
+      "id": "u8-l1-ex11",
       "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 33,
+      "type": "perform_sign",
+      "order": 11,
       "payload": {
         "sign_id": "sinal-ONTEM",
-        "correct": "ONTEM"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u8-l1-ex34",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 34,
-      "payload": {
-        "sign_id": "sinal-AMANHA",
-        "correct": "AMANHÃ"
-      }
-    },
-    {
-      "id": "u8-l1-ex35",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 35,
-      "payload": {
-        "sign_id": "sinal-AGORA",
-        "correct": "AGORA"
-      }
-    },
-    {
-      "id": "u8-l1-ex36",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 36,
-      "payload": {
-        "sign_id": "sinal-DEPOIS",
-        "correct": "DEPOIS"
-      }
-    },
-    {
-      "id": "u8-l1-ex37",
-      "lesson_id": "u8-l1",
-      "type": "watch_choose_word",
-      "order": 37,
-      "payload": {
-        "sign_id": "sinal-ANTES",
-        "correct": "ANTES"
-      }
-    },
-    {
-      "id": "u8-l1-ex38",
-      "lesson_id": "u8-l1",
-      "type": "order_sequence",
-      "order": 38,
-      "payload": {
-        "steps": [
-          "HOJE",
-          "ONTEM",
-          "AMANHÃ",
-          "AGORA"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u8-l1-ex39",
+      "id": "u8-l1-ex12",
       "lesson_id": "u8-l1",
       "type": "build_phrase",
-      "order": 39,
+      "order": 12,
       "payload": {
         "pt": "Antes eu era gorda, agora sou magra.",
         "glosses": [

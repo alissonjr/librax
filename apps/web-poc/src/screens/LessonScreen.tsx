@@ -1,20 +1,20 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useBlocker } from 'react-router-dom';
+import { useState, useCallback, useEffect } from 'react';
 import { ExerciseIntro } from '../components/ExerciseIntro';
 import { ExerciseMatchPairs } from '../components/ExerciseMatchPairs';
 import { ExerciseCameraSign } from '../components/ExerciseCameraSign';
 import { ExerciseWatchChooseWord } from '../components/ExerciseWatchChooseWord';
+import { ExerciseWordChooseVideo } from '../components/ExerciseWordChooseVideo';
+import { ExerciseFingerspell } from '../components/ExerciseFingerspell';
 import { ExerciseMirrorPractice } from '../components/ExerciseMirrorPractice';
 import { ExerciseOrderSequence } from '../components/ExerciseOrderSequence';
 import { ExerciseBuildPhrase } from '../components/ExerciseBuildPhrase';
-import { Dialog } from '../components/Dialog';
 import { course, getSign, type Exercise } from '../lib/content';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 import { warmUpHandLandmarker } from '../recognition/landmarker';
 
 /** Exercícios que abrem a câmera: a lição que tem algum já começa a carregar o modelo. */
-const CAMERA_EXERCISES = new Set<string>(['perform_sign', 'mirror_practice']);
+const CAMERA_EXERCISES = new Set<string>(['perform_sign', 'mirror_practice', 'fingerspell']);
 
 export interface ReviewedItem {
   signId: string;
@@ -35,7 +35,10 @@ interface Props {
   /** Exercícios da lição já resolvidos a partir do bundle (loadLessonExercises). */
   exercises: Exercise[];
   onComplete: (result: LessonSessionResult) => Promise<void>;
-  /** Sair da lição (botão do topo). Passa pelo diálogo "Sair da lição?", como o voltar do navegador. */
+  /**
+   * Sair da lição (botão do topo). Passa pelo diálogo "Sair da lição?", como o voltar do navegador;
+   * o diálogo e o bloqueio da saída ficam na rota (useLessonExit).
+   */
   onExit: () => void;
 }
 
@@ -48,13 +51,6 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
   const [newSignsSeen] = useState(new Set<string>());
   const [correct, setCorrect] = useState(0);
   const [attempted, setAttempted] = useState(0);
-
-  // Qualquer saída da lição (voltar do Android, do navegador, botão do topo, link) para no
-  // diálogo "Sair da lição?". Ao concluir, a saída é liberada antes de ir para a conclusão.
-  const finished = useRef(false);
-  const blocker = useBlocker(({ currentLocation, nextLocation }) =>
-    !finished.current && currentLocation.pathname !== nextLocation.pathname,
-  );
 
   // Cada exercício começa do topo (o anterior pode ter rolado até o botão Continuar)
   useEffect(() => {
@@ -78,7 +74,6 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
     const next = currentIdx + 1;
     if (next >= exercises.length) {
       const score = attempted > 0 ? correct / attempted : 1;
-      finished.current = true;
       onComplete({
         lessonId,
         score,
@@ -111,9 +106,17 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
     ]);
   }
 
-  function handleMatchPairsComplete(allCorrect: boolean) {
+  // Cada sinal do match_pairs entra no SRS: quem errou o par revisa mais cedo
+  function handleMatchPairsComplete(signIds: string[], allCorrect: boolean, missed: string[]) {
     setAttempted((a) => a + 1);
     if (allCorrect) setCorrect((c) => c + 1);
+    setReviewed((r) => [
+      ...r,
+      ...signIds.map((signId) => ({
+        signId,
+        result: missed.includes(signId) ? { state: 'failed' } : { state: 'correct', highConfidence: true },
+      })),
+    ]);
     advance();
   }
 
@@ -155,7 +158,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
         <ExerciseMatchPairs
           key={ex.id}
           signs={ex.pairSignIds.map(getSign)}
-          onComplete={handleMatchPairsComplete}
+          onComplete={(allCorrect, missed) => handleMatchPairsComplete(ex.pairSignIds ?? [], allCorrect, missed)}
         />
       )}
 
@@ -165,6 +168,31 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
           sign={getSign(ex.signId)}
           choices={ex.choices ?? []}
           onAnswer={(wasCorrect) => handleAnswer(ex.signId, wasCorrect)}
+          onNext={advance}
+        />
+      )}
+
+      {ex.type === 'word_choose_video' && ex.videoOptions && (
+        <ExerciseWordChooseVideo
+          key={ex.id}
+          word={getSign(ex.signId).gloss}
+          sign={getSign(ex.signId)}
+          options={ex.videoOptions.map(getSign)}
+          onAnswer={(wasCorrect) => handleAnswer(ex.signId, wasCorrect)}
+          onNext={advance}
+        />
+      )}
+
+      {ex.type === 'fingerspell' && ex.word && ex.letters && (
+        <ExerciseFingerspell
+          key={ex.id}
+          word={ex.word}
+          letters={ex.letters}
+          perLetterConfidence={ex.perLetterConfidence}
+          onAnswer={(wasCorrect) => {
+            setAttempted(a => a + 1);
+            if (wasCorrect) setCorrect(c => c + 1);
+          }}
           onNext={advance}
         />
       )}
@@ -205,16 +233,6 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
         />
       )}
       </div>
-
-      <Dialog
-        isOpen={blocker.state === 'blocked'}
-        title={t('lessonScreen.exitTitle')}
-        message={t('lessonScreen.exitMessage')}
-        confirmLabel={t('lessonScreen.exitConfirm')}
-        cancelLabel={t('common.continue')}
-        onConfirm={() => blocker.proceed?.()}
-        onCancel={() => blocker.reset?.()}
-      />
     </div>
   );
 }
