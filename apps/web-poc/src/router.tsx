@@ -4,6 +4,9 @@ import {
   type RouteObject,
 } from 'react-router-dom';
 import { isOnboarded } from './lib/auth';
+import { shouldOfferAccount, useAccount } from './lib/account';
+import { Flags } from './lib/flags';
+import { getToday } from './lib/today';
 import { course, loadLessonExercises, type Exercise } from './lib/content';
 import { ROUTES, TAB_PATHS, sectionForPath } from './lib/routes';
 import { useSession } from './hooks/useSession';
@@ -11,8 +14,8 @@ import { HistoryTracker, useAppNavigation } from './hooks/useAppNavigation';
 import { useT } from './i18n';
 import { Nav } from './components/Nav';
 import { Icon } from './components/Icon';
-import { StreakBrokenSheet } from './components/StreakBrokenSheet';
-import { InstallSheet, useInstallMode } from './components/InstallSheet';
+import { AppOpenFlow } from './components/AppOpenFlow';
+import { ConvertAccountSheet } from './components/ConvertAccountSheet';
 import { OnboardingScreen } from './screens/OnboardingScreen';
 import { CourseMapScreen } from './screens/CourseMapScreen';
 import { LessonScreen, type LessonSessionResult } from './screens/LessonScreen';
@@ -27,6 +30,8 @@ import { AchievementsScreen } from './screens/AchievementsScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { CameraScreen } from './screens/CameraScreen';
 import { LeagueScreen } from './screens/LeagueScreen';
+import { AuthScreen, type AuthMode } from './screens/AuthScreen';
+import { AuthCallbackScreen } from './screens/AuthCallbackScreen';
 
 /* ---------- moldura ---------- */
 
@@ -113,27 +118,11 @@ function RouteError() {
 function TabsLayout() {
   const { pathname } = useLocation();
   const nav = useAppNavigation();
-  const session = useSession();
-  const installMode = useInstallMode();
-  // Sugere instalar ao voltar para o mapa depois da primeira lição concluída (decisão 13)
-  const showInstall = session.suggestInstall && installMode !== null && pathname === ROUTES.learn
-    && session.brokenStreak === 0;
 
   return (
     <div className="app-layout">
-      {session.brokenStreak > 0 && (
-        <StreakBrokenSheet
-          brokenStreak={session.brokenStreak}
-          onStudyNow={() => {
-            session.dismissBrokenStreak();
-            nav.goTab(ROUTES.learn);
-          }}
-          onDismiss={session.dismissBrokenStreak}
-        />
-      )}
-      {showInstall && (
-        <InstallSheet mode={installMode} onClose={session.markInstallSuggested} />
-      )}
+      {/* AppOpenFlow (spec-02 12.10): liga, sequência e, por último, instalar */}
+      <AppOpenFlow />
       <Nav active={sectionForPath(pathname)} onNavigate={section => nav.goTab(TAB_PATHS[section])} />
       {/* key: o fade de troca de aba (style.css) roda a cada tela */}
       <main className="main-content" key={pathname}>
@@ -183,6 +172,7 @@ function ProfileRoute() {
       onOpenAchievements={() => navigate(ROUTES.achievements)}
       onOpenSettings={() => navigate(ROUTES.settings)}
       onOpenLeague={() => navigate(ROUTES.league)}
+      onOpenAccount={mode => navigate(mode === 'login' ? ROUTES.login : ROUTES.register)}
     />
   );
 }
@@ -208,7 +198,46 @@ function CameraRoute() {
 function OnboardingRoute() {
   const navigate = useNavigate();
   if (isOnboarded()) return <Navigate to={ROUTES.learn} replace />;
-  return <OnboardingScreen onDone={() => navigate(ROUTES.learn, { replace: true })} />;
+  return (
+    <OnboardingScreen
+      onDone={() => navigate(ROUTES.learn, { replace: true })}
+      onLogin={() => navigate(ROUTES.login)}
+    />
+  );
+}
+
+/**
+ * /entrar e /criar-conta (spec-02 12.3). `state.returnTo` diz para onde seguir depois (o convite
+ * do fim da lição passa a próxima tela do fluxo); sem ele, volta para a tela anterior.
+ */
+function AuthRoute({ mode }: { mode: AuthMode }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const nav = useAppNavigation();
+  const returnTo = (location.state as { returnTo?: string } | null)?.returnTo;
+  const leave = () => (returnTo ? nav.backTo(returnTo) : nav.back(ROUTES.home));
+  return (
+    <AuthScreen
+      mode={mode}
+      onSwitchMode={next => navigate(next === 'login' ? ROUTES.login : ROUTES.register, {
+        replace: true,
+        state: location.state,
+      })}
+      onDone={leave}
+      onBack={leave}
+    />
+  );
+}
+
+/** /auth/callback: conclui a volta do Google antes de qualquer redirecionamento, depois vai ao mapa. */
+function AuthCallbackRoute() {
+  const navigate = useNavigate();
+  return (
+    <AuthCallbackScreen
+      onDone={() => navigate(ROUTES.learn, { replace: true })}
+      onRetry={() => navigate(ROUTES.login, { replace: true })}
+    />
+  );
 }
 
 function StreakRoute() {
@@ -224,8 +253,10 @@ function AchievementsRoute() {
 }
 
 function LeagueRoute() {
-  const { repo, userId } = useSession();
+  const { repo, userId, dismissLeagueResult } = useSession();
   const nav = useAppNavigation();
+  // A LeagueScreen mostra o resultado pendente sozinha: o AppOpenFlow não repete
+  useEffect(() => dismissLeagueResult(), [dismissLeagueResult]);
   return (
     <LeagueScreen
       userId={userId}
@@ -238,8 +269,16 @@ function LeagueRoute() {
 
 function SettingsRoute() {
   const { repo, userId } = useSession();
+  const navigate = useNavigate();
   const nav = useAppNavigation();
-  return <SettingsScreen userId={userId} repo={repo} onBack={() => nav.back(ROUTES.profile)} />;
+  return (
+    <SettingsScreen
+      userId={userId}
+      repo={repo}
+      onBack={() => nav.back(ROUTES.profile)}
+      onOpenAccount={mode => navigate(mode === 'login' ? ROUTES.login : ROUTES.register)}
+    />
+  );
 }
 
 /** /licao/:id: carrega os exercícios do bundle e roda a lição. Recarregar a página recomeça a lição. */
@@ -285,16 +324,44 @@ function LessonDoneRoute() {
   const navigate = useNavigate();
   const nav = useAppNavigation();
   const { completion, unitCompletion, courseCompletion } = useSession();
+  const account = useAccount();
+  const [offerAccount, setOfferAccount] = useState(false);
   // Sem o resultado (página recarregada na conclusão), não há o que mostrar: volta ao mapa
   if (!completion || completion.result.lessonId !== id) return <Navigate to={ROUTES.learn} replace />;
 
-  function handleContinue() {
-    if (courseCompletion) navigate(ROUTES.courseDone, { replace: true });
-    else if (unitCompletion) navigate(ROUTES.unitDone(unitCompletion.unitId), { replace: true });
+  const nextPath = courseCompletion ? ROUTES.courseDone
+    : unitCompletion ? ROUTES.unitDone(unitCompletion.unitId)
+      : null;
+
+  function proceed() {
+    if (nextPath) navigate(nextPath, { replace: true });
     else nav.backTo(ROUTES.learn);
   }
 
-  return <LessonCompletionScreen data={completion} onContinue={handleContinue} />;
+  // Convidado: o convite para criar conta aparece depois do "Continuar" (spec-02 12.2)
+  function handleContinue() {
+    if (shouldOfferAccount(account.status, Flags.accountOfferDismissedDate(), getToday())) setOfferAccount(true);
+    else proceed();
+  }
+
+  return (
+    <>
+      <LessonCompletionScreen data={completion} onContinue={handleContinue} />
+      {offerAccount && (
+        <ConvertAccountSheet
+          onCreateWithEmail={() => navigate(ROUTES.register, {
+            replace: true,
+            state: { returnTo: nextPath ?? ROUTES.learn },
+          })}
+          onSkip={() => {
+            Flags.setAccountOfferDismissedDate(getToday());
+            setOfferAccount(false);
+            proceed();
+          }}
+        />
+      )}
+    </>
+  );
 }
 
 function UnitDoneRoute() {
@@ -338,6 +405,10 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, element: <HomeRedirect /> },
       { path: 'boas-vindas', element: <OnboardingRoute /> },
+      // Conta e volta do Google: fora do onboarding, para o ?code= não se perder num redirecionamento
+      { path: 'entrar', element: <AuthRoute mode="login" /> },
+      { path: 'criar-conta', element: <AuthRoute mode="register" /> },
+      { path: 'auth/callback', element: <AuthCallbackRoute /> },
       {
         element: <RequireOnboarded />,
         children: [

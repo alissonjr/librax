@@ -3522,6 +3522,233 @@ button.profile-stat-card { cursor: pointer; }
 }
 
 /* =========================================================
+   CONTA: ENTRAR, CRIAR CONTA E CONVITE (spec-02 12.2 a 12.4)
+   ========================================================= */
+
+.auth-body {
+  padding: var(--lx-space-5) var(--lx-space-4) var(--lx-space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-4);
+  max-width: var(--lx-size-content-max);
+  width: 100%;
+  margin: 0 auto;
+}
+.auth-lead {
+  font: var(--lx-typography-body);
+  color: var(--lx-text-secondary);
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-3);
+  font: var(--lx-typography-label-sm);
+  color: var(--lx-text-secondary);
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: var(--lx-border-width-thin);
+  background: var(--lx-border-default);
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-4);
+}
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-1);
+}
+.auth-label {
+  font: var(--lx-typography-label);
+  color: var(--lx-text-primary);
+}
+/* Campo de texto: mesma anatomia do campo do onboarding (borda de controle com 3:1) */
+.auth-input {
+  width: 100%;
+  min-height: var(--lx-size-touch-comfort);
+  padding: 0 var(--lx-space-4);
+  border: var(--lx-border-width-thick) solid var(--lx-border-strong);
+  border-radius: var(--lx-radius-md);
+  font: var(--lx-typography-body-lg);
+  color: var(--lx-text-primary);
+  background: var(--lx-bg-surface);
+  transition: border-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
+}
+.auth-input:focus { border-color: var(--lx-border-focus); outline: none; }
+.auth-input:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: var(--lx-border-width-focus-offset);
+}
+.auth-input[aria-invalid="true"] { border-color: var(--lx-feedback-error-strong); }
+.auth-input:disabled { background: var(--lx-bg-sunken); color: var(--lx-text-secondary); }
+.auth-input--code {
+  font: var(--lx-typography-numeric);
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+.auth-password { position: relative; }
+.auth-password .auth-input { padding-right: calc(var(--lx-size-touch-min) + var(--lx-space-2)); }
+.auth-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: var(--lx-space-1);
+  transform: translateY(-50%);
+  width: var(--lx-size-touch-min);
+  height: var(--lx-size-touch-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--lx-radius-full);
+  background: transparent;
+  color: var(--lx-text-secondary);
+  cursor: pointer;
+}
+.auth-password-toggle .icon { width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); }
+.auth-password-toggle:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: calc(-1 * var(--lx-border-width-focus-ring));
+}
+.auth-hint {
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-secondary);
+}
+/* Erro inline: fundo suave inteiro, ícone e texto (nunca só a cor) */
+.auth-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lx-space-2);
+  width: 100%;
+  padding: var(--lx-space-3) var(--lx-space-4);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-feedback-error-soft);
+  color: var(--lx-feedback-error-on-soft);
+  font: var(--lx-typography-body);
+  text-align: left;
+}
+.auth-error .icon { flex: none; width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); }
+.auth-error:focus { outline: none; }
+.auth-error:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: var(--lx-border-width-focus-offset);
+}
+.auth-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lx-space-2);
+  width: 100%;
+  padding: var(--lx-space-3) var(--lx-space-4);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-feedback-info-soft);
+  color: var(--lx-feedback-info-on-soft);
+  font: var(--lx-typography-body);
+}
+.auth-notice .icon { flex: none; width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); }
+.auth-switch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 var(--lx-space-1);
+  font: var(--lx-typography-body);
+  color: var(--lx-text-secondary);
+}
+.auth-switch .btn-text { padding: 0 var(--lx-space-2); }
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lx-space-3);
+  padding: var(--lx-space-6) var(--lx-space-5);
+  background: var(--lx-bg-surface);
+  border: var(--lx-border-width-thin) solid var(--lx-border-default);
+  border-radius: var(--lx-radius-lg);
+  text-align: center;
+}
+.auth-card-icon { color: var(--lx-text-brand); }
+.auth-card-title {
+  font: var(--lx-typography-title);
+  color: var(--lx-text-primary);
+}
+.auth-card-text {
+  font: var(--lx-typography-body);
+  color: var(--lx-text-secondary);
+  overflow-wrap: anywhere;
+}
+.auth-callback-title {
+  font: var(--lx-typography-title);
+  color: var(--lx-text-primary);
+}
+.auth-callback {
+  min-height: 100dvh;
+  flex-direction: column;
+  gap: var(--lx-space-4);
+  padding: var(--lx-space-4);
+  text-align: center;
+}
+
+/* Perfil: convidado ou com conta */
+.profile-account {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lx-space-1);
+  max-width: 100%;
+  margin-top: var(--lx-space-1);
+  padding: var(--lx-space-1) var(--lx-space-3);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-bg-sunken);
+  color: var(--lx-text-secondary);
+  font: var(--lx-typography-label-sm);
+}
+.profile-account span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profile-account .icon { flex: none; }
+.profile-account--signed {
+  background: var(--lx-feedback-success-soft);
+  color: var(--lx-feedback-success-on-soft);
+}
+
+/* GuestBanner: card inteiro, sem faixa lateral */
+.account-banner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-3);
+}
+.account-banner-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lx-space-3);
+}
+.account-banner-icon {
+  flex: none;
+  width: var(--lx-size-icon-lg);
+  height: var(--lx-size-icon-lg);
+  color: var(--lx-text-brand);
+}
+.account-banner-text { display: flex; flex-direction: column; gap: var(--lx-space-1); }
+.account-banner-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--lx-space-1);
+}
+.account-banner-actions .btn-text { align-self: center; }
+
+/* Configurações: e-mail longo quebra e aviso depois de sair */
+.settings-item-value--wrap { overflow-wrap: anywhere; }
+.settings-account-msg {
+  padding: var(--lx-space-3) var(--lx-space-4);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-feedback-success-soft);
+  color: var(--lx-feedback-success-on-soft);
+  font: var(--lx-typography-body-sm);
+}
+.settings-item--btn:disabled { cursor: progress; }
+
+/* =========================================================
    REALCES DE ANIMAÇÃO (animate.css + tokens de motion)
    ========================================================= */
 

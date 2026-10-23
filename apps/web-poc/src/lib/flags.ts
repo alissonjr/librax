@@ -27,6 +27,10 @@ export const Flags = {
   installSuggested:   () => Flags.has('installSuggested'),
   setInstallSuggested: () => Flags.set('installSuggested'),
 
+  // "Continuar sem conta" no convite do fim da lição (spec-02 12.2): dia em que foi dispensado
+  accountOfferDismissedDate: () => Flags.get('accountOfferDismissedDate'),
+  setAccountOfferDismissedDate: (date: string) => Flags.set('accountOfferDismissedDate', date),
+
   lastStreakValue:() => parseInt(Flags.get('lastStreakValue') ?? '0', 10),
   setLastStreakValue: (n: number) => Flags.set('lastStreakValue', String(n)),
 };

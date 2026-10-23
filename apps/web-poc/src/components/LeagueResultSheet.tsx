@@ -12,6 +12,8 @@ import '../styles/league.css';
 interface Props {
   result: LeagueResult;
   onClose: () => void;
+  /** "Ver minha nova liga" fora da LeagueScreen (AppOpenFlow): leva à liga. Sem ele, só fecha. */
+  onSeeLeague?: () => void;
 }
 
 function reducedMotion(): boolean {
@@ -29,7 +31,7 @@ function reducedMotion(): boolean {
  * reduzir movimento), som de subida e vibração; permanência e rebaixamento: tom neutro, sem
  * confete e sem som. Tudo o que o som e a vibração reforçam está escrito na tela.
  */
-export function LeagueResultSheet({ result, onClose }: Props) {
+export function LeagueResultSheet({ result, onClose, onSeeLeague }: Props) {
   const { t } = useT();
   const [visible, setVisible] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -136,7 +138,7 @@ export function LeagueResultSheet({ result, onClose }: Props) {
 
         <p className="league-sheet-message">{message}</p>
 
-        <button className="btn btn-primary league-sheet-cta" onClick={onClose}>
+        <button className="btn btn-primary league-sheet-cta" onClick={onSeeLeague ?? onClose}>
           {t('league.seeNewLeague')}
         </button>
       </div>

@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { getDb } from './lib/db';
 import { IdbRepo } from './lib/idbRepo';
-import { getUserId, isOnboarded } from './lib/auth';
-import { getToday } from './lib/today';
+import { getUserId } from './lib/auth';
+import { startAccount } from './lib/account';
+import { evaluateAppOpen } from './lib/appOpen';
+import type { LeagueResult } from './lib/leagueLocal';
 import { newProfile } from '@domain/profile.js';
-import { Flags } from './lib/flags';
 import { useT } from './i18n';
 import { DialogProvider } from './hooks/useDialog';
 import { SessionProvider } from './hooks/useSession';
@@ -15,10 +16,11 @@ interface Boot {
   repo: IdbRepo;
   userId: string;
   brokenStreak: number;
+  leagueResult: LeagueResult | null;
 }
 
 /**
- * Abre o banco local, garante o perfil e detecta sequência perdida. A navegação fica no
+ * Abre o banco local, garante o perfil, liga conta e sincronização e avalia o AppOpenFlow. A navegação fica no
  * roteador (src/router.tsx): cada tela tem URL e o voltar do navegador e do Android funcionam.
  */
 async function boot(): Promise<Boot> {
@@ -35,23 +37,14 @@ async function boot(): Promise<Boot> {
     navigator.storage.persist().catch(() => {});
   }
 
-  // Detecta streak quebrado para mostrar o StreakBrokenSheet
-  let brokenStreak = 0;
-  if (isOnboarded()) {
-    const profileData = await repo.getProfile(userId) as Record<string, unknown> | null;
-    const currentStreak = (profileData?.streak as number) ?? 0;
-    const lastKnown = Flags.lastStreakValue();
-    const today = getToday();
-    const lastShown = Flags.streakBrokenShownDate();
-    if (currentStreak === 0 && lastKnown > 0 && lastShown !== today) {
-      brokenStreak = lastKnown;
-      Flags.setStreakBrokenShownDate(today);
-    }
-    // Atualiza o valor armazenado da sequencia
-    if (currentStreak > 0) Flags.setLastStreakValue(currentStreak);
-  }
+  // Conta e fila offline: configureAuth() (conclui a volta do Google em /auth/callback antes de
+  // qualquer redirecionamento) e startSync(). Sem as VITE_COGNITO_*, segue só como convidado.
+  startAccount();
 
-  return { repo, userId, brokenStreak };
+  // AppOpenFlow (spec-02 12.10): resultado da liga e sequência quebrada, nessa ordem
+  const { leagueResult, brokenStreak } = await evaluateAppOpen(repo, userId);
+
+  return { repo, userId, brokenStreak, leagueResult };
 }
 
 export function App() {
@@ -72,7 +65,12 @@ export function App() {
   }
 
   return (
-    <SessionProvider repo={state.repo} userId={state.userId} brokenStreak={state.brokenStreak}>
+    <SessionProvider
+      repo={state.repo}
+      userId={state.userId}
+      brokenStreak={state.brokenStreak}
+      leagueResult={state.leagueResult}
+    >
       <DialogProvider>
         <RouterProvider router={router} future={{ v7_startTransition: true }} />
       </DialogProvider>

@@ -6,6 +6,7 @@ import { useT } from '../i18n';
 import type { IdbRepo } from '../lib/idbRepo';
 import { Icon } from '../components/Icon';
 import { LeagueShortcut } from '../components/LeagueShortcut';
+import { useAccount } from '../lib/account';
 
 interface Props {
   userId: string;
@@ -15,6 +16,8 @@ interface Props {
   onOpenSettings: () => void;
   /** Toque na insígnia de liga abre a LeagueScreen (spec-02 12.7). */
   onOpenLeague?: () => void;
+  /** Entrar ou criar conta (spec-02 12.4, GuestBanner). */
+  onOpenAccount?: (mode: 'login' | 'register') => void;
 }
 
 interface ProfileData {
@@ -39,8 +42,12 @@ function xpLevel(xp: number) {
   return { level, pct, next: nextThreshold };
 }
 
-export function ProfileScreen({ userId, repo, onOpenStreak, onOpenAchievements, onOpenSettings, onOpenLeague }: Props) {
+export function ProfileScreen({
+  userId, repo, onOpenStreak, onOpenAchievements, onOpenSettings, onOpenLeague, onOpenAccount,
+}: Props) {
   const { t } = useT();
+  const account = useAccount();
+  const signedIn = account.status === 'signedIn';
   const [data, setData] = useState<ProfileData | null>(null);
   const name = getDisplayName() ?? t('common.defaultName');
   const today = getToday();
@@ -92,6 +99,15 @@ export function ProfileScreen({ userId, repo, onOpenStreak, onOpenAchievements, 
         <div className="profile-avatar wow-glow animate__animated animate__bounceIn">{initials}</div>
         <h1 className="profile-name">{name}</h1>
         <p className="profile-meta">{t('profileScreen.level', { level })}</p>
+        {/* Convidado ou com conta (spec-02 12.4) */}
+        <p className={`profile-account${signedIn ? ' profile-account--signed' : ''}`}>
+          <Icon name={signedIn ? 'cloud_done' : 'person'} />
+          <span>
+            {signedIn
+              ? (account.email ? t('account.statusSignedInAs', { email: account.email }) : t('account.statusSignedIn'))
+              : t('account.statusGuest')}
+          </span>
+        </p>
 
         {/* XP Level Bar */}
         <div className="profile-xp-bar-wrap">
@@ -123,6 +139,27 @@ export function ProfileScreen({ userId, repo, onOpenStreak, onOpenAchievements, 
           <span className="profile-stat-label">{t('profileScreen.lessons')}</span>
         </div>
       </div>
+
+      {/* GuestBanner (spec-02 12.4): só convidado */}
+      {!signedIn && account.status !== 'checking' && onOpenAccount && (
+        <section className="profile-card account-banner" aria-labelledby="account-banner-title">
+          <div className="account-banner-head">
+            <Icon name="cloud_done" className="account-banner-icon" />
+            <div className="account-banner-text">
+              <h2 id="account-banner-title" className="profile-card-title">{t('account.bannerTitle')}</h2>
+              <p className="profile-card-meta">{t('account.bannerText')}</p>
+            </div>
+          </div>
+          <div className="account-banner-actions">
+            <button className="btn btn-primary" onClick={() => onOpenAccount('register')}>
+              {t('account.createAccount')}
+            </button>
+            <button className="btn-text" onClick={() => onOpenAccount('login')}>
+              {t('account.haveAccountSignIn')}
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* Insígnia de liga */}
       {onOpenLeague && <LeagueShortcut userId={userId} repo={repo} onOpen={onOpenLeague} variant="profile" />}
