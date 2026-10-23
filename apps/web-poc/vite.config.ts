@@ -38,7 +38,7 @@ const mlHeaders = (): Plugin => {
   };
 };
 
-// npm run dev:celular: imprime o endereço da página de teste na rede local
+// npm run dev:celular: imprime os endereços da página de teste e da coleta na rede local
 const printPhoneUrl = (): Plugin => ({
   name: 'librax-print-phone-url',
   configureServer(server) {
@@ -57,6 +57,7 @@ const printPhoneUrl = (): Plugin => ({
         if (ips.length === 0) console.log('  (nenhum IP de rede local encontrado: o computador está no Wi-Fi?)');
         for (const ip of ips) {
           console.log(`  -> https://${ip}:${port}/teste-camera.html   (teste da câmera)`);
+          console.log(`     https://${ip}:${port}/coleta.html         (coleta de letras)`);
         }
         console.log('');
       }, 50);
@@ -79,6 +80,7 @@ export default defineConfig(({ mode }) => {
         input: {
           main: resolve(__dirname, 'index.html'),
           'teste-camera': resolve(__dirname, 'teste-camera.html'),
+          coleta: resolve(__dirname, 'coleta.html'),
         },
       },
     },

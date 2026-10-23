@@ -1,0 +1,198 @@
+/* Ferramenta de coleta (W1). Só tokens de src/styles/tokens.css; palco escuro nos dois modos. */
+
+.cl-page {
+  max-width: var(--lx-size-content-max);
+  margin: 0 auto;
+  padding:
+    calc(var(--lx-safe-top) + var(--lx-space-4))
+    calc(var(--lx-safe-right) + var(--lx-space-4))
+    calc(var(--lx-safe-bottom) + var(--lx-space-10))
+    calc(var(--lx-safe-left) + var(--lx-space-4));
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-4);
+}
+
+.cl-title { font: var(--lx-typography-title); color: var(--lx-text-primary); }
+.cl-sub,
+.cl-hint { font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); }
+.cl-text { font: var(--lx-typography-body-sm); color: var(--lx-text-primary); }
+
+.cl-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--lx-space-3);
+}
+
+/* ---------- consentimento ---------- */
+.cl-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-3);
+  padding: var(--lx-space-5);
+  border-radius: var(--lx-radius-lg);
+  background: var(--lx-bg-surface);
+  border: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+  box-shadow: var(--lx-elevation-1);
+}
+.cl-card--flat { box-shadow: none; padding: var(--lx-space-4); }
+.cl-card #cl-consent { display: flex; flex-direction: column; gap: var(--lx-space-3); }
+.cl-card-icon {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: var(--lx-space-3);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-game-hand-soft);
+  color: var(--lx-game-hand-text);
+}
+
+.cl-field { display: flex; flex-direction: column; gap: var(--lx-space-1); }
+.cl-label { font: var(--lx-typography-label-sm); color: var(--lx-text-primary); }
+.cl-input {
+  min-height: var(--lx-size-touch-min);
+  padding: 0 var(--lx-space-3);
+  border-radius: var(--lx-radius-md);
+  border: var(--lx-border-width-thick) solid var(--lx-border-default);
+  background: var(--lx-bg-raised);
+  font: var(--lx-typography-body);
+}
+.cl-input:focus { border-color: var(--lx-border-focus); outline: none; }
+.cl-check {
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-3);
+  min-height: var(--lx-size-touch-min);
+  font: var(--lx-typography-body);
+}
+.cl-check input { width: var(--lx-size-icon-lg); height: var(--lx-size-icon-lg); accent-color: var(--lx-action-primary-bg); }
+
+/* ---------- palco ---------- */
+.cl-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-height: 56vh;
+  border-radius: var(--lx-radius-lg);
+  overflow: hidden;
+  background: var(--lx-stage-bg);
+  color: var(--lx-stage-text);
+}
+@media (orientation: landscape) {
+  .cl-stage { aspect-ratio: 4 / 3; }
+}
+.cl-video,
+.cl-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+.cl-canvas { pointer-events: none; }
+.cl-stage-cover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lx-space-4);
+  padding: var(--lx-space-6);
+  text-align: center;
+  background: var(--lx-stage-bg);
+  color: var(--lx-stage-text-secondary);
+}
+.cl-stage-cover p { font: var(--lx-typography-body-sm); max-width: 280px; }
+.cl-hud {
+  position: absolute;
+  top: var(--lx-space-3);
+  left: var(--lx-space-3);
+  right: var(--lx-space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lx-space-2);
+  pointer-events: none;
+}
+.cl-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lx-space-1);
+  padding: var(--lx-space-1) var(--lx-space-3);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-stage-pill);
+  color: var(--lx-stage-text-secondary);
+  font: var(--lx-typography-label-sm);
+  font-variant-numeric: tabular-nums;
+}
+.cl-pill--ok { color: var(--lx-stage-landmark-correct); }
+.cl-pill--rec { color: var(--lx-stage-landmark-retry); }
+.cl-countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lx-stage-scrim);
+  color: var(--lx-stage-text);
+  font: var(--lx-typography-numeric-xl);
+  pointer-events: none;
+}
+
+/* ---------- letras ---------- */
+.cl-section { display: flex; flex-direction: column; gap: var(--lx-space-3); }
+.cl-section-title { font: var(--lx-typography-title-sm); }
+.cl-letters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--lx-size-choice-min), 1fr));
+  gap: var(--lx-space-2);
+}
+.cl-letter {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--lx-size-choice-min);
+  border-radius: var(--lx-radius-md);
+  border: var(--lx-border-width-thick) solid var(--lx-border-subtle);
+  background: var(--lx-bg-surface);
+  cursor: pointer;
+}
+.cl-letter:disabled { opacity: var(--lx-opacity-disabled); cursor: not-allowed; }
+.cl-letter--on {
+  border-color: var(--lx-action-primary-bg);
+  border-width: var(--lx-border-width-selected);
+  background: var(--lx-feedback-info-soft);
+}
+.cl-letter--done .cl-letter-count { color: var(--lx-feedback-success-text); }
+.cl-letter-name { font: var(--lx-typography-title); }
+.cl-letter-count { font: var(--lx-typography-caption); color: var(--lx-text-secondary); font-variant-numeric: tabular-nums; }
+/* Selo no canto (nunca faixa lateral); a letra desce um pouco para não encostar nele */
+.cl-letter-tag {
+  position: absolute;
+  top: var(--lx-space-0-5);
+  right: var(--lx-space-0-5);
+  padding: 0 var(--lx-space-1);
+  border-radius: var(--lx-radius-xs);
+  background: var(--lx-game-hand-soft);
+  color: var(--lx-game-hand-text);
+  font: var(--lx-typography-caption);
+  font-size: var(--lx-typography-caption-size);
+  line-height: 1.2;
+}
+.cl-letter { padding-top: var(--lx-space-3); }
+
+.cl-actions { display: flex; flex-direction: column; gap: var(--lx-space-2); align-items: stretch; }
+.cl-actions .btn-text { align-self: center; }
+.cl-message {
+  padding: var(--lx-space-2) var(--lx-space-3);
+  border-radius: var(--lx-radius-md);
+  border: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+  background: var(--lx-bg-sunken);
+  font: var(--lx-typography-body-sm);
+}
+.cl-row { display: flex; gap: var(--lx-space-3); align-items: center; flex-wrap: wrap; }
+.cl-row .btn-secondary { flex: 1; }
+.cl-terms { align-self: flex-start; padding: 0; }
