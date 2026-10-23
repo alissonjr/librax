@@ -76,8 +76,8 @@ O bundle tem um arquivo por lição (`apps/web-poc/src/assets/content/lessons/<l
 versionado a partir de `course.json` e `signs.json` (`tools/content/build-lessons.mjs`, composição em
 `tools/content/compose.mjs`; no web-poc: `npm run content`, e `npm run content:check` no `prebuild`). O app carrega
 o arquivo só quando a lição abre. O bundle fixa a **composição** (quais exercícios, em que ordem, com quais
-sinais); o app sorteia a cada lição aberta o que precisa variar: distratores e ordem das opções, distratores e
-ordem dos blocos da frase.
+sinais); o app sorteia a cada lição aberta o que precisa variar: distratores e ordem das opções, ordem das
+demonstrações do `word_choose_video`, distratores e ordem dos blocos da frase.
 
 Nomes finais (decisão 10 do `plano-mobile-web.md`): `intro` virou `sign_intro`; `mc4` foi fundido em
 `watch_choose_word` (mesmo payload: sinal + 4 glosas); `sign_camera` virou `perform_sign`.
@@ -91,24 +91,53 @@ Nomes finais (decisão 10 do `plano-mobile-web.md`): `intro` virou `sign_intro`;
 | type | payload |
 |---|---|
 | `watch_choose_word` | `{ sign_id, correct, options[]? }` (`options` opcional: sem ele, o app sorteia 3 distratores, da mesma categoria primeiro, e embaralha; com ele, só embaralha) |
-| `word_choose_video` | `{ word, video_options[], correct_sign_id }` (ainda sem tela no app; o bundle atual não usa) |
+| `word_choose_video` | `{ word, video_options[], correct_sign_id }` (4 sinais em `video_options`, o certo entre eles; os distratores preferem sinais da lição já apresentados, depois sinais da mesma categoria de lições anteriores; o app só embaralha a ordem) |
 | `match_pairs` | `{ pairs: [{sign_id, gloss}] }` |
-| `order_sequence` | `{ steps: [...], correct_order: [...], word? }` (`word`: soletração de nome da U4, com as letras em `steps`, enquanto `fingerspell` não tem tela) |
+| `order_sequence` | `{ steps: [...], correct_order: [...], word? }` (`word`: soletração sem câmera; o app gera este formato a partir do `fingerspell` quando a câmera não avalia todas as letras) |
 | `build_phrase` | `{ pt, glosses[], distractors[], source }` (U3 em diante: 1 frase da unidade por lição; monta as glosas na ordem da Libras tocando nos blocos. `distractors` são os candidatos, glosas das outras frases da unidade que não repetem a frase; o app sorteia 2 em frases de até 4 glosas e 1 nas maiores) |
 
 ### Expressivos (com câmera - o diferencial)
 | type | payload |
 |---|---|
 | `perform_sign` | `{ sign_id, recognition: "static"\|"dynamic", min_confidence, max_attempts, hint_video_url }` (`min_confidence` e `max_attempts` ficam `null`, padrão do reconhecedor, até a calibração da seção 5.3) |
-| `fingerspell` | `{ word, letters[], per_letter_confidence }` (ainda sem tela; o app mostra como `order_sequence`) |
+| `fingerspell` | `{ word, letters[], per_letter_confidence }` (nomes da U4; `per_letter_confidence` fica `null` até a calibração. Com a câmera só quando o classificador em uso avalia todas as letras da palavra; senão o app mostra como `order_sequence`) |
 | `mirror_practice` | `{ sign_id }` (prática livre, sem nota) |
 
-**Regra de composição da lição**: toda lição mistura receptivo + expressivo. Sequência típica: apresenta (vídeo) -> reconhece receptivo -> produz expressivo. Receptivo cobre quem está sem câmera.
+**Regra de composição da lição**: toda lição mistura receptivo + expressivo, na sequência apresenta (vídeo) ->
+reconhece receptivo -> produz expressivo, com a frase no fim. Receptivo cobre quem está sem câmera. A sessão tem
+**de 7 a 12 exercícios** (seção 4), gerada por `composeLessonExercises` em `tools/content/compose.mjs`:
 
-Composição gerada hoje, por sinal: `sign_intro` -> `perform_sign` -> `watch_choose_word` -> `mirror_practice` ->
-`watch_choose_word`. Depois: `match_pairs` com os 3 primeiros sinais, uma rodada de revisão (`watch_choose_word`
-por sinal) e `order_sequence` com até 4 sinais (as duas só com 3 sinais ou mais), as soletrações da U4 e, da U3
-em diante, o `build_phrase`.
+1. **Apresenta e reconhece.** Cada sinal novo ganha um `sign_intro` e, logo depois, um exercício receptivo próprio,
+   alternando `watch_choose_word` (vê o sinal, escolhe a palavra) e `word_choose_video` (vê a palavra, escolhe o
+   sinal). Sinal de revisão, já apresentado em lição anterior (U4 L4 e U14 L3 e L4), não repete o `sign_intro`:
+   ganha só o receptivo.
+2. **Agrupa quando não cabe.** Se a lição passaria de 12 (6 sinais novos, ou 5 com a frase), os últimos 3 ou 4
+   sinais dividem um `match_pairs` no lugar dos receptivos individuais; os `sign_intro` deles vêm antes do
+   `match_pairs`. O tamanho do grupo é o menor que faz a lição caber (mínimo 3, máximo 4).
+3. **Produz.** 2 `perform_sign` com sinais novos da lição (estáticos primeiro, que a câmera tem mais chance de
+   avaliar). Na lição de nomes da U4, os `fingerspell` (um por nome) fazem esse papel no lugar do `perform_sign`.
+   Se nem agrupando 4 sinais a lição coubesse, a produção cairia para 1 `perform_sign`; se ainda assim não
+   coubesse, o script falha e pede para dividir a lição (nenhuma lição do A1 chega nisso: elas têm de 4 a 6
+   sinais).
+4. **Frase.** Da U3 em diante, o `build_phrase` fecha a sessão.
+
+Lição que ficasse com menos de 7 ganharia uma rodada de `watch_choose_word` antes da frase (não acontece no A1).
+
+Exemplos (bundle atual):
+
+| Lição | Sinais | Sequência | Total |
+|---|---|---|---|
+| U1 L1 (A, B, C, D, E) | 5 novos, sem frase | intro A, watch A, intro B, word_choose_video B, intro C, watch C, intro D, word_choose_video D, intro E, watch E, perform A, perform B | 12 |
+| U3 L1 (OI, TCHAU, BOM-DIA, BOA-TARDE, BOA-NOITE) | 5 novos + frase | intro e watch OI, intro e word_choose_video TCHAU, intro BOM-DIA, BOA-TARDE e BOA-NOITE, match_pairs dos 3, perform OI, perform TCHAU, build_phrase | 11 |
+| U6 L1 (FAMÍLIA, MÃE, PAI, FILHO, FILHA, BEBÊ) | 6 novos + frase | intro e watch FAMÍLIA, intro e word_choose_video MÃE, intro PAI, FILHO, FILHA e BEBÊ, match_pairs dos 4, perform FAMÍLIA, perform MÃE, build_phrase | 12 |
+| U4 L4 (D, A, V, I, B, L; nomes DAVI, BIA, LIA) | 6 de revisão + frase | watch e word_choose_video alternados para os 6 sinais, fingerspell DAVI, BIA e LIA, build_phrase | 10 |
+| U14 L3 (OI, NOME, SURDO, OUVINTE, ONDE, MORAR) | 6 de revisão + frase | 6 receptivos alternados, perform OI, perform NOME, build_phrase | 9 |
+
+**Revisão fora da lição**: a repetição do mesmo sinal várias vezes saiu da lição e fica na prática diária (aba
+Praticar, seção 11.12). Todo sinal da lição tem ao menos um exercício com nota (o receptivo individual ou o
+`match_pairs`, em que quem errou o par revisa mais cedo), e o resultado vai para o SRS (seção 6) ao concluir a
+lição; no dia seguinte a fila da prática traz todos os sinais da lição. O teste de conteúdo do web-poc confere isso
+lição por lição.
 
 **Câmera que não avalia o sinal**: se o reconhecedor do aparelho não dá nota para o sinal (hoje, letras estáticas
 fora da lista do reconhecedor, números e sinais com movimento; e qualquer sinal em aparelho no modo receptivo), o
@@ -117,8 +146,13 @@ perde ponto por um erro que não cometeu, e o bundle não precisa ser gerado de 
 conhecer mais sinais.
 
 ## 4. Estrutura de uma sessão (lição)
-- 7-12 exercícios, dificuldade crescente, tipos misturados.
-- Intercala **revisão SRS** (sinais devidos, seção 6).
+- 7-12 exercícios, dificuldade crescente, tipos misturados, na sequência apresenta -> reconhece -> produz -> frase
+  (regra de composição na seção 3). O teste `content.test.ts` do web-poc garante os limites em todas as lições, com
+  e sem câmera avaliada (quando o `perform_sign` vira `mirror_practice` e o `fingerspell` vira `order_sequence`, a
+  contagem não muda).
+- Toda lição apresenta (`sign_intro`) todos os seus sinais novos e reconhece cada sinal ao menos uma vez com nota.
+- **Revisão SRS** (sinais devidos, seção 6) fica na prática diária (aba Praticar, seção 11.12), não dentro da lição:
+  a lição só reconhece cada sinal uma vez, e a repetição espaçada acontece nos dias seguintes.
 - Barra de progresso; **sem vidas** (decisão SPEC 02): erro vira nova tentativa com dica.
 - Tela final: XP, streak, sinais aprendidos/revisados.
 - `lesson_completed{score,xp}` enviado ao backend (SPEC 02 calcula XP/streak/SRS/conquistas).
@@ -156,6 +190,8 @@ function evaluatePerformSign(scoreStream, payload) {
 
 ### 5.4 Soletração (`fingerspell`)
 - Avalia letra a letra (estático) em sequência; aceita a palavra se cada letra passou `per_letter_confidence`; permite repetir letra que falhou sem reiniciar a palavra.
+- Letra igual à anterior (o SS de OSSO) só conta de novo depois que a mão sai do quadro ou muda de forma (seção 11.8).
+- Só usa a câmera em palavra cujas letras o classificador em uso avalia; senão vira `order_sequence`.
 
 ## 6. Repetição espaçada (algoritmo concreto - SM-2 adaptado)
 
@@ -291,6 +327,8 @@ Pipeline operacional (liga-se à SPEC 02 - bundle em S3):
 
 **Componentes:** 4 `VideoOption`, cada um mostrando o poster estatico do sinal. O video so toca quando a pessoa toca na opcao (tocar em outra pausa a anterior); nunca 4 videos em loop ao mesmo tempo, que pesam no celular fraco e no download. Selecionar a opcao e um gesto separado (botao ou toque no rotulo da opcao), para ver o video nao contar como resposta.
 
+**No web-poc** (`ExerciseWordChooseVideo`): as opcoes sao cartoes "Opcao 1" a "Opcao 4", sem a glosa, cada um com o botao de escolher (o rotulo) e o botao "Ver" separado. A demonstracao toca num palco unico acima dos cartoes, com o `SignDemo` (video, senao avatar VLibras, senao texto), uma opcao por vez: o avatar e uma instancia so (`src/lib/vlibras.ts`) e so carrega quando a pessoa toca em "Ver". Opcao sem video nem avatar (ou com o avatar em erro) mostra a descricao no proprio cartao, com a glosa da opcao e a palavra do enunciado mascaradas (`maskGloss`). Depois da resposta, os cartoes mostram as glosas.
+
 **Feedback:** identico ao 11.3 (verde/vermelho, mesma regra de avanco). `payload`: `{ word, video_options[], correct_sign_id }`.
 
 ### 11.5 Exercicio: match_pairs (receptivo)
@@ -366,6 +404,10 @@ Pipeline operacional (liga-se à SPEC 02 - bundle em S3):
 | palavra concluida | todas as celulas marcadas -> `FeedbackOverlay` |
 
 **Regra:** avalia letra a letra; cada letra precisa passar `per_letter_confidence`; pode repetir a letra que falhou sem reiniciar a palavra (secao 5.4). `payload`: `{ word, letters[], per_letter_confidence }`.
+
+**Letra repetida:** depois de confirmar uma letra, a mesma letra so conta de novo quando a leitura estavel deixa de ser ela (a mao saiu do quadro ou mudou de forma). Assim o SS de OSSO exige fazer o S duas vezes, e a letra seguinte diferente e aceita direto. A regra e pura, em `src/lib/fingerspell.ts` (`spellStep`); o reconhecimento (`useCameraRecognizer`, `src/recognition`) nao muda. A HUD avisa "Tire a mao ou mude de forma e faca S de novo".
+
+**Sem camera avaliada:** so entra com camera a palavra cujas letras o classificador em uso avalia (as do MLP quando existe, senao as do heuristico). Senao o exercicio vira `order_sequence` com as letras da palavra (no `resolveExercises` e, se o classificador mudar durante a licao, no proprio componente).
 
 ### 11.9 Exercicio: mirror_practice (expressivo, sem nota)
 
@@ -507,7 +549,7 @@ Passos 4 e 5 sao mutuamente exclusivos. Se a licao nao e a ultima de uma unidade
   - Botao "A2: Libras Basica - Em breve" (desabilitado, com badge "Em breve"). Quando o curso A2 estiver disponivel no bundle, este botao e habilitado e navega para o CourseMapScreen do A2.
 - Botao textual "Ver meu perfil" -> navega para ProfileScreen (SPEC 02 secao 12.4).
 
-**Regra de exibicao unica:** a flag `course_A1_completed: true` e gravada no perfil (DynamoDB) pelo Lambda apos a resposta do `lesson_completed`. Se o usuario refizer a ultima licao, a tela nao reaparece; o fluxo pos-LessonCompletionScreen volta ao CourseMapScreen normalmente.
+**Regra de exibicao unica:** no web-poc a flag fica no `localStorage` do navegador (`librax_courseA1Completed`, via `Flags.setCourseA1Completed` em `src/lib/flags.ts`), gravada por `useSession` (`src/hooks/useSession.tsx`) na primeira vez que a ultima licao e concluida, junto com a exibicao da tela. Se o usuario refizer a ultima licao, a tela nao reaparece; o fluxo pos-LessonCompletionScreen volta ao CourseMapScreen normalmente. Por ser local, a flag nao acompanha a pessoa em outro aparelho; gravar `course_A1_completed` no perfil (DynamoDB) pelo Lambda continua como evolucao quando o servidor passar a decidir essa tela.
 
 **Analytics:** `course_completed{courseId: "A1", xpTotal, signsLearned, streakAtCompletion}` disparado ao exibir esta tela.
 

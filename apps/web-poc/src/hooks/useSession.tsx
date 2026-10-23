@@ -105,6 +105,10 @@ export function SessionProvider({ repo, userId, brokenStreak: initialBroken, chi
     setCourseCompletion(null);
 
     if (isLastLesson) {
+      // A tela de curso concluído aparece uma vez só; a flag fica no localStorage (spec-03 11.15).
+      // Refazer a última lição volta ao mapa, sem a tela da unidade.
+      if (Flags.courseA1Completed()) return null;
+      Flags.setCourseA1Completed();
       setCourseCompletion({
         xpTotal: outcome.xpTotal,
         streak: outcome.streak,
