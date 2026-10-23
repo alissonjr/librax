@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import { completeLesson } from '@usecases/completeLesson.js';
-import { course } from '../lib/content';
+import { course } from '../lib/course';
 import { getToday } from '../lib/today';
 import { Flags } from '../lib/flags';
 import type { IdbRepo } from '../lib/idbRepo';

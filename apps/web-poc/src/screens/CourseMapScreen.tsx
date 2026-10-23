@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { course } from '../lib/content';
+import { course } from '../lib/course';
 import { getDisplayName } from '../lib/auth';
 import { getToday } from '../lib/today';
 import type { IdbRepo } from '../lib/idbRepo';
 import { useT, type TFunc } from '../i18n';
 import { Icon } from '../components/Icon';
+import { ScreenSkeleton } from '../components/ScreenSkeleton';
 
 type LessonStatus = 'completed' | 'available' | 'locked' | 'due_srs';
 
@@ -87,13 +88,7 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
     return () => { cancelled = true; };
   }, [repo, userId, today]);
 
-  if (!state) {
-    return (
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p className="text-muted">{t('common.loading')}</p>
-      </div>
-    );
-  }
+  if (!state) return <ScreenSkeleton />;
 
   const dailyPct = Math.min(100, Math.round((state.dayXp / state.dailyGoalXp) * 100));
   const goalDone = state.dayXp >= state.dailyGoalXp;

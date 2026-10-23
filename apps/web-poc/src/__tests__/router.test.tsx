@@ -122,4 +122,14 @@ describe('roteador', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Sair' }));
     await waitFor(() => expect(path(router)).toBe('/aprender'));
   });
+
+  it('com "Sair da licao?" aberto, um novo voltar fecha o dialogo e fica na licao', async () => {
+    const router = await renderAt(['/aprender', '/licao/u1-l1']);
+    await screen.findByRole('progressbar');
+    await act(() => router.navigate(-1));
+    expect(await screen.findByText('Sair da lição?')).toBeInTheDocument();
+    await act(() => router.navigate(-1));
+    await waitFor(() => expect(screen.queryByText('Sair da lição?')).not.toBeInTheDocument());
+    expect(path(router)).toBe('/licao/u1-l1');
+  });
 });

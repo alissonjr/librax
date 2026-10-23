@@ -126,6 +126,61 @@ h1[tabindex="-1"]:focus { outline: none; }
 }
 .route-error-btn { max-width: var(--lx-size-content-max); }
 
+/* Carregamento de tela (ScreenSkeleton, seção 11.11): formas da tela em bg.sunken com brilho
+   passando em 1,5 s; com reduzir movimento fica estático */
+.screen-skeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-4);
+  width: 100%;
+  max-width: var(--lx-size-content-max);
+  margin: 0 auto;
+  padding: calc(var(--lx-space-2) + var(--lx-safe-top)) var(--lx-space-4) var(--lx-space-4);
+}
+.skeleton-block {
+  position: relative;
+  overflow: hidden;
+  background: var(--lx-bg-sunken);
+  border-radius: var(--lx-radius-md);
+}
+.skeleton-block::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--lx-bg-raised), transparent);
+  opacity: 0.6;
+  transform: translateX(-100%);
+  /* 1,5 s = 5 x duration.page (não há token de 1,5 s) */
+  animation: lx-skeleton-shine calc(var(--lx-motion-duration-page) * 5) var(--lx-motion-easing-standard) infinite;
+}
+@keyframes lx-skeleton-shine { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block::after { animation: none; display: none; }
+}
+:root[data-reduced-motion="true"] .skeleton-block::after { animation: none; display: none; }
+.screen-skeleton-bar  { height: var(--lx-size-top-bar); }
+.screen-skeleton-card { height: calc(var(--lx-size-top-bar) * 2); border-radius: var(--lx-radius-lg); }
+.screen-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-4);
+}
+.screen-skeleton-node {
+  flex-shrink: 0;
+  width: var(--lx-size-lesson-node);
+  height: var(--lx-size-lesson-node);
+  border-radius: var(--lx-radius-full);
+}
+.screen-skeleton-lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+}
+.screen-skeleton-line { height: var(--lx-space-4); border-radius: var(--lx-radius-xs); }
+.screen-skeleton-line--short { width: 60%; }
+
 /* Layout pós-onboarding com abas */
 .app-layout {
   display: flex;
