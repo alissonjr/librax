@@ -1,6 +1,7 @@
 # Librax - Design System
 
-> Status: **versão aprovada** (out/2026). É a referência de design do produto. Substitui o manual de design de
+> Status: **versão aprovada** (out/2026), com a marca **Traço** aplicada em 2026-10-23 (seção 15). É a referência
+> de design do produto. Substitui o manual de design de
 > junho/2026, escrito para Flutter, e a proposta v0.1 que deu origem a este texto (ver seção 1).
 >
 > Fonte única da verdade dos valores: [`design-tokens.json`](./design-tokens.json) (formato W3C Design Tokens).
@@ -12,7 +13,9 @@
 >   dos tokens continua possível, mas é opcional e não prioritário.
 > - Ícones: **Material Symbols Rounded em SVG** (sai o FontAwesome do web-poc).
 > - Tela da câmera: vídeo da própria pessoa com o **esqueleto 2D** por cima. O avatar 3D sai do MVP.
-> - Fonte: **Nunito auto-hospedada em woff2**.
+> - Fontes: **Anybody** (títulos, larga) e **Figtree** (texto), auto-hospedadas em woff2.
+> - Marca: **Traço** (estudo em [`../estudo/marca/traco.html`](../estudo/marca/traco.html) e
+>   [`../estudo/identidade-visual.md`](../estudo/identidade-visual.md)).
 > - MVP só em **pt-BR**.
 > - Háptica nunca é essencial (iOS não vibra no navegador) e **nada depende de som**.
 
@@ -21,7 +24,7 @@
 ## Sumário
 
 1. Histórico
-2. Princípios, tom visual e voz
+2. Princípios, tom visual, assinatura e voz
 3. Arquitetura dos tokens
 4. Cor
 5. Tipografia
@@ -54,51 +57,83 @@ um design system operável. A avaliação feita na proposta v0.1 (out/2026) enco
 - peças do jogo ausentes: ligas, estados da câmera com pouca luz ou mão fora do quadro, mapa de fases e o que
   fazer quando o navegador não vibra.
 
-Esta versão mantém o que o manual antigo tinha de bom (o tom de voz está na seção 2.4), usa a spec 05 como base
+Esta versão mantém o que o manual antigo tinha de bom (o tom de voz está na seção 2.5), usa a spec 05 como base
 de motion, som e câmera, corrige as divergências (tabela da seção 14) e transforma tudo em tokens. O texto
 completo do manual antigo e da avaliação fica no histórico do git (commit `f638aea`).
 
 ---
 
-## 2. Princípios, tom visual e voz
+## 2. Princípios, tom visual, assinatura e voz
 
 ### 2.1 Princípios
 
 1. **A mão é a protagonista.** Não há mascote. O personagem do Librax é a mão da própria pessoa, desenhada pelo
-   esqueleto de pontos. A câmera é um palco escuro onde a mão aparece em luz.
+   esqueleto de pontos, e o movimento dela vira desenho: a seta de trajetória (seção 2.4). A câmera é um palco
+   escuro onde a mão aparece em luz.
 2. **Jogo de adulto.** Competência, ritmo e progresso real, sem fofura. Formas firmes, números grandes, celebração
    curta e precisa. Nada de bichinhos, balões de fala ou linguagem de criança.
 3. **Visual primeiro.** Tudo o que importa aparece na tela: instrução, feedback, tempo, ranking. Som e vibração
    só reforçam. Uma pessoa surda com o celular no mudo tem a experiência completa.
-4. **Errar é ensaio.** Erro usa coral (não vermelho), nunca vibra, nunca toca som negativo e sempre vem com
-   uma dica do que ajustar.
+4. **Errar é ensaio.** Erro usa framboesa (um rosa escuro, nunca vermelho e longe da tangerina da ação), nunca
+   vibra, nunca toca som negativo e sempre vem com ícone, texto e uma dica do que ajustar.
 5. **Libras é uma língua.** O design trata Libras com a seriedade de uma língua com gramática própria: créditos
    a quem sinaliza nos vídeos, nada de "deficiência" como enquadramento, imagens validadas pela comunidade surda.
 6. **Uma fonte da verdade.** Nenhuma cor, tamanho ou duração nasce no componente. Tudo vem de token.
 
 ### 2.2 Tom visual
 
-- **Noturno e preciso.** Fundos neutros azulados (família "noite"), um azul elétrico para ação, turquesa para
-  tudo que é mão, câmera e Libras, e ouro reservado para XP e conquistas.
+Personalidade do Traço: **cinético, quente, de jogo**.
+
+- **Tangerina sobre grafite.** Neutros quentes (família `grafite`), tangerina para ação, marca e a seta de
+  trajetória, **petróleo** para tudo que é mão, câmera e Libras, e ouro reservado para XP e conquistas. Acerto em
+  verde; erro em framboesa, sempre com ícone e texto.
 - **Contraste de energia.** Telas de navegação são calmas; câmera e celebração são o momento de luz, sempre
-  sobre o palco escuro, nos dois modos.
-- **Formas.** Raio médio (14 px) em botões e alternativas, 20 px em cards, pílula só para chips. Botão primário
-  com efeito "tecla" (base de 3 px que afunda ao tocar): tátil e de jogo, sem cartum.
-- **Tipografia.** Nunito, com pesos altos (800 e 900) para títulos e números, e 400 a 700 para leitura. O
-  arredondado da Nunito traz calor; a seriedade vem da paleta, do espaçamento generoso e dos pesos contidos.
+  sobre o palco escuro, nos dois modos. Nos exercícios com câmera a lição inteira vira palco.
+- **Formas.** Botões e campos em pílula (`radius.button`), alternativas com raio 20 (`radius.choice`), cards com
+  raio 22 (`radius.lg`). Botão primário com efeito "tecla" (base de 3 px que afunda ao tocar): tátil e de jogo,
+  sem cartum.
+- **Tipografia.** Anybody, de largura variável, nos títulos, botões, números e glosas: larga e pesada nos
+  momentos de jogo (800 e 900, de 112,5% a 125% de largura). Figtree no texto, redonda e legível (400 a 700).
 - **Regra: nunca usar faixa colorida lateral em cards.** Vale para borda esquerda (ou direita) grossa de destaque,
   `border-left` colorido, `box-shadow` interno simulando faixa e barra vertical de acento, em qualquer card,
   linha de lista, banner ou painel. É um clichê de interface gerada automaticamente. Para dar identidade ou estado
   a um card, use selo/chip com fundo suave, ícone, cor de fundo do card inteiro ou contorno completo. A regra
-  entra no checklist da seção 12.1 e vale também para revisão de código.
+  entra no checklist da seção 12.1 e vale também para revisão de código. Faixa colorida no topo do card também
+  não entra: o selo escrito diz o estado.
 
-### 2.3 Por que turquesa e azul
+### 2.3 Por que tangerina e petróleo
 
-O azul turquesa é associado à identidade surda (no Brasil, o **Setembro Azul** é o mês de visibilidade da
-comunidade surda, e a fita azul é o símbolo usado). Usar turquesa para "mão, câmera, sinal" e azul para
-"ação" é um aceno a essa cultura, sem caricatura. Isso precisa ser validado com consultores surdos (ver seção 15).
+A tangerina é a energia do jogo e a cor do movimento (a seta). Texto sobre ela é sempre grafite, nunca branco
+(`#F05A0C` com `#1B1510` dá 5,32:1). O petróleo mantém o aceno à identidade surda: no Brasil, o **Setembro Azul**
+é o mês de visibilidade da comunidade surda e a fita azul é o símbolo usado. Ele fica com tudo que é mão, câmera
+e sinal, sem caricatura. O erro sai do coral e vai para a framboesa para não se confundir com a tangerina da
+ação. Paleta e símbolo ainda precisam passar por consultores surdos (seção 15).
 
-### 2.4 Voz e textos de interface
+### 2.4 Assinatura: a seta de trajetória
+
+O movimento do sinal vira desenho, com as setas curvas que os dicionários de Libras usam para mostrar a
+trajetória da mão. **Ponto cheio** marca onde o movimento começa; **ponta de seta**, onde termina. Cinco formas:
+reta, curva, circular, repetida e para a frente e para trás. Na câmera, o sinal sem movimento ganha a palavra
+"parado", nunca uma seta.
+
+| Onde | Como | Componente |
+|---|---|---|
+| Logo e palavra-marca | o L desenhado como um movimento: ponto inicial, descida, curva e ponta; "librax" em Anybody 900 a 125% | `BrandMark`, `Wordmark` (`src/components/Brand.tsx`) |
+| Ícone do app e favicon | o símbolo em tangerina `#FF7A2E` sobre grafite `#1B1510`, ponto branco | `tools/pwa/build-icons.mjs` (`brand.icon.*`) |
+| Boas-vindas | o L desenhado pelos 21 pontos da mão, com uma seta tangerina e uma petróleo | `WelcomeIllustration`, `HandSketchL` |
+| Mapa | a seta gira em volta da lição atual (`motion.duration.orbit`, parada com menos movimento); trecho feito em tangerina, caminho bloqueado pontilhado | `TraceOrbit` |
+| Card de continuar | arco tangerina sobre o palco | `TraceArc` |
+| Barra da lição | termina numa ponta de seta | `.progress-bar-wrap--lesson` |
+| Demonstração do sinal | botão "Ver o movimento" com a seta curva, sobre a tangerina suave | `SignDemo`, `DemoToggle`, `TraceArrowIcon` |
+| Acerto na câmera | setas curtas em volta do cartão de acerto | `TraceCameraArcs` |
+| Lição concluída | explosão de 12 setas (tangerina e petróleo) saindo do +XP; substitui o confete | `TraceBurst` |
+| Ligas | seta curva para cima dentro da insígnia | `LeagueBadge` |
+
+Tamanho mínimo do símbolo: 16 px (até 24 px o traço engrossa de 6,5 para 8 e o ponto cresce de 5 para 6). A
+assinatura com o nome vale a partir de 90 px de largura. Cores da marca: `brand.ink` e `brand.mark` (mudam com o
+tema) e `brand.icon.*` (fixas no ícone).
+
+### 2.5 Voz e textos de interface
 
 Vem do manual antigo (seção 9), ajustado para adultos e para a regra de que nada presume que a pessoa ouve.
 
@@ -163,8 +198,8 @@ Três camadas, todas no mesmo arquivo `docs/design-tokens.json`:
 
 | Camada | O que é | Exemplo | Quem usa |
 |---|---|---|---|
-| Primitivos | Paletas e escalas cruas | `color.azul.600 = #3651E6`, `space.4 = 16px` | Só os tokens semânticos |
-| Semânticos | Papel na interface, por modo | `theme.light.action.primary.bg -> {color.azul.600}` | Componentes |
+| Primitivos | Paletas e escalas cruas | `color.tangerina.500 = #F05A0C`, `space.4 = 16px` | Só os tokens semânticos |
+| Semânticos | Papel na interface, por modo | `theme.light.action.primary.bg -> {color.tangerina.500}` | Componentes |
 | Domínio | Partes do jogo com regra própria | `stage.landmark.ready`, `league.safira.fill`, `haptic.correctCamera` | Componentes do jogo |
 
 Regras:
@@ -175,7 +210,7 @@ Regras:
 - No CSS, cada token vira `--lx-<caminho-em-kebab>`: `theme.light.feedback.success.strong` -> `--lx-feedback-success-strong`.
 
 Formato: DTCG (W3C Design Tokens Community Group) com `$value`, `$type`, `$description` e aliases `{grupo.token}`.
-Os valores estão em string (`"#3651E6"`, `"16px"`, `"150ms"`), forma aceita pelo Style Dictionary 4 e pelo
+Os valores estão em string (`"#F05A0C"`, `"16px"`, `"150ms"`), forma aceita pelo Style Dictionary 4 e pelo
 script próprio da seção 13. A versão estável do DTCG também aceita valores em objeto (cor com espaço de cor,
 dimensão com unidade); se um dia for preciso, a conversão é mecânica.
 
@@ -185,56 +220,71 @@ dimensão com unidade); se um dia for preciso, a conversão é mecânica.
 
 ### 4.1 Primitivos
 
-| Família | Papel | 100 | 300 | 400 | 600 | 700 | 800 |
-|---|---|---|---|---|---|---|---|
-| `azul` (Azul Sinal) | ação, marca, foco, info | `#DFE6FF` | `#9BB0FF` | `#7290FF` | `#3651E6` | `#2A3FBF` | `#223293` |
-| `turquesa` (Turquesa Mãos) | mão, câmera, Libras | `#CFF7F1` | `#5FDECF` | `#27C9B8` | `#0B8C81` | `#0B6F67` | `#0A5550` |
-| `verde` | acerto, progresso | `#D9F7E3` | `#74DE9B` | `#3CC873` | `#14834A` | `#126D39` | `#0F532C` |
-| `coral` | erro não punitivo, perigo | `#FFE5DF` | `#FF9C87` | `#FF7A5F` | `#C63F24` | `#9C311C` | `#702415` |
-| `ambar` | aviso, streak em risco, dedo a ajustar | `#FFEFD1` | `#FFC35C` | `#FFAA2B` | `#B86E00` | `#8F5500` | `#663D00` |
-| `ouro` | XP, conquista | `#FFF6CC` | `#FFDB4D` | `#FACB1E` | `#A98500` | `#7D6200` | `#574500` |
-| `chama` | streak | `#FFE6D9` | `#FF9E6B` | `#FF7A3D` | `#C24410` | `#94340D` | `#69250A` |
+Valores copiados de `estudo/marca/traco.html`. Escala completa no JSON.
 
-Neutros `noite` (azulados): `0 #FFFFFF`, `25 #F6F7FA`, `50 #EDEFF5`, `100 #DFE3EC`, `200 #C5CBD8`, `300 #9EA7BA`,
-`400 #7F89A0`, `500 #5B6479`, `600 #454D60`, `700 #333A4B`, `800 #242A38`, `850 #1B2130`, `900 #141926`,
-`950 #0C101A`, `1000 #06080E` (o palco). A escala completa de cada família está no JSON.
+| Família | Papel | Valores |
+|---|---|---|
+| `tangerina` | ação, marca, seta de trajetória, sequência | `100 #FFE8D9`, `200 #FFA772`, `300 #FF9A5C`, `400 #FF8A45`, `450 #FF7F33`, `460 #FF7A2E` (ícone), `500 #F05A0C`, `550 #E8560A`, `600 #B8430A`, `700 #A83B00`, `750 #A33B00`, `800 #6B2600`, `900 #4A2310` |
+| `petroleo` | mão, câmera, Libras | `100 #D2F1EE`, `200 #6FDCD5`, `300 #3FC9C1`, `600 #0E7C7B`, `700 #0B6463`, `800 #0F3D3B` |
+| `verde` | acerto | `100 #D9F7E3`, `300 #74DE9B`, `400 #3CC873`, `600 #14834A`, `700 #126D39`, `800 #0F532C` |
+| `framboesa` | erro não punitivo, perigo | `100 #FCE4EE`, `200 #FF9DBD`, `300 #FF7BA6`, `600 #B42A5E`, `700 #8F1F49`, `800 #5E1230`, `850 #5A1530` |
+| `ambar` | aviso (sequência em risco, dedo a ajustar na câmera) | `100 #FFEFD1`, `300 #FFC35C`, `400 #FFAA2B`, `700 #8F5500`, `800 #663D00` |
+| `ouro` | XP, conquista | `100 #FFF6CC`, `300 #FFDB4D`, `400 #FACB1E`, `600 #A98500`, `700 #7D6200`, `800 #574500` |
+
+Neutros `grafite` (quentes): `0 #FFFFFF`, `15 #F7F2EC`, `25 #F7F5F2`, `40 #F2EFEA`, `50 #EEEAE4`, `100 #E4DED6`,
+`200 #CFC7BC`, `300 #BDB2A6`, `350 #A09588`, `400 #8A7F73`, `450 #81776B`, `500 #62574C`, `600 #4A4037`,
+`700 #3D352E`, `750 #2B2520`, `800 #241E19`, `850 #1E1915`, `900 #1B1510` (tinta da marca), `925 #1A1511`,
+`950 #14110E`, `975 #0E0B09` (o palco), `1000 #0C0A08`.
+
+Dois valores não estão no protótipo e foram derivados: `grafite.800 #241E19` (a elevação `bg.raised` do escuro,
+entre a superfície e a borda) e `grafite.40 #F2EFEA` (o trilho das barras no claro; o `#EEEAE4` do protótipo
+deixava o ouro do XP em 2,90:1 sobre o trilho, abaixo de 3:1).
 
 ### 4.2 Semânticos (claro e escuro)
 
 | Token | Claro | Escuro | Uso |
 |---|---|---|---|
-| `bg.canvas` | `#F6F7FA` | `#0C101A` | Fundo da tela |
-| `bg.surface` | `#FFFFFF` | `#141926` | Card, tab bar, sheet |
-| `bg.raised` | `#FFFFFF` + sombra | `#1B2130` | Modal, popover (no escuro a cor eleva) |
-| `bg.sunken` | `#EDEFF5` | `#06080E` | Campo, área recuada |
-| `bg.inverse` | `#141926` | `#F6F7FA` | Toast, tooltip |
-| `bg.scrim` | `#06080E` 56% | `#000000` 70% | Atrás de modal |
-| `text.primary` | `#141926` | `#F6F7FA` | Texto principal |
-| `text.secondary` | `#454D60` | `#9EA7BA` | Texto de apoio |
-| `text.tertiary` | `#5B6479` | `#7F89A0` | Placeholder, metadado (ainda AA) |
-| `text.disabled` | `#7F89A0` | `#5B6479` | Só desabilitado (isento), nunca informação |
-| `text.brand` | `#2A3FBF` | `#9BB0FF` | Link, ação em texto |
-| `border.default` | `#C5CBD8` | `#333A4B` | Borda de card |
-| `border.strong` | `#7F89A0` | `#7F89A0` | Borda de controle (>= 3:1) |
-| `border.focus` | `#3651E6` | `#9BB0FF` | Anel de foco de 3 px |
-| `action.primary.bg` / `fg` | `#3651E6` / branco | `#7290FF` / `#0C101A` | Botão primário |
-| `action.primary.base` | `#223293` | `#3651E6` | Base da "tecla" |
-| `action.danger.bg` / `fg` | `#C63F24` / branco | `#FF7A5F` / `#0C101A` | Ação destrutiva |
+| `bg.canvas` | `#F7F5F2` | `#14110E` | Fundo da tela |
+| `bg.surface` | `#FFFFFF` | `#1E1915` | Card, tab bar, sheet |
+| `bg.raised` | `#FFFFFF` + sombra | `#241E19` | Modal, popover (no escuro a cor eleva) |
+| `bg.sunken` | `#EEEAE4` | `#0C0A08` | Campo, área recuada |
+| `bg.inverse` | `#1B1510` | `#F7F2EC` | Toast, tooltip |
+| `bg.scrim` | `#0E0B09` 56% | `#000000` 70% | Atrás de modal |
+| `text.primary` | `#1B1510` | `#F7F2EC` | Texto principal |
+| `text.secondary` | `#4A4037` | `#BDB2A6` | Texto de apoio |
+| `text.tertiary` | `#62574C` | `#A09588` | Placeholder, metadado (ainda AA) |
+| `text.disabled` | `#81776B` | `#62574C` | Só desabilitado (isento), nunca informação |
+| `text.brand` | `#A83B00` | `#FF9A5C` | Link, ação em texto, aba ativa |
+| `border.subtle` / `default` / `strong` | `#E4DED6` / `#CFC7BC` / `#81776B` | `#2B2520` / `#3D352E` / `#8A7F73` | Separador, card, controle (>= 3:1) |
+| `border.focus` | `#A83B00` | `#FF9A5C` | Anel de foco de 3 px |
+| `action.primary.bg` / `fg` | `#F05A0C` / `#1B1510` | `#FF7F33` / `#1B1510` | Botão primário (texto sempre grafite) |
+| `action.primary.bgPressed` / `base` | `#E8560A` / `#B8430A` | `#FF9A5C` / `#B8430A` | Pressionado e base da "tecla" |
+| `action.secondary.fg` / `border` | `#A83B00` / `#81776B` | `#FF9A5C` / `#8A7F73` | Botão secundário |
+| `action.danger.bg` / `fg` | `#B42A5E` / branco | `#FF7BA6` / `#14110E` | Ação destrutiva |
 | `feedback.success.strong` / `text` / `soft` | `#14834A` / `#126D39` / `#D9F7E3` | `#3CC873` / `#74DE9B` / `#0F532C` | Acerto |
-| `feedback.error.strong` / `text` / `soft` | `#C63F24` / `#9C311C` / `#FFE5DF` | `#FF7A5F` / `#FF9C87` / `#702415` | Erro |
+| `feedback.error.strong` / `text` / `soft` / `onSoft` | `#B42A5E` / `#8F1F49` / `#FCE4EE` / `#5E1230` | `#FF7BA6` / `#FF9DBD` / `#5A1530` / `#FCE4EE` | Erro (framboesa) |
 | `feedback.warning.strong` / `text` / `soft` | `#FFAA2B` / `#8F5500` / `#FFEFD1` | `#FFAA2B` / `#FFC35C` / `#663D00` | Aviso |
-| `game.xp.fill` / `text` | `#A98500` / `#7D6200` | `#FACB1E` / `#FFDB4D` | XP |
-| `game.streak.fill` / `text` | `#F05A1A` / `#94340D` | `#FF7A3D` / `#FF9E6B` | Streak |
-| `game.hand.fill` / `text` | `#0B8C81` / `#0B6F67` | `#27C9B8` / `#5FDECF` | Elementos de Libras fora da câmera |
-| `game.track` | `#EDEFF5` | `#333A4B` | Trilho das barras |
-| `game.progress` | `#14834A` | `#3CC873` | Barra da lição |
+| `feedback.info.soft` / `onSoft` | `#FFE8D9` / `#6B2600` | `#4A2310` / `#FFE8D9` | Selecionado (aba, opção, "Você") |
+| `game.xp.fill` / `text` / `soft` | `#A98500` / `#7D6200` / `#FFF6CC` | `#FACB1E` / `#FFDB4D` / `#574500` | XP |
+| `game.streak.fill` / `text` | `#E8560A` / `#A33B00` | `#FF8A45` / `#FFA772` | Sequência |
+| `game.hand.fill` / `onFill` / `text` / `soft` | `#0E7C7B` / branco / `#0B6463` / `#D2F1EE` | `#3FC9C1` / `#14110E` / `#6FDCD5` / `#0F3D3B` | Mão e Libras fora da câmera; nó concluído |
+| `game.trace.fill` / `text` / `soft` / `onSoft` | `#E8560A` / `#A33B00` / `#FFE8D9` / `#6B2600` | `#FF8A45` / `#FFA772` / `#4A2310` / `#FFE8D9` | Seta de trajetória, fundo da demonstração, chips de glosa |
+| `game.track` | `#F2EFEA` | `#3D352E` | Trilho das barras |
+| `game.progress` | `#E8560A` | `#FF8A45` | Barra da lição |
+| `game.locked.bg` / `fg` | `#EEEAE4` / `#62574C` | `#2B2520` / `#BDB2A6` | Nó bloqueado (anel e cadeado) |
+| `brand.ink` / `mark` | `#1B1510` / `#E8560A` | `#F7F2EC` / `#FF8A45` | Palavra-marca e símbolo |
+
+Fixos (não mudam com o tema): `brand.icon.bg #1B1510`, `brand.icon.bgDark #0C0A08`, `brand.icon.mark #FF7A2E`,
+`brand.icon.dot #FFFFFF`.
 
 Observações:
 
-- No escuro, os botões e cores "fortes" ficam claros e o texto sobre eles fica escuro (`#0C101A`). Isso mantém
-  contraste e evita o "neon sobre preto" cansativo.
+- Texto sobre a tangerina é sempre grafite, nos dois modos. No escuro, as cores fortes ficam claras e o texto
+  sobre elas fica escuro (`#14110E`).
 - O ouro no claro é um ouro velho (`#A98500`): é o único ouro que passa 3:1 sobre branco. O brilho do ouro
   (`#FACB1E`) aparece no escuro e no palco.
+- `.lx-theme-dark` (gerado no `tokens.css`) aplica o tema escuro num trecho da tela nos dois modos: é como os
+  exercícios com câmera viram palco inteiro.
 
 ### 4.3 Palco da câmera e das celebrações (`stage`)
 
@@ -242,132 +292,173 @@ Igual nos dois modos, sempre escuro.
 
 | Token | Valor | Uso |
 |---|---|---|
-| `stage.bg` | `#06080E` | Fundo atrás do vídeo e das celebrações |
-| `stage.scrim` | `#06080E` 64% | Escurece o vídeo sob texto (garante 6:1 mesmo com vídeo branco) |
-| `stage.pill` | `#0C101A` 80% | Fundo das mensagens de status sobre o vídeo |
-| `stage.text` / `textSecondary` | `#FFFFFF` / `#DFE3EC` | Texto no palco |
-| `stage.landmark.halo` | `#06080E` 85% | Contorno sob cada linha do esqueleto (legível sobre qualquer vídeo) |
+| `stage.bg` | `#0E0B09` | Fundo atrás do vídeo, dos exercícios com câmera e das celebrações |
+| `stage.surface` / `border` | `#1A1511` / `#3D352E` | Cartão sobre o palco (acerto da câmera) |
+| `stage.scrim` | `#0E0B09` 64% | Escurece o vídeo sob texto (garante 6:1 mesmo com vídeo branco) |
+| `stage.pill` | `#0E0B09` 85% | Fundo das mensagens de status sobre o vídeo |
+| `stage.text` / `textSecondary` | `#FFFFFF` / `#EEEAE4` | Texto no palco |
+| `stage.trace` | `#FF8A45` | Seta de trajetória sobre o palco |
+| `stage.landmark.halo` | `#0E0B09` 85% | Contorno sob cada linha do esqueleto (legível sobre qualquer vídeo) |
 | `stage.landmark.idle` | branco 80% | Mão detectada, confiança baixa |
-| `stage.landmark.tracking` | `#5FDECF` | Confiança subindo (> 40%) |
+| `stage.landmark.tracking` | `#6FDCD5` | Confiança subindo (> 40%) |
 | `stage.landmark.ready` | `#3CC873` | No limiar de aceite |
 | `stage.landmark.correct` | `#74DE9B` + brilho | Acerto confirmado |
 | `stage.landmark.retry` | `#FFAA2B` | Dedo a ajustar (pisca 2 vezes) |
-| `stage.landmark.reference` | `#9BB0FF` 80%, tracejado | Esqueleto de referência no retry |
+| `stage.landmark.reference` | `#FFA772` 80%, tracejado | Esqueleto de referência no retry |
 | `stage.guide.idle` / `ok` / `warn` | branco 70% / `#74DE9B` / `#FFC35C` | Guia de enquadramento |
+| `stage.glow.brand` / `gold` | `#F05A0C` 30% / `#FACB1E` 35% | Brilho das celebrações |
 
 ### 4.4 Ligas (`league`)
 
 Sete ligas, em ordem: Bronze, Prata, Ouro, Safira, Rubi, Ametista, Diamante (nomes a confirmar, seção 15).
-A cor nunca vem sozinha: cada liga tem forma própria e o nome sempre escrito.
+A cor nunca vem sozinha: cada liga tem forma própria, o nome sempre escrito e, no Traço, uma seta curva para cima
+dentro da insígnia, na cor do texto sobre ela.
 
-| Liga | Preenchimento | Texto sobre ela | Contorno (2 px) | Forma da insígnia |
+| Liga | Preenchimento | Texto e seta sobre ela | Contorno (2 px) | Forma da insígnia |
 |---|---|---|---|---|
-| Bronze | `#B0703A` | `#0C101A` | `#6B4A1F` | círculo |
-| Prata | `#A7B2C2` | `#0C101A` | `#6E7A8C` | escudo |
-| Ouro | `#E0AE12` | `#0C101A` | `#8A6A00` | escudo com coroa |
+| Bronze | `#B0703A` | `#14110E` | `#6B4A1F` | círculo |
+| Prata | `#A7B2C2` | `#14110E` | `#6E7A8C` | escudo |
+| Ouro | `#E0AE12` | `#14110E` | `#8A6A00` | escudo com coroa |
 | Safira | `#3460E6` | `#FFFFFF` | `#1B2768` | hexágono |
 | Rubi | `#CC2B57` | `#FFFFFF` | `#7A1733` | octógono |
 | Ametista | `#7B4FE0` | `#FFFFFF` | `#45288F` | estrela de 5 pontas |
-| Diamante | `#6FD9E8` | `#0C101A` | `#1A7A88` | diamante facetado |
+| Diamante | `#6FD9E8` | `#14110E` | `#1A7A88` | diamante facetado |
 
 ### 4.5 Contraste verificado
 
-Calculado com a fórmula de luminância relativa do WCAG 2.x sobre os valores reais do `design-tokens.json`
-(196 pares, 0 reprovações). Cores com transparência foram compostas sobre o fundo antes do cálculo; no palco, o
-pior caso considerado é vídeo totalmente branco. Mínimos: 4,5:1 para texto, 3:1 para componentes e gráficos
-(WCAG 1.4.11).
+Calculado pelo `tools/tokens/check-contrast.mjs` (roda no `npm run build`) com a fórmula de luminância relativa
+do WCAG 2.x sobre os valores reais do `design-tokens.json`: **265 pares, 0 reprovações**. Cores com transparência
+foram compostas sobre o fundo antes do cálculo; no palco, o pior caso considerado é vídeo totalmente branco.
+Mínimos: 4,5:1 para texto, 3:1 para componentes e gráficos (WCAG 1.4.11). Menor razão em texto: 4,68 (texto
+sobre a insígnia Bronze); em gráfico: 3,03 (ouro do XP sobre o trilho, no claro).
+
+Os pares novos do Traço: ícone sobre o nó concluído (`game.hand.onFill`), seta e legenda sobre a demonstração
+(`game.trace.*`), botão "Ver o movimento" (grafite sobre a tangerina suave), palavra-marca e símbolo
+(`brand.ink`, `brand.mark`), seta e cartão de acerto sobre o palco (`stage.trace`, `stage.surface`) e o ícone do
+app (`brand.icon.*`).
 
 | Par (frente / fundo) | Claro | Escuro | Mínimo |
 |---|---|---|---|
-| text.primary / bg (pior de canvas, surface, raised) | 16.38 | 15.00 | 4.5 |
-| text.secondary / bg (pior de canvas, surface, raised) | 7.89 | 6.65 | 4.5 |
-| text.tertiary / bg (pior de canvas, surface, raised) | 5.53 | 4.58 | 4.5 |
-| text.brand / bg (pior de canvas, surface, raised) | 7.65 | 7.69 | 4.5 |
-| feedback.success.text / bg (pior de canvas, surface, raised) | 5.99 | 9.69 | 4.5 |
-| feedback.error.text / bg (pior de canvas, surface, raised) | 6.83 | 7.93 | 4.5 |
-| feedback.warning.text / bg (pior de canvas, surface, raised) | 5.65 | 10.11 | 4.5 |
-| feedback.info.text / bg (pior de canvas, surface, raised) | 7.65 | 7.69 | 4.5 |
-| game.xp.text / bg (pior de canvas, surface, raised) | 5.42 | 11.85 | 4.5 |
-| game.streak.text / bg (pior de canvas, surface, raised) | 7.11 | 7.92 | 4.5 |
-| game.hand.text / bg (pior de canvas, surface, raised) | 5.63 | 9.82 | 4.5 |
-| border.strong / bg (pior de canvas, surface, raised) (não texto) | 3.27 | 4.58 | 3 |
-| border.focus / bg (pior de canvas, surface, raised) (não texto) | 5.64 | 7.69 | 3 |
-| action.primary.bg / bg (pior de canvas, surface, raised) (não texto) | 5.64 | 5.47 | 3 |
-| feedback.success.strong / bg (pior de canvas, surface, raised) (não texto) | 4.48 | 7.42 | 3 |
-| feedback.error.strong / bg (pior de canvas, surface, raised) (não texto) | 4.74 | 6.28 | 3 |
-| game.xp.fill / bg (pior de canvas, surface, raised) (não texto) | 3.24 | 10.43 | 3 |
-| game.streak.fill / bg (pior de canvas, surface, raised) (não texto) | 3.17 | 6.20 | 3 |
-| game.hand.fill / bg (pior de canvas, surface, raised) (não texto) | 3.86 | 7.75 | 3 |
-| text.tertiary / bg.sunken | 5.15 | 5.71 | 4.5 |
-| text.inverse / bg.inverse | 17.55 | 17.75 | 4.5 |
-| action.primary.fg / action.primary.bg | 6.04 | 6.47 | 4.5 |
-| action.primary.fg / action.primary.bgPressed | 8.20 | 9.10 | 4.5 |
-| action.secondary.fg / action.secondary.bg | 8.20 | 8.40 | 4.5 |
-| action.danger.fg / action.danger.bg | 5.08 | 7.42 | 4.5 |
-| feedback.success.onStrong / feedback.success.strong | 4.80 | 8.78 | 4.5 |
-| feedback.error.onStrong / feedback.error.strong | 5.08 | 7.42 | 4.5 |
-| feedback.warning.onStrong / feedback.warning.strong | 9.99 | 9.99 | 4.5 |
-| feedback.info.onStrong / feedback.info.strong | 6.04 | 6.47 | 4.5 |
+| text.primary / bg (pior de canvas, surface, raised) | 16.62 | 14.80 | 4.5 |
+| text.secondary / bg (pior de canvas, surface, raised) | 9.28 | 7.91 | 4.5 |
+| text.tertiary / bg (pior de canvas, surface, raised) | 6.46 | 5.61 | 4.5 |
+| text.brand / bg (pior de canvas, surface, raised) | 5.86 | 7.87 | 4.5 |
+| feedback.success.text / bg (pior de canvas, surface, raised) | 5.90 | 9.93 | 4.5 |
+| feedback.error.text / bg (pior de canvas, surface, raised) | 7.84 | 8.48 | 4.5 |
+| feedback.warning.text / bg (pior de canvas, surface, raised) | 5.57 | 10.36 | 4.5 |
+| feedback.info.text / bg (pior de canvas, surface, raised) | 5.86 | 7.87 | 4.5 |
+| game.xp.text / bg (pior de canvas, surface, raised) | 5.33 | 12.15 | 4.5 |
+| game.streak.text / bg (pior de canvas, surface, raised) | 6.06 | 8.65 | 4.5 |
+| game.hand.text / bg (pior de canvas, surface, raised) | 6.40 | 10.10 | 4.5 |
+| game.trace.text / bg (pior de canvas, surface, raised) | 6.06 | 8.65 | 4.5 |
+| brand.ink / bg (pior de canvas, surface, raised) | 16.62 | 14.80 | 4.5 |
+| border.strong (não texto) / bg (pior de canvas, surface, raised) | 4.03 | 4.21 | 3 |
+| border.focus (não texto) / bg (pior de canvas, surface, raised) | 5.86 | 7.87 | 3 |
+| action.primary.bg (não texto) / bg (pior de canvas, surface, raised) | 3.13 | 6.54 | 3 |
+| feedback.success.strong (não texto) / bg (pior de canvas, surface, raised) | 4.41 | 7.61 | 3 |
+| feedback.error.strong (não texto) / bg (pior de canvas, surface, raised) | 5.62 | 6.77 | 3 |
+| game.xp.fill (não texto) / bg (pior de canvas, surface, raised) | 3.19 | 10.69 | 3 |
+| game.streak.fill (não texto) / bg (pior de canvas, surface, raised) | 3.35 | 7.04 | 3 |
+| game.hand.fill (não texto) / bg (pior de canvas, surface, raised) | 4.61 | 8.11 | 3 |
+| game.trace.fill (não texto) / bg (pior de canvas, surface, raised) | 3.35 | 7.04 | 3 |
+| game.progress (não texto) / bg (pior de canvas, surface, raised) | 3.35 | 7.04 | 3 |
+| brand.mark (não texto) / bg (pior de canvas, surface, raised) | 3.35 | 7.04 | 3 |
+| text.tertiary / bg.sunken | 5.87 | 6.73 | 4.5 |
+| text.inverse / bg.inverse | 16.62 | 16.90 | 4.5 |
+| action.primary.fg / action.primary.bg | 5.32 | 7.18 | 4.5 |
+| action.primary.fg / action.primary.bgPressed | 4.97 | 8.64 | 4.5 |
+| action.secondary.fg / action.secondary.bg | 6.38 | 8.32 | 4.5 |
+| action.danger.fg / action.danger.bg | 6.12 | 7.74 | 4.5 |
+| feedback.success.onStrong / feedback.success.strong | 4.80 | 8.69 | 4.5 |
+| feedback.error.onStrong / feedback.error.strong | 6.12 | 7.74 | 4.5 |
+| feedback.warning.onStrong / feedback.warning.strong | 9.50 | 9.89 | 4.5 |
+| feedback.info.onStrong / feedback.info.strong | 6.38 | 8.98 | 4.5 |
 | feedback.success.onSoft / feedback.success.soft | 8.01 | 8.01 | 4.5 |
-| feedback.error.onSoft / feedback.error.soft | 8.98 | 8.98 | 4.5 |
+| feedback.error.onSoft / feedback.error.soft | 10.88 | 11.02 | 4.5 |
 | feedback.warning.onSoft / feedback.warning.soft | 8.30 | 8.30 | 4.5 |
-| feedback.info.onSoft / feedback.info.soft | 8.69 | 11.00 | 4.5 |
+| feedback.info.onSoft / feedback.info.soft | 9.35 | 11.56 | 4.5 |
 | game.xp.text / game.xp.soft | 5.33 | 6.87 | 4.5 |
-| game.streak.text / game.streak.soft | 6.38 | 5.54 | 4.5 |
-| game.hand.text / game.hand.soft | 5.23 | 5.29 | 4.5 |
-| text.primary / game.locked.bg | 13.65 | 13.40 | 4.5 |
-| game.locked.fg / game.locked.bg (icone) | 4.61 | 5.94 | 3 |
-| game.progress / game.track (não texto) | 4.17 | 5.25 | 3 |
-| game.xp.fill / game.track (não texto) | 3.02 | 7.37 | 3 |
+| game.streak.text / game.streak.soft | 5.59 | 7.16 | 4.5 |
+| game.hand.text / game.hand.soft | 5.82 | 7.35 | 4.5 |
+| text.primary / game.locked.bg | 15.09 | 13.59 | 4.5 |
+| game.locked.fg / game.locked.bg (não texto) | 5.87 | 7.26 | 3 |
+| game.progress / game.track (não texto) | 3.18 | 5.14 | 3 |
+| game.xp.fill / game.track (não texto) | 3.03 | 7.80 | 3 |
+| text.secondary / bg.sunken | 8.43 | 9.49 | 4.5 |
+| text.brand / feedback.info.soft | 5.41 | 6.52 | 4.5 |
+| text.primary / feedback.info.soft | 15.32 | 12.26 | 4.5 |
+| feedback.success.strong / feedback.success.soft (não texto) | 4.20 | 4.23 | 3 |
+| feedback.error.strong / feedback.error.soft (não texto) | 5.09 | 5.45 | 3 |
+| game.hand.onFill / game.hand.fill (não texto) | 5.01 | 9.26 | 3 |
+| game.trace.onSoft / game.trace.soft | 9.35 | 11.56 | 4.5 |
+| game.trace.text / game.trace.soft | 5.59 | 7.16 | 4.5 |
+| game.trace.fill / game.trace.soft (não texto) | 3.09 | 5.83 | 3 |
+| text.primary / game.trace.soft | 15.32 | 12.26 | 4.5 |
+| bg.canvas / text.primary | 16.62 | 16.90 | 4.5 |
+| game.progress / game.trace.soft (não texto) | 3.09 | 5.83 | 3 |
+| game.locked.fg / bg (pior de canvas, surface, raised) (não texto) | 7.03 | 8.37 | 3 |
 
 | Grupo | Par | Razão | Mínimo |
 |---|---|---|---|
-| stage | stage.text / scrim sobre vídeo branco | 6.19 | 4.5 |
-| stage | stage.textSecondary / scrim sobre vídeo branco | 4.81 | 4.5 |
-| stage | stage.text / pill sobre vídeo branco | 10.37 | 4.5 |
-| stage | stage.text / stage.bg | 20.02 | 4.5 |
-| stage | landmark.idle / halo sobre vídeo branco (não texto) | 9.39 | 3 |
-| stage | landmark.idle / stage.bg (não texto) | 12.71 | 3 |
-| stage | landmark.tracking / halo sobre vídeo branco (não texto) | 8.42 | 3 |
-| stage | landmark.tracking / stage.bg (não texto) | 12.24 | 3 |
-| stage | landmark.ready / halo sobre vídeo branco (não texto) | 6.37 | 3 |
-| stage | landmark.ready / stage.bg (não texto) | 9.25 | 3 |
-| stage | landmark.correct / halo sobre vídeo branco (não texto) | 8.31 | 3 |
-| stage | landmark.correct / stage.bg (não texto) | 12.07 | 3 |
-| stage | landmark.retry / halo sobre vídeo branco (não texto) | 7.24 | 3 |
-| stage | landmark.retry / stage.bg (não texto) | 10.52 | 3 |
-| stage | landmark.reference / halo sobre vídeo branco (não texto) | 4.81 | 3 |
-| stage | landmark.reference / stage.bg (não texto) | 6.33 | 3 |
-| stage | guide.idle / stage.bg (não texto) | 9.78 | 3 |
-| stage | guide.ok / stage.bg (não texto) | 12.07 | 3 |
-| stage | guide.warn / stage.bg (não texto) | 12.60 | 3 |
-| liga | bronze: onFill / fill | 4.73 | 4.5 |
+| stage | stage.text / scrim sobre vídeo branco | 5.98 | 4.5 |
+| stage | stage.textSecondary / scrim sobre vídeo branco | 4.99 | 4.5 |
+| stage | stage.text / pill sobre vídeo branco | 13.24 | 4.5 |
+| stage | stage.textSecondary / pill sobre vídeo branco | 11.05 | 4.5 |
+| stage | stage.text / stage.bg | 19.62 | 4.5 |
+| stage | stage.textSecondary / stage.bg | 16.37 | 4.5 |
+| stage | landmark.idle / halo sobre vídeo branco (não texto) | 9.07 | 3 |
+| stage | landmark.idle / stage.bg (não texto) | 12.50 | 3 |
+| stage | landmark.tracking / halo sobre vídeo branco (não texto) | 8.11 | 3 |
+| stage | landmark.tracking / stage.bg (não texto) | 12.03 | 3 |
+| stage | landmark.ready / halo sobre vídeo branco (não texto) | 6.11 | 3 |
+| stage | landmark.ready / stage.bg (não texto) | 9.06 | 3 |
+| stage | landmark.correct / halo sobre vídeo branco (não texto) | 7.98 | 3 |
+| stage | landmark.correct / stage.bg (não texto) | 11.83 | 3 |
+| stage | landmark.retry / halo sobre vídeo branco (não texto) | 6.96 | 3 |
+| stage | landmark.retry / stage.bg (não texto) | 10.31 | 3 |
+| stage | landmark.reference / halo sobre vídeo branco (não texto) | 5.03 | 3 |
+| stage | landmark.reference / stage.bg (não texto) | 6.83 | 3 |
+| stage | stage.gold / stage.bg (não texto) | 12.73 | 3 |
+| stage | stage.trace / stage.bg (não texto) | 8.38 | 3 |
+| stage | stage.trace / stage.surface (não texto) | 7.74 | 3 |
+| stage | stage.text / stage.surface | 18.11 | 4.5 |
+| stage | stage.textSecondary / stage.surface | 15.12 | 4.5 |
+| stage | landmark.correct / stage.surface | 10.92 | 4.5 |
+| stage | stage.gold / stage.surface (+XP) | 11.75 | 4.5 |
+| stage | guide.idle / stage.bg (não texto) | 9.72 | 3 |
+| stage | guide.ok / stage.bg (não texto) | 11.83 | 3 |
+| stage | guide.warn / stage.bg (não texto) | 12.34 | 3 |
+| liga | bronze: onFill / fill | 4.68 | 4.5 |
 | liga | bronze: edge / surface claro (não texto) | 8.00 | 3 |
-| liga | bronze: fill / surface escuro (não texto) | 4.37 | 3 |
-| liga | prata: onFill / fill | 8.86 | 4.5 |
+| liga | bronze: fill / surface escuro (não texto) | 4.34 | 3 |
+| liga | prata: onFill / fill | 8.77 | 4.5 |
 | liga | prata: edge / surface claro (não texto) | 4.35 | 3 |
-| liga | prata: fill / surface escuro (não texto) | 8.18 | 3 |
-| liga | ouro: onFill / fill | 9.26 | 4.5 |
+| liga | prata: fill / surface escuro (não texto) | 8.12 | 3 |
+| liga | ouro: onFill / fill | 9.17 | 4.5 |
 | liga | ouro: edge / surface claro (não texto) | 5.07 | 3 |
-| liga | ouro: fill / surface escuro (não texto) | 8.55 | 3 |
+| liga | ouro: fill / surface escuro (não texto) | 8.49 | 3 |
 | liga | safira: onFill / fill | 5.30 | 4.5 |
 | liga | safira: edge / surface claro (não texto) | 13.67 | 3 |
-| liga | safira: fill / surface escuro (não texto) | 3.31 | 3 |
+| liga | safira: fill / surface escuro (não texto) | 3.29 | 3 |
 | liga | rubi: onFill / fill | 5.18 | 4.5 |
 | liga | rubi: edge / surface claro (não texto) | 10.51 | 3 |
-| liga | rubi: fill / surface escuro (não texto) | 3.38 | 3 |
+| liga | rubi: fill / surface escuro (não texto) | 3.36 | 3 |
 | liga | ametista: onFill / fill | 5.20 | 4.5 |
 | liga | ametista: edge / surface claro (não texto) | 10.75 | 3 |
-| liga | ametista: fill / surface escuro (não texto) | 3.37 | 3 |
-| liga | diamante: onFill / fill | 11.56 | 4.5 |
+| liga | ametista: fill / surface escuro (não texto) | 3.35 | 3 |
+| liga | diamante: onFill / fill | 11.44 | 4.5 |
 | liga | diamante: edge / surface claro (não texto) | 5.02 | 3 |
-| liga | diamante: fill / surface escuro (não texto) | 10.67 | 3 |
+| liga | diamante: fill / surface escuro (não texto) | 10.59 | 3 |
+| marca | brand.icon.mark / bg (não texto) | 6.95 | 3 |
+| marca | brand.icon.dot / bg (não texto) | 18.08 | 3 |
+| marca | brand.icon.mark / bgDark (não texto) | 7.60 | 3 |
+| marca | brand.icon.dot / bgDark (não texto) | 19.76 | 3 |
 
 Regras que o contraste não resolve sozinho:
 
 - **Cor nunca é a única pista.** Acerto tem ícone de check e a palavra "Correto"; erro tem ícone e dica escrita;
   zonas do ranking têm seta e texto; ligas têm forma e nome; estados do esqueleto mudam também a espessura e o
-  traço (referência é tracejada).
+  traço (referência é tracejada); o nó bloqueado tem cadeado e o rótulo "bloqueada".
 - Texto sobre vídeo só com `stage.scrim` ou `stage.pill` por baixo.
 - Desabilitado (`text.disabled`) é isento pelo WCAG, mas nunca carrega informação necessária.
 
@@ -375,57 +466,75 @@ Regras que o contraste não resolve sozinho:
 
 ## 5. Tipografia
 
-### 5.1 Fonte
+### 5.1 Fontes
 
-**Nunito** (SIL Open Font License 1.1), auto-hospedada em woff2. Uma só família; o papel muda pelo peso.
+Duas famílias, ambas SIL Open Font License 1.1, auto-hospedadas em woff2 com subset latino (cobre todo o pt-BR),
+servidas de `/fonts/` com as licenças ao lado (`Anybody-OFL.txt`, `Figtree-OFL.txt`). Vieram dos pacotes
+`@fontsource-variable/anybody` e `@fontsource-variable/figtree`.
 
-- Arquivo variável `Nunito[wght].woff2` (eixo 200 a 1000) com subset latino (cobre todo o pt-BR), servido de
-  `/fonts/`. Fallback: `system-ui, -apple-system, Roboto, sans-serif`.
-- `font-display: swap` e `<link rel="preload" as="font" type="font/woff2" crossorigin>` no `index.html`.
-- O service worker do PWA faz cache da fonte: o app abre offline com a tipografia certa.
-- Sai o `<link>` do Google Fonts (`index.html:8-12`): sem dependência de rede e sem enviar IP a terceiro (LGPD).
+- **Anybody** variável, com os eixos de peso (100 a 900) e de **largura** (50% a 150%): títulos, botões, números,
+  glosas e a palavra-marca. A largura entra por `font-stretch`. Arquivo `Anybody-latin-wdth-wght.woff2`.
+- **Figtree** variável (300 a 900): texto e interface. Arquivo `Figtree-latin-wght.woff2`.
+- Fallback: `system-ui, -apple-system, Roboto, sans-serif`. `font-display: swap` e
+  `<link rel="preload" as="font" type="font/woff2" crossorigin>` das duas no `index.html` (e nas páginas
+  `coleta.html` e `teste-camera.html`).
+- O service worker do PWA põe as duas no precache: o app abre offline com a tipografia certa. Nenhuma requisição
+  a terceiros (LGPD).
 
 ```css
 @font-face {
-  font-family: "Nunito";
-  src: url("/fonts/Nunito-latin-wght.woff2") format("woff2-variations"),
-       url("/fonts/Nunito-latin-wght.woff2") format("woff2");
-  font-weight: 200 1000;
+  font-family: "Anybody";
+  src: url("/fonts/Anybody-latin-wdth-wght.woff2") format("woff2-variations"),
+       url("/fonts/Anybody-latin-wdth-wght.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 50% 150%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Figtree";
+  src: url("/fonts/Figtree-latin-wght.woff2") format("woff2-variations"),
+       url("/fonts/Figtree-latin-wght.woff2") format("woff2");
+  font-weight: 300 900;
   font-style: normal;
   font-display: swap;
 }
 ```
 
 Números de XP, ranking e cronômetro usam `font-variant-numeric: tabular-nums` para não "pularem" ao mudar.
-Conferir no arquivo baixado se a versão da Nunito tem a feature `tnum`; se não tiver, a propriedade é ignorada
-sem quebrar nada.
 
 ### 5.2 Escala (pensada para 360 x 640)
 
-| Token | Tamanho / linha | Peso | Uso |
-|---|---|---|---|
-| `typography.displayXl` | 40 / 44 | 900 | "Lição concluída!" |
-| `typography.display` | 32 / 37 | 800 | Onboarding, resultado de liga |
-| `typography.headline` | 26 / 31 | 700 | Título de tela |
-| `typography.title` | 20 / 26 | 700 | Card, cabeçalho de unidade, modal |
-| `typography.titleSm` | 17 / 23 | 700 | Nome de lição, linha de lista |
-| `typography.bodyLg` | 18 / 27 | 400 | Enunciado do exercício |
-| `typography.body` | 16 / 24 | 400 | Texto padrão |
-| `typography.bodySm` | 14 / 20 | 400 | Texto secundário |
-| `typography.label` | 16 / 20 | 700 | Botão |
-| `typography.labelSm` | 13 / 16 | 700 | Aba, chip, badge |
-| `typography.caption` | 12 / 16 | 600 | Menor texto permitido |
-| `typography.numericXl` | 48 / 48 | 900, tabular | Contador de XP, streak em destaque |
-| `typography.numeric` | 20 / 24 | 700, tabular | Ranking, placar |
+A largura da Anybody vai no token (`fontStretch`) como palavra-chave, porque o atalho `font` do CSS só aceita
+palavra-chave: `semi-expanded` = 112,5% e `expanded` = 125% (`font.stretch.semi` e `font.stretch.wide`). O gerador
+emite também `--lx-typography-<nome>-stretch`.
+
+| Token | Família | Tamanho / linha | Peso | Largura | Uso |
+|---|---|---|---|---|---|
+| `typography.displayXl` | Anybody | 40 / 42 | 900 | 125% | Título das boas-vindas |
+| `typography.display` | Anybody | 34 / 37 | 900 | 112,5% | "Lição concluída!", resultado de liga |
+| `typography.headline` | Anybody | 28 / 32 | 900 | 112,5% | Título de tela, nome da liga |
+| `typography.title` | Anybody | 22 / 26 | 800 | 112,5% | Card, unidade, modal, enunciado (em 900) |
+| `typography.titleSm` | Anybody | 18 / 23 | 800 | 112,5% | Nome de lição, título de item |
+| `typography.button` | Anybody | 17 / 21 | 800 | 112,5% | Botões grandes |
+| `typography.numericXl` | Anybody | 52 / 52 | 900, tabular | 125% | +XP da celebração, letra em destaque |
+| `typography.numeric` | Anybody | 20 / 24 | 800, tabular | 112,5% | Ranking, placar, chips de XP e sequência |
+| `typography.bodyLg` | Figtree | 18 / 27 | 400 | | Texto de destaque |
+| `typography.body` | Figtree | 16 / 24 | 400 | | Texto padrão |
+| `typography.bodySm` | Figtree | 14 / 20 | 400 | | Texto secundário |
+| `typography.label` | Figtree | 16 / 20 | 700 | | Rótulo, item de configuração, nome no ranking |
+| `typography.labelSm` | Figtree | 13 / 16 | 700 | | Aba, chip, badge |
+| `typography.caption` | Figtree | 12 / 16 | 600 | | Menor texto permitido |
 
 Regras:
 
 - No CSS, tamanhos em `rem` (16 px = 1 rem), para respeitar o zoom e o tamanho de texto do navegador. Testar
   com zoom de 200% (WCAG 1.4.4) sem perder conteúdo; usar quebra de linha, nunca `text-overflow` em instrução.
-- Nada abaixo de 12 px. O rótulo da aba sobe de 10,9 px para 13 px.
-- Linha de leitura com no máximo 45 caracteres no enunciado; instrução em até 2 linhas.
-- Sem itálico (pouca diferença visual na Nunito e pior leitura em tela pequena). Ênfase com peso.
-- Glosa de sinal (o nome do sinal em Libras, como `OBRIGADO`) sempre em caixa alta, peso 800, com
+- Nada abaixo de 12 px.
+- Linha de leitura com no máximo 45 caracteres no enunciado; instrução em até 2 linhas. Títulos alinhados à
+  esquerda nas telas do Traço (boas-vindas, enunciado, lição concluída).
+- Sem itálico. Ênfase com peso.
+- Glosa de sinal (o nome do sinal em Libras, como `OBRIGADO`) sempre em caixa alta, Anybody 800 em 112,5%, com
   `letter-spacing: 0.04em`. É convenção de escrita de glosa, não grito.
 
 ---
@@ -513,12 +622,14 @@ toques). Na lição e na câmera eles atrapalham:
 
 | Raio | Valor | Uso |
 |---|---|---|
-| `radius.xs` | 6 px | Badge pequeno, barra |
+| `radius.xs` | 6 px | Badge pequeno, barra, célula do calendário |
 | `radius.sm` | 10 px | Chip retangular, campo pequeno |
-| `radius.md` | 14 px | Botão, alternativa, campo, linha de ranking |
-| `radius.lg` | 20 px | Card, vídeo de sinal, modal |
-| `radius.xl` | 28 px | Topo de bottom sheet |
-| `radius.full` | 999 px | Chip de XP e streak, avatar, nó do mapa |
+| `radius.md` | 16 px | Linha de ranking, cabeçalho de unidade, toast |
+| `radius.lg` | 22 px | Card, demonstração do sinal, vídeo, modal |
+| `radius.xl` | 28 px | Topo de bottom sheet, ilustração das boas-vindas |
+| `radius.choice` | 20 px | Alternativa de exercício |
+| `radius.button` | pílula (`radius.full`) | Botão, campo de texto, "Começar" do mapa |
+| `radius.full` | 999 px | Chip de XP e sequência, avatar, nó do mapa |
 
 Borda: `borderWidth.thin 1px` (card), `thick 2px` (alternativa, insígnia), `selected 3px` (alternativa
 selecionada), anel de foco `3px` com afastamento de `2px`.
@@ -577,6 +688,7 @@ genérico; mão ensinando sinal vem de vídeo ou ilustração validada.
 | `motion.duration.emphasis` | 600 ms | Fase desbloqueada, insígnia |
 | `motion.duration.celebrate` | 800 ms | "+XP" subindo, contador |
 | `motion.duration.ambient` | 2400 ms | Loops calmos (chama, brilho) |
+| `motion.duration.orbit` | 6000 ms | Volta completa da seta em volta da lição atual |
 | `motion.stagger` | 70 ms | Entrada escalonada |
 | `motion.autoAdvance` | 1200 ms | Pausa após acerto antes de avançar |
 
@@ -597,10 +709,12 @@ duração equivalente para web, onde viram `overshoot` com essa duração.
 | Toque em botão | escala 0.97 e base da tecla afunda 2 px | `instant`, `standard` |
 | Selecionar alternativa | borda 3 px e escala 0.98 | `fast` |
 | Acerto receptivo | tile vira verde, check entra com escala 0.6 -> 1 | `fast`, `overshoot` |
-| Erro receptivo | tile vira coral, deslocamento lateral de 4 px uma vez | `fast` |
+| Erro receptivo | tile vira framboesa, deslocamento lateral de 4 px uma vez | `fast` |
 | Acerto com câmera | barra trava (50 ms), esqueleto "cristaliza" 1.0 -> 1.08 -> 1.0, anel de luz, "+XP" sobe | `crystallize`, `celebrate` |
 | Barra de progresso | largura anima | `slow`, `decelerate` |
 | Fase desbloqueada | nó cresce com mola e anel pulsa uma vez | `emphasis`, `overshoot` |
+| Lição atual no mapa | a seta de trajetória gira em volta do nó, sem parar | `orbit`, linear |
+| Lição concluída | as 12 setas saem do +XP, uma depois da outra (meio `stagger` entre elas) | `emphasis`, `overshoot`, `stagger` |
 | Sheet de conquista | sobe com mola, insígnia gira 8 graus e assenta | `slow`, `overshoot` |
 | Troca de aba | fade de conteúdo, sem deslizar | `base` |
 
@@ -610,7 +724,9 @@ Vale para `prefers-reduced-motion: reduce` e para a opção "Reduzir animações
 para quem não acha a opção do sistema).
 
 - Troca deslocamento, escala e mola por fade de `fast`.
-- Confete desligado: a conquista aparece estática, com o mesmo texto.
+- Confete desligado: a conquista aparece estática, com o mesmo texto. A explosão de setas da lição concluída
+  aparece já desenhada.
+- A seta em volta da lição atual fica parada.
 - Chama da streak e brilhos param (imagem estática da faixa certa).
 - O esqueleto da mão continua (é informação), mas sem pulso, sem brilho e sem "cristalizar"; a mudança de cor e
   de espessura permanece.
@@ -642,7 +758,7 @@ equivalente visual não é "fallback": ele existe para todo mundo, inclusive no 
 | `select` | 8 | Borda de seleção |
 | `correct` | 25 | Tile verde + check |
 | `correctCamera` | 40 | Esqueleto cristaliza + anel de luz |
-| `wrong` | nenhum | Tile coral + ícone + dica. Erro nunca vibra |
+| `wrong` | nenhum | Tile framboesa + ícone + dica. Erro nunca vibra |
 | `achievement` | 100, 50, 100 | Insígnia com brilho |
 | `streak` | 50, 30, 50 | Chama cresce |
 | `goalMet` | 80, 40, 80, 40, 80 | Barra passa de 100% e assenta |
@@ -694,8 +810,9 @@ Cada componente lista anatomia, tokens e estados. Nomes seguem as specs (`Course
 
 | Variante | Visual | Tokens |
 |---|---|---|
-| Primário ("tecla") | Fundo `action.primary.bg`, texto `action.primary.fg`, base de 3 px em `action.primary.base` | `size.buttonLg`, `radius.md`, `typography.label` |
-| Secundário | Fundo `action.secondary.bg`, borda 2 px `border.strong`, texto `text.brand` | `size.buttonMd` |
+| Primário ("tecla") | Pílula tangerina `action.primary.bg`, texto grafite `action.primary.fg` em Anybody, base de 3 px em `action.primary.base` | `size.buttonLg`, `radius.button`, `typography.button` |
+| Secundário | Pílula `action.secondary.bg`, borda 2 px `border.strong`, texto `text.brand` | `size.buttonMd`, `radius.button` |
+| "Ver o movimento" | Pílula grafite (`text.primary`) com texto `bg.canvas` e a seta curva (`TraceArrowIcon`) | `typography.label`, 48 px |
 | Terciário (texto) | Sem fundo, texto `text.brand`, sublinhado no foco | área de toque 48 |
 | Perigo | Fundo `action.danger.bg`, texto `action.danger.fg`, só em confirmação | |
 | Ícone | 48 x 48, ícone 24, fundo transparente ou `bg.sunken` | `aria-label` obrigatório |
@@ -707,12 +824,13 @@ no rodapé de exercício. Rótulo sempre verbo: "Verificar", "Continuar", "Tenta
 
 ### 11.2 Alternativa de exercício (`ChoiceTile`)
 
-Altura mínima 64, raio `md`, borda 2 px, texto `bodyLg` peso 700 (ou miniatura de vídeo 16:9 com raio `md`).
+Altura mínima 64, raio `choice` (20), borda 2 px, glosa em Anybody 800 (ou cartão de opção com demonstração no
+palco de cima, no "Qual é o sinal de").
 
 | Estado | Borda | Fundo | Extra |
 |---|---|---|---|
 | Neutro | `border.default` | `bg.surface` | |
-| Selecionada | 3 px `border.focus` | `bg.surface` | escala 0.98 |
+| Selecionada | 3 px `border.focus` | `feedback.info.soft` | número preenchido em `action.primary.bg`, escala 0.98 |
 | Correta | 3 px `feedback.success.strong` | `feedback.success.soft` | ícone check |
 | Incorreta | 3 px `feedback.error.strong` | `feedback.error.soft` | ícone `close` |
 | Revelada (a certa, após erro) | 2 px tracejada `feedback.success.strong` | `bg.surface` | "Resposta certa" em `caption` |
@@ -721,14 +839,21 @@ Altura mínima 64, raio `md`, borda 2 px, texto `bodyLg` peso 700 (ou miniatura 
 Grupo com `role="radiogroup"`; cada tile `role="radio"` com `aria-checked`. O resultado é anunciado por uma região
 `aria-live="polite"` no feedback.
 
+No "Qual é o sinal de [PALAVRA]" (`ExerciseWordChooseVideo`), tocar em qualquer parte do cartão seleciona a
+opção e toca a demonstração dela no palco de cima, sem corrigir; a pessoa compara quantas quiser e a seleção
+acompanha o último toque (setas do teclado também movem). Antes de verificar, os cartões não mostram a glosa. A
+correção só acontece no botão "Verificar" fixo embaixo, desabilitado até haver seleção.
+
 ### 11.3 Card de lição e cabeçalho de unidade
 
+- **Topo do mapa**: palavra-marca (`Wordmark`, 18 px) sobre a saudação "Bom dia, Ana" e os chips de sequência e XP.
 - **Cabeçalho de unidade** (`UnitSection`): fica fixo no topo ao rolar o mapa. Fundo `bg.surface`, "Unidade 2" num
-  selo arredondado (`game.hand.soft` com texto `game.hand.text`, `labelSm`), título em `title`, progresso "3 de 6
-  lições" e barra fina. Botão "Guia" (lista de sinais da unidade) à direita.
-- **Card de continuar** (`ResumeBanner` / `ContinueLessonCard`): o card de destaque da tela inicial. Fundo
-  `stage.bg` com brilho `stage.glow.brand`, glosa do próximo sinal em destaque, botão primário "Continuar".
-  É o único card escuro no modo claro: antecipa o palco.
+  selo arredondado (`game.hand.soft` com texto `game.hand.text`, `labelSm`), título em `title` (Anybody), progresso
+  "3 de 6 lições" e barra fina. Botão "Guia" (lista de sinais da unidade) à direita.
+- **Card de continuar** (`ResumeBanner` / `ContinueLessonCard`): a faixa "Retomar" do mapa. Fundo liso
+  `stage.bg` com o arco da seta (`TraceArc`, `stage.trace` a 55%), ícone de play em `stage.trace` e botão
+  redondo tangerina. É o único card escuro no modo claro: antecipa o palco. Leva à lição em andamento, no ponto
+  onde a pessoa parou (a lição guarda o andamento por 12 horas, `src/lib/lessonRun.ts`).
 - **Card de meta diária** (`DailyGoalBar`): ícone `bolt`, "12 de 20 XP hoje", barra `progressGoal` em
   `game.xp.fill`.
 
@@ -739,17 +864,17 @@ vertical de acento), como diz a seção 2.2.
 
 ### 11.4 Mapa e trilha de fases (`CourseMapScreen` / `LessonNode`)
 
-Uma trilha vertical, como uma linha de metrô: um conector contínuo de 4 px liga os nós, alinhados ao centro
+Uma trilha vertical, como uma linha de metrô: um conector de 4 px liga os nós, alinhados ao centro
 para o conector passar sempre pelo meio deles (a proposta previa nós alternando 24 px para os lados; ver os
 ajustes da seção 15). Diferente de um mapa infantil, **cada nó tem rótulo
 escrito ao lado** (nome da lição e "3 sinais"), o que ajuda leitura e leitor de tela.
 
 | Estado | Nó | Conector até ele | Rótulo |
 |---|---|---|---|
-| Bloqueada | 64 px, `game.locked.bg`, ícone `lock` em `game.locked.fg` | tracejado `border.default` | `text.tertiary` |
-| Disponível | 64 px, `action.primary.bg`, número da lição | sólido `border.strong` | `text.primary` |
-| Atual | 76 px, `action.primary.bg` + anel de 4 px `game.hand.fill` pulsando (`ambient`), balão "Começar" | sólido | `titleSm` |
-| Concluída | 64 px, `feedback.success.strong`, ícone `check`, três marcas de domínio abaixo | sólido `game.progress` | `text.secondary` |
+| Bloqueada | 64 px, fundo `bg.surface` com anel de 3 px `game.locked.bg`, ícone `lock` em `game.locked.fg` | pontilhado `border.strong` (pontos de 3 px a cada 10 px) | `text.secondary` |
+| Disponível | 64 px, `action.primary.bg`, ícone de play | sólido `border.strong` | `text.primary` |
+| Atual | 76 px, `action.primary.bg` com a base da tecla e a **seta de trajetória girando em volta** (`TraceOrbit`, `motion.duration.orbit`, parada com menos movimento), pílula "Começar" em `action.primary.bg` | sólido `game.trace.fill` se vem de uma concluída | `titleSm` em 900 |
+| Concluída | 64 px, `game.hand.fill` (petróleo), ícone `check` em `game.hand.onFill`, três marcas de domínio abaixo | sólido `game.trace.fill` (o trecho já feito) | `text.primary` |
 | Revisão devida | 64 px, `game.hand.soft` com borda `game.hand.fill`, ícone `replay` | sólido | "Revisar" |
 | Desafio da unidade | hexágono 76 px, `league` da cor ouro, ícone `trophy` | sólido | "Desafio" |
 
@@ -762,12 +887,12 @@ escrito ao lado** (nome da lição e "3 sinais"), o que ajuda leitura e leitor d
 
 | Barra | Altura | Preenchimento | Trilho | Texto obrigatório |
 |---|---|---|---|---|
-| Lição (`LessonProgressBar`, topo do exercício) | 12 | `game.progress` | `game.track` | `aria-valuenow` e "4 de 10" para leitor de tela |
+| Lição (`LessonProgressBar`, topo do exercício) | 12, termina numa **ponta de seta** de 14 x 22 | `game.progress` | `game.track` | `aria-valuenow` e "4 de 10" para leitor de tela; contador em Anybody |
 | Meta diária | 10 | `game.xp.fill` | `game.track` | "12 de 20 XP" visível |
 | Confiança (`ConfidenceBar`, câmera) | 8 | `stage.landmark.idle` -> `tracking` -> `ready` | branco 20% | marca do limiar visível + estado em texto |
 | XP da squad | 6 | `action.primary.bg` | `game.track` | valor ao lado |
 
-Todas com raio `full`, `role="progressbar"`. A barra de confiança tem um traço vertical no limiar e, ao atingir,
+Todas com raio `full` (a da lição só à esquerda, por causa da ponta), `role="progressbar"`. A barra de confiança tem um traço vertical no limiar e, ao atingir,
 "trava" (pisca uma vez em `ready`). Com leitor de tela, ela não anuncia cada oscilação: só "Mão detectada",
 "Quase lá" e "Reconhecido".
 
@@ -777,9 +902,9 @@ Painel que sobe do rodapé (`slow`, `decelerate`), cobre o botão e fica acima d
 
 | Estado | Fundo | Ícone (32) | Título | Corpo | Botão |
 |---|---|---|---|---|---|
-| Correto | `feedback.success.soft` | `check_circle` em `feedback.success.strong` | "Correto!" (varia, seção 2.4) em `title`, cor `feedback.success.onSoft` | glosa do sinal | primário "Continuar" (ou avanço automático de 1,2 s na câmera, com botão visível) |
-| Quase (erro receptivo) | `feedback.error.soft` | `lightbulb` em `feedback.error.strong` | "Quase!" | "A resposta certa é OBRIGADO." | primário "Continuar" |
-| Retry (câmera) | `feedback.warning.soft` | `lightbulb` | "Quase!" | dica do parâmetro (`nearestErrorHint`) | primário "Tentar de novo" e terciário "Ver o sinal" |
+| Correto | `feedback.success.soft` | `check_circle` em `feedback.success.strong` | "Correto!" (varia, seção 2.5) em `title`, cor `feedback.success.onSoft` | glosa do sinal | primário "Continuar" (ou avanço automático de 1,2 s na câmera, com botão visível) |
+| Quase (erro receptivo) | `feedback.error.soft` (framboesa) | `lightbulb` em `feedback.error.strong` | "Quase!" | "A resposta certa é OBRIGADO." | primário "Continuar" |
+| Retry (câmera) | `feedback.warning.soft` | `lightbulb` | "Quase!" | dica do parâmetro (`nearestErrorHint`) | primário "Tentar de novo" e secundário "Ver o movimento" |
 | `accept_soft` | `feedback.success.soft` | `check_circle` | "Bom trabalho!" | "Este sinal é desafiador. Continue praticando." | "Continuar" |
 
 - O painel é uma região `aria-live="assertive"` só no momento da verificação.
@@ -791,7 +916,7 @@ Painel que sobe do rodapé (`slow`, `decelerate`), cobre o botão e fica acima d
 **Layout em retrato (360 x 640 como referência)**
 
 ```
-[safe area topo + top bar transparente: X | barra da lição | "Ver o sinal"]
+[safe area topo + top bar no palco: voltar | barra da lição com ponta de seta | contador]
 [palco: vídeo espelhado 4:3 (formato do quadro da câmera, ver seção 15), raio lg só embaixo]
    - esqueleto 2D por cima (canvas), guia de enquadramento, pílula de status
    - barra de confiança na base do palco
@@ -800,7 +925,11 @@ Painel que sobe do rodapé (`slow`, `decelerate`), cobre o botão e fica acima d
 ```
 
 - Vídeo da própria pessoa espelhado (`transform: scaleX(-1)` no vídeo e no canvas). Sem avatar 3D no MVP.
-- Fundo do palco `stage.bg`, também no modo claro.
+- Fundo do palco `stage.bg`, também no modo claro. Nos exercícios com câmera (`perform_sign`, `mirror_practice`,
+  `fingerspell`) a lição inteira vira palco: `.lesson-screen--stage` com `.lx-theme-dark`, a letra-alvo em
+  `stage.trace` e o botão "Ver o movimento" (pausa a câmera e mostra a demonstração; "Voltar para a câmera" volta).
+- **Acerto**: cartão `stage.surface` com contorno `stage.border`, check em `stage.landmark.correct` e setas curtas
+  em volta (`TraceCameraArcs`, `stage.trace`).
 - **Esqueleto 2D**: linhas de 2,5 px e articulações de raio 4 em cor do estado (`stage.landmark.*`), sempre
   desenhadas sobre um contorno `stage.landmark.halo` 2 px mais largo, para ler sobre qualquer vídeo. No acerto:
   3,5 px e raio 6, com brilho. Esqueleto de referência (retry): `stage.landmark.reference`, **tracejado**, por
@@ -826,7 +955,7 @@ Painel que sobe do rodapé (`slow`, `decelerate`), cobre o botão e fica acima d
 | Instável | mão presente, pontos variando muito | barra oscila; pílula "Segure o sinal por um instante." | não |
 | Analisando | confiança no limiar | barra trava, esqueleto `ready` | não |
 | Acerto | aceite | sequência da spec 05 seção 1.3 com os tokens da seção 9 | não |
-| Retry | rejeite com dica | dedo em âmbar pisca 2 vezes, referência tracejada aparece, painel de retry | não, é ensaio |
+| Retry | rejeite com dica | dedo em âmbar pisca 2 vezes, referência tracejada (tangerina clara) aparece, painel de retry | não, é ensaio |
 | Sem câmera | escolha do usuário ou falha | vídeo de referência + "Já sei fazer este sinal" (sem penalizar streak) | não |
 
 Nenhum desses estados depende de som. Mensagens de status entram por `aria-live="polite"`, no máximo uma a cada
@@ -838,21 +967,25 @@ Nenhum desses estados depende de som. Mensagens de status entram por `aria-live=
 - Insígnia de 96 px no centro com brilho `stage.glow.gold`; título em `display` (`stage.text`), descrição em
   `body` (`stage.textSecondary`), "+50 XP" em `numeric` `game.xp.fill` do escuro.
 - Botões: primário "Continuar" e secundário "Compartilhar".
-- Confete só nas conquistas maiores (regras da spec 05 seção 5.2); desligado com reduzir movimento.
+- Confete (tangerina, petróleo e ouro) só nas conquistas maiores (regras da spec 05 seção 5.2); desligado com
+  reduzir movimento.
+- **Lição concluída**: a explosão de setas (`TraceBurst`) no lugar do ícone, do selo de +XP e do confete. Doze
+  setas curvas (tangerina e petróleo) saem do "+15" em Anybody 900 a 125%, com "XP" em `game.xp.text`. Título e
+  frase alinhados à esquerda; glosas praticadas em chips `game.trace.soft`.
 - Foco vai para o título ao abrir, `role="dialog"`, `aria-modal="true"`, fecha com o botão e com arrastar.
 - No máximo 2 celebrações por sessão (spec 05 seção 6.2); o resto fica para a próxima abertura.
 
 ### 11.9 Ranking da liga (`LeagueScreen` / `RankingList`)
 
-- **Cabeçalho**: insígnia da liga (forma e cor, seção 4.4), "Liga Safira" em `headline`, "Semana 12" e
+- **Cabeçalho**: insígnia da liga (forma, cor e a seta para cima, seção 4.4), "Liga Safira" em `headline`, "Semana 12" e
   `LeagueTimer` "Encerra em 2d 5h" com ícone de relógio.
 - **Legenda de zonas** (`PromotionLegend`): "Top 3 sobem para Rubi" com `arrow_upward` em
   `feedback.success.text`; "Últimos 10 descem para Ouro" com `arrow_downward` em `feedback.error.text`.
 - **Linha** (altura 64, raio `md`): posição em `numeric` (tabular, largura fixa de 3 dígitos), avatar 40,
-  nome em `titleSm` (até 1 linha, depois reticências), XP da semana em `numeric` alinhado à direita.
-- **Divisórias de zona**: uma linha com texto "Zona de promoção" e "Zona de rebaixamento" separa os grupos;
-  as linhas da zona têm a seta ao lado da posição. A informação nunca está só no fundo colorido.
-- **Usuário atual**: fundo `brandSoft` (`azul.100` no claro, `azul.900` no escuro), borda 2 px `border.focus`,
+  nome em `label` (Figtree, até 1 linha, depois reticências), XP da semana em `label` 800 alinhado à direita.
+- **Divisórias de zona**: "Zona de promoção" e "Zona de rebaixamento" em caixa alta, com seta e tracejado na cor
+  da zona dos dois lados; as linhas da zona têm a seta ao lado da posição. A informação nunca está só na cor.
+- **Usuário atual**: fundo `feedback.info.soft` (tangerina suave), borda 2 px `border.focus`, avatar tangerina,
   "Você" junto ao nome, e fica fixa no rodapé da lista quando sair da tela.
 - **Resultado do período** (`LeagueResultSheet`): mesmo modelo do modal de conquista; promoção com confete
   na cor da nova liga, rebaixamento sem confete e com tom neutro ("Acontece. Uma semana constante te traz de volta.").
@@ -864,7 +997,7 @@ Nenhum desses estados depende de som. Mensagens de status entram por `aria-live=
   "Início", que sai). Social reúne Ligas e Squads.
 - Barra fixa embaixo, fundo `bg.surface`, borda superior `border.subtle`, altura 64 + safe area inferior.
 - Item: ícone 24 + rótulo `labelSm` sempre visível; área mínima 48 x 48. Ativo: ícone preenchido, cor
-  `text.brand`, indicador em pílula `azul.100` / `azul.900` atrás do ícone. Inativo: contorno, `text.secondary`.
+  `text.brand`, indicador em pílula `feedback.info.soft` atrás do ícone. Inativo: contorno, `text.secondary`.
 - `<nav aria-label="Navegação principal">` com `aria-current="page"` (já existe em `Nav.tsx`).
 - Some em lição, câmera e celebração (imersão total).
 - **Top bar do app** (abas): título da tela à esquerda, chips de streak (`local_fire_department` +
@@ -887,9 +1020,9 @@ Nenhum desses estados depende de som. Mensagens de status entram por `aria-live=
 - **Toast**: `bg.inverse`, `text.inverse`, raio `md`, acima da tab bar e da safe area, 4 s (6 s com ação),
   `role="status"`.
 - **Diálogo de confirmação**: `bg.raised`, raio `lg`, título `title`, botões "Cancelar" (secundário) e a ação
-  (primário ou perigo). Textos da seção 2.4.
+  (primário ou perigo). Textos da seção 2.5.
 - **Bottom sheet**: topo `radius.xl`, alça de 4 x 32 px, fundo `bg.raised`, `bg.scrim` atrás.
-- **Chip de XP ganho** ("+20 XP"): pílula `game.xp.soft` com texto `game.xp.text`, sobe 12 px e some (`celebrate`).
+- **+XP da lição concluída**: dentro da explosão de setas (seção 11.8).
 - **Cartão cultural** (spec 05 seção 8): fundo `game.hand.soft`, ícone 64, título `title`, texto `body`,
   "Continuar". O `bg_color` livre do schema da spec 05 passa a ser um nome de token, para manter o contraste.
 - **Demonstração do sinal** (`SignDemo`): ordem de prioridade vídeo com pessoa real, depois avatar VLibras, depois
@@ -1008,7 +1141,8 @@ Regras:
 - Vídeos gravados por pessoas surdas sinalizantes, com crédito visível no detalhe do sinal.
 - Variantes regionais: quando houver, mostrar "Variante" em vez de "certo e errado".
 - Não usar sinais ou alfabeto de outra língua de sinais (ASL) em ilustração, ícone ou marca.
-- Validar paleta (o uso do azul turquesa), ícones e ilustrações de mão com consultores surdos antes de publicar.
+- Validar paleta (tangerina, petróleo e framboesa), o símbolo do Traço, ícones e ilustrações de mão com
+  consultores surdos antes de publicar.
 - Pessoas surdas podem usar o Librax para estudar a forma padronizada: nada no fluxo presume que a pessoa
   ouve (por exemplo, nada de "ouça", "escute" ou "som de acerto" em texto de interface).
 
@@ -1122,16 +1256,17 @@ Exemplo do CSS gerado:
 
 ```css
 :root {
-  --lx-color-azul-600: #3651E6;
+  --lx-color-tangerina-500: #F05A0C;
   --lx-space-4: 16px;
-  --lx-radius-md: 14px;
+  --lx-radius-md: 16px;
   --lx-motion-duration-fast: 150ms;
   --lx-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
-  --lx-typography-body: 400 16px/1.5 Nunito, system-ui, -apple-system, Roboto, sans-serif;
+  --lx-typography-body: 400 1rem/1.5 Figtree, system-ui, -apple-system, Roboto, sans-serif;
+  --lx-typography-headline: 900 semi-expanded 1.75rem/1.15 Anybody, system-ui, -apple-system, Roboto, sans-serif;
   --lx-typography-body-tracking: 0px;
   --lx-stage-landmark-ready: #3CC873;
-  --lx-bg-canvas: #F6F7FA;
-  --lx-action-primary-bg: #3651E6;
+  --lx-bg-canvas: #F7F5F2;
+  --lx-action-primary-bg: #F05A0C;
   color-scheme: light;
 }
 ```
@@ -1164,7 +1299,7 @@ preferir; o essencial é que nenhum componente escreva o número.
 Se o Flutter voltar, o mesmo `walk` gera `tokens.g.dart` com: `class LxTokens` (constantes `Color`, `double`,
 `Duration`, `Cubic`), uma `ThemeExtension<LxColors>` com `light` e `dark` a partir de `theme.*`, e o
 `ColorScheme` montado explicitamente desses tokens (sem `fromSeed`). Cor `#RRGGBBAA` vira `Color(0xAARRGGBB)`.
-A Nunito iria como asset no `pubspec.yaml`, com `google_fonts` em modo sem busca em tempo de execução. Não é
+A Anybody e a Figtree iriam como asset no `pubspec.yaml`, com `google_fonts` em modo sem busca em tempo de execução. Não é
 trabalho do MVP.
 
 ### 13.4 Migração do web-poc (estado em out/2026)
@@ -1177,7 +1312,7 @@ Configurações (`haptic(evento, enabled)` já aceita). O passo 10 depende de ex
 2. Trocar o `:root` atual (`style.css:1-55`) por aliases temporários para os novos tokens
    (`--primary: var(--lx-action-primary-bg)` etc.) e remover os aliases "retrocompatibilidade" aos poucos.
 3. Substituir os 102 hex soltos e os 34 tamanhos de fonte por tokens, tela por tela.
-4. Ajustar `index.html`: `viewport-fit=cover`, `theme-color` por modo, preload da Nunito local; remover o Google
+4. Ajustar `index.html`: `viewport-fit=cover`, `theme-color` por modo, preload das fontes locais; remover o Google
    Fonts. Alinhar `theme_color` do manifest (`vite.config.ts:32`).
 5. Safe areas na tab bar, top bar e rodapé de lição.
 6. Modo escuro: testar cada tela com `data-theme="dark"`.
@@ -1194,18 +1329,18 @@ Configurações (`haptic(evento, enabled)` já aceita). O passo 10 depende de ex
 |---|---|---|
 | Público | crianças e adultos | adultos, sem infantilização |
 | Plataforma | Flutter (doc) e web | mobile web; Flutter opcional |
-| Marca | `#4F46E5` (doc/web), `#6C5CE7` (Flutter) | `azul.600 #3651E6` claro, `azul.400 #7290FF` escuro |
+| Marca | `#4F46E5` (doc/web), `#6C5CE7` (Flutter), depois Azul Sinal `#3651E6` | Traço: tangerina `#F05A0C` claro, `#FF7F33` escuro, sobre grafite |
 | Acerto | `#10B981` / `#58CC02` | `verde.600 #14834A` claro, `verde.400 #3CC873` escuro |
-| Erro | vermelho `#EF4444` / `#FF4B4B` | coral `#C63F24` claro, `#FF7A5F` escuro |
+| Erro | vermelho `#EF4444` / `#FF4B4B`, depois coral `#C63F24` | framboesa `#B42A5E` claro, `#FF7BA6` escuro |
 | XP | `#F59E0B` / `#FFC800` | ouro `#A98500` claro, `#FACB1E` escuro |
 | Esqueleto | teal (doc), ciano e rosa (Flutter), cinza/indigo/verde (web) | `stage.landmark.*` da spec 05, com halo |
 | Háptica no erro | vibra (doc, web, Flutter) | não vibra |
 | Durações | 280 / 300 / 350 ms | `page 300`, `slow 400`, `fast 150` |
 | Abas | Início (Flutter) x Social (doc/web) | Aprender, Praticar, Social, Perfil |
 | Ícones | Material Symbols (doc), FontAwesome (web) | Material Symbols Rounded em SVG |
-| Fonte | Nunito via CDN | Nunito woff2 auto-hospedada |
+| Fonte | Nunito via CDN, depois Nunito local | Anybody e Figtree woff2 auto-hospedadas |
 | Modo escuro | automático por semente, nunca implementado | tokens explícitos, verificados |
-| Botão primário | pílula (Flutter) e raio 24 (doc) | raio 14 com efeito tecla |
+| Botão primário | pílula (Flutter), raio 24 (doc), depois raio 14 | pílula com efeito tecla (Traço) |
 | Avatar 3D | presente no web-poc | fora do MVP |
 
 ---
@@ -1217,9 +1352,9 @@ A proposta v0.1 deixou 14 decisões em aberto. Treze foram fechadas ao aplicar o
 mesma da proposta, porque o código cita os itens por número (por exemplo, "seção 15 item 8").
 
 1. **Paleta**: Azul Sinal (`#3651E6` no claro, `#7290FF` no escuro) no lugar do indigo `#4F46E5`, e turquesa
-   para mão e câmera.
+   para mão e câmera. Substituída pelo Traço em 2026-10-23 (abaixo).
 2. **Validação cultural**: continua pendente; não é decisão de código. Falta definir quem são os consultores
-   surdos que validam paleta (o uso do turquesa), ícones, cartões culturais e ilustrações, e em que momento do
+   surdos que validam paleta (tangerina, petróleo e framboesa), o símbolo, ícones, cartões culturais e ilustrações, e em que momento do
    cronograma. Até lá, paleta, ícones e textos seguem este documento.
 3. **Ligas**: as 7 ligas (Bronze, Prata, Ouro, Safira, Rubi, Ametista, Diamante) ficam nos tokens (`league.*`,
    com contraste verificado). A `LeagueScreen` e o `LeagueResultSheet` usam insígnias com forma própria
@@ -1263,8 +1398,41 @@ Ajustes feitos durante a aplicação:
 
 Acrescentado na aprovação (out/2026), a partir do [`plano-mobile-web.md`](./plano-mobile-web.md):
 
-- Voz e textos de interface do manual antigo, revisados (seção 2.4).
+- Voz e textos de interface do manual antigo, revisados (seção 2.5).
 - Regra explícita contra faixa colorida lateral em cards (seções 2.2 e 11.3).
 - Cor do tema única para página e manifest (seção 6.3) e gestos do navegador na lição (seção 6.5).
 - Demonstração do sinal com o avatar VLibras como solução provisória (seção 11.12).
 - Rotas com URL e o voltar do navegador, incluindo "Sair da lição?" (seção 11.13).
+
+### Marca Traço (decidida em 2026-10-23)
+
+O dono escolheu o caminho **Traço** no estudo de marca (`estudo/identidade-visual.md`, protótipo em
+`estudo/marca/traco.html`), no lugar da recomendação Constelação. Aplicado ao app no mesmo dia:
+
+- **Paleta**: grafite, tangerina, petróleo e framboesa (seção 4), com os nomes semânticos de sempre. Tokens novos:
+  `game.trace.*` (a seta), `game.hand.onFill`, `brand.*` (palavra-marca e símbolo), `brand.icon.*` (ícone),
+  `stage.surface`, `stage.border`, `stage.trace`, `radius.button`, `radius.choice`, `font.stretch.*`,
+  `typography.button` e `motion.duration.orbit`. Contraste: 265 pares, 0 reprovações.
+- **Fontes**: Anybody (largura variável) e Figtree no lugar da Nunito (seção 5).
+- **Marca**: símbolo e palavra-marca em SVG (`src/components/Brand.tsx`), favicon e ícones do PWA refeitos,
+  `background_color` do manifest no grafite do ícone (tela de abertura do app instalado) e `theme_color` no
+  fundo claro.
+- **Assinatura** nas telas (seção 2.4): órbita da lição atual, conectores, "Ver o movimento", explosão de setas,
+  barra com ponta, insígnias com seta, palco inteiro nos exercícios com câmera.
+- **Microcópia**: só onde o `traco.html` define: "Ver de novo", "Repetir" e "Ver o sinal" viram "Ver o
+  movimento". Os demais textos funcionais ficaram como estavam.
+
+Diferenças em relação ao protótipo, por decisão de implementação:
+
+- Os valores frios que o protótipo herdou do visual antigo no palco (`#DFE3EC`, `#0C101A`, `rgba(12,16,26,.85)`)
+  viraram os equivalentes quentes do grafite; o texto de apoio do palco foi a `#EEEAE4` para passar 4,5:1 sobre
+  vídeo branco.
+- O trilho das barras no claro ficou `#F2EFEA` (o `#EEEAE4` reprovava o ouro do XP) e a elevação do escuro
+  ganhou `#241E19` (seção 4.1).
+- As larguras de 115% a 120% do protótipo viraram 112,5% (`semi-expanded`) e as de 125%, `expanded`, porque o
+  atalho `font` só aceita palavra-chave.
+- A seta das demonstrações não é desenhada por sinal: o avatar VLibras (ou o vídeo) mostra o movimento, e o
+  botão "Ver o movimento" repete a demonstração. Seta por sinal pede dado de trajetória que o conteúdo ainda
+  não tem (custo apontado no estudo).
+- A boas-vindas mantém o seletor de idioma e os pontos dos passos, que o protótipo não mostra, porque são
+  funcionais.
