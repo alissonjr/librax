@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen, act, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -43,6 +43,12 @@ async function renderAt(entries: string[], seed?: (repo: IdbRepo) => Promise<voi
 }
 
 const path = (router: ReturnType<typeof createMemoryRouter>) => router.state.location.pathname;
+
+// As telas e os sinais são carregados sob demanda: transforma os módulos antes, para o primeiro teste
+// de lição não estourar o tempo do findBy em máquina ocupada
+beforeAll(async () => {
+  await Promise.all([import('../lib/content'), import('../screens/LessonScreen'), import('../screens/CourseMapScreen')]);
+});
 
 beforeEach(() => {
   // jsdom não rola a página

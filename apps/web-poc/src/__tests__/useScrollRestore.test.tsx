@@ -39,6 +39,8 @@ describe('useScrollRestore', () => {
     );
     render(<RouterProvider router={router} future={{ v7_startTransition: true }} />);
     await screen.findByText('mapa pronto');
+    // O ouvinte da rolagem entra num efeito depois do render: espera ele montar
+    await act(nextFrame);
 
     setScrollY(740);
     await act(nextFrame);
@@ -61,6 +63,7 @@ describe('useScrollRestore', () => {
     );
     render(<RouterProvider router={router} future={{ v7_startTransition: true }} />);
     await screen.findByText('mapa pronto');
+    await act(nextFrame);
     setScrollY(500);
     await act(nextFrame);
 
