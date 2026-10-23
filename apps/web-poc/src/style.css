@@ -2453,7 +2453,13 @@ h1[tabindex="-1"]:focus { outline: none; }
    EXERCÍCIO: ORDENAR
    ========================================================= */
 
+.order-hint {
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-secondary);
+  text-align: center;
+}
 .order-list {
+  list-style: none;
   display: flex;
   flex-direction: column;
   gap: var(--lx-space-2);
@@ -2461,25 +2467,66 @@ h1[tabindex="-1"]:focus { outline: none; }
   max-width: 400px;
   align-self: center;
 }
+/* Arrasto com Pointer Events (spec-03 11.6): touch-action none no cartão para a página não rolar
+   junto enquanto o dedo arrasta (Safari iOS e Chrome Android decidem isso no início do toque);
+   sem seleção de texto nem menu de toque longo do iPhone. */
 .order-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--lx-space-3);
   min-height: var(--lx-size-touch-comfort);
-  padding: var(--lx-space-3) var(--lx-space-4);
+  padding: var(--lx-space-1) var(--lx-space-1) var(--lx-space-1) var(--lx-space-4);
   background: var(--lx-bg-surface);
   border: var(--lx-border-width-thick) solid var(--lx-border-default);
   border-radius: var(--lx-radius-md);
   font: var(--lx-typography-body);
   font-weight: var(--lx-font-weight-semibold);
   cursor: grab;
+  touch-action: none;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .order-item:active { cursor: grabbing; }
+.order-item--dragging {
+  z-index: var(--lx-z-index-sticky);
+  border-color: var(--lx-border-focus);
+  background: var(--lx-bg-raised);
+  box-shadow: var(--lx-elevation-3);
+  cursor: grabbing;
+}
 .order-item--correct { border-color: var(--lx-feedback-success-strong); background: var(--lx-feedback-success-soft); color: var(--lx-feedback-success-on-soft); }
 .order-item--wrong   { border-color: var(--lx-feedback-error-strong);   background: var(--lx-feedback-error-soft);   color: var(--lx-feedback-error-on-soft); }
-.order-grip { color: var(--lx-text-tertiary); }
-.order-status-icon { margin-left: auto; }
+.order-grip { flex: none; color: var(--lx-text-tertiary); }
+.order-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.order-moves { flex: none; display: flex; gap: var(--lx-space-1); }
+.order-move {
+  width: var(--lx-size-touch-min);
+  height: var(--lx-size-touch-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--lx-border-width-thin) solid var(--lx-action-secondary-border);
+  border-radius: var(--lx-radius-sm);
+  background: var(--lx-action-secondary-bg);
+  color: var(--lx-action-secondary-fg);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
+}
+.order-move:disabled {
+  border-color: var(--lx-border-subtle);
+  background: transparent;
+  color: var(--lx-text-disabled);
+  cursor: default;
+}
+.order-move:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: var(--lx-border-width-focus-offset);
+}
+.order-status-icon { margin-left: auto; margin-right: var(--lx-space-3); }
 .order-status-icon--ok  { color: var(--lx-feedback-success-strong); }
 .order-status-icon--err { color: var(--lx-feedback-error-strong); }
 .order-correct-list { list-style: none; display: flex; flex-direction: column; gap: var(--lx-space-1); margin-top: var(--lx-space-2); }

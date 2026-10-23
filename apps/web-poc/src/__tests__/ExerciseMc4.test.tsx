@@ -62,6 +62,34 @@ describe('ExerciseMc4', () => {
     expect(screen.getByText(/era A/i)).toBeInTheDocument();
   });
 
+  it('esconde a glosa de outra opcao citada na descricao ate responder', async () => {
+    const pai: Sign = {
+      ...sign,
+      id: 'sinal-PAI',
+      gloss: 'PAI',
+      category: 'familia',
+      video_caption: 'Segure o queixo e deslize para baixo (HOMEM); depois encoste a mão nos lábios.',
+    };
+    render(<ExerciseMc4 sign={pai} choices={['MÃE', 'HOMEM', 'PAI', 'TIO']} onAnswer={vi.fn()} onNext={vi.fn()} />);
+    expect(screen.getByText('Segure o queixo e deslize para baixo (___); depois encoste a mão nos lábios.')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'PAI' }));
+    expect(screen.getByText(/\(HOMEM\)/)).toBeInTheDocument();
+  });
+
+  it('a nota de movimento tambem esconde a glosa certa e as outras opcoes citadas', () => {
+    const pai: Sign = {
+      ...sign,
+      id: 'sinal-PAI',
+      gloss: 'PAI',
+      category: 'familia',
+      recognition: 'dynamic',
+      params: { ...sign.params, MOV: 'desliza para baixo (sinal HOMEM) e depois PAI encosta nos lábios' },
+      video_caption: 'Segure o queixo.',
+    };
+    render(<ExerciseMc4 sign={pai} choices={['MÃE', 'HOMEM', 'PAI', 'TIO']} onAnswer={vi.fn()} onNext={vi.fn()} />);
+    expect(screen.getByText(/desliza para baixo \(sinal ___\) e depois ___ encosta/)).toBeInTheDocument();
+  });
+
   it('chama onNext ao clicar em Continuar apos resposta', async () => {
     const onNext = vi.fn();
     render(<ExerciseMc4 sign={sign} choices={choices} onAnswer={vi.fn()} onNext={onNext} />);

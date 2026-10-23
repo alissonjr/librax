@@ -214,6 +214,7 @@ describe('API', () => {
       'DELETE /v1/push/subscriptions/{subscriptionId}',
       'PUT /v1/notifications/preferences',
       'POST /v1/lesson/complete',
+      'POST /v1/practice/review',
     ]) {
       template.hasResourceProperties('AWS::ApiGatewayV2::Route', { RouteKey: routeKey, AuthorizationType: 'JWT' });
     }

@@ -43,6 +43,7 @@ services/api/
 │   │   ├── dailyQueue.js        fila SRS + conteúdo novo (SPEC 03 seção 6)
 │   │   ├── profile.js           perfil default (SPEC 02 seção 3)
 │   │   ├── lessonCompletion.js  validação e limites das conclusões vindas do cliente
+│   │   ├── practiceReview.js    validação das respostas da prática diária
 │   │   ├── push.js              inscrição Web Push e preferências de lembrete
 │   │   └── reminders.js         regras de horário dos lembretes (SPEC 05 12.2 e 12.3)
 │   ├── lib/dates.js   aritmética de datas-calendário
@@ -54,6 +55,7 @@ services/api/
 │   │   ├── completeLessonOnce.js o mesmo, idempotente por lessonAttemptId
 │   │   ├── migrateGuest.js       reexecuta o log do convidado (POST /v1/guest/migrate)
 │   │   ├── getDailyQueue.js      monta a fila do dia
+│   │   ├── reviewSigns.js        prática diária: resposta vai para o SRS (sem XP); versão idempotente
 │   │   ├── sendReminders.js      rodada de lembretes (Web Push e e-mail opcional)
 │   │   ├── closeLeagueWeek.js    fechamento semanal de todas as ligas (SPEC 02 seção 5.5)
 │   │   ├── leagueEnrollment.js   entrada na liga na 1a lição da semana, grupos de até 30
@@ -68,6 +70,7 @@ services/api/
 │       ├── _repo.js         DynamoRepo reaproveitado entre invocações
 │       ├── _catalog.js      catálogo empacotado
 │       ├── lesson.js        POST /v1/lesson/complete, GET /v1/lesson/queue
+│       ├── practice.js      POST /v1/practice/review
 │       ├── guest.js         POST /v1/guest/migrate
 │       ├── push.js          inscrição/remoção de Web Push e preferências de lembrete
 │       ├── squads.js        rotas de squad (SPEC 04)
@@ -93,6 +96,7 @@ depois de criar conta (`POST /v1/guest/migrate`).
 |---|---|---|
 | POST | `/v1/lesson/complete` | conclui uma lição; com `lessonAttemptId` é idempotente (fila offline) |
 | GET | `/v1/lesson/queue` | fila diária de SRS + sinais novos |
+| POST | `/v1/practice/review` | grava no SRS as respostas da prática diária (sem XP nem ofensiva); idempotente por `reviewAttemptId` |
 | POST | `/v1/guest/migrate` | recebe o log de conclusões do convidado e reexecuta no servidor |
 | POST | `/v1/push/subscriptions` | guarda a inscrição Web Push (`PushSubscription.toJSON()`) |
 | DELETE | `/v1/push/subscriptions/{subscriptionId}` | remove a inscrição |

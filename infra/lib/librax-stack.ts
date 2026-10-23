@@ -264,6 +264,10 @@ export class LibraxStack extends cdk.Stack {
       functionName: 'librax-get-daily-queue',
       description: 'Monta a fila diaria de SRS + conteudo novo (SPEC 03)',
     });
+    const reviewSignsFn = makeFn('ReviewSignsFn', 'practice.js', 'reviewSignsHandler', {
+      functionName: 'librax-review-signs',
+      description: 'Pratica diaria: grava a resposta no SRS (SM-2), sem XP; idempotente por reviewAttemptId',
+    });
     const migrateGuestFn = makeFn('MigrateGuestFn', 'guest.js', 'migrateGuestHandler', {
       functionName: 'librax-migrate-guest',
       description: 'Reexecuta o log local do convidado com completeLesson (plano mobile web 3.6)',
@@ -330,7 +334,7 @@ export class LibraxStack extends cdk.Stack {
 
     // Permissoes DynamoDB (principio do menor privilegio)
     const allLambdas = [
-      completeLessonFn, getDailyQueueFn, migrateGuestFn,
+      completeLessonFn, getDailyQueueFn, reviewSignsFn, migrateGuestFn,
       createSquadFn, joinSquadFn, leaveSquadFn, getSquadFn,
       manageMemberFn, listMySquadsFn, disbandSquadFn,
       transferOwnershipFn, regenerateInviteFn,
@@ -578,6 +582,7 @@ export class LibraxStack extends cdk.Stack {
 
     addRoute(M.POST,   '/v1/lesson/complete',                         completeLessonFn);
     addRoute(M.GET,    '/v1/lesson/queue',                            getDailyQueueFn);
+    addRoute(M.POST,   '/v1/practice/review',                         reviewSignsFn);
     addRoute(M.POST,   '/v1/guest/migrate',                           migrateGuestFn);
     addRoute(M.POST,   '/v1/squads',                                  createSquadFn);
     addRoute(M.POST,   '/v1/squads/join',                             joinSquadFn);

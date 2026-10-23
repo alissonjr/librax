@@ -1,15 +1,21 @@
 import { useEffect, useState, useCallback } from 'react';
 import { getToday } from '../lib/today';
-import { course, getSign, signsMap, shuffle } from '../lib/content';
+import { course, drawChoices, getSign, signsMap, shuffle } from '../lib/content';
 import type { Sign } from '../lib/content';
 import { ExerciseMc4 } from '../components/ExerciseMc4';
 import type { IdbRepo } from '../lib/idbRepo';
 import { getDailyQueue } from '@usecases/getDailyQueue.js';
+import { reviewSigns } from '@usecases/reviewSigns.js';
+import { addDays } from '@apilib/dates.js';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 
 interface QueueItem { signId: string; kind: 'review' | 'new'; }
 type Phase = 'loading' | 'list' | 'session' | 'done';
+/** review: fila do dia, grava o SRS; free: sinais já vistos, sem afetar o SRS (spec-03 11.12). */
+type Mode = 'review' | 'free';
+
+const SESSION_SIZE = 8;
 
 interface SrsItemDisplay {
   signId: string;
@@ -33,6 +39,9 @@ function daysDiff(dateStr: string, today: string): number {
 export function PracticeScreen({ userId, repo, onOpenCamera }: Props) {
   const { t } = useT();
   const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [session, setSession] = useState<QueueItem[]>([]);
+  const [mode, setMode] = useState<Mode>('review');
+  const [knownIds, setKnownIds] = useState<string[]>([]);
   const [items, setItems] = useState<SrsItemDisplay[]>([]);
   const [phase, setPhase] = useState<Phase>('loading');
   const [idx, setIdx] = useState(0);
@@ -42,13 +51,14 @@ export function PracticeScreen({ userId, repo, onOpenCamera }: Props) {
   const load = useCallback(async () => {
     setPhase('loading');
     const today = getToday();
-    const q = await getDailyQueue(repo, course, { userId, today, size: 8 }) as QueueItem[];
-    const srsItems = await repo.listSrsItems(userId);
+    const q = await getDailyQueue(repo, course, { userId, today, size: SESSION_SIZE }) as QueueItem[];
+    const srsItems = await repo.listSrsItems(userId) as { signId: string; dueAt?: string; interval?: number }[];
     const srsMap = new Map(srsItems.map(it => [it.signId, it]));
 
     const display: SrsItemDisplay[] = q.map(item => {
       const srs = srsMap.get(item.signId);
-      const lastReviewed = srs?.dueAt ?? today;
+      // A última revisão foi `interval` dias antes do vencimento
+      const lastReviewed = srs?.dueAt ? addDays(srs.dueAt, -(srs.interval ?? 0)) : today;
       return {
         signId: item.signId,
         gloss: signsMap[item.signId]?.gloss ?? item.signId,
@@ -58,24 +68,43 @@ export function PracticeScreen({ userId, repo, onOpenCamera }: Props) {
     });
 
     setQueue(q);
+    setKnownIds(srsItems.map(it => it.signId).filter(id => signsMap[id]));
     setItems(display);
     setIdx(0);
     setCorrect(0);
-    setPhase(q.length === 0 ? 'list' : 'list');
+    setPhase('list');
   }, [userId, repo]);
 
   useEffect(() => { load(); }, [load]);
 
-  function startSession() { setPhase('session'); }
+  function startReview() {
+    setMode('review');
+    setSession(queue);
+    setPhase('session');
+  }
+
+  // Prática livre: sinais já vistos em ordem aleatória; sem nenhum visto, os da fila do dia
+  function startFree() {
+    const known = shuffle(knownIds).slice(0, SESSION_SIZE).map(signId => ({ signId, kind: 'review' as const }));
+    setMode('free');
+    setSession(known.length > 0 ? known : queue);
+    setPhase('session');
+  }
 
   function advance() {
     const next = idx + 1;
-    if (next >= queue.length) setPhase('done');
+    if (next >= session.length) setPhase('done');
     else setIdx(next);
   }
 
-  function handleAnswer(wasCorrect: boolean) {
+  // Cada resposta da revisão vai para o SRS do sinal pelo domínio (spec-03 seção 6), com o mesmo
+  // resultado que a lição usa para os receptivos. XP e ofensiva ficam com a conclusão de lição.
+  function handleAnswer(signId: string, wasCorrect: boolean) {
     if (wasCorrect) setCorrect(c => c + 1);
+    if (mode !== 'review') return;
+    const result = wasCorrect ? { state: 'correct', highConfidence: true } : { state: 'failed' };
+    reviewSigns(repo, { userId, today: getToday(), reviewed: [{ signId, result }] })
+      .catch(err => console.error('[pratica] falha ao gravar o SRS', err));
   }
 
   if (phase === 'loading') {
@@ -87,7 +116,7 @@ export function PracticeScreen({ userId, repo, onOpenCamera }: Props) {
   }
 
   if (phase === 'done') {
-    const total = queue.length;
+    const total = session.length;
     const pct = Math.round((correct / total) * 100);
     return (
       <div className="practice-screen">
@@ -106,29 +135,32 @@ export function PracticeScreen({ userId, repo, onOpenCamera }: Props) {
   }
 
   if (phase === 'session') {
-    const item = queue[idx];
+    const item = session[idx];
     if (!item) return null;
     const sign: Sign = getSign(item.signId);
-    const wrong = shuffle(allSignIds.filter(s => s !== item.signId)).slice(0, 3);
-    const choices = shuffle([item.signId, ...wrong]).map(id => signsMap[id]?.gloss ?? id);
-    const pct = Math.round((idx / queue.length) * 100);
+    const choices = drawChoices(item.signId, allSignIds);
+    const pct = Math.round((idx / session.length) * 100);
 
     return (
       <div className="practice-screen">
         <div className="practice-header">
-          <div className="progress-bar-wrap progress-bar-wrap--lesson" role="progressbar" aria-valuemin={0} aria-valuemax={queue.length} aria-valuenow={idx} aria-valuetext={`${idx}/${queue.length}`}>
+          <div className="progress-bar-wrap progress-bar-wrap--lesson" role="progressbar" aria-valuemin={0} aria-valuemax={session.length} aria-valuenow={idx} aria-valuetext={`${idx}/${session.length}`}>
             <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
           </div>
-          <span className="progress-label">{idx}/{queue.length}</span>
-          <span className={`practice-badge practice-badge--${item.kind}`}>
-            {item.kind === 'review' ? <><Icon name="replay" /> {t('practiceScreen.review')}</> : <><Icon name="arrow_forward" /> {t('practiceScreen.new')}</>}
-          </span>
+          <span className="progress-label">{idx}/{session.length}</span>
+          {mode === 'free' ? (
+            <span className="practice-badge practice-badge--review">{t('practiceScreen.freePracticeTitle')}</span>
+          ) : (
+            <span className={`practice-badge practice-badge--${item.kind}`}>
+              {item.kind === 'review' ? <><Icon name="replay" /> {t('practiceScreen.review')}</> : <><Icon name="arrow_forward" /> {t('practiceScreen.new')}</>}
+            </span>
+          )}
         </div>
         <ExerciseMc4
           key={`${item.signId}-${idx}`}
           sign={sign}
           choices={choices}
-          onAnswer={handleAnswer}
+          onAnswer={(wasCorrect) => handleAnswer(item.signId, wasCorrect)}
           onNext={advance}
         />
       </div>
@@ -173,7 +205,7 @@ export function PracticeScreen({ userId, repo, onOpenCamera }: Props) {
                 </div>
               ))}
             </div>
-            <button className="btn btn-primary practice-start-btn" onClick={startSession}>
+            <button className="btn btn-primary practice-start-btn" onClick={startReview}>
               <Icon name="play_arrow" /> {t('practiceScreen.startReview')}
             </button>
           </>
@@ -184,7 +216,7 @@ export function PracticeScreen({ userId, repo, onOpenCamera }: Props) {
             <h3>{t('practiceScreen.freePracticeTitle')}</h3>
             <p>{t('practiceScreen.freePracticeDesc')}</p>
           </div>
-          <button className="btn btn-ghost" onClick={startSession}>
+          <button className="btn btn-ghost" onClick={startFree}>
             {t('practiceScreen.practice')}
           </button>
         </div>

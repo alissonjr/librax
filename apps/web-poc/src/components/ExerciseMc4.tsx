@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { maskGloss, type Sign } from '../lib/content';
+import { maskChoiceCaption, type Sign } from '../lib/content';
 import { useT } from '../i18n';
 import { Haptics } from '../lib/haptics';
 import { Sfx } from '../lib/sound';
@@ -38,7 +38,9 @@ export function ExerciseMc4({ sign, choices, onAnswer, onNext }: Props) {
   }
 
   const movNote = sign.recognition === 'dynamic' ? ` ${t('exerciseMc4.movementNote', { mov: sign.params.MOV })}` : '';
-  const description = (state === 'waiting' ? maskGloss(sign.video_caption, sign.gloss) : sign.video_caption) + movNote;
+  // A nota de movimento também cita sinais (ex.: "sinal HOMEM" no de PAI): mascara junto
+  const fullText = sign.video_caption + movNote;
+  const description = state === 'waiting' ? maskChoiceCaption(fullText, sign.gloss, choices) : fullText;
 
   return (
     <div className="exercise-screen">

@@ -20,7 +20,7 @@ export const LIMITS = {
 export const RESULT_STATES = ['correct', 'accept_soft', 'retry_resolved', 'failed', 'no_capture'];
 
 // UUID v4 passa; aceita outros ids opacos do cliente sem espaco nem separador de chave.
-const ATTEMPT_ID_RE = /^[A-Za-z0-9_-]{8,64}$/;
+export const ATTEMPT_ID_RE = /^[A-Za-z0-9_-]{8,64}$/;
 const SIGN_ID_MAX = 64;
 const ISO_DATETIME_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})$/;
 
@@ -28,7 +28,7 @@ const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
 /** Data-calendario valida ('YYYY-MM-DD' que existe de fato, sem rolagem de 31/02). */
-function isRealDate(iso) {
+export function isRealDate(iso) {
   if (typeof iso !== 'string') return false;
   try {
     return new Date(parseIsoDate(iso)).toISOString().slice(0, 10) === iso;
@@ -37,7 +37,7 @@ function isRealDate(iso) {
   }
 }
 
-function parseReviewed(raw, signs) {
+export function parseReviewed(raw, signs) {
   if (raw === undefined) return [];
   if (!Array.isArray(raw) || raw.length > LIMITS.maxReviewed) return null;
   const out = [];

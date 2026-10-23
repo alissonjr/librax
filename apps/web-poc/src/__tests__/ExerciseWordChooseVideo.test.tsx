@@ -139,4 +139,19 @@ describe('ExerciseWordChooseVideo', () => {
     const other = makeSign('PAI', 'Igual ao de mãe, mas na testa: pai.');
     expect(maskedCaption(other, 'MÃE')).toBe('Igual ao de ___, mas na testa: ___.');
   });
+
+  it('maskedCaption esconde também a glosa das outras opções citada na descrição', () => {
+    const filha = makeSign('FILHA', 'Feche os dedos no peito, como no sinal FILHO.');
+    expect(maskedCaption(filha, 'BEBÊ', [filha, FILHO, BEBE, PAI])).toBe('Feche os dedos no peito, como no sinal ___.');
+    // sem FILHO entre as opções, a citação fica
+    expect(maskedCaption(filha, 'BEBÊ', [filha, BEBE, PAI, MAE])).toBe('Feche os dedos no peito, como no sinal FILHO.');
+  });
+
+  it('o cartão não mostra a citação de outra opção antes de responder', () => {
+    mock.set({ status: 'error', error: 'offline' });
+    const filha = makeSign('FILHA', 'Feche os dedos no peito, como no sinal FILHO.');
+    render(<ExerciseWordChooseVideo word="BEBÊ" sign={BEBE} options={[filha, FILHO, BEBE, PAI]} onAnswer={vi.fn()} onNext={vi.fn()} />);
+    expect(screen.getByText('Feche os dedos no peito, como no sinal ___.')).toBeInTheDocument();
+    expect(screen.queryByText(/sinal FILHO/)).not.toBeInTheDocument();
+  });
 });
