@@ -192,6 +192,18 @@ describe('Cognito', () => {
     expect(Object.keys(template.toJSON().Outputs ?? {})).not.toContain('IdentityPoolId');
   });
 
+  test('User Pool no plano Lite (custo por MAU mais baixo)', () => {
+    const { template } = synth(withDomain);
+    template.hasResourceProperties('AWS::Cognito::UserPool', { UserPoolTier: 'LITE' });
+  });
+
+  test('tentativas de licao expiram pelo TTL do atributo expiresAt', () => {
+    const { template } = synth(withDomain);
+    template.hasResourceProperties('AWS::DynamoDB::Table', {
+      TimeToLiveSpecification: { AttributeName: 'expiresAt', Enabled: true },
+    });
+  });
+
   test('Google pode ser desligado para um primeiro deploy sem credenciais', () => {
     const { template } = synth({ ...withDomain, 'librax:googleEnabled': 'false' });
     template.resourceCountIs('AWS::Cognito::UserPoolIdentityProvider', 0);

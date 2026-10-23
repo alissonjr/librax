@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { DynamoRepo } from '../src/adapters/dynamoRepo.js';
+import { ATTEMPT_TTL_SECONDS, DynamoRepo } from '../src/adapters/dynamoRepo.js';
 
 // Formato dos itens novos na tabela single-table, sem AWS: um client falso guarda os
 // comandos enviados e devolve respostas prontas.
@@ -30,6 +30,19 @@ test('claimLessonAttempt grava ATTEMPT# com escrita condicional', async () => {
   assert.equal(input.Item.status, 'pending');
   assert.equal(typeof input.Item.expiresAt, 'number'); // TTL da tabela
   assert.equal(input.ConditionExpression, 'attribute_not_exists(PK)');
+});
+
+test('tentativa expira em 60 dias a partir da gravacao', async () => {
+  const db = fakeClient();
+  const repo = new DynamoRepo(db);
+  const antes = Math.floor(Date.now() / 1000);
+
+  await repo.claimLessonAttempt('u1', 'attempt-0002', { lessonId: 'u1-l1' });
+
+  const { expiresAt } = db.calls[0].input.Item;
+  const sessentaDias = 60 * 24 * 60 * 60;
+  assert.equal(ATTEMPT_TTL_SECONDS, sessentaDias);
+  assert.ok(expiresAt >= antes + sessentaDias && expiresAt <= antes + sessentaDias + 5);
 });
 
 test('claimLessonAttempt devolve false quando a tentativa ja existe', async () => {

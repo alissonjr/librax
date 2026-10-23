@@ -155,8 +155,8 @@ Corpo: `{ "entries": [{ "lessonAttemptId", "lessonId", "today", "score", "comple
 `completeLessonOnce` grava `USER#<id> / ATTEMPT#<lessonAttemptId>` com escrita condicional
 antes de aplicar. Se o item já existe, devolve o resultado guardado com `duplicate: true` e
 não soma XP, ofensiva, SRS, liga nem squads de novo. Se o `completeLesson` falhar, a reserva
-é apagada para o reenvio poder aplicar. O item expira pelo TTL da tabela (`expiresAt`, ~400
-dias).
+é apagada para o reenvio poder aplicar. O item expira pelo TTL da tabela (`expiresAt`, 60
+dias a partir da gravação).
 
 ### Lembretes (Web Push e e-mail)
 

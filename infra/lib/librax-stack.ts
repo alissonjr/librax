@@ -78,7 +78,7 @@ export class LibraxStack extends cdk.Stack {
       partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
       sortKey:      { name: 'SK', type: dynamodb.AttributeType.STRING },
       billingMode:  dynamodb.BillingMode.PAY_PER_REQUEST,  // free tier + escala automaticamente
-      timeToLiveAttribute: 'expiresAt',  // ATTEMPT# (idempotencia) expira em ~400 dias
+      timeToLiveAttribute: 'expiresAt',  // ATTEMPT# (idempotencia) expira em 60 dias
       pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
       removalPolicy: RemovalPolicy.RETAIN,  // nunca apagar dado de producao via CDK
     });
@@ -155,6 +155,8 @@ export class LibraxStack extends cdk.Stack {
 
     const userPool = new cognito.UserPool(this, 'LibraxUserPool', {
       userPoolName: 'librax-users',
+      // Lite cobre e-mail/senha e Google; acima de 10 mil MAU custa cerca de 1/3 do Essentials
+      featurePlan: cognito.FeaturePlan.LITE,
       selfSignUpEnabled: true,
       autoVerify: { email: true },
       signInAliases: { email: true },

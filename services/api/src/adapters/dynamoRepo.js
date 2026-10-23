@@ -23,8 +23,12 @@ import {
 
 const TABLE = process.env.LIBRAX_TABLE ?? 'librax';
 
-/** Tentativas de licao ficam ~400 dias (TTL): a fila offline nunca reenvia algo tao antigo. */
-const ATTEMPT_TTL_SECONDS = 400 * 24 * 60 * 60;
+/**
+ * Tentativas de licao ficam 60 dias (TTL), contados da gravacao: reenvio da fila offline acontece em
+ * minutos ou dias, e a migracao do convidado grava a tentativa no momento em que migra. Prazo curto
+ * mantem o armazenamento e o backup (PITR) pequenos.
+ */
+export const ATTEMPT_TTL_SECONDS = 60 * 24 * 60 * 60;
 
 const isConditionFailure = (e) => e?.name === 'ConditionalCheckFailedException';
 
