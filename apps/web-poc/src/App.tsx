@@ -19,6 +19,7 @@ import { StreakScreen } from './screens/StreakScreen';
 import { AchievementsScreen } from './screens/AchievementsScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { CameraScreen } from './screens/CameraScreen';
+import { LeagueScreen } from './screens/LeagueScreen';
 import { completeLesson } from '@usecases/completeLesson.js';
 import { newProfile } from '@domain/profile.js';
 import { StreakBrokenSheet } from './components/StreakBrokenSheet';
@@ -36,7 +37,8 @@ type AppScreen =
   | 'streak'
   | 'achievements'
   | 'settings'
-  | 'camera';
+  | 'camera'
+  | 'league';
 
 interface UnitCompletionData {
   unitId: string;
@@ -320,6 +322,17 @@ export function App() {
     );
   }
 
+  if (state.screen === 'league' && state.repo) {
+    return (
+      <LeagueScreen
+        userId={state.userId}
+        repo={state.repo}
+        onBack={() => navigate('main')}
+        onStudy={() => navigate('main', { navSection: 'aprender' })}
+      />
+    );
+  }
+
   if (state.screen === 'camera') {
     return (
       <div className="app-layout">
@@ -370,7 +383,11 @@ export function App() {
             />
           )}
           {state.navSection === 'social' && (
-            <SocialScreen />
+            <SocialScreen
+              userId={state.userId}
+              repo={state.repo}
+              onOpenLeague={() => navigate('league')}
+            />
           )}
           {state.navSection === 'perfil' && state.repo && (
             <ProfileScreen
@@ -379,6 +396,7 @@ export function App() {
               onOpenStreak={() => navigate('streak')}
               onOpenAchievements={() => navigate('achievements')}
               onOpenSettings={() => navigate('settings')}
+              onOpenLeague={() => navigate('league')}
             />
           )}
         </main>

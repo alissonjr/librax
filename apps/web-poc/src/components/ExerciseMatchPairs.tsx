@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Sign } from '../lib/content';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
+import { Sfx } from '../lib/sound';
 
 interface Props {
   signs: Sign[];
@@ -48,6 +49,8 @@ export function ExerciseMatchPairs({ signs, onComplete }: Props) {
     );
     setCards(next);
     setSelectedCard(null);
+
+    if (isCorrect) Sfx.correct(); else Sfx.neutral();
 
     if (!isCorrect) {
       setErrors(e => e + 1);

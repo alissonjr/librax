@@ -6,9 +6,11 @@ import './style.css';
 import { App } from './App';
 import { I18nProvider, getInitialLang } from './i18n';
 import { applyTheme, getThemePref } from './lib/theme';
+import { installSoundUnlock } from './lib/sound';
 
 document.documentElement.lang = getInitialLang();
 applyTheme(getThemePref());
+installSoundUnlock();
 
 createRoot(document.getElementById('app')!).render(
   <StrictMode>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Haptics } from '../lib/haptics';
+import { Sfx } from '../lib/sound';
 import { launchConfetti } from '../lib/confetti';
 import { useT, type TFunc } from '../i18n';
 import type { LessonSessionResult } from './LessonScreen';
@@ -58,11 +59,19 @@ export function LessonCompletionScreen({ data, onContinue }: Props) {
     called.current = true;
     if (goalMet) Haptics.goalMet();
     else Haptics.correct();
+    Sfx.lessonDone();
     // Celebra lições com bom desempenho (ou a conclusão do alfabeto) com confete
     if (isLastLesson || pct >= 80) {
       launchConfetti(isLastLesson ? 120 : 70, isLastLesson ? 4000 : 2600);
     }
   }, [isLastLesson, pct, goalMet]);
+
+  // Som da conquista junto com o banner (que entra com 1 s de atraso, animate__delay-1s)
+  useEffect(() => {
+    if (achievementsEarned.length === 0) return;
+    const timer = setTimeout(Sfx.achievement, 1000);
+    return () => clearTimeout(timer);
+  }, [achievementsEarned.length]);
 
   const signsReviewed = [...new Set(result.reviewed.map(r => r.signId))];
 

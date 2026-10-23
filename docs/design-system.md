@@ -1191,10 +1191,17 @@ mesma da proposta, porque o código cita os itens por número (por exemplo, "se�
    surdos que validam paleta (o uso do turquesa), ícones, cartões culturais e ilustrações, e em que momento do
    cronograma. Até lá, paleta, ícones e textos seguem este documento.
 3. **Ligas**: as 7 ligas (Bronze, Prata, Ouro, Safira, Rubi, Ametista, Diamante) ficam nos tokens (`league.*`,
-   com contraste verificado). O app ainda não tem tela de liga (a aba Social mostra "Em breve"), então nada
-   visual foi criado. Os nomes passam pela mesma validação do item 2.
+   com contraste verificado). A `LeagueScreen` e o `LeagueResultSheet` usam insígnias com forma própria
+   (`src/components/LeagueBadge.tsx`), zonas com seta e texto e a pessoa destacada com contorno completo.
+   Enquanto não há API de ligas, o domínio roda no aparelho com concorrentes simulados de forma determinística
+   por semana (`src/lib/leagueLocal.ts`, modo local/demo). Os nomes passam pela mesma validação do item 2.
 4. **Som padrão**: perguntar no onboarding, junto com a tela de motivo, sem presumir nada pela resposta "sou
-   surdo(a)". O app ainda não tem sistema de som; os tokens `sound.*` já saem no `tokens.ts`.
+   surdo(a)". Sem escolha, o som fica desligado; o interruptor "Sons" fica sempre visível em Configurações >
+   Preferências. Sistema em `src/lib/sound.ts` (Web Audio, buffers prontos no primeiro toque, `audioSession`
+   'ambient', fila de prioridade da spec 05 seção 3.2). Os sons são gerados por síntese em
+   `tools/audio/build.mjs` (AAC `.m4a` em `public/audio/`) e, se um arquivo não carregar, sintetizados na hora
+   (`src/lib/sfxSynth.js`). Token `sound.leagueUp` (subida de liga, prioridade 6). No modo reduzido, os sons de
+   interface (prioridade 0) não tocam.
 5. **Vibração padrão no Android**: ligada (mantido o comportamento do web-poc). `haptic(evento, enabled)` já
    aceita a futura opção "Vibração"; erro nunca vibra e no iOS nada é chamado.
 6. **Botão "tecla"**: adotado (base de 3 px em `action.primary.base` que afunda ao tocar).

@@ -5,6 +5,7 @@ import { useT, LANGUAGES, type Lang } from '../i18n';
 import { getThemePref, setThemePref, type ThemePref } from '../lib/theme';
 import { Icon } from '../components/Icon';
 import { VlibrasCredit } from '../components/SignDemo';
+import { SoundSettingItem } from '../components/SoundPreference';
 
 interface Props {
   userId: string;
@@ -113,6 +114,7 @@ export function SettingsScreen({ userId, repo, onBack }: Props) {
               <option value="dark">{t('settings.themeDark')}</option>
             </select>
           </div>
+          <SoundSettingItem />
         </div>
 
         <div className="settings-group">

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { launchConfetti } from '../lib/confetti';
 import { Haptics } from '../lib/haptics';
+import { Sfx } from '../lib/sound';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 
@@ -17,6 +18,7 @@ export function CourseCompletionScreen({ xpTotal, streak, signsLearned, onReview
   useEffect(() => {
     launchConfetti(150, 5000);
     Haptics.courseDone();
+    Sfx.courseDone();
     const t = setTimeout(() => launchConfetti(80, 2000), 2000);
     return () => clearTimeout(t);
   }, []);

@@ -11,7 +11,8 @@ interface Particle {
 
 const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#7C6ACF', '#009688', '#FF7800'];
 
-export function launchConfetti(count = 60, duration = 2500) {
+/** `colors` troca a paleta (ex.: a cor da liga nova na promoção, spec-05 5.2). */
+export function launchConfetti(count = 60, duration = 2500, colors: readonly string[] = COLORS) {
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;width:100%;height:100%';
   canvas.width = window.innerWidth;
@@ -28,7 +29,7 @@ export function launchConfetti(count = 60, duration = 2500) {
       y: -10,
       vx: (Math.random() - 0.5) * 6,
       vy: Math.random() * 3 + 2,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      color: colors[Math.floor(Math.random() * colors.length)],
       size: Math.random() * 8 + 5,
       life: 0,
       maxLife: Math.random() * (duration * 0.6) + duration * 0.4,

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { setDisplayName } from '../lib/auth';
 import { useT, LANGUAGES } from '../i18n';
 import { Icon } from '../components/Icon';
+import { SoundOnboardingChoice } from '../components/SoundPreference';
 
 interface Props {
   onDone: () => void;
@@ -117,6 +118,7 @@ export function OnboardingScreen({ onDone }: Props) {
               </button>
             ))}
           </div>
+          <SoundOnboardingChoice />
           <button className="btn btn-primary" onClick={advance} disabled={!motivo}>
             {t('common.continue')} <Icon name="arrow_forward" />
           </button>

@@ -29,6 +29,8 @@ const ICONS = [
   'share', 'shield', 'info', 'warning', 'drag_indicator', 'progress_activity', 'contrast',
   // demonstração do sinal (vídeo ou avatar VLibras)
   'speed', 'cloud_off',
+  // ligas (LeagueTimer) e som (Configurações)
+  'schedule', 'volume_up', 'volume_off',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).
