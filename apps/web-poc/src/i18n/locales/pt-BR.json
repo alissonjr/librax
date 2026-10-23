@@ -405,15 +405,13 @@
     "resumeVideo": "Retomar vídeo"
   },
   "exerciseWordChooseVideo": {
-    "chooseLabel": "Escolher a opção {n}",
+    "check": "Verificar",
     "correct": "Correto!",
     "correctAnswer": "A resposta certa é a opção {n}:",
-    "hide": "Parar",
     "option": "Opção {n}",
+    "playing": "Tocando a opção {n}",
     "prompt": "Qual é o sinal de",
-    "stageEmpty": "Toque em Ver para assistir cada opção, uma de cada vez. Depois escolha a certa.",
-    "view": "Ver",
-    "viewLabel": "Ver a demonstração da opção {n}"
+    "stageEmpty": "Toque numa opção para ver o sinal dela aqui. Compare quantas quiser e depois toque em Verificar."
   },
   "feedback": {
     "almost": "Quase!",

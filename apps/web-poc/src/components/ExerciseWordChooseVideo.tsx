@@ -1,4 +1,4 @@
-import { useRef, useState, useSyncExternalStore } from 'react';
+import { useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
 import { maskChoiceCaption, maskGloss, type Sign } from '../lib/content';
 import { getVlibrasState, subscribeVlibras } from '../lib/vlibras';
 import { useT } from '../i18n';
@@ -29,16 +29,18 @@ export function maskedCaption(option: Sign, word: string, options: Sign[] = []):
 }
 
 /**
- * "Qual é o sinal de <PALAVRA>?" (spec-03 11.4). As 4 opções são cartões; a demonstração toca
- * sob demanda num palco só, uma de cada vez (o avatar VLibras é uma instância única e o vídeo
- * pesa no celular). Ver a demonstração e escolher a opção são botões separados, para assistir
- * não contar como resposta. Opção sem vídeo nem avatar mostra a descrição no próprio cartão.
+ * "Qual é o sinal de <PALAVRA>?" (spec-03 11.4). As 4 opções são cartões num radiogroup: tocar no
+ * cartão seleciona a opção e toca a demonstração dela no palco de cima (um palco só, porque o
+ * avatar VLibras é uma instância única e o vídeo pesa no celular). Selecionar não corrige: a pessoa
+ * compara quantas quiser e a correção só acontece no botão Verificar. Opção sem vídeo nem avatar
+ * mostra a descrição no próprio cartão.
  */
 export function ExerciseWordChooseVideo({ word, sign, options, onAnswer, onNext }: Props) {
   const { t } = useT();
   const vl = useSyncExternalStore(subscribeVlibras, getVlibrasState);
-  const [viewing, setViewing] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [answered, setAnswered] = useState<string | null>(null);
+  const radios = useRef<(HTMLButtonElement | null)[]>([]);
   // O avanço automático e o botão Continuar não podem avançar duas vezes
   const leftRef = useRef(false);
   const next = () => {
@@ -50,39 +52,57 @@ export function ExerciseWordChooseVideo({ word, sign, options, onAnswer, onNext 
   const showFeedback = answered !== null;
   const isCorrect = answered === sign.id;
   const avatarFailed = vl.status === 'error';
-  const viewingIdx = options.findIndex(o => o.id === viewing);
-  const viewingSign = viewingIdx >= 0 ? options[viewingIdx] : null;
+  const selectedIdx = options.findIndex(o => o.id === selected);
+  const selectedSign = selectedIdx >= 0 ? options[selectedIdx] : null;
   const correctIdx = options.findIndex(o => o.id === sign.id);
 
-  function handlePick(option: Sign) {
-    if (answered) return;
-    const correct = option.id === sign.id;
-    setAnswered(option.id);
+  function select(i: number) {
+    if (showFeedback) return;
+    setSelected(options[i].id);
+  }
+
+  // Radiogroup: setas movem a seleção (e o foco) entre os cartões
+  function handleKey(e: KeyboardEvent, i: number) {
+    const step = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 0;
+    if (!step || showFeedback) return;
+    e.preventDefault();
+    const j = (i + step + options.length) % options.length;
+    select(j);
+    radios.current[j]?.focus();
+  }
+
+  function handleCheck() {
+    if (!selected || answered) return;
+    const correct = selected === sign.id;
+    setAnswered(selected);
     if (correct) { Haptics.correct(); Sfx.correct(); } else Sfx.neutral();
     onAnswer(correct);
     if (correct) setTimeout(next, 1000);
   }
 
+  // Foco do radiogroup: no selecionado ou, sem seleção, no primeiro
+  const focusIdx = selectedIdx >= 0 ? selectedIdx : 0;
+
   return (
     <div className="exercise-screen">
-      <h2 className="exercise-prompt">
+      <h2 className="exercise-prompt" id="wcv-prompt">
         {t('exerciseWordChooseVideo.prompt')} <strong className="wcv-word">{word}</strong>
       </h2>
 
-      <div className="wcv-stage" aria-live="polite">
-        {viewingSign ? (
+      <div className="wcv-stage">
+        {selectedSign ? (
           <>
-            <p className="wcv-stage-title">{t('exerciseWordChooseVideo.option', { n: viewingIdx + 1 })}</p>
+            <p className="wcv-stage-title" aria-live="polite">{t('exerciseWordChooseVideo.playing', { n: selectedIdx + 1 })}</p>
             <SignDemo
-              key={viewingSign.id}
-              sign={viewingSign}
+              key={selectedSign.id}
+              sign={selectedSign}
               conceal={!showFeedback}
               className="sign-demo--choose"
               fallback={
                 // Em modo texto o cartão já mostra a descrição: o palco fica só com o aviso do avatar
-                chooseDemoMode(viewingSign, avatarFailed) === 'text' ? null : (
+                chooseDemoMode(selectedSign, avatarFailed) === 'text' ? null : (
                   <p className="wcv-stage-text">
-                    {showFeedback ? viewingSign.video_caption : maskedCaption(viewingSign, word, options)}
+                    {showFeedback ? selectedSign.video_caption : maskedCaption(selectedSign, word, options)}
                   </p>
                 )
               }
@@ -96,55 +116,58 @@ export function ExerciseWordChooseVideo({ word, sign, options, onAnswer, onNext 
         )}
       </div>
 
-      <ul className="wcv-options">
+      <div className="wcv-options" role="radiogroup" aria-labelledby="wcv-prompt">
         {options.map((option, i) => {
           const n = i + 1;
           const textOnly = chooseDemoMode(option, avatarFailed) === 'text';
+          const isSelected = selected === option.id;
           const isRight = showFeedback && option.id === sign.id;
           const isWrongPick = showFeedback && option.id === answered && !isRight;
           let cls = 'wcv-option';
           if (isRight) cls += isCorrect ? ' wcv-option--correct' : ' wcv-option--reveal';
           else if (isWrongPick) cls += ' wcv-option--wrong';
           else if (showFeedback) cls += ' wcv-option--dimmed';
-          if (viewing === option.id && !textOnly) cls += ' wcv-option--viewing';
+          else if (isSelected) cls += ' wcv-option--selected';
           return (
-            <li key={option.id} className={cls}>
-              <button
-                type="button"
-                className="wcv-pick"
-                onClick={() => handlePick(option)}
-                disabled={showFeedback}
-                aria-label={showFeedback ? undefined : t('exerciseWordChooseVideo.chooseLabel', { n })}
-              >
-                <span className="wcv-badge tabular" aria-hidden="true">
-                  {isRight ? <Icon name="check" /> : isWrongPick ? <Icon name="close" /> : n}
+            <button
+              key={option.id}
+              ref={el => { radios.current[i] = el; }}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              aria-disabled={showFeedback || undefined}
+              tabIndex={i === focusIdx ? 0 : -1}
+              className={cls}
+              onClick={() => select(i)}
+              onKeyDown={e => handleKey(e, i)}
+            >
+              <span className="wcv-badge tabular" aria-hidden="true">
+                {isRight ? <Icon name="check" /> : isWrongPick ? <Icon name="close" /> : n}
+              </span>
+              <span className="wcv-pick-text">
+                <span className="wcv-pick-label">
+                  {showFeedback ? option.gloss : t('exerciseWordChooseVideo.option', { n })}
                 </span>
-                <span className="wcv-pick-text">
-                  <span className="wcv-pick-label">
-                    {showFeedback ? option.gloss : t('exerciseWordChooseVideo.option', { n })}
-                  </span>
-                  {textOnly && (
-                    <span className="wcv-desc">{showFeedback ? option.video_caption : maskedCaption(option, word, options)}</span>
-                  )}
-                  {isRight && !isCorrect && <span className="wcv-tag">{t('feedback.rightAnswer')}</span>}
-                </span>
-              </button>
-              {!textOnly && (
-                <button
-                  type="button"
-                  className="wcv-view"
-                  onClick={() => setViewing(viewing === option.id ? null : option.id)}
-                  aria-pressed={viewing === option.id}
-                  aria-label={t('exerciseWordChooseVideo.viewLabel', { n })}
-                >
-                  <Icon name={viewing === option.id ? 'stop' : 'play_arrow'} />
-                  <span>{t(viewing === option.id ? 'exerciseWordChooseVideo.hide' : 'exerciseWordChooseVideo.view')}</span>
-                </button>
+                {textOnly && (
+                  <span className="wcv-desc">{showFeedback ? option.video_caption : maskedCaption(option, word, options)}</span>
+                )}
+                {isRight && !isCorrect && <span className="wcv-tag">{t('feedback.rightAnswer')}</span>}
+              </span>
+              {!textOnly && !showFeedback && (
+                <Icon name="play_arrow" className="wcv-play" />
               )}
-            </li>
+            </button>
           );
         })}
-      </ul>
+      </div>
+
+      {!showFeedback && (
+        <div className="wcv-check-bar">
+          <button className="btn btn-primary" onClick={handleCheck} disabled={!selected}>
+            {t('exerciseWordChooseVideo.check')}
+          </button>
+        </div>
+      )}
 
       {showFeedback && !isCorrect && (
         <FeedbackPanel

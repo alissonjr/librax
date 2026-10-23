@@ -345,15 +345,13 @@
     "resumeVideo": "Resume video"
   },
   "exerciseWordChooseVideo": {
-    "chooseLabel": "Choose option {n}",
+    "check": "Check",
     "correct": "Correct!",
     "correctAnswer": "The right answer is option {n}:",
-    "hide": "Stop",
     "option": "Option {n}",
+    "playing": "Playing option {n}",
     "prompt": "Which is the sign for",
-    "stageEmpty": "Tap Watch to see each option, one at a time. Then choose the right one.",
-    "view": "Watch",
-    "viewLabel": "Watch the demonstration of option {n}"
+    "stageEmpty": "Tap an option to see its sign here. Compare as many as you like, then tap Check."
   },
   "feedback": {
     "almost": "Almost!",

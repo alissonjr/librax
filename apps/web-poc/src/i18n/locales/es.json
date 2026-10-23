@@ -345,15 +345,13 @@
     "resumeVideo": "Reanudar video"
   },
   "exerciseWordChooseVideo": {
-    "chooseLabel": "Elegir la opción {n}",
+    "check": "Comprobar",
     "correct": "¡Correcto!",
     "correctAnswer": "La respuesta correcta es la opción {n}:",
-    "hide": "Parar",
     "option": "Opción {n}",
+    "playing": "Reproduciendo la opción {n}",
     "prompt": "¿Cuál es la seña de",
-    "stageEmpty": "Toca Ver para mirar cada opción, una a la vez. Después elige la correcta.",
-    "view": "Ver",
-    "viewLabel": "Ver la demostración de la opción {n}"
+    "stageEmpty": "Toca una opción para ver su seña aquí. Compara las que quieras y luego toca Comprobar."
   },
   "feedback": {
     "almost": "¡Casi!",
