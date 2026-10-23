@@ -1,6 +1,6 @@
 import { newProfile } from '../domain/profile.js';
 import { applyStreak } from '../domain/streak.js';
-import { updateSrs, qualityFromResult, newSrsItem } from '../domain/srs.js';
+import { reviewSigns } from './reviewSigns.js';
 import { xpForLesson, isDailyGoalMet } from '../domain/xp.js';
 import { evaluateAchievements } from '../domain/achievements.js';
 
@@ -35,14 +35,7 @@ export async function completeLesson(repo, content, input) {
   profile.freezes = streakResult.freezes;
 
   // 3. SRS dos sinais revisados -----------------------------------------
-  let srsUpdated = 0;
-  for (const { signId, result } of reviewed) {
-    const q = qualityFromResult(result);
-    if (q === null) continue; // no_capture: nao e sinal de aprendizado
-    const current = (await repo.getSrsItem(userId, signId)) ?? newSrsItem();
-    await repo.saveSrsItem(userId, signId, updateSrs(current, q, today));
-    srsUpdated += 1;
-  }
+  const { srsUpdated } = await reviewSigns(repo, { userId, today, reviewed });
 
   // 4. Progresso da licao (melhor score) --------------------------------
   const prev = await repo.getProgress(userId, lessonId);

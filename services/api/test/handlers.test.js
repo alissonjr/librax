@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import { makeGuestHandlers } from '../src/handlers/guest.js';
 import { makeLessonHandlers } from '../src/handlers/lesson.js';
+import { makePracticeHandlers } from '../src/handlers/practice.js';
 import { makePushHandlers } from '../src/handlers/push.js';
 import { makeCloseLeagueHandler } from '../src/handlers/closeLeague.js';
 import { InMemoryRepo } from '../src/adapters/inMemoryRepo.js';
@@ -109,6 +110,51 @@ test('lesson/complete rejeita licao desconhecida com 400', async () => {
   const res = await completeLessonHandler(event({ body: entry('attempt-0001', { lessonId: 'x' }) }));
   assert.equal(res.statusCode, 400);
   assert.equal(parse(res).error.code, 'UNKNOWN_LESSON');
+});
+
+// --- POST /v1/practice/review ---
+
+const review = (id, over = {}) => ({
+  reviewAttemptId: id,
+  today: '2026-10-23',
+  reviewed: [{ signId: 'letra-A', result: { state: 'correct', highConfidence: true } }],
+  ...over,
+});
+
+test('practice/review exige usuario autenticado', async () => {
+  const { reviewSignsHandler } = makePracticeHandlers({ repo: new InMemoryRepo(), catalog, now });
+  const res = await reviewSignsHandler(event({ sub: null, body: review('review-0001') }));
+  assert.equal(res.statusCode, 401);
+});
+
+test('practice/review grava o SRS sem XP e nao duplica no reenvio', async () => {
+  const repo = new InMemoryRepo();
+  const { reviewSignsHandler } = makePracticeHandlers({ repo, catalog, now });
+
+  const r1 = await reviewSignsHandler(event({ body: review('review-0001') }));
+  const r2 = await reviewSignsHandler(event({ body: review('review-0001') }));
+
+  assert.equal(r1.statusCode, 200);
+  assert.equal(parse(r1).duplicate, false);
+  assert.equal(parse(r1).srsUpdated, 1);
+  assert.equal(parse(r2).duplicate, true);
+  const item = await repo.getSrsItem('u1', 'letra-A');
+  assert.equal(item.reps, 1);
+  assert.equal(item.dueAt, '2026-10-24');
+  assert.equal(await repo.getProfile('u1'), null); // sem XP nem ofensiva: o perfil nem e criado
+});
+
+test('practice/review valida id, sinal e data', async () => {
+  const { reviewSignsHandler } = makePracticeHandlers({ repo: new InMemoryRepo(), catalog, now });
+  const code = async (body) => parse(await reviewSignsHandler(event({ body }))).error?.code;
+
+  assert.equal(await code(review(undefined)), 'BAD_ATTEMPT_ID');
+  assert.equal(
+    await code(review('review-0001', { reviewed: [{ signId: 'letra-Z', result: { state: 'correct' } }] })),
+    'BAD_REVIEWED',
+  );
+  assert.equal(await code(review('review-0001', { today: '2026-13-01' })), 'BAD_DATE');
+  assert.equal((await reviewSignsHandler(event({ body: '{x' }))).statusCode, 400);
 });
 
 // --- Web Push: inscricao e remocao ---
