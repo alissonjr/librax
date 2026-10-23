@@ -348,6 +348,8 @@ function LessonRoute() {
   // Lição em andamento retomada e versão do conteúdo (para guardar o andamento)
   const [resume, setResume] = useState<LessonRun | null>(null);
   const version = useRef('');
+  // Concluída ou abandonada: nada mais é guardado (a tela ainda pode renderizar depois do fim)
+  const runClosed = useRef(false);
   const ready = Array.isArray(exercises) && exercises.length > 0;
   const exit = useLessonExit(ready);
 
@@ -355,6 +357,7 @@ function LessonRoute() {
     let cancelled = false;
     setExercises(undefined);
     setResume(null);
+    runClosed.current = false;
     async function load(): Promise<Exercise[] | null | 'locked'> {
       // content.ts traz os sinais (signs.json): só baixa quando uma lição abre. A tela da lição
       // baixa junto, para aparecer inteira de uma vez.
@@ -396,10 +399,12 @@ function LessonRoute() {
 
   const lessonExercises = exercises;
   function handleProgress(progress: LessonProgress) {
+    if (runClosed.current) return;
     saveLessonRun(userId, { lessonId: id, version: version.current, exercises: lessonExercises, ...progress });
   }
 
   function confirmExit() {
+    runClosed.current = true;
     clearLessonRun(userId, id);
     exit.confirm();
   }
@@ -407,6 +412,7 @@ function LessonRoute() {
   async function handleComplete(result: LessonSessionResult) {
     // Libera a saída antes de ir para a conclusão
     exit.finish();
+    runClosed.current = true;
     clearLessonRun(userId, id);
     await session.finishLesson(result);
     // Troca a lição pela conclusão: voltar dali leva ao mapa, não de volta para a lição

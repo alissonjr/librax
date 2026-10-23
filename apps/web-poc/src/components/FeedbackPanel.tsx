@@ -16,7 +16,7 @@ interface Props {
 /**
  * Painel de feedback do exercício (seção 11.6 da proposta de design system).
  * Sobe do rodapé, fica acima da safe area e sempre traz ícone e texto: a cor nunca é a única pista.
- * Erro usa coral e uma dica, nunca vibra nem toca som negativo.
+ * Erro usa framboesa (rosa escuro, nunca vermelho) e uma dica, nunca vibra nem toca som negativo.
  */
 export function FeedbackPanel({ tone, title, body, children, actionLabel, onAction }: Props) {
   return (

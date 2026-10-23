@@ -242,6 +242,17 @@ describe('lição em andamento (página recarregada)', () => {
     expect(localStorage.getItem(RUN_KEY)).toBeNull();
   });
 
+  it('concluir respondendo o último exercício não deixa lição em andamento para trás', async () => {
+    const content = await import('../lib/content');
+    const total = (await content.loadLessonBundle('u1-l1'))!.length;
+    await savedRun(undefined, total - 1);
+    const router = await renderAt(['/aprender', '/licao/u1-l1']);
+    await userEvent.click(await screen.findByRole('button', { name: /Pular este exercício|Continuar/ }));
+    await waitFor(() => expect(path(router)).toBe('/licao/u1-l1/concluida'));
+    await act(async () => { await new Promise(r => setTimeout(r, 0)); });
+    expect(localStorage.getItem(RUN_KEY)).toBeNull();
+  });
+
   it('lição salva com outra versão do conteúdo é descartada e começa do zero', async () => {
     await savedRun('outra-versao', 3);
     await renderAt(['/aprender', '/licao/u1-l1']);
