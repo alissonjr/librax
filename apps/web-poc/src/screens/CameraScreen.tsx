@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useCameraRecognizer } from '../hooks/useCameraRecognizer';
+import { warmUpHandLandmarker } from '../recognition/landmarker';
 import { RecognizedLetterBadge } from '../components/RecognizedLetterBadge';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
@@ -21,6 +23,9 @@ export function CameraScreen() {
   // Esqueleto 2D sobre o vídeo (o avatar 3D saiu do MVP; o código dele fica, desligado)
   const { videoRef, canvasRef, status, rawGesture, stableGesture, handPresent, confidence, start } =
     useCameraRecognizer();
+
+  // Tela só de câmera: começa a carregar o modelo antes do toque em "Ativar"
+  useEffect(() => { warmUpHandLandmarker(); }, []);
 
   return (
     <div className="camera-screen">

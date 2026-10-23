@@ -1,6 +1,6 @@
 import signsRaw from '../assets/content/signs.json';
 import courseRaw from '../assets/content/course.json';
-import { RECOGNIZABLE_LETTERS } from '../components/ExerciseCameraSign';
+import { getClassifier } from '../recognition/classifier';
 
 export interface Sign {
   id: string;
@@ -176,13 +176,14 @@ export function maskGloss(text: string, gloss: string): string {
 }
 
 /**
- * O reconhecedor atual (ExerciseCameraSign) so avalia letras estaticas da lista
- * RECOGNIZABLE_LETTERS. Os demais sinais (numeros, sinais com movimento, letras
- * fora da lista) ainda nao podem receber nota pela camera.
+ * A camera so avalia letras estaticas que o classificador em uso conhece: as do MLP treinado
+ * quando /ml/classifier/model.json existe, senao as do heuristico (src/recognition/classifier.ts).
+ * Os demais sinais (numeros, sinais com movimento, letras fora da lista) ainda nao podem
+ * receber nota pela camera.
  */
 export function isCameraEvaluable(sign: Sign | undefined): boolean {
   if (!sign) return false;
-  return sign.category === 'alfabeto' && sign.recognition === 'static' && RECOGNIZABLE_LETTERS.has(sign.gloss);
+  return sign.category === 'alfabeto' && sign.recognition === 'static' && getClassifier().letters.has(sign.gloss);
 }
 
 /**

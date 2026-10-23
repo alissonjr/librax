@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { recognizeGesture, type Lm, type FingerExtensions } from '../lib/recognizer';
+import type { Lm, FingerExtensions } from '../lib/recognizer';
 import { drawSkeleton } from '../lib/cameraUtils';
-
-const MEDIAPIPE_WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.19/wasm';
-const MODEL_URL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+import { detectHands, getHandLandmarker, peekHandLandmarker } from '../recognition/landmarker';
+import { startFrameLoop } from '../recognition/frameLoop';
+import { getClassifier, loadClassifier } from '../recognition/classifier';
+import { keepScreenOn, type WakeLockHandle } from '../platform/wakeLock';
 
 export type CamStatus = 'idle' | 'loading' | 'active' | 'denied' | 'error';
 
@@ -14,7 +15,7 @@ export interface UseCameraRecognizerOptions {
   /**
    * '2d' (padrao) desenha o esqueleto no canvas sobre o video.
    * '3d' nao desenha nada no canvas: os landmarks ficam em `landmarksRef`
-   * para o avatar 3D consumir, e o video pode ficar escondido.
+   * para o avatar 3D consumir (o video continua renderizado, nunca com display:none).
    */
   render?: RenderMode;
 }
@@ -34,6 +35,30 @@ export interface UseCameraRecognizerReturn {
   stop: () => void;
 }
 
+/** Deteccao a ate 15 fps (plano mobile web 3.1). */
+const DETECT_FPS = 15;
+/** A tela recebe a leitura a cerca de 10 Hz; o laco de quadros nunca chama setState direto. */
+const PUBLISH_MS = 100;
+
+interface Reading {
+  rawGesture: string | null;
+  handPresent: boolean;
+  confidence: number;
+  extensions: FingerExtensions | null;
+}
+
+const NO_HAND: Reading = { rawGesture: null, handPresent: false, confidence: 0, extensions: null };
+
+function sameReading(a: Reading, b: Reading): boolean {
+  if (a.rawGesture !== b.rawGesture || a.handPresent !== b.handPresent) return false;
+  if (Math.round(a.confidence * 100) !== Math.round(b.confidence * 100)) return false;
+  const ea = a.extensions;
+  const eb = b.extensions;
+  if (!ea || !eb) return ea === eb;
+  return ea.thumb === eb.thumb && ea.index === eb.index && ea.middle === eb.middle
+    && ea.ring === eb.ring && ea.pinky === eb.pinky;
+}
+
 /**
  * Confirma o gesto quando a leitura fica igual por `holdMs` (SPEC 01: ~400ms).
  * Conta por tempo, nao por quadros: o React so re-renderiza quando a leitura muda,
@@ -50,6 +75,13 @@ export function useStableGesture(raw: string | null, holdMs = 400) {
   return stable;
 }
 
+/**
+ * Camera + reconhecimento de um exercicio.
+ *
+ * Usa o HandLandmarker da sessao (src/recognition/landmarker.ts): o modelo e carregado uma vez
+ * e sobrevive ao fim do exercicio; parar a camera so solta o stream, o laco e o Wake Lock.
+ * O classificador e o MLP treinado quando /ml/classifier/model.json existe, senao o heuristico.
+ */
 export function useCameraRecognizer(
   options: UseCameraRecognizerOptions = {},
 ): UseCameraRecognizerReturn {
@@ -60,72 +92,67 @@ export function useCameraRecognizer(
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const landmarksRef = useRef<Lm[] | null>(null);
-  const handLandmarkerRef = useRef<import('@mediapipe/tasks-vision').HandLandmarker | null>(null);
-  const rafRef = useRef<number>(0);
   const streamRef = useRef<MediaStream | null>(null);
+  const stopLoopRef = useRef<(() => void) | null>(null);
+  const wakeRef = useRef<WakeLockHandle | null>(null);
+  const lastPublishRef = useRef(-Infinity);
   /** Falso depois do unmount: um start em andamento nao continua nem mexe no estado. */
   const mountedRef = useRef(false);
   /** Cada start ganha um numero; stop (ou um start mais novo) invalida o anterior. */
   const startIdRef = useRef(0);
 
   const [status, setStatus] = useState<CamStatus>('idle');
-  const [rawGesture, setRawGesture] = useState<string | null>(null);
-  const [handPresent, setHandPresent] = useState(false);
-  const [confidence, setConfidence] = useState(0);
-  const [extensions, setExtensions] = useState<FingerExtensions | null>(null);
+  const [reading, setReading] = useState<Reading>(NO_HAND);
 
-  const stableGesture = useStableGesture(rawGesture);
+  const stableGesture = useStableGesture(reading.rawGesture);
 
-  const detect = useCallback(() => {
+  const onFrame = useCallback((now: number) => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const hl = handLandmarkerRef.current;
-    if (!video || !canvas || !hl || video.readyState < 2) {
-      rafRef.current = requestAnimationFrame(detect);
-      return;
-    }
+    const handle = peekHandLandmarker();
+    if (!video || !canvas || !handle || video.readyState < 2) return;
 
-    // Sync canvas resolution to video every frame (handles late loadedmetadata)
+    // A resolucao do canvas acompanha a do video (o loadedmetadata pode chegar tarde)
     if (video.videoWidth > 0 && canvas.width !== video.videoWidth) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
     }
 
-    const result = hl.detectForVideo(video, performance.now());
+    const { result } = detectHands(handle, video);
     const ctx = canvas.getContext('2d');
-    if (!ctx) { rafRef.current = requestAnimationFrame(detect); return; }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let next: Reading;
 
     if (result.landmarks.length > 0) {
       const lms = result.landmarks[0] as Lm[];
       landmarksRef.current = lms;
-      const { letter, confidence: conf, extensions: ext } = recognizeGesture(lms);
-      setHandPresent(true);
-      setRawGesture(letter);
-      setConfidence(conf);
-      setExtensions(ext);
+      const handedness = result.handedness?.[0]?.[0]?.categoryName ?? null;
+      const aspect = video.videoHeight > 0 ? video.videoWidth / video.videoHeight : 1;
+      const { letter, confidence, extensions } = getClassifier().classify(lms, { handedness, aspect });
+      next = { rawGesture: letter, handPresent: true, confidence, extensions };
       // No modo 3d o avatar (HandAvatar3D) cuida do visual; aqui so detectamos.
-      if (renderRef.current === '2d') {
-        drawSkeleton(ctx, lms, canvas.width, canvas.height, conf);
-      }
+      if (ctx && renderRef.current === '2d') drawSkeleton(ctx, lms, canvas.width, canvas.height, confidence);
+      else ctx?.clearRect(0, 0, canvas.width, canvas.height);
     } else {
       landmarksRef.current = null;
-      setHandPresent(false);
-      setRawGesture(null);
-      setExtensions(null);
+      next = NO_HAND;
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    rafRef.current = requestAnimationFrame(detect);
+    if (now - lastPublishRef.current >= PUBLISH_MS) {
+      lastPublishRef.current = now;
+      setReading(prev => (sameReading(prev, next) ? prev : next));
+    }
   }, []);
 
   const stop = useCallback(() => {
     startIdRef.current += 1;
-    cancelAnimationFrame(rafRef.current);
+    stopLoopRef.current?.();
+    stopLoopRef.current = null;
     streamRef.current?.getTracks().forEach(t => t.stop());
     streamRef.current = null;
-    handLandmarkerRef.current?.close();
-    handLandmarkerRef.current = null;
+    wakeRef.current?.release();
+    wakeRef.current = null;
+    landmarksRef.current = null;
   }, []);
 
   const start = useCallback(async () => {
@@ -134,26 +161,23 @@ export function useCameraRecognizer(
     const cancelled = () => !mountedRef.current || startIdRef.current !== startId;
     setStatus('loading');
     try {
-      const { HandLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
-      const vision = await FilesetResolver.forVisionTasks(MEDIAPIPE_WASM);
-      const landmarker = await HandLandmarker.createFromOptions(vision, {
-        baseOptions: { modelAssetPath: MODEL_URL, delegate: 'GPU' },
-        runningMode: 'VIDEO',
-        numHands: 1,
-      });
-      if (cancelled()) { landmarker.close(); return; }
-      handLandmarkerRef.current = landmarker;
+      loadClassifier();
+      // Landmarker da sessao: na maioria das vezes ja esta pronto (aquecido ao abrir a licao)
+      await getHandLandmarker();
+      if (cancelled()) return;
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: false,
       });
       // Stream que chegou depois do unmount: desliga na hora para a camera nao ficar acesa
       if (cancelled()) { stopTracks(stream); return; }
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+      const video = videoRef.current;
+      if (video) {
+        video.srcObject = stream;
         try {
-          await videoRef.current.play();
+          await video.play();
         } catch (err) {
           // "play() interrupted": o video foi pausado ou removido antes de comecar a tocar
           if (!isAbortError(err)) throw err;
@@ -161,18 +185,11 @@ export function useCameraRecognizer(
       }
       if (cancelled()) return;
 
-      if (canvasRef.current && videoRef.current) {
-        const sync = () => {
-          if (canvasRef.current && videoRef.current) {
-            canvasRef.current.width = videoRef.current.videoWidth || 640;
-            canvasRef.current.height = videoRef.current.videoHeight || 480;
-          }
-        };
-        videoRef.current.addEventListener('loadedmetadata', sync);
-      }
-
       setStatus('active');
-      rafRef.current = requestAnimationFrame(detect);
+      wakeRef.current?.release();
+      wakeRef.current = keepScreenOn();
+      stopLoopRef.current?.();
+      if (video) stopLoopRef.current = startFrameLoop(video, onFrame, { maxFps: DETECT_FPS });
     } catch (err) {
       if (cancelled()) return;
       if (err instanceof DOMException && err.name === 'NotAllowedError') {
@@ -182,7 +199,7 @@ export function useCameraRecognizer(
         setStatus('error');
       }
     }
-  }, [detect]);
+  }, [onFrame]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -196,7 +213,14 @@ export function useCameraRecognizer(
     videoRef: videoRef as React.RefObject<HTMLVideoElement>,
     canvasRef: canvasRef as React.RefObject<HTMLCanvasElement>,
     landmarksRef: landmarksRef as React.RefObject<Lm[] | null>,
-    status, rawGesture, stableGesture, handPresent, confidence, extensions, start, stop,
+    status,
+    rawGesture: reading.rawGesture,
+    stableGesture,
+    handPresent: reading.handPresent,
+    confidence: reading.confidence,
+    extensions: reading.extensions,
+    start,
+    stop,
   };
 }
 

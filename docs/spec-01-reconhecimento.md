@@ -18,6 +18,8 @@ Conclusão: o produto é viável construindo do estático para o dinâmico. O n�
 
 ## 1. Decisões de arquitetura (travadas)
 
+> **Web (2026-10-23, decisão 6 do `plano-mobile-web.md`):** o canal é o navegador do celular. Landmarks pelo MediaPipe Tasks Vision `HandLandmarker` 1.1.1 (versão fixa, WASM e `hand_landmarker.task` servidos pelo app em `/ml/1.1.1/`), um landmarker por sessão, delegate GPU com queda para CPU. Estático: MLP em TypeScript puro (`src/recognition/mlp.ts`) com pesos exportados pelo `train_static.py`; enquanto não houver `/ml/classifier/model.json`, vale o reconhecedor heurístico. A imagem nunca sai do aparelho; a coleta guarda só landmarks. Os itens abaixo sobre Flutter ficam como histórico.
+
 1. **Extração de landmarks** via **Flutter** (ver `spike-01-findings.md` e `decisao-framework.md`). Pacote: **`hand_landmarker`** (pub.dev, v2.2.0) - 21 landmarks 3D, delegate GPU/CPU, empacota o modelo, integra com o plugin `camera`. **Android-only**; iOS via **plugin Flutter nativo próprio** (platform channel/FFI) sobre o MediaPipe Tasks iOS SDK, na fase de produção. Histórico: a `react-native-mediapipe` (cdiddy77) está abandonada e sem mãos; `expo-vision-camera-v4-mediapipe` exige vision-camera v4 (incompatível com a v5 do Expo SDK 56) - por isso a escolha por Flutter.
 2. **Inferência do classificador: on-device.**
    - **Estáticos:** duas rotas possíveis (decidir no spike): (a) **MediaPipe Gesture Recognizer + Model Maker** treinado com nossos handshapes (sem escrever classificador), ou (b) MLP próprio em `.tflite` rodando via **`tflite_flutter`**. Preferir (a) se a acurácia bater a meta, pelo menor custo de engenharia.
@@ -46,6 +48,21 @@ Parâmetros iniciais (calibrar no spike):
 - Features estático: 21 pts x (x,y,z) = 63, menos o subconjunto descartado.
 - Features dinâmico: T x (mão(s) + subset de pose para ponto de articulação).
 
+**Pipeline web (implementado em `apps/web-poc/src/recognition/`):**
+
+```
+getUserMedia (câmera frontal, 640x480, quadro sem espelho; o espelho é só CSS)
+   → frameLoop: requestVideoFrameCallback (ou rAF) limitado a 15 fps, descarta quadro se o anterior não terminou
+   → landmarker: HandLandmarker da sessão, detectForVideo com timestamp sempre crescente
+   → classifier: MLP (normalize.ts + mlp.ts) se /ml/classifier/model.json existir, senão heurístico
+   → useCameraRecognizer: leitura publicada à tela a no máximo 10 Hz (nunca setState por quadro)
+   → useStableGesture: letra confirmada depois de 400 ms igual
+```
+
+- Wake Lock durante a câmera (`src/platform/wakeLock.ts`); `<video>` com `playsinline` e `muted`, nunca com `display:none`.
+- O landmarker é aquecido ao abrir uma lição com câmera e não é recriado nem fechado por exercício.
+- Telemetria de aparelho: `/teste-camera.html` (fase W0) mede fps, ms por detecção, carga a frio e a quente, memória e queda de fps em 10 minutos.
+
 ## 3. Modelos
 
 ### 3.1 Estático (alfabeto/números) - MVP
@@ -53,6 +70,15 @@ Parâmetros iniciais (calibrar no spike):
 - Modelo: MLP 2 camadas (ex. 128->64, ReLU, softmax) **ou** Gesture Recognizer/Model Maker.
 - Dataset alvo: ver seção 4.
 - **Meta de aceite: >= 95% top-1** em conjunto de teste com pessoas/condições não vistas.
+
+**Contrato web (normalization_version 1, `src/recognition/normalize.ts` e `normalize_hand` no `train_static.py`):**
+1. Aspecto: x e z multiplicados por largura/altura do quadro (em pé e deitado dão o mesmo vetor).
+2. Pulso (0) na origem.
+3. Escala pela distância 3D pulso -> base do médio (9); distância zero usa fator 1e6, como a `normalizeHand` do Flutter.
+4. Mão esquerda espelhada para direita (x -> -x). O rótulo de mão do MediaPipe vem invertido no quadro sem espelho: `Right` é a mão esquerda da pessoa.
+5. Rotação no plano até pulso -> médio apontar para cima.
+
+Saída: 63 valores. O `train_static.py` exporta `model.json` (formas, labels, `normalization_version`), `weights.bin` (float32 little-endian, kernel [entrada][saída] e bias por camada) e `golden.json` (landmarks brutos -> entrada -> softmax do Keras). O app recusa modelo de outra `normalization_version`. O teste `paridade.test.ts` confere TS x Python com um fixture gerado por `ml-training/gerar_fixture_paridade.py` (MLP pequeno em numpy puro sobre mãos sintéticas, porque não havia TensorFlow no ambiente); diferença máxima exigida: 1e-4 no softmax. Limite inicial de aceitação da letra: probabilidade 0,6 (calibrar com dados reais).
 
 ### 3.2 Dinâmico (sinais isolados) - pós-MVP
 - Entrada: sequência T x features (mãos + subset de pose).
@@ -77,6 +103,7 @@ Regras de coleta (cada uma reduz o gap "funciona só comigo"):
 
 Fontes de dados, em ordem de praticidade:
 1. Captura própria do currículo inicial (rápido para alfabeto).
+   No web: `/coleta.html` (por link, no navegador de cada pessoa). Termo de consentimento, código da pessoa em vez de nome, gravações de 3 s a até 10 amostras por segundo. Cada linha do JSONL tem `label`, `person_id`, `platform`, `device_model`, `browser`, `normalization_version`, `handedness`, `aspect`, `v` (63 normalizados) e `raw` (63 brutos, para renormalizar se o contrato mudar). Fica no IndexedDB do aparelho até a pessoa exportar (Web Share ou download).
 2. Datasets públicos (ex.: MINDS-Libras, LIBRAS-UFOP, LIBRAS-BSL) - **verificar licença e disponibilidade caso a caso antes de usar.**
 3. Co-criação com a comunidade surda (também garante correção linguística).
 
@@ -105,6 +132,9 @@ Entregável do spike: um relatório curto com a acurácia medida e a decisão GO
 - **Limiares (`min_confidence`) por sinal**, não global: sinais difíceis recebem limiar/regra mais permissivos. Calibrar com dados reais (não chutar).
 
 ## 7. Performance, bateria, robustez
+- Web: 15 fps por `requestVideoFrameCallback`, quadro descartado enquanto o anterior processa, UI a 10 Hz, Wake Lock só com a câmera ligada, detecção parada fora dos exercícios de câmera.
+- Web: WASM (13 MB) e modelo (7,8 MB) em `/ml/<versão>/` com cache CacheFirst em runtime no service worker (fora do precache, que tem limite de 2 MB): depois do primeiro uso a câmera funciona offline. Em produção, `.wasm` com `Content-Type: application/wasm`.
+- Web: níveis de aparelho decididos pelos números da página de teste (plano mobile web 3.4); abaixo de 8 fps vai para o modo receptivo.
 - GPU delegate; processar a 15fps; usar `runAsync`/skip de frames para não enfileirar.
 - Monitorar throttling térmico em sessões longas.
 - Lidar com mãos faltantes/oclusão via imputação por spline antes de classificar.

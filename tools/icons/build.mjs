@@ -33,6 +33,8 @@ const ICONS = [
   'schedule', 'volume_up', 'volume_off',
   // instalação do app (tela inicial)
   'mobile_arrow_down', 'ios_share', 'add_box',
+  // página de teste da câmera (W0) e ferramenta de coleta
+  'content_copy', 'timer', 'stop', 'swap_horiz', 'memory', 'restart_alt', 'fiber_manual_record',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).
