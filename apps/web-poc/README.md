@@ -52,6 +52,10 @@ O `cloudflared` mostra um endereço `https://<nome>.trycloudflare.com`; abra `ht
 
 Atenção: o túnel deixa o servidor de desenvolvimento acessível pela internet enquanto estiver ligado, para quem tiver o endereço. Use só durante o teste e feche os dois terminais no fim.
 
+## Coleta de letras (dataset da W1)
+
+`/coleta.html` abre do mesmo jeito (no modo celular o terminal mostra o endereço). A pessoa lê o termo, informa um código (não o nome), escolhe a letra e grava 3 s. Só os 21 pontos da mão vão para o IndexedDB do aparelho, nunca imagem. **Exportar arquivo** entrega um `.jsonl` pela folha de compartilhar do celular (ou baixa). Para treinar: `python ml-training/train_static.py coleta.jsonl --out out/` e copie `out/model.json` e `out/weights.bin` para `public/ml/classifier/`. Com esses arquivos o app passa a usar o MLP; sem eles, o reconhecedor heurístico.
+
 ## Arquivos de ML em produção
 
 - Caminhos: `/ml/<versão>/wasm/` e `/ml/<versão>/hand_landmarker.task` (`src/recognition/mlAssets.ts`); classificador treinado em `/ml/classifier/model.json` + `weights.bin`.
