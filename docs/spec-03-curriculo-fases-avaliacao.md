@@ -69,26 +69,52 @@ MVP mínimo jogável ponta a ponta: **U1 completa** (valida pipeline estático) 
 
 Schema base de `exercise` no bundle:
 ```jsonc
-{ "id": "ex-001", "lesson_id": "u1-l1", "type": "<tipo>", "order": 1, "payload": { ... } }
+{ "id": "u1-l1-ex01", "lesson_id": "u1-l1", "type": "<tipo>", "order": 1, "payload": { ... } }
 ```
+
+O bundle tem um arquivo por lição (`apps/web-poc/src/assets/content/lessons/<lesson_id>.json`), gerado por script
+versionado a partir de `course.json` e `signs.json` (`tools/content/build-lessons.mjs`, composição em
+`tools/content/compose.mjs`; no web-poc: `npm run content`, e `npm run content:check` no `prebuild`). O app carrega
+o arquivo só quando a lição abre. O bundle fixa a **composição** (quais exercícios, em que ordem, com quais
+sinais); o app sorteia a cada lição aberta o que precisa variar: distratores e ordem das opções, distratores e
+ordem dos blocos da frase.
+
+Nomes finais (decisão 10 do `plano-mobile-web.md`): `intro` virou `sign_intro`; `mc4` foi fundido em
+`watch_choose_word` (mesmo payload: sinal + 4 glosas); `sign_camera` virou `perform_sign`.
+
+### Apresentação
+| type | payload |
+|---|---|
+| `sign_intro` | `{ sign_id }` (passo "apresenta" da regra de composição: vídeo ou avatar, glosa e parâmetros) |
 
 ### Receptivos (sem câmera - fáceis de produzir, fallback de acessibilidade)
 | type | payload |
 |---|---|
-| `watch_choose_word` | `{ sign_id, options[], correct }` |
-| `word_choose_video` | `{ word, video_options[], correct_sign_id }` |
+| `watch_choose_word` | `{ sign_id, correct, options[]? }` (`options` opcional: sem ele, o app sorteia 3 distratores, da mesma categoria primeiro, e embaralha; com ele, só embaralha) |
+| `word_choose_video` | `{ word, video_options[], correct_sign_id }` (ainda sem tela no app; o bundle atual não usa) |
 | `match_pairs` | `{ pairs: [{sign_id, gloss}] }` |
-| `order_sequence` | `{ steps: [...], correct_order: [...] }` |
-| `build_phrase` | `{ pt, glosses[], distractors[], source }` (U3 em diante: 1 frase da unidade por lição; monta as glosas na ordem da Libras tocando nos blocos) |
+| `order_sequence` | `{ steps: [...], correct_order: [...], word? }` (`word`: soletração de nome da U4, com as letras em `steps`, enquanto `fingerspell` não tem tela) |
+| `build_phrase` | `{ pt, glosses[], distractors[], source }` (U3 em diante: 1 frase da unidade por lição; monta as glosas na ordem da Libras tocando nos blocos. `distractors` são os candidatos, glosas das outras frases da unidade que não repetem a frase; o app sorteia 2 em frases de até 4 glosas e 1 nas maiores) |
 
 ### Expressivos (com câmera - o diferencial)
 | type | payload |
 |---|---|
-| `perform_sign` | `{ sign_id, recognition: "static"\|"dynamic", min_confidence, max_attempts, hint_video_url }` |
-| `fingerspell` | `{ word, letters[], per_letter_confidence }` |
+| `perform_sign` | `{ sign_id, recognition: "static"\|"dynamic", min_confidence, max_attempts, hint_video_url }` (`min_confidence` e `max_attempts` ficam `null`, padrão do reconhecedor, até a calibração da seção 5.3) |
+| `fingerspell` | `{ word, letters[], per_letter_confidence }` (ainda sem tela; o app mostra como `order_sequence`) |
 | `mirror_practice` | `{ sign_id }` (prática livre, sem nota) |
 
 **Regra de composição da lição**: toda lição mistura receptivo + expressivo. Sequência típica: apresenta (vídeo) -> reconhece receptivo -> produz expressivo. Receptivo cobre quem está sem câmera.
+
+Composição gerada hoje, por sinal: `sign_intro` -> `perform_sign` -> `watch_choose_word` -> `mirror_practice` ->
+`watch_choose_word`. Depois: `match_pairs` com os 3 primeiros sinais, uma rodada de revisão (`watch_choose_word`
+por sinal) e `order_sequence` com até 4 sinais (as duas só com 3 sinais ou mais), as soletrações da U4 e, da U3
+em diante, o `build_phrase`.
+
+**Câmera que não avalia o sinal**: se o reconhecedor do aparelho não dá nota para o sinal (hoje, letras estáticas
+fora da lista do reconhecedor, números e sinais com movimento; e qualquer sinal em aparelho no modo receptivo), o
+app mostra o `perform_sign` como `mirror_practice` e pula a prática livre repetida do mesmo sinal. Assim ninguém
+perde ponto por um erro que não cometeu, e o bundle não precisa ser gerado de novo quando o reconhecedor passar a
+conhecer mais sinais.
 
 ## 4. Estrutura de uma sessão (lição)
 - 7-12 exercícios, dificuldade crescente, tipos misturados.

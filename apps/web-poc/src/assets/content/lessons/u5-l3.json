@@ -1,0 +1,329 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u5-l3",
+  "exercises": [
+    {
+      "id": "u5-l3-ex01",
+      "lesson_id": "u5-l3",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "sinal-SIM"
+      }
+    },
+    {
+      "id": "u5-l3-ex02",
+      "lesson_id": "u5-l3",
+      "type": "perform_sign",
+      "order": 2,
+      "payload": {
+        "sign_id": "sinal-SIM",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u5-l3-ex03",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "sinal-SIM",
+        "correct": "SIM"
+      }
+    },
+    {
+      "id": "u5-l3-ex04",
+      "lesson_id": "u5-l3",
+      "type": "mirror_practice",
+      "order": 4,
+      "payload": {
+        "sign_id": "sinal-SIM"
+      }
+    },
+    {
+      "id": "u5-l3-ex05",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "sinal-SIM",
+        "correct": "SIM"
+      }
+    },
+    {
+      "id": "u5-l3-ex06",
+      "lesson_id": "u5-l3",
+      "type": "sign_intro",
+      "order": 6,
+      "payload": {
+        "sign_id": "sinal-NAO"
+      }
+    },
+    {
+      "id": "u5-l3-ex07",
+      "lesson_id": "u5-l3",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "sinal-NAO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u5-l3-ex08",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 8,
+      "payload": {
+        "sign_id": "sinal-NAO",
+        "correct": "NÃO"
+      }
+    },
+    {
+      "id": "u5-l3-ex09",
+      "lesson_id": "u5-l3",
+      "type": "mirror_practice",
+      "order": 9,
+      "payload": {
+        "sign_id": "sinal-NAO"
+      }
+    },
+    {
+      "id": "u5-l3-ex10",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 10,
+      "payload": {
+        "sign_id": "sinal-NAO",
+        "correct": "NÃO"
+      }
+    },
+    {
+      "id": "u5-l3-ex11",
+      "lesson_id": "u5-l3",
+      "type": "sign_intro",
+      "order": 11,
+      "payload": {
+        "sign_id": "sinal-ENTENDER"
+      }
+    },
+    {
+      "id": "u5-l3-ex12",
+      "lesson_id": "u5-l3",
+      "type": "perform_sign",
+      "order": 12,
+      "payload": {
+        "sign_id": "sinal-ENTENDER",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u5-l3-ex13",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 13,
+      "payload": {
+        "sign_id": "sinal-ENTENDER",
+        "correct": "ENTENDER"
+      }
+    },
+    {
+      "id": "u5-l3-ex14",
+      "lesson_id": "u5-l3",
+      "type": "mirror_practice",
+      "order": 14,
+      "payload": {
+        "sign_id": "sinal-ENTENDER"
+      }
+    },
+    {
+      "id": "u5-l3-ex15",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 15,
+      "payload": {
+        "sign_id": "sinal-ENTENDER",
+        "correct": "ENTENDER"
+      }
+    },
+    {
+      "id": "u5-l3-ex16",
+      "lesson_id": "u5-l3",
+      "type": "sign_intro",
+      "order": 16,
+      "payload": {
+        "sign_id": "sinal-SABER"
+      }
+    },
+    {
+      "id": "u5-l3-ex17",
+      "lesson_id": "u5-l3",
+      "type": "perform_sign",
+      "order": 17,
+      "payload": {
+        "sign_id": "sinal-SABER",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u5-l3-ex18",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 18,
+      "payload": {
+        "sign_id": "sinal-SABER",
+        "correct": "SABER"
+      }
+    },
+    {
+      "id": "u5-l3-ex19",
+      "lesson_id": "u5-l3",
+      "type": "mirror_practice",
+      "order": 19,
+      "payload": {
+        "sign_id": "sinal-SABER"
+      }
+    },
+    {
+      "id": "u5-l3-ex20",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 20,
+      "payload": {
+        "sign_id": "sinal-SABER",
+        "correct": "SABER"
+      }
+    },
+    {
+      "id": "u5-l3-ex21",
+      "lesson_id": "u5-l3",
+      "type": "match_pairs",
+      "order": 21,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "sinal-SIM",
+            "gloss": "SIM"
+          },
+          {
+            "sign_id": "sinal-NAO",
+            "gloss": "NÃO"
+          },
+          {
+            "sign_id": "sinal-ENTENDER",
+            "gloss": "ENTENDER"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u5-l3-ex22",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 22,
+      "payload": {
+        "sign_id": "sinal-SIM",
+        "correct": "SIM"
+      }
+    },
+    {
+      "id": "u5-l3-ex23",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 23,
+      "payload": {
+        "sign_id": "sinal-NAO",
+        "correct": "NÃO"
+      }
+    },
+    {
+      "id": "u5-l3-ex24",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 24,
+      "payload": {
+        "sign_id": "sinal-ENTENDER",
+        "correct": "ENTENDER"
+      }
+    },
+    {
+      "id": "u5-l3-ex25",
+      "lesson_id": "u5-l3",
+      "type": "watch_choose_word",
+      "order": 25,
+      "payload": {
+        "sign_id": "sinal-SABER",
+        "correct": "SABER"
+      }
+    },
+    {
+      "id": "u5-l3-ex26",
+      "lesson_id": "u5-l3",
+      "type": "order_sequence",
+      "order": 26,
+      "payload": {
+        "steps": [
+          "SIM",
+          "NÃO",
+          "ENTENDER",
+          "SABER"
+        ],
+        "correct_order": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "u5-l3-ex27",
+      "lesson_id": "u5-l3",
+      "type": "build_phrase",
+      "order": 27,
+      "payload": {
+        "pt": "Por que você faltou ao trabalho ontem?",
+        "glosses": [
+          "PORQUE",
+          "ONTEM",
+          "TRABALHO",
+          "VOCÊ",
+          "FALTAR?"
+        ],
+        "distractors": [
+          "BEBER",
+          "O-QUE?",
+          "LÁPIS",
+          "ONDE?",
+          "AMIG@",
+          "SE@",
+          "QUEM-É?",
+          "EU",
+          "QUERER",
+          "CONHECER!",
+          "CASA",
+          "DEL@",
+          "QUARTO",
+          "TER",
+          "QUANT@?"
+        ],
+        "source": {
+          "name": "Dicionário de Libras do INES - exemplo do verbete PORQUE",
+          "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/porqueSm_Prog001.mp4"
+        }
+      }
+    }
+  ]
+}

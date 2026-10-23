@@ -31,13 +31,15 @@ const ICONS = [
   'speed', 'cloud_off',
   // ligas (LeagueTimer) e som (Configurações)
   'schedule', 'volume_up', 'volume_off',
+  // instalação do app (tela inicial)
+  'mobile_arrow_down', 'ios_share', 'add_box',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).
 const FILLED = new Set([
   'school', 'sign_language', 'group', 'person',
   'local_fire_department', 'bolt', 'military_tech', 'trophy', 'check_circle', 'lightbulb', 'lock',
-  'play_arrow', 'warning', 'info',
+  'play_arrow', 'warning', 'info', 'mobile_arrow_down',
 ]);
 
 const pathOf = (file) => {

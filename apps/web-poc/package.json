@@ -9,9 +9,12 @@
     "contrast": "node ../../tools/tokens/check-contrast.mjs --verbose",
     "icons": "node ../../tools/icons/build.mjs",
     "sounds": "node ../../tools/audio/build.mjs",
+    "pwa-icons": "node ../../tools/pwa/build-icons.mjs",
+    "content": "node ../../tools/content/build-lessons.mjs",
+    "content:check": "node ../../tools/content/build-lessons.mjs --check",
     "predev": "npm run tokens",
     "dev": "vite",
-    "prebuild": "npm run tokens && node ../../tools/tokens/check-contrast.mjs",
+    "prebuild": "npm run tokens && node ../../tools/tokens/check-contrast.mjs && npm run content:check",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
@@ -24,6 +27,7 @@
     "idb": "^8.0.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
+    "react-router-dom": "^6.30.6",
     "three": "^0.169.0"
   },
   "devDependencies": {

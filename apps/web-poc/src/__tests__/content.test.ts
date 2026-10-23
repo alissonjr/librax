@@ -1,14 +1,36 @@
 import { describe, it, expect } from 'vitest';
 import {
-  buildExercises, buildSpellExercises, course, getSign, isCameraEvaluable, maskGloss, signsMap,
-  type Sign,
-  buildPhraseExercise, knownGlossCount, normalizeGloss, pickPhrase, PHRASE_FIRST_UNIT_INDEX, type Phrase,
+  course, drawChoices, getSign, isCameraEvaluable, maskGloss, phraseTiles, resolveExercises, signsMap,
+  type BundleExercise, type Exercise, type Phrase, type Sign,
 } from '../lib/content';
 import { RECOGNIZABLE_LETTERS } from '../components/ExerciseCameraSign';
 import { evaluateAchievements } from '@domain/achievements.js';
+import {
+  composeCourse, composeLessonExercises, knownGlossCount, lessonFile, normalizeGloss, numberExercises,
+  phraseDistractors, pickPhrase, PHRASE_FIRST_UNIT_INDEX,
+} from '../../../../tools/content/compose.mjs';
+import courseRaw from '../assets/content/course.json';
+import signsRaw from '../assets/content/signs.json';
 
 const ALL_IDS = Object.keys(signsMap);
 const LETTER_IDS = ALL_IDS.filter((id) => signsMap[id].category === 'alfabeto');
+
+// Bundle versionado (um arquivo por licao), como o app le
+const FILES = import.meta.glob<{ generated_by: string; lesson_id: string; exercises: BundleExercise[] }>(
+  '../assets/content/lessons/*.json',
+  { eager: true, import: 'default' },
+);
+const BUNDLE: Record<string, BundleExercise[]> = Object.fromEntries(
+  Object.values(FILES).map((f) => [f.lesson_id, f.exercises]),
+);
+
+/** Tipos do catalogo da spec-03 secao 3 (nomes finais). */
+const SPEC_TYPES = new Set([
+  'sign_intro', 'watch_choose_word', 'word_choose_video', 'match_pairs', 'order_sequence', 'build_phrase',
+  'perform_sign', 'fingerspell', 'mirror_practice',
+]);
+
+type Composed = { type: string; payload: Record<string, unknown> };
 
 function fakeSign(id: string, gloss: string, category: string, recognition: string): Sign {
   return {
@@ -22,86 +44,133 @@ function fakeSign(id: string, gloss: string, category: string, recognition: stri
   };
 }
 
-describe('buildExercises', () => {
-  // A e B estao no reconhecedor; C nao esta
-  const signIds = ['letra-A', 'letra-B', 'letra-C'];
-  const exercises = buildExercises(signIds, ALL_IDS);
+/** Exercicios de uma licao avulsa no formato do bundle. */
+function bundleFor(signIds: string[], map: Record<string, Sign> = signsMap): BundleExercise[] {
+  return numberExercises('t-l1', composeLessonExercises({ signIds }, map)) as BundleExercise[];
+}
 
-  it('gera um intro para cada sinal', () => {
-    const intros = exercises.filter((e) => e.type === 'intro');
-    expect(intros).toHaveLength(signIds.length);
-    expect(intros.map((e) => e.signId)).toEqual(expect.arrayContaining(signIds));
+/** Compoe e resolve uma licao avulsa, como o app faria com o arquivo do bundle. */
+function lessonFor(signIds: string[], map: Record<string, Sign> = signsMap, pool = ALL_IDS): Exercise[] {
+  return resolveExercises(bundleFor(signIds, map), signIds, { signsMap: map, allSignIds: pool });
+}
+
+describe('composicao da licao (bundle)', () => {
+  const signIds = ['letra-A', 'letra-B', 'letra-C'];
+  const items = bundleFor(signIds);
+  const count = (t: string) => items.filter((e) => e.type === t).length;
+
+  it('segue o schema { id, lesson_id, type, order, payload } com order 1, 2, 3...', () => {
+    items.forEach((e, i) => {
+      expect(Object.keys(e).sort()).toEqual(['id', 'lesson_id', 'order', 'payload', 'type']);
+      expect(e.lesson_id).toBe('t-l1');
+      expect(e.order).toBe(i + 1);
+      expect(SPEC_TYPES.has(e.type), e.type).toBe(true);
+    });
+    expect(new Set(items.map((e) => e.id)).size).toBe(items.length);
   });
 
-  it('gera sign_camera so para as letras que o reconhecedor avalia', () => {
-    const cams = exercises.filter((e) => e.type === 'sign_camera');
+  it('apresenta, produz e reconhece cada sinal: sign_intro, perform_sign e 3 watch_choose_word', () => {
+    expect(count('sign_intro')).toBe(3);
+    expect(count('perform_sign')).toBe(3);
+    expect(count('mirror_practice')).toBe(3);
+    // 2 na fase de cada sinal (o antigo mc4 se fundiu aqui) + 1 na revisao
+    expect(count('watch_choose_word')).toBe(9);
+    expect(count('match_pairs')).toBe(1);
+    expect(count('order_sequence')).toBe(1);
+  });
+
+  it('perform_sign leva o payload da spec (recognition, limiar, tentativas e video de dica)', () => {
+    const p = items.find((e) => e.type === 'perform_sign')!.payload;
+    expect(p).toEqual({ sign_id: 'letra-A', recognition: 'static', min_confidence: null, max_attempts: null, hint_video_url: null });
+  });
+
+  it('o bundle nao fixa distratores: watch_choose_word so traz o sinal e a resposta', () => {
+    items.forEach((e) => {
+      if (e.type !== 'watch_choose_word') return;
+      expect(e.payload).toEqual({ sign_id: e.payload.sign_id, correct: signsMap[e.payload.sign_id].gloss });
+    });
+  });
+
+  it('sem 3 sinais nao ha match_pairs nem order_sequence', () => {
+    const two: Composed[] = composeLessonExercises({ signIds: ['letra-A', 'letra-B'] }, signsMap);
+    expect(two.some((e) => e.type === 'match_pairs' || e.type === 'order_sequence')).toBe(false);
+  });
+});
+
+describe('resolveExercises (sorteios da sessao)', () => {
+  // A e B estao no reconhecedor; C nao esta
+  const signIds = ['letra-A', 'letra-B', 'letra-C'];
+  const exercises = lessonFor(signIds);
+
+  it('gera um sign_intro para cada sinal', () => {
+    const intros = exercises.filter((e) => e.type === 'sign_intro');
+    expect(intros.map((e) => e.signId)).toEqual(signIds);
+  });
+
+  it('camera avaliada (perform_sign) so para as letras que o reconhecedor avalia', () => {
+    const cams = exercises.filter((e) => e.type === 'perform_sign');
     expect(cams.map((e) => e.signId).sort()).toEqual(['letra-A', 'letra-B']);
   });
 
   it('sinal fora do reconhecedor ganha mirror_practice no lugar da camera avaliada', () => {
     const forC = exercises.filter((e) => e.signId === 'letra-C');
-    expect(forC.some((e) => e.type === 'sign_camera')).toBe(false);
+    expect(forC.some((e) => e.type === 'perform_sign')).toBe(false);
     expect(forC.filter((e) => e.type === 'mirror_practice')).toHaveLength(1);
     // a pratica livre vem logo depois do intro, como a camera viria
-    const introIdx = exercises.findIndex((e) => e.id === 'intro-letra-C');
+    const introIdx = exercises.findIndex((e) => e.type === 'sign_intro' && e.signId === 'letra-C');
     expect(exercises[introIdx + 1].type).toBe('mirror_practice');
   });
 
   it('letra reconhecivel mantem camera avaliada e pratica livre', () => {
     const forA = exercises.filter((e) => e.signId === 'letra-A');
-    expect(forA.filter((e) => e.type === 'sign_camera')).toHaveLength(1);
+    expect(forA.filter((e) => e.type === 'perform_sign')).toHaveLength(1);
     expect(forA.filter((e) => e.type === 'mirror_practice')).toHaveLength(1);
   });
 
-  it('gera watch_choose_word para cada sinal', () => {
+  it('aparelho sem camera avaliada: todo perform_sign vira pratica livre, uma por sinal', () => {
+    const ex = resolveExercises(bundleFor(signIds), signIds, { canEvaluate: () => false });
+    expect(ex.filter((e) => e.type === 'perform_sign')).toHaveLength(0);
+    for (const id of signIds) expect(ex.filter((e) => e.signId === id && e.type === 'mirror_practice')).toHaveLength(1);
+  });
+
+  it('watch_choose_word: 3 por sinal, sempre 4 opcoes distintas com a resposta entre elas', () => {
     const watches = exercises.filter((e) => e.type === 'watch_choose_word');
-    expect(watches.map((e) => e.signId)).toEqual(signIds);
-  });
-
-  it('gera mc4 para cada sinal (round inicial + round de revisao)', () => {
-    const mc4s = exercises.filter((e) => e.type === 'mc4');
-    expect(mc4s).toHaveLength(signIds.length * 2);
-  });
-
-  it('gera 1 match_pairs quando ha 3 ou mais sinais', () => {
-    const pairs = exercises.filter((e) => e.type === 'match_pairs');
-    expect(pairs).toHaveLength(1);
-    expect(pairs[0].pairSignIds).toHaveLength(3);
-  });
-
-  it('gera 1 order_sequence quando ha 3 ou mais sinais', () => {
-    expect(exercises.filter((e) => e.type === 'order_sequence')).toHaveLength(1);
-  });
-
-  it('cada mc4 tem exatamente 4 opcoes', () => {
-    exercises
-      .filter((e) => e.type === 'mc4')
-      .forEach((e) => expect(e.choices).toHaveLength(4));
-  });
-
-  it('o sinal correto sempre esta entre as opcoes do mc4', () => {
-    exercises
-      .filter((e) => e.type === 'mc4')
-      .forEach((e) => {
-        const correctGloss = signsMap[e.signId]?.gloss;
-        expect(e.choices).toContain(correctGloss);
-      });
-  });
-
-  it('todas as opcoes sao glosses distintos', () => {
-    exercises
-      .filter((e) => e.type === 'mc4')
-      .forEach((e) => {
-        const unique = new Set(e.choices);
-        expect(unique.size).toBe(4);
-      });
+    expect(watches).toHaveLength(signIds.length * 3);
+    watches.forEach((e) => {
+      expect(e.choices).toHaveLength(4);
+      expect(new Set(e.choices).size).toBe(4);
+      expect(e.choices).toContain(signsMap[e.signId].gloss);
+    });
   });
 
   it('distratores de letras sao outras letras, mesmo com o curso inteiro no pool', () => {
     const letterGlosses = new Set(LETTER_IDS.map((id) => signsMap[id].gloss));
     exercises
-      .filter((e) => e.type === 'mc4' || e.type === 'watch_choose_word')
+      .filter((e) => e.type === 'watch_choose_word')
       .forEach((e) => e.choices!.forEach((c) => expect(letterGlosses.has(c)).toBe(true)));
+  });
+
+  it('os distratores e a ordem das opcoes sao sorteados a cada sessao', () => {
+    const seen = new Set<string>();
+    for (let i = 0; i < 20; i++) seen.add(drawChoices('letra-A', ALL_IDS).join(','));
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it('opcoes fixas no payload sao respeitadas (so a ordem e sorteada)', () => {
+    const items: BundleExercise[] = [{
+      id: 'x-ex01', lesson_id: 'x', type: 'watch_choose_word', order: 1,
+      payload: { sign_id: 'letra-A', correct: 'A', options: ['A', 'E', 'S', 'O'] },
+    }];
+    const [ex] = resolveExercises(items, ['letra-A']);
+    expect([...ex.choices!].sort()).toEqual(['A', 'E', 'O', 'S']);
+  });
+
+  it('match_pairs com os 3 primeiros sinais e order_sequence com a ordem certa', () => {
+    const pairs = exercises.find((e) => e.type === 'match_pairs')!;
+    expect(pairs.pairSignIds).toEqual(signIds);
+    const order = exercises.find((e) => e.type === 'order_sequence')!;
+    expect(order.steps).toEqual(['A', 'B', 'C']);
+    expect(order.correctOrder).toEqual([0, 1, 2]);
   });
 
   it('cada exercicio tem id unico', () => {
@@ -110,7 +179,7 @@ describe('buildExercises', () => {
   });
 });
 
-describe('buildExercises com sinais que a camera nao avalia', () => {
+describe('licoes com sinais que a camera nao avalia', () => {
   const map: Record<string, Sign> = {
     'numero-1': fakeSign('numero-1', '1', 'numeros', 'static'),
     'numero-2': fakeSign('numero-2', '2', 'numeros', 'static'),
@@ -123,40 +192,44 @@ describe('buildExercises com sinais que a camera nao avalia', () => {
   };
   const ids = Object.keys(map);
 
-  it('sinal dinamico nao gera sign_camera e ganha mirror_practice', () => {
-    const ex = buildExercises(['sinal-OI', 'sinal-TCHAU', 'letra-J'], ids, map);
-    expect(ex.filter((e) => e.type === 'sign_camera')).toHaveLength(0);
+  it('sinal dinamico nao gera camera avaliada e ganha mirror_practice', () => {
+    const ex = lessonFor(['sinal-OI', 'sinal-TCHAU', 'letra-J'], map, ids);
+    expect(ex.filter((e) => e.type === 'perform_sign')).toHaveLength(0);
     for (const id of ['sinal-OI', 'sinal-TCHAU', 'letra-J']) {
       expect(ex.filter((e) => e.signId === id && e.type === 'mirror_practice')).toHaveLength(1);
     }
   });
 
+  it('o bundle marca o sinal dinamico como recognition dynamic', () => {
+    const items: Composed[] = composeLessonExercises({ signIds: ['sinal-OI'] }, map);
+    expect(items.find((e) => e.type === 'perform_sign')!.payload.recognition).toBe('dynamic');
+  });
+
   it('numero estatico tambem fica sem camera avaliada (o reconhecedor so conhece letras)', () => {
-    const ex = buildExercises(['numero-1', 'numero-2', 'numero-3'], ids, map);
-    expect(ex.filter((e) => e.type === 'sign_camera')).toHaveLength(0);
+    const ex = lessonFor(['numero-1', 'numero-2', 'numero-3'], map, ids);
+    expect(ex.filter((e) => e.type === 'perform_sign')).toHaveLength(0);
     expect(ex.filter((e) => e.type === 'mirror_practice')).toHaveLength(3);
   });
 
   it('mantem os outros exercicios para sinais sem camera', () => {
-    const ex = buildExercises(['numero-1', 'numero-2', 'numero-3'], ids, map);
+    const ex = lessonFor(['numero-1', 'numero-2', 'numero-3'], map, ids);
     const count = (t: string) => ex.filter((e) => e.type === t).length;
-    expect(count('intro')).toBe(3);
-    expect(count('watch_choose_word')).toBe(3);
-    expect(count('mc4')).toBe(6);
+    expect(count('sign_intro')).toBe(3);
+    expect(count('watch_choose_word')).toBe(9);
     expect(count('match_pairs')).toBe(1);
     expect(count('order_sequence')).toBe(1);
   });
 
   it('distratores preferem a mesma categoria', () => {
-    const ex = buildExercises(['numero-1'], ids, map);
-    ex.filter((e) => e.type === 'mc4').forEach((e) => {
+    const ex = lessonFor(['numero-1'], map, ids);
+    ex.filter((e) => e.type === 'watch_choose_word').forEach((e) => {
       expect([...e.choices!].sort()).toEqual(['1', '2', '3', '4']);
     });
   });
 
   it('completa com outras categorias quando a categoria tem menos de 4 sinais', () => {
-    const ex = buildExercises(['sinal-OI'], ids, map);
-    ex.filter((e) => e.type === 'mc4').forEach((e) => {
+    const ex = lessonFor(['sinal-OI'], map, ids);
+    ex.filter((e) => e.type === 'watch_choose_word').forEach((e) => {
       expect(e.choices).toHaveLength(4);
       expect(e.choices).toContain('OI');
       expect(e.choices).toContain('TCHAU');
@@ -176,15 +249,6 @@ describe('isCameraEvaluable', () => {
     ALL_IDS.filter((id) => signsMap[id].category !== 'alfabeto')
       .forEach((id) => expect(isCameraEvaluable(signsMap[id])).toBe(false));
     expect(isCameraEvaluable(undefined)).toBe(false);
-  });
-});
-
-describe('buildSpellExercises', () => {
-  it('gera uma ordenacao de letras por nome', () => {
-    const ex = buildSpellExercises('u4-l4', ['DAVI', 'BIA']);
-    expect(ex).toHaveLength(2);
-    expect(ex[0]).toMatchObject({ type: 'order_sequence', word: 'DAVI', steps: ['D', 'A', 'V', 'I'], letters: ['D', 'A', 'V', 'I'] });
-    expect(new Set(ex.map((e) => e.id)).size).toBe(2);
   });
 });
 
@@ -240,6 +304,58 @@ describe('signsMap', () => {
   });
 });
 
+describe('bundle versionado', () => {
+  const lessons = course.units.flatMap((u) => u.lessons);
+
+  it('toda licao do curso tem arquivo, e nao sobra arquivo de licao que saiu', () => {
+    expect(Object.keys(BUNDLE).sort()).toEqual(lessons.map((l) => l.id).sort());
+    Object.entries(FILES).forEach(([path, f]) => expect(path.endsWith(`/${f.lesson_id}.json`)).toBe(true));
+  });
+
+  it('esta em dia com tools/content/compose.mjs (rode "npm run content" se falhar)', () => {
+    const fresh = composeCourse(courseRaw, signsRaw) as Record<string, BundleExercise[]>;
+    for (const l of lessons) {
+      expect(BUNDLE[l.id], l.id).toEqual(fresh[l.id]);
+      expect(Object.values(FILES).find((f) => f.lesson_id === l.id)).toEqual(lessonFile(l.id, fresh[l.id]));
+    }
+  });
+
+  it('usa so os tipos da spec-03, com lesson_id da propria licao e order sequencial', () => {
+    for (const [lessonId, items] of Object.entries(BUNDLE)) {
+      items.forEach((e, i) => {
+        expect(SPEC_TYPES.has(e.type), `${lessonId}: ${e.type}`).toBe(true);
+        expect(e.lesson_id).toBe(lessonId);
+        expect(e.order).toBe(i + 1);
+      });
+    }
+    const ids = Object.values(BUNDLE).flat().map((e) => e.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('todo sinal citado no bundle existe', () => {
+    for (const items of Object.values(BUNDLE)) {
+      items.forEach((e) => {
+        const p = e.payload as { sign_id?: string; pairs?: { sign_id: string }[] };
+        if (p.sign_id) expect(signsMap[p.sign_id], `${e.id}: ${p.sign_id}`).toBeDefined();
+        p.pairs?.forEach((pair) => expect(signsMap[pair.sign_id], e.id).toBeDefined());
+      });
+    }
+  });
+
+  it('nenhuma resposta fica exposta: a descricao mostrada antes de responder esconde a glosa', () => {
+    for (const items of Object.values(BUNDLE)) {
+      items.forEach((e) => {
+        if (e.type !== 'watch_choose_word') return;
+        const sign = signsMap[e.payload.sign_id];
+        const shown = maskGloss(sign.video_caption, sign.gloss);
+        if (sign.gloss.length >= 2) {
+          expect(shown.toUpperCase().split(/[^\p{L}\p{N}]+/u), e.id).not.toContain(sign.gloss.toUpperCase());
+        }
+      });
+    }
+  });
+});
+
 describe('course', () => {
   const lessons = course.units.flatMap((u) => u.lessons);
 
@@ -269,26 +385,27 @@ describe('course', () => {
     lessons.forEach((l) => l.signIds.forEach((id) => expect(order.has(id), id).toBe(true)));
   });
 
-  it('nenhuma licao gera sign_camera para sinal que a camera nao avalia', () => {
+  it('nenhuma licao gera camera avaliada para sinal que a camera nao avalia', () => {
     lessons.forEach((l) =>
-      l.exercises
-        .filter((e) => e.type === 'sign_camera')
+      resolveExercises(BUNDLE[l.id], l.signIds)
+        .filter((e) => e.type === 'perform_sign')
         .forEach((e) => expect(isCameraEvaluable(signsMap[e.signId]), `${l.id}: ${e.signId}`).toBe(true)),
     );
   });
 
   it('licoes so usam tipos de exercicio que o LessonScreen renderiza', () => {
-    const rendered = new Set(['intro', 'sign_camera', 'mc4', 'match_pairs', 'watch_choose_word', 'mirror_practice', 'order_sequence', 'build_phrase']);
-    lessons.forEach((l) => l.exercises.forEach((e) => expect(rendered.has(e.type), `${l.id}: ${e.type}`).toBe(true)));
+    const rendered = new Set(['sign_intro', 'perform_sign', 'match_pairs', 'watch_choose_word', 'mirror_practice', 'order_sequence', 'build_phrase']);
+    lessons.forEach((l) => resolveExercises(BUNDLE[l.id], l.signIds).forEach((e) => expect(rendered.has(e.type), `${l.id}: ${e.type}`).toBe(true)));
   });
 
   it('a licao de soletrar nome da U4 usa so letras ja aprendidas', () => {
-    const spell = lessons.filter((l) => l.exercises.some((e) => e.id.startsWith('spell-')));
+    const spell = lessons.filter((l) => BUNDLE[l.id].some((e) => e.type === 'order_sequence' && e.payload.word));
     expect(spell.length).toBeGreaterThan(0);
     spell.forEach((l) => {
       expect(l.id.startsWith('u4-')).toBe(true);
-      l.exercises.filter((e) => e.id.startsWith('spell-')).forEach((e) => {
-        e.letters!.forEach((letter) => expect(signsMap[`letra-${letter}`]).toBeDefined());
+      resolveExercises(BUNDLE[l.id], l.signIds).filter((e) => e.word).forEach((e) => {
+        expect(e.steps!.join('')).toBe(e.word);
+        e.steps!.forEach((letter) => expect(signsMap[`letra-${letter}`]).toBeDefined());
       });
     });
   });
@@ -376,17 +493,20 @@ describe('build_phrase (montar a frase)', () => {
     expect(pickPhrase([], new Set())).toBe(-1);
   });
 
-  it('monta os blocos com a frase inteira e 2 distratores da unidade em frase curta', () => {
+  it('candidatos a distrator vem da unidade e nunca repetem glosa da frase', () => {
     const target = phrase(['ONDE', 'MORAR', 'VOCÊ?']);
     const unit = [target, phrase(['NOME', 'ME@']), phrase(['VOCÊ', 'MORAR', 'LONGE'])];
+    // VOCÊ = VOCÊ? e MORAR ja estao na frase
+    expect(phraseDistractors(target, unit)).toEqual(['NOME', 'ME@', 'LONGE']);
+  });
+
+  it('monta os blocos com a frase inteira e 2 distratores sorteados em frase curta', () => {
+    const target = phrase(['ONDE', 'MORAR', 'VOCÊ?']);
     for (let i = 0; i < 20; i++) {
-      const ex = buildPhraseExercise('u4-l1', target, unit, 'sinal-OI');
-      expect(ex).toMatchObject({ id: 'phrase-u4-l1', type: 'build_phrase', signId: 'sinal-OI', phrase: target });
-      const tiles = ex.tiles!;
+      const tiles = phraseTiles(target.glosses, ['NOME', 'ME@', 'LONGE']);
       expect(tiles).toHaveLength(5);
       expect(tiles).toEqual(expect.arrayContaining(target.glosses));
       const extras = tiles.filter((t) => !target.glosses.includes(t));
-      // distratores vem da unidade e nunca repetem glosa da frase (VOCÊ = VOCÊ?, MORAR)
       extras.forEach((d) => expect(['NOME', 'ME@', 'LONGE']).toContain(d));
       expect(new Set(extras).size).toBe(2);
       // nunca comeca ja na ordem certa
@@ -395,20 +515,21 @@ describe('build_phrase (montar a frase)', () => {
   });
 
   it('frase longa ganha 1 distrator so', () => {
-    const target = phrase(['EU', 'NASCER', '18', 'SETEMBRO', '1965']);
-    const ex = buildPhraseExercise('u4-l2', target, [target, phrase(['ONDE', 'MORAR'])], 'x');
-    expect(ex.tiles).toHaveLength(6);
+    const tiles = phraseTiles(['EU', 'NASCER', '18', 'SETEMBRO', '1965'], ['ONDE', 'MORAR']);
+    expect(tiles).toHaveLength(6);
   });
 
   it('o curso tem 1 build_phrase por licao a partir da U3, e nenhum antes', () => {
     course.units.forEach((u, i) => {
       u.lessons.forEach((l) => {
-        const phrases = l.exercises.filter((e) => e.type === 'build_phrase');
+        const exercises = resolveExercises(BUNDLE[l.id], l.signIds);
+        const phrases = exercises.filter((e) => e.type === 'build_phrase');
         if (i >= PHRASE_FIRST_UNIT_INDEX && u.phrases?.length) {
           expect(phrases, l.id).toHaveLength(1);
           // a frase vem da propria unidade e e o ultimo exercicio da licao
           expect(u.phrases).toContainEqual(phrases[0].phrase);
-          expect(l.exercises[l.exercises.length - 1].type, l.id).toBe('build_phrase');
+          expect(exercises[exercises.length - 1].type, l.id).toBe('build_phrase');
+          expect(phrases[0].tiles!.length, l.id).toBeGreaterThan(phrases[0].phrase!.glosses.length);
         } else {
           expect(phrases, l.id).toHaveLength(0);
         }
@@ -422,9 +543,9 @@ describe('build_phrase (montar a frase)', () => {
       const used = new Set<Phrase>();
       u.lessons.forEach((l) => {
         l.signIds.forEach((id) => seen.add(normalizeGloss(signsMap[id]?.gloss ?? '')));
-        const ex = l.exercises.find((e) => e.type === 'build_phrase');
-        if (!ex || i < PHRASE_FIRST_UNIT_INDEX) return;
-        const chosen = u.phrases!.find((p) => p.pt === ex.phrase!.pt)!;
+        const ex = BUNDLE[l.id].find((e) => e.type === 'build_phrase');
+        if (!ex || ex.type !== 'build_phrase' || i < PHRASE_FIRST_UNIT_INDEX) return;
+        const chosen = u.phrases!.find((p) => p.pt === ex.payload.pt)!;
         const ratio = (p: Phrase) => knownGlossCount(p, seen) / p.glosses.length;
         const fresh = u.phrases!.filter((p) => !used.has(p) && knownGlossCount(p, seen) > 0);
         if (fresh.length) {

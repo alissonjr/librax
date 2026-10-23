@@ -1,0 +1,451 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u14-l2",
+  "exercises": [
+    {
+      "id": "u14-l2-ex01",
+      "lesson_id": "u14-l2",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "sinal-COMUNIDADE"
+      }
+    },
+    {
+      "id": "u14-l2-ex02",
+      "lesson_id": "u14-l2",
+      "type": "perform_sign",
+      "order": 2,
+      "payload": {
+        "sign_id": "sinal-COMUNIDADE",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u14-l2-ex03",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "sinal-COMUNIDADE",
+        "correct": "COMUNIDADE"
+      }
+    },
+    {
+      "id": "u14-l2-ex04",
+      "lesson_id": "u14-l2",
+      "type": "mirror_practice",
+      "order": 4,
+      "payload": {
+        "sign_id": "sinal-COMUNIDADE"
+      }
+    },
+    {
+      "id": "u14-l2-ex05",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "sinal-COMUNIDADE",
+        "correct": "COMUNIDADE"
+      }
+    },
+    {
+      "id": "u14-l2-ex06",
+      "lesson_id": "u14-l2",
+      "type": "sign_intro",
+      "order": 6,
+      "payload": {
+        "sign_id": "sinal-CULTURA"
+      }
+    },
+    {
+      "id": "u14-l2-ex07",
+      "lesson_id": "u14-l2",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "sinal-CULTURA",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u14-l2-ex08",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 8,
+      "payload": {
+        "sign_id": "sinal-CULTURA",
+        "correct": "CULTURA"
+      }
+    },
+    {
+      "id": "u14-l2-ex09",
+      "lesson_id": "u14-l2",
+      "type": "mirror_practice",
+      "order": 9,
+      "payload": {
+        "sign_id": "sinal-CULTURA"
+      }
+    },
+    {
+      "id": "u14-l2-ex10",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 10,
+      "payload": {
+        "sign_id": "sinal-CULTURA",
+        "correct": "CULTURA"
+      }
+    },
+    {
+      "id": "u14-l2-ex11",
+      "lesson_id": "u14-l2",
+      "type": "sign_intro",
+      "order": 11,
+      "payload": {
+        "sign_id": "sinal-INTERPRETE"
+      }
+    },
+    {
+      "id": "u14-l2-ex12",
+      "lesson_id": "u14-l2",
+      "type": "perform_sign",
+      "order": 12,
+      "payload": {
+        "sign_id": "sinal-INTERPRETE",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u14-l2-ex13",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 13,
+      "payload": {
+        "sign_id": "sinal-INTERPRETE",
+        "correct": "INTÉRPRETE"
+      }
+    },
+    {
+      "id": "u14-l2-ex14",
+      "lesson_id": "u14-l2",
+      "type": "mirror_practice",
+      "order": 14,
+      "payload": {
+        "sign_id": "sinal-INTERPRETE"
+      }
+    },
+    {
+      "id": "u14-l2-ex15",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 15,
+      "payload": {
+        "sign_id": "sinal-INTERPRETE",
+        "correct": "INTÉRPRETE"
+      }
+    },
+    {
+      "id": "u14-l2-ex16",
+      "lesson_id": "u14-l2",
+      "type": "sign_intro",
+      "order": 16,
+      "payload": {
+        "sign_id": "sinal-LINGUA"
+      }
+    },
+    {
+      "id": "u14-l2-ex17",
+      "lesson_id": "u14-l2",
+      "type": "perform_sign",
+      "order": 17,
+      "payload": {
+        "sign_id": "sinal-LINGUA",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u14-l2-ex18",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 18,
+      "payload": {
+        "sign_id": "sinal-LINGUA",
+        "correct": "LÍNGUA"
+      }
+    },
+    {
+      "id": "u14-l2-ex19",
+      "lesson_id": "u14-l2",
+      "type": "mirror_practice",
+      "order": 19,
+      "payload": {
+        "sign_id": "sinal-LINGUA"
+      }
+    },
+    {
+      "id": "u14-l2-ex20",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 20,
+      "payload": {
+        "sign_id": "sinal-LINGUA",
+        "correct": "LÍNGUA"
+      }
+    },
+    {
+      "id": "u14-l2-ex21",
+      "lesson_id": "u14-l2",
+      "type": "sign_intro",
+      "order": 21,
+      "payload": {
+        "sign_id": "sinal-ASSOCIACAO"
+      }
+    },
+    {
+      "id": "u14-l2-ex22",
+      "lesson_id": "u14-l2",
+      "type": "perform_sign",
+      "order": 22,
+      "payload": {
+        "sign_id": "sinal-ASSOCIACAO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u14-l2-ex23",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 23,
+      "payload": {
+        "sign_id": "sinal-ASSOCIACAO",
+        "correct": "ASSOCIAÇÃO"
+      }
+    },
+    {
+      "id": "u14-l2-ex24",
+      "lesson_id": "u14-l2",
+      "type": "mirror_practice",
+      "order": 24,
+      "payload": {
+        "sign_id": "sinal-ASSOCIACAO"
+      }
+    },
+    {
+      "id": "u14-l2-ex25",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 25,
+      "payload": {
+        "sign_id": "sinal-ASSOCIACAO",
+        "correct": "ASSOCIAÇÃO"
+      }
+    },
+    {
+      "id": "u14-l2-ex26",
+      "lesson_id": "u14-l2",
+      "type": "sign_intro",
+      "order": 26,
+      "payload": {
+        "sign_id": "sinal-APLAUSO"
+      }
+    },
+    {
+      "id": "u14-l2-ex27",
+      "lesson_id": "u14-l2",
+      "type": "perform_sign",
+      "order": 27,
+      "payload": {
+        "sign_id": "sinal-APLAUSO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u14-l2-ex28",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 28,
+      "payload": {
+        "sign_id": "sinal-APLAUSO",
+        "correct": "APLAUSO"
+      }
+    },
+    {
+      "id": "u14-l2-ex29",
+      "lesson_id": "u14-l2",
+      "type": "mirror_practice",
+      "order": 29,
+      "payload": {
+        "sign_id": "sinal-APLAUSO"
+      }
+    },
+    {
+      "id": "u14-l2-ex30",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 30,
+      "payload": {
+        "sign_id": "sinal-APLAUSO",
+        "correct": "APLAUSO"
+      }
+    },
+    {
+      "id": "u14-l2-ex31",
+      "lesson_id": "u14-l2",
+      "type": "match_pairs",
+      "order": 31,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "sinal-COMUNIDADE",
+            "gloss": "COMUNIDADE"
+          },
+          {
+            "sign_id": "sinal-CULTURA",
+            "gloss": "CULTURA"
+          },
+          {
+            "sign_id": "sinal-INTERPRETE",
+            "gloss": "INTÉRPRETE"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u14-l2-ex32",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 32,
+      "payload": {
+        "sign_id": "sinal-COMUNIDADE",
+        "correct": "COMUNIDADE"
+      }
+    },
+    {
+      "id": "u14-l2-ex33",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 33,
+      "payload": {
+        "sign_id": "sinal-CULTURA",
+        "correct": "CULTURA"
+      }
+    },
+    {
+      "id": "u14-l2-ex34",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 34,
+      "payload": {
+        "sign_id": "sinal-INTERPRETE",
+        "correct": "INTÉRPRETE"
+      }
+    },
+    {
+      "id": "u14-l2-ex35",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 35,
+      "payload": {
+        "sign_id": "sinal-LINGUA",
+        "correct": "LÍNGUA"
+      }
+    },
+    {
+      "id": "u14-l2-ex36",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 36,
+      "payload": {
+        "sign_id": "sinal-ASSOCIACAO",
+        "correct": "ASSOCIAÇÃO"
+      }
+    },
+    {
+      "id": "u14-l2-ex37",
+      "lesson_id": "u14-l2",
+      "type": "watch_choose_word",
+      "order": 37,
+      "payload": {
+        "sign_id": "sinal-APLAUSO",
+        "correct": "APLAUSO"
+      }
+    },
+    {
+      "id": "u14-l2-ex38",
+      "lesson_id": "u14-l2",
+      "type": "order_sequence",
+      "order": 38,
+      "payload": {
+        "steps": [
+          "COMUNIDADE",
+          "CULTURA",
+          "INTÉRPRETE",
+          "LÍNGUA"
+        ],
+        "correct_order": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "u14-l2-ex39",
+      "lesson_id": "u14-l2",
+      "type": "build_phrase",
+      "order": 39,
+      "payload": {
+        "pt": "Por acaso, encontrei a minha amiga na rua.",
+        "glosses": [
+          "EU",
+          "POR-ACASO",
+          "ENCONTRAR",
+          "ME@",
+          "AMIG@",
+          "R-U-A"
+        ],
+        "distractors": [
+          "FALAR",
+          "ENTENDER-NÃO",
+          "REPETIR",
+          "POR-FAVOR",
+          "QUE",
+          "VOCÊ",
+          "TCHAU",
+          "AMANHÃ",
+          "CINEMA",
+          "SURD@",
+          "DIREITO",
+          "INTÉRPRETE",
+          "QUALQUER",
+          "LUGAR"
+        ],
+        "source": {
+          "name": "Dicionário de Libras do INES - exemplo do verbete POR ACASO",
+          "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/por_acasoSm_Prog001.mp4"
+        }
+      }
+    }
+  ]
+}

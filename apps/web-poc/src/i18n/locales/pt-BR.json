@@ -338,6 +338,17 @@
     "almost": "Quase!",
     "rightAnswer": "Resposta certa"
   },
+  "install": {
+    "install": "Instalar",
+    "iosStep1": "Toque em Compartilhar, na barra do Safari.",
+    "iosStep2": "Escolha \"Adicionar à Tela de Início\".",
+    "notNow": "Agora não",
+    "settingsLabel": "Instalar o Librax",
+    "settingsValue": "Abra pela tela inicial, como um app",
+    "sub": "Abra direto da tela inicial, em tela cheia, e deixe seu progresso mais protegido no aparelho.",
+    "title": "Coloque o Librax na tela inicial",
+    "understood": "Entendi"
+  },
   "language": {
     "select": "Selecione o idioma",
     "title": "Idioma"
@@ -509,10 +520,15 @@
     "title": "Seu progresso",
     "xpTotal": "XP total"
   },
+  "routeError": {
+    "retry": "Tentar de novo",
+    "title": "Não foi possível carregar."
+  },
   "settings": {
     "about": "Sobre",
     "account": "Conta",
     "activated": "Ativada",
+    "app": "Aplicativo",
     "avatarCredit": "Avatar de sinais",
     "cameraForExercises": "Câmera para exercícios",
     "dailyGoal": "Meta diária",

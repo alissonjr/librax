@@ -904,34 +904,49 @@ Nenhum desses estados depende de som. Mensagens de status entram por `aria-live=
 No navegador, o botão voltar (do Android, do gesto do iPhone ou da barra do navegador) precisa fazer o que a
 pessoa espera. Por isso toda tela tem URL e o voltar do navegador equivale à seta de voltar do app.
 
+Rotas implementadas no web-poc (`src/router.tsx`, nomes em `src/lib/routes.ts`), em português como as abas.
+Roteador: react-router 6 (`createBrowserRouter`), escolhido pelo `useBlocker` (diálogo "Sair da lição?" no
+voltar do Android) e pelo `ScrollRestoration` (topo ao abrir tela nova, posição de volta ao voltar).
+
 ```
-/                                  -> /learn (ou /onboarding na primeira visita)
-/onboarding                        -> OnboardingScreen
-/learn                             -> CourseMapScreen (aba Aprender)
-/learn/lesson/:lessonId            -> LessonScreen (sem abas)
-/learn/lesson/:lessonId/complete   -> LessonCompletionScreen (sem abas)
-/learn/unit/:unitId/complete       -> UnitCompletionScreen (sem abas)
-/learn/course/complete             -> CourseCompletionScreen (sem abas)
-/practice                          -> PracticeScreen (aba Praticar, fila de revisão do dia)
-/social                            -> SocialScreen (aba Social: ligas e squads)
-  /social/squads/new | /social/squads/directory | /social/squads/join
-  /social/squads/:id | /social/squads/:id/settings
-/profile                           -> ProfileScreen (aba Perfil)
-  /profile/achievements | /profile/streak | /profile/progress | /profile/settings
-/convite/:code                     -> entrada por convite de squad (spec 04)
+/                          -> /aprender (ou /boas-vindas na primeira visita)
+/boas-vindas               -> OnboardingScreen
+/aprender                  -> CourseMapScreen (aba Aprender)
+/praticar                  -> PracticeScreen (aba Praticar, fila de revisão do dia)
+/camera                    -> CameraScreen (dentro de Praticar, com abas)
+/social                    -> SocialScreen (aba Social: ligas e squads)
+/social/liga               -> LeagueScreen (sem abas)
+/perfil                    -> ProfileScreen (aba Perfil)
+/sequencia                 -> StreakScreen (sem abas)
+/conquistas                -> AchievementsScreen (sem abas)
+/configuracoes             -> SettingsScreen (sem abas)
+/licao/:lessonId           -> LessonScreen (sem abas; exercícios do bundle da lição)
+/licao/:lessonId/concluida -> LessonCompletionScreen (sem abas)
+/unidade/:unitId/concluida -> UnitCompletionScreen (sem abas)
+/curso/concluido           -> CourseCompletionScreen (sem abas)
+qualquer outra             -> /
 ```
+
+Previstas (ainda sem tela): `/social/squads/nova`, `/social/squads/diretorio`, `/social/squads/entrar`,
+`/social/squads/:id`, `/social/squads/:id/configuracoes` e `/convite/:code` (spec 04).
 
 Regras:
 
 - **Sair da lição**: ao voltar (seta do app, botão do Android ou gesto) durante uma lição aparece o diálogo
   "Sair da lição?" da seção 2.4. Cancelar mantém a pessoa no exercício em que estava; confirmar volta para o
-  mapa. O botão de fechar (X) fica sempre no canto superior esquerdo da lição.
+  mapa. O botão de sair fica sempre no canto superior esquerdo da lição.
 - **Sheets e modais**: abrir um bottom sheet ou modal cria uma entrada no histórico; o voltar fecha o sheet em
-  vez de sair da tela.
+  vez de sair da tela. (Ainda não implementado no web-poc.)
 - **Telas de conclusão** substituem a entrada da lição (`replace`): voltar a partir delas leva ao mapa, nunca
-  de novo para a lição terminada.
-- **Abas**: trocar de aba substitui a entrada atual, para o voltar não percorrer o histórico de abas.
-- **Recarregar** a página reabre a mesma URL. Numa lição, a lição recomeça do primeiro exercício.
+  de novo para a lição terminada. Sem o resultado na memória (página recarregada na conclusão), a rota leva ao
+  mapa.
+- **Abas**: Aprender é a aba de partida. Sair dela para outra aba cria uma entrada; trocar entre as outras abas
+  substitui a entrada atual. Assim o voltar de qualquer aba leva a Aprender, e de Aprender sai do app.
+- **Recarregar** a página reabre a mesma URL. Numa lição, a lição recomeça do primeiro exercício. O servidor de
+  desenvolvimento e o `vite preview` respondem `index.html` para as rotas; o service worker faz o mesmo
+  (`navigateFallback`) e o CDN de produção precisa da mesma regra.
+- **Rolagem**: tela nova abre no topo (inclusive cada exercício da lição); ao voltar, a posição anterior é
+  restaurada.
 - **Convite**: o link `/convite/:code` é resolvido antes da verificação de conta, para o código não se perder
   no caminho do login.
 - Ao trocar de rota, o foco vai para o título da nova tela (`<h1>` com `tabindex="-1"`) e o título da aba do
