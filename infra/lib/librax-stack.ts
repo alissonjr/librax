@@ -91,7 +91,8 @@ export class LibraxStack extends cdk.Stack {
     });
 
     // GSI2: liga do usuario (PK=USER#<id>, SK=LEAGUE#<period>) e, no mesmo indice, as ligas
-    // de uma semana (PK=LEAGUES#<period>, SK=LEAGUE#<leagueId>) para o fechamento semanal
+    // de uma semana (PK=LEAGUES#<period>, SK=LEAGUE#<leagueId>) para o fechamento semanal e as
+    // squads com XP na semana (PK=SQUADS#<period>, SK=SQUAD#<squadId>) para o reset semanal
     table.addGlobalSecondaryIndex({
       indexName: 'GSI2',
       partitionKey: { name: 'GSI2PK', type: dynamodb.AttributeType.STRING },
@@ -288,6 +289,15 @@ export class LibraxStack extends cdk.Stack {
       functionName: 'librax-regenerate-invite',
     });
 
+    const getLeagueFn = makeFn('GetLeagueFn', 'league.js', 'getCurrentLeagueHandler', {
+      functionName: 'librax-get-league',
+      description: 'Liga da semana, ranking, tempo ate o fechamento e resultado nao visto (SPEC 02 12.7)',
+    });
+    const leagueResultSeenFn = makeFn('LeagueResultSeenFn', 'league.js', 'markLeagueResultSeenHandler', {
+      functionName: 'librax-league-result-seen',
+      description: 'Marca o LeagueResultSheet da semana como visto',
+    });
+
     const subscribePushFn = makeFn('SubscribePushFn', 'push.js', 'subscribePushHandler', {
       functionName: 'librax-push-subscribe',
       description: 'Guarda inscricao Web Push (USER#<id> / PUSH#<hash>)',
@@ -303,7 +313,7 @@ export class LibraxStack extends cdk.Stack {
     const closeLeagueFn = makeFn('CloseLeagueFn', 'closeLeague.js', 'handler', {
       functionName: 'librax-close-league',
       timeout: Duration.minutes(5),  // operacao batch pode demorar mais
-      description: 'Fecha liga semanal: rankeia, promove/rebaixa (SPEC 02 sec 5.5)',
+      description: 'Fecha liga semanal (SPEC 02 sec 5.5) e zera o XP semanal das squads (SPEC 04 sec 0.3)',
     });
 
     const appUrl = `https://${config.domainName}`;
@@ -328,6 +338,7 @@ export class LibraxStack extends cdk.Stack {
       createSquadFn, joinSquadFn, leaveSquadFn, getSquadFn,
       manageMemberFn, listMySquadsFn, disbandSquadFn,
       transferOwnershipFn, regenerateInviteFn,
+      getLeagueFn, leagueResultSeenFn,
       subscribePushFn, unsubscribePushFn, notificationPrefsFn,
     ];
     for (const fn of allLambdas) {
@@ -582,6 +593,8 @@ export class LibraxStack extends cdk.Stack {
     addRoute(M.POST,   '/v1/squads/{squadId}/members/{userId}/manage', manageMemberFn);
     addRoute(M.POST,   '/v1/squads/{squadId}/invite-code/regenerate', regenerateInviteFn);
     addRoute(M.GET,    '/v1/users/me/squads',                         listMySquadsFn);
+    addRoute(M.GET,    '/v1/league/current',                          getLeagueFn);
+    addRoute(M.POST,   '/v1/league/result-seen',                      leagueResultSeenFn);
     addRoute(M.POST,   '/v1/push/subscriptions',                      subscribePushFn);
     addRoute(M.DELETE, '/v1/push/subscriptions/{subscriptionId}',     unsubscribePushFn);
     addRoute(M.PUT,    '/v1/notifications/preferences',               notificationPrefsFn);
@@ -612,8 +625,10 @@ export class LibraxStack extends cdk.Stack {
     // -----------------------------------------------------------------------
 
     // Fechar liga semanal (toda segunda-feira 00:05 UTC). O evento vai vazio: a Lambda fecha
-    // todas as ligas da semana que terminou (paginado pelo GSI2) e e idempotente, entao as
-    // novas tentativas da invocacao assincrona nao promovem ninguem duas vezes.
+    // todas as ligas da semana que terminou (paginado pelo GSI2) e, no mesmo job (SPEC 04 0.3),
+    // zera o XP semanal das squads ativas na semana (GSI2 SQUADS#<semana>) guardando o ranking.
+    // As duas partes sao idempotentes, entao as novas tentativas da invocacao assincrona nao
+    // promovem ninguem duas vezes nem zeram XP da semana nova.
     const schedulerRole = new iam.Role(this, 'SchedulerRole', {
       assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
     });

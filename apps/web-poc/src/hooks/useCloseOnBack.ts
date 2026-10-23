@@ -10,6 +10,11 @@ function markOf(state: unknown): string | undefined {
   return typeof mark === 'string' ? mark : undefined;
 }
 
+/** A entrada do histórico (location.state) foi criada por um sheet ou diálogo aberto. */
+export function isOverlayEntry(state: unknown): boolean {
+  return markOf(state) !== undefined;
+}
+
 /** state do react-router guardado no history do navegador ({ usr, key, idx }). */
 function browserEntryMark(): string | undefined {
   return markOf((window.history.state as { usr?: unknown } | null)?.usr);

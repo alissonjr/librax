@@ -35,7 +35,8 @@ export function makeLessonHandlers({ repo, catalog, now = () => new Date() }) {
     );
     if (!parsed.ok) throw new ApiError(400, parsed.error, `Conclusao invalida: ${parsed.error}`);
 
-    const input = { ...parsed.value, userId: uid };
+    // `now` (relogio do servidor) decide a semana da liga e das squads, nunca o aparelho
+    const input = { ...parsed.value, userId: uid, now: now().getTime() };
     const result = input.lessonAttemptId
       ? await completeLessonOnce(repo, catalog, input)
       : await completeLesson(repo, catalog, input);

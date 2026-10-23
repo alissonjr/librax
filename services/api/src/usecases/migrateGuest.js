@@ -23,7 +23,7 @@ export async function migrateGuest(repo, content, input) {
 
   const results = [];
   for (const entry of valid) {
-    const r = await completeLessonOnce(repo, content, { ...entry, userId });
+    const r = await completeLessonOnce(repo, content, { ...entry, userId, now: now.getTime() });
     results.push(
       r.duplicate
         ? { lessonAttemptId: entry.lessonAttemptId, status: 'duplicate' }

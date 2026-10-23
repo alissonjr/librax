@@ -20,11 +20,16 @@ export class InMemoryRepo {
     this._members = new Map(); // `${squadId}#${userId}` -> { userId, role, xpWeeklyContrib, joinedAt }
     this._userSquads = new Map(); // userId -> Set(squadId)
     this._invite = new Map(); // inviteCode -> squadId
+    this._squadWeeks = new Map(); // `${squadId}#${period}` -> semana da squad (ativa ou fechada, com ranking)
     this._userLeague = new Map(); // userId -> { leagueId, period } (a liga mais recente)
     this._leagueXp = new Map(); // `${leagueId}#${userId}` -> number
     this._leagues = new Map(); // leagueId -> META { leagueId, tier, period, periodStart, group?, status }
     this._leagueMembers = new Map(); // leagueId -> Set(userId)
     this._leagueState = new Map(); // userId -> { tier, lastResult, lastClosedPeriod }
+    this._leaguePlacement = new Map(); // `${userId}#${period}` -> { leagueId, tier, period } (uma liga por semana)
+    this._leagueGroups = new Map(); // `${tier}#${period}` -> grupo aberto (cursor de alocacao)
+    this._leagueNames = new Map(); // `${leagueId}#${userId}` -> displayName
+    this._leagueSeen = new Map(); // userId -> period do ultimo resultado visto
     this._attempts = new Map(); // `${userId}#${lessonAttemptId}` -> { status, lessonId, result }
     this._push = new Map(); // userId -> Map(subscriptionId -> { endpoint, keys })
     this._notif = new Map(); // userId -> preferencias + estado de lembrete (+ balde de fuso)
@@ -85,8 +90,24 @@ export class InMemoryRepo {
   }
 
   // --- squads: META ---
+  /** So na criacao: depois disso, cada escrita mexe so nos proprios campos. */
   async putSquad(squad) {
     this._squads.set(squad.squadId, { ...squad });
+  }
+  /** Grava so os campos dados (nunca o XP nem o memberCount); devolve a squad atualizada. */
+  async updateSquadFields(squadId, fields) {
+    const squad = this._squads.get(squadId);
+    if (!squad) throw new Error(`squad inexistente: ${squadId}`);
+    Object.assign(squad, fields);
+    return { ...squad };
+  }
+  /** Soma `delta` ao memberCount; para entrar (delta > 0) so se houver vaga. */
+  async changeSquadMemberCount(squadId, delta) {
+    const squad = this._squads.get(squadId);
+    if (!squad) return false;
+    if (delta > 0 && (squad.memberCount ?? 0) >= squad.maxMembers) return false;
+    squad.memberCount = (squad.memberCount ?? 0) + delta;
+    return true;
   }
   async getSquad(squadId) {
     const s = this._squads.get(squadId);
@@ -99,6 +120,9 @@ export class InMemoryRepo {
       this._members.delete(`${squadId}#${member.userId}`);
       this._userSquads.get(member.userId)?.delete(squadId);
     }
+    for (const key of [...this._squadWeeks.keys()]) {
+      if (key.startsWith(`${squadId}#`)) this._squadWeeks.delete(key);
+    }
     this._squads.delete(squadId);
   }
 
@@ -107,10 +131,20 @@ export class InMemoryRepo {
     const m = this._members.get(`${squadId}#${userId}`);
     return m ? { ...m } : null;
   }
+  /** Membro novo; false se a pessoa ja e membro (nao sobrescreve). */
   async putMember(squadId, userId, member) {
-    this._members.set(`${squadId}#${userId}`, { userId, xpWeeklyContrib: 0, ...member });
+    const key = `${squadId}#${userId}`;
+    if (this._members.has(key)) return false;
+    this._members.set(key, { userId, xpWeeklyContrib: 0, ...member });
     if (!this._userSquads.has(userId)) this._userSquads.set(userId, new Set());
     this._userSquads.get(userId).add(squadId);
+    return true;
+  }
+  /** Troca so o papel (promote, demote, transfer), sem regravar a contribuicao. */
+  async setMemberRole(squadId, userId, role) {
+    const member = this._members.get(`${squadId}#${userId}`);
+    if (!member) throw new Error(`membro inexistente: ${squadId}/${userId}`);
+    member.role = role;
   }
   async removeMember(squadId, userId) {
     this._members.delete(`${squadId}#${userId}`);
@@ -152,11 +186,81 @@ export class InMemoryRepo {
       type: this._squads.get(squadId)?.type,
     }));
   }
-  async incrementSquadXp(squadId, userId, amount) {
+  /**
+   * Soma XP na squad e no membro (mesmas regras do DynamoRepo):
+   * - `period` ('AAAA-wSS'): XP semanal da semana `period`; se o item ainda e de uma semana
+   *   velha, vira a semana (o valor anterior vai para lastWeekXp/lastWeekPeriod) e a squad
+   *   fica marcada como ativa na semana (SQUAD#<id> / WEEK#<semana>, lida pelo job);
+   * - `period: null`: licao de outra semana, so soma no total (xpAllTime);
+   * - sem `period` (seeds e testes antigos): soma direto no semanal, sem semana.
+   */
+  async incrementSquadXp(squadId, userId, amount, { period } = {}) {
     const squad = this._squads.get(squadId);
-    if (squad) squad.xpWeekly = (squad.xpWeekly ?? 0) + amount;
+    if (squad && this._addWeekXp(squad, 'xpWeekly', 'xpAllTime', amount, period)) {
+      const key = `${squadId}#${period}`;
+      if (!this._squadWeeks.has(key)) this._squadWeeks.set(key, { squadId, period, status: 'open' });
+    }
     const member = this._members.get(`${squadId}#${userId}`);
-    if (member) member.xpWeeklyContrib = (member.xpWeeklyContrib ?? 0) + amount;
+    if (member) this._addWeekXp(member, 'xpWeeklyContrib', 'xpAllTimeContrib', amount, period);
+  }
+  /** @returns {boolean} true se virou a semana do item */
+  _addWeekXp(item, weekly, allTime, amount, period) {
+    item[allTime] = (item[allTime] ?? 0) + amount;
+    if (period === undefined) {
+      item[weekly] = (item[weekly] ?? 0) + amount;
+      return false;
+    }
+    if (period === null || (item.xpWeekPeriod && item.xpWeekPeriod > period)) return false;
+    if (item.xpWeekPeriod === period) {
+      item[weekly] = (item[weekly] ?? 0) + amount;
+      return false;
+    }
+    if (item.xpWeekPeriod) {
+      item.lastWeekXp = item[weekly] ?? 0;
+      item.lastWeekPeriod = item.xpWeekPeriod;
+    }
+    item[weekly] = amount;
+    item.xpWeekPeriod = period;
+    return true;
+  }
+
+  // --- squads: reset semanal e historico (SQUAD#<id> / WEEK#<semana>) ---
+  async listSquadWeeks(period, { limit = 25, cursor = null } = {}) {
+    const all = [...this._squadWeeks.values()]
+      .filter((w) => w.period === period)
+      .sort((a, b) => (a.squadId < b.squadId ? -1 : 1));
+    const start = cursor ?? 0;
+    const end = start + limit;
+    return {
+      weeks: all.slice(start, end).map(({ squadId, status }) => ({ squadId, period, status })),
+      cursor: end < all.length ? end : null,
+    };
+  }
+  /** Vira a semana `period` da squad e dos membros que ainda estao nela (XP semanal a zero). */
+  async rollSquadWeek(squadId, period) {
+    const roll = (item, weekly) => {
+      if (item?.xpWeekPeriod !== period) return;
+      item.lastWeekXp = item[weekly] ?? 0;
+      item.lastWeekPeriod = period;
+      item[weekly] = 0;
+      delete item.xpWeekPeriod;
+    };
+    roll(this._squads.get(squadId), 'xpWeekly');
+    for (const [key, member] of this._members) {
+      if (key.startsWith(`${squadId}#`)) roll(member, 'xpWeeklyContrib');
+    }
+  }
+  /** Fecha a semana uma vez so; false se ja estava fechada. */
+  async saveSquadWeek(squadId, period, snapshot) {
+    const key = `${squadId}#${period}`;
+    const current = this._squadWeeks.get(key);
+    if (current?.status === 'closed') return false;
+    this._squadWeeks.set(key, { ...current, ...snapshot, squadId, period, status: 'closed' });
+    return true;
+  }
+  async getSquadWeek(squadId, period) {
+    const w = this._squadWeeks.get(`${squadId}#${period}`);
+    return w ? structuredClone(w) : null;
   }
   async getSquadMemberXp(squadId, userId) {
     return this._members.get(`${squadId}#${userId}`)?.xpWeeklyContrib ?? 0;
@@ -176,6 +280,9 @@ export class InMemoryRepo {
   // --- ligas: semana, membros e fechamento (espelha GSI2 LEAGUES#<semana> do DynamoRepo) ---
   /** Cria o META da liga (aberta) ou atualiza os dados sem mexer no status. */
   async putLeague(league) {
+    this._putLeague(league);
+  }
+  _putLeague(league) {
     const current = this._leagues.get(league.leagueId);
     this._leagues.set(league.leagueId, { ...current, ...league, status: current?.status ?? 'open' });
   }
@@ -183,16 +290,50 @@ export class InMemoryRepo {
     const l = this._leagues.get(leagueId);
     return l ? { ...l } : null;
   }
-  /** Entra na liga (idempotente): nao zera o XP de quem ja esta nela. */
-  async joinLeague(league, userId) {
-    await this.putLeague(league);
+  /**
+   * Entra na liga (idempotente): nao zera o XP de quem ja esta nela. Uma liga por pessoa e
+   * semana (vaga em `USER#<id> / LEAGUEWEEK#<semana>`); com `maxMembers`, so entra se o
+   * `memberCount` do META ainda estiver abaixo dele (mesma regra do contador condicional).
+   * @returns {Promise<{status: 'joined'|'already'|'full', leagueId: string}>}
+   */
+  async joinLeague(league, userId, { maxMembers = null, displayName = null } = {}) {
+    const seatKey = `${userId}#${league.period}`;
+    const seat = this._leaguePlacement.get(seatKey);
+    if (seat) return { status: 'already', leagueId: seat.leagueId };
+    const meta = this._leagues.get(league.leagueId);
+    if (maxMembers != null && (meta?.memberCount ?? 0) >= maxMembers) {
+      return { status: 'full', leagueId: league.leagueId };
+    }
+
+    // sem await entre a checagem e a escrita: atomico como a transacao do DynamoRepo
+    this._putLeague(league);
+    const updated = this._leagues.get(league.leagueId);
+    updated.memberCount = (updated.memberCount ?? 0) + 1;
+    this._leaguePlacement.set(seatKey, { leagueId: league.leagueId, tier: league.tier, period: league.period });
     this._addLeagueMember(league.leagueId, userId);
     const key = `${league.leagueId}#${userId}`;
     if (!this._leagueXp.has(key)) this._leagueXp.set(key, 0);
+    if (displayName) this._leagueNames.set(key, displayName);
     const current = this._userLeague.get(userId);
     if (!current?.period || current.period <= league.period) {
       this._userLeague.set(userId, { leagueId: league.leagueId, period: league.period });
     }
+    return { status: 'joined', leagueId: league.leagueId };
+  }
+  async getLeaguePlacement(userId, period) {
+    const p = this._leaguePlacement.get(`${userId}#${period}`);
+    return p ? { ...p } : null;
+  }
+  /** Grupo aberto da liga `tier` na semana (1 se ninguem encheu um grupo ainda). */
+  async getLeagueGroupCursor(tier, period) {
+    return this._leagueGroups.get(`${tier}#${period}`) ?? 1;
+  }
+  /** Quem viu o grupo `fromGroup` cheio avanca o cursor; se outro ja avancou, vale o atual. */
+  async advanceLeagueGroup(tier, period, fromGroup) {
+    const key = `${tier}#${period}`;
+    const cursor = this._leagueGroups.get(key) ?? 1;
+    if (cursor === fromGroup) this._leagueGroups.set(key, fromGroup + 1);
+    return this._leagueGroups.get(key) ?? 1;
   }
   async listLeaguesOfPeriod(period, { limit = 25, cursor = null } = {}) {
     const all = [...this._leagues.values()]
@@ -203,10 +344,14 @@ export class InMemoryRepo {
     return { leagues: all.slice(start, end).map((l) => ({ ...l })), cursor: end < all.length ? end : null };
   }
   async listLeagueMembers(leagueId) {
-    return [...(this._leagueMembers.get(leagueId) ?? [])].map((userId) => ({
-      userId,
-      xpPeriod: this._leagueXp.get(`${leagueId}#${userId}`) ?? 0,
-    }));
+    return [...(this._leagueMembers.get(leagueId) ?? [])].map((userId) => {
+      const displayName = this._leagueNames.get(`${leagueId}#${userId}`);
+      return {
+        userId,
+        xpPeriod: this._leagueXp.get(`${leagueId}#${userId}`) ?? 0,
+        ...(displayName ? { displayName } : {}),
+      };
+    });
   }
   /** Grava o resultado da semana uma vez so; repetido devolve o que ja estava gravado. */
   async applyLeagueResult(userId, result) {
@@ -220,6 +365,14 @@ export class InMemoryRepo {
   async getLeagueState(userId) {
     const s = this._leagueState.get(userId);
     return s ? { ...s, lastResult: { ...s.lastResult } } : null;
+  }
+  /** Semana do ultimo LeagueResultSheet visto (so anda para frente). */
+  async markLeagueResultSeen(userId, period) {
+    const current = this._leagueSeen.get(userId);
+    if (!current || current < period) this._leagueSeen.set(userId, period);
+  }
+  async getLeagueResultSeen(userId) {
+    return this._leagueSeen.get(userId) ?? null;
   }
   async markLeagueClosed(leagueId, summary = {}) {
     const l = this._leagues.get(leagueId);

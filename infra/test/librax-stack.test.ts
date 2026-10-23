@@ -301,6 +301,45 @@ describe('Ligas semanais', () => {
     expect(schedule.Properties.Target.Input).toBeUndefined();
   });
 
+  test('o mesmo job semanal zera as squads (SPEC 04 0.3), com acesso a tabela', () => {
+    const { template } = synth(withDomain);
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      FunctionName: 'librax-close-league',
+      Description: Match.stringLikeRegexp('squads'),
+      Environment: { Variables: Match.objectLike({ LIBRAX_TABLE: Match.anyValue() }) },
+    });
+    template.resourceCountIs('AWS::Scheduler::Schedule', 2); // fechamento semanal + lembretes
+  });
+
+  test('rotas de leitura da liga e de resultado visto, com JWT e Lambda propria', () => {
+    const { template } = synth(withDomain);
+    for (const [routeKey, functionName, handler] of [
+      ['GET /v1/league/current', 'librax-get-league', 'index.getCurrentLeagueHandler'],
+      ['POST /v1/league/result-seen', 'librax-league-result-seen', 'index.markLeagueResultSeenHandler'],
+    ]) {
+      template.hasResourceProperties('AWS::ApiGatewayV2::Route', { RouteKey: routeKey, AuthorizationType: 'JWT' });
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: functionName,
+        Handler: handler,
+        Runtime: 'nodejs22.x',
+        Environment: { Variables: Match.objectLike({ LIBRAX_TABLE: Match.anyValue() }) },
+      });
+    }
+  });
+
+  test('as Lambdas da liga podem ler e escrever na tabela', () => {
+    const { template } = synth(withDomain);
+    const fns = template.findResources('AWS::Lambda::Function');
+    const policies = Object.values(template.findResources('AWS::IAM::Policy'));
+    for (const name of ['librax-get-league', 'librax-league-result-seen']) {
+      const [, fn] = Object.entries(fns).find(([, r]) => r.Properties.FunctionName === name)!;
+      const roleRef = fn.Properties.Role['Fn::GetAtt'][0];
+      const policy = policies.find((p) => p.Properties.Roles.some((r: { Ref: string }) => r.Ref === roleRef));
+      const actions = policy!.Properties.PolicyDocument.Statement.flatMap((s: { Action: string | string[] }) => s.Action);
+      expect(actions).toEqual(expect.arrayContaining(['dynamodb:GetItem', 'dynamodb:UpdateItem', 'dynamodb:Query']));
+    }
+  });
+
   test('fechamento usa o GSI2 existente (sem indice novo): GSI1 a GSI6', () => {
     const { template } = synth(withDomain);
     const [table] = Object.values(template.findResources('AWS::DynamoDB::Table'));

@@ -8,6 +8,7 @@ import {
   manageMemberOutcome,
   transferOwnershipOutcome,
   validateSquadChanges,
+  squadView,
   MAX_SQUADS_PER_USER,
   DESCRIPTION_MAX,
   NAME_MIN,
@@ -85,6 +86,13 @@ test('squad cheia', () => {
 
 test('limite de 5 squads B2C bloqueia entrada', () => {
   assert.equal(canJoinSquad({ isGuest: false, b2cSquadCount: 5, squad: openSquad }).error, 'SQUADS_LIMIT_REACHED');
+});
+
+test('squad privada ou de org so por convite: por squadId direto parece inexistente', () => {
+  const priv = { memberCount: 2, maxMembers: 30, type: 'private' };
+  assert.equal(canJoinSquad({ isGuest: false, b2cSquadCount: 0, squad: priv, viaInvite: false }).error, 'SQUAD_NOT_FOUND');
+  assert.deepEqual(canJoinSquad({ isGuest: false, b2cSquadCount: 0, squad: priv, viaInvite: true }), { ok: true });
+  assert.deepEqual(canJoinSquad({ isGuest: false, b2cSquadCount: 0, squad: openSquad, viaInvite: false }), { ok: true });
 });
 
 test('equipe de org NAO conta no limite de 5', () => {
@@ -237,4 +245,41 @@ test('sem nenhum campo editavel -> NO_CHANGES', () => {
   assert.equal(validateSquadChanges(squad12, {}).error, 'NO_CHANGES');
   assert.equal(validateSquadChanges(squad12, { memberCount: 99 }).error, 'NO_CHANGES');
   assert.equal(validateSquadChanges(squad12, null).error, 'NO_CHANGES');
+});
+
+// --- squadView (GET /squads/{id}): o que cada um ve ---
+
+const meta = {
+  squadId: 's1', name: 'Coda', description: 'Turma', type: 'private', createdBy: 'u1', inviteCode: 'ABC234',
+  maxMembers: 30, memberCount: 2, xpWeekly: 30, xpWeekPeriod: '2026-w43', xpAllTime: 90, createdAt: '2026-10-01',
+};
+const members = [
+  { userId: 'u1', role: 'admin', joinedAt: '2026-10-01', xpWeeklyContrib: 10, xpWeekPeriod: '2026-w43', xpAllTimeContrib: 50 },
+  { userId: 'u2', role: 'member', joinedAt: '2026-10-02', xpWeeklyContrib: 20, xpWeekPeriod: '2026-w43', xpAllTimeContrib: 40 },
+];
+
+test('squadView: nao membro de squad privada so ve os dados publicos', () => {
+  const v = squadView({ squad: meta, members, viewerId: 'u9', period: '2026-w43' });
+  assert.deepEqual(v, {
+    squad: { squadId: 's1', name: 'Coda', description: 'Turma', type: 'private', memberCount: 2, maxMembers: 30, xpWeekly: 30 },
+    members: [],
+    membersVisible: false,
+    userMembership: null,
+  });
+});
+
+test('squadView: membro ve tudo, com o ranking por XP da semana', () => {
+  const v = squadView({ squad: meta, members, viewerId: 'u1', period: '2026-w43' });
+  assert.equal(v.squad.inviteCode, 'ABC234');
+  assert.equal(v.squad.xpAllTime, 90);
+  assert.equal(v.squad.xpWeekPeriod, undefined); // campo interno
+  assert.deepEqual(v.members.map((m) => m.userId), ['u2', 'u1']);
+  assert.equal(v.members[0].xpAllTimeContrib, 40);
+  assert.deepEqual(v.userMembership, { role: 'admin' });
+});
+
+test('squadView: org se comporta como privada para quem e de fora', () => {
+  const v = squadView({ squad: { ...meta, type: 'org', orgId: 'o1' }, members, viewerId: 'u9', period: '2026-w43' });
+  assert.equal(v.membersVisible, false);
+  assert.equal(v.squad.orgId, undefined);
 });

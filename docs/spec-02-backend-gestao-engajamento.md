@@ -28,9 +28,13 @@ App web (navegador do celular, PWA)
                                                         ├── EventBridge Scheduler ──► Lambda (fechar liga semanal, jobs)
                                                         └── (analytics) evento ──► Kinesis Firehose/SQS ──► destino
 
-Auth: Amazon Cognito (User Pool + Identity Pool) com domínio próprio (seção 2)
-       e-mail/senha, Google, Apple (opcional), e convidado (anônimo)
+Auth: Amazon Cognito (User Pool) com domínio próprio (seção 2)
+       e-mail/senha, Google, Apple (opcional); convidado 100% local, sem conta na AWS
 ```
+
+> **Atualização (desenho atual):** o Identity Pool foi removido da infra (nada o usava). O
+> convidado joga só no aparelho (IndexedDB) e não chama a API; ao criar conta, o app migra o
+> progresso com `POST /v1/guest/migrate`, já com o id token do User Pool (seção 2).
 
 **Mesma origem.** App, conteúdo, modelos e API ficam atrás de um único CloudFront com domínio próprio. Assim não há CORS, o service worker guarda respostas normais (sem respostas opacas de outra origem) e o Cognito usa o mesmo domínio nos callbacks. Hoje a infra (`infra/lib/librax-stack.ts`) tem um CloudFront só para conteúdo e a HTTP API em endereço próprio com `allowOrigins: ['*']`; juntar tudo no CloudFront único e restringir a origem ao domínio do app é trabalho da fase W3 do plano.
 
@@ -53,11 +57,12 @@ Conclusão honesta: o **núcleo** (Lambda + DynamoDB + Cognito + CloudFront) ten
 
 ## 2. Autenticação (Amazon Cognito)
 
-- **Convidado primeiro**: Identity Pool com acesso não autenticado deixa jogar a 1ª unidade sem cadastro. Progresso de convidado guardado localmente (IndexedDB, seção 7) e **migrado** ao criar conta.
+- **Convidado primeiro**: o convidado joga a 1ª unidade sem cadastro, 100% local. Progresso de convidado guardado localmente (IndexedDB, seção 7) e **migrado** ao criar conta.
+  > **Atualização:** o desenho original usava um Identity Pool com acesso não autenticado. Ele foi removido da infra: o convidado não tem identidade na AWS e não chama a API. A migração é feita por `POST /v1/guest/migrate` depois de criar conta.
 - Métodos: e-mail/senha (SRP; ou magic link), **Google**, e **Apple como opcional** (sem App Store, não há exigência de "Sign in with Apple"; entra se fizer sentido para quem usa iPhone).
 - **Domínio próprio no Cognito** (Hosted UI/OAuth no domínio do app) com fluxo **OAuth authorization code + PKCE**, feito no navegador (`aws-amplify/auth` v6). Callbacks e logouts apontam para URLs web do app (ex.: `https://<dominio>/auth/callback`). Hoje o app client já tem `authorizationCodeGrant` e SRP ligados, mas não há domínio Cognito nem URLs de callback/logout configuradas.
 - Tokens JWT do Cognito autorizam a HTTP API (authorizer nativo do API Gateway).
-- **Lacuna do convidado**: o convidado do Identity Pool não recebe JWT do User Pool, e o authorizer JWT atual (audiência = app client do User Pool) rejeita qualquer chamada dele. Por isso o convidado é 100% local: não chama a API. Ao criar conta, o app chama **`POST /v1/guest/migrate`** (já autenticado com a conta nova) enviando o log de lições do convidado; o servidor reexecuta esse log com o mesmo `completeLesson` e recalcula XP, streak e SRS. O endpoint ainda não existe na infra.
+- **Convidado é local**: o authorizer JWT da API (audiência = app client do User Pool) só aceita o id token de quem tem conta; por isso o convidado é 100% local e não chama a API (era a "lacuna do convidado" do Identity Pool, que foi removido). Ao criar conta, o app chama **`POST /v1/guest/migrate`** (já autenticado com a conta nova) enviando o log de lições do convidado; o servidor reexecuta esse log com o mesmo `completeLesson` e recalcula XP, streak e SRS. O endpoint já está na infra (`services/api/README.md`).
 - B2B (futuro): Cognito groups por `org`; SSO/SAML quando vender para instituição.
 
 ## 3. Modelo de dados - DynamoDB single-table
@@ -159,7 +164,7 @@ Justificativa: (a) MVP é gratuito, então não há motivo de monetização para
 
 ### 12.1 Fluxo de onboarding (primeiro acesso)
 
-Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas; conta pedida so depois da primeira licao.
+Convidado (100% local, sem Identity Pool: ele foi removido; migracao por `POST /v1/guest/migrate` ao criar conta, secao 2). Onboarding progressivo em 4 telas; conta pedida so depois da primeira licao.
 
 **Sequencia de telas:**
 | # | Tela | Componentes | Avanca para |
@@ -175,7 +180,7 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas;
 - Conta solicitada apenas ao concluir a primeira licao (12.2).
 - `navigator.storage.persist()` e chamado sempre, ja no primeiro acesso, para reduzir o risco de o navegador apagar o progresso local.
 
-**Momento "instalar o app":** depois da primeira licao concluida **e** com conta criada, o app sugere "Adicionar a tela inicial" (Android: `beforeinstallprompt`; iPhone: instrucoes de "Compartilhar > Adicionar a Tela de Inicio"). Nunca obrigatorio. Instalado, o app ganha push no iPhone e fica livre da limpeza de 7 dias do Safari. Se a pessoa ainda for convidada, o pedido de conta vem antes (reforco do 12.2), e o mesmo reforco aparece antes de ligar lembretes.
+**Momento "instalar o app":** depois da primeira licao concluida **e** com conta criada, o app sugere "Adicionar a tela inicial" (Android: `beforeinstallprompt`; iPhone: instrucoes de "Compartilhar > Adicionar a Tela de Inicio"). Nunca obrigatorio. Instalado, o app ganha push no iPhone e fica livre da limpeza de 7 dias do Safari. Se a pessoa ainda for convidada, o pedido de conta vem antes (reforco do 12.2), e o mesmo reforco aparece antes de ligar lembretes. Se a pessoa nunca criar conta, a sugestao aparece depois da **terceira** licao concluida (repeticoes contam): no iPhone o app instalado e o que protege os dados de quem so joga como convidado. A sugestao aparece uma vez so, ao voltar para o mapa e depois dos sheets do AppOpenFlow (12.10); nas Configuracoes a opcao continua disponivel. Implementacao: `shouldSuggestInstall` em `apps/web-poc/src/lib/install.ts`.
 
 ### 12.2 ConvertAccountSheet (convidado -> conta)
 
@@ -188,9 +193,11 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas;
 |---|---|
 | "Criar conta com e-mail" | abre RegisterScreen (12.3) |
 | "Continuar com Google/Apple" | OAuth do Cognito por **redirect** na mesma aba (code + PKCE, secao 2); antes de sair, o app grava o estado local; na volta pelo callback, conclui o login e migra o convidado |
-| "Continuar sem conta" | fecha o sheet; reaparece ao final da proxima licao |
+| "Continuar sem conta" | fecha o sheet; reaparece ao final da proxima licao, no maximo uma vez por dia |
 
 **Regra:** migracao silenciosa - com a conta nova, o app chama `POST /v1/guest/migrate` com o log de licoes do convidado; o Lambda reexecuta o log com `completeLesson` e grava no novo `userId`, preservando progresso, streak e SRS locais (secao 2).
+
+**Sem login no ambiente** (sem as variaveis `VITE_COGNITO_*`, como no desenvolvimento local): o sheet aparece do mesmo jeito, mas no lugar dos botoes mostra "Login indisponivel neste ambiente" e so "Continuar". O app segue 100% como convidado.
 
 ### 12.3 LoginScreen / RegisterScreen
 
@@ -213,6 +220,8 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas;
 
 **Regra:** "Apple" e opcional: sem App Store, nao ha a exigencia da App Store Review. Se nao for configurado no Cognito, o botao nao aparece.
 
+**Implementacao web (out/2026):** rotas `/entrar` e `/criar-conta` (design system 11.13). Cadastro por e-mail pede o codigo de 6 numeros enviado pelo Cognito e entra em seguida. A volta do Google chega em `/auth/callback`, que conclui o login antes de qualquer redirecionamento (o `?code=` nao pode se perder) e segue para `/aprender`. Apple fica de fora (desligada na infra). "Esqueci a senha" ainda nao existe: `auth.ts` nao tem a recuperacao de senha (`resetPassword` / `confirmResetPassword` do Amplify); entra junto com a tela. Sem `VITE_COGNITO_*`, as duas telas mostram "Login indisponivel neste ambiente" e o botao "Continuar como convidado".
+
 ### 12.4 ProfileScreen
 
 **Acesso:** aba "Perfil" na navegacao principal.
@@ -232,7 +241,7 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas;
 | toque na sequencia / chama | abre StreakScreen (12.5) |
 | "Ver todas" (conquistas) | abre AchievementsScreen (12.6) |
 | "..." -> "Configuracoes" | abre SettingsScreen (12.8) |
-| "..." -> "Sair da conta" | logout do Cognito; volta ao onboarding |
+| "..." -> "Sair da conta" | logout do Cognito; o progresso do aparelho fica e o app segue como convidado (ver 12.8) |
 | `GuestBanner` | abre ConvertAccountSheet (12.2) |
 
 ### 12.5 StreakScreen
@@ -336,7 +345,7 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas;
 **Acesso:** menu "..." do ProfileScreen.
 
 **Componentes (grupos de itens):**
-- Conta: "Nome de exibicao", "E-mail" (somente leitura), "Alterar senha", "Excluir conta".
+- Conta: "Nome de exibicao", "E-mail" (somente leitura), "Alterar senha", "Sair da conta", "Excluir conta". Como convidado, no lugar de "E-mail" e "Sair da conta": "Entrar na conta" e "Criar conta" (12.3).
 - Aprendizado: "Meta diaria", "Camera" (ativada/desativada).
 - Notificacoes: "Lembrete diario" (com horario), "Sequencia em risco" (toggle). Os toggles de push so aparecem se o navegador suportar Web Push (no iPhone, so com o app instalado); sem suporte, o grupo mostra o lembrete dentro do app e o "Lembrete por e-mail" (opt-in, secao 9).
 - Privacidade: "Exportar meus dados", "Politica de privacidade".
@@ -350,6 +359,7 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas;
 | "Camera" | alterna preferencia (mesmo toggle do bottom sheet "?" da SPEC 01 secao 9.3) |
 | "Exportar meus dados" | Lambda gera JSON (progresso, SRS, conquistas); o app oferece o arquivo por `navigator.share` (com arquivo) quando houver suporte, ou por download direto como alternativa (LGPD) |
 | "Instalar o Librax" | Android: `beforeinstallprompt`; iPhone: instrucoes de "Adicionar a Tela de Inicio" |
+| "Sair da conta" | dialogo "Sair da conta?"; confirma -> `signOut` do Cognito. O progresso deste aparelho continua (IndexedDB) e o app segue como convidado; o que ja foi enviado continua na conta. Para apagar tudo do aparelho, "Excluir conta" |
 | "Excluir conta" | inicia o fluxo de exclusao em duas etapas (abaixo) |
 
 **Fluxo de exclusao de conta (duas etapas):**
@@ -374,7 +384,7 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas;
 
 Esta secao define o que o usuario ve ao abrir o app no D2+ (qualquer abertura que nao seja o primeiro acesso). O fluxo garante que nenhum evento importante passe despercebido.
 
-**O que conta como "abrir o app" no web:** carregar a pagina (aba nova, atalho da tela inicial ou recarregar) **ou** voltar a uma aba que ficou oculta por N horas (`visibilitychange` para `visible` depois de N horas em `hidden`; N configuravel, valor a definir). Voltar a aba antes disso nao reabre o fluxo.
+**O que conta como "abrir o app" no web:** carregar a pagina (aba nova, atalho da tela inicial ou recarregar) **ou** voltar a uma aba que ficou oculta por N horas (`visibilitychange` para `visible` depois de N horas em `hidden`). **N = 4 horas** (`APP_REOPEN_HOURS` em `apps/web-poc/src/lib/appOpen.ts`): cobre a volta do dia seguinte e a volta depois de uma tarde fora, sem reabrir o fluxo em trocas rapidas de app. Voltar a aba antes disso nao reabre o fluxo.
 
 **Tela de entrada:** o app sempre abre no `CourseMapScreen` (aba Aprender), independente da aba em que estava na sessao anterior.
 
@@ -386,7 +396,7 @@ Esta secao define o que o usuario ve ao abrir o app no D2+ (qualquer abertura qu
 | 2 | `last_active_day < hoje - 1 dia` (streak quebrou) E `streakBrokenShownDate != hoje` | `StreakBrokenSheet` (abaixo) | "Estudar agora" ou "Ver meu historico" |
 | 3 | nenhuma das condicoes acima | CourseMapScreen interativo diretamente | - |
 
-Passos 1 e 2 podem ocorrer juntos (ex.: usuario ficou afastado varios dias). O passo 1 e sempre exibido antes do passo 2.
+Passos 1 e 2 podem ocorrer juntos (ex.: usuario ficou afastado varios dias). O passo 1 e sempre exibido antes do passo 2. Os sheets aparecem nas telas com abas, um de cada vez; a sugestao de instalar (12.1) so vem depois deles. Cada flag de "ja visto" e gravada quando o sheet aparece. Se a pessoa abrir a LeagueScreen antes, o resultado aparece la e nao se repete no mapa.
 
 **StreakBrokenSheet (bottom sheet):**
 
