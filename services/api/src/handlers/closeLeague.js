@@ -1,51 +1,36 @@
 /**
- * Handler Lambda acionado pelo EventBridge Scheduler no fim de cada semana
- * para fechar a liga: calcula ranking, promove/rebaixa, reseta XP do periodo.
+ * Lambda acionada pelo EventBridge Scheduler toda segunda 00:05 UTC para fechar a semana
+ * das ligas (SPEC 02 secao 5.5): ranking, promocao/rebaixamento e montagem das ligas da
+ * semana seguinte, em todas as ligas da semana que terminou (usecases/closeLeagueWeek.js).
  *
- * O Scheduler envia o leagueId no body do evento:
- * { "leagueId": "gold-2026-w26" }
+ * O evento do Scheduler nao precisa de nada. Para refazer uma semana a mao (a operacao e
+ * idempotente), mande a segunda-feira dela:
+ *   { "periodStart": "2026-10-19" }
  *
  * Nao usa API Gateway (nao e HTTP); o evento chega diretamente.
+ *
+ * `makeCloseLeagueHandler({ repo, now })` recebe as dependencias (testes usam InMemoryRepo);
+ * `handler` e a instancia de producao (DynamoRepo).
  */
 
-import { closeLeague } from '../domain/leagues.js';
-import { repo } from './_repo.js';
+import { closeLeagueWeek } from '../usecases/closeLeagueWeek.js';
+import { periodStartOf } from '../domain/leagues.js';
+import { parseIsoDate } from '../lib/dates.js';
+import { repo as dynamoRepo } from './_repo.js';
 
-export async function handler(event) {
-  const leagueId = event.leagueId ?? event?.detail?.leagueId;
-  if (!leagueId) {
-    console.error('[closeLeague] leagueId ausente', event);
-    return;
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function makeCloseLeagueHandler({ repo, now = () => new Date() }) {
+  async function handler(event = {}) {
+    const periodStart = event?.periodStart
+      ? parseIsoDate(event.periodStart)
+      : periodStartOf(now().getTime()) - WEEK_MS; // a semana que acabou de terminar
+
+    const report = await closeLeagueWeek(repo, { periodStart, closedAt: now().toISOString() });
+    console.log('[closeLeague]', JSON.stringify(report));
+    return report;
   }
-
-  console.log('[closeLeague] iniciando para liga', leagueId);
-
-  // 1. Carrega todos os membros da liga e seus XPs do periodo
-  const { Items: members = [] } = await repo._db.send(
-    new (await import('@aws-sdk/lib-dynamodb')).QueryCommand({
-      TableName: process.env.LIBRAX_TABLE ?? 'librax',
-      KeyConditionExpression: 'PK = :pk',
-      ExpressionAttributeValues: { ':pk': `LEAGUE#${leagueId}` },
-    }),
-  );
-
-  if (members.length === 0) {
-    console.log('[closeLeague] liga vazia, nada a fazer');
-    return;
-  }
-
-  const input = members.map((m) => ({
-    userId: m.userId ?? m.SK?.replace('USER#', ''),
-    xpPeriod: m.xpPeriod ?? 0,
-  }));
-
-  // 2. Aplica logica pura de ranking
-  const { promoted, relegated, stayed } = closeLeague(input);
-  console.log('[closeLeague] promoted:', promoted.length, 'relegated:', relegated.length, 'stayed:', stayed.length);
-
-  // 3. Persistencia: aqui ficaria o reset de XP e a atualizacao de liga por usuario.
-  //    Implementar quando a estrutura de "proxima liga" for definida (pos-MVP).
-  //    Por ora: loga e retorna o resultado para auditoria.
-
-  return { leagueId, promoted, relegated, stayed, processedAt: new Date().toISOString() };
+  return { handler };
 }
+
+export const { handler } = makeCloseLeagueHandler({ repo: dynamoRepo });
