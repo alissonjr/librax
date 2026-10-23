@@ -5,9 +5,28 @@
  *   evento e mostramos o pedido nativo só quando a pessoa toca em "Instalar".
  * - iPhone (Safari, e qualquer navegador do iOS): não há evento; mostramos as instruções de
  *   "Compartilhar > Adicionar à Tela de Início".
- * Nunca é obrigatório: a sugestão aparece uma vez, depois da primeira lição concluída, e pode
- * ser dispensada. Nas Configurações a opção continua disponível enquanto não estiver instalado.
+ * Nunca é obrigatório: a sugestão aparece uma vez só, ao voltar para o mapa (shouldSuggestInstall),
+ * e pode ser dispensada. Nas Configurações a opção continua disponível enquanto não estiver instalado.
  */
+
+/** Sem conta, a sugestão de instalar vem depois desta quantidade de lições concluídas. */
+export const INSTALL_WITHOUT_ACCOUNT_AFTER = 3;
+
+/**
+ * Quando sugerir instalar (decisão 13 do plano, spec-02 12.1):
+ * - com conta: depois da primeira lição concluída (o pedido de conta vem antes, no fim da lição);
+ * - sem conta: depois da terceira lição concluída, porque no iPhone o app instalado fica livre da
+ *   limpeza de 7 dias do Safari e protege o progresso de quem só joga como convidado;
+ * - uma vez só (`alreadySuggested`). Conclusões repetidas da mesma lição também contam.
+ */
+export function shouldSuggestInstall(opts: {
+  alreadySuggested: boolean;
+  lessonsCompleted: number;
+  hasAccount: boolean;
+}): boolean {
+  if (opts.alreadySuggested || opts.lessonsCompleted < 1) return false;
+  return opts.hasAccount || opts.lessonsCompleted >= INSTALL_WITHOUT_ACCOUNT_AFTER;
+}
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;

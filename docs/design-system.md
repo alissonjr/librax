@@ -920,6 +920,9 @@ voltar do Android) e pelo `ScrollRestoration` (topo ao abrir tela nova, posiçã
 /sequencia                 -> StreakScreen (sem abas)
 /conquistas                -> AchievementsScreen (sem abas)
 /configuracoes             -> SettingsScreen (sem abas)
+/entrar                    -> AuthScreen, modo Entrar (sem abas; fora do onboarding)
+/criar-conta               -> AuthScreen, modo Criar conta (sem abas; fora do onboarding)
+/auth/callback             -> volta do Google: conclui o login e segue para /aprender
 /licao/:lessonId           -> LessonScreen (sem abas; exercícios do bundle da lição)
 /licao/:lessonId/concluida -> LessonCompletionScreen (sem abas)
 /unidade/:unitId/concluida -> UnitCompletionScreen (sem abas)
@@ -953,6 +956,15 @@ Regras:
   (`useScrollRestore`).
 - **Convite**: o link `/convite/:code` é resolvido antes da verificação de conta, para o código não se perder
   no caminho do login.
+- **Conta**: `/entrar`, `/criar-conta` e `/auth/callback` ficam fora da exigência de onboarding (o link "Entrar"
+  das boas-vindas leva a elas). Trocar entre Entrar e Criar conta substitui a entrada atual. Ao concluir, a tela
+  volta para onde a pessoa estava; vinda do convite do fim da lição (`state.returnTo`), segue para a próxima tela
+  do fluxo (unidade, curso ou mapa). Sem as variáveis `VITE_COGNITO_*`, as duas telas mostram "Login
+  indisponível neste ambiente" e o app segue como convidado.
+- **Volta do Google** (`/auth/callback`): nenhum redirecionamento acontece antes de `configureAuth()` e de a
+  sessão estar pronta, porque o Amplify precisa ler o `?code=` da URL (PKCE). Depois a rota troca a entrada
+  por `/aprender`. Com erro do Google ou sem resposta, mostra "Não foi possível entrar com o Google." e
+  "Tentar de novo" (leva a `/entrar`).
 - Ao trocar de rota, o foco vai para o título da nova tela (`<h1>` com `tabindex="-1"`) e o título da aba do
   navegador muda junto, para o leitor de tela anunciar a troca.
 

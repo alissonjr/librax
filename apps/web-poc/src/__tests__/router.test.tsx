@@ -149,6 +149,8 @@ describe('roteador', () => {
   it('o voltar dentro da licao abre "Sair da licao?" em vez de sair direto', async () => {
     const router = await renderAt(['/aprender', '/licao/u1-l1']);
     await screen.findByRole('progressbar');
+    // O useBlocker registra o bloqueio num efeito: espera os efeitos rodarem antes de voltar
+    await act(async () => { await new Promise(r => setTimeout(r, 0)); });
 
     // Voltar do navegador / Android
     await act(() => router.navigate(-1));
