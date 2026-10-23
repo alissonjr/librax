@@ -43,10 +43,10 @@ Princípio que guia todas: **o produto roda no navegador do celular e a experiê
 4. O `HandLandmarker` é recriado a cada exercício.
 5. Quatro `setState` por frame e nenhum limite de 15 fps.
 6. `<video>` iniciado com `display:none` (arriscado no iOS) e avatar 3D cobrindo o vídeo.
-7. Sem roteador: o voltar do Android sai do app e não há URLs.
-8. PWA incompleto: faltam `public/` e ícones; `theme_color` diverge entre manifest, `index.html` e design system.
-9. Nunito do Google Fonts e sem `viewport-fit=cover` nem safe areas.
-10. Exercícios gerados em código, fora do schema da `spec-03`; todos os `video_url` são `null`.
+7. Sem roteador: o voltar do Android sai do app e não há URLs. **Corrigido em 2026-10-23**: react-router 6 com as rotas do `design-system.md` 11.13, "Sair da lição?" no voltar, rolagem no topo a cada tela e fallback de SPA no Vite e no service worker.
+8. PWA incompleto: faltam `public/` e ícones; `theme_color` diverge entre manifest, `index.html` e design system. **Corrigido em 2026-10-23**: ícones 192, 512, maskable 512, `favicon.svg` e `apple-touch-icon` gerados por `tools/pwa/build-icons.mjs` com os tokens; manifest completo; metas do iOS; `theme_color` único (`bg.canvas`); Chrome sem erro de instalabilidade além do modo anônimo do teste; sugestão de instalar depois da primeira lição (decisão 13).
+9. Nunito do Google Fonts e sem `viewport-fit=cover` nem safe areas. **Corrigido** (conferido em 2026-10-23): Nunito local em `public/fonts`, `viewport-fit=cover` e `--lx-safe-*` na barra de abas, barras do topo, rodapé da lição e sheets.
+10. Exercícios gerados em código, fora do schema da `spec-03`; todos os `video_url` são `null`. **Corrigido em 2026-10-23** (a parte dos exercícios): bundle por lição no schema da `spec-03` 3, gerado por `tools/content/build-lessons.mjs`. Os `video_url` continuam `null` até a gravação (fase W5).
 11. `navigator.vibrate` sem efeito no iOS; não há sistema de som.
 
 ### 1.3 Flutter
