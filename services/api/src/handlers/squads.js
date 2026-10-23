@@ -20,6 +20,8 @@
 import { randomUUID, randomInt } from 'node:crypto';
 import * as squadUsecases from '../usecases/squads.js';
 import { SquadError } from '../usecases/squads.js';
+import { memberForWeek, squadForWeek } from '../domain/squads.js';
+import { periodKey, periodStartOf } from '../domain/leagues.js';
 import { userId, body, ok, ApiError, wrap } from './_http.js';
 import { repo as dynamoRepo } from './_repo.js';
 
@@ -49,6 +51,9 @@ const SQUAD_ERRORS = {
   INVALID_ACTION:           [400, 'Acao invalida (promote, demote ou kick).'],
   INVITE_CODE_EXHAUSTED:    [503, 'Nao foi possivel gerar um codigo de convite. Tente de novo.'],
 };
+
+/** Semana corrente (mesma da liga): o XP semanal mostrado e o dela. */
+const currentPeriod = (date) => periodKey(periodStartOf(date.getTime()));
 
 function squadId(event) {
   const id = event.pathParameters?.squadId;
@@ -137,10 +142,11 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
     const sid = squadId(event);
     const squad = await repo.getSquad(sid);
     if (!squad) throw new ApiError(404, 'SQUAD_NOT_FOUND', 'Squad nao encontrada');
-    const members = await repo.listMembers(sid);
+    const period = currentPeriod(now());
+    const members = (await repo.listMembers(sid)).map((m) => memberForWeek(m, period));
     const userMembership = members.find((m) => m.userId === uid) ?? null;
     return ok({
-      squad,
+      squad: squadForWeek(squad, period),
       members: members.sort((a, b) => (b.xpWeeklyContrib ?? 0) - (a.xpWeeklyContrib ?? 0)),
       userMembership: userMembership ? { role: userMembership.role } : null,
     });
@@ -150,7 +156,8 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
     const uid = userId(event);
     const squads = await repo.listUserSquads(uid);
     const details = await Promise.all(squads.map(({ squadId: sid }) => repo.getSquad(sid)));
-    return ok({ squads: details.filter(Boolean) });
+    const period = currentPeriod(now());
+    return ok({ squads: details.filter(Boolean).map((sq) => squadForWeek(sq, period)) });
   });
 
   return {

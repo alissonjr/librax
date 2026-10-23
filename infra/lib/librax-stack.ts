@@ -91,7 +91,8 @@ export class LibraxStack extends cdk.Stack {
     });
 
     // GSI2: liga do usuario (PK=USER#<id>, SK=LEAGUE#<period>) e, no mesmo indice, as ligas
-    // de uma semana (PK=LEAGUES#<period>, SK=LEAGUE#<leagueId>) para o fechamento semanal
+    // de uma semana (PK=LEAGUES#<period>, SK=LEAGUE#<leagueId>) para o fechamento semanal e as
+    // squads com XP na semana (PK=SQUADS#<period>, SK=SQUAD#<squadId>) para o reset semanal
     table.addGlobalSecondaryIndex({
       indexName: 'GSI2',
       partitionKey: { name: 'GSI2PK', type: dynamodb.AttributeType.STRING },
@@ -308,7 +309,7 @@ export class LibraxStack extends cdk.Stack {
     const closeLeagueFn = makeFn('CloseLeagueFn', 'closeLeague.js', 'handler', {
       functionName: 'librax-close-league',
       timeout: Duration.minutes(5),  // operacao batch pode demorar mais
-      description: 'Fecha liga semanal: rankeia, promove/rebaixa (SPEC 02 sec 5.5)',
+      description: 'Fecha liga semanal (SPEC 02 sec 5.5) e zera o XP semanal das squads (SPEC 04 sec 0.3)',
     });
 
     const appUrl = `https://${config.domainName}`;
@@ -619,8 +620,10 @@ export class LibraxStack extends cdk.Stack {
     // -----------------------------------------------------------------------
 
     // Fechar liga semanal (toda segunda-feira 00:05 UTC). O evento vai vazio: a Lambda fecha
-    // todas as ligas da semana que terminou (paginado pelo GSI2) e e idempotente, entao as
-    // novas tentativas da invocacao assincrona nao promovem ninguem duas vezes.
+    // todas as ligas da semana que terminou (paginado pelo GSI2) e, no mesmo job (SPEC 04 0.3),
+    // zera o XP semanal das squads ativas na semana (GSI2 SQUADS#<semana>) guardando o ranking.
+    // As duas partes sao idempotentes, entao as novas tentativas da invocacao assincrona nao
+    // promovem ninguem duas vezes nem zeram XP da semana nova.
     const schedulerRole = new iam.Role(this, 'SchedulerRole', {
       assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
     });

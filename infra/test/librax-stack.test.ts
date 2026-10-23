@@ -300,6 +300,16 @@ describe('Ligas semanais', () => {
     expect(schedule.Properties.Target.Input).toBeUndefined();
   });
 
+  test('o mesmo job semanal zera as squads (SPEC 04 0.3), com acesso a tabela', () => {
+    const { template } = synth(withDomain);
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      FunctionName: 'librax-close-league',
+      Description: Match.stringLikeRegexp('squads'),
+      Environment: { Variables: Match.objectLike({ LIBRAX_TABLE: Match.anyValue() }) },
+    });
+    template.resourceCountIs('AWS::Scheduler::Schedule', 2); // fechamento semanal + lembretes
+  });
+
   test('rotas de leitura da liga e de resultado visto, com JWT e Lambda propria', () => {
     const { template } = synth(withDomain);
     for (const [routeKey, functionName, handler] of [

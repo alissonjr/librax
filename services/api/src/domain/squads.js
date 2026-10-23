@@ -106,6 +106,48 @@ export function validateSquadChanges(squad, input) {
   return { ok: true, changes };
 }
 
+// --- XP semanal (SPEC 04 secao 0.3): reset toda segunda 00:00 UTC ---
+//
+// A squad (META) e cada membro guardam o XP da semana junto com a semana a que ele se refere
+// (`xpWeekPeriod`, 'AAAA-wSS'). A primeira licao de uma semana nova vira a semana do item
+// (o valor anterior vai para `lastWeekXp`/`lastWeekPeriod`) e o job semanal faz o mesmo para
+// quem nao estudou. Assim o reset nunca apaga XP que ja entrou na semana nova.
+
+/** XP semanal para mostrar na semana `period`: zero se o item ainda e de uma semana velha. */
+export function currentWeekXp(value, itemPeriod, period) {
+  return itemPeriod && itemPeriod !== period ? 0 : value ?? 0;
+}
+
+/** XP que o item fez na semana `period` (antes ou depois de virar a semana). */
+export function weekXpOf(item, weeklyAttr, period) {
+  if (item?.lastWeekPeriod === period) return item.lastWeekXp ?? 0;
+  if (item?.xpWeekPeriod === period) return item[weeklyAttr] ?? 0;
+  return 0;
+}
+
+/** Ranking interno da semana: XP desc, desempate por userId asc. */
+export function rankSquadWeek(members) {
+  return [...members]
+    .sort((a, b) => b.xp - a.xp || (a.userId < b.userId ? -1 : a.userId > b.userId ? 1 : 0))
+    .map((m, i) => ({ userId: m.userId, xp: m.xp, rank: i + 1 }));
+}
+
+const WEEK_FIELDS = ['xpWeekPeriod', 'lastWeekXp', 'lastWeekPeriod'];
+
+/** Squad (META) como a API devolve na semana `period`: XP semanal da semana, sem os campos internos. */
+export function squadForWeek(squad, period) {
+  const out = { ...squad, xpWeekly: currentWeekXp(squad.xpWeekly, squad.xpWeekPeriod, period) };
+  for (const k of WEEK_FIELDS) delete out[k];
+  return out;
+}
+
+/** Membro como a API devolve na semana `period`. */
+export function memberForWeek(member, period) {
+  const out = { ...member, xpWeeklyContrib: currentWeekXp(member.xpWeeklyContrib, member.xpWeekPeriod, period) };
+  for (const k of WEEK_FIELDS) delete out[k];
+  return out;
+}
+
 function isValidName(name) {
   if (typeof name !== 'string') return false;
   const n = name.trim().length;

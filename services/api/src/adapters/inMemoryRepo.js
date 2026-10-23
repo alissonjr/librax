@@ -20,6 +20,7 @@ export class InMemoryRepo {
     this._members = new Map(); // `${squadId}#${userId}` -> { userId, role, xpWeeklyContrib, joinedAt }
     this._userSquads = new Map(); // userId -> Set(squadId)
     this._invite = new Map(); // inviteCode -> squadId
+    this._squadWeeks = new Map(); // `${squadId}#${period}` -> semana da squad (ativa ou fechada, com ranking)
     this._userLeague = new Map(); // userId -> { leagueId, period } (a liga mais recente)
     this._leagueXp = new Map(); // `${leagueId}#${userId}` -> number
     this._leagues = new Map(); // leagueId -> META { leagueId, tier, period, periodStart, group?, status }
@@ -119,6 +120,9 @@ export class InMemoryRepo {
       this._members.delete(`${squadId}#${member.userId}`);
       this._userSquads.get(member.userId)?.delete(squadId);
     }
+    for (const key of [...this._squadWeeks.keys()]) {
+      if (key.startsWith(`${squadId}#`)) this._squadWeeks.delete(key);
+    }
     this._squads.delete(squadId);
   }
 
@@ -182,11 +186,81 @@ export class InMemoryRepo {
       type: this._squads.get(squadId)?.type,
     }));
   }
-  async incrementSquadXp(squadId, userId, amount) {
+  /**
+   * Soma XP na squad e no membro (mesmas regras do DynamoRepo):
+   * - `period` ('AAAA-wSS'): XP semanal da semana `period`; se o item ainda e de uma semana
+   *   velha, vira a semana (o valor anterior vai para lastWeekXp/lastWeekPeriod) e a squad
+   *   fica marcada como ativa na semana (SQUAD#<id> / WEEK#<semana>, lida pelo job);
+   * - `period: null`: licao de outra semana, so soma no total (xpAllTime);
+   * - sem `period` (seeds e testes antigos): soma direto no semanal, sem semana.
+   */
+  async incrementSquadXp(squadId, userId, amount, { period } = {}) {
     const squad = this._squads.get(squadId);
-    if (squad) squad.xpWeekly = (squad.xpWeekly ?? 0) + amount;
+    if (squad && this._addWeekXp(squad, 'xpWeekly', 'xpAllTime', amount, period)) {
+      const key = `${squadId}#${period}`;
+      if (!this._squadWeeks.has(key)) this._squadWeeks.set(key, { squadId, period, status: 'open' });
+    }
     const member = this._members.get(`${squadId}#${userId}`);
-    if (member) member.xpWeeklyContrib = (member.xpWeeklyContrib ?? 0) + amount;
+    if (member) this._addWeekXp(member, 'xpWeeklyContrib', 'xpAllTimeContrib', amount, period);
+  }
+  /** @returns {boolean} true se virou a semana do item */
+  _addWeekXp(item, weekly, allTime, amount, period) {
+    item[allTime] = (item[allTime] ?? 0) + amount;
+    if (period === undefined) {
+      item[weekly] = (item[weekly] ?? 0) + amount;
+      return false;
+    }
+    if (period === null || (item.xpWeekPeriod && item.xpWeekPeriod > period)) return false;
+    if (item.xpWeekPeriod === period) {
+      item[weekly] = (item[weekly] ?? 0) + amount;
+      return false;
+    }
+    if (item.xpWeekPeriod) {
+      item.lastWeekXp = item[weekly] ?? 0;
+      item.lastWeekPeriod = item.xpWeekPeriod;
+    }
+    item[weekly] = amount;
+    item.xpWeekPeriod = period;
+    return true;
+  }
+
+  // --- squads: reset semanal e historico (SQUAD#<id> / WEEK#<semana>) ---
+  async listSquadWeeks(period, { limit = 25, cursor = null } = {}) {
+    const all = [...this._squadWeeks.values()]
+      .filter((w) => w.period === period)
+      .sort((a, b) => (a.squadId < b.squadId ? -1 : 1));
+    const start = cursor ?? 0;
+    const end = start + limit;
+    return {
+      weeks: all.slice(start, end).map(({ squadId, status }) => ({ squadId, period, status })),
+      cursor: end < all.length ? end : null,
+    };
+  }
+  /** Vira a semana `period` da squad e dos membros que ainda estao nela (XP semanal a zero). */
+  async rollSquadWeek(squadId, period) {
+    const roll = (item, weekly) => {
+      if (item?.xpWeekPeriod !== period) return;
+      item.lastWeekXp = item[weekly] ?? 0;
+      item.lastWeekPeriod = period;
+      item[weekly] = 0;
+      delete item.xpWeekPeriod;
+    };
+    roll(this._squads.get(squadId), 'xpWeekly');
+    for (const [key, member] of this._members) {
+      if (key.startsWith(`${squadId}#`)) roll(member, 'xpWeeklyContrib');
+    }
+  }
+  /** Fecha a semana uma vez so; false se ja estava fechada. */
+  async saveSquadWeek(squadId, period, snapshot) {
+    const key = `${squadId}#${period}`;
+    const current = this._squadWeeks.get(key);
+    if (current?.status === 'closed') return false;
+    this._squadWeeks.set(key, { ...current, ...snapshot, squadId, period, status: 'closed' });
+    return true;
+  }
+  async getSquadWeek(squadId, period) {
+    const w = this._squadWeeks.get(`${squadId}#${period}`);
+    return w ? structuredClone(w) : null;
   }
   async getSquadMemberXp(squadId, userId) {
     return this._members.get(`${squadId}#${userId}`)?.xpWeeklyContrib ?? 0;

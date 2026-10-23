@@ -82,8 +82,11 @@ export async function completeLesson(repo, content, input) {
 
   // 7. Fan-out de XP: squads + liga da semana ---------------------------
   // A primeira licao da semana coloca a pessoa na liga certa (leagueEnrollment.js).
+  const period = periodKey(periodStart);
   const squads = await repo.listUserSquads(userId);
-  for (const { squadId } of squads) await repo.incrementSquadXp(squadId, userId, xpAwarded);
+  for (const { squadId } of squads) {
+    await repo.incrementSquadXp(squadId, userId, xpAwarded, { period: thisWeek ? period : null });
+  }
 
   let leagueId = null;
   if (thisWeek) {
@@ -104,6 +107,6 @@ export async function completeLesson(repo, content, input) {
     achievementsEarned,
     squadsUpdated: squads.length,
     leagueId,
-    period: periodKey(periodStart),
+    period,
   };
 }
