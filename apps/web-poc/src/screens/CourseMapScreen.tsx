@@ -7,6 +7,7 @@ import type { IdbRepo } from '../lib/idbRepo';
 import { useT, type TFunc } from '../i18n';
 import { Icon } from '../components/Icon';
 import { ScreenSkeleton } from '../components/ScreenSkeleton';
+import { useScrollRestore } from '../hooks/useScrollRestore';
 
 interface MapState {
   xpTotal: number;
@@ -39,6 +40,8 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
   const today = getToday();
   const name = getDisplayName() ?? t('common.defaultName');
   const hoursNow = new Date().getHours();
+  // Ao voltar de uma lição, o mapa volta à posição em que estava, depois que os dados carregam
+  useScrollRestore(state !== null);
 
   useEffect(() => {
     let cancelled = false;
