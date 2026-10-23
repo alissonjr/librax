@@ -142,6 +142,29 @@ test('licao de outra semana (migracao ou fila antiga) nao entra na liga atual', 
   assert.equal((await repo.getProfile('velho')).xpTotal, 10); // o XP do perfil continua valendo
 });
 
+test('repo do modo local do app (so getUserLeague) continua funcionando sem a entrada do servidor', async () => {
+  // apps/web-poc roda o completeLesson sobre o IdbRepo, que coloca a pessoa na liga local no
+  // proprio getUserLeague e nao tem getLeaguePlacement/joinLeague
+  const inner = new InMemoryRepo();
+  const added = [];
+  const appRepo = new Proxy(inner, {
+    get(target, prop) {
+      if (['getLeaguePlacement', 'joinLeague', 'getLeagueGroupCursor', 'advanceLeagueGroup', 'applyLeagueResult'].includes(prop)) {
+        return undefined;
+      }
+      if (prop === 'getUserLeague') return async () => ({ leagueId: 'bronze-2026-w43' });
+      if (prop === 'incrementLeagueXp') return async (leagueId, userId, xp) => added.push([leagueId, userId, xp]);
+      const v = target[prop];
+      return typeof v === 'function' ? v.bind(target) : v;
+    },
+  });
+
+  const r = await completeLesson(appRepo, content, { userId: 'local', lessonId: 'u1-l1', today: '2026-10-22', score: 1 });
+
+  assert.equal(r.leagueId, 'bronze-2026-w43');
+  assert.deepEqual(added, [['bronze-2026-w43', 'local', 10]]);
+});
+
 test('domingo a noite no Brasil (segunda cedo em UTC) ainda conta na semana nova', async () => {
   const repo = new InMemoryRepo();
   const r = await completeLesson(repo, content, lesson('br', Date.parse('2026-10-26T01:00:00Z'), '2026-10-25'));

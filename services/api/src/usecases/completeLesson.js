@@ -10,6 +10,17 @@ import { ensureLeague } from './leagueEnrollment.js';
 const NOON_MS = 12 * 60 * 60 * 1000;
 
 /**
+ * Liga da semana para o fan-out de XP. No servidor (repo com `getLeaguePlacement`, ou seja
+ * InMemoryRepo e DynamoRepo) a pessoa entra na liga certa aqui (ensureLeague). O app tambem
+ * roda este usecase no modo local (apps/web-poc, IdbRepo), cujo `getUserLeague` ja coloca a
+ * pessoa na liga local; para ele, vale o `getUserLeague` como antes.
+ */
+function weekLeague(repo, { userId, nowMs, displayName }) {
+  if (typeof repo.getLeaguePlacement !== 'function') return repo.getUserLeague(userId);
+  return ensureLeague(repo, { userId, nowMs, displayName });
+}
+
+/**
  * Orquestra a conclusao de uma licao (SPEC 02 - Definicao de pronto; SPEC 04 secao 1.4).
  * Tudo server-authoritative: o XP vem da definicao da licao, nunca do cliente.
  *
@@ -90,9 +101,11 @@ export async function completeLesson(repo, content, input) {
 
   let leagueId = null;
   if (thisWeek) {
-    const league = await ensureLeague(repo, { userId, nowMs, displayName: profile.displayName });
-    await repo.incrementLeagueXp(league.leagueId, userId, xpAwarded);
-    leagueId = league.leagueId;
+    const league = await weekLeague(repo, { userId, nowMs, displayName: profile.displayName });
+    if (league) {
+      await repo.incrementLeagueXp(league.leagueId, userId, xpAwarded);
+      leagueId = league.leagueId;
+    }
   }
 
   await repo.saveProfile(profile);

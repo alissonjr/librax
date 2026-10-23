@@ -23,7 +23,7 @@ npm ci
 npm test            # node --test (Node 20+)
 ```
 
-264 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
+265 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
 o `DynamoRepo` com um client falso que só registra os comandos; nenhum teste chama a AWS.
 
 ## Estrutura
