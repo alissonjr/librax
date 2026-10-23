@@ -168,6 +168,13 @@ Pipeline operacional (liga-se à SPEC 02 - bundle em S3):
 4. Revisão linguística (comunidade surda) aprova antes do publish.
 5. Publish para CloudFront; app baixa nova versão.
 
+**Formato dos vídeos de referência** (mobile web, mesmo arquivo para iPhone e Android):
+- H.264 em MP4, com o índice no início do arquivo (faststart, `-movflags +faststart`), para começar a tocar antes de baixar tudo e aceitar Range requests do Safari.
+- Resolução de 360p a 480p, enquadrando mãos, rosto e tronco.
+- Duração de 2 a 3 s por sinal, sem áudio.
+- Até 400 KB por sinal. O script de build (passo 3) reprova o arquivo que passar disso.
+- Um quadro estático do sinal exportado como pôster (imagem leve), usado nas telas que mostram vários sinais ao mesmo tempo (11.4).
+
 **Variação regional**: definir cedo o padrão ensinado; marcar variantes em `signs.region`; permitir, no futuro, escolher região.
 
 ## 9. Acessibilidade e inclusão
@@ -256,7 +263,7 @@ Pipeline operacional (liga-se à SPEC 02 - bundle em S3):
 
 **Enunciado:** "Qual e o sinal de <PALAVRA>?"
 
-**Componentes:** 4 `VideoOption` em loop simultaneo (toque em um pausa os outros).
+**Componentes:** 4 `VideoOption`, cada um mostrando o poster estatico do sinal. O video so toca quando a pessoa toca na opcao (tocar em outra pausa a anterior); nunca 4 videos em loop ao mesmo tempo, que pesam no celular fraco e no download. Selecionar a opcao e um gesto separado (botao ou toque no rotulo da opcao), para ver o video nao contar como resposta.
 
 **Feedback:** identico ao 11.3 (verde/vermelho, mesma regra de avanco). `payload`: `{ word, video_options[], correct_sign_id }`.
 
@@ -280,7 +287,7 @@ Pipeline operacional (liga-se à SPEC 02 - bundle em S3):
 
 **Enunciado:** "Ordene os passos de <SINAL>."
 
-**Componentes:** lista de `StepCard` arrastaveis (`ReorderableListView` / `LongPressDraggable`); botao "Confirmar ordem".
+**Componentes:** lista de `StepCard` arrastaveis com Pointer Events (`pointerdown`/`pointermove`/`pointerup`, um so codigo para dedo e mouse, com `touch-action: none` no item arrastado para a pagina nao rolar junto); cada `StepCard` tem tambem botoes "Subir" e "Descer" (alvo de 48 px, com `aria-label`), que funcionam sem arrastar e com leitor de tela; botao "Confirmar ordem".
 
 **Estados:**
 | Estado | Condicao | O que muda |
@@ -445,7 +452,7 @@ Passos 4 e 5 sao mutuamente exclusivos. Se a licao nao e a ultima de uma unidade
 
 ### 11.14 DynamicSignIntroSheet
 
-**Acesso:** bottom sheet automatico, exibido uma unica vez imediatamente ao iniciar a primeira licao de uma unidade com `recognition: "dynamic"` (a partir de U3). Controlado pela flag local `dynamicIntroSeen` (armazenada no SQLite; nao precisa de servidor).
+**Acesso:** bottom sheet automatico, exibido uma unica vez imediatamente ao iniciar a primeira licao de uma unidade com `recognition: "dynamic"` (a partir de U3). Controlado pela flag local `dynamicIntroSeen` (armazenada no `localStorage` como `librax_dynamicIntroSeen`, ver `apps/web-poc/src/lib/flags.ts`; nao precisa de servidor).
 
 **Componentes:**
 - Titulo: "Chegou a hora dos sinais com movimento!"
@@ -460,7 +467,7 @@ Passos 4 e 5 sao mutuamente exclusivos. Se a licao nao e a ultima de uma unidade
 
 ### 11.15 CourseCompletionScreen
 
-**Acesso:** automatico apos o toque em "Continuar" na LessonCompletionScreen quando a licao concluida era a ultima do curso (ultima licao de U6). Substitui o UnitCompletionScreen neste caso.
+**Acesso:** automatico apos o toque em "Continuar" na LessonCompletionScreen quando a licao concluida era a ultima do curso (ultima licao de U14). Substitui o UnitCompletionScreen neste caso.
 
 **Componentes:**
 - Animacao de confete por toda a tela + `CourseHero`: titulo "Voce completou A1: Libras do Zero!".
@@ -468,7 +475,7 @@ Passos 4 e 5 sao mutuamente exclusivos. Se a licao nao e a ultima de uma unidade
   - "<N> sinais aprendidos"
   - "<N> dias de sequencia maxima"
   - "<N> XP total ganhos no curso"
-- `ShareButton`: "Compartilhar conquista" -> share sheet nativa com o texto "Aprendi Libras basica com o Librax! (A1 completo)" + imagem de certificado gerada localmente (sem enviar dados ao servidor).
+- `ShareButton`: "Compartilhar conquista" -> Web Share API com arquivo: `navigator.share({ files: [certificado.png], text: "Aprendi Libras basica com o Librax! (A1 completo)" })`, com a imagem de certificado gerada localmente num Canvas (`toBlob`, sem enviar dados ao servidor). Antes, conferir `navigator.canShare({ files })`. Se o navegador nao compartilhar arquivo, o botao vira "Baixar certificado" (download do PNG) e o texto vai para a area de transferencia.
 - `NextStepsCard`: titulo "O que vem a seguir?" com duas opcoes:
   - Botao "Revisar o que aprendi" -> navega para DailyQueueScreen (11.12).
   - Botao "A2: Libras Basica - Em breve" (desabilitado, com badge "Em breve"). Quando o curso A2 estiver disponivel no bundle, este botao e habilitado e navega para o CourseMapScreen do A2.

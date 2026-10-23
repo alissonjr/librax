@@ -3,7 +3,7 @@
 > Substitui o doc `02-backend-gestao-engajamento.md` (que assumia Supabase).
 > Decisões do produto: **MVP 100% gratuito** para o usuário; negócio **híbrido B2C + B2B**
 > (B2B é evolução, não MVP); **infra AWS serverless** (free tier).
-> Plataforma: app híbrido React Native + Expo (iOS/Android), offline-first.
+> Plataforma: **mobile web** (abre no navegador do celular, mesma experiência em iPhone e Android), PWA offline-first. O produto é `apps/web-poc/` (futuro `apps/web/`); ver `plano-mobile-web.md`.
 
 ## 0. Princípios que orientam o desenho
 
@@ -16,20 +16,23 @@
 ## 1. Arquitetura AWS serverless
 
 ```
-App (Expo RN)
+App web (navegador do celular, PWA)
   │
-  ├── Conteúdo (read): CloudFront ──► S3 (bundles JSON versionados + vídeos de referência)
-  │      currículo, sinais, exercícios, vídeos      (app pré-baixa por curso)
-  │
-  ├── Auth: Amazon Cognito (User Pool + Identity Pool)
-  │      e-mail/senha, Google, Apple, e convidado (anônimo)
-  │
-  └── API de usuário (write/read dinâmico):
-         API Gateway (HTTP API) ──► Lambda (Node/TS) ──► DynamoDB (single-table)
-                                          │
-                                          ├── EventBridge Scheduler ──► Lambda (fechar liga semanal, jobs)
-                                          └── (analytics) evento ──► Kinesis Firehose/SQS ──► destino
+  └── https://<dominio>  (um CloudFront só, mesma origem para tudo)
+         │
+         ├── /            app (shell estático em S3: HTML, JS, CSS, fontes, ícones)
+         ├── /content/    S3 (bundles JSON versionados + vídeos de referência; app pré-baixa por curso)
+         ├── /ml/         S3 (WASM e modelos do reconhecimento, prefixo versionado, seção 4)
+         └── /api/        API Gateway (HTTP API) ──► Lambda (Node/TS) ──► DynamoDB (single-table)
+                                                        │
+                                                        ├── EventBridge Scheduler ──► Lambda (fechar liga semanal, jobs)
+                                                        └── (analytics) evento ──► Kinesis Firehose/SQS ──► destino
+
+Auth: Amazon Cognito (User Pool + Identity Pool) com domínio próprio (seção 2)
+       e-mail/senha, Google, Apple (opcional), e convidado (anônimo)
 ```
+
+**Mesma origem.** App, conteúdo, modelos e API ficam atrás de um único CloudFront com domínio próprio. Assim não há CORS, o service worker guarda respostas normais (sem respostas opacas de outra origem) e o Cognito usa o mesmo domínio nos callbacks. Hoje a infra (`infra/lib/librax-stack.ts`) tem um CloudFront só para conteúdo e a HTTP API em endereço próprio com `allowOrigins: ['*']`; juntar tudo no CloudFront único e restringir a origem ao domínio do app é trabalho da fase W3 do plano.
 
 ### Por que essa divisão
 - **Currículo é read-mostly e versionado** => servir como JSON estático por CDN é mais barato, mais rápido e offline-friendly do que consultar banco. Nada de "tabela de lições".
@@ -50,9 +53,11 @@ Conclusão honesta: o **núcleo** (Lambda + DynamoDB + Cognito + CloudFront) ten
 
 ## 2. Autenticação (Amazon Cognito)
 
-- **Convidado primeiro**: Identity Pool com acesso não autenticado deixa jogar a 1ª unidade sem cadastro. Progresso de convidado guardado localmente (SQLite) e **migrado** ao criar conta.
-- Métodos: e-mail/senha (ou magic link), **Google**, **Apple** (obrigatório na App Store com login social).
+- **Convidado primeiro**: Identity Pool com acesso não autenticado deixa jogar a 1ª unidade sem cadastro. Progresso de convidado guardado localmente (IndexedDB, seção 7) e **migrado** ao criar conta.
+- Métodos: e-mail/senha (SRP; ou magic link), **Google**, e **Apple como opcional** (sem App Store, não há exigência de "Sign in with Apple"; entra se fizer sentido para quem usa iPhone).
+- **Domínio próprio no Cognito** (Hosted UI/OAuth no domínio do app) com fluxo **OAuth authorization code + PKCE**, feito no navegador (`aws-amplify/auth` v6). Callbacks e logouts apontam para URLs web do app (ex.: `https://<dominio>/auth/callback`). Hoje o app client já tem `authorizationCodeGrant` e SRP ligados, mas não há domínio Cognito nem URLs de callback/logout configuradas.
 - Tokens JWT do Cognito autorizam a HTTP API (authorizer nativo do API Gateway).
+- **Lacuna do convidado**: o convidado do Identity Pool não recebe JWT do User Pool, e o authorizer JWT atual (audiência = app client do User Pool) rejeita qualquer chamada dele. Por isso o convidado é 100% local: não chama a API. Ao criar conta, o app chama **`POST /v1/guest/migrate`** (já autenticado com a conta nova) enviando o log de lições do convidado; o servidor reexecuta esse log com o mesmo `completeLesson` e recalcula XP, streak e SRS. O endpoint ainda não existe na infra.
 - B2B (futuro): Cognito groups por `org`; SSO/SAML quando vender para instituição.
 
 ## 3. Modelo de dados - DynamoDB single-table
@@ -87,6 +92,8 @@ Eventos `exercise_answered`/`sign_recognized` vão para **analytics** (seção 8
 
 - Estrutura: `s3://librax-content/<courseId>/v<N>/course.json` + `signs.json` + vídeos.
 - O app baixa o bundle do curso (offline-first), checa versão e atualiza incremental.
+- Modelos e WASM do reconhecimento ficam em prefixo versionado **`ml/<versao>/`** (servido em `/ml/<versao>/`), com cache imutável: versão nova é pasta nova, nunca sobrescrita.
+- Vídeos servidos com suporte a **Range requests** (o Safari pede o vídeo em pedaços e não toca sem isso; o service worker usa `RangeRequestsPlugin`, ver `poc-web-storage.md`).
 - **CMS = pipeline de autoria** (repo + script de build) que valida o JSON (schema), sobe vídeos ao S3 e publica nova versão. Não precisa de painel no MVP; a equipe de conteúdo (com a comunidade surda) edita JSON/planilha que o build converte. Painel web vem depois.
 - Schema dos objetos de conteúdo (lessons/exercises/signs) está na SPEC 03.
 
@@ -121,19 +128,21 @@ Justificativa: (a) MVP é gratuito, então não há motivo de monetização para
 - Lição puxa sinais **devidos** (GSI1) priorizando os mais fracos. Lógica detalhada na SPEC 03.
 
 ## 7. Offline-first e sincronização
-- **SQLite local** (expo-sqlite ou WatermelonDB): progresso, tentativas, SRS, fila de eventos.
-- Conteúdo (bundles) pré-baixado por unidade.
-- Sync: fila com retry; **last-write-wins por usuário** (o dado é só dele, sem conflito multiusuário).
+- **IndexedDB local** (`idb`; ver `poc-web-storage.md`): progresso, tentativas, SRS e um store **`outbox`** com a fila de eventos a enviar.
+- Conteúdo (bundles) pré-baixado por unidade (cache do service worker).
+- Sync: fila com retry; **last-write-wins por usuário** (o dado é só dele, sem conflito multiusuário). Envio da `outbox` em três momentos: evento `online`, `visibilitychange` (aba volta a ficar visível) e abertura do app. **Background Sync** só como extra onde existir (não existe no Safari). Idempotência por `lessonAttemptId` para não duplicar ao reenviar.
 - Reconhecimento é local => exercício de câmera funciona 100% offline; só o sync de XP/streak espera rede.
 
 ## 8. Analytics e medição
-- **PostHog** (free tier) ou auto-hospedado; alternativa AWS-nativa: eventos via Kinesis Firehose -> S3 + Athena.
+- **PostHog** (free tier) ou auto-hospedado; alternativa AWS-nativa: eventos via Kinesis Firehose -> S3 + Athena. No web, o PostHog passa por **proxy no próprio domínio** (ex.: `/ingest/`), para não ser barrado por bloqueadores e não abrir conexão com terceiro direto do navegador.
+- Propriedades comuns a todos os eventos: `platform` (ios/android/outro), `browser`, `display_mode` (`browser` ou `standalone`, isto é, instalado na tela inicial), `device_tier` (alto/médio/baixo, do benchmark da calibração) e `ml_delegate` (GPU ou CPU).
 - Eventos: `app_open`, `lesson_started`, `exercise_answered{type,correct,confidence}`, `sign_recognized{sign_id,confidence,attempts}`, `lesson_completed{score,xp}`, `streak_extended{length}`, `goal_met`, `achievement_earned{code}`, `camera_permission{granted}`, `camera_session_quality{lighting,framing}`.
 - Métricas norte: D1/D7/D30, DAU/MAU, comprimento de ofensiva, lições/dia.
 - **Métrica específica**: `confidence` média por sinal => realimenta a fila de "sinais que precisam de mais dados" (fecha o ciclo com a Camada 1) e a calibração de limiares (Camada 3).
 
 ## 9. Notificações push
-- **Expo Notifications** (funciona em dev build iOS/Android), ou Amazon SNS/Pinpoint.
+- **Web Push com VAPID** para quem tem suporte: Chrome/Samsung Internet no Android sempre; no iPhone só com o app instalado na tela inicial (iOS 16.4+). Lambda com `web-push`, inscrições em `USER#<id> / PUSH#<hash>`, disparo pelo EventBridge Scheduler. Sem Firebase.
+- Para quem não tem push (iPhone sem instalar, navegador sem suporte): **lembrete dentro do app** e **e-mail opcional** (SES) com opt-in. Os dois valem para todos, não só para quem não tem push.
 - Casos: lembrete de ofensiva no horário habitual, "ofensiva em risco", retorno após inatividade, nova unidade.
 - Disciplina: poucas e relevantes; respeitar opt-out.
 
@@ -150,7 +159,7 @@ Justificativa: (a) MVP é gratuito, então não há motivo de monetização para
 
 ### 12.1 Fluxo de onboarding (primeiro acesso)
 
-Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas (`PageView`); conta pedida so depois da primeira licao.
+Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas; conta pedida so depois da primeira licao.
 
 **Sequencia de telas:**
 | # | Tela | Componentes | Avanca para |
@@ -162,30 +171,33 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas 
 
 **Regras:**
 - Nenhuma tela exige conta; nada bloqueia o avanco.
-- A tela 4 explica, mas nao dispara o prompt de permissao do SO (isso ocorre no primeiro exercicio expressivo - SPEC 01 secao 9.1).
+- A tela 4 explica, mas nao dispara o prompt de permissao do navegador (isso ocorre no primeiro exercicio expressivo - SPEC 01 secao 9.1).
 - Conta solicitada apenas ao concluir a primeira licao (12.2).
+- `navigator.storage.persist()` e chamado sempre, ja no primeiro acesso, para reduzir o risco de o navegador apagar o progresso local.
+
+**Momento "instalar o app":** depois da primeira licao concluida **e** com conta criada, o app sugere "Adicionar a tela inicial" (Android: `beforeinstallprompt`; iPhone: instrucoes de "Compartilhar > Adicionar a Tela de Inicio"). Nunca obrigatorio. Instalado, o app ganha push no iPhone e fica livre da limpeza de 7 dias do Safari. Se a pessoa ainda for convidada, o pedido de conta vem antes (reforco do 12.2), e o mesmo reforco aparece antes de ligar lembretes.
 
 ### 12.2 ConvertAccountSheet (convidado -> conta)
 
 **Acesso:** bottom sheet ao concluir a primeira licao como convidado (apos "Continuar" da LessonCompletionScreen, SPEC 03 secao 11.10).
 
-**Componentes:** titulo "Salvar seu progresso"; texto "Voce completou sua primeira licao! Crie uma conta para nao perder seu progresso."; botoes "Criar conta com e-mail", "Continuar com Google", "Continuar com Apple"; link "Continuar sem conta".
+**Componentes:** titulo "Salvar seu progresso"; texto "Voce completou sua primeira licao! Crie uma conta para nao perder seu progresso."; botoes "Criar conta com e-mail", "Continuar com Google", "Continuar com Apple" (opcional, secao 2); link "Continuar sem conta".
 
 **Acoes:**
 | Acao | Resultado |
 |---|---|
 | "Criar conta com e-mail" | abre RegisterScreen (12.3) |
-| "Continuar com Google/Apple" | fluxo OAuth do Cognito; em sucesso, migra o convidado |
+| "Continuar com Google/Apple" | OAuth do Cognito por **redirect** na mesma aba (code + PKCE, secao 2); antes de sair, o app grava o estado local; na volta pelo callback, conclui o login e migra o convidado |
 | "Continuar sem conta" | fecha o sheet; reaparece ao final da proxima licao |
 
-**Regra:** migracao silenciosa - o Lambda vincula o `identityId` do convidado ao novo `userId`, preservando progresso, streak e SRS locais.
+**Regra:** migracao silenciosa - com a conta nova, o app chama `POST /v1/guest/migrate` com o log de licoes do convidado; o Lambda reexecuta o log com `completeLesson` e grava no novo `userId`, preservando progresso, streak e SRS locais (secao 2).
 
 ### 12.3 LoginScreen / RegisterScreen
 
 **Acesso:** link "Entrar" no onboarding; "Criar conta" no ConvertAccountSheet; "Entrar na conta" nas Configuracoes.
 
 **Componentes (LoginScreen):**
-- Botoes sociais "Continuar com Google" e "Continuar com Apple".
+- Botoes sociais "Continuar com Google" e "Continuar com Apple" (Apple opcional). Ambos fazem OAuth por redirect (sem popup, que se comporta mal no celular e em navegadores embutidos).
 - Divisor "ou".
 - Campos `email` e `senha`.
 - Botao primario "Entrar"; link "Esqueci a senha"; link "Criar conta".
@@ -199,7 +211,7 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas 
 | enviando | request em andamento | botao com `CircularProgressIndicator`; campos travados |
 | erro | credencial/validacao invalida | mensagem inline: "E-mail ja em uso", "Senha muito curta" ou "Credenciais invalidas" |
 
-**Regra:** "Apple" obrigatorio em producao iOS (App Store Review).
+**Regra:** "Apple" e opcional: sem App Store, nao ha a exigencia da App Store Review. Se nao for configurado no Cognito, o botao nao aparece.
 
 ### 12.4 ProfileScreen
 
@@ -326,8 +338,9 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas 
 **Componentes (grupos de itens):**
 - Conta: "Nome de exibicao", "E-mail" (somente leitura), "Alterar senha", "Excluir conta".
 - Aprendizado: "Meta diaria", "Camera" (ativada/desativada).
-- Notificacoes: "Lembrete diario" (com horario), "Sequencia em risco" (toggle).
+- Notificacoes: "Lembrete diario" (com horario), "Sequencia em risco" (toggle). Os toggles de push so aparecem se o navegador suportar Web Push (no iPhone, so com o app instalado); sem suporte, o grupo mostra o lembrete dentro do app e o "Lembrete por e-mail" (opt-in, secao 9).
 - Privacidade: "Exportar meus dados", "Politica de privacidade".
+- App: "Instalar o Librax" (so quando o app ainda nao esta instalado: `display_mode` diferente de `standalone`); abre a mesma sugestao do 12.1.
 - Sobre: "Versao".
 
 **Acoes:**
@@ -335,7 +348,8 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas 
 |---|---|
 | "Meta diaria" | abre seletor (reusa a tela 3 do onboarding) |
 | "Camera" | alterna preferencia (mesmo toggle do bottom sheet "?" da SPEC 01 secao 9.3) |
-| "Exportar meus dados" | Lambda gera JSON (progresso, SRS, conquistas) e compartilha por e-mail / share sheet (LGPD) |
+| "Exportar meus dados" | Lambda gera JSON (progresso, SRS, conquistas); o app oferece o arquivo por `navigator.share` (com arquivo) quando houver suporte, ou por download direto como alternativa (LGPD) |
+| "Instalar o Librax" | Android: `beforeinstallprompt`; iPhone: instrucoes de "Adicionar a Tela de Inicio" |
 | "Excluir conta" | inicia o fluxo de exclusao em duas etapas (abaixo) |
 
 **Fluxo de exclusao de conta (duas etapas):**
@@ -347,7 +361,7 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas 
 
 - Onboarding de 4 telas implementado (motivo, meta, camera).
 - ConvertAccountSheet acionado ao final da primeira licao de convidado.
-- Login com e-mail, Google e Apple funcionando via Cognito.
+- Login com e-mail e Google (Apple opcional) funcionando via Cognito, com OAuth por redirect no iPhone e no Android.
 - Migracao silenciosa de convidado para conta.
 - ProfileScreen com XP, streak, conquistas e progresso do curso.
 - StreakScreen com estados `ativa`, `em risco` e `zerada` (incluindo `RecoveryCard`).
@@ -358,7 +372,9 @@ Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas 
 
 ### 12.10 AppOpenFlow (retorno D2+)
 
-Esta secao define o que o usuario ve ao abrir o app no D2+ (qualquer abertura que nao seja a instalacao inicial). O fluxo garante que nenhum evento importante passe despercebido.
+Esta secao define o que o usuario ve ao abrir o app no D2+ (qualquer abertura que nao seja o primeiro acesso). O fluxo garante que nenhum evento importante passe despercebido.
+
+**O que conta como "abrir o app" no web:** carregar a pagina (aba nova, atalho da tela inicial ou recarregar) **ou** voltar a uma aba que ficou oculta por N horas (`visibilitychange` para `visible` depois de N horas em `hidden`; N configuravel, valor a definir). Voltar a aba antes disso nao reabre o fluxo.
 
 **Tela de entrada:** o app sempre abre no `CourseMapScreen` (aba Aprender), independente da aba em que estava na sessao anterior.
 
@@ -398,10 +414,10 @@ Passos 1 e 2 podem ocorrer juntos (ex.: usuario ficou afastado varios dias). O p
 
 ## 13. Definição de pronto (Camada 2)
 - Tabela DynamoDB com os padrões de acesso da seção 3 implementados e testados.
-- Cognito com convidado + e-mail + Google + Apple, e migração de convidado para conta.
+- Cognito com domínio próprio, OAuth code + PKCE e callbacks web; convidado + e-mail + Google (+ Apple, opcional), e migração de convidado para conta via `POST /v1/guest/migrate`.
 - Lambdas: `completeLesson` (XP + streak + SRS + conquistas + `unit_completed` + `course_completed`), `getDailyQueue` (lições + SRS devidos), `closeLeague` (agendado).
 - Pipeline de conteúdo: build de bundle JSON validado por schema + publish para S3/CloudFront.
-- Camada de sync offline no app (SQLite + fila).
+- Camada de sync offline no app (IndexedDB + store `outbox`, envio em `online`, `visibilitychange` e abertura do app, sem duplicar por `lessonAttemptId`).
 - Eventos de analytics fluindo para o destino escolhido.
 - Flag `leagueResultSeen` e `streakBrokenShownDate` armazenadas localmente e respeitadas no AppOpenFlow.
 - `LeagueResultSheet` exibido na sequencia correta (antes do StreakBrokenSheet) ao abrir o app.

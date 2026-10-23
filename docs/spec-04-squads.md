@@ -188,17 +188,17 @@ DELETE /orgs/{orgId}/teams/{squadId}/members/{userId}
 
 ### 3.1 Posição na navegação
 
-Nova aba "Social" na barra de navegação principal (BottomNavigationBar).
+Nova aba "Social" na barra de navegação principal (tab bar do app web).
 
 ```
-BottomNavigationBar
+Tab bar
 ├── Aprender       (lições e currículo)
 ├── Praticar       (fila SRS diária)
 ├── Social         <- nova aba
 └── Perfil
 ```
 
-Estrutura de rotas dentro de Social (usando go_router ou Navigator 2.0):
+Estrutura de rotas dentro de Social (roteador web com URL de verdade: cada tela tem endereço próprio e o voltar do navegador e do Android volta uma tela, sem sair do app):
 
 ```
 /social
@@ -210,16 +210,16 @@ Estrutura de rotas dentro de Social (usando go_router ou Navigator 2.0):
   /social/squads/:squadId/members  <- MemberManagement
 ```
 
-Deep link de convite: `librax://squad/join?code=<code>` resolve para `/social/squads/join?code=<code>`.
+Link de convite: `https://<dominio>/convite/<code>` (HTTPS no domínio próprio, sem esquema `librax://`). A rota resolve para `/social/squads/join?code=<code>`. Aberto dentro de navegador embutido (Instagram, WhatsApp), mostra "Abrir no navegador" com o mesmo link.
 
 ### 3.2 Estado e cache
 
-SQLite local (mesmo banco da SPEC 02):
-- Tabela `cached_squads`: id, name, type, memberCount, xpWeekly, userRank, userXpWeekly, updatedAt.
-- Tabela `cached_squad_members`: squadId, userId, displayName, role, xpWeeklyContrib (para SquadDetail offline).
+IndexedDB local (o mesmo banco da SPEC 02 seção 7):
+- Store `cached_squads`: id, name, type, memberCount, xpWeekly, userRank, userXpWeekly, updatedAt.
+- Store `cached_squad_members`: squadId, userId, displayName, role, xpWeeklyContrib (para SquadDetail offline).
 
 Política de cache:
-- `getUserSquads` é chamado na abertura da aba Social e ao retornar ao app (AppLifecycleState.resumed).
+- `getUserSquads` é chamado na abertura da aba Social e ao voltar ao app (`visibilitychange` com a página visível de novo).
 - `getSquad` é chamado ao abrir SquadDetail, com resultado salvo em cache por squadId.
 - Telas mostram dados do cache imediatamente e atualizam em background (stale-while-revalidate).
 - Se o cache tem mais de 30 minutos, mostra banner discreto "Dados de HH:MM - Atualizando...".
@@ -258,7 +258,7 @@ Estado efêmero (nao persistido): loading flags, form state em CreateSquad/Squad
 | "Entrar com codigo" | abre JoinByCode (4.4) |
 | "Descobrir" | abre SquadDirectory (4.5) |
 
-**Regra:** atualiza via `getUserSquads` ao abrir a aba e em `AppLifecycleState.resumed`; stale-while-revalidate sobre o cache (secao 3.2).
+**Regra:** atualiza via `getUserSquads` ao abrir a aba e no `visibilitychange` (página visível de novo); stale-while-revalidate sobre o cache (secao 3.2).
 
 ---
 
@@ -289,7 +289,7 @@ Estado efêmero (nao persistido): loading flags, form state em CreateSquad/Squad
 | "..." -> "Editar squad" (admin) | abre SquadSettings (4.6) |
 | "..." -> "Codigo de convite" (admin) | abre InviteSheet (4.8) |
 | "..." -> "Dissolver squad" (admin) | dialogo de confirmacao (abaixo) |
-| "..." -> "Compartilhar squad" (membro) | share sheet com o link de convite |
+| "..." -> "Compartilhar squad" (membro) | `navigator.share` com o link de convite; sem Web Share, copia o link (Clipboard API) e mostra snackbar "Link copiado!" |
 | "..." -> "Sair da squad" (membro) | dialogo de confirmacao (abaixo) |
 | "Convidar membros" (admin) | abre InviteSheet (4.8) |
 | "Entrar nesta squad" (preview) | chama `joinSquad`; vira membro |
@@ -318,7 +318,7 @@ Estado efêmero (nao persistido): loading flags, form state em CreateSquad/Squad
 |---|---|---|
 | invalido | nome fora de 3-40 chars | "Criar squad" desabilitado |
 | valido | nome ok | "Criar squad" habilitado |
-| enviando | request em andamento | botao com `CircularProgressIndicator`, desabilitado |
+| enviando | request em andamento | botao com spinner, desabilitado (`aria-busy`) |
 
 **Acoes:**
 | Acao | Resultado |
@@ -329,7 +329,7 @@ Estado efêmero (nao persistido): loading flags, form state em CreateSquad/Squad
 
 ### 4.4 JoinByCode
 
-**Acesso:** "Entrar com codigo" no SquadHub; deep link `librax://squad/join?code=<code>`.
+**Acesso:** "Entrar com codigo" no SquadHub; link de convite `https://<dominio>/convite/<code>`.
 
 **Componentes:**
 - `CodeInput`: 6 caixas estilo OTP (letras e numeros, maiusculas automaticas).
@@ -352,7 +352,7 @@ Estado efêmero (nao persistido): loading flags, form state em CreateSquad/Squad
 | `SQUADS_LIMIT_REACHED` | "Voce ja esta em 5 squads. Saia de uma para entrar em outra." |
 
 **Regras:**
-- Deep link pre-preenche o campo e dispara a busca automaticamente.
+- O link de convite pre-preenche o campo e dispara a busca automaticamente.
 - Sucesso: navega para SquadDetail com snackbar "Voce entrou em <Nome>!".
 
 ---
@@ -406,15 +406,15 @@ Estado efêmero (nao persistido): loading flags, form state em CreateSquad/Squad
 |---|---|---|
 | sem alteracao | nada editado | "[v]" inativo |
 | alteracao pendente | algum campo mudou | "[v]" ativo |
-| salvando | request em andamento | "[v]" vira `CircularProgressIndicator` |
+| salvando | request em andamento | "[v]" vira spinner |
 
 **Acoes:**
 | Acao | Resultado |
 |---|---|
 | "[v]" salvar | chama `updateSquad` (valida `maxMembers >= memberCount`; troca de visibilidade ajusta GSI4) |
-| "Copiar" | copia o codigo; snackbar "Codigo copiado!" |
+| "Copiar" | copia o codigo com `navigator.clipboard.writeText`; snackbar "Codigo copiado!" |
 | "Regenerar" | dialogo "Regenerar codigo de convite? O codigo <X> deixara de funcionar." -> "Cancelar" / "Regenerar"; chama `regenerateInviteCode` |
-| "Compartilhar link" | share sheet com "Entre na minha squad no Librax: librax://squad/join?code=<X>" |
+| "Compartilhar link" | `navigator.share` com "Entre na minha squad no Librax: https://<dominio>/convite/<X>"; sem Web Share, copia o texto (Clipboard API) e mostra snackbar "Link copiado!" |
 | "Dissolver squad" | dialogo de confirmacao da secao 4.2 (admin) |
 
 **Regra:** `DangerZone` separada visualmente; "Dissolver squad" em vermelho.
@@ -448,8 +448,8 @@ Estado efêmero (nao persistido): loading flags, form state em CreateSquad/Squad
 **Acoes:**
 | Acao | Resultado |
 |---|---|
-| "Copiar" | copia o codigo; snackbar "Codigo copiado!" |
-| "Compartilhar link" | share sheet nativa com o link de convite |
+| "Copiar" | copia o codigo com `navigator.clipboard.writeText`; snackbar "Codigo copiado!" |
+| "Compartilhar link" | `navigator.share` com o link `https://<dominio>/convite/<code>` (abre a folha de compartilhar do sistema no iPhone e no Android); sem Web Share, copia o link (Clipboard API) e mostra snackbar "Link copiado!" |
 
 **Regra:** para membro comum (nao admin), o sheet mostra apenas o link de convite (codigo visivel so para admins).
 
@@ -494,13 +494,13 @@ Lambda `createOrgTeam` sera chamado pelo painel, nao pelo app mobile.
 Regras:
 - Opt-in por squad (preferencia configuravel no perfil).
 - Nao disparar se o usuario esta com o app aberto (usar in-app notification em vez de push).
-- Implementar via Expo Notifications - mesmo sistema da SPEC 02 secao 9.
+- Implementar com Web Push (VAPID) para quem tem suporte (Android sempre, iPhone com o app na tela inicial) e e-mail opcional (SES, com opt-in) como alternativa igual para todos - mesmo sistema da SPEC 02 secao 9.
 
 ---
 
 ## 7. Offline e sincronizacao
 
-- SquadHub: carrega do cache SQLite imediatamente; refetch em background ao abrir a aba.
+- SquadHub: carrega do cache IndexedDB imediatamente; refetch em background ao abrir a aba.
 - SquadDetail: carrega do cache por squadId; refetch ao abrir a tela.
 - Acoes de escrita (criar, entrar, sair, gerenciar) exigem conexao - mostrar erro claro se offline.
 - XP contribuido e calculado server-side em `completeLesson`; o app nao precisa sincronizar XP de squad explicitamente.
@@ -515,14 +515,15 @@ Regras:
 - [ ] GSIs 3, 4, 5 criados na tabela `librax`.
 - [ ] `completeLesson` (SPEC 02) atualiza `xpWeeklyContrib` em todas as squads do usuario (fan-out).
 - [ ] Job semanal de reset de XP (EventBridge) reseta `xpWeekly` e `xpWeeklyContrib` em squads alem de ligas.
-- [ ] Deep link `librax://squad/join?code=<code>` configurado no app (Android intent-filter / iOS universal link).
+- [ ] Rota HTTPS `https://<dominio>/convite/<code>` servida pelo CloudFront (mesma origem do app, SPEC 02 secao 1), caindo no app web.
 
 ### Frontend
 
 - [ ] Aba "Social" com SquadHub na navegacao principal.
-- [ ] Telas 4.1 a 4.8 implementadas em Flutter com todos os estados descritos (loading, erro, vazio, limite).
-- [ ] Cache SQLite para SquadHub e SquadDetail funcionando offline.
-- [ ] Deep link de convite resolvendo para JoinByCode pre-preenchido.
+- [ ] Telas 4.1 a 4.8 implementadas no app web (React, `apps/web-poc/`) com rotas de URL e todos os estados descritos (loading, erro, vazio, limite).
+- [ ] Cache IndexedDB para SquadHub e SquadDetail funcionando offline.
+- [ ] Link de convite HTTPS resolvendo para JoinByCode pre-preenchido, inclusive vindo de navegador embutido ("Abrir no navegador").
+- [ ] Compartilhar e copiar via Web Share e Clipboard API, com alternativa quando nao houver suporte.
 - [ ] Todos os dialogos de confirmacao de acoes destrutivas implementados.
 - [ ] Banner de cache desatualizado (> 30 min) em SquadHub e SquadDetail.
 
