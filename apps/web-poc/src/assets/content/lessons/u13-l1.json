@@ -14,43 +14,45 @@
     {
       "id": "u13-l1-ex02",
       "lesson_id": "u13-l1",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "numero-11",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "11"
       }
     },
     {
       "id": "u13-l1-ex03",
       "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "numero-11",
-        "correct": "11"
+        "sign_id": "numero-12"
       }
     },
     {
       "id": "u13-l1-ex04",
       "lesson_id": "u13-l1",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "numero-11"
+        "word": "12",
+        "video_options": [
+          "numero-12",
+          "numero-11",
+          "numero-10",
+          "numero-9"
+        ],
+        "correct_sign_id": "numero-12"
       }
     },
     {
       "id": "u13-l1-ex05",
       "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "numero-11",
-        "correct": "11"
+        "sign_id": "numero-13"
       }
     },
     {
@@ -59,301 +61,71 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "numero-12"
+        "sign_id": "numero-14"
       }
     },
     {
       "id": "u13-l1-ex07",
       "lesson_id": "u13-l1",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "numero-12",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "numero-15"
       }
     },
     {
       "id": "u13-l1-ex08",
       "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 8,
-      "payload": {
-        "sign_id": "numero-12",
-        "correct": "12"
-      }
-    },
-    {
-      "id": "u13-l1-ex09",
-      "lesson_id": "u13-l1",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "numero-12"
-      }
-    },
-    {
-      "id": "u13-l1-ex10",
-      "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "numero-12",
-        "correct": "12"
-      }
-    },
-    {
-      "id": "u13-l1-ex11",
-      "lesson_id": "u13-l1",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "numero-13"
-      }
-    },
-    {
-      "id": "u13-l1-ex12",
-      "lesson_id": "u13-l1",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "numero-13",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u13-l1-ex13",
-      "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "numero-13",
-        "correct": "13"
-      }
-    },
-    {
-      "id": "u13-l1-ex14",
-      "lesson_id": "u13-l1",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "numero-13"
-      }
-    },
-    {
-      "id": "u13-l1-ex15",
-      "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "numero-13",
-        "correct": "13"
-      }
-    },
-    {
-      "id": "u13-l1-ex16",
-      "lesson_id": "u13-l1",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "numero-14"
-      }
-    },
-    {
-      "id": "u13-l1-ex17",
-      "lesson_id": "u13-l1",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "numero-14",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u13-l1-ex18",
-      "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "numero-14",
-        "correct": "14"
-      }
-    },
-    {
-      "id": "u13-l1-ex19",
-      "lesson_id": "u13-l1",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "numero-14"
-      }
-    },
-    {
-      "id": "u13-l1-ex20",
-      "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "numero-14",
-        "correct": "14"
-      }
-    },
-    {
-      "id": "u13-l1-ex21",
-      "lesson_id": "u13-l1",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "numero-15"
-      }
-    },
-    {
-      "id": "u13-l1-ex22",
-      "lesson_id": "u13-l1",
-      "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "numero-15",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u13-l1-ex23",
-      "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "numero-15",
-        "correct": "15"
-      }
-    },
-    {
-      "id": "u13-l1-ex24",
-      "lesson_id": "u13-l1",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "numero-15"
-      }
-    },
-    {
-      "id": "u13-l1-ex25",
-      "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "numero-15",
-        "correct": "15"
-      }
-    },
-    {
-      "id": "u13-l1-ex26",
-      "lesson_id": "u13-l1",
       "type": "match_pairs",
-      "order": 26,
+      "order": 8,
       "payload": {
         "pairs": [
           {
-            "sign_id": "numero-11",
-            "gloss": "11"
-          },
-          {
-            "sign_id": "numero-12",
-            "gloss": "12"
-          },
-          {
             "sign_id": "numero-13",
             "gloss": "13"
+          },
+          {
+            "sign_id": "numero-14",
+            "gloss": "14"
+          },
+          {
+            "sign_id": "numero-15",
+            "gloss": "15"
           }
         ]
       }
     },
     {
-      "id": "u13-l1-ex27",
+      "id": "u13-l1-ex09",
       "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 27,
+      "type": "perform_sign",
+      "order": 9,
       "payload": {
         "sign_id": "numero-11",
-        "correct": "11"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u13-l1-ex28",
+      "id": "u13-l1-ex10",
       "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 28,
+      "type": "perform_sign",
+      "order": 10,
       "payload": {
         "sign_id": "numero-12",
-        "correct": "12"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u13-l1-ex29",
-      "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 29,
-      "payload": {
-        "sign_id": "numero-13",
-        "correct": "13"
-      }
-    },
-    {
-      "id": "u13-l1-ex30",
-      "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "numero-14",
-        "correct": "14"
-      }
-    },
-    {
-      "id": "u13-l1-ex31",
-      "lesson_id": "u13-l1",
-      "type": "watch_choose_word",
-      "order": 31,
-      "payload": {
-        "sign_id": "numero-15",
-        "correct": "15"
-      }
-    },
-    {
-      "id": "u13-l1-ex32",
-      "lesson_id": "u13-l1",
-      "type": "order_sequence",
-      "order": 32,
-      "payload": {
-        "steps": [
-          "11",
-          "12",
-          "13",
-          "14"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u13-l1-ex33",
+      "id": "u13-l1-ex11",
       "lesson_id": "u13-l1",
       "type": "build_phrase",
-      "order": 33,
+      "order": 11,
       "payload": {
         "pt": "Você sabe quanto o vestido roxo custa na loja?",
         "glosses": [

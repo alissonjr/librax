@@ -3,6 +3,8 @@ import { ExerciseIntro } from '../components/ExerciseIntro';
 import { ExerciseMatchPairs } from '../components/ExerciseMatchPairs';
 import { ExerciseCameraSign } from '../components/ExerciseCameraSign';
 import { ExerciseWatchChooseWord } from '../components/ExerciseWatchChooseWord';
+import { ExerciseWordChooseVideo } from '../components/ExerciseWordChooseVideo';
+import { ExerciseFingerspell } from '../components/ExerciseFingerspell';
 import { ExerciseMirrorPractice } from '../components/ExerciseMirrorPractice';
 import { ExerciseOrderSequence } from '../components/ExerciseOrderSequence';
 import { ExerciseBuildPhrase } from '../components/ExerciseBuildPhrase';
@@ -12,7 +14,7 @@ import { Icon } from '../components/Icon';
 import { warmUpHandLandmarker } from '../recognition/landmarker';
 
 /** Exercícios que abrem a câmera: a lição que tem algum já começa a carregar o modelo. */
-const CAMERA_EXERCISES = new Set<string>(['perform_sign', 'mirror_practice']);
+const CAMERA_EXERCISES = new Set<string>(['perform_sign', 'mirror_practice', 'fingerspell']);
 
 export interface ReviewedItem {
   signId: string;
@@ -104,9 +106,17 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
     ]);
   }
 
-  function handleMatchPairsComplete(allCorrect: boolean) {
+  // Cada sinal do match_pairs entra no SRS: quem errou o par revisa mais cedo
+  function handleMatchPairsComplete(signIds: string[], allCorrect: boolean, missed: string[]) {
     setAttempted((a) => a + 1);
     if (allCorrect) setCorrect((c) => c + 1);
+    setReviewed((r) => [
+      ...r,
+      ...signIds.map((signId) => ({
+        signId,
+        result: missed.includes(signId) ? { state: 'failed' } : { state: 'correct', highConfidence: true },
+      })),
+    ]);
     advance();
   }
 
@@ -148,7 +158,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
         <ExerciseMatchPairs
           key={ex.id}
           signs={ex.pairSignIds.map(getSign)}
-          onComplete={handleMatchPairsComplete}
+          onComplete={(allCorrect, missed) => handleMatchPairsComplete(ex.pairSignIds ?? [], allCorrect, missed)}
         />
       )}
 
@@ -158,6 +168,31 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
           sign={getSign(ex.signId)}
           choices={ex.choices ?? []}
           onAnswer={(wasCorrect) => handleAnswer(ex.signId, wasCorrect)}
+          onNext={advance}
+        />
+      )}
+
+      {ex.type === 'word_choose_video' && ex.videoOptions && (
+        <ExerciseWordChooseVideo
+          key={ex.id}
+          word={getSign(ex.signId).gloss}
+          sign={getSign(ex.signId)}
+          options={ex.videoOptions.map(getSign)}
+          onAnswer={(wasCorrect) => handleAnswer(ex.signId, wasCorrect)}
+          onNext={advance}
+        />
+      )}
+
+      {ex.type === 'fingerspell' && ex.word && ex.letters && (
+        <ExerciseFingerspell
+          key={ex.id}
+          word={ex.word}
+          letters={ex.letters}
+          perLetterConfidence={ex.perLetterConfidence}
+          onAnswer={(wasCorrect) => {
+            setAttempted(a => a + 1);
+            if (wasCorrect) setCorrect(c => c + 1);
+          }}
           onNext={advance}
         />
       )}

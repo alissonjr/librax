@@ -14,43 +14,45 @@
     {
       "id": "u6-l3-ex02",
       "lesson_id": "u6-l3",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-TIO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "TIO"
       }
     },
     {
       "id": "u6-l3-ex03",
       "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-TIO",
-        "correct": "TIO"
+        "sign_id": "sinal-TIA"
       }
     },
     {
       "id": "u6-l3-ex04",
       "lesson_id": "u6-l3",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-TIO"
+        "word": "TIA",
+        "video_options": [
+          "sinal-TIA",
+          "sinal-TIO",
+          "sinal-AVO-F",
+          "sinal-AVO"
+        ],
+        "correct_sign_id": "sinal-TIA"
       }
     },
     {
       "id": "u6-l3-ex05",
       "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-TIO",
-        "correct": "TIO"
+        "sign_id": "sinal-PRIMO"
       }
     },
     {
@@ -59,301 +61,71 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-TIA"
+        "sign_id": "sinal-MARIDO"
       }
     },
     {
       "id": "u6-l3-ex07",
       "lesson_id": "u6-l3",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-TIA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-ESPOSA"
       }
     },
     {
       "id": "u6-l3-ex08",
       "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 8,
-      "payload": {
-        "sign_id": "sinal-TIA",
-        "correct": "TIA"
-      }
-    },
-    {
-      "id": "u6-l3-ex09",
-      "lesson_id": "u6-l3",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "sinal-TIA"
-      }
-    },
-    {
-      "id": "u6-l3-ex10",
-      "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "sinal-TIA",
-        "correct": "TIA"
-      }
-    },
-    {
-      "id": "u6-l3-ex11",
-      "lesson_id": "u6-l3",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-PRIMO"
-      }
-    },
-    {
-      "id": "u6-l3-ex12",
-      "lesson_id": "u6-l3",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-PRIMO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u6-l3-ex13",
-      "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-PRIMO",
-        "correct": "PRIMO"
-      }
-    },
-    {
-      "id": "u6-l3-ex14",
-      "lesson_id": "u6-l3",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-PRIMO"
-      }
-    },
-    {
-      "id": "u6-l3-ex15",
-      "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-PRIMO",
-        "correct": "PRIMO"
-      }
-    },
-    {
-      "id": "u6-l3-ex16",
-      "lesson_id": "u6-l3",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-MARIDO"
-      }
-    },
-    {
-      "id": "u6-l3-ex17",
-      "lesson_id": "u6-l3",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-MARIDO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u6-l3-ex18",
-      "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-MARIDO",
-        "correct": "MARIDO"
-      }
-    },
-    {
-      "id": "u6-l3-ex19",
-      "lesson_id": "u6-l3",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-MARIDO"
-      }
-    },
-    {
-      "id": "u6-l3-ex20",
-      "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-MARIDO",
-        "correct": "MARIDO"
-      }
-    },
-    {
-      "id": "u6-l3-ex21",
-      "lesson_id": "u6-l3",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "sinal-ESPOSA"
-      }
-    },
-    {
-      "id": "u6-l3-ex22",
-      "lesson_id": "u6-l3",
-      "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-ESPOSA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u6-l3-ex23",
-      "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-ESPOSA",
-        "correct": "ESPOSA"
-      }
-    },
-    {
-      "id": "u6-l3-ex24",
-      "lesson_id": "u6-l3",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-ESPOSA"
-      }
-    },
-    {
-      "id": "u6-l3-ex25",
-      "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-ESPOSA",
-        "correct": "ESPOSA"
-      }
-    },
-    {
-      "id": "u6-l3-ex26",
-      "lesson_id": "u6-l3",
       "type": "match_pairs",
-      "order": 26,
+      "order": 8,
       "payload": {
         "pairs": [
           {
-            "sign_id": "sinal-TIO",
-            "gloss": "TIO"
-          },
-          {
-            "sign_id": "sinal-TIA",
-            "gloss": "TIA"
-          },
-          {
             "sign_id": "sinal-PRIMO",
             "gloss": "PRIMO"
+          },
+          {
+            "sign_id": "sinal-MARIDO",
+            "gloss": "MARIDO"
+          },
+          {
+            "sign_id": "sinal-ESPOSA",
+            "gloss": "ESPOSA"
           }
         ]
       }
     },
     {
-      "id": "u6-l3-ex27",
+      "id": "u6-l3-ex09",
       "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 27,
+      "type": "perform_sign",
+      "order": 9,
       "payload": {
         "sign_id": "sinal-TIO",
-        "correct": "TIO"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u6-l3-ex28",
+      "id": "u6-l3-ex10",
       "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 28,
+      "type": "perform_sign",
+      "order": 10,
       "payload": {
         "sign_id": "sinal-TIA",
-        "correct": "TIA"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u6-l3-ex29",
-      "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 29,
-      "payload": {
-        "sign_id": "sinal-PRIMO",
-        "correct": "PRIMO"
-      }
-    },
-    {
-      "id": "u6-l3-ex30",
-      "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "sinal-MARIDO",
-        "correct": "MARIDO"
-      }
-    },
-    {
-      "id": "u6-l3-ex31",
-      "lesson_id": "u6-l3",
-      "type": "watch_choose_word",
-      "order": 31,
-      "payload": {
-        "sign_id": "sinal-ESPOSA",
-        "correct": "ESPOSA"
-      }
-    },
-    {
-      "id": "u6-l3-ex32",
-      "lesson_id": "u6-l3",
-      "type": "order_sequence",
-      "order": 32,
-      "payload": {
-        "steps": [
-          "TIO",
-          "TIA",
-          "PRIMO",
-          "MARIDO"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u6-l3-ex33",
+      "id": "u6-l3-ex11",
       "lesson_id": "u6-l3",
       "type": "build_phrase",
-      "order": 33,
+      "order": 11,
       "payload": {
         "pt": "Minha família é surda.",
         "glosses": [

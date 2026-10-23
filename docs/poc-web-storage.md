@@ -13,7 +13,7 @@ quais sao os limites reais, e qual abordagem e mais rapida para a PoC.
 
 Antes de decidir onde armazenar, e preciso saber o que armazenar.
 A tabela abaixo mapeia cada categoria de dado do jogo ao seu equivalente
-no backend atual (DynamoDB/S3/SQLite local) e ao volume estimado.
+no backend atual (DynamoDB/S3) ou no navegador (IndexedDB, localStorage) e ao volume estimado.
 
 | Dado | Backend atual | Volume estimado | Volatil? |
 |---|---|---|---|
@@ -23,7 +23,7 @@ no backend atual (DynamoDB/S3/SQLite local) e ao volume estimado.
 | Itens SRS por sinal (ef, interval, reps, dueAt) | DynamoDB | ~300 B x N sinais | A cada revisao |
 | Log de XP diario (xp por dia) | DynamoDB | ~100 B x N dias | Diario |
 | Conquistas ganhas (set de codigos) | DynamoDB | < 1 KB | Raro |
-| Flags de UI (telas ja vistas, etc.) | SQLite local | < 1 KB | Raro |
+| Flags de UI (telas ja vistas, etc.) | IndexedDB no navegador (as flags simples de tela ficam no localStorage, `src/lib/flags.ts`) | < 1 KB | Raro |
 | Bundle de conteudo - JSON (signs.json, course.json) | S3/CloudFront | 50-200 KB (U1) | Nunca (por versao) |
 | Videos de referencia dos sinais | S3/CloudFront | 2-5 MB por sinal (U1: ~130 MB total) | Nunca (por versao) |
 | Modelo de reconhecimento (.task / .tflite) | S3/CloudFront | ~5 MB (MediaPipe) | Nunca (por versao) |
@@ -573,13 +573,13 @@ oficial que faz exatamente o mesmo:
 ```javascript
 import { HandLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
-const vision = await FilesetResolver.forVisionTasks(
-  'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm'
-);
+// WASM e modelo servidos pelo proprio app em /ml/<versao>/ (scripts/ml-assets.mjs copia do
+// pacote @mediapipe/tasks-vision, com a versao fixada; nada vem de CDN em tempo de execucao)
+const vision = await FilesetResolver.forVisionTasks('/ml/1.1.1/wasm');
 
 const handLandmarker = await HandLandmarker.createFromOptions(vision, {
   baseOptions: {
-    modelAssetPath: '/assets/model/hand_landmarker.task',
+    modelAssetPath: '/ml/1.1.1/hand_landmarker.task',
     delegate: 'GPU',    // WebGL; fallback para CPU automatico
   },
   runningMode: 'VIDEO',
@@ -591,8 +591,10 @@ const result = handLandmarker.detectForVideo(videoElement, performance.now());
 // result.landmarks: array de 21 pontos por mao
 ```
 
-O arquivo `hand_landmarker.task` e o mesmo usado no Android (modelo do Google, ~5 MB).
-Pode ser cacheado pela Cache API apos o primeiro download.
+O arquivo `hand_landmarker.task` e o mesmo usado no Android (modelo do Google, ~8 MB no float16).
+No web-poc os caminhos vem de `src/recognition/mlAssets.ts` (`/ml/<versao>/`, onde `<versao>` e a do
+`@mediapipe/tasks-vision` no `package.json`); como o nome muda a cada versao, o servidor manda
+`Cache-Control: immutable` e o navegador guarda os arquivos apos o primeiro download.
 
 **Performance esperada na web:** 15-30 fps em hardware moderno com GPU delegate (WebGL).
 Em hardware basico ou sem WebGL, o fallback CPU chega a 5-10 fps - aceitavel para PoC.
@@ -711,10 +713,9 @@ Com compressao gzip no servidor, o JS Flutter cai para ~1.5 MB transferido.
 >   `RangeRequestsPlugin` na rota de video (secao 5.4).
 > - `navigator.storage.persist()` chamado na abertura do app (`src/App.tsx`).
 >
-> Pendente: o WASM e o modelo do MediaPipe ainda vem de CDNs de terceiros e nao ficam em cache
-> (a camera nao funciona offline); os icones `icon-192.png` e `icon-512.png` citados no manifest
-> nao existem em `public/`; todos os `video_url` do conteudo sao `null`. Essas correcoes estao
-> na fase W2 do `plano-mobile-web.md`.
+> Feito na fase W2 do `plano-mobile-web.md`: o WASM e o modelo do MediaPipe saem de `/ml/<versao>/`,
+> servidos pelo proprio app (secao 7), e os icones `icon-192.png` e `icon-512.png` do manifest
+> existem em `public/`. Continua pendente: todos os `video_url` do conteudo sao `null`.
 
 ### Recomendacao para a PoC
 

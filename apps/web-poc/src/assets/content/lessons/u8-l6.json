@@ -14,285 +14,113 @@
     {
       "id": "u8-l6-ex02",
       "lesson_id": "u8-l6",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-MAIO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "MAIO"
       }
     },
     {
       "id": "u8-l6-ex03",
       "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-MAIO",
-        "correct": "MAIO"
+        "sign_id": "sinal-JUNHO"
       }
     },
     {
       "id": "u8-l6-ex04",
       "lesson_id": "u8-l6",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-MAIO"
+        "word": "JUNHO",
+        "video_options": [
+          "sinal-JUNHO",
+          "sinal-MAIO",
+          "sinal-ABRIL",
+          "sinal-MARCO"
+        ],
+        "correct_sign_id": "sinal-JUNHO"
       }
     },
     {
       "id": "u8-l6-ex05",
       "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-MAIO",
-        "correct": "MAIO"
+        "sign_id": "sinal-JULHO"
       }
     },
     {
       "id": "u8-l6-ex06",
       "lesson_id": "u8-l6",
-      "type": "sign_intro",
+      "type": "watch_choose_word",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-JUNHO"
+        "sign_id": "sinal-JULHO",
+        "correct": "JULHO"
       }
     },
     {
       "id": "u8-l6-ex07",
       "lesson_id": "u8-l6",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-JUNHO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-AGOSTO"
       }
     },
     {
       "id": "u8-l6-ex08",
       "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
+      "type": "word_choose_video",
       "order": 8,
       "payload": {
-        "sign_id": "sinal-JUNHO",
-        "correct": "JUNHO"
+        "word": "AGOSTO",
+        "video_options": [
+          "sinal-AGOSTO",
+          "sinal-MAIO",
+          "sinal-JUNHO",
+          "sinal-JULHO"
+        ],
+        "correct_sign_id": "sinal-AGOSTO"
       }
     },
     {
       "id": "u8-l6-ex09",
       "lesson_id": "u8-l6",
-      "type": "mirror_practice",
+      "type": "perform_sign",
       "order": 9,
       "payload": {
-        "sign_id": "sinal-JUNHO"
+        "sign_id": "sinal-MAIO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
       "id": "u8-l6-ex10",
       "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
+      "type": "perform_sign",
       "order": 10,
       "payload": {
         "sign_id": "sinal-JUNHO",
-        "correct": "JUNHO"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
       "id": "u8-l6-ex11",
       "lesson_id": "u8-l6",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-JULHO"
-      }
-    },
-    {
-      "id": "u8-l6-ex12",
-      "lesson_id": "u8-l6",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-JULHO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u8-l6-ex13",
-      "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-JULHO",
-        "correct": "JULHO"
-      }
-    },
-    {
-      "id": "u8-l6-ex14",
-      "lesson_id": "u8-l6",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-JULHO"
-      }
-    },
-    {
-      "id": "u8-l6-ex15",
-      "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-JULHO",
-        "correct": "JULHO"
-      }
-    },
-    {
-      "id": "u8-l6-ex16",
-      "lesson_id": "u8-l6",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-AGOSTO"
-      }
-    },
-    {
-      "id": "u8-l6-ex17",
-      "lesson_id": "u8-l6",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-AGOSTO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u8-l6-ex18",
-      "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-AGOSTO",
-        "correct": "AGOSTO"
-      }
-    },
-    {
-      "id": "u8-l6-ex19",
-      "lesson_id": "u8-l6",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-AGOSTO"
-      }
-    },
-    {
-      "id": "u8-l6-ex20",
-      "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-AGOSTO",
-        "correct": "AGOSTO"
-      }
-    },
-    {
-      "id": "u8-l6-ex21",
-      "lesson_id": "u8-l6",
-      "type": "match_pairs",
-      "order": 21,
-      "payload": {
-        "pairs": [
-          {
-            "sign_id": "sinal-MAIO",
-            "gloss": "MAIO"
-          },
-          {
-            "sign_id": "sinal-JUNHO",
-            "gloss": "JUNHO"
-          },
-          {
-            "sign_id": "sinal-JULHO",
-            "gloss": "JULHO"
-          }
-        ]
-      }
-    },
-    {
-      "id": "u8-l6-ex22",
-      "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-MAIO",
-        "correct": "MAIO"
-      }
-    },
-    {
-      "id": "u8-l6-ex23",
-      "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-JUNHO",
-        "correct": "JUNHO"
-      }
-    },
-    {
-      "id": "u8-l6-ex24",
-      "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-JULHO",
-        "correct": "JULHO"
-      }
-    },
-    {
-      "id": "u8-l6-ex25",
-      "lesson_id": "u8-l6",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-AGOSTO",
-        "correct": "AGOSTO"
-      }
-    },
-    {
-      "id": "u8-l6-ex26",
-      "lesson_id": "u8-l6",
-      "type": "order_sequence",
-      "order": 26,
-      "payload": {
-        "steps": [
-          "MAIO",
-          "JUNHO",
-          "JULHO",
-          "AGOSTO"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u8-l6-ex27",
-      "lesson_id": "u8-l6",
       "type": "build_phrase",
-      "order": 27,
+      "order": 11,
       "payload": {
         "pt": "Eu trabalho à noite.",
         "glosses": [

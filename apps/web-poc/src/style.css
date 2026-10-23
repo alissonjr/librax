@@ -2585,14 +2585,7 @@ h1[tabindex="-1"]:focus { outline: none; }
    EXERCÍCIO: DATILOLOGIA
    ========================================================= */
 
-.fingerspell-word {
-  font: var(--lx-typography-numeric-xl);
-  letter-spacing: 0.1em;
-  color: var(--lx-game-hand-text);
-  margin: var(--lx-space-1) 0;
-}
-.fingerspell-strip,
-.fingerspell-letters {
+.fingerspell-strip {
   display: flex;
   gap: var(--lx-space-2);
   flex-wrap: wrap;
@@ -2624,7 +2617,186 @@ h1[tabindex="-1"]:focus { outline: none; }
   background: var(--lx-feedback-success-soft);
   color: var(--lx-feedback-success-on-soft);
 }
-.fingerspell-note { font: var(--lx-typography-body-sm); font-weight: var(--lx-font-weight-semibold); color: var(--lx-text-secondary); }
+/* Faixa de letras como lista ordenada: célula com a letra e o check ao confirmar */
+ol.fingerspell-strip { list-style: none; padding: 0; }
+.fingerspell-cell { position: relative; }
+.fingerspell-cell-check {
+  position: absolute;
+  top: calc(-1 * var(--lx-space-2));
+  right: calc(-1 * var(--lx-space-2));
+  width: var(--lx-size-icon-sm);
+  height: var(--lx-size-icon-sm);
+  padding: var(--lx-space-0-5);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-feedback-success-strong);
+  color: var(--lx-feedback-success-on-strong);
+  box-sizing: content-box;
+}
+.fingerspell-progress {
+  font: var(--lx-typography-label);
+  color: var(--lx-text-primary);
+  text-align: center;
+}
+
+/* =========================================================
+   EXERCÍCIO: QUAL É O SINAL DE <PALAVRA>? (word_choose_video)
+   Um palco só para a demonstração (o avatar é instância única) e
+   cartões com dois botões: escolher a opção e ver a demonstração.
+   ========================================================= */
+
+.wcv-word {
+  font-weight: var(--lx-font-weight-heavy);
+  letter-spacing: 0.04em;
+  color: var(--lx-game-hand-text);
+}
+.wcv-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lx-space-2);
+  width: 100%;
+}
+.wcv-stage-title {
+  font: var(--lx-typography-label-sm);
+  color: var(--lx-text-secondary);
+}
+.sign-demo--choose .sign-demo-stage { height: min(30dvh, 320px); }
+.wcv-stage-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lx-space-2);
+  width: 100%;
+  min-height: var(--lx-space-16);
+  padding: var(--lx-space-4);
+  border: var(--lx-border-width-thin) dashed var(--lx-border-default);
+  border-radius: var(--lx-radius-lg);
+  background: var(--lx-bg-sunken);
+  color: var(--lx-text-secondary);
+  font: var(--lx-typography-body-sm);
+  text-align: center;
+}
+.wcv-stage-text {
+  width: 100%;
+  padding: var(--lx-space-4);
+  border-radius: var(--lx-radius-lg);
+  background: var(--lx-bg-sunken);
+  font: var(--lx-typography-body);
+  color: var(--lx-text-primary);
+  text-align: center;
+}
+
+.wcv-options {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+  width: 100%;
+}
+.wcv-option {
+  display: flex;
+  align-items: stretch;
+  gap: var(--lx-space-2);
+  padding: var(--lx-space-1);
+  background: var(--lx-bg-surface);
+  border: var(--lx-border-width-thick) solid var(--lx-border-default);
+  border-radius: var(--lx-radius-md);
+  transition:
+    border-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard),
+    background-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard),
+    opacity var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
+}
+.wcv-option--viewing { border-color: var(--lx-game-hand-fill); background: var(--lx-game-hand-soft); }
+.wcv-option--correct {
+  border-color: var(--lx-feedback-success-strong);
+  background: var(--lx-feedback-success-soft);
+  animation: lx-correct-pop var(--lx-motion-duration-base) var(--lx-motion-easing-overshoot);
+}
+.wcv-option--reveal { border-style: dashed; border-color: var(--lx-feedback-success-strong); }
+.wcv-option--wrong {
+  border-color: var(--lx-feedback-error-strong);
+  background: var(--lx-feedback-error-soft);
+  animation: lx-shake var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
+}
+.wcv-option--dimmed { opacity: .6; }
+
+.wcv-pick {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--lx-size-touch-min);
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-3);
+  padding: var(--lx-space-2);
+  border: 0;
+  border-radius: var(--lx-radius-sm);
+  background: transparent;
+  color: var(--lx-text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+.wcv-pick:disabled { cursor: default; }
+.wcv-pick:active:not(:disabled) { background: var(--lx-bg-sunken); }
+.wcv-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--lx-space-8);
+  height: var(--lx-space-8);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-bg-sunken);
+  font: var(--lx-typography-label);
+  color: var(--lx-text-primary);
+}
+.wcv-option--correct .wcv-badge,
+.wcv-option--reveal .wcv-badge { background: var(--lx-feedback-success-strong); color: var(--lx-feedback-success-on-strong); }
+.wcv-option--wrong .wcv-badge { background: var(--lx-feedback-error-strong); color: var(--lx-feedback-error-on-strong); }
+.wcv-pick-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-1);
+  min-width: 0;
+}
+.wcv-pick-label {
+  font: var(--lx-typography-label);
+  font-weight: var(--lx-font-weight-heavy);
+}
+.wcv-option--correct .wcv-pick-label { color: var(--lx-feedback-success-on-soft); }
+.wcv-option--wrong .wcv-pick-label { color: var(--lx-feedback-error-on-soft); }
+.wcv-desc {
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-secondary);
+}
+.wcv-tag {
+  font: var(--lx-typography-caption);
+  color: var(--lx-feedback-success-text);
+}
+.wcv-view {
+  flex: none;
+  min-width: var(--lx-size-touch-min);
+  min-height: var(--lx-size-touch-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lx-space-1);
+  padding: 0 var(--lx-space-3);
+  border: var(--lx-border-width-thin) solid var(--lx-action-secondary-border);
+  border-radius: var(--lx-radius-sm);
+  background: var(--lx-action-secondary-bg);
+  color: var(--lx-action-secondary-fg);
+  font: var(--lx-typography-label-sm);
+  cursor: pointer;
+}
+.wcv-view[aria-pressed="true"] { background: var(--lx-action-primary-bg); border-color: var(--lx-action-primary-bg); color: var(--lx-action-primary-fg); }
+.wcv-view:active { transform: scale(calc(1 - 0.03 * var(--lx-motion-scale, 1))); }
+
+@media (prefers-reduced-motion: reduce) {
+  .wcv-option--correct, .wcv-option--wrong { animation: none; }
+}
 
 /* =========================================================
    PRATICAR (aba Praticar, SRS)

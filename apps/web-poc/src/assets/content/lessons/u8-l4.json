@@ -14,43 +14,45 @@
     {
       "id": "u8-l4-ex02",
       "lesson_id": "u8-l4",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-MANHA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "MANHÃ"
       }
     },
     {
       "id": "u8-l4-ex03",
       "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-MANHA",
-        "correct": "MANHÃ"
+        "sign_id": "sinal-TARDE"
       }
     },
     {
       "id": "u8-l4-ex04",
       "lesson_id": "u8-l4",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-MANHA"
+        "word": "TARDE",
+        "video_options": [
+          "sinal-TARDE",
+          "sinal-MANHA",
+          "sinal-SEXTA-FEIRA",
+          "sinal-QUINTA-FEIRA"
+        ],
+        "correct_sign_id": "sinal-TARDE"
       }
     },
     {
       "id": "u8-l4-ex05",
       "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-MANHA",
-        "correct": "MANHÃ"
+        "sign_id": "sinal-NOITE"
       }
     },
     {
@@ -59,116 +61,58 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-TARDE"
+        "sign_id": "sinal-MEIO-DIA"
       }
     },
     {
       "id": "u8-l4-ex07",
       "lesson_id": "u8-l4",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-TARDE",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-HORA"
       }
     },
     {
       "id": "u8-l4-ex08",
       "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 8,
       "payload": {
-        "sign_id": "sinal-TARDE",
-        "correct": "TARDE"
+        "sign_id": "sinal-MINUTO"
       }
     },
     {
       "id": "u8-l4-ex09",
       "lesson_id": "u8-l4",
-      "type": "mirror_practice",
+      "type": "match_pairs",
       "order": 9,
       "payload": {
-        "sign_id": "sinal-TARDE"
+        "pairs": [
+          {
+            "sign_id": "sinal-NOITE",
+            "gloss": "NOITE"
+          },
+          {
+            "sign_id": "sinal-MEIO-DIA",
+            "gloss": "MEIO-DIA"
+          },
+          {
+            "sign_id": "sinal-HORA",
+            "gloss": "HORA"
+          },
+          {
+            "sign_id": "sinal-MINUTO",
+            "gloss": "MINUTO"
+          }
+        ]
       }
     },
     {
       "id": "u8-l4-ex10",
       "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
+      "type": "perform_sign",
       "order": 10,
-      "payload": {
-        "sign_id": "sinal-TARDE",
-        "correct": "TARDE"
-      }
-    },
-    {
-      "id": "u8-l4-ex11",
-      "lesson_id": "u8-l4",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-NOITE"
-      }
-    },
-    {
-      "id": "u8-l4-ex12",
-      "lesson_id": "u8-l4",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-NOITE",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u8-l4-ex13",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-NOITE",
-        "correct": "NOITE"
-      }
-    },
-    {
-      "id": "u8-l4-ex14",
-      "lesson_id": "u8-l4",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-NOITE"
-      }
-    },
-    {
-      "id": "u8-l4-ex15",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-NOITE",
-        "correct": "NOITE"
-      }
-    },
-    {
-      "id": "u8-l4-ex16",
-      "lesson_id": "u8-l4",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-MEIO-DIA"
-      }
-    },
-    {
-      "id": "u8-l4-ex17",
-      "lesson_id": "u8-l4",
-      "type": "perform_sign",
-      "order": 17,
       "payload": {
         "sign_id": "sinal-MEIO-DIA",
         "recognition": "static",
@@ -178,243 +122,23 @@
       }
     },
     {
-      "id": "u8-l4-ex18",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-MEIO-DIA",
-        "correct": "MEIO-DIA"
-      }
-    },
-    {
-      "id": "u8-l4-ex19",
-      "lesson_id": "u8-l4",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-MEIO-DIA"
-      }
-    },
-    {
-      "id": "u8-l4-ex20",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-MEIO-DIA",
-        "correct": "MEIO-DIA"
-      }
-    },
-    {
-      "id": "u8-l4-ex21",
-      "lesson_id": "u8-l4",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "sinal-HORA"
-      }
-    },
-    {
-      "id": "u8-l4-ex22",
+      "id": "u8-l4-ex11",
       "lesson_id": "u8-l4",
       "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-HORA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u8-l4-ex23",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-HORA",
-        "correct": "HORA"
-      }
-    },
-    {
-      "id": "u8-l4-ex24",
-      "lesson_id": "u8-l4",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-HORA"
-      }
-    },
-    {
-      "id": "u8-l4-ex25",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-HORA",
-        "correct": "HORA"
-      }
-    },
-    {
-      "id": "u8-l4-ex26",
-      "lesson_id": "u8-l4",
-      "type": "sign_intro",
-      "order": 26,
-      "payload": {
-        "sign_id": "sinal-MINUTO"
-      }
-    },
-    {
-      "id": "u8-l4-ex27",
-      "lesson_id": "u8-l4",
-      "type": "perform_sign",
-      "order": 27,
-      "payload": {
-        "sign_id": "sinal-MINUTO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u8-l4-ex28",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 28,
-      "payload": {
-        "sign_id": "sinal-MINUTO",
-        "correct": "MINUTO"
-      }
-    },
-    {
-      "id": "u8-l4-ex29",
-      "lesson_id": "u8-l4",
-      "type": "mirror_practice",
-      "order": 29,
-      "payload": {
-        "sign_id": "sinal-MINUTO"
-      }
-    },
-    {
-      "id": "u8-l4-ex30",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "sinal-MINUTO",
-        "correct": "MINUTO"
-      }
-    },
-    {
-      "id": "u8-l4-ex31",
-      "lesson_id": "u8-l4",
-      "type": "match_pairs",
-      "order": 31,
-      "payload": {
-        "pairs": [
-          {
-            "sign_id": "sinal-MANHA",
-            "gloss": "MANHÃ"
-          },
-          {
-            "sign_id": "sinal-TARDE",
-            "gloss": "TARDE"
-          },
-          {
-            "sign_id": "sinal-NOITE",
-            "gloss": "NOITE"
-          }
-        ]
-      }
-    },
-    {
-      "id": "u8-l4-ex32",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 32,
+      "order": 11,
       "payload": {
         "sign_id": "sinal-MANHA",
-        "correct": "MANHÃ"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u8-l4-ex33",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 33,
-      "payload": {
-        "sign_id": "sinal-TARDE",
-        "correct": "TARDE"
-      }
-    },
-    {
-      "id": "u8-l4-ex34",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 34,
-      "payload": {
-        "sign_id": "sinal-NOITE",
-        "correct": "NOITE"
-      }
-    },
-    {
-      "id": "u8-l4-ex35",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 35,
-      "payload": {
-        "sign_id": "sinal-MEIO-DIA",
-        "correct": "MEIO-DIA"
-      }
-    },
-    {
-      "id": "u8-l4-ex36",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 36,
-      "payload": {
-        "sign_id": "sinal-HORA",
-        "correct": "HORA"
-      }
-    },
-    {
-      "id": "u8-l4-ex37",
-      "lesson_id": "u8-l4",
-      "type": "watch_choose_word",
-      "order": 37,
-      "payload": {
-        "sign_id": "sinal-MINUTO",
-        "correct": "MINUTO"
-      }
-    },
-    {
-      "id": "u8-l4-ex38",
-      "lesson_id": "u8-l4",
-      "type": "order_sequence",
-      "order": 38,
-      "payload": {
-        "steps": [
-          "MANHÃ",
-          "TARDE",
-          "NOITE",
-          "MEIO-DIA"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u8-l4-ex39",
+      "id": "u8-l4-ex12",
       "lesson_id": "u8-l4",
       "type": "build_phrase",
-      "order": 39,
+      "order": 12,
       "payload": {
         "pt": "Eu trabalho à noite.",
         "glosses": [

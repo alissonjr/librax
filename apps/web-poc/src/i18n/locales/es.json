@@ -274,12 +274,17 @@
   "exerciseFingerspell": {
     "cameraFeed": "Imagen de la cámara",
     "cameraUnavailable": "Cámara no disponible",
-    "complete": "¡Completo!",
-    "currentLetter": "Letra actual: {letter}",
-    "manualNote": "Practica deletrear \"{word}\" manualmente. El reconocimiento automático para estas letras llegará pronto.",
+    "complete": "¡Palabra deletreada!",
+    "currentLetterCount": "Letra {n} de {total}: {letter}",
+    "detected": "Vimos {gesture}. Haz la letra {letter}",
+    "letterDone": "Letra {letter} hecha",
+    "makeLetter": "Haz la letra {letter}",
+    "positionHand": "Muestra la mano en el cuadro",
+    "progress": "Letras hechas: {done} de {total}",
+    "releaseRepeat": "Retira la mano o cambia la forma y haz {letter} otra vez",
     "retry": "Intentar de nuevo",
-    "spell": "Deletrea:",
-    "spellTitle": "Deletrea:",
+    "skipExercise": "Saltar este ejercicio",
+    "spellWord": "Deletrea: {word}",
     "starting": "Iniciando...",
     "wordComplete": "¡Palabra completa!"
   },
@@ -334,6 +339,17 @@
     "prompt": "¿Qué seña es esta?",
     "replay": "Ver de nuevo",
     "resumeVideo": "Reanudar video"
+  },
+  "exerciseWordChooseVideo": {
+    "chooseLabel": "Elegir la opción {n}",
+    "correct": "¡Correcto!",
+    "correctAnswer": "La respuesta correcta es la opción {n}:",
+    "hide": "Parar",
+    "option": "Opción {n}",
+    "prompt": "¿Cuál es la seña de",
+    "stageEmpty": "Toca Ver para mirar cada opción, una a la vez. Después elige la correcta.",
+    "view": "Ver",
+    "viewLabel": "Ver la demostración de la opción {n}"
   },
   "feedback": {
     "almost": "¡Casi!",

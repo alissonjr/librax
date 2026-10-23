@@ -14,43 +14,45 @@
     {
       "id": "u7-l1-ex02",
       "lesson_id": "u7-l1",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-FELIZ",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "FELIZ"
       }
     },
     {
       "id": "u7-l1-ex03",
       "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-FELIZ",
-        "correct": "FELIZ"
+        "sign_id": "sinal-TRISTE"
       }
     },
     {
       "id": "u7-l1-ex04",
       "lesson_id": "u7-l1",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-FELIZ"
+        "word": "TRISTE",
+        "video_options": [
+          "sinal-TRISTE",
+          "sinal-FELIZ",
+          "sinal-RAIVA",
+          "sinal-MEDO"
+        ],
+        "correct_sign_id": "sinal-TRISTE"
       }
     },
     {
       "id": "u7-l1-ex05",
       "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-FELIZ",
-        "correct": "FELIZ"
+        "sign_id": "sinal-RAIVA"
       }
     },
     {
@@ -59,14 +61,45 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-TRISTE"
+        "sign_id": "sinal-MEDO"
       }
     },
     {
       "id": "u7-l1-ex07",
       "lesson_id": "u7-l1",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
+      "payload": {
+        "sign_id": "sinal-CALMO"
+      }
+    },
+    {
+      "id": "u7-l1-ex08",
+      "lesson_id": "u7-l1",
+      "type": "match_pairs",
+      "order": 8,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "sinal-RAIVA",
+            "gloss": "RAIVA"
+          },
+          {
+            "sign_id": "sinal-MEDO",
+            "gloss": "MEDO"
+          },
+          {
+            "sign_id": "sinal-CALMO",
+            "gloss": "CALMO"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u7-l1-ex09",
+      "lesson_id": "u7-l1",
+      "type": "perform_sign",
+      "order": 9,
       "payload": {
         "sign_id": "sinal-TRISTE",
         "recognition": "static",
@@ -76,284 +109,23 @@
       }
     },
     {
-      "id": "u7-l1-ex08",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 8,
-      "payload": {
-        "sign_id": "sinal-TRISTE",
-        "correct": "TRISTE"
-      }
-    },
-    {
-      "id": "u7-l1-ex09",
-      "lesson_id": "u7-l1",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "sinal-TRISTE"
-      }
-    },
-    {
       "id": "u7-l1-ex10",
       "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
+      "type": "perform_sign",
       "order": 10,
       "payload": {
-        "sign_id": "sinal-TRISTE",
-        "correct": "TRISTE"
+        "sign_id": "sinal-FELIZ",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
       "id": "u7-l1-ex11",
       "lesson_id": "u7-l1",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-RAIVA"
-      }
-    },
-    {
-      "id": "u7-l1-ex12",
-      "lesson_id": "u7-l1",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-RAIVA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u7-l1-ex13",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-RAIVA",
-        "correct": "RAIVA"
-      }
-    },
-    {
-      "id": "u7-l1-ex14",
-      "lesson_id": "u7-l1",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-RAIVA"
-      }
-    },
-    {
-      "id": "u7-l1-ex15",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-RAIVA",
-        "correct": "RAIVA"
-      }
-    },
-    {
-      "id": "u7-l1-ex16",
-      "lesson_id": "u7-l1",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-MEDO"
-      }
-    },
-    {
-      "id": "u7-l1-ex17",
-      "lesson_id": "u7-l1",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-MEDO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u7-l1-ex18",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-MEDO",
-        "correct": "MEDO"
-      }
-    },
-    {
-      "id": "u7-l1-ex19",
-      "lesson_id": "u7-l1",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-MEDO"
-      }
-    },
-    {
-      "id": "u7-l1-ex20",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-MEDO",
-        "correct": "MEDO"
-      }
-    },
-    {
-      "id": "u7-l1-ex21",
-      "lesson_id": "u7-l1",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "sinal-CALMO"
-      }
-    },
-    {
-      "id": "u7-l1-ex22",
-      "lesson_id": "u7-l1",
-      "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-CALMO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u7-l1-ex23",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-CALMO",
-        "correct": "CALMO"
-      }
-    },
-    {
-      "id": "u7-l1-ex24",
-      "lesson_id": "u7-l1",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-CALMO"
-      }
-    },
-    {
-      "id": "u7-l1-ex25",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-CALMO",
-        "correct": "CALMO"
-      }
-    },
-    {
-      "id": "u7-l1-ex26",
-      "lesson_id": "u7-l1",
-      "type": "match_pairs",
-      "order": 26,
-      "payload": {
-        "pairs": [
-          {
-            "sign_id": "sinal-FELIZ",
-            "gloss": "FELIZ"
-          },
-          {
-            "sign_id": "sinal-TRISTE",
-            "gloss": "TRISTE"
-          },
-          {
-            "sign_id": "sinal-RAIVA",
-            "gloss": "RAIVA"
-          }
-        ]
-      }
-    },
-    {
-      "id": "u7-l1-ex27",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 27,
-      "payload": {
-        "sign_id": "sinal-FELIZ",
-        "correct": "FELIZ"
-      }
-    },
-    {
-      "id": "u7-l1-ex28",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 28,
-      "payload": {
-        "sign_id": "sinal-TRISTE",
-        "correct": "TRISTE"
-      }
-    },
-    {
-      "id": "u7-l1-ex29",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 29,
-      "payload": {
-        "sign_id": "sinal-RAIVA",
-        "correct": "RAIVA"
-      }
-    },
-    {
-      "id": "u7-l1-ex30",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "sinal-MEDO",
-        "correct": "MEDO"
-      }
-    },
-    {
-      "id": "u7-l1-ex31",
-      "lesson_id": "u7-l1",
-      "type": "watch_choose_word",
-      "order": 31,
-      "payload": {
-        "sign_id": "sinal-CALMO",
-        "correct": "CALMO"
-      }
-    },
-    {
-      "id": "u7-l1-ex32",
-      "lesson_id": "u7-l1",
-      "type": "order_sequence",
-      "order": 32,
-      "payload": {
-        "steps": [
-          "FELIZ",
-          "TRISTE",
-          "RAIVA",
-          "MEDO"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u7-l1-ex33",
-      "lesson_id": "u7-l1",
       "type": "build_phrase",
-      "order": 33,
+      "order": 11,
       "payload": {
         "pt": "Eu tenho saudades da minha família lá da Espanha.",
         "glosses": [

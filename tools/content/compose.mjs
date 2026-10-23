@@ -8,9 +8,11 @@
 // O que fica no bundle é a composição da lição (quais exercícios, em que ordem, com quais
 // sinais). O que continua sorteado no app, a cada lição aberta (apps/web-poc/src/lib/content.ts):
 //   - distratores de watch_choose_word (quando o payload não traz `options`) e a ordem das opções;
+//   - a ordem das demonstrações de word_choose_video;
 //   - quais distratores de build_phrase entram (1 ou 2) e a ordem dos blocos;
-//   - se perform_sign é avaliado pela câmera ou vira prática livre (depende do reconhecedor do
-//     aparelho, que muda sem precisar gerar o bundle de novo).
+//   - se perform_sign é avaliado pela câmera ou vira prática livre, e se fingerspell usa a câmera
+//     ou vira order_sequence (depende do reconhecedor do aparelho, que muda sem precisar gerar o
+//     bundle de novo).
 
 /** Primeira unidade (índice 0) com exercício de montar a frase: U3. */
 export const PHRASE_FIRST_UNIT_INDEX = 2;
@@ -73,61 +75,163 @@ export function phraseDistractors(phrase, unitPhrases) {
   return out;
 }
 
+/** Tamanho da sessão (spec-03 seção 4): de 7 a 12 exercícios por lição. */
+export const MIN_EXERCISES = 7;
+export const MAX_EXERCISES = 12;
+/** Quantos sinais a pessoa produz com a câmera numa lição sem soletração. */
+export const PRODUCE_COUNT = 2;
+/** Tamanho do match_pairs que junta o reconhecimento de vários sinais quando a lição não cabe. */
+export const MATCH_MIN = 3;
+export const MATCH_MAX = 4;
+
+/**
+ * Quantos sinais vão para o match_pairs para a lição caber em MAX_EXERCISES, ou null se nem
+ * juntando MATCH_MAX sinais cabe. 0 = cada sinal tem o seu exercício receptivo.
+ */
+function groupSize(signCount, fixed) {
+  const budget = MAX_EXERCISES - fixed;
+  if (signCount <= budget) return 0;
+  const group = Math.max(MATCH_MIN, signCount - budget + 1);
+  return group <= Math.min(MATCH_MAX, signCount) ? group : null;
+}
+
+/**
+ * Sinais que a pessoa produz com a câmera: os novos da lição (ou todos, se não houver novo),
+ * estáticos primeiro (são os que a câmera tem mais chance de avaliar), na ordem da lição.
+ */
+function pickProduce(signIds, fresh, signsMap, n) {
+  const pool = fresh.length ? fresh : signIds;
+  const isStatic = (id) => signsMap[id]?.recognition !== 'dynamic';
+  return [...pool.filter(isStatic), ...pool.filter((id) => !isStatic(id))].slice(0, n);
+}
+
+/**
+ * 3 distratores do word_choose_video, nesta ordem de preferência: sinais da lição já apresentados,
+ * sinais da mesma categoria vistos em lições anteriores (os mais recentes primeiro), os outros
+ * sinais da lição e, por fim, qualquer sinal da mesma categoria. Nunca repete glosa.
+ */
+function videoDistractors(signId, presented, signIds, signsMap, seenSigns) {
+  const gloss = (id) => signsMap[id]?.gloss ?? id;
+  const category = signsMap[signId]?.category;
+  const sameCategory = Object.keys(signsMap).filter((id) => signsMap[id].category === category);
+  const learned = [...seenSigns].reverse().filter((id) => signsMap[id]?.category === category);
+  const seen = new Set([gloss(signId)]);
+  const out = [];
+  for (const id of [...presented, ...learned, ...signIds, ...sameCategory]) {
+    if (out.length === 3) break;
+    if (id === signId || seen.has(gloss(id))) continue;
+    seen.add(gloss(id));
+    out.push(id);
+  }
+  return out;
+}
+
 /**
  * Exercícios de uma lição, na ordem em que aparecem (sem id nem order: `numberExercises` completa).
  *
- * Por sinal: apresenta (sign_intro) -> produz (perform_sign) -> reconhece (watch_choose_word) ->
- * prática livre (mirror_practice) -> reconhece de novo (watch_choose_word). Depois: match_pairs
- * com os 3 primeiros sinais, uma rodada de revisão (watch_choose_word por sinal) e
- * order_sequence com até 4 sinais (as duas últimas só com 3 sinais ou mais). Na U4 entram as
- * soletrações de nome (order_sequence com `word`) e, da U3 em diante, uma frase por lição.
+ * Regra (spec-03 seções 3 e 4), sempre de 7 a 12 exercícios:
+ * 1. Apresenta e reconhece: cada sinal novo ganha um sign_intro e, logo depois, um exercício
+ *    receptivo próprio, alternando watch_choose_word (vê o sinal, escolhe a palavra) e
+ *    word_choose_video (vê a palavra, escolhe o sinal). Sinal de revisão (já apresentado em lição
+ *    anterior) não tem sign_intro, só o receptivo.
+ * 2. Se a lição passar de 12, os últimos 3 ou 4 sinais dividem um match_pairs no lugar dos
+ *    receptivos individuais (os sign_intro deles vêm antes do match_pairs).
+ * 3. Produz: 2 perform_sign (sinais novos, estáticos primeiro) ou, na lição de nomes (U4), um
+ *    fingerspell por nome. Se ainda não couber, a produção cai para 1 perform_sign.
+ * 4. Da U3 em diante, a frase da lição (build_phrase) fecha a sessão.
+ * Lição curta demais ganha uma rodada de watch_choose_word antes da frase até chegar a 7.
  *
- * Quando o reconhecedor do aparelho não avalia o sinal, o app mostra o perform_sign como
- * prática livre e pula a prática livre repetida do mesmo sinal (ver resolveExercises no app).
+ * A revisão extensa (o mesmo sinal várias vezes) fica na prática diária: todo sinal da lição tem
+ * ao menos um exercício com nota (receptivo ou match_pairs), que o põe na fila do SRS.
+ *
+ * `extra.seenSigns`: sinais apresentados em lições anteriores (composeCourse preenche). Quando o app
+ * não avalia o sinal pela câmera, mostra o perform_sign como prática livre (resolveExercises).
  */
 export function composeLessonExercises(lesson, signsMap, extra = {}) {
   const sign = (id) => signsMap[id];
   const gloss = (id) => sign(id)?.gloss ?? id;
+  const seenSigns = extra.seenSigns ?? new Set();
+  const signIds = lesson.signIds;
+  const fresh = signIds.filter((id) => !seenSigns.has(id));
+  const review = signIds.filter((id) => seenSigns.has(id));
+  const spellWords = lesson.spellWords ?? [];
+  const phraseCount = extra.phrase ? 1 : 0;
+
+  // Produção e agrupamento: tenta 2 perform_sign; se nem com o match_pairs cabe, tenta 1
+  let produce = [];
+  let group = null;
+  const produceOptions = spellWords.length ? [0] : [PRODUCE_COUNT, 1];
+  for (const n of produceOptions) {
+    group = groupSize(signIds.length, fresh.length + phraseCount + spellWords.length + n);
+    if (group !== null) {
+      produce = pickProduce(signIds, fresh, signsMap, n);
+      break;
+    }
+  }
+  if (group === null) {
+    throw new Error(
+      `Lição ${lesson.id ?? '?'}: ${signIds.length} sinais não cabem em ${MAX_EXERCISES} exercícios. Divida a lição.`,
+    );
+  }
+
   const out = [];
   const push = (type, payload) => out.push({ type, payload });
+  const presented = [...review];
+  let receptive = 0;
 
-  for (const signId of lesson.signIds) {
-    push('sign_intro', { sign_id: signId });
+  const intro = (id) => {
+    if (fresh.includes(id)) push('sign_intro', { sign_id: id });
+  };
+  const recognize = (id) => {
+    if (receptive++ % 2 === 0) {
+      push('watch_choose_word', { sign_id: id, correct: gloss(id) });
+    } else {
+      push('word_choose_video', {
+        word: gloss(id),
+        video_options: [id, ...videoDistractors(id, presented, signIds, signsMap, seenSigns)],
+        correct_sign_id: id,
+      });
+    }
+  };
+
+  // 1 e 2. Apresenta e reconhece (novos primeiro, depois a revisão; o grupo fica no fim)
+  const ordered = [...fresh, ...review];
+  const single = ordered.slice(0, ordered.length - group);
+  const grouped = ordered.slice(ordered.length - group);
+  for (const id of single) {
+    intro(id);
+    recognize(id);
+    if (!presented.includes(id)) presented.push(id);
+  }
+  if (grouped.length) {
+    grouped.forEach(intro);
+    push('match_pairs', { pairs: grouped.map((id) => ({ sign_id: id, gloss: gloss(id) })) });
+  }
+
+  // 3. Produz
+  for (const id of produce) {
     push('perform_sign', {
-      sign_id: signId,
-      recognition: sign(signId)?.recognition === 'dynamic' ? 'dynamic' : 'static',
+      sign_id: id,
+      recognition: sign(id)?.recognition === 'dynamic' ? 'dynamic' : 'static',
       // null = padrão do reconhecedor até a calibração com dados reais (spec-03 5.3)
       min_confidence: null,
       max_attempts: null,
-      hint_video_url: sign(signId)?.video_url ?? null,
-    });
-    push('watch_choose_word', { sign_id: signId, correct: gloss(signId) });
-    push('mirror_practice', { sign_id: signId });
-    push('watch_choose_word', { sign_id: signId, correct: gloss(signId) });
-  }
-
-  if (lesson.signIds.length >= 3) {
-    push('match_pairs', {
-      pairs: lesson.signIds.slice(0, 3).map((id) => ({ sign_id: id, gloss: gloss(id) })),
+      hint_video_url: sign(id)?.video_url ?? null,
     });
   }
-
-  for (const signId of lesson.signIds) {
-    push('watch_choose_word', { sign_id: signId, correct: gloss(signId) });
+  // Soletração de nomes com letras já aprendidas (U4). O app usa a câmera quando avalia todas as
+  // letras da palavra; senão mostra como order_sequence (resolveExercises).
+  for (const word of spellWords) {
+    push('fingerspell', { word, letters: word.split(''), per_letter_confidence: null });
   }
 
-  if (lesson.signIds.length >= 3) {
-    const steps = lesson.signIds.slice(0, 4).map(gloss);
-    push('order_sequence', { steps, correct_order: steps.map((_, i) => i) });
+  // Lição curta: completa com uma rodada de reconhecimento até o mínimo
+  for (let i = 0; signIds.length && out.length + phraseCount < MIN_EXERCISES; i++) {
+    const id = signIds[i % signIds.length];
+    push('watch_choose_word', { sign_id: id, correct: gloss(id) });
   }
 
-  // Soletração de nomes com letras já aprendidas (U4). Enquanto o app não renderiza o tipo
-  // fingerspell, a soletração entra como order_sequence: a pessoa põe as letras do nome na ordem.
-  for (const word of lesson.spellWords ?? []) {
-    const letters = word.split('');
-    push('order_sequence', { steps: letters, correct_order: letters.map((_, i) => i), word });
-  }
-
+  // 4. A frase fecha a lição
   if (extra.phrase) {
     push('build_phrase', {
       pt: extra.phrase.pt,
@@ -158,6 +262,8 @@ export function numberExercises(lessonId, items) {
 export function composeCourse(course, signsList) {
   const signsMap = Object.fromEntries(signsList.map((s) => [s.id, s]));
   const seenGlosses = new Set();
+  // Sinais já apresentados (sign_intro) em lições anteriores: na lição de revisão não se repetem
+  const seenSigns = new Set();
   const bundle = {};
 
   course.units.forEach((unit, unitIdx) => {
@@ -172,8 +278,9 @@ export function composeCourse(course, signsList) {
           phrase = unit.phrases[pick];
         }
       }
-      const items = composeLessonExercises(lesson, signsMap, { phrase, unitPhrases: unit.phrases });
+      const items = composeLessonExercises(lesson, signsMap, { phrase, unitPhrases: unit.phrases, seenSigns });
       bundle[lesson.id] = numberExercises(lesson.id, items);
+      for (const id of lesson.signIds) seenSigns.add(id);
     }
   });
 

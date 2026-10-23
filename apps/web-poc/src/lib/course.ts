@@ -12,7 +12,7 @@ export interface Lesson {
   order: number;
   xpReward: number;
   signIds: string[];
-  /** Nomes soletrados na lição (U4); viram order_sequence no bundle. */
+  /** Nomes soletrados na lição (U4); viram fingerspell no bundle. */
   spellWords?: string[];
 }
 
