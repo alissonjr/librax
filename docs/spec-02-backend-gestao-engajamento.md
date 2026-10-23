@@ -28,9 +28,13 @@ App web (navegador do celular, PWA)
                                                         ├── EventBridge Scheduler ──► Lambda (fechar liga semanal, jobs)
                                                         └── (analytics) evento ──► Kinesis Firehose/SQS ──► destino
 
-Auth: Amazon Cognito (User Pool + Identity Pool) com domínio próprio (seção 2)
-       e-mail/senha, Google, Apple (opcional), e convidado (anônimo)
+Auth: Amazon Cognito (User Pool) com domínio próprio (seção 2)
+       e-mail/senha, Google, Apple (opcional); convidado 100% local, sem conta na AWS
 ```
+
+> **Atualização (desenho atual):** o Identity Pool foi removido da infra (nada o usava). O
+> convidado joga só no aparelho (IndexedDB) e não chama a API; ao criar conta, o app migra o
+> progresso com `POST /v1/guest/migrate`, já com o id token do User Pool (seção 2).
 
 **Mesma origem.** App, conteúdo, modelos e API ficam atrás de um único CloudFront com domínio próprio. Assim não há CORS, o service worker guarda respostas normais (sem respostas opacas de outra origem) e o Cognito usa o mesmo domínio nos callbacks. Hoje a infra (`infra/lib/librax-stack.ts`) tem um CloudFront só para conteúdo e a HTTP API em endereço próprio com `allowOrigins: ['*']`; juntar tudo no CloudFront único e restringir a origem ao domínio do app é trabalho da fase W3 do plano.
 
@@ -53,11 +57,12 @@ Conclusão honesta: o **núcleo** (Lambda + DynamoDB + Cognito + CloudFront) ten
 
 ## 2. Autenticação (Amazon Cognito)
 
-- **Convidado primeiro**: Identity Pool com acesso não autenticado deixa jogar a 1ª unidade sem cadastro. Progresso de convidado guardado localmente (IndexedDB, seção 7) e **migrado** ao criar conta.
+- **Convidado primeiro**: o convidado joga a 1ª unidade sem cadastro, 100% local. Progresso de convidado guardado localmente (IndexedDB, seção 7) e **migrado** ao criar conta.
+  > **Atualização:** o desenho original usava um Identity Pool com acesso não autenticado. Ele foi removido da infra: o convidado não tem identidade na AWS e não chama a API. A migração é feita por `POST /v1/guest/migrate` depois de criar conta.
 - Métodos: e-mail/senha (SRP; ou magic link), **Google**, e **Apple como opcional** (sem App Store, não há exigência de "Sign in with Apple"; entra se fizer sentido para quem usa iPhone).
 - **Domínio próprio no Cognito** (Hosted UI/OAuth no domínio do app) com fluxo **OAuth authorization code + PKCE**, feito no navegador (`aws-amplify/auth` v6). Callbacks e logouts apontam para URLs web do app (ex.: `https://<dominio>/auth/callback`). Hoje o app client já tem `authorizationCodeGrant` e SRP ligados, mas não há domínio Cognito nem URLs de callback/logout configuradas.
 - Tokens JWT do Cognito autorizam a HTTP API (authorizer nativo do API Gateway).
-- **Lacuna do convidado**: o convidado do Identity Pool não recebe JWT do User Pool, e o authorizer JWT atual (audiência = app client do User Pool) rejeita qualquer chamada dele. Por isso o convidado é 100% local: não chama a API. Ao criar conta, o app chama **`POST /v1/guest/migrate`** (já autenticado com a conta nova) enviando o log de lições do convidado; o servidor reexecuta esse log com o mesmo `completeLesson` e recalcula XP, streak e SRS. O endpoint ainda não existe na infra.
+- **Convidado é local**: o authorizer JWT da API (audiência = app client do User Pool) só aceita o id token de quem tem conta; por isso o convidado é 100% local e não chama a API (era a "lacuna do convidado" do Identity Pool, que foi removido). Ao criar conta, o app chama **`POST /v1/guest/migrate`** (já autenticado com a conta nova) enviando o log de lições do convidado; o servidor reexecuta esse log com o mesmo `completeLesson` e recalcula XP, streak e SRS. O endpoint já está na infra (`services/api/README.md`).
 - B2B (futuro): Cognito groups por `org`; SSO/SAML quando vender para instituição.
 
 ## 3. Modelo de dados - DynamoDB single-table
@@ -159,7 +164,7 @@ Justificativa: (a) MVP é gratuito, então não há motivo de monetização para
 
 ### 12.1 Fluxo de onboarding (primeiro acesso)
 
-Convidado (anonimo - Identity Pool, secao 2). Onboarding progressivo em 4 telas; conta pedida so depois da primeira licao.
+Convidado (100% local, sem Identity Pool: ele foi removido; migracao por `POST /v1/guest/migrate` ao criar conta, secao 2). Onboarding progressivo em 4 telas; conta pedida so depois da primeira licao.
 
 **Sequencia de telas:**
 | # | Tela | Componentes | Avanca para |
