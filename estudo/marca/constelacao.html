@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="pt-BR" class="dp" data-tema="auto">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex"/>
+<title>Constelação: protótipo de marca do Librax</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400..800&family=Atkinson+Hyperlegible+Next:wght@400..800&family=Atkinson+Hyperlegible:wght@400;700&family=Nunito:wght@400..900&display=swap"/>
+<style>
+
+:root{color-scheme:light;--bg:#F3F5F8;--sf:#FFFFFF;--sf2:#E8ECF2;--bd1:#DDE3EB;--bd:#C4CCD8;--bd2:#76829A;--tx:#0B1022;--tx2:#3D4758;--tx3:#566074;--marca:#07675E;--acao:#0A7A70;--acao-tx:#FFFFFF;--acao-base:#05524B;--sel:#D4F3EE;--sel-tx:#064A44;--foco:#0A7A70;--mao:#0B8C81;--mao-on:#FFFFFF;--mao-tx:#07675E;--mao-soft:#D4F3EE;--ok:#14834A;--ok-on:#FFFFFF;--ok-tx:#126D39;--ok-soft:#D9F7E3;--ok-soft-tx:#0F532C;--erro:#C63F24;--erro-on:#FFFFFF;--erro-tx:#9C311C;--erro-soft:#FFE5DF;--erro-soft-tx:#702415;--xp:#C77700;--xp-tx:#8A5300;--xp-soft:#FFF0D6;--fogo:#E2541B;--fogo-tx:#94340D;--fogo-soft:#FFE6D9;--ac:#C77700;--ac-tx:#8A5300;--ac-soft:#FFF0D6;--ac-soft-tx:#5C3700;--trilho:#E3E8EF;--prog:#0A7A70;--trava-bg:#E3E8EF;--trava-fg:#566074;--wm-a:#0B1022;--wm-b:#C77700;--palco:#070A14;--palco2:#0E1424;--pc-o:#2FD3C1;--pc-j:#FFFFFF;--pc-ja:#FFB547;--pc-h:rgba(7,10,20,.85);--fd:"Sora", system-ui, -apple-system, Roboto, sans-serif;--ft:"Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, Roboto, sans-serif;--fm:"Sora", system-ui, sans-serif;--r-btn:14px;--r-card:18px;--r-chip:999px}
+:root[data-tema=escuro]{color-scheme:dark;--bg:#080C18;--sf:#10162A;--sf2:#050810;--bd1:#1C2438;--bd:#2A3450;--bd2:#76819B;--tx:#EEF2F8;--tx2:#A3AEC2;--tx3:#8792A8;--marca:#5FE0D0;--acao:#2FD3C1;--acao-tx:#04110F;--acao-base:#0F8F82;--sel:#0B3B38;--sel-tx:#CFF7F1;--foco:#5FE0D0;--mao:#2FD3C1;--mao-on:#04110F;--mao-tx:#6FE6D8;--mao-soft:#0B3B38;--ok:#3CC873;--ok-on:#0C101A;--ok-tx:#74DE9B;--ok-soft:#0D3F24;--ok-soft-tx:#D9F7E3;--erro:#FF7A5F;--erro-on:#0C101A;--erro-tx:#FF9C87;--erro-soft:#5A1E12;--erro-soft-tx:#FFE5DF;--xp:#FFB547;--xp-tx:#FFC56E;--xp-soft:#3D2A08;--fogo:#FF7A3D;--fogo-tx:#FF9E6B;--fogo-soft:#4A1D08;--ac:#FFB547;--ac-tx:#FFC56E;--ac-soft:#3D2A08;--ac-soft-tx:#FFE3B3;--trilho:#1F2840;--prog:#2FD3C1;--trava-bg:#1C2438;--trava-fg:#A3AEC2;--wm-a:#EEF2F8;--wm-b:#FFB547}
+@media (prefers-color-scheme: dark){:root[data-tema=auto]{color-scheme:dark;--bg:#080C18;--sf:#10162A;--sf2:#050810;--bd1:#1C2438;--bd:#2A3450;--bd2:#76819B;--tx:#EEF2F8;--tx2:#A3AEC2;--tx3:#8792A8;--marca:#5FE0D0;--acao:#2FD3C1;--acao-tx:#04110F;--acao-base:#0F8F82;--sel:#0B3B38;--sel-tx:#CFF7F1;--foco:#5FE0D0;--mao:#2FD3C1;--mao-on:#04110F;--mao-tx:#6FE6D8;--mao-soft:#0B3B38;--ok:#3CC873;--ok-on:#0C101A;--ok-tx:#74DE9B;--ok-soft:#0D3F24;--ok-soft-tx:#D9F7E3;--erro:#FF7A5F;--erro-on:#0C101A;--erro-tx:#FF9C87;--erro-soft:#5A1E12;--erro-soft-tx:#FFE5DF;--xp:#FFB547;--xp-tx:#FFC56E;--xp-soft:#3D2A08;--fogo:#FF7A3D;--fogo-tx:#FF9E6B;--fogo-soft:#4A1D08;--ac:#FFB547;--ac-tx:#FFC56E;--ac-soft:#3D2A08;--ac-soft-tx:#FFE3B3;--trilho:#1F2840;--prog:#2FD3C1;--trava-bg:#1C2438;--trava-fg:#A3AEC2;--wm-a:#EEF2F8;--wm-b:#FFB547}}
+:root.an{--bg:#F6F7FA;--sf:#FFFFFF;--sf2:#EDEFF5;--bd1:#DFE3EC;--bd:#C5CBD8;--bd2:#7F89A0;--tx:#141926;--tx2:#454D60;--tx3:#5B6479;--marca:#2A3FBF;--acao:#3651E6;--acao-tx:#FFFFFF;--acao-base:#223293;--sel:#DFE6FF;--sel-tx:#223293;--foco:#3651E6;--mao:#0B8C81;--mao-on:#FFFFFF;--mao-tx:#0B6F67;--mao-soft:#CFF7F1;--ok:#14834A;--ok-on:#FFFFFF;--ok-tx:#126D39;--ok-soft:#D9F7E3;--ok-soft-tx:#0F532C;--erro:#C63F24;--erro-on:#FFFFFF;--erro-tx:#9C311C;--erro-soft:#FFE5DF;--erro-soft-tx:#702415;--xp:#A98500;--xp-tx:#7D6200;--xp-soft:#FFF6CC;--fogo:#F05A1A;--fogo-tx:#94340D;--fogo-soft:#FFE6D9;--ac:#0B8C81;--ac-tx:#0B6F67;--ac-soft:#CFF7F1;--ac-soft-tx:#0B6F67;--trilho:#EDEFF5;--prog:#14834A;--trava-bg:#DFE3EC;--trava-fg:#5B6479;--wm-a:#141926;--wm-b:#0B8C81;--palco:#06080E;--palco2:#0C101A;--pc-o:#FFFFFF;--pc-j:#74DE9B;--pc-ja:#74DE9B;--pc-h:rgba(6,8,14,.85);--fd:Nunito, system-ui, -apple-system, Roboto, sans-serif;--ft:Nunito, system-ui, -apple-system, Roboto, sans-serif;--fm:Nunito, system-ui, -apple-system, Roboto, sans-serif;--r-btn:14px;--r-card:20px;--r-chip:999px}
+:root.an[data-tema=escuro]{--bg:#0C101A;--sf:#141926;--sf2:#06080E;--bd1:#242A38;--bd:#333A4B;--bd2:#7F89A0;--tx:#F6F7FA;--tx2:#9EA7BA;--tx3:#7F89A0;--marca:#9BB0FF;--acao:#7290FF;--acao-tx:#0C101A;--acao-base:#3651E6;--sel:#1B2768;--sel-tx:#DFE6FF;--foco:#9BB0FF;--mao:#27C9B8;--mao-on:#0C101A;--mao-tx:#5FDECF;--mao-soft:#0A5550;--ok:#3CC873;--ok-on:#0C101A;--ok-tx:#74DE9B;--ok-soft:#0F532C;--ok-soft-tx:#D9F7E3;--erro:#FF7A5F;--erro-on:#0C101A;--erro-tx:#FF9C87;--erro-soft:#702415;--erro-soft-tx:#FFE5DF;--xp:#FACB1E;--xp-tx:#FFDB4D;--xp-soft:#574500;--fogo:#FF7A3D;--fogo-tx:#FF9E6B;--fogo-soft:#69250A;--ac:#27C9B8;--ac-tx:#5FDECF;--ac-soft:#0A5550;--ac-soft-tx:#CFF7F1;--trilho:#333A4B;--prog:#3CC873;--trava-bg:#242A38;--trava-fg:#9EA7BA;--wm-a:#F6F7FA;--wm-b:#27C9B8}
+@media (prefers-color-scheme: dark){:root.an[data-tema=auto]{--bg:#0C101A;--sf:#141926;--sf2:#06080E;--bd1:#242A38;--bd:#333A4B;--bd2:#7F89A0;--tx:#F6F7FA;--tx2:#9EA7BA;--tx3:#7F89A0;--marca:#9BB0FF;--acao:#7290FF;--acao-tx:#0C101A;--acao-base:#3651E6;--sel:#1B2768;--sel-tx:#DFE6FF;--foco:#9BB0FF;--mao:#27C9B8;--mao-on:#0C101A;--mao-tx:#5FDECF;--mao-soft:#0A5550;--ok:#3CC873;--ok-on:#0C101A;--ok-tx:#74DE9B;--ok-soft:#0F532C;--ok-soft-tx:#D9F7E3;--erro:#FF7A5F;--erro-on:#0C101A;--erro-tx:#FF9C87;--erro-soft:#702415;--erro-soft-tx:#FFE5DF;--xp:#FACB1E;--xp-tx:#FFDB4D;--xp-soft:#574500;--fogo:#FF7A3D;--fogo-tx:#FF9E6B;--fogo-soft:#69250A;--ac:#27C9B8;--ac-tx:#5FDECF;--ac-soft:#0A5550;--ac-soft-tx:#CFF7F1;--trilho:#333A4B;--prog:#3CC873;--trava-bg:#242A38;--trava-fg:#9EA7BA;--wm-a:#F6F7FA;--wm-b:#27C9B8}}
+.peca.clara{--wm-a:#0B1022;--wm-b:#C77700}
+.peca.escura{--wm-a:#EEF2F8;--wm-b:#FFB547}
+
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--ft);font-size:16px;line-height:1.5}
+h1,h2,h3,p,ul,ol,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
+.dp .so-antes,.an .so-depois{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ic{width:20px;height:20px;flex:none}
+.disp{font-family:var(--fd)}
+.tab{font-variant-numeric:tabular-nums}
+.gl{font-family:var(--fm);font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.gl-n{text-transform:none}
+
+/* Barra do protótipo (ferramenta, não faz parte do desenho) */
+.pbar{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:10px 16px;background:var(--sf);border-bottom:1px solid var(--bd1);font-size:14px}
+.pbar a{color:var(--marca);font-weight:600}
+.pbar .pb-t{font-weight:700;margin-right:auto}
+.pbar label{display:flex;align-items:center;gap:6px;color:var(--tx2)}
+.pbar select{min-height:48px;padding:0 10px;border:1px solid var(--bd2);border-radius:10px;background:var(--sf);color:var(--tx);font-size:16px}
+.pbar a.pb-l{display:inline-flex;align-items:center;min-height:48px}
+.pnav{display:flex;flex-wrap:wrap;gap:0 4px;padding:4px 12px;font-size:14px;border-bottom:1px solid var(--bd1);background:var(--sf)}
+.pnav a{display:inline-flex;align-items:center;min-height:44px;padding:0 6px;color:var(--tx2)}
+main.proto{max-width:1280px;margin:0 auto;padding:24px 24px 64px;display:flex;flex-direction:column;gap:48px}
+.tela-cab{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-width:76ch}
+.tela-cab h2{font-size:22px;line-height:30px;font-family:var(--fd)}
+.tela-cab p{color:var(--tx2);font-size:15px}
+.quadro{border:1px solid var(--bd1);border-radius:20px;overflow:hidden;background:var(--bg)}
+
+/* Folha da marca */
+.folha{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;padding:20px}
+.folha>*{grid-column:span 4;min-width:0}
+.folha .larga{grid-column:span 8}
+.folha .tudo{grid-column:1/-1}
+.peca{overflow:hidden;padding:20px;border-radius:16px;background:var(--sf);border:1px solid var(--bd1);display:flex;flex-direction:column;gap:14px}
+.peca h3{font-size:15px;color:var(--tx2);font-weight:700}
+.peca .sub{font-size:14px;color:var(--tx2)}
+.peca.clara{background:#FFFFFF;border-color:#E3E6EC;color:#141926}
+.peca.clara h3,.peca.clara .sub{color:#4A5263}
+.peca.escura{background:#0A0D16;border-color:#0A0D16;color:#EEF1F6}
+.peca.escura h3,.peca.escura .sub{color:#B9C1CF}
+.icones{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px}
+.icones figure{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;color:var(--tx2)}
+.mask{position:relative}
+.mask::after{content:"";position:absolute;top:10%;left:10%;width:80%;height:80%;border-radius:50%;border:1.5px dashed #fff;opacity:.9;pointer-events:none}
+.mask .rotulo{position:static}
+.min{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--tx2)}
+.min>span{display:inline-flex;align-items:center;gap:8px}
+.amostras{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.amostras div{border-radius:12px;padding:10px;min-height:84px;display:flex;flex-direction:column;justify-content:flex-end;font-size:13px;line-height:17px;border:1px solid var(--bd1)}
+.amostras b{font-size:14px}
+.esp-t{font-family:var(--fd);font-weight:800;font-size:44px;line-height:1.05;letter-spacing:-0.02em;overflow-wrap:anywhere}
+.esp-c{font-size:16px}
+.pers{font-size:26px;line-height:1.15;font-weight:800}
+.esp-g{font-size:18px}
+.voz{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;font-size:15px}
+.voz b{font-size:13px;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.trio figure{padding:12px;border-radius:14px;background:var(--bg);border:1px solid var(--bd1);display:flex;flex-direction:column;gap:6px}
+.trio svg.ilus{width:100%;height:auto;display:block}
+.trio figcaption{font-size:14px;color:var(--tx2)}
+.trio figcaption b{display:block;color:var(--tx);font-size:15px}
+.nota-antes{font-size:15px;color:var(--tx2);padding:12px 14px;border-radius:12px;background:var(--sf2)}
+
+/* Palavra-marca */
+.wm{display:inline-flex;align-items:center;gap:calc(var(--wm)*.32);width:fit-content;line-height:1}
+.wm .simb{width:calc(var(--wm)*1.3);height:calc(var(--wm)*1.3);flex:none}
+.wm-t{font-family:var(--fd);font-weight:800;font-size:var(--wm);color:var(--wm-a);letter-spacing:-0.01em;line-height:1}
+.wm-hoje .wm-t{font-family:Nunito,system-ui,sans-serif;font-weight:800;color:var(--wm-hoje,var(--tx))}
+.peca.clara{--wm-hoje:#141926}
+.peca.escura{--wm-hoje:#F6F7FA}
+
+/* Mão desenhada pelos 21 pontos */
+.mao{display:block;overflow:visible}
+.mao .h{stroke:var(--m-h,rgba(0,0,0,.55));stroke-width:calc(var(--m-ow,1.8) + 2.6);stroke-linecap:round}
+.mao .o{stroke:var(--m-o,currentColor);stroke-width:var(--m-ow,1.8);stroke-linecap:round}
+.mao .o.at{stroke:var(--m-oa,var(--m-o,currentColor))}
+.mao .j{fill:var(--m-j,currentColor)}
+.mao .j.at{fill:var(--m-ja,var(--m-j,currentColor))}
+
+/* Telas */
+.telas{display:grid;grid-template-columns:repeat(auto-fill,390px);gap:40px 24px}
+.tela-item{display:flex;flex-direction:column;gap:12px;min-width:0}
+.tela-item>header{display:flex;flex-direction:column;gap:4px;padding:0 4px}
+.tela-item>header h3{font-size:18px;font-family:var(--fd)}
+.tela-item>header p{font-size:14px;color:var(--tx2)}
+.cel{width:390px;max-width:100%;border:1px solid var(--bd);border-radius:32px;overflow:hidden;background:var(--bg);box-shadow:0 12px 32px -12px rgba(12,16,26,.25)}
+.tela{position:relative;display:flex;flex-direction:column;min-height:844px;background:var(--bg);color:var(--tx);font-family:var(--ft)}
+
+/* Componentes do app (visual de hoje por padrão) */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;padding:0 20px;border:0;border-radius:var(--r-btn);background:var(--acao);color:var(--acao-tx);font-family:var(--ft);font-weight:800;font-size:17px;box-shadow:0 3px 0 var(--acao-base);text-decoration:none}
+.btn .ic{width:22px;height:22px}
+.btn-sec{background:var(--sf);color:var(--marca);border:2px solid var(--bd2);box-shadow:none}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r-card)}
+.icb{display:grid;place-items:center;width:48px;height:48px;border:0;border-radius:12px;background:transparent;color:var(--tx2);flex:none}
+.icb .ic{width:24px;height:24px}
+.chips{display:flex;gap:8px}
+.chip-j{display:inline-flex;align-items:center;gap:6px;min-height:48px;padding:0 14px;border-radius:var(--r-chip);border:1px solid var(--bd);background:var(--sf);font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+.chip-fogo{color:var(--fogo-tx)}.chip-fogo .ic{color:var(--fogo)}
+.chip-xp{color:var(--xp-tx)}.chip-xp .ic{color:var(--xp)}
+.barra{height:10px;border-radius:999px;background:var(--trilho);overflow:hidden}
+.barra i{display:block;height:100%;border-radius:999px;background:var(--prog)}
+.barra-xp i{background:var(--xp)}
+.abas{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--bd1);background:var(--sf);margin-top:auto}
+.abas a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;font-size:13px;font-weight:700;color:var(--tx2);text-decoration:none}
+.abas a .ic{width:24px;height:24px}
+.abas a .ab-i{display:grid;place-items:center;width:56px;height:30px;border-radius:999px}
+.abas a[aria-current=page]{color:var(--marca)}
+.abas a[aria-current=page] .ab-i{background:var(--sel)}
+
+/* 1. Boas-vindas */
+.boas-a{display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;padding:120px 24px 32px}
+.idiomas{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.idiomas span{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--bd);background:var(--sf);font-weight:700;font-size:15px}
+.idiomas span:first-child{border:2px solid var(--acao);background:var(--sel);color:var(--sel-tx)}
+.pontos-pag{display:flex;gap:8px;align-items:center}
+.pontos-pag i{width:8px;height:8px;border-radius:50%;background:var(--bd2)}
+.pontos-pag i:first-child{width:24px;border-radius:4px;background:var(--acao)}
+.maos-hoje{width:64px;height:64px;color:var(--mao)}
+.boas-a h1{font-size:32px;line-height:1.15;font-weight:800}
+.boas-a p{color:var(--tx2);font-size:16px}
+.boas-a form{display:flex;flex-direction:column;gap:14px;width:100%}
+.campo{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left}
+.campo label{font-weight:700;font-size:15px}
+.campo input{min-height:56px;padding:0 16px;border:2px solid var(--bd2);border-radius:var(--r-btn);background:var(--sf);font-size:17px;color:var(--tx)}
+.campo input::placeholder{color:var(--tx3)}
+.nota{font-size:13px;color:var(--tx3)}
+.boas-d{display:flex;flex-direction:column;gap:20px;padding:20px 20px 28px;min-height:844px}
+.boas-d .boas-form{margin-top:auto;display:flex;flex-direction:column;gap:14px}
+.boas-h{font-size:38px;line-height:1.08;font-weight:800;letter-spacing:-0.02em}
+.boas-p{color:var(--tx2);font-size:17px;margin-top:10px}
+
+/* 2. Mapa */
+.mp-topo{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 16px 12px}
+.mp-ola{font-size:18px;color:var(--tx2)}
+.mp-ola b{color:var(--tx)}
+.meta{margin:0 16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.meta-l{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700}
+.meta-l span{display:inline-flex;align-items:center;gap:8px}
+.meta-l .ic{color:var(--xp)}
+.meta-l .tab{color:var(--xp-tx);font-weight:800}
+.unid{margin:12px 16px 0;padding:16px;display:flex;flex-direction:column;gap:6px}
+.unid-tag{align-self:flex-start;padding:2px 10px;border-radius:var(--r-chip);background:var(--mao-soft);color:var(--mao-tx);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.unid h2{font-size:22px;line-height:1.2;font-family:var(--fd);font-weight:800}
+.unid p{color:var(--tx2);font-size:15px}
+.unid-prog{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--tx2);margin-top:4px}
+.unid-prog .barra{flex:1;height:8px}
+.trilha{position:relative;padding:12px 16px 16px}
+.no{position:relative;display:grid;grid-template-columns:76px 1fr auto;align-items:center;gap:14px;min-height:100px}
+.no-b{position:relative;z-index:1;justify-self:center;display:grid;place-items:center;width:64px;height:64px;border-radius:50%}
+.no-b .ic{width:28px;height:28px}
+.no:not(:last-child)::after{content:"";position:absolute;left:36px;top:50%;width:4px;height:100%;background:var(--bd2);z-index:0}
+.no-feito::after{background:var(--prog)!important}
+.no-atual::after,.no-trava::after{background:repeating-linear-gradient(var(--bd) 0 8px,transparent 8px 14px)!important}
+.no-feito .no-b{background:var(--ok);color:var(--ok-on)}
+.no-atual .no-b{width:76px;height:76px;background:var(--acao);color:var(--acao-tx);box-shadow:0 0 0 4px var(--bg),0 0 0 8px var(--mao)}
+.no-trava .no-b{background:var(--trava-bg);color:var(--trava-fg)}
+.no-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.no-n{font-weight:800;font-size:18px;font-family:var(--fd)}
+.no-s{font-size:14px;color:var(--tx2)}
+.no-trava .no-n{color:var(--tx2)}
+.no-trava .no-s{color:var(--tx3)}
+.no-go{display:inline-flex;align-items:center;min-height:48px;padding:0 16px;border-radius:999px;background:var(--sel);color:var(--sel-tx);font-weight:800;font-size:15px;text-decoration:none}
+.retomar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(90deg,var(--palco),var(--palco2));color:#fff;text-decoration:none;margin-top:auto;position:relative;overflow:hidden}
+.retomar .ic-play{width:22px;height:22px;color:#5FDECF}
+.retomar .rt{display:flex;flex-direction:column;flex:1;line-height:1.25}
+.retomar small{font-size:13px;color:#DFE3EC}
+.retomar b{font-size:18px}
+.ret-btn{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--acao);color:var(--acao-tx)}
+.ret-btn .ic{width:24px;height:24px}
+
+/* 3. Exercício */
+.lic-topo{display:flex;align-items:center;gap:10px;padding:8px 12px 8px 4px;border-bottom:1px solid var(--bd1)}
+.lic-prog{flex:1;min-width:0}
+.prog-hoje{display:block;height:12px;border-radius:999px;background:var(--trilho);overflow:hidden}
+.prog-hoje i{display:block;height:100%;border-radius:999px;background:var(--prog)}
+.cont{font-weight:800;font-size:15px;color:var(--tx2);font-variant-numeric:tabular-nums}
+.enun{font-size:24px;line-height:1.25;font-weight:800;padding:20px 16px 14px}
+.demo{position:relative;margin:0 16px;border-radius:var(--r-card);background:var(--sf2);min-height:300px;overflow:hidden}
+.demo-a{display:flex;align-items:center;justify-content:center;min-height:300px;padding:24px 24px 80px;text-align:center;color:var(--tx2);font-size:16px}
+.ver-novo{position:absolute;right:12px;bottom:12px;display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border:0;border-radius:999px;background:#333A4B;color:#fff;font-weight:700;font-size:15px}
+.opcoes{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
+.op{display:flex;align-items:center;justify-content:center;gap:8px;min-height:64px;border:2px solid var(--bd);border-radius:var(--r-btn);background:var(--sf);font-family:var(--fd);font-weight:800;font-size:26px;color:var(--tx)}
+.op[aria-checked=true]{border:3px solid var(--foco);background:var(--sel)}
+.rodape{padding:8px 16px 24px;margin-top:auto}
+
+/* 4. Câmera: palco sempre escuro */
+.palco{background:var(--palco)!important;color:#fff}
+.palco .lic-topo{border-bottom-color:rgba(255,255,255,.12)}
+.palco .icb{color:#DFE3EC}
+.palco .prog-hoje{background:rgba(255,255,255,.16)}
+.palco .cont{color:#DFE3EC}
+.pc-instr{padding:16px 16px 12px;display:flex;flex-direction:column;gap:4px}
+.pc-rot{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#DFE3EC}
+.pc-ins-a{text-align:center;align-items:center}
+.pc-ins-a .pc-letra{font-family:var(--fd);font-weight:900;font-size:48px;line-height:1;color:#9BB0FF}
+.pc-h{font-size:28px;line-height:1.15;font-weight:800}
+.pc-h .gl{color:var(--pc-ja)}
+.video{position:relative;margin:0 16px;border-radius:20px;overflow:hidden;aspect-ratio:3/3.6;background:
+ radial-gradient(ellipse 16% 13% at 40% 30%,#6b5648 0 70%,transparent 74%),
+ radial-gradient(ellipse 36% 26% at 40% 86%,#2f3646 0 80%,transparent 83%),
+ radial-gradient(ellipse 60% 40% at 80% 20%,rgba(255,255,255,.07),transparent 70%),
+ linear-gradient(180deg,#252a35,#12151c)}
+.video .guia{position:absolute;left:44%;top:10%;width:50%;height:66%;border:2px dashed rgba(255,255,255,.7);border-radius:22px}
+.video .mao-pc{position:absolute;left:44%;top:9%;width:50%;height:68%;--m-o:var(--pc-o);--m-j:var(--pc-j);--m-ja:var(--pc-ja);--m-h:var(--pc-h);--m-ow:2}
+.pill{position:absolute;left:12px;bottom:12px;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:999px;background:rgba(12,16,26,.85);color:#fff;font-weight:700;font-size:15px}
+.pill .ic{color:#74DE9B}
+.conf{display:flex;align-items:center;gap:10px;padding:12px 16px 0;font-size:14px;color:#DFE3EC}
+.conf .barra{flex:1;background:rgba(255,255,255,.16)}
+.conf .barra i{background:#3CC873}
+.fb-ok{margin:16px 16px 20px;margin-top:auto;padding:16px;border-radius:20px;background:#0F532C;color:#D9F7E3;display:flex;flex-direction:column;gap:10px}
+.fb-t{display:flex;align-items:center;gap:10px;font-size:22px}
+.fb-t .ic{width:28px;height:28px;color:#74DE9B}
+.fb-t b{font-family:var(--fd);font-weight:800}
+.fb-xp{margin-left:auto;font-weight:800;font-size:16px;color:#FFDB4D;font-variant-numeric:tabular-nums}
+.fb-ok p{font-size:15px}
+.btn-ok{background:#3CC873;color:#0C101A;box-shadow:0 3px 0 #14834A}
+
+/* 5. Lição concluída */
+.fim-a{display:flex;flex-direction:column;align-items:center;gap:16px;padding:28px 24px 0}
+.medalhas{align-self:stretch;display:flex;flex-direction:column;gap:8px;padding:14px 18px;border-radius:18px;background:var(--xp-soft);color:var(--xp-tx);font-weight:800}
+.medalhas span{display:flex;align-items:center;gap:10px}
+.pilula-xp{padding:6px 18px;border-radius:999px;background:var(--xp-soft);color:var(--xp-tx);font-weight:900;font-size:22px}
+.fim-h{font-size:36px;line-height:1.1;font-weight:900;padding:12px 24px 0}
+.an .fim-h,.an .fim-p{text-align:center}
+.fim-p{color:var(--tx2);font-size:17px;padding:8px 24px 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:20px 16px 0}
+.stat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 6px;border:1px solid var(--bd);border-radius:var(--r-card);background:var(--sf);text-align:center}
+.stat .ic{width:26px;height:26px}
+.stat b{font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;font-family:var(--fd)}
+.stat span{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tx2)}
+.st-xp .ic{color:var(--xp)}.st-fogo .ic{color:var(--fogo)}.st-mao .ic{color:var(--mao)}
+.glosas{padding:20px 16px 0;display:flex;flex-direction:column;gap:10px}
+.glosas h2{font-size:15px;font-weight:700;color:var(--tx2)}
+.an .glosas h2{text-align:center}
+.glosas ul{display:flex;flex-wrap:wrap;gap:8px}
+.an .glosas ul{justify-content:center}
+.glosas li{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;background:var(--sel);color:var(--sel-tx);font-size:15px}
+
+/* 6. Liga */
+.tela-cabec{display:flex;align-items:center;gap:8px;padding:4px 8px;min-height:56px;border-bottom:1px solid var(--bd1);background:var(--sf)}
+.tela-cabec h1{font-size:20px;font-weight:800;font-family:var(--fd)}
+.liga-cab{display:flex;align-items:center;gap:16px;padding:20px 16px 8px}
+.liga-cab h2{font-size:28px;line-height:1.1;font-weight:900;font-family:var(--fd)}
+.liga-cab p{display:flex;align-items:center;gap:6px;color:var(--tx2);font-size:15px;margin-top:4px}
+.liga-cab p .ic{color:var(--marca);width:18px;height:18px}
+.insignia{width:64px;height:64px;flex:none}
+.liga-regra{padding:0 16px 12px;color:var(--tx2);font-size:15px}
+.rank{display:flex;flex-direction:column;gap:6px;padding:0 16px 16px}
+.rk{display:grid;grid-template-columns:36px 40px 1fr auto;align-items:center;gap:10px;min-height:56px;padding:6px 12px;border-radius:var(--r-btn);background:var(--sf);border:1px solid var(--bd1)}
+.rk-p{font-weight:800;font-variant-numeric:tabular-nums;color:var(--tx2);text-align:center}
+.rk-av{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--sf2);font-weight:800;font-size:14px;color:var(--tx2)}
+.rk-n{font-weight:700;line-height:1.2}
+.rk-n small{display:block;font-weight:400;font-size:13px;color:var(--tx2)}
+.rk-x{font-weight:800;font-variant-numeric:tabular-nums}
+.rk-sobe .rk-n small{color:var(--ok-tx);display:flex;align-items:center;gap:4px}
+.rk-sobe .rk-n small .ic{width:14px;height:14px}
+.rk-eu{border:2px solid var(--foco);background:var(--sel)}
+.rk-eu .rk-av{background:var(--acao);color:var(--acao-tx)}
+.rk-mais{font-size:14px;color:var(--tx2);padding:0 4px 4px}
+.zona{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ok-tx)}
+.zona::before,.zona::after{content:"";flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--ok) 0 6px,transparent 6px 10px)}
+.zona .ic{width:16px;height:16px}
+
+/* Celular */
+@media (max-width: 900px){
+  .folha{grid-template-columns:1fr;padding:16px}
+  .folha>*,.folha .larga{grid-column:1/-1}
+  .trio{grid-template-columns:1fr}
+  .voz{grid-template-columns:1fr}
+  .voz b:nth-child(2){display:none}
+  .esp-t{font-size:34px}
+}
+@media (max-width: 840px){
+  .telas{grid-template-columns:minmax(0,390px);justify-content:center}
+}
+@media (max-width: 600px){
+  .pbar{position:static}
+  main.proto{padding:16px 0 48px;gap:40px}
+  .tela-cab{padding:0 16px}
+  .quadro{border-radius:0;border-left:0;border-right:0}
+  .telas{grid-template-columns:minmax(0,1fr);gap:32px}
+  .tela-item>header{padding:0 16px}
+  .cel{width:100%;border-radius:0;border-left:0;border-right:0;box-shadow:none}
+  .amostras{grid-template-columns:1fr 1fr}
+  .peca.clara .wm{--wm:36px!important}
+  .peca.escura .wm{--wm:30px!important}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+/* Constelação: regras do modo depois */
+
+.dp .wm-c .wm-t{font-weight:700;letter-spacing:-0.035em}
+.wm-c .wm-i{position:relative;display:inline-block}
+.wm-c .wm-i::after{content:"";position:absolute;left:50%;top:.02em;width:.21em;height:.21em;border-radius:50%;background:var(--wm-b);transform:translateX(-50%)}
+.dp .disp,.dp .no-n,.dp .unid h2{letter-spacing:-0.02em}
+.dp .boas-h{font-weight:700;letter-spacing:-0.035em}
+.dp .ilus-c{position:relative;height:300px;border-radius:24px;overflow:hidden;background:radial-gradient(circle,rgba(255,255,255,.2) 1px,transparent 1.6px) 0 0/22px 22px,radial-gradient(ellipse 70% 60% at 60% 40%,#14203A,transparent 70%),var(--palco)}
+.dp .mao-boas{position:absolute;inset:16px 24px 36px;width:calc(100% - 48px);height:calc(100% - 52px);--m-o:#2FD3C1;--m-oa:#2FD3C1;--m-j:rgba(255,255,255,.85);--m-ja:#FFB547;--m-h:rgba(7,10,20,.9);--m-ow:1.5}
+.dp .ilus-leg{position:absolute;left:16px;bottom:14px;font-family:var(--fd);font-size:13px;font-weight:600;letter-spacing:.06em;color:#C9D2E3;text-transform:uppercase}
+.dp .demo-leg{position:absolute;left:16px;top:14px;font-family:var(--fd);font-size:13px;font-weight:600;letter-spacing:.06em;color:#C9D2E3;text-transform:uppercase}
+.dp .meta,.dp .unid,.dp .card{box-shadow:none}
+.dp .unid-tag{display:inline-flex;align-items:center;gap:6px}
+.dp .unid-tag::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ac)}
+.dp .no{grid-template-columns:84px 1fr auto;gap:18px}
+.dp .no:not(:last-child)::after{width:3px;left:40.5px}
+.dp .no-feito::after{background:var(--mao)!important}
+.dp .no-atual::after,.dp .no-trava::after{width:6px!important;left:39px!important;background:radial-gradient(circle,var(--bd2) 2px,transparent 2.6px) center 0/6px 12px repeat-y!important}
+.dp .no-feito .no-b{width:56px;height:56px;background:var(--mao);color:var(--mao-on)}
+.dp .no-atual .no-b{width:72px;height:72px;background:var(--acao);color:var(--acao-tx);box-shadow:0 0 0 4px var(--bg),0 0 0 7px var(--ac)}
+.dp .no-trava .no-b{width:56px;height:56px;background:var(--sf);border:2px dashed var(--bd2)}
+.dp .no-deco{position:absolute;inset:-20px;pointer-events:none}
+.dp .no-deco .sat{width:100%;height:100%;display:block}
+.dp .no-go{background:var(--ac-soft);color:var(--ac-soft-tx)}
+.dp .retomar{background:radial-gradient(circle,rgba(255,255,255,.22) 1px,transparent 1.6px) 0 0/18px 18px,linear-gradient(90deg,var(--palco),#14203A)}
+.dp .retomar .ic-play{color:#FFB547}
+.dp .chip-xp .ic{color:var(--ac)}
+.cad{display:flex;align-items:center;justify-content:space-between;height:24px;position:relative;width:100%}
+.cad::before,.cad::after{content:"";position:absolute;left:5px;top:50%;height:2px;transform:translateY(-50%)}
+.cad::before{right:5px;background:var(--trilho)}
+.cad::after{width:calc((100% - 10px) * var(--p));background:var(--mao)}
+.cad i{position:relative;z-index:1;flex:none;width:10px;height:10px;border-radius:50%;border:2px solid var(--bd2);background:var(--sf)}
+.cad i.f{background:var(--ac);border-color:var(--ac)}
+.cad i.u{width:14px;height:14px;box-shadow:0 0 0 4px rgba(255,181,71,.3)}
+.cad-pc::before{background:rgba(255,255,255,.18)}
+.cad-pc::after{background:#2FD3C1}
+.cad-pc i{background:var(--palco);border-color:rgba(255,255,255,.45)}
+.cad-pc i.f{background:#FFB547;border-color:#FFB547}
+.dp .demo{background:radial-gradient(circle,rgba(255,255,255,.16) 1px,transparent 1.6px) 0 0/20px 20px,var(--palco)}
+.dp .demo-c{position:relative;height:300px}
+.dp .mao-demo{position:absolute;inset:14px 50px 56px;width:calc(100% - 100px);height:calc(100% - 70px);--m-o:#2FD3C1;--m-j:rgba(255,255,255,.85);--m-ja:#FFB547;--m-h:rgba(7,10,20,.9);--m-ow:1.5}
+.dp .ver-novo{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.dp .op[aria-checked=true]{border-color:var(--acao);background:var(--sel)}
+.dp .cris{position:absolute;left:41%;top:6%;width:56%;height:74%;pointer-events:none}
+.dp .video .mao-pc{--m-ow:2.2}
+.dp .pill .ic{color:#FFB547}
+.dp .fb-ok{background:#0E1424;color:#EEF2F8;border:1px solid #23304F}
+.dp .fb-t .ic{color:#FFB547}
+.dp .fb-xp{color:#FFC56E}
+.dp .btn-ok{background:#2FD3C1;color:#04110F;box-shadow:0 3px 0 #0F8F82}
+.dp .fim-c{margin:16px 16px 0;border-radius:24px;padding:18px 16px 8px;background:radial-gradient(ellipse 80% 70% at 70% 30%,#14203A,transparent 70%),var(--palco);color:#fff}
+.dp .xp-c{font-family:var(--fd);font-weight:800;font-size:20px;color:#FFC56E}
+.dp .xp-c span{font-size:44px;letter-spacing:-0.03em}
+.dp .const{display:block;width:100%;height:auto}
+.dp .fim-h{font-weight:800;letter-spacing:-0.03em;font-size:34px}
+.dp .stat{align-items:flex-start;text-align:left;padding:14px 12px}
+.dp .st-xp .ic{color:var(--ac)}
+.dp .glosas li{font-family:var(--fd);font-weight:700;font-size:14px;letter-spacing:.06em;background:var(--sf);border:1px solid var(--bd);color:var(--tx);gap:8px}
+.dp .glosas li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ac)}
+.dp .liga-cab h2{font-weight:800;letter-spacing:-0.02em}
+.dp .zona::before,.dp .zona::after{height:6px;background:radial-gradient(circle,var(--ok) 2px,transparent 2.6px) 0 50%/10px 6px repeat-x}
+.dp .rk-eu .rk-av{box-shadow:0 0 0 3px var(--ac)}
+.el-grade{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.el-grade figure{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:14px;border:1px solid var(--bd1);background:var(--bg)}
+.el-grade figcaption{font-size:14px;color:var(--tx2)}
+.el-grade figcaption b{display:block;color:var(--tx);font-size:15px}
+.el-palco{height:150px;border-radius:12px;background:var(--palco);padding:8px}
+.mao-el{width:100%;height:100%;--m-o:#2FD3C1;--m-j:rgba(255,255,255,.85);--m-ja:#FFB547;--m-h:rgba(7,10,20,.9);--m-ow:1.5}
+.el-estados{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;height:150px;border-radius:12px;background:var(--palco);padding:8px 4px}
+.el-estados span{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.el-estados small{font-size:12px;color:#DFE3EC;text-align:center}
+.mao-est{width:100%;flex:1;min-height:0;--m-h:rgba(7,10,20,.9);--m-ow:1.6}
+.est-busca{--m-o:rgba(255,255,255,.5);--m-j:#FFFFFF;--m-ja:#FFFFFF}
+.est-ok{--m-o:#2FD3C1;--m-j:rgba(255,255,255,.85);--m-ja:#FFB547}
+.est-aj{--m-o:#2FD3C1;--m-oa:#2FD3C1;--m-j:rgba(255,255,255,.85);--m-ja:#FF9C87}
+.el-nos{display:flex;align-items:center;justify-content:center;height:150px;border-radius:12px;background:var(--sf);border:1px solid var(--bd1)}
+.el-nos i{width:22px;height:3px;background:var(--mao)}
+.el-nos i.pt{height:6px;background:radial-gradient(circle,var(--bd2) 2px,transparent 2.6px) 0 50%/8px 6px repeat-x}
+.eln{display:grid;place-items:center;width:44px;height:44px;border-radius:50%}
+.eln .ic{width:20px;height:20px}
+.eln-f{background:var(--mao);color:var(--mao-on)}
+.eln-a{width:54px;height:54px;background:var(--acao);color:var(--acao-tx);box-shadow:0 0 0 3px var(--sf),0 0 0 6px var(--ac)}
+.eln-t{background:var(--sf);border:2px dashed var(--bd2);color:var(--trava-fg)}
+.el-prog{display:flex;align-items:center;height:150px;padding:0 12px;border-radius:12px;background:var(--sf);border:1px solid var(--bd1)}
+.mao-il{--m-o:var(--mao);--m-j:var(--ac);--m-ja:var(--ac);--m-ow:2}
+@media (max-width: 900px){.el-grade{grid-template-columns:1fr 1fr}}
+@media (max-width: 600px){.el-grade{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+
+<div class="pbar" role="region" aria-label="Controles do protótipo">
+  <span class="pb-t">Constelação: preciso, noturno, vivo</span>
+  <label>Ver <select id="c-ver"><option value="depois">Depois (proposta)</option><option value="antes">Antes (hoje)</option></select></label>
+  <label>Tema <select id="c-tema"><option value="auto">Do aparelho</option><option value="claro">Claro</option><option value="escuro">Escuro</option></select></label>
+  <a class="pb-l" href="index.html">Todos os caminhos</a>
+</div>
+<nav class="pnav" aria-label="Seções do protótipo"><a href="#marca">Marca</a><a href="#t-boas">1. Boas-vindas</a><a href="#t-mapa">2. Mapa da unidade</a><a href="#t-ex">3. Exercício</a><a href="#t-cam">4. Câmera</a><a href="#t-fim">5. Lição concluída</a><a href="#t-liga">6. Liga</a><a href="glosa.html">Ver Glosa</a><a href="traco.html">Ver Traço</a><a href="ajuste-fino.html">Ver Ajuste fino</a></nav>
+<main class="proto">
+<section id="marca" aria-labelledby="t-marca">
+  <div class="tela-cab"><h2 id="t-marca">Marca, cores, tipos e desenhos</h2><p>O esqueleto de 21 pontos que a câmera enxerga vira a assinatura. Turquesa (aceno ao Setembro Azul) nos ossos e na ação, âmbar nas articulações e no XP, noite profunda no palco. Sora nos títulos e Atkinson Hyperlegible Next no texto. Tudo nesta página é estudo: a palavra-marca final pede ajuste fino de um designer de tipos.</p></div>
+  <div class="quadro"><div class="folha">
+    <div class="peca larga clara"><h3>Assinatura sobre fundo claro</h3><span class="so-depois"><span class="wm wm-c" style="--wm:60px"><svg class="simb" width="81" height="81" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><line x1="21.44" y1="52" x2="26.3" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="26.3" y1="52" x2="33.31" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="33.31" y1="52" x2="38.7" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="38.7" y1="52" x2="43.56" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="52" x2="21.44" y2="30.96" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="30.96" x2="21.44" y2="21.79" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="21.79" x2="21.44" y2="15.86" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="15.86" x2="21.44" y2="11" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><circle cx="21.44" cy="52" r="3.10" fill="var(--wm-a)"/><circle cx="26.3" cy="52" r="3.10" fill="var(--wm-b)"/><circle cx="33.31" cy="52" r="3.10" fill="var(--wm-b)"/><circle cx="38.7" cy="52" r="3.10" fill="var(--wm-b)"/><circle cx="43.56" cy="52" r="4.03" fill="var(--wm-b)"/><circle cx="21.44" cy="30.96" r="3.10" fill="var(--wm-b)"/><circle cx="21.44" cy="21.79" r="3.10" fill="var(--wm-b)"/><circle cx="21.44" cy="15.86" r="3.10" fill="var(--wm-b)"/><circle cx="21.44" cy="11" r="4.03" fill="var(--wm-b)"/></svg><span class="wm-t">L<span class="wm-i">ı</span>brax</span></span></span><span class="so-antes"><span class="wm wm-hoje" style="--wm:60px"><svg class="logo-hoje" width="78" height="78" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh78" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh78)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg><span class="wm-t">Librax</span></span></span><p class="sub"><span class="so-depois">Símbolo: o L do Librax montado com 9 dos 21 pontos (pulso, polegar e indicador), com as mesmas ligações do MediaPipe. Palavra-marca em Sora, com o L maiúsculo que repete o símbolo, e o pingo do i é uma articulação em âmbar.</span><span class="so-antes">Hoje o app não tem palavra-marca: o nome aparece em texto comum e o ícone é o L em pontos sobre degradê azul.</span></p></div>
+    <div class="peca escura"><h3>Sobre fundo escuro</h3><span class="so-depois"><span class="wm wm-c" style="--wm:40px"><svg class="simb" width="54" height="54" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><line x1="21.44" y1="52" x2="26.3" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="26.3" y1="52" x2="33.31" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="33.31" y1="52" x2="38.7" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="38.7" y1="52" x2="43.56" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="52" x2="21.44" y2="30.96" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="30.96" x2="21.44" y2="21.79" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="21.79" x2="21.44" y2="15.86" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="15.86" x2="21.44" y2="11" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><circle cx="21.44" cy="52" r="3.10" fill="var(--wm-a)"/><circle cx="26.3" cy="52" r="3.10" fill="var(--wm-b)"/><circle cx="33.31" cy="52" r="3.10" fill="var(--wm-b)"/><circle cx="38.7" cy="52" r="3.10" fill="var(--wm-b)"/><circle cx="43.56" cy="52" r="4.03" fill="var(--wm-b)"/><circle cx="21.44" cy="30.96" r="3.10" fill="var(--wm-b)"/><circle cx="21.44" cy="21.79" r="3.10" fill="var(--wm-b)"/><circle cx="21.44" cy="15.86" r="3.10" fill="var(--wm-b)"/><circle cx="21.44" cy="11" r="4.03" fill="var(--wm-b)"/></svg><span class="wm-t">L<span class="wm-i">ı</span>brax</span></span></span><span class="so-antes"><span class="wm wm-hoje" style="--wm:40px"><svg class="logo-hoje" width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh52" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh52)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg><span class="wm-t">Librax</span></span></span><p class="sub">O mesmo desenho, com as cores do tema escuro.</p></div>
+    <div class="peca"><h3>Ícone do aplicativo</h3><div class="icones so-depois"><figure><svg class="simb" width="88" height="88" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><rect width="64" height="64" rx="15" fill="#0B1022"/><circle cx="50" cy="13" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="56" cy="24" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="44" cy="30" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="15" cy="50" r=".9" fill="#FFFFFF" opacity=".35"/><line x1="21.44" y1="52" x2="26.3" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="26.3" y1="52" x2="33.31" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="33.31" y1="52" x2="38.7" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="38.7" y1="52" x2="43.56" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="52" x2="21.44" y2="30.96" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="30.96" x2="21.44" y2="21.79" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="21.79" x2="21.44" y2="15.86" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="15.86" x2="21.44" y2="11" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><circle cx="21.44" cy="52" r="3.10" fill="#FFFFFF"/><circle cx="26.3" cy="52" r="3.10" fill="#FFB547"/><circle cx="33.31" cy="52" r="3.10" fill="#FFB547"/><circle cx="38.7" cy="52" r="3.10" fill="#FFB547"/><circle cx="43.56" cy="52" r="4.03" fill="#FFB547"/><circle cx="21.44" cy="30.96" r="3.10" fill="#FFB547"/><circle cx="21.44" cy="21.79" r="3.10" fill="#FFB547"/><circle cx="21.44" cy="15.86" r="3.10" fill="#FFB547"/><circle cx="21.44" cy="11" r="4.03" fill="#FFB547"/></svg><figcaption>Principal, 88 px</figcaption></figure><figure><svg class="simb" width="88" height="88" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><rect width="64" height="64" rx="15" fill="#050810"/><circle cx="50" cy="13" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="56" cy="24" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="44" cy="30" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="15" cy="50" r=".9" fill="#FFFFFF" opacity=".35"/><line x1="21.44" y1="52" x2="26.3" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="26.3" y1="52" x2="33.31" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="33.31" y1="52" x2="38.7" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="38.7" y1="52" x2="43.56" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="52" x2="21.44" y2="30.96" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="30.96" x2="21.44" y2="21.79" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="21.79" x2="21.44" y2="15.86" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="15.86" x2="21.44" y2="11" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><circle cx="21.44" cy="52" r="3.10" fill="#FFFFFF"/><circle cx="26.3" cy="52" r="3.10" fill="#FFB547"/><circle cx="33.31" cy="52" r="3.10" fill="#FFB547"/><circle cx="38.7" cy="52" r="3.10" fill="#FFB547"/><circle cx="43.56" cy="52" r="4.03" fill="#FFB547"/><circle cx="21.44" cy="30.96" r="3.10" fill="#FFB547"/><circle cx="21.44" cy="21.79" r="3.10" fill="#FFB547"/><circle cx="21.44" cy="15.86" r="3.10" fill="#FFB547"/><circle cx="21.44" cy="11" r="4.03" fill="#FFB547"/></svg><figcaption>Escuro</figcaption></figure><figure class="mask"><svg class="simb" width="88" height="88" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><rect width="64" height="64" rx="0" fill="#0B1022"/><circle cx="50" cy="13" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="56" cy="24" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="44" cy="30" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="15" cy="50" r=".9" fill="#FFFFFF" opacity=".35"/><line x1="24.45" y1="45" x2="27.76" y2="45" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="27.76" y1="45" x2="32.55" y2="45" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="32.55" y1="45" x2="36.24" y2="45" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="36.24" y1="45" x2="39.55" y2="45" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="24.45" y1="45" x2="24.45" y2="30.63" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="24.45" y1="30.63" x2="24.45" y2="24.37" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="24.45" y1="24.37" x2="24.45" y2="20.32" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="24.45" y1="20.32" x2="24.45" y2="17" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><circle cx="24.45" cy="45" r="3.10" fill="#FFFFFF"/><circle cx="27.76" cy="45" r="3.10" fill="#FFB547"/><circle cx="32.55" cy="45" r="3.10" fill="#FFB547"/><circle cx="36.24" cy="45" r="3.10" fill="#FFB547"/><circle cx="39.55" cy="45" r="4.03" fill="#FFB547"/><circle cx="24.45" cy="30.63" r="3.10" fill="#FFB547"/><circle cx="24.45" cy="24.37" r="3.10" fill="#FFB547"/><circle cx="24.45" cy="20.32" r="3.10" fill="#FFB547"/><circle cx="24.45" cy="17" r="4.03" fill="#FFB547"/></svg><figcaption>Zona segura</figcaption></figure></div><div class="icones so-antes"><figure><svg class="logo-hoje" width="88" height="88" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh88" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh88)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg><figcaption>Ícone de hoje, 88 px</figcaption></figure></div></div>
+    <div class="peca"><h3>Tamanho mínimo</h3><div class="min so-depois"><span><svg class="simb" width="16" height="16" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><rect width="64" height="64" rx="15" fill="#0B1022"/><line x1="21.44" y1="52" x2="26.3" y2="52" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="26.3" y1="52" x2="33.31" y2="52" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="33.31" y1="52" x2="38.7" y2="52" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="38.7" y1="52" x2="43.56" y2="52" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="52" x2="21.44" y2="30.96" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="30.96" x2="21.44" y2="21.79" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="21.79" x2="21.44" y2="15.86" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="15.86" x2="21.44" y2="11" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><circle cx="21.44" cy="52" r="4.40" fill="#FFFFFF"/><circle cx="33.31" cy="52" r="4.40" fill="#FFB547"/><circle cx="43.56" cy="52" r="5.72" fill="#FFB547"/><circle cx="21.44" cy="21.79" r="4.40" fill="#FFB547"/><circle cx="21.44" cy="11" r="5.72" fill="#FFB547"/></svg> 16 px</span><span><svg class="simb" width="24" height="24" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><rect width="64" height="64" rx="15" fill="#0B1022"/><line x1="21.44" y1="52" x2="26.3" y2="52" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="26.3" y1="52" x2="33.31" y2="52" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="33.31" y1="52" x2="38.7" y2="52" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="38.7" y1="52" x2="43.56" y2="52" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="52" x2="21.44" y2="30.96" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="30.96" x2="21.44" y2="21.79" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="21.79" x2="21.44" y2="15.86" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="15.86" x2="21.44" y2="11" stroke="#2FD3C1" stroke-width="4.6" stroke-linecap="round"/><circle cx="21.44" cy="52" r="4.40" fill="#FFFFFF"/><circle cx="33.31" cy="52" r="4.40" fill="#FFB547"/><circle cx="43.56" cy="52" r="5.72" fill="#FFB547"/><circle cx="21.44" cy="21.79" r="4.40" fill="#FFB547"/><circle cx="21.44" cy="11" r="5.72" fill="#FFB547"/></svg> 24 px</span><span><svg class="simb" width="32" height="32" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><rect width="64" height="64" rx="15" fill="#0B1022"/><circle cx="50" cy="13" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="56" cy="24" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="44" cy="30" r=".9" fill="#FFFFFF" opacity=".35"/><circle cx="15" cy="50" r=".9" fill="#FFFFFF" opacity=".35"/><line x1="21.44" y1="52" x2="26.3" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="26.3" y1="52" x2="33.31" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="33.31" y1="52" x2="38.7" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="38.7" y1="52" x2="43.56" y2="52" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="52" x2="21.44" y2="30.96" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="30.96" x2="21.44" y2="21.79" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="21.79" x2="21.44" y2="15.86" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="15.86" x2="21.44" y2="11" stroke="#2FD3C1" stroke-width="2.4" stroke-linecap="round"/><circle cx="21.44" cy="52" r="3.10" fill="#FFFFFF"/><circle cx="26.3" cy="52" r="3.10" fill="#FFB547"/><circle cx="33.31" cy="52" r="3.10" fill="#FFB547"/><circle cx="38.7" cy="52" r="3.10" fill="#FFB547"/><circle cx="43.56" cy="52" r="4.03" fill="#FFB547"/><circle cx="21.44" cy="30.96" r="3.10" fill="#FFB547"/><circle cx="21.44" cy="21.79" r="3.10" fill="#FFB547"/><circle cx="21.44" cy="15.86" r="3.10" fill="#FFB547"/><circle cx="21.44" cy="11" r="4.03" fill="#FFB547"/></svg> 32 px</span><span><span class="wm wm-c" style="--wm:14px"><svg class="simb" width="19" height="19" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><line x1="21.44" y1="52" x2="26.3" y2="52" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="26.3" y1="52" x2="33.31" y2="52" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="33.31" y1="52" x2="38.7" y2="52" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="38.7" y1="52" x2="43.56" y2="52" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="52" x2="21.44" y2="30.96" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="30.96" x2="21.44" y2="21.79" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="21.79" x2="21.44" y2="15.86" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="15.86" x2="21.44" y2="11" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><circle cx="21.44" cy="52" r="4.40" fill="var(--wm-a)"/><circle cx="33.31" cy="52" r="4.40" fill="var(--wm-b)"/><circle cx="43.56" cy="52" r="5.72" fill="var(--wm-b)"/><circle cx="21.44" cy="21.79" r="4.40" fill="var(--wm-b)"/><circle cx="21.44" cy="11" r="5.72" fill="var(--wm-b)"/></svg><span class="wm-t">L<span class="wm-i">ı</span>brax</span></span></span></div><div class="min so-antes"><span><svg class="logo-hoje" width="16" height="16" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh16" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh16)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg> 16 px</span><span><svg class="logo-hoje" width="24" height="24" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh24" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh24)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg> 24 px</span><span><svg class="logo-hoje" width="32" height="32" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh32" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh32)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg> 32 px</span></div><p class="sub so-depois">Símbolo a partir de 16 px: abaixo de 24 px os ossos engrossam e ficam só 5 articulações. Assinatura com nome a partir de 96 px de largura.</p></div>
+    <div class="peca"><h3>Tipos</h3><span class="esp-t">Aa Çç Ãã 340</span><span class="esp-c"><span class="so-depois">Sora 700 e 800 em títulos e números; Atkinson Hyperlegible Next 400 e 700 no texto, desenhada para leitura fácil (I, l e 1 não se confundem). Glosas em Sora caixa-alta.</span><span class="so-antes">Nunito em tudo: títulos em 800 e 900, texto em 400 a 700.</span></span><span class="esp-g gl">BOM-DIA · OBRIGADO</span></div>
+    <div class="peca larga"><h3>Cores (mudam com o tema)</h3><div class="amostras"><div style="background:var(--acao);color:var(--acao-tx)"><b>Ação: turquesa</b>--acao</div><div style="background:var(--sel);color:var(--sel-tx)"><b>Selecionado</b>--sel</div><div style="background:var(--ac-soft);color:var(--ac-soft-tx)"><b>Articulação: âmbar</b>--ac-soft</div><div style="background:var(--palco);color:#FFFFFF"><b>Palco: noite</b>--palco</div><div style="background:var(--xp-soft);color:var(--xp-tx)"><b>XP (o mesmo âmbar)</b>--xp-soft</div><div style="background:var(--erro-soft);color:var(--erro-soft-tx)"><b>Erro: coral</b>--erro-soft</div></div><p class="sub">Acerto em verde, erro em coral, sempre com ícone e texto. O palco da câmera é escuro nos dois temas.</p></div>
+    <div class="peca"><h3>Personalidade</h3><p class="pers disp">Preciso, noturno, vivo</p><p class="sub">O esqueleto de 21 pontos que a câmera enxerga vira a assinatura. O logo é o L montado com os pontos da mão; o mapa é uma mão de articulações; a barra de progresso acende uma articulação por exercício; a lição concluída vira uma constelação. É a tecnologia do produto e o momento da câmera, levados para todas as telas.</p></div>
+    <div class="peca tudo"><h3>Elemento de assinatura: ossos e articulações</h3><div class="so-depois"><div class="el-grade">
+    <figure><div class="el-palco"><svg class="mao mao-el" data-mao="L" viewBox="5 2 93 97" aria-hidden="true" focusable="false" data-junta="2.3" data-halo></svg></div><figcaption><b>O esqueleto é a marca</b>Ossos em turquesa; as articulações dos dedos que formam o sinal acendem em âmbar.</figcaption></figure>
+    <figure><div class="el-estados"><span><svg class="mao mao-est est-busca" data-mao="L" viewBox="5 2 93 97" aria-hidden="true" focusable="false" data-junta="2.6" data-halo></svg><small>Procurando</small></span><span><svg class="mao mao-est est-ok" data-mao="L" viewBox="5 2 93 97" aria-hidden="true" focusable="false" data-junta="2.6" data-halo></svg><small>Acerto</small></span><span><svg class="mao mao-est est-aj" data-mao="D" viewBox="5 2 93 97" aria-hidden="true" focusable="false" data-junta="2.6" data-halo></svg><small>Ajuste o dedo</small></span></div><figcaption><b>Estados na câmera</b>Procurando em branco; acerto com âmbar; dedo a ajustar em coral, com o texto da dica. O âmbar deixa de ser cor de aviso.</figcaption></figure>
+    <figure><div class="el-nos"><span class="eln eln-f"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><i></i><span class="eln eln-a"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L9.2 4.5A.8.8 0 0 0 8 5.2z"/></svg></span><i class="pt"></i><span class="eln eln-t"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/></svg></span></div><figcaption><b>Mapa de articulações</b>Concluída, atual e bloqueada, ligadas por um osso. O caminho bloqueado é pontilhado.</figcaption></figure>
+    <figure><div class="el-prog"><span class="cad" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="4" aria-label="Exercício 4 de 12" style="--p:0.2727272727272727"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f u"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></div><figcaption><b>Progresso que fecha a mão</b>Cada exercício acende uma articulação e liga o osso até ela: 4 de 12.</figcaption></figure>
+  </div></div><p class="so-antes nota-antes">Hoje não há elemento de assinatura. A única marca do mundo da Libras é a cor turquesa em tudo que é mão e câmera.</p></div>
+    <div class="peca tudo"><h3>Desenhos dos estados</h3><div class="trio so-depois"><figure><svg class="ilus" viewBox="0 0 240 160" aria-hidden="true"><rect x="20" y="16" width="120" height="128" rx="16" fill="none" stroke-width="2" stroke-dasharray="6 6" style="stroke:var(--bd2)"/><svg class="mao mao-il" data-mao="aberta" x="104" y="22" width="120" height="120" viewBox="5 2 93 97" data-junta="2.4"></svg><path d="M148 16v128" stroke-width="2" style="stroke:var(--bd2)" stroke-dasharray="2 5"/></svg><figcaption><b>Mão fora do quadro</b>Mostre a mão inteira dentro da moldura.</figcaption></figure><figure><svg class="ilus" viewBox="0 0 240 160" aria-hidden="true"><polyline points="24,110 56,70 88,96" fill="none" stroke-width="2.5" style="stroke:var(--mao)"/><polyline points="150,64 184,98 216,52" fill="none" stroke-width="2.5" style="stroke:var(--mao)"/><path d="M88 96 L150 64" stroke-width="2.5" stroke-dasharray="3 9" stroke-linecap="round" style="stroke:var(--tx3)"/><circle cx="24" cy="110" r="6" style="fill:var(--ac)"/><circle cx="56" cy="70" r="6" style="fill:var(--ac)"/><circle cx="88" cy="96" r="6" style="fill:var(--ac)"/><circle cx="150" cy="64" r="6" style="fill:var(--ac)"/><circle cx="184" cy="98" r="6" style="fill:var(--ac)"/><circle cx="216" cy="52" r="6" style="fill:var(--ac)"/><circle cx="119" cy="80" r="11" fill="none" stroke-width="2" style="stroke:var(--tx3)"/><path d="M114 75l10 10M124 75l-10 10" stroke-width="2" stroke-linecap="round" style="stroke:var(--tx3)"/></svg><figcaption><b>Sem conexão</b>As lições baixadas continuam abertas.</figcaption></figure><figure><svg class="ilus" viewBox="0 0 240 160" aria-hidden="true"><path d="M120 82 L60 40" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round" style="stroke:var(--bd2)"/><circle cx="60" cy="40" r="13" stroke-width="2.5" stroke-dasharray="4 4" style="fill:var(--sf);stroke:var(--bd2)"/><path d="M120 82 L180 40" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round" style="stroke:var(--bd2)"/><circle cx="180" cy="40" r="13" stroke-width="2.5" stroke-dasharray="4 4" style="fill:var(--sf);stroke:var(--bd2)"/><path d="M120 82 L42 124" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round" style="stroke:var(--bd2)"/><circle cx="42" cy="124" r="13" stroke-width="2.5" stroke-dasharray="4 4" style="fill:var(--sf);stroke:var(--bd2)"/><path d="M120 82 L198 124" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round" style="stroke:var(--bd2)"/><circle cx="198" cy="124" r="13" stroke-width="2.5" stroke-dasharray="4 4" style="fill:var(--sf);stroke:var(--bd2)"/><circle cx="120" cy="82" r="22" style="fill:var(--ac)" opacity=".2"/><circle cx="120" cy="82" r="12" style="fill:var(--ac)"/></svg><figcaption><b>Grupo vazio</b>Convide alguém para estudar com você.</figcaption></figure></div><p class="so-antes nota-antes">Hoje os estados usam ícones genéricos do Material Symbols (mãos acenando, troféu, câmera cortada), sem desenho próprio.</p></div>
+    <div class="peca tudo"><h3>Tom de voz: o de hoje, com a marca só onde ajuda</h3><div class="voz"><b>Hoje</b><b>Com a marca</b><span>Lição concluída! +15 XP</span><span>Lição concluída! Mais 5 sinais na sua constelação. +15 XP</span><span>Posicione sua mão na câmera</span><span>Mostre a mão inteira para a câmera. Procurando os 21 pontos.</span><span>Quase! Abra um pouco mais os dedos.</span><span>Quase! Abra um pouco mais os dedos. (erro não leva metáfora)</span><span>Você está em 12 dias seguidos! Continue hoje.</span><span>Você está em 12 dias seguidos! Continue hoje.</span></div></div>
+  </div></div>
+</section>
+<section aria-labelledby="t-telas">
+  <div class="tela-cab"><h2 id="t-telas">Telas no celular (390 px)</h2><p>A noite da câmera aparece também na demonstração, na faixa Retomar e na celebração; o mapa e a barra de progresso viram articulações. Use o seletor <b>Ver</b> para comparar com o visual de hoje.</p></div>
+  <div class="telas">
+<article class="tela-item" id="t-boas" aria-labelledby="h-boas"><header><h3 id="h-boas">1. Boas-vindas</h3><p>A primeira imagem é o esqueleto do L, do jeito que a câmera vai desenhar a mão da pessoa. Texto alinhado à esquerda.</p></header><div class="cel"><div class="tela t-boas">
+  <div class="so-depois boas-d">
+    <div class="boas-topo"><span class="wm wm-c" style="--wm:28px"><svg class="simb" width="38" height="38" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><line x1="21.44" y1="52" x2="26.3" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="26.3" y1="52" x2="33.31" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="33.31" y1="52" x2="38.7" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="38.7" y1="52" x2="43.56" y2="52" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="52" x2="21.44" y2="30.96" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="30.96" x2="21.44" y2="21.79" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="21.79" x2="21.44" y2="15.86" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><line x1="21.44" y1="15.86" x2="21.44" y2="11" stroke="var(--wm-a)" stroke-width="2.4" stroke-linecap="round"/><circle cx="21.44" cy="52" r="3.10" fill="var(--wm-a)"/><circle cx="26.3" cy="52" r="3.10" fill="var(--wm-b)"/><circle cx="33.31" cy="52" r="3.10" fill="var(--wm-b)"/><circle cx="38.7" cy="52" r="3.10" fill="var(--wm-b)"/><circle cx="43.56" cy="52" r="4.03" fill="var(--wm-b)"/><circle cx="21.44" cy="30.96" r="3.10" fill="var(--wm-b)"/><circle cx="21.44" cy="21.79" r="3.10" fill="var(--wm-b)"/><circle cx="21.44" cy="15.86" r="3.10" fill="var(--wm-b)"/><circle cx="21.44" cy="11" r="4.03" fill="var(--wm-b)"/></svg><span class="wm-t">L<span class="wm-i">ı</span>brax</span></span></div>
+    <div class="boas-ilus"><div class="ilus-c"><svg class="mao mao-boas" data-mao="L" viewBox="5 2 93 97" aria-hidden="true" focusable="false" data-junta="2.3" data-halo></svg><span class="ilus-leg">L · 21 pontos</span></div></div>
+    <div><h1 class="disp boas-h">Aprenda Libras do zero</h1><p class="boas-p">Reconhecimento dos sinais pela câmera do celular, direto no navegador. Sem instalar nada e sem cadastro.</p></div>
+    <form class="boas-form" onsubmit="return false"><div class="campo"><label for="nome-boas-form">Como posso te chamar?</label><input id="nome-boas-form" type="text" autocomplete="given-name" placeholder="Seu nome ou apelido"/></div><button class="btn" type="submit">Começar agora <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><p class="nota">Nenhuma conta necessária. Seus dados ficam só neste navegador.</p></form>
+  </div>
+  <div class="so-antes boas-a">
+    <div class="idiomas" aria-label="Idioma"><span>Português</span><span>English</span><span>Español</span></div>
+    <div class="pontos-pag" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <svg class="maos-hoje" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.5V7a1.3 1.3 0 0 1 2.6 0v5M9.6 11.5V5.2a1.3 1.3 0 0 1 2.6 0v6.3M12.2 11.5V6.4a1.3 1.3 0 0 1 2.6 0v7.1c0 4-2.3 7-5.6 7-2.2 0-3.6-1.1-4.9-3.3l-1.8-3.2a1.3 1.3 0 0 1 2.2-1.4L7 14"/><path d="M16.5 4.5c1.2.7 2 2 2.2 3.4M18.3 2.8c1.8 1 3 2.9 3.2 5"/></svg>
+    <h1>Aprenda Libras do zero</h1>
+    <p>Reconhecimento de gestos em tempo real, pelo navegador. Sem apps, sem cadastro.</p>
+    <form class="boas-form-a" onsubmit="return false"><div class="campo"><label for="nome-boas-form-a">Como posso te chamar?</label><input id="nome-boas-form-a" type="text" autocomplete="given-name" placeholder="Seu nome ou apelido"/></div><button class="btn" type="submit">Começar agora <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><p class="nota">Nenhuma conta necessária. Seus dados ficam só neste navegador.</p></form>
+  </div>
+</div></div></article>
+<article class="tela-item" id="t-mapa" aria-labelledby="h-mapa"><header><h3 id="h-mapa">2. Mapa da unidade</h3><p>As lições são articulações ligadas por um osso: concluída em turquesa, atual com anel de âmbar, bloqueada pontilhada. Faixa Retomar com o céu do palco.</p></header><div class="cel"><div class="tela t-mapa">
+  <header class="mp-topo"><div><span class="so-depois mp-wm"><span class="wm wm-c" style="--wm:18px"><svg class="simb" width="24" height="24" viewBox="0 0 64 64" role="img" aria-label="Símbolo Constelação"><line x1="21.44" y1="52" x2="26.3" y2="52" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="26.3" y1="52" x2="33.31" y2="52" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="33.31" y1="52" x2="38.7" y2="52" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="38.7" y1="52" x2="43.56" y2="52" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="52" x2="21.44" y2="30.96" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="30.96" x2="21.44" y2="21.79" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="21.79" x2="21.44" y2="15.86" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><line x1="21.44" y1="15.86" x2="21.44" y2="11" stroke="var(--wm-a)" stroke-width="4.6" stroke-linecap="round"/><circle cx="21.44" cy="52" r="4.40" fill="var(--wm-a)"/><circle cx="33.31" cy="52" r="4.40" fill="var(--wm-b)"/><circle cx="43.56" cy="52" r="5.72" fill="var(--wm-b)"/><circle cx="21.44" cy="21.79" r="4.40" fill="var(--wm-b)"/><circle cx="21.44" cy="11" r="5.72" fill="var(--wm-b)"/></svg><span class="wm-t">L<span class="wm-i">ı</span>brax</span></span></span><p class="mp-ola">Bom dia, <b>Ana</b></p></div><div class="chips"><span class="chip-j chip-fogo" aria-label="Sequência de 12 dias"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M12.5 2.5c.6 3.2 4.8 5.3 4.8 10.4A5.3 5.3 0 0 1 12 18.2a5.3 5.3 0 0 1-5.3-5.3c0-2.4 1.2-3.9 2.5-5 .1 2 1 3.4 2.4 3.6-.6-2.8-.4-6 .9-9z"/><path fill="currentColor" stroke="none" d="M12 21.5a3.4 3.4 0 0 1-3.4-3.4h6.8a3.4 3.4 0 0 1-3.4 3.4z" opacity=".55"/></svg>12</span><span class="chip-j chip-xp" aria-label="340 XP"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M13.6 2 5 13.4h5.6L9.4 22l9.6-12h-5.8z"/></svg>340</span></div></header>
+  <div class="meta card"><div class="meta-l"><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M13.6 2 5 13.4h5.6L9.4 22l9.6-12h-5.8z"/></svg>Meta do dia</span><span class="tab">15 / 20 XP</span></div><div class="barra barra-xp"><i style="width:75%"></i></div></div>
+  <section class="unid card" aria-labelledby="u3"><span class="unid-tag">Unidade 3</span><h2 id="u3">Saudações e cortesia</h2><p>Cumprimentar, perguntar como a pessoa está e agradecer.</p><div class="unid-prog"><span>1 de 4 lições</span><span class="barra"><i style="width:25%"></i></span></div></section>
+  <ol class="trilha" aria-label="Lições da unidade 3"><li class="so-depois trilha-deco" aria-hidden="true"></li><li class="no no-feito"><span class="no-b" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="so-depois no-deco"></span></span><span class="no-t"><span class="no-n">Oi e tchau</span><span class="no-s">5 sinais · 15 XP<span class="sr">, lição concluída</span></span><span class="so-depois"></span></span><span></span></li><li class="no no-atual"><span class="no-b" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L9.2 4.5A.8.8 0 0 0 8 5.2z"/></svg><span class="so-depois no-deco"><svg class="sat" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="none" stroke-width="1.5" stroke-dasharray="1.5 7" stroke-linecap="round" style="stroke:var(--ac)"/><circle cx="50" cy="3" r="4" style="fill:var(--ac)"/><circle cx="97" cy="50" r="4" style="fill:var(--ac)"/><circle cx="50" cy="97" r="4" style="fill:var(--ac)"/><circle cx="3" cy="50" r="4" style="fill:var(--ac)"/></svg></span></span><span class="no-t"><span class="no-n">Tudo bem?</span><span class="no-s">4 sinais · 10 XP<span class="sr">, lição atual</span></span><span class="so-depois"></span></span><a class="no-go" href="#t-ex">Começar</a></li><li class="no no-trava"><span class="no-b" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/></svg><span class="so-depois no-deco"></span></span><span class="no-t"><span class="no-n">Obrigado e por favor</span><span class="no-s">4 sinais · 10 XP<span class="sr">, lição bloqueada</span></span><span class="so-depois"></span></span><span></span></li><li class="no no-trava"><span class="no-b" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/></svg><span class="so-depois no-deco"></span></span><span class="no-t"><span class="no-n">Com licença e desculpa</span><span class="no-s">3 sinais · 10 XP<span class="sr">, lição bloqueada</span></span><span class="so-depois"></span></span><span></span></li></ol>
+  <a class="retomar" href="#t-ex"><span class="so-depois ret-deco" aria-hidden="true"></span><svg class="ic ic-play" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L9.2 4.5A.8.8 0 0 0 8 5.2z"/></svg><span class="rt"><small>Retomar</small><b>Tudo bem?</b></span><span class="ret-btn" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+  <nav class="abas" aria-label="Navegação principal"><a href="#t-mapa" aria-current="page"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.8c3.2 2.3 7.8 2.3 11 0V11M21.5 9v5"/></svg></span>Aprender</a><a href="#t-mapa"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5V6.2a1.5 1.5 0 0 1 3 0v4.8M11 11V4.7a1.5 1.5 0 0 1 3 0V11M14 11V6.2a1.5 1.5 0 0 1 3 0v6.6c0 4.4-2.6 7.7-6.3 7.7-2.4 0-4-1.2-5.4-3.6l-2-3.6a1.5 1.5 0 0 1 2.5-1.6L8 13"/></svg></span>Praticar</a><a href="#t-liga"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5c.5-3.4 3-5.3 6-5.3s5.5 1.9 6 5.3"/><path d="M15.5 5.6a3.2 3.2 0 0 1 0 5.9M17.5 14.4c2 .6 3.2 2.3 3.5 5.1"/></svg></span>Social</a><a href="#t-mapa"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.6-3.8 3.6-6 7.5-6s6.9 2.2 7.5 6"/></svg></span>Perfil</a></nav>
+</div></div></article>
+<article class="tela-item" id="t-ex" aria-labelledby="h-ex"><header><h3 id="h-ex">3. Exercício: Qual é este sinal?</h3><p>A demonstração é o esqueleto de referência no palco. A barra é uma corrente de 12 articulações, 4 acesas. Toque em Ver de novo para ver a mão se formar.</p></header><div class="cel"><div class="tela t-ex">
+  <div class="lic-topo"><button class="icb" type="button" aria-label="Sair da lição"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="lic-prog"><span class="so-depois"><span class="cad" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="4" aria-label="Exercício 4 de 12" style="--p:0.2727272727272727"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f u"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></span><span class="so-antes prog-hoje"><i style="width:33%"></i></span></div><span class="cont">4/12</span></div>
+  <h1 class="enun disp">Qual é este sinal?</h1>
+  <div class="demo">
+    <div class="so-depois demo-d"><div class="demo-c"><svg class="mao mao-demo" data-mao="L" viewBox="5 2 93 97" aria-hidden="true" focusable="false" data-junta="2.2" data-halo></svg><span class="demo-leg">Esqueleto de referência</span></div></div>
+    <div class="so-antes demo-a"><p>Mão com o indicador para cima e o polegar estendido para o lado, palma para a frente, sem movimento.</p></div>
+    <button class="ver-novo" type="button" data-ver-novo><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4v4.5H9"/></svg><span>Ver de novo</span></button>
+  </div>
+  <div class="opcoes" role="radiogroup" aria-label="Alternativas"><button class="op" type="button" role="radio" aria-checked="true"><span class="op-l">L</span><span class="so-depois op-x"></span></button><button class="op" type="button" role="radio" aria-checked="false"><span class="op-l">D</span><span class="so-depois op-x"></span></button><button class="op" type="button" role="radio" aria-checked="false"><span class="op-l">U</span><span class="so-depois op-x"></span></button><button class="op" type="button" role="radio" aria-checked="false"><span class="op-l">A</span><span class="so-depois op-x"></span></button></div>
+  <div class="rodape"><button class="btn" type="button">Verificar</button></div>
+</div></div></article>
+<article class="tela-item" id="t-cam" aria-labelledby="h-cam"><header><h3 id="h-cam">4. Câmera</h3><p>No acerto, os ossos ficam turquesa e as articulações do sinal acendem em âmbar. O texto confirma o acerto, não só a cor.</p></header><div class="cel"><div class="tela t-cam palco">
+  <div class="lic-topo"><button class="icb" type="button" aria-label="Sair da lição"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="lic-prog"><span class="so-depois"><span class="cad cad-pc" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="5" aria-label="Exercício 5 de 12" style="--p:0.36363636363636365"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f u"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></span><span class="so-antes prog-hoje"><i style="width:42%"></i></span></div><span class="cont">5/12</span></div>
+  <div class="so-depois pc-instr"><span class="pc-rot">Sua vez</span><h1 class="pc-h disp">Faça o sinal: <span class="gl">L</span></h1></div>
+  <div class="so-antes pc-instr pc-ins-a"><span class="pc-rot">Faça o sinal com a mão:</span><span class="pc-letra">L</span></div>
+  <div class="video" role="img" aria-label="Vídeo simulado da câmera com o esqueleto da mão fazendo o L">
+    <div class="guia so-antes"></div>
+    <svg class="mao mao-pc" data-mao="L" viewBox="5 2 93 97" aria-hidden="true" focusable="false" data-halo data-junta="2.4"></svg>
+    <div class="so-depois cam-x"><svg class="cris" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" fill="none" stroke="#FFB547" stroke-width="1" stroke-dasharray="1 5" stroke-linecap="round"/><circle cx="50" cy="50" r="40" fill="none" stroke="#2FD3C1" stroke-opacity=".5" stroke-width=".8"/></svg></div>
+    <span class="pill"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Sinal reconhecido</span>
+  </div>
+  <div class="conf"><span>Confiança</span><span class="barra"><i style="width:92%"></i></span><span class="tab">92%</span></div>
+  <div class="fb-ok" role="status"><div class="fb-t"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><b>Isso aí!</b><span class="fb-xp">+2 XP</span></div><p><span class="so-depois">Os 21 pontos bateram com o L. Correto!</span><span class="so-antes">Correto! Você fez o sinal de L.</span></p><button class="btn btn-ok" type="button">Continuar</button></div>
+</div></div></article>
+<article class="tela-item" id="t-fim" aria-labelledby="h-fim"><header><h3 id="h-fim">5. Lição concluída</h3><p>A lição vira uma constelação: cada sinal praticado é uma estrela ligada à anterior. +15 XP em âmbar.</p></header><div class="cel"><div class="tela t-fim">
+  <div class="so-depois fim-d"><div class="fim-c"><p class="xp-c tab"><span>+15</span> XP</p><svg class="const" viewBox="0 0 358 196" role="img" aria-label="Constelação da lição: OI, TCHAU, BOM-DIA, BOA-TARDE e BOA-NOITE ligados em sequência"><circle cx="4" cy="6" r="1.3" fill="#FFFFFF" opacity="0.4"/><circle cx="101" cy="59" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="198" cy="112" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="295" cy="165" r="1.3" fill="#FFFFFF" opacity="0.25"/><circle cx="42" cy="28" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="139" cy="81" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="236" cy="134" r="1.3" fill="#FFFFFF" opacity="0.4"/><circle cx="333" cy="187" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="80" cy="50" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="177" cy="103" r="1.3" fill="#FFFFFF" opacity="0.25"/><circle cx="274" cy="156" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="21" cy="19" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="118" cy="72" r="1.3" fill="#FFFFFF" opacity="0.4"/><circle cx="215" cy="125" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="312" cy="178" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="59" cy="41" r="1.3" fill="#FFFFFF" opacity="0.25"/><circle cx="156" cy="94" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="253" cy="147" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="350" cy="10" r="1.3" fill="#FFFFFF" opacity="0.4"/><circle cx="97" cy="63" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="194" cy="116" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="291" cy="169" r="1.3" fill="#FFFFFF" opacity="0.25"/><circle cx="38" cy="32" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="135" cy="85" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="232" cy="138" r="1.3" fill="#FFFFFF" opacity="0.4"/><circle cx="329" cy="191" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="76" cy="54" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="173" cy="107" r="1.3" fill="#FFFFFF" opacity="0.25"/><circle cx="270" cy="160" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="17" cy="23" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="114" cy="76" r="1.3" fill="#FFFFFF" opacity="0.4"/><circle cx="211" cy="129" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="308" cy="182" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="55" cy="45" r="1.3" fill="#FFFFFF" opacity="0.25"/><circle cx="152" cy="98" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="249" cy="151" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="346" cy="14" r="1.3" fill="#FFFFFF" opacity="0.4"/><circle cx="93" cy="67" r="0.8" fill="#FFFFFF" opacity="0.25"/><circle cx="190" cy="120" r="0.8" fill="#FFFFFF" opacity="0.4"/><circle cx="287" cy="173" r="1.3" fill="#FFFFFF" opacity="0.25"/><polyline points="34,150 96,70 176,118 252,40 318,104" fill="none" stroke="#2FD3C1" stroke-width="2" stroke-linejoin="round"/><circle cx="34" cy="150" r="13" fill="#FFB547" opacity=".18"/><circle cx="34" cy="150" r="6.5" fill="#FFB547"/><text x="34" y="180" text-anchor="start" fill="#EEF2F8" font-size="12.5" font-weight="700" letter-spacing=".06em" style="font-family:var(--fd)">OI</text><circle cx="96" cy="70" r="13" fill="#FFB547" opacity=".18"/><circle cx="96" cy="70" r="6.5" fill="#FFB547"/><text x="96" y="50" text-anchor="middle" fill="#EEF2F8" font-size="12.5" font-weight="700" letter-spacing=".06em" style="font-family:var(--fd)">TCHAU</text><circle cx="176" cy="118" r="13" fill="#FFB547" opacity=".18"/><circle cx="176" cy="118" r="6.5" fill="#FFB547"/><text x="176" y="148" text-anchor="middle" fill="#EEF2F8" font-size="12.5" font-weight="700" letter-spacing=".06em" style="font-family:var(--fd)">BOM-DIA</text><circle cx="252" cy="40" r="13" fill="#FFB547" opacity=".18"/><circle cx="252" cy="40" r="6.5" fill="#FFB547"/><text x="252" y="20" text-anchor="middle" fill="#EEF2F8" font-size="12.5" font-weight="700" letter-spacing=".06em" style="font-family:var(--fd)">BOA-TARDE</text><circle cx="318" cy="104" r="13" fill="#FFB547" opacity=".18"/><circle cx="318" cy="104" r="6.5" fill="#FFB547"/><text x="318" y="134" text-anchor="end" fill="#EEF2F8" font-size="12.5" font-weight="700" letter-spacing=".06em" style="font-family:var(--fd)">BOA-NOITE</text></svg></div></div>
+  <div class="so-antes fim-a"><div class="medalhas"><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5.5a4 4 0 0 1-8 0z"/><path d="M8 6H5.2a3 3 0 0 0 3 4.4M16 6h2.8a3 3 0 0 1-3 4.4M12 13.5V17M8.5 20h7"/></svg>Unidade 3: primeira lição concluída</span><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5.5a4 4 0 0 1-8 0z"/><path d="M8 6H5.2a3 3 0 0 0 3 4.4M16 6h2.8a3 3 0 0 1-3 4.4M12 13.5V17M8.5 20h7"/></svg>5 sinais aprendidos</span></div><svg class="maos-hoje" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.5V7a1.3 1.3 0 0 1 2.6 0v5M9.6 11.5V5.2a1.3 1.3 0 0 1 2.6 0v6.3M12.2 11.5V6.4a1.3 1.3 0 0 1 2.6 0v7.1c0 4-2.3 7-5.6 7-2.2 0-3.6-1.1-4.9-3.3l-1.8-3.2a1.3 1.3 0 0 1 2.2-1.4L7 14"/><path d="M16.5 4.5c1.2.7 2 2 2.2 3.4M18.3 2.8c1.8 1 3 2.9 3.2 5"/></svg><span class="pilula-xp">+15 XP</span></div>
+  <h1 class="disp fim-h">Lição concluída!</h1>
+  <p class="fim-p">Você acertou 11 de 12 exercícios.</p>
+  <div class="stats"><div class="stat st-xp"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M13.6 2 5 13.4h5.6L9.4 22l9.6-12h-5.8z"/></svg><b>+15</b><span>XP ganho</span></div><div class="stat st-fogo"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M12.5 2.5c.6 3.2 4.8 5.3 4.8 10.4A5.3 5.3 0 0 1 12 18.2a5.3 5.3 0 0 1-5.3-5.3c0-2.4 1.2-3.9 2.5-5 .1 2 1 3.4 2.4 3.6-.6-2.8-.4-6 .9-9z"/><path fill="currentColor" stroke="none" d="M12 21.5a3.4 3.4 0 0 1-3.4-3.4h6.8a3.4 3.4 0 0 1-3.4 3.4z" opacity=".55"/></svg><b>12</b><span>Dias seguidos</span></div><div class="stat st-mao"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5V6.2a1.5 1.5 0 0 1 3 0v4.8M11 11V4.7a1.5 1.5 0 0 1 3 0V11M14 11V6.2a1.5 1.5 0 0 1 3 0v6.6c0 4.4-2.6 7.7-6.3 7.7-2.4 0-4-1.2-5.4-3.6l-2-3.6a1.5 1.5 0 0 1 2.5-1.6L8 13"/></svg><b>5</b><span>Sinais novos</span></div></div>
+  <section class="glosas" aria-labelledby="gp"><h2 id="gp">Sinais praticados</h2><ul><li class="gl">OI</li><li class="gl">TCHAU</li><li class="gl">BOM-DIA</li><li class="gl">BOA-TARDE</li><li class="gl">BOA-NOITE</li></ul></section>
+  <div class="rodape"><button class="btn" type="button">Continuar <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+</div></div></article>
+<article class="tela-item" id="t-liga" aria-labelledby="h-liga"><header><h3 id="h-liga">6. Liga</h3><p>Insígnia Safira com articulações nos vértices. A zona de promoção é uma linha de pontos.</p></header><div class="cel"><div class="tela t-liga">
+  <header class="tela-cabec"><button class="icb" type="button" aria-label="Voltar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button><h1>Ligas</h1></header>
+  <div class="liga-cab"><span class="so-depois"><svg class="insignia" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 5 55.4 18.5v27L32 59 8.6 45.5v-27z" fill="#3460E6" stroke="#1B2768" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 5 55.4 18.5v27L32 59 8.6 45.5v-27z" fill="none" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="1" transform="translate(32 32) scale(.7) translate(-32 -32)"/><circle cx="32" cy="5" r="3.6" fill="#FFB547" stroke="#1B2768" stroke-width="1.5"/><circle cx="55.4" cy="18.5" r="3.6" fill="#FFB547" stroke="#1B2768" stroke-width="1.5"/><circle cx="55.4" cy="45.5" r="3.6" fill="#FFB547" stroke="#1B2768" stroke-width="1.5"/><circle cx="32" cy="59" r="3.6" fill="#FFB547" stroke="#1B2768" stroke-width="1.5"/><circle cx="8.6" cy="45.5" r="3.6" fill="#FFB547" stroke="#1B2768" stroke-width="1.5"/><circle cx="8.6" cy="18.5" r="3.6" fill="#FFB547" stroke="#1B2768" stroke-width="1.5"/></svg></span><span class="so-antes"><svg class="insignia" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 56 18v28L32 60 8 46V18z" fill="#3460E6" stroke="#1B2768" stroke-width="3" stroke-linejoin="round"/></svg></span><div><h2>Liga Safira</h2><p><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>A semana fecha em 2d 9h</p></div></div>
+  <p class="liga-regra">Os 10 primeiros da semana sobem para a Liga Rubi. Você está em 11º.</p>
+  <ol class="rank" aria-label="Classificação da semana"><li class="rk-mais">Do 1º ao 7º lugar, role para cima</li><li class="rk rk-sobe"><span class="rk-p">8º</span><span class="rk-av" aria-hidden="true">BL</span><span class="rk-n">Bruno Lima<small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Sobe para a Rubi</small></span><span class="rk-x">412 XP</span></li><li class="rk rk-sobe"><span class="rk-p">9º</span><span class="rk-av" aria-hidden="true">CD</span><span class="rk-n">Carla Dias<small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Sobe para a Rubi</small></span><span class="rk-x">398 XP</span></li><li class="rk rk-sobe"><span class="rk-p">10º</span><span class="rk-av" aria-hidden="true">DS</span><span class="rk-n">Diego Sá<small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Sobe para a Rubi</small></span><span class="rk-x">373 XP</span></li><li class="zona"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg><span>Zona de promoção acima</span></li><li class="rk rk-eu"><span class="rk-p">11º</span><span class="rk-av" aria-hidden="true">AN</span><span class="rk-n">Você, Ana<small>Faltam 34 XP para subir</small></span><span class="rk-x">340 XP</span></li><li class="rk"><span class="rk-p">12º</span><span class="rk-av" aria-hidden="true">ER</span><span class="rk-n">Eduardo Reis</span><span class="rk-x">318 XP</span></li><li class="rk"><span class="rk-p">13º</span><span class="rk-av" aria-hidden="true">FP</span><span class="rk-n">Fernanda Paz</span><span class="rk-x">296 XP</span></li></ol>
+  <nav class="abas" aria-label="Navegação principal"><a href="#t-mapa"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.8c3.2 2.3 7.8 2.3 11 0V11M21.5 9v5"/></svg></span>Aprender</a><a href="#t-mapa"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5V6.2a1.5 1.5 0 0 1 3 0v4.8M11 11V4.7a1.5 1.5 0 0 1 3 0V11M14 11V6.2a1.5 1.5 0 0 1 3 0v6.6c0 4.4-2.6 7.7-6.3 7.7-2.4 0-4-1.2-5.4-3.6l-2-3.6a1.5 1.5 0 0 1 2.5-1.6L8 13"/></svg></span>Praticar</a><a href="#t-liga" aria-current="page"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5c.5-3.4 3-5.3 6-5.3s5.5 1.9 6 5.3"/><path d="M15.5 5.6a3.2 3.2 0 0 1 0 5.9M17.5 14.4c2 .6 3.2 2.3 3.5 5.1"/></svg></span>Social</a><a href="#t-mapa"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.6-3.8 3.6-6 7.5-6s6.9 2.2 7.5 6"/></svg></span>Perfil</a></nav>
+</div></div></article>
+  </div>
+</section>
+</main>
+<script>
+/* Modelo da mão: 21 pontos na ordem do MediaPipe Hands e as mesmas ligações.
+   0 pulso; 1-4 polegar (CMC, MCP, IP, ponta); 5-8 indicador; 9-12 médio; 13-16 anelar; 17-20 mínimo.
+   Mão direita vista de frente (palma para quem olha), polegar à direita da imagem.
+   Cada dedo é uma cadeia de 3 falanges; "c" é o quanto o dedo dobra (0 estendido, 1 fechado).
+   A dobra gira as falanges em direção a quem olha, então na projeção 2D elas encurtam e voltam sobre a palma. */
+var MAO = (function () {
+  var LIG = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
+  var DEDO_DO_PONTO = ["palma","t","t","t","t","i","i","i","i","m","m","m","m","a","a","a","a","p","p","p","p"];
+  var BASE = {
+    pulso: [44, 92], cmc: [59, 80],
+    mcp: { i: [57, 52], m: [47, 49], a: [37, 52], p: [28, 58] },
+    ang: { i: -86, m: -93, a: -101, p: -111, t: -20 },
+    len: { i: [17, 11, 9], m: [19, 12, 9], a: [17, 11, 9], p: [13, 9, 8], t: [13, 10, 9] }
+  };
+  var POSES = {
+    aberta: { c: { i: 0, m: 0, a: 0, p: 0, t: 0 }, ang: { i: -78, m: -92, a: -106, p: -122, t: -18 }, ativos: "timap" },
+    L: { c: { i: 0, m: 1, a: 1, p: 1, t: 0 }, ang: { t: -6 }, ativos: "ti" },
+    D: { c: { i: 0, m: 0.82, a: 0.85, p: 0.88, t: 0.3 }, ang: { t: -128 }, ativos: "i" },
+    U: { c: { i: 0, m: 0, a: 1, p: 1, t: 0.25 }, ang: { i: -89, m: -94, t: -152 }, ativos: "im" },
+    A: { c: { i: 1, m: 1, a: 1, p: 1, t: 0.05 }, ang: { t: -80 }, ativos: "t" },
+    /* Pose da marca: o L idealizado (indicador na vertical, polegar na horizontal) */
+    marca: { c: { i: 0, m: 1, a: 1, p: 1, t: 0 }, ang: { i: -90, t: 0 }, pulso: [52, 90], cmc: [61, 90], mcp: { i: [52, 51], m: [43, 53], a: [35, 57], p: [28, 63] }, ativos: "ti" }
+  };
+  var DOBRA = [62, 100, 78];
+  function rad(g) { return g * Math.PI / 180; }
+  function cadeia(o, ang, len, c) {
+    var r = [], a = 0, x = o[0], y = o[1], dx = Math.cos(rad(ang)), dy = Math.sin(rad(ang));
+    for (var k = 0; k < 3; k++) {
+      a += DOBRA[k] * c;
+      var ao = Math.cos(rad(a)) * len[k];
+      var lado = Math.sin(rad(a)) * len[k] * 0.12;
+      x += dx * ao - dy * lado; y += dy * ao + dx * lado;
+      r.push([x, y]);
+    }
+    return r;
+  }
+  function pontos(nome) {
+    var P = POSES[nome] || POSES.L;
+    var ang = {}, mcp = {};
+    "imapt".split("").forEach(function (d) { ang[d] = (P.ang && P.ang[d] != null) ? P.ang[d] : BASE.ang[d]; });
+    "imap".split("").forEach(function (d) { mcp[d] = (P.mcp && P.mcp[d]) ? P.mcp[d] : BASE.mcp[d]; });
+    var pulso = P.pulso || BASE.pulso, cmc = P.cmc || BASE.cmc;
+    var pts = [pulso, cmc].concat(cadeia(cmc, ang.t, BASE.len.t, P.c.t));
+    "imap".split("").forEach(function (d) { pts.push(mcp[d]); pts = pts.concat(cadeia(mcp[d], ang[d], BASE.len[d], P.c[d])); });
+    return pts.map(function (p) { return [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10]; });
+  }
+  function caixa(pts, idx, folga) {
+    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    idx.forEach(function (i) { var p = pts[i]; x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); });
+    return [x0 - folga, y0 - folga, x1 - x0 + 2 * folga, y1 - y0 + 2 * folga];
+  }
+  /* Desenha num <svg>. Opções: so (lista de índices), osso, junta (raio), halo, vb (viewBox fixo) */
+  function svgInterno(pts, nome, o) {
+    o = o || {};
+    var P = POSES[nome] || POSES.L, ativos = P.ativos || "";
+    var so = o.so || null;
+    var usa = function (i) { return !so || so.indexOf(i) >= 0; };
+    var r = o.junta || 2.6, s = "";
+    var ligs = LIG.filter(function (l) { return usa(l[0]) && usa(l[1]); });
+    function at(i) { var d = DEDO_DO_PONTO[i]; return d !== "palma" && ativos.indexOf(d) >= 0; }
+    if (o.halo) ligs.forEach(function (l) { var a = pts[l[0]], b = pts[l[1]]; s += '<line class="h" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '"/>'; });
+    ligs.forEach(function (l) {
+      var a = pts[l[0]], b = pts[l[1]];
+      var dedo = DEDO_DO_PONTO[l[1]];
+      s += '<line class="o o-' + dedo + (at(l[1]) && (l[0] !== 0 || dedo !== "p") ? " at" : "") + '" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '"/>';
+    });
+    pts.forEach(function (p, i) {
+      if (!usa(i)) return;
+      var ponta = i % 4 === 0 && i > 0;
+      s += '<circle class="j' + (ponta ? " pt" : "") + (at(i) ? " at" : "") + (i === 0 ? " pu" : "") + '" cx="' + p[0] + '" cy="' + p[1] + '" r="' + (ponta ? r * 1.25 : r) + '"/>';
+    });
+    return s;
+  }
+  function vb(nome, o) {
+    var pts = pontos(nome), idx = (o && o.so) || pts.map(function (_, i) { return i; });
+    var c = caixa(pts, idx, (o && o.folga) || 7);
+    return c.map(function (v) { return Math.round(v * 10) / 10; }).join(" ");
+  }
+  function opcoes(el) {
+    var d = el.dataset || {};
+    return { so: d.so ? d.so.split(",").map(Number) : null, junta: d.junta ? +d.junta : 2.6, halo: d.halo != null, folga: d.folga ? +d.folga : 7 };
+  }
+  function desenhar(el, nome) {
+    nome = nome || el.getAttribute("data-mao");
+    var o = opcoes(el);
+    if (!el.getAttribute("viewBox") || el.hasAttribute("data-vb-auto")) { el.setAttribute("viewBox", vb(nome, o)); el.setAttribute("data-vb-auto", ""); }
+    el.innerHTML = svgInterno(pontos(nome), nome, o);
+  }
+  /* Transição entre duas poses (botão Ver de novo). Respeita reduzir movimento. */
+  function animar(el, de, para, ms) {
+    var reduz = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduz) { desenhar(el, para); return; }
+    var A = pontos(de), B = pontos(para), o = opcoes(el), t0 = null;
+    function passo(t) {
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3);
+      var pts = A.map(function (p, i) { return [p[0] + (B[i][0] - p[0]) * e, p[1] + (B[i][1] - p[1]) * e].map(function (v) { return Math.round(v * 10) / 10; }); });
+      el.innerHTML = svgInterno(pts, k < 1 ? "aberta" : para, o);
+      if (k < 1) requestAnimationFrame(passo); else desenhar(el, para);
+    }
+    requestAnimationFrame(passo);
+  }
+  return { LIG: LIG, pontos: pontos, svgInterno: svgInterno, vb: vb, desenhar: desenhar, animar: animar, POSES: POSES };
+})();
+
+(function () {
+  var root = document.documentElement;
+  var ver = document.getElementById('c-ver'), tema = document.getElementById('c-tema');
+  function aplicaVer(v) { root.classList.toggle('dp', v !== 'antes'); root.classList.toggle('an', v === 'antes'); ver.value = v; }
+  function aplicaTema(t) { root.dataset.tema = t; tema.value = t; }
+  ver.addEventListener('change', function () { aplicaVer(ver.value); });
+  tema.addEventListener('change', function () { aplicaTema(tema.value); });
+  /* Parâmetros na URL para conferir sem clicar: ?tema=escuro&ver=antes */
+  var q = new URLSearchParams(location.search);
+  aplicaTema(q.get('tema') || 'auto');
+  aplicaVer(q.get('ver') || 'depois');
+  document.querySelectorAll('svg[data-mao]').forEach(function (el) { MAO.desenhar(el); });
+  document.querySelectorAll('[data-ver-novo]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var el = b.closest('.demo').querySelector('.so-depois svg[data-mao]');
+      if (el) MAO.animar(el, 'aberta', el.getAttribute('data-mao'), 700);
+    });
+  });
+  document.querySelectorAll('.opcoes').forEach(function (g) {
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('.op'); if (!b) return;
+      g.querySelectorAll('.op').forEach(function (o) { o.setAttribute('aria-checked', String(o === b)); });
+    });
+  });
+})();</script>
+</body>
+</html>

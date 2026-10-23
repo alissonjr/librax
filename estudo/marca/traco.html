@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="pt-BR" class="dp" data-tema="auto">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex"/>
+<title>Traço: protótipo de marca do Librax</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,400..900&family=Figtree:wght@400..800&family=Nunito:wght@400..900&display=swap"/>
+<style>
+
+:root{color-scheme:light;--bg:#F7F5F2;--sf:#FFFFFF;--sf2:#EEEAE4;--bd1:#E4DED6;--bd:#CFC7BC;--bd2:#81776B;--tx:#1B1510;--tx2:#4A4037;--tx3:#62574C;--marca:#A83B00;--acao:#F05A0C;--acao-tx:#1B1510;--acao-base:#B8430A;--sel:#FFE8D9;--sel-tx:#6B2600;--foco:#A83B00;--mao:#0E7C7B;--mao-on:#FFFFFF;--mao-tx:#0B6463;--mao-soft:#D2F1EE;--ok:#14834A;--ok-on:#FFFFFF;--ok-tx:#126D39;--ok-soft:#D9F7E3;--ok-soft-tx:#0F532C;--erro:#B42A5E;--erro-on:#FFFFFF;--erro-tx:#8F1F49;--erro-soft:#FCE4EE;--erro-soft-tx:#5E1230;--xp:#A98500;--xp-tx:#7D6200;--xp-soft:#FFF6CC;--fogo:#E8560A;--fogo-tx:#A33B00;--fogo-soft:#FFE8D9;--ac:#E8560A;--ac-tx:#A33B00;--ac-soft:#FFE8D9;--ac-soft-tx:#6B2600;--trilho:#EEEAE4;--prog:#E8560A;--trava-bg:#EEEAE4;--trava-fg:#62574C;--wm-a:#1B1510;--wm-b:#E8560A;--palco:#0E0B09;--palco2:#1A1511;--pc-o:#FFFFFF;--pc-j:#74DE9B;--pc-ja:#FF8A45;--pc-h:rgba(14,11,9,.85);--fd:"Anybody", system-ui, -apple-system, Roboto, sans-serif;--ft:"Figtree", system-ui, -apple-system, Roboto, sans-serif;--fm:"Anybody", system-ui, sans-serif;--r-btn:999px;--r-card:22px;--r-chip:999px}
+:root[data-tema=escuro]{color-scheme:dark;--bg:#14110E;--sf:#1E1915;--sf2:#0C0A08;--bd1:#2B2520;--bd:#3D352E;--bd2:#8A7F73;--tx:#F7F2EC;--tx2:#BDB2A6;--tx3:#A09588;--marca:#FF9A5C;--acao:#FF7F33;--acao-tx:#1B1510;--acao-base:#B8430A;--sel:#4A2310;--sel-tx:#FFE8D9;--foco:#FF9A5C;--mao:#3FC9C1;--mao-on:#14110E;--mao-tx:#6FDCD5;--mao-soft:#0F3D3B;--ok:#3CC873;--ok-on:#0C101A;--ok-tx:#74DE9B;--ok-soft:#0F532C;--ok-soft-tx:#D9F7E3;--erro:#FF7BA6;--erro-on:#14110E;--erro-tx:#FF9DBD;--erro-soft:#5A1530;--erro-soft-tx:#FCE4EE;--xp:#FACB1E;--xp-tx:#FFDB4D;--xp-soft:#574500;--fogo:#FF8A45;--fogo-tx:#FFA772;--fogo-soft:#4A2310;--ac:#FF8A45;--ac-tx:#FFA772;--ac-soft:#4A2310;--ac-soft-tx:#FFE8D9;--trilho:#3D352E;--prog:#FF8A45;--trava-bg:#2B2520;--trava-fg:#BDB2A6;--wm-a:#F7F2EC;--wm-b:#FF8A45}
+@media (prefers-color-scheme: dark){:root[data-tema=auto]{color-scheme:dark;--bg:#14110E;--sf:#1E1915;--sf2:#0C0A08;--bd1:#2B2520;--bd:#3D352E;--bd2:#8A7F73;--tx:#F7F2EC;--tx2:#BDB2A6;--tx3:#A09588;--marca:#FF9A5C;--acao:#FF7F33;--acao-tx:#1B1510;--acao-base:#B8430A;--sel:#4A2310;--sel-tx:#FFE8D9;--foco:#FF9A5C;--mao:#3FC9C1;--mao-on:#14110E;--mao-tx:#6FDCD5;--mao-soft:#0F3D3B;--ok:#3CC873;--ok-on:#0C101A;--ok-tx:#74DE9B;--ok-soft:#0F532C;--ok-soft-tx:#D9F7E3;--erro:#FF7BA6;--erro-on:#14110E;--erro-tx:#FF9DBD;--erro-soft:#5A1530;--erro-soft-tx:#FCE4EE;--xp:#FACB1E;--xp-tx:#FFDB4D;--xp-soft:#574500;--fogo:#FF8A45;--fogo-tx:#FFA772;--fogo-soft:#4A2310;--ac:#FF8A45;--ac-tx:#FFA772;--ac-soft:#4A2310;--ac-soft-tx:#FFE8D9;--trilho:#3D352E;--prog:#FF8A45;--trava-bg:#2B2520;--trava-fg:#BDB2A6;--wm-a:#F7F2EC;--wm-b:#FF8A45}}
+:root.an{--bg:#F6F7FA;--sf:#FFFFFF;--sf2:#EDEFF5;--bd1:#DFE3EC;--bd:#C5CBD8;--bd2:#7F89A0;--tx:#141926;--tx2:#454D60;--tx3:#5B6479;--marca:#2A3FBF;--acao:#3651E6;--acao-tx:#FFFFFF;--acao-base:#223293;--sel:#DFE6FF;--sel-tx:#223293;--foco:#3651E6;--mao:#0B8C81;--mao-on:#FFFFFF;--mao-tx:#0B6F67;--mao-soft:#CFF7F1;--ok:#14834A;--ok-on:#FFFFFF;--ok-tx:#126D39;--ok-soft:#D9F7E3;--ok-soft-tx:#0F532C;--erro:#C63F24;--erro-on:#FFFFFF;--erro-tx:#9C311C;--erro-soft:#FFE5DF;--erro-soft-tx:#702415;--xp:#A98500;--xp-tx:#7D6200;--xp-soft:#FFF6CC;--fogo:#F05A1A;--fogo-tx:#94340D;--fogo-soft:#FFE6D9;--ac:#0B8C81;--ac-tx:#0B6F67;--ac-soft:#CFF7F1;--ac-soft-tx:#0B6F67;--trilho:#EDEFF5;--prog:#14834A;--trava-bg:#DFE3EC;--trava-fg:#5B6479;--wm-a:#141926;--wm-b:#0B8C81;--palco:#06080E;--palco2:#0C101A;--pc-o:#FFFFFF;--pc-j:#74DE9B;--pc-ja:#74DE9B;--pc-h:rgba(6,8,14,.85);--fd:Nunito, system-ui, -apple-system, Roboto, sans-serif;--ft:Nunito, system-ui, -apple-system, Roboto, sans-serif;--fm:Nunito, system-ui, -apple-system, Roboto, sans-serif;--r-btn:14px;--r-card:20px;--r-chip:999px}
+:root.an[data-tema=escuro]{--bg:#0C101A;--sf:#141926;--sf2:#06080E;--bd1:#242A38;--bd:#333A4B;--bd2:#7F89A0;--tx:#F6F7FA;--tx2:#9EA7BA;--tx3:#7F89A0;--marca:#9BB0FF;--acao:#7290FF;--acao-tx:#0C101A;--acao-base:#3651E6;--sel:#1B2768;--sel-tx:#DFE6FF;--foco:#9BB0FF;--mao:#27C9B8;--mao-on:#0C101A;--mao-tx:#5FDECF;--mao-soft:#0A5550;--ok:#3CC873;--ok-on:#0C101A;--ok-tx:#74DE9B;--ok-soft:#0F532C;--ok-soft-tx:#D9F7E3;--erro:#FF7A5F;--erro-on:#0C101A;--erro-tx:#FF9C87;--erro-soft:#702415;--erro-soft-tx:#FFE5DF;--xp:#FACB1E;--xp-tx:#FFDB4D;--xp-soft:#574500;--fogo:#FF7A3D;--fogo-tx:#FF9E6B;--fogo-soft:#69250A;--ac:#27C9B8;--ac-tx:#5FDECF;--ac-soft:#0A5550;--ac-soft-tx:#CFF7F1;--trilho:#333A4B;--prog:#3CC873;--trava-bg:#242A38;--trava-fg:#9EA7BA;--wm-a:#F6F7FA;--wm-b:#27C9B8}
+@media (prefers-color-scheme: dark){:root.an[data-tema=auto]{--bg:#0C101A;--sf:#141926;--sf2:#06080E;--bd1:#242A38;--bd:#333A4B;--bd2:#7F89A0;--tx:#F6F7FA;--tx2:#9EA7BA;--tx3:#7F89A0;--marca:#9BB0FF;--acao:#7290FF;--acao-tx:#0C101A;--acao-base:#3651E6;--sel:#1B2768;--sel-tx:#DFE6FF;--foco:#9BB0FF;--mao:#27C9B8;--mao-on:#0C101A;--mao-tx:#5FDECF;--mao-soft:#0A5550;--ok:#3CC873;--ok-on:#0C101A;--ok-tx:#74DE9B;--ok-soft:#0F532C;--ok-soft-tx:#D9F7E3;--erro:#FF7A5F;--erro-on:#0C101A;--erro-tx:#FF9C87;--erro-soft:#702415;--erro-soft-tx:#FFE5DF;--xp:#FACB1E;--xp-tx:#FFDB4D;--xp-soft:#574500;--fogo:#FF7A3D;--fogo-tx:#FF9E6B;--fogo-soft:#69250A;--ac:#27C9B8;--ac-tx:#5FDECF;--ac-soft:#0A5550;--ac-soft-tx:#CFF7F1;--trilho:#333A4B;--prog:#3CC873;--trava-bg:#242A38;--trava-fg:#9EA7BA;--wm-a:#F6F7FA;--wm-b:#27C9B8}}
+.peca.clara{--wm-a:#1B1510;--wm-b:#E8560A}
+.peca.escura{--wm-a:#F7F2EC;--wm-b:#FF8A45}
+
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--ft);font-size:16px;line-height:1.5}
+h1,h2,h3,p,ul,ol,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
+.dp .so-antes,.an .so-depois{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ic{width:20px;height:20px;flex:none}
+.disp{font-family:var(--fd)}
+.tab{font-variant-numeric:tabular-nums}
+.gl{font-family:var(--fm);font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.gl-n{text-transform:none}
+
+/* Barra do protótipo (ferramenta, não faz parte do desenho) */
+.pbar{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:10px 16px;background:var(--sf);border-bottom:1px solid var(--bd1);font-size:14px}
+.pbar a{color:var(--marca);font-weight:600}
+.pbar .pb-t{font-weight:700;margin-right:auto}
+.pbar label{display:flex;align-items:center;gap:6px;color:var(--tx2)}
+.pbar select{min-height:48px;padding:0 10px;border:1px solid var(--bd2);border-radius:10px;background:var(--sf);color:var(--tx);font-size:16px}
+.pbar a.pb-l{display:inline-flex;align-items:center;min-height:48px}
+.pnav{display:flex;flex-wrap:wrap;gap:0 4px;padding:4px 12px;font-size:14px;border-bottom:1px solid var(--bd1);background:var(--sf)}
+.pnav a{display:inline-flex;align-items:center;min-height:44px;padding:0 6px;color:var(--tx2)}
+main.proto{max-width:1280px;margin:0 auto;padding:24px 24px 64px;display:flex;flex-direction:column;gap:48px}
+.tela-cab{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-width:76ch}
+.tela-cab h2{font-size:22px;line-height:30px;font-family:var(--fd)}
+.tela-cab p{color:var(--tx2);font-size:15px}
+.quadro{border:1px solid var(--bd1);border-radius:20px;overflow:hidden;background:var(--bg)}
+
+/* Folha da marca */
+.folha{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;padding:20px}
+.folha>*{grid-column:span 4;min-width:0}
+.folha .larga{grid-column:span 8}
+.folha .tudo{grid-column:1/-1}
+.peca{overflow:hidden;padding:20px;border-radius:16px;background:var(--sf);border:1px solid var(--bd1);display:flex;flex-direction:column;gap:14px}
+.peca h3{font-size:15px;color:var(--tx2);font-weight:700}
+.peca .sub{font-size:14px;color:var(--tx2)}
+.peca.clara{background:#FFFFFF;border-color:#E3E6EC;color:#141926}
+.peca.clara h3,.peca.clara .sub{color:#4A5263}
+.peca.escura{background:#0A0D16;border-color:#0A0D16;color:#EEF1F6}
+.peca.escura h3,.peca.escura .sub{color:#B9C1CF}
+.icones{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px}
+.icones figure{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;color:var(--tx2)}
+.mask{position:relative}
+.mask::after{content:"";position:absolute;top:10%;left:10%;width:80%;height:80%;border-radius:50%;border:1.5px dashed #fff;opacity:.9;pointer-events:none}
+.mask .rotulo{position:static}
+.min{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--tx2)}
+.min>span{display:inline-flex;align-items:center;gap:8px}
+.amostras{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.amostras div{border-radius:12px;padding:10px;min-height:84px;display:flex;flex-direction:column;justify-content:flex-end;font-size:13px;line-height:17px;border:1px solid var(--bd1)}
+.amostras b{font-size:14px}
+.esp-t{font-family:var(--fd);font-weight:800;font-size:44px;line-height:1.05;letter-spacing:-0.02em;overflow-wrap:anywhere}
+.esp-c{font-size:16px}
+.pers{font-size:26px;line-height:1.15;font-weight:800}
+.esp-g{font-size:18px}
+.voz{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;font-size:15px}
+.voz b{font-size:13px;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.trio figure{padding:12px;border-radius:14px;background:var(--bg);border:1px solid var(--bd1);display:flex;flex-direction:column;gap:6px}
+.trio svg.ilus{width:100%;height:auto;display:block}
+.trio figcaption{font-size:14px;color:var(--tx2)}
+.trio figcaption b{display:block;color:var(--tx);font-size:15px}
+.nota-antes{font-size:15px;color:var(--tx2);padding:12px 14px;border-radius:12px;background:var(--sf2)}
+
+/* Palavra-marca */
+.wm{display:inline-flex;align-items:center;gap:calc(var(--wm)*.32);width:fit-content;line-height:1}
+.wm .simb{width:calc(var(--wm)*1.3);height:calc(var(--wm)*1.3);flex:none}
+.wm-t{font-family:var(--fd);font-weight:800;font-size:var(--wm);color:var(--wm-a);letter-spacing:-0.01em;line-height:1}
+.wm-hoje .wm-t{font-family:Nunito,system-ui,sans-serif;font-weight:800;color:var(--wm-hoje,var(--tx))}
+.peca.clara{--wm-hoje:#141926}
+.peca.escura{--wm-hoje:#F6F7FA}
+
+/* Mão desenhada pelos 21 pontos */
+.mao{display:block;overflow:visible}
+.mao .h{stroke:var(--m-h,rgba(0,0,0,.55));stroke-width:calc(var(--m-ow,1.8) + 2.6);stroke-linecap:round}
+.mao .o{stroke:var(--m-o,currentColor);stroke-width:var(--m-ow,1.8);stroke-linecap:round}
+.mao .o.at{stroke:var(--m-oa,var(--m-o,currentColor))}
+.mao .j{fill:var(--m-j,currentColor)}
+.mao .j.at{fill:var(--m-ja,var(--m-j,currentColor))}
+
+/* Telas */
+.telas{display:grid;grid-template-columns:repeat(auto-fill,390px);gap:40px 24px}
+.tela-item{display:flex;flex-direction:column;gap:12px;min-width:0}
+.tela-item>header{display:flex;flex-direction:column;gap:4px;padding:0 4px}
+.tela-item>header h3{font-size:18px;font-family:var(--fd)}
+.tela-item>header p{font-size:14px;color:var(--tx2)}
+.cel{width:390px;max-width:100%;border:1px solid var(--bd);border-radius:32px;overflow:hidden;background:var(--bg);box-shadow:0 12px 32px -12px rgba(12,16,26,.25)}
+.tela{position:relative;display:flex;flex-direction:column;min-height:844px;background:var(--bg);color:var(--tx);font-family:var(--ft)}
+
+/* Componentes do app (visual de hoje por padrão) */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;padding:0 20px;border:0;border-radius:var(--r-btn);background:var(--acao);color:var(--acao-tx);font-family:var(--ft);font-weight:800;font-size:17px;box-shadow:0 3px 0 var(--acao-base);text-decoration:none}
+.btn .ic{width:22px;height:22px}
+.btn-sec{background:var(--sf);color:var(--marca);border:2px solid var(--bd2);box-shadow:none}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r-card)}
+.icb{display:grid;place-items:center;width:48px;height:48px;border:0;border-radius:12px;background:transparent;color:var(--tx2);flex:none}
+.icb .ic{width:24px;height:24px}
+.chips{display:flex;gap:8px}
+.chip-j{display:inline-flex;align-items:center;gap:6px;min-height:48px;padding:0 14px;border-radius:var(--r-chip);border:1px solid var(--bd);background:var(--sf);font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+.chip-fogo{color:var(--fogo-tx)}.chip-fogo .ic{color:var(--fogo)}
+.chip-xp{color:var(--xp-tx)}.chip-xp .ic{color:var(--xp)}
+.barra{height:10px;border-radius:999px;background:var(--trilho);overflow:hidden}
+.barra i{display:block;height:100%;border-radius:999px;background:var(--prog)}
+.barra-xp i{background:var(--xp)}
+.abas{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--bd1);background:var(--sf);margin-top:auto}
+.abas a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;font-size:13px;font-weight:700;color:var(--tx2);text-decoration:none}
+.abas a .ic{width:24px;height:24px}
+.abas a .ab-i{display:grid;place-items:center;width:56px;height:30px;border-radius:999px}
+.abas a[aria-current=page]{color:var(--marca)}
+.abas a[aria-current=page] .ab-i{background:var(--sel)}
+
+/* 1. Boas-vindas */
+.boas-a{display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;padding:120px 24px 32px}
+.idiomas{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.idiomas span{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--bd);background:var(--sf);font-weight:700;font-size:15px}
+.idiomas span:first-child{border:2px solid var(--acao);background:var(--sel);color:var(--sel-tx)}
+.pontos-pag{display:flex;gap:8px;align-items:center}
+.pontos-pag i{width:8px;height:8px;border-radius:50%;background:var(--bd2)}
+.pontos-pag i:first-child{width:24px;border-radius:4px;background:var(--acao)}
+.maos-hoje{width:64px;height:64px;color:var(--mao)}
+.boas-a h1{font-size:32px;line-height:1.15;font-weight:800}
+.boas-a p{color:var(--tx2);font-size:16px}
+.boas-a form{display:flex;flex-direction:column;gap:14px;width:100%}
+.campo{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left}
+.campo label{font-weight:700;font-size:15px}
+.campo input{min-height:56px;padding:0 16px;border:2px solid var(--bd2);border-radius:var(--r-btn);background:var(--sf);font-size:17px;color:var(--tx)}
+.campo input::placeholder{color:var(--tx3)}
+.nota{font-size:13px;color:var(--tx3)}
+.boas-d{display:flex;flex-direction:column;gap:20px;padding:20px 20px 28px;min-height:844px}
+.boas-d .boas-form{margin-top:auto;display:flex;flex-direction:column;gap:14px}
+.boas-h{font-size:38px;line-height:1.08;font-weight:800;letter-spacing:-0.02em}
+.boas-p{color:var(--tx2);font-size:17px;margin-top:10px}
+
+/* 2. Mapa */
+.mp-topo{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 16px 12px}
+.mp-ola{font-size:18px;color:var(--tx2)}
+.mp-ola b{color:var(--tx)}
+.meta{margin:0 16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.meta-l{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700}
+.meta-l span{display:inline-flex;align-items:center;gap:8px}
+.meta-l .ic{color:var(--xp)}
+.meta-l .tab{color:var(--xp-tx);font-weight:800}
+.unid{margin:12px 16px 0;padding:16px;display:flex;flex-direction:column;gap:6px}
+.unid-tag{align-self:flex-start;padding:2px 10px;border-radius:var(--r-chip);background:var(--mao-soft);color:var(--mao-tx);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.unid h2{font-size:22px;line-height:1.2;font-family:var(--fd);font-weight:800}
+.unid p{color:var(--tx2);font-size:15px}
+.unid-prog{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--tx2);margin-top:4px}
+.unid-prog .barra{flex:1;height:8px}
+.trilha{position:relative;padding:12px 16px 16px}
+.no{position:relative;display:grid;grid-template-columns:76px 1fr auto;align-items:center;gap:14px;min-height:100px}
+.no-b{position:relative;z-index:1;justify-self:center;display:grid;place-items:center;width:64px;height:64px;border-radius:50%}
+.no-b .ic{width:28px;height:28px}
+.no:not(:last-child)::after{content:"";position:absolute;left:36px;top:50%;width:4px;height:100%;background:var(--bd2);z-index:0}
+.no-feito::after{background:var(--prog)!important}
+.no-atual::after,.no-trava::after{background:repeating-linear-gradient(var(--bd) 0 8px,transparent 8px 14px)!important}
+.no-feito .no-b{background:var(--ok);color:var(--ok-on)}
+.no-atual .no-b{width:76px;height:76px;background:var(--acao);color:var(--acao-tx);box-shadow:0 0 0 4px var(--bg),0 0 0 8px var(--mao)}
+.no-trava .no-b{background:var(--trava-bg);color:var(--trava-fg)}
+.no-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.no-n{font-weight:800;font-size:18px;font-family:var(--fd)}
+.no-s{font-size:14px;color:var(--tx2)}
+.no-trava .no-n{color:var(--tx2)}
+.no-trava .no-s{color:var(--tx3)}
+.no-go{display:inline-flex;align-items:center;min-height:48px;padding:0 16px;border-radius:999px;background:var(--sel);color:var(--sel-tx);font-weight:800;font-size:15px;text-decoration:none}
+.retomar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(90deg,var(--palco),var(--palco2));color:#fff;text-decoration:none;margin-top:auto;position:relative;overflow:hidden}
+.retomar .ic-play{width:22px;height:22px;color:#5FDECF}
+.retomar .rt{display:flex;flex-direction:column;flex:1;line-height:1.25}
+.retomar small{font-size:13px;color:#DFE3EC}
+.retomar b{font-size:18px}
+.ret-btn{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--acao);color:var(--acao-tx)}
+.ret-btn .ic{width:24px;height:24px}
+
+/* 3. Exercício */
+.lic-topo{display:flex;align-items:center;gap:10px;padding:8px 12px 8px 4px;border-bottom:1px solid var(--bd1)}
+.lic-prog{flex:1;min-width:0}
+.prog-hoje{display:block;height:12px;border-radius:999px;background:var(--trilho);overflow:hidden}
+.prog-hoje i{display:block;height:100%;border-radius:999px;background:var(--prog)}
+.cont{font-weight:800;font-size:15px;color:var(--tx2);font-variant-numeric:tabular-nums}
+.enun{font-size:24px;line-height:1.25;font-weight:800;padding:20px 16px 14px}
+.demo{position:relative;margin:0 16px;border-radius:var(--r-card);background:var(--sf2);min-height:300px;overflow:hidden}
+.demo-a{display:flex;align-items:center;justify-content:center;min-height:300px;padding:24px 24px 80px;text-align:center;color:var(--tx2);font-size:16px}
+.ver-novo{position:absolute;right:12px;bottom:12px;display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border:0;border-radius:999px;background:#333A4B;color:#fff;font-weight:700;font-size:15px}
+.opcoes{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
+.op{display:flex;align-items:center;justify-content:center;gap:8px;min-height:64px;border:2px solid var(--bd);border-radius:var(--r-btn);background:var(--sf);font-family:var(--fd);font-weight:800;font-size:26px;color:var(--tx)}
+.op[aria-checked=true]{border:3px solid var(--foco);background:var(--sel)}
+.rodape{padding:8px 16px 24px;margin-top:auto}
+
+/* 4. Câmera: palco sempre escuro */
+.palco{background:var(--palco)!important;color:#fff}
+.palco .lic-topo{border-bottom-color:rgba(255,255,255,.12)}
+.palco .icb{color:#DFE3EC}
+.palco .prog-hoje{background:rgba(255,255,255,.16)}
+.palco .cont{color:#DFE3EC}
+.pc-instr{padding:16px 16px 12px;display:flex;flex-direction:column;gap:4px}
+.pc-rot{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#DFE3EC}
+.pc-ins-a{text-align:center;align-items:center}
+.pc-ins-a .pc-letra{font-family:var(--fd);font-weight:900;font-size:48px;line-height:1;color:#9BB0FF}
+.pc-h{font-size:28px;line-height:1.15;font-weight:800}
+.pc-h .gl{color:var(--pc-ja)}
+.video{position:relative;margin:0 16px;border-radius:20px;overflow:hidden;aspect-ratio:3/3.6;background:
+ radial-gradient(ellipse 16% 13% at 40% 30%,#6b5648 0 70%,transparent 74%),
+ radial-gradient(ellipse 36% 26% at 40% 86%,#2f3646 0 80%,transparent 83%),
+ radial-gradient(ellipse 60% 40% at 80% 20%,rgba(255,255,255,.07),transparent 70%),
+ linear-gradient(180deg,#252a35,#12151c)}
+.video .guia{position:absolute;left:44%;top:10%;width:50%;height:66%;border:2px dashed rgba(255,255,255,.7);border-radius:22px}
+.video .mao-pc{position:absolute;left:44%;top:9%;width:50%;height:68%;--m-o:var(--pc-o);--m-j:var(--pc-j);--m-ja:var(--pc-ja);--m-h:var(--pc-h);--m-ow:2}
+.pill{position:absolute;left:12px;bottom:12px;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:999px;background:rgba(12,16,26,.85);color:#fff;font-weight:700;font-size:15px}
+.pill .ic{color:#74DE9B}
+.conf{display:flex;align-items:center;gap:10px;padding:12px 16px 0;font-size:14px;color:#DFE3EC}
+.conf .barra{flex:1;background:rgba(255,255,255,.16)}
+.conf .barra i{background:#3CC873}
+.fb-ok{margin:16px 16px 20px;margin-top:auto;padding:16px;border-radius:20px;background:#0F532C;color:#D9F7E3;display:flex;flex-direction:column;gap:10px}
+.fb-t{display:flex;align-items:center;gap:10px;font-size:22px}
+.fb-t .ic{width:28px;height:28px;color:#74DE9B}
+.fb-t b{font-family:var(--fd);font-weight:800}
+.fb-xp{margin-left:auto;font-weight:800;font-size:16px;color:#FFDB4D;font-variant-numeric:tabular-nums}
+.fb-ok p{font-size:15px}
+.btn-ok{background:#3CC873;color:#0C101A;box-shadow:0 3px 0 #14834A}
+
+/* 5. Lição concluída */
+.fim-a{display:flex;flex-direction:column;align-items:center;gap:16px;padding:28px 24px 0}
+.medalhas{align-self:stretch;display:flex;flex-direction:column;gap:8px;padding:14px 18px;border-radius:18px;background:var(--xp-soft);color:var(--xp-tx);font-weight:800}
+.medalhas span{display:flex;align-items:center;gap:10px}
+.pilula-xp{padding:6px 18px;border-radius:999px;background:var(--xp-soft);color:var(--xp-tx);font-weight:900;font-size:22px}
+.fim-h{font-size:36px;line-height:1.1;font-weight:900;padding:12px 24px 0}
+.an .fim-h,.an .fim-p{text-align:center}
+.fim-p{color:var(--tx2);font-size:17px;padding:8px 24px 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:20px 16px 0}
+.stat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 6px;border:1px solid var(--bd);border-radius:var(--r-card);background:var(--sf);text-align:center}
+.stat .ic{width:26px;height:26px}
+.stat b{font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;font-family:var(--fd)}
+.stat span{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tx2)}
+.st-xp .ic{color:var(--xp)}.st-fogo .ic{color:var(--fogo)}.st-mao .ic{color:var(--mao)}
+.glosas{padding:20px 16px 0;display:flex;flex-direction:column;gap:10px}
+.glosas h2{font-size:15px;font-weight:700;color:var(--tx2)}
+.an .glosas h2{text-align:center}
+.glosas ul{display:flex;flex-wrap:wrap;gap:8px}
+.an .glosas ul{justify-content:center}
+.glosas li{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;background:var(--sel);color:var(--sel-tx);font-size:15px}
+
+/* 6. Liga */
+.tela-cabec{display:flex;align-items:center;gap:8px;padding:4px 8px;min-height:56px;border-bottom:1px solid var(--bd1);background:var(--sf)}
+.tela-cabec h1{font-size:20px;font-weight:800;font-family:var(--fd)}
+.liga-cab{display:flex;align-items:center;gap:16px;padding:20px 16px 8px}
+.liga-cab h2{font-size:28px;line-height:1.1;font-weight:900;font-family:var(--fd)}
+.liga-cab p{display:flex;align-items:center;gap:6px;color:var(--tx2);font-size:15px;margin-top:4px}
+.liga-cab p .ic{color:var(--marca);width:18px;height:18px}
+.insignia{width:64px;height:64px;flex:none}
+.liga-regra{padding:0 16px 12px;color:var(--tx2);font-size:15px}
+.rank{display:flex;flex-direction:column;gap:6px;padding:0 16px 16px}
+.rk{display:grid;grid-template-columns:36px 40px 1fr auto;align-items:center;gap:10px;min-height:56px;padding:6px 12px;border-radius:var(--r-btn);background:var(--sf);border:1px solid var(--bd1)}
+.rk-p{font-weight:800;font-variant-numeric:tabular-nums;color:var(--tx2);text-align:center}
+.rk-av{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--sf2);font-weight:800;font-size:14px;color:var(--tx2)}
+.rk-n{font-weight:700;line-height:1.2}
+.rk-n small{display:block;font-weight:400;font-size:13px;color:var(--tx2)}
+.rk-x{font-weight:800;font-variant-numeric:tabular-nums}
+.rk-sobe .rk-n small{color:var(--ok-tx);display:flex;align-items:center;gap:4px}
+.rk-sobe .rk-n small .ic{width:14px;height:14px}
+.rk-eu{border:2px solid var(--foco);background:var(--sel)}
+.rk-eu .rk-av{background:var(--acao);color:var(--acao-tx)}
+.rk-mais{font-size:14px;color:var(--tx2);padding:0 4px 4px}
+.zona{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ok-tx)}
+.zona::before,.zona::after{content:"";flex:1;height:2px;background:repeating-linear-gradient(90deg,var(--ok) 0 6px,transparent 6px 10px)}
+.zona .ic{width:16px;height:16px}
+
+/* Celular */
+@media (max-width: 900px){
+  .folha{grid-template-columns:1fr;padding:16px}
+  .folha>*,.folha .larga{grid-column:1/-1}
+  .trio{grid-template-columns:1fr}
+  .voz{grid-template-columns:1fr}
+  .voz b:nth-child(2){display:none}
+  .esp-t{font-size:34px}
+}
+@media (max-width: 840px){
+  .telas{grid-template-columns:minmax(0,390px);justify-content:center}
+}
+@media (max-width: 600px){
+  .pbar{position:static}
+  main.proto{padding:16px 0 48px;gap:40px}
+  .tela-cab{padding:0 16px}
+  .quadro{border-radius:0;border-left:0;border-right:0}
+  .telas{grid-template-columns:minmax(0,1fr);gap:32px}
+  .tela-item>header{padding:0 16px}
+  .cel{width:100%;border-radius:0;border-left:0;border-right:0;box-shadow:none}
+  .amostras{grid-template-columns:1fr 1fr}
+  .peca.clara .wm{--wm:36px!important}
+  .peca.escura .wm{--wm:30px!important}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+/* Traço: regras do modo depois */
+
+.wm-tr .wm-t{font-weight:900;font-stretch:125%;letter-spacing:-0.01em}
+.dp .disp,.dp .no-n,.dp .unid h2,.dp .liga-cab h2,.dp .stat b{font-stretch:118%}
+.dp .boas-h{font-weight:900;font-stretch:120%;font-size:40px;letter-spacing:-0.02em;line-height:1.02}
+.dp .enun,.dp .fim-h,.dp .pc-h{font-weight:900;font-stretch:115%}
+.dp .gl{font-family:var(--fd);font-stretch:118%;font-weight:800}
+.dp .btn{font-family:var(--fd);font-stretch:112%;font-weight:800}
+.ilus-t{position:relative;height:280px;border-radius:24px;background:var(--ac-soft);overflow:hidden}
+.ilus-t .arcos{position:absolute;inset:0;width:100%;height:100%}
+.tr{fill:none;stroke:var(--ac);stroke-width:4;stroke-linecap:round}
+.tr-m{stroke:var(--mao)}
+.dp .mao-boas{position:absolute;inset:24px 60px 24px 50px;width:calc(100% - 110px);height:calc(100% - 48px);--m-o:var(--tx);--m-j:var(--tx2);--m-ja:var(--ac);--m-ow:1.8}
+.dp .unid-tag{background:var(--mao-soft);color:var(--mao-tx)}
+.dp .no{min-height:108px}
+.dp .no:not(:last-child)::after{width:4px;left:36px;border-radius:2px}
+.dp .no-feito::after{background:var(--ac)!important}
+.trilha-deco{position:absolute;left:0;top:0;pointer-events:none}
+.tr-svg{display:block}
+.tr-on{stroke:var(--ac);stroke-width:4;stroke-linecap:round}
+.tr-off{stroke:var(--bd2);stroke-width:3;stroke-linecap:round;stroke-dasharray:2 8}
+.dp .no-feito .no-b{background:var(--mao);color:var(--mao-on)}
+.dp .no-atual .no-b{box-shadow:none}
+.dp .no-deco{position:absolute;inset:-16px;pointer-events:none}
+.dp .orbita{width:100%;height:100%;display:block;overflow:visible}
+.dp .no-trava .no-b{background:var(--sf);border:3px solid var(--trava-bg);color:var(--trava-fg)}
+.dp .no-go{background:var(--acao);color:var(--acao-tx);font-family:var(--fd);font-stretch:112%}
+.dp .retomar{background:var(--palco)}
+.ret-arco{position:absolute;right:56px;top:6px;width:150px;height:60px}
+.dp .retomar .ic-play{color:#FF8A45}
+.seta-prog{display:block;position:relative;height:12px;border-radius:999px;background:var(--trilho);margin-right:12px}
+.seta-prog i{display:block;position:relative;height:100%;border-radius:999px 0 0 999px;background:var(--prog)}
+.seta-prog i::after{content:"";position:absolute;right:-12px;top:-5px;border-left:14px solid var(--prog);border-top:11px solid transparent;border-bottom:11px solid transparent}
+.seta-prog.pc{background:rgba(255,255,255,.16)}
+.seta-prog.pc i{background:#FF8A45}
+.seta-prog.pc i::after{border-left-color:#FF8A45}
+.dp .cont{font-family:var(--fd);font-stretch:115%}
+.dp .demo{background:var(--ac-soft)}
+.demo-t{position:relative;height:300px}
+.demo-arco{position:absolute;inset:0;width:100%;height:100%}
+.dp .mao-demo{position:absolute;inset:16px 60px 60px;width:calc(100% - 120px);height:calc(100% - 76px);--m-o:var(--tx);--m-j:var(--tx2);--m-ja:var(--ac);--m-ow:1.6}
+.dp .demo-leg{position:absolute;left:16px;bottom:22px;font-size:14px;font-weight:600;color:var(--ac-soft-tx);max-width:48%;line-height:1.25}
+.dp .ver-novo{background:var(--tx);color:var(--bg)}
+.dp .op{border-radius:20px;font-stretch:118%}
+.dp .op[aria-checked=true]{border-color:var(--foco);background:var(--sel)}
+.cam-arcos{position:absolute;left:40%;top:6%;width:58%;height:76%;pointer-events:none;overflow:visible}
+.dp .pc-h .gl{color:#FF8A45}
+.dp .fb-ok{background:#1A1511;color:#F7F2EC;border:1px solid #3D352E}
+.dp .fb-t .ic{color:#74DE9B}
+.dp .btn-ok{background:#FF7F33;color:#1B1510;box-shadow:0 3px 0 #B8430A}
+.fim-t{padding:12px 8px 0}
+.burst{display:block;width:100%;height:auto;overflow:visible}
+.dp .fim-h{font-size:34px}
+.dp .stat{border-radius:20px}
+.dp .glosas li{background:var(--ac-soft);color:var(--ac-soft-tx);font-size:14px}
+.dp .rk{border-radius:16px}
+.setas{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.setas figure{display:flex;flex-direction:column;gap:4px;padding:10px;border-radius:14px;border:1px solid var(--bd1);background:var(--bg);font-size:14px;color:var(--tx2)}
+.setas svg{width:100%;height:auto;overflow:visible}
+.mao-il{--m-o:var(--tx);--m-j:var(--tx2);--m-ja:var(--ac);--m-ow:2}
+@media (max-width: 900px){.setas{grid-template-columns:repeat(3,1fr)}}
+@media (max-width: 600px){.setas{grid-template-columns:1fr 1fr}}
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ponta" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill:var(--ac)"/></marker><marker id="ponta-m" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill:var(--mao)"/></marker><marker id="ponta-c" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#FF8A45"/></marker><marker id="ponta-b" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" style="fill:var(--bd2)"/></marker></defs></svg>
+<div class="pbar" role="region" aria-label="Controles do protótipo">
+  <span class="pb-t">Traço: cinético, quente, de jogo</span>
+  <label>Ver <select id="c-ver"><option value="depois">Depois (proposta)</option><option value="antes">Antes (hoje)</option></select></label>
+  <label>Tema <select id="c-tema"><option value="auto">Do aparelho</option><option value="claro">Claro</option><option value="escuro">Escuro</option></select></label>
+  <a class="pb-l" href="index.html">Todos os caminhos</a>
+</div>
+<nav class="pnav" aria-label="Seções do protótipo"><a href="#marca">Marca</a><a href="#t-boas">1. Boas-vindas</a><a href="#t-mapa">2. Mapa da unidade</a><a href="#t-ex">3. Exercício</a><a href="#t-cam">4. Câmera</a><a href="#t-fim">5. Lição concluída</a><a href="#t-liga">6. Liga</a><a href="constelacao.html">Ver Constelação</a><a href="glosa.html">Ver Glosa</a><a href="ajuste-fino.html">Ver Ajuste fino</a></nav>
+<main class="proto">
+<section id="marca" aria-labelledby="t-marca">
+  <div class="tela-cab"><h2 id="t-marca">Marca, cores, tipos e desenhos</h2><p>O movimento do sinal vira desenho: as setas curvas dos dicionários de Libras. Tangerina sobre grafite, petróleo para tudo que é mão e câmera, botões em pílula. Anybody, de largura variável, nos títulos (larga e pesada nos momentos de jogo) e Figtree no texto. O erro sai do coral e vai para a framboesa, para não se confundir com a tangerina.</p></div>
+  <div class="quadro"><div class="folha">
+    <div class="peca larga clara"><h3>Assinatura sobre fundo claro</h3><span class="so-depois"><span class="wm wm-tr" style="--wm:60px"><svg class="simb" width="78" height="78" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><path d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke="var(--wm-b)" stroke-width="6.5" stroke-linecap="round"/><path d="M37.0 36.5L52.0 46.0L37.0 55.5z" fill="var(--wm-b)" stroke="var(--wm-b)" stroke-width="2" stroke-linejoin="round"/><circle cx="20.0" cy="12.5" r="5" fill="var(--wm-a)"/></svg><span class="wm-t">librax</span></span></span><span class="so-antes"><span class="wm wm-hoje" style="--wm:60px"><svg class="logo-hoje" width="78" height="78" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh78" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh78)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg><span class="wm-t">Librax</span></span></span><p class="sub"><span class="so-depois">Símbolo: o L desenhado como um movimento, do ponto inicial (o círculo) até a ponta da seta, como nos dicionários. Palavra-marca em Anybody larga, inclinada pelo próprio desenho do traço.</span><span class="so-antes">Hoje o app não tem palavra-marca: o nome aparece em texto comum e o ícone é o L em pontos sobre degradê azul.</span></p></div>
+    <div class="peca escura"><h3>Sobre fundo escuro</h3><span class="so-depois"><span class="wm wm-tr" style="--wm:40px"><svg class="simb" width="52" height="52" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><path d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke="var(--wm-b)" stroke-width="6.5" stroke-linecap="round"/><path d="M37.0 36.5L52.0 46.0L37.0 55.5z" fill="var(--wm-b)" stroke="var(--wm-b)" stroke-width="2" stroke-linejoin="round"/><circle cx="20.0" cy="12.5" r="5" fill="var(--wm-a)"/></svg><span class="wm-t">librax</span></span></span><span class="so-antes"><span class="wm wm-hoje" style="--wm:40px"><svg class="logo-hoje" width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh52" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh52)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg><span class="wm-t">Librax</span></span></span><p class="sub">O mesmo desenho, com as cores do tema escuro.</p></div>
+    <div class="peca"><h3>Ícone do aplicativo</h3><div class="icones so-depois"><figure><svg class="simb" width="88" height="88" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><rect width="64" height="64" rx="18" fill="#1B1510"/><path d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke="#FF7A2E" stroke-width="6.5" stroke-linecap="round"/><path d="M37.0 36.5L52.0 46.0L37.0 55.5z" fill="#FF7A2E" stroke="#FF7A2E" stroke-width="2" stroke-linejoin="round"/><circle cx="20.0" cy="12.5" r="5" fill="#FFFFFF"/></svg><figcaption>Principal, 88 px</figcaption></figure><figure><svg class="simb" width="88" height="88" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><rect width="64" height="64" rx="18" fill="#0C0A08"/><path d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke="#FF7A2E" stroke-width="6.5" stroke-linecap="round"/><path d="M37.0 36.5L52.0 46.0L37.0 55.5z" fill="#FF7A2E" stroke="#FF7A2E" stroke-width="2" stroke-linejoin="round"/><circle cx="20.0" cy="12.5" r="5" fill="#FFFFFF"/></svg><figcaption>Escuro</figcaption></figure><figure class="mask"><svg class="simb" width="88" height="88" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><rect width="64" height="64" rx="0" fill="#1B1510"/><path d="M22.6 23.4V32.7Q22.6 42.9 32.7 42.9H37.4" fill="none" stroke="#FF7A2E" stroke-width="6.5" stroke-linecap="round"/><path d="M35.9 35.5L47.6 42.9L35.9 50.3z" fill="#FF7A2E" stroke="#FF7A2E" stroke-width="2" stroke-linejoin="round"/><circle cx="22.6" cy="16.8" r="3.9000000000000004" fill="#FFFFFF"/></svg><figcaption>Zona segura</figcaption></figure></div><div class="icones so-antes"><figure><svg class="logo-hoje" width="88" height="88" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh88" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh88)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg><figcaption>Ícone de hoje, 88 px</figcaption></figure></div></div>
+    <div class="peca"><h3>Tamanho mínimo</h3><div class="min so-depois"><span><svg class="simb" width="16" height="16" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><rect width="64" height="64" rx="18" fill="#1B1510"/><path d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke="#FF7A2E" stroke-width="8" stroke-linecap="round"/><path d="M37.0 36.5L52.0 46.0L37.0 55.5z" fill="#FF7A2E" stroke="#FF7A2E" stroke-width="2" stroke-linejoin="round"/><circle cx="20.0" cy="12.5" r="6" fill="#FFFFFF"/></svg> 16 px</span><span><svg class="simb" width="24" height="24" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><rect width="64" height="64" rx="18" fill="#1B1510"/><path d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke="#FF7A2E" stroke-width="8" stroke-linecap="round"/><path d="M37.0 36.5L52.0 46.0L37.0 55.5z" fill="#FF7A2E" stroke="#FF7A2E" stroke-width="2" stroke-linejoin="round"/><circle cx="20.0" cy="12.5" r="6" fill="#FFFFFF"/></svg> 24 px</span><span><svg class="simb" width="32" height="32" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><rect width="64" height="64" rx="18" fill="#1B1510"/><path d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke="#FF7A2E" stroke-width="6.5" stroke-linecap="round"/><path d="M37.0 36.5L52.0 46.0L37.0 55.5z" fill="#FF7A2E" stroke="#FF7A2E" stroke-width="2" stroke-linejoin="round"/><circle cx="20.0" cy="12.5" r="5" fill="#FFFFFF"/></svg> 32 px</span><span><span class="wm wm-tr" style="--wm:14px"><svg class="simb" width="18" height="18" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><path d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke="var(--wm-b)" stroke-width="8" stroke-linecap="round"/><path d="M37.0 36.5L52.0 46.0L37.0 55.5z" fill="var(--wm-b)" stroke="var(--wm-b)" stroke-width="2" stroke-linejoin="round"/><circle cx="20.0" cy="12.5" r="6" fill="var(--wm-a)"/></svg><span class="wm-t">librax</span></span></span></div><div class="min so-antes"><span><svg class="logo-hoje" width="16" height="16" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh16" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh16)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg> 16 px</span><span><svg class="logo-hoje" width="24" height="24" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh24" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh24)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg> 24 px</span><span><svg class="logo-hoje" width="32" height="32" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lh32" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D6BFF"/><stop offset="1" stop-color="#2A3FBF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#lh32)"/><path d="M31 21L31 75L69 75" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="31" cy="21" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="48" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="31" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="50" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/><circle cx="69" cy="75" r="5.4" fill="#5FDECF" stroke="#2A3FBF" stroke-width="1.8"/></svg> 32 px</span></div><p class="sub so-depois">Símbolo a partir de 16 px (o traço engrossa e a ponta da seta cresce). Assinatura com nome a partir de 90 px de largura.</p></div>
+    <div class="peca"><h3>Tipos</h3><span class="esp-t">Aa Çç Ãã 340</span><span class="esp-c"><span class="so-depois">Anybody 800 a 900 em largura 115% a 130% nos títulos, XP e glosas; Figtree 400 a 700 no texto, redonda e legível.</span><span class="so-antes">Nunito em tudo: títulos em 800 e 900, texto em 400 a 700.</span></span><span class="esp-g gl">BOM-DIA · OBRIGADO</span></div>
+    <div class="peca larga"><h3>Cores (mudam com o tema)</h3><div class="amostras"><div style="background:var(--acao);color:var(--acao-tx)"><b>Ação: tangerina</b>--acao</div><div style="background:var(--sel);color:var(--sel-tx)"><b>Selecionado</b>--sel</div><div style="background:var(--mao-soft);color:var(--mao-tx)"><b>Mão: petróleo</b>--mao-soft</div><div style="background:var(--palco);color:#FFFFFF"><b>Palco: grafite</b>--palco</div><div style="background:var(--xp-soft);color:var(--xp-tx)"><b>XP: ouro</b>--xp-soft</div><div style="background:var(--erro-soft);color:var(--erro-soft-tx)"><b>Erro: framboesa</b>--erro-soft</div></div><p class="sub">Acerto em verde, erro em framboesa (um rosa escuro, longe do vermelho e do laranja da ação), sempre com ícone e texto. O palco da câmera é escuro nos dois temas.</p></div>
+    <div class="peca"><h3>Personalidade</h3><p class="pers disp">Cinético, quente, de jogo</p><p class="sub">O movimento do sinal vira desenho. As setas curvas dos dicionários de Libras, que mostram a trajetória da mão, entram no logo (o L desenhado como um movimento, do ponto inicial à ponta), na lição atual do mapa, no Ver o movimento e na celebração. Mais cinético e com cara de jogo, com tangerina sobre grafite e petróleo para tudo que é mão.</p></div>
+    <div class="peca tudo"><h3>Elemento de assinatura: a seta de trajetória</h3><div class="so-depois"><div class="setas"><figure><svg viewBox="0 0 110 72" aria-hidden="true"><path d="M14 40 H96" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--ac)" marker-end="url(#ponta)" /><circle cx="14" cy="40" r="5" style="fill:var(--tx)"/></svg><figcaption>Reto</figcaption></figure><figure><svg viewBox="0 0 110 72" aria-hidden="true"><path d="M14 56 C 34 14, 76 14, 96 44" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--ac)" marker-end="url(#ponta)" /><circle cx="14" cy="56" r="5" style="fill:var(--tx)"/></svg><figcaption>Curvo</figcaption></figure><figure><svg viewBox="0 0 110 72" aria-hidden="true"><path d="M70 18 A24 24 0 1 1 36 22" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--ac)" marker-end="url(#ponta)" /><circle cx="70" cy="18" r="5" style="fill:var(--tx)"/></svg><figcaption>Circular</figcaption></figure><figure><svg viewBox="0 0 110 72" aria-hidden="true"><path d="M12 52 L32 30 L52 52 L72 30 L94 50" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--ac)" marker-end="url(#ponta)" /><circle cx="12" cy="52" r="5" style="fill:var(--tx)"/></svg><figcaption>Repetido</figcaption></figure><figure><svg viewBox="0 0 110 72" aria-hidden="true"><path d="M18 40 H92" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--ac)" marker-end="url(#ponta)" marker-start="url(#ponta)"/></svg><figcaption>Para a frente e para trás</figcaption></figure></div><p class="sub" style="margin-top:12px">Ponto cheio marca onde o movimento começa; a ponta, onde termina. As mesmas setas servem para ensinar (Ver o movimento, dica de erro) e para a marca (logo, trilha do mapa, celebração). Na câmera, o sinal sem movimento ganha a palavra "parado", nunca uma seta.</p></div><p class="so-antes nota-antes">Hoje não há elemento de assinatura. A única marca do mundo da Libras é a cor turquesa em tudo que é mão e câmera.</p></div>
+    <div class="peca tudo"><h3>Desenhos dos estados</h3><div class="trio so-depois"><figure><svg class="ilus" viewBox="0 0 240 160" aria-hidden="true"><rect x="20" y="16" width="120" height="128" rx="22" fill="none" stroke-width="2" stroke-dasharray="6 6" style="stroke:var(--bd2)"/><svg class="mao mao-il" data-mao="aberta" x="120" y="26" width="112" height="112" viewBox="5 2 93 97" data-junta="2.4"></svg><path d="M150 136 C 120 150, 92 140, 82 110" fill="none" stroke-width="3.5" stroke-linecap="round" style="stroke:var(--ac)" marker-end="url(#ponta)"/></svg><figcaption><b>Mão fora do quadro</b>Traga a mão para dentro da moldura.</figcaption></figure><figure><svg class="ilus" viewBox="0 0 240 160" aria-hidden="true"><circle cx="30" cy="120" r="7" style="fill:var(--tx)"/><path d="M30 112 C 40 60, 80 40, 104 46" fill="none" stroke-width="4" stroke-linecap="round" style="stroke:var(--ac)"/><path d="M136 56 C 170 66, 196 90, 206 124" fill="none" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 10" style="stroke:var(--bd2)" marker-end="url(#ponta-b)"/><path d="M112 40l16 20M128 40l-16 20" stroke-width="3" stroke-linecap="round" style="stroke:var(--tx3)"/></svg><figcaption><b>Sem conexão</b>O caminho volta quando a internet voltar.</figcaption></figure><figure><svg class="ilus" viewBox="0 0 240 160" aria-hidden="true"><path d="M168 46 A54 54 0 1 1 84 40" fill="none" stroke-width="4" stroke-linecap="round" style="stroke:var(--mao)" marker-end="url(#ponta-m)"/><circle cx="120" cy="84" r="22" fill="none" stroke-width="2.5" stroke-dasharray="5 5" style="stroke:var(--bd2)"/><path d="M120 74v20M110 84h20" stroke-width="3" stroke-linecap="round" style="stroke:var(--ac)"/></svg><figcaption><b>Grupo vazio</b>Chame alguém para entrar na roda.</figcaption></figure></div><p class="so-antes nota-antes">Hoje os estados usam ícones genéricos do Material Symbols (mãos acenando, troféu, câmera cortada), sem desenho próprio.</p></div>
+    <div class="peca tudo"><h3>Tom de voz: o de hoje, com a marca só onde ajuda</h3><div class="voz"><b>Hoje</b><b>Com a marca</b><span>Isso aí!</span><span>Isso aí! Sinal no ponto.</span><span>Ver de novo</span><span>Ver o movimento</span><span>Quase! Tente de novo.</span><span>Quase! Refaça o movimento mais devagar.</span><span>Lição concluída! +15 XP</span><span>Lição concluída! +15 XP. Bora para a próxima?</span></div></div>
+  </div></div>
+</section>
+<section aria-labelledby="t-telas">
+  <div class="tela-cab"><h2 id="t-telas">Telas no celular (390 px)</h2><p>A seta de trajetória gira em volta da lição atual no mapa, mostra o movimento na demonstração e explode na celebração. Títulos largos e pesados nos momentos de jogo. Use o seletor <b>Ver</b> para comparar com o visual de hoje.</p></div>
+  <div class="telas">
+<article class="tela-item" id="t-boas" aria-labelledby="h-boas"><header><h3 id="h-boas">1. Boas-vindas</h3><p>O L com as setas do movimento, como num dicionário de Libras. Título largo, alinhado à esquerda.</p></header><div class="cel"><div class="tela t-boas">
+  <div class="so-depois boas-d">
+    <div class="boas-topo"><span class="wm wm-tr" style="--wm:28px"><svg class="simb" width="36" height="36" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><path d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke="var(--wm-b)" stroke-width="6.5" stroke-linecap="round"/><path d="M37.0 36.5L52.0 46.0L37.0 55.5z" fill="var(--wm-b)" stroke="var(--wm-b)" stroke-width="2" stroke-linejoin="round"/><circle cx="20.0" cy="12.5" r="5" fill="var(--wm-a)"/></svg><span class="wm-t">librax</span></span></div>
+    <div class="boas-ilus"><div class="ilus-t"><svg class="arcos" viewBox="0 0 350 260" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="tr" d="M40 228 C 40 140, 90 70, 170 46" marker-end="url(#ponta)" /><path class="tr tr-m" d="M300 70 C 330 120, 320 190, 270 222" marker-end="url(#ponta-m)"/><circle cx="40" cy="228" r="7" style="fill:var(--tx)"/></svg><svg class="mao mao-boas" data-mao="L" viewBox="5 2 93 97" aria-hidden="true" focusable="false" data-junta="2.4"></svg></div></div>
+    <div><h1 class="disp boas-h">Aprenda Libras do zero</h1><p class="boas-p">Reconhecimento dos sinais pela câmera do celular, direto no navegador. Sem instalar nada e sem cadastro.</p></div>
+    <form class="boas-form" onsubmit="return false"><div class="campo"><label for="nome-boas-form">Como posso te chamar?</label><input id="nome-boas-form" type="text" autocomplete="given-name" placeholder="Seu nome ou apelido"/></div><button class="btn" type="submit">Começar agora <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><p class="nota">Nenhuma conta necessária. Seus dados ficam só neste navegador.</p></form>
+  </div>
+  <div class="so-antes boas-a">
+    <div class="idiomas" aria-label="Idioma"><span>Português</span><span>English</span><span>Español</span></div>
+    <div class="pontos-pag" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <svg class="maos-hoje" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.5V7a1.3 1.3 0 0 1 2.6 0v5M9.6 11.5V5.2a1.3 1.3 0 0 1 2.6 0v6.3M12.2 11.5V6.4a1.3 1.3 0 0 1 2.6 0v7.1c0 4-2.3 7-5.6 7-2.2 0-3.6-1.1-4.9-3.3l-1.8-3.2a1.3 1.3 0 0 1 2.2-1.4L7 14"/><path d="M16.5 4.5c1.2.7 2 2 2.2 3.4M18.3 2.8c1.8 1 3 2.9 3.2 5"/></svg>
+    <h1>Aprenda Libras do zero</h1>
+    <p>Reconhecimento de gestos em tempo real, pelo navegador. Sem apps, sem cadastro.</p>
+    <form class="boas-form-a" onsubmit="return false"><div class="campo"><label for="nome-boas-form-a">Como posso te chamar?</label><input id="nome-boas-form-a" type="text" autocomplete="given-name" placeholder="Seu nome ou apelido"/></div><button class="btn" type="submit">Começar agora <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><p class="nota">Nenhuma conta necessária. Seus dados ficam só neste navegador.</p></form>
+  </div>
+</div></div></article>
+<article class="tela-item" id="t-mapa" aria-labelledby="h-mapa"><header><h3 id="h-mapa">2. Mapa da unidade</h3><p>A seta de trajetória gira em volta da lição atual; o trecho já feito fica em tangerina e o caminho bloqueado, pontilhado. Botões em pílula e títulos largos.</p></header><div class="cel"><div class="tela t-mapa">
+  <header class="mp-topo"><div><span class="so-depois mp-wm"><span class="wm wm-tr" style="--wm:18px"><svg class="simb" width="23" height="23" viewBox="0 0 64 64" role="img" aria-label="Símbolo Traço"><path d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke="var(--wm-b)" stroke-width="8" stroke-linecap="round"/><path d="M37.0 36.5L52.0 46.0L37.0 55.5z" fill="var(--wm-b)" stroke="var(--wm-b)" stroke-width="2" stroke-linejoin="round"/><circle cx="20.0" cy="12.5" r="6" fill="var(--wm-a)"/></svg><span class="wm-t">librax</span></span></span><p class="mp-ola">Bom dia, <b>Ana</b></p></div><div class="chips"><span class="chip-j chip-fogo" aria-label="Sequência de 12 dias"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M12.5 2.5c.6 3.2 4.8 5.3 4.8 10.4A5.3 5.3 0 0 1 12 18.2a5.3 5.3 0 0 1-5.3-5.3c0-2.4 1.2-3.9 2.5-5 .1 2 1 3.4 2.4 3.6-.6-2.8-.4-6 .9-9z"/><path fill="currentColor" stroke="none" d="M12 21.5a3.4 3.4 0 0 1-3.4-3.4h6.8a3.4 3.4 0 0 1-3.4 3.4z" opacity=".55"/></svg>12</span><span class="chip-j chip-xp" aria-label="340 XP"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M13.6 2 5 13.4h5.6L9.4 22l9.6-12h-5.8z"/></svg>340</span></div></header>
+  <div class="meta card"><div class="meta-l"><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M13.6 2 5 13.4h5.6L9.4 22l9.6-12h-5.8z"/></svg>Meta do dia</span><span class="tab">15 / 20 XP</span></div><div class="barra barra-xp"><i style="width:75%"></i></div></div>
+  <section class="unid card" aria-labelledby="u3"><span class="unid-tag">Unidade 3</span><h2 id="u3">Saudações e cortesia</h2><p>Cumprimentar, perguntar como a pessoa está e agradecer.</p><div class="unid-prog"><span>1 de 4 lições</span><span class="barra"><i style="width:25%"></i></span></div></section>
+  <ol class="trilha" aria-label="Lições da unidade 3"><li class="so-depois trilha-deco" aria-hidden="true"></li><li class="no no-feito"><span class="no-b" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="so-depois no-deco"></span></span><span class="no-t"><span class="no-n">Oi e tchau</span><span class="no-s">5 sinais · 15 XP<span class="sr">, lição concluída</span></span><span class="so-depois"></span></span><span></span></li><li class="no no-atual"><span class="no-b" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L9.2 4.5A.8.8 0 0 0 8 5.2z"/></svg><span class="so-depois no-deco"><svg class="orbita" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 A46 46 0 1 1 9 29" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta)" style="stroke:var(--ac)"/></svg></span></span><span class="no-t"><span class="no-n">Tudo bem?</span><span class="no-s">4 sinais · 10 XP<span class="sr">, lição atual</span></span><span class="so-depois"></span></span><a class="no-go" href="#t-ex">Começar</a></li><li class="no no-trava"><span class="no-b" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/></svg><span class="so-depois no-deco"></span></span><span class="no-t"><span class="no-n">Obrigado e por favor</span><span class="no-s">4 sinais · 10 XP<span class="sr">, lição bloqueada</span></span><span class="so-depois"></span></span><span></span></li><li class="no no-trava"><span class="no-b" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/></svg><span class="so-depois no-deco"></span></span><span class="no-t"><span class="no-n">Com licença e desculpa</span><span class="no-s">3 sinais · 10 XP<span class="sr">, lição bloqueada</span></span><span class="so-depois"></span></span><span></span></li></ol>
+  <a class="retomar" href="#t-ex"><span class="so-depois ret-deco" aria-hidden="true"><svg class="ret-arco" viewBox="0 0 200 80" aria-hidden="true"><path d="M8 74 C 60 6, 140 6, 192 44" fill="none" stroke="#FF8A45" stroke-opacity=".55" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta-c)"/></svg></span><svg class="ic ic-play" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L9.2 4.5A.8.8 0 0 0 8 5.2z"/></svg><span class="rt"><small>Retomar</small><b>Tudo bem?</b></span><span class="ret-btn" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+  <nav class="abas" aria-label="Navegação principal"><a href="#t-mapa" aria-current="page"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.8c3.2 2.3 7.8 2.3 11 0V11M21.5 9v5"/></svg></span>Aprender</a><a href="#t-mapa"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5V6.2a1.5 1.5 0 0 1 3 0v4.8M11 11V4.7a1.5 1.5 0 0 1 3 0V11M14 11V6.2a1.5 1.5 0 0 1 3 0v6.6c0 4.4-2.6 7.7-6.3 7.7-2.4 0-4-1.2-5.4-3.6l-2-3.6a1.5 1.5 0 0 1 2.5-1.6L8 13"/></svg></span>Praticar</a><a href="#t-liga"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5c.5-3.4 3-5.3 6-5.3s5.5 1.9 6 5.3"/><path d="M15.5 5.6a3.2 3.2 0 0 1 0 5.9M17.5 14.4c2 .6 3.2 2.3 3.5 5.1"/></svg></span>Social</a><a href="#t-mapa"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.6-3.8 3.6-6 7.5-6s6.9 2.2 7.5 6"/></svg></span>Perfil</a></nav>
+</div></div></article>
+<article class="tela-item" id="t-ex" aria-labelledby="h-ex"><header><h3 id="h-ex">3. Exercício: Qual é este sinal?</h3><p>A demonstração mostra a seta do movimento. A barra termina numa ponta de seta. Ver o movimento anima a mão.</p></header><div class="cel"><div class="tela t-ex">
+  <div class="lic-topo"><button class="icb" type="button" aria-label="Sair da lição"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="lic-prog"><span class="so-depois"><span class="seta-prog" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="4" aria-label="Exercício 4 de 12"><i style="width:33.33333333333333%"></i></span></span><span class="so-antes prog-hoje"><i style="width:33%"></i></span></div><span class="cont">4/12</span></div>
+  <h1 class="enun disp">Qual é este sinal?</h1>
+  <div class="demo">
+    <div class="so-depois demo-d"><div class="demo-t"><svg class="demo-arco" viewBox="0 0 300 260" aria-hidden="true"><path class="tr" d="M250 150 C 270 110, 262 70, 230 50" marker-end="url(#ponta)" /><circle cx="250" cy="150" r="5" style="fill:var(--tx)"/></svg><svg class="mao mao-demo" data-mao="L" viewBox="5 2 93 97" aria-hidden="true" focusable="false" data-junta="2.2"></svg><span class="demo-leg">O polegar abre; o indicador sobe</span></div></div>
+    <div class="so-antes demo-a"><p>Mão com o indicador para cima e o polegar estendido para o lado, palma para a frente, sem movimento.</p></div>
+    <button class="ver-novo" type="button" data-ver-novo><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18C5 10 11 5 19 6"/><path d="M15 3l4 3-3 4"/></svg><span>Ver o movimento</span></button>
+  </div>
+  <div class="opcoes" role="radiogroup" aria-label="Alternativas"><button class="op" type="button" role="radio" aria-checked="true"><span class="op-l">L</span><span class="so-depois op-x"></span></button><button class="op" type="button" role="radio" aria-checked="false"><span class="op-l">D</span><span class="so-depois op-x"></span></button><button class="op" type="button" role="radio" aria-checked="false"><span class="op-l">U</span><span class="so-depois op-x"></span></button><button class="op" type="button" role="radio" aria-checked="false"><span class="op-l">A</span><span class="so-depois op-x"></span></button></div>
+  <div class="rodape"><button class="btn" type="button">Verificar</button></div>
+</div></div></article>
+<article class="tela-item" id="t-cam" aria-labelledby="h-cam"><header><h3 id="h-cam">4. Câmera</h3><p>No acerto, setas curtas em volta da mão marcam o sinal no ponto. Pílula e texto confirmam.</p></header><div class="cel"><div class="tela t-cam palco">
+  <div class="lic-topo"><button class="icb" type="button" aria-label="Sair da lição"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="lic-prog"><span class="so-depois"><span class="seta-prog pc" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="5" aria-label="Exercício 5 de 12"><i style="width:41.66666666666667%"></i></span></span><span class="so-antes prog-hoje"><i style="width:42%"></i></span></div><span class="cont">5/12</span></div>
+  <div class="so-depois pc-instr"><span class="pc-rot">Sua vez</span><h1 class="pc-h disp">Faça o sinal: <span class="gl">L</span></h1></div>
+  <div class="so-antes pc-instr pc-ins-a"><span class="pc-rot">Faça o sinal com a mão:</span><span class="pc-letra">L</span></div>
+  <div class="video" role="img" aria-label="Vídeo simulado da câmera com o esqueleto da mão fazendo o L">
+    <div class="guia so-antes"></div>
+    <svg class="mao mao-pc" data-mao="L" viewBox="5 2 93 97" aria-hidden="true" focusable="false" data-halo data-junta="2.4"></svg>
+    <div class="so-depois cam-x"><svg class="cam-arcos" viewBox="0 0 100 100" aria-hidden="true"><path d="M84 66 C 96 50, 96 30, 84 16" fill="none" stroke="#FF8A45" stroke-width="2" stroke-linecap="round" marker-end="url(#ponta-c)"/><path d="M10 92 C 30 98, 50 98, 66 90" fill="none" stroke="#FF8A45" stroke-opacity=".7" stroke-width="2" stroke-linecap="round" marker-end="url(#ponta-c)"/></svg></div>
+    <span class="pill"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Sinal reconhecido</span>
+  </div>
+  <div class="conf"><span>Confiança</span><span class="barra"><i style="width:92%"></i></span><span class="tab">92%</span></div>
+  <div class="fb-ok" role="status"><div class="fb-t"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><b>Isso aí!</b><span class="fb-xp">+2 XP</span></div><p><span class="so-depois">Sinal no ponto: o L ficou parado e firme. Correto!</span><span class="so-antes">Correto! Você fez o sinal de L.</span></p><button class="btn btn-ok" type="button">Continuar</button></div>
+</div></div></article>
+<article class="tela-item" id="t-fim" aria-labelledby="h-fim"><header><h3 id="h-fim">5. Lição concluída</h3><p>Celebração em explosão de setas curvas, com +15 XP em Anybody larga.</p></header><div class="cel"><div class="tela t-fim">
+  <div class="so-depois fim-d"><div class="fim-t"><svg class="burst" viewBox="0 0 358 192" role="img" aria-label="Mais 15 XP"><path d="M291.4 108.1Q302.1 125.1 327.1 120.2" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta)" style="stroke:var(--ac)"/><path d="M265.0 136.2Q262.7 157.1 294.9 162.2" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta-m)" style="stroke:var(--mao)"/><path d="M215.5 153.5Q192.9 167.0 213.4 176.0" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta)" style="stroke:var(--ac)"/><path d="M156.2 155.5Q120.9 164.9 128.6 182.2" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta-m)" style="stroke:var(--mao)"/><path d="M103.1 141.5Q69.8 137.9 65.3 151.7" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta)" style="stroke:var(--ac)"/><path d="M70.3 115.3Q37.2 103.8 12.7 116.0" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta-m)" style="stroke:var(--mao)"/><path d="M66.6 83.9Q55.9 66.9 30.9 71.8" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta)" style="stroke:var(--ac)"/><path d="M93.0 55.8Q95.3 34.9 63.1 29.8" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta-m)" style="stroke:var(--mao)"/><path d="M142.5 38.5Q165.1 25.0 144.6 16.0" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta)" style="stroke:var(--ac)"/><path d="M201.8 36.5Q237.1 27.1 229.4 9.8" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta-m)" style="stroke:var(--mao)"/><path d="M254.9 50.5Q288.2 54.1 292.7 40.3" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta)" style="stroke:var(--ac)"/><path d="M287.7 76.7Q320.8 88.2 345.3 76.0" fill="none" stroke-width="3" stroke-linecap="round" marker-end="url(#ponta-m)" style="stroke:var(--mao)"/><text x="179" y="112" text-anchor="middle" font-size="52" font-weight="900" style="font-family:var(--fd);font-stretch:125%;fill:var(--tx)">+15</text><text x="179" y="136" text-anchor="middle" font-size="16" font-weight="800" letter-spacing="2" style="font-family:var(--fd);fill:var(--xp-tx)">XP</text></svg></div></div>
+  <div class="so-antes fim-a"><div class="medalhas"><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5.5a4 4 0 0 1-8 0z"/><path d="M8 6H5.2a3 3 0 0 0 3 4.4M16 6h2.8a3 3 0 0 1-3 4.4M12 13.5V17M8.5 20h7"/></svg>Unidade 3: primeira lição concluída</span><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5.5a4 4 0 0 1-8 0z"/><path d="M8 6H5.2a3 3 0 0 0 3 4.4M16 6h2.8a3 3 0 0 1-3 4.4M12 13.5V17M8.5 20h7"/></svg>5 sinais aprendidos</span></div><svg class="maos-hoje" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.5V7a1.3 1.3 0 0 1 2.6 0v5M9.6 11.5V5.2a1.3 1.3 0 0 1 2.6 0v6.3M12.2 11.5V6.4a1.3 1.3 0 0 1 2.6 0v7.1c0 4-2.3 7-5.6 7-2.2 0-3.6-1.1-4.9-3.3l-1.8-3.2a1.3 1.3 0 0 1 2.2-1.4L7 14"/><path d="M16.5 4.5c1.2.7 2 2 2.2 3.4M18.3 2.8c1.8 1 3 2.9 3.2 5"/></svg><span class="pilula-xp">+15 XP</span></div>
+  <h1 class="disp fim-h">Lição concluída!</h1>
+  <p class="fim-p">Você acertou 11 de 12 exercícios.</p>
+  <div class="stats"><div class="stat st-xp"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M13.6 2 5 13.4h5.6L9.4 22l9.6-12h-5.8z"/></svg><b>+15</b><span>XP ganho</span></div><div class="stat st-fogo"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M12.5 2.5c.6 3.2 4.8 5.3 4.8 10.4A5.3 5.3 0 0 1 12 18.2a5.3 5.3 0 0 1-5.3-5.3c0-2.4 1.2-3.9 2.5-5 .1 2 1 3.4 2.4 3.6-.6-2.8-.4-6 .9-9z"/><path fill="currentColor" stroke="none" d="M12 21.5a3.4 3.4 0 0 1-3.4-3.4h6.8a3.4 3.4 0 0 1-3.4 3.4z" opacity=".55"/></svg><b>12</b><span>Dias seguidos</span></div><div class="stat st-mao"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5V6.2a1.5 1.5 0 0 1 3 0v4.8M11 11V4.7a1.5 1.5 0 0 1 3 0V11M14 11V6.2a1.5 1.5 0 0 1 3 0v6.6c0 4.4-2.6 7.7-6.3 7.7-2.4 0-4-1.2-5.4-3.6l-2-3.6a1.5 1.5 0 0 1 2.5-1.6L8 13"/></svg><b>5</b><span>Sinais novos</span></div></div>
+  <section class="glosas" aria-labelledby="gp"><h2 id="gp">Sinais praticados</h2><ul><li class="gl">OI</li><li class="gl">TCHAU</li><li class="gl">BOM-DIA</li><li class="gl">BOA-TARDE</li><li class="gl">BOA-NOITE</li></ul></section>
+  <div class="rodape"><button class="btn" type="button">Continuar <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+</div></div></article>
+<article class="tela-item" id="t-liga" aria-labelledby="h-liga"><header><h3 id="h-liga">6. Liga</h3><p>Insígnia Safira com uma seta curva para cima. A zona de promoção é marcada com seta e texto.</p></header><div class="cel"><div class="tela t-liga">
+  <header class="tela-cabec"><button class="icb" type="button" aria-label="Voltar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button><h1>Ligas</h1></header>
+  <div class="liga-cab"><span class="so-depois"><svg class="insignia" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 5 55.4 18.5v27L32 59 8.6 45.5v-27z" fill="#3460E6" stroke="#1B2768" stroke-width="2.5" stroke-linejoin="round"/><path d="M22 44 C 22 32, 30 24, 40 22" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/><path d="M36 15.5 45 21.5 37 28.5" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="so-antes"><svg class="insignia" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4 56 18v28L32 60 8 46V18z" fill="#3460E6" stroke="#1B2768" stroke-width="3" stroke-linejoin="round"/></svg></span><div><h2>Liga Safira</h2><p><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>A semana fecha em 2d 9h</p></div></div>
+  <p class="liga-regra">Os 10 primeiros da semana sobem para a Liga Rubi. Você está em 11º.</p>
+  <ol class="rank" aria-label="Classificação da semana"><li class="rk-mais">Do 1º ao 7º lugar, role para cima</li><li class="rk rk-sobe"><span class="rk-p">8º</span><span class="rk-av" aria-hidden="true">BL</span><span class="rk-n">Bruno Lima<small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Sobe para a Rubi</small></span><span class="rk-x">412 XP</span></li><li class="rk rk-sobe"><span class="rk-p">9º</span><span class="rk-av" aria-hidden="true">CD</span><span class="rk-n">Carla Dias<small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Sobe para a Rubi</small></span><span class="rk-x">398 XP</span></li><li class="rk rk-sobe"><span class="rk-p">10º</span><span class="rk-av" aria-hidden="true">DS</span><span class="rk-n">Diego Sá<small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Sobe para a Rubi</small></span><span class="rk-x">373 XP</span></li><li class="zona"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg><span>Zona de promoção acima</span></li><li class="rk rk-eu"><span class="rk-p">11º</span><span class="rk-av" aria-hidden="true">AN</span><span class="rk-n">Você, Ana<small>Faltam 34 XP para subir</small></span><span class="rk-x">340 XP</span></li><li class="rk"><span class="rk-p">12º</span><span class="rk-av" aria-hidden="true">ER</span><span class="rk-n">Eduardo Reis</span><span class="rk-x">318 XP</span></li><li class="rk"><span class="rk-p">13º</span><span class="rk-av" aria-hidden="true">FP</span><span class="rk-n">Fernanda Paz</span><span class="rk-x">296 XP</span></li></ol>
+  <nav class="abas" aria-label="Navegação principal"><a href="#t-mapa"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.8c3.2 2.3 7.8 2.3 11 0V11M21.5 9v5"/></svg></span>Aprender</a><a href="#t-mapa"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5V6.2a1.5 1.5 0 0 1 3 0v4.8M11 11V4.7a1.5 1.5 0 0 1 3 0V11M14 11V6.2a1.5 1.5 0 0 1 3 0v6.6c0 4.4-2.6 7.7-6.3 7.7-2.4 0-4-1.2-5.4-3.6l-2-3.6a1.5 1.5 0 0 1 2.5-1.6L8 13"/></svg></span>Praticar</a><a href="#t-liga" aria-current="page"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5c.5-3.4 3-5.3 6-5.3s5.5 1.9 6 5.3"/><path d="M15.5 5.6a3.2 3.2 0 0 1 0 5.9M17.5 14.4c2 .6 3.2 2.3 3.5 5.1"/></svg></span>Social</a><a href="#t-mapa"><span class="ab-i"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.6-3.8 3.6-6 7.5-6s6.9 2.2 7.5 6"/></svg></span>Perfil</a></nav>
+</div></div></article>
+  </div>
+</section>
+</main>
+<script>
+/* Modelo da mão: 21 pontos na ordem do MediaPipe Hands e as mesmas ligações.
+   0 pulso; 1-4 polegar (CMC, MCP, IP, ponta); 5-8 indicador; 9-12 médio; 13-16 anelar; 17-20 mínimo.
+   Mão direita vista de frente (palma para quem olha), polegar à direita da imagem.
+   Cada dedo é uma cadeia de 3 falanges; "c" é o quanto o dedo dobra (0 estendido, 1 fechado).
+   A dobra gira as falanges em direção a quem olha, então na projeção 2D elas encurtam e voltam sobre a palma. */
+var MAO = (function () {
+  var LIG = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
+  var DEDO_DO_PONTO = ["palma","t","t","t","t","i","i","i","i","m","m","m","m","a","a","a","a","p","p","p","p"];
+  var BASE = {
+    pulso: [44, 92], cmc: [59, 80],
+    mcp: { i: [57, 52], m: [47, 49], a: [37, 52], p: [28, 58] },
+    ang: { i: -86, m: -93, a: -101, p: -111, t: -20 },
+    len: { i: [17, 11, 9], m: [19, 12, 9], a: [17, 11, 9], p: [13, 9, 8], t: [13, 10, 9] }
+  };
+  var POSES = {
+    aberta: { c: { i: 0, m: 0, a: 0, p: 0, t: 0 }, ang: { i: -78, m: -92, a: -106, p: -122, t: -18 }, ativos: "timap" },
+    L: { c: { i: 0, m: 1, a: 1, p: 1, t: 0 }, ang: { t: -6 }, ativos: "ti" },
+    D: { c: { i: 0, m: 0.82, a: 0.85, p: 0.88, t: 0.3 }, ang: { t: -128 }, ativos: "i" },
+    U: { c: { i: 0, m: 0, a: 1, p: 1, t: 0.25 }, ang: { i: -89, m: -94, t: -152 }, ativos: "im" },
+    A: { c: { i: 1, m: 1, a: 1, p: 1, t: 0.05 }, ang: { t: -80 }, ativos: "t" },
+    /* Pose da marca: o L idealizado (indicador na vertical, polegar na horizontal) */
+    marca: { c: { i: 0, m: 1, a: 1, p: 1, t: 0 }, ang: { i: -90, t: 0 }, pulso: [52, 90], cmc: [61, 90], mcp: { i: [52, 51], m: [43, 53], a: [35, 57], p: [28, 63] }, ativos: "ti" }
+  };
+  var DOBRA = [62, 100, 78];
+  function rad(g) { return g * Math.PI / 180; }
+  function cadeia(o, ang, len, c) {
+    var r = [], a = 0, x = o[0], y = o[1], dx = Math.cos(rad(ang)), dy = Math.sin(rad(ang));
+    for (var k = 0; k < 3; k++) {
+      a += DOBRA[k] * c;
+      var ao = Math.cos(rad(a)) * len[k];
+      var lado = Math.sin(rad(a)) * len[k] * 0.12;
+      x += dx * ao - dy * lado; y += dy * ao + dx * lado;
+      r.push([x, y]);
+    }
+    return r;
+  }
+  function pontos(nome) {
+    var P = POSES[nome] || POSES.L;
+    var ang = {}, mcp = {};
+    "imapt".split("").forEach(function (d) { ang[d] = (P.ang && P.ang[d] != null) ? P.ang[d] : BASE.ang[d]; });
+    "imap".split("").forEach(function (d) { mcp[d] = (P.mcp && P.mcp[d]) ? P.mcp[d] : BASE.mcp[d]; });
+    var pulso = P.pulso || BASE.pulso, cmc = P.cmc || BASE.cmc;
+    var pts = [pulso, cmc].concat(cadeia(cmc, ang.t, BASE.len.t, P.c.t));
+    "imap".split("").forEach(function (d) { pts.push(mcp[d]); pts = pts.concat(cadeia(mcp[d], ang[d], BASE.len[d], P.c[d])); });
+    return pts.map(function (p) { return [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10]; });
+  }
+  function caixa(pts, idx, folga) {
+    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    idx.forEach(function (i) { var p = pts[i]; x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); });
+    return [x0 - folga, y0 - folga, x1 - x0 + 2 * folga, y1 - y0 + 2 * folga];
+  }
+  /* Desenha num <svg>. Opções: so (lista de índices), osso, junta (raio), halo, vb (viewBox fixo) */
+  function svgInterno(pts, nome, o) {
+    o = o || {};
+    var P = POSES[nome] || POSES.L, ativos = P.ativos || "";
+    var so = o.so || null;
+    var usa = function (i) { return !so || so.indexOf(i) >= 0; };
+    var r = o.junta || 2.6, s = "";
+    var ligs = LIG.filter(function (l) { return usa(l[0]) && usa(l[1]); });
+    function at(i) { var d = DEDO_DO_PONTO[i]; return d !== "palma" && ativos.indexOf(d) >= 0; }
+    if (o.halo) ligs.forEach(function (l) { var a = pts[l[0]], b = pts[l[1]]; s += '<line class="h" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '"/>'; });
+    ligs.forEach(function (l) {
+      var a = pts[l[0]], b = pts[l[1]];
+      var dedo = DEDO_DO_PONTO[l[1]];
+      s += '<line class="o o-' + dedo + (at(l[1]) && (l[0] !== 0 || dedo !== "p") ? " at" : "") + '" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '"/>';
+    });
+    pts.forEach(function (p, i) {
+      if (!usa(i)) return;
+      var ponta = i % 4 === 0 && i > 0;
+      s += '<circle class="j' + (ponta ? " pt" : "") + (at(i) ? " at" : "") + (i === 0 ? " pu" : "") + '" cx="' + p[0] + '" cy="' + p[1] + '" r="' + (ponta ? r * 1.25 : r) + '"/>';
+    });
+    return s;
+  }
+  function vb(nome, o) {
+    var pts = pontos(nome), idx = (o && o.so) || pts.map(function (_, i) { return i; });
+    var c = caixa(pts, idx, (o && o.folga) || 7);
+    return c.map(function (v) { return Math.round(v * 10) / 10; }).join(" ");
+  }
+  function opcoes(el) {
+    var d = el.dataset || {};
+    return { so: d.so ? d.so.split(",").map(Number) : null, junta: d.junta ? +d.junta : 2.6, halo: d.halo != null, folga: d.folga ? +d.folga : 7 };
+  }
+  function desenhar(el, nome) {
+    nome = nome || el.getAttribute("data-mao");
+    var o = opcoes(el);
+    if (!el.getAttribute("viewBox") || el.hasAttribute("data-vb-auto")) { el.setAttribute("viewBox", vb(nome, o)); el.setAttribute("data-vb-auto", ""); }
+    el.innerHTML = svgInterno(pontos(nome), nome, o);
+  }
+  /* Transição entre duas poses (botão Ver de novo). Respeita reduzir movimento. */
+  function animar(el, de, para, ms) {
+    var reduz = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduz) { desenhar(el, para); return; }
+    var A = pontos(de), B = pontos(para), o = opcoes(el), t0 = null;
+    function passo(t) {
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3);
+      var pts = A.map(function (p, i) { return [p[0] + (B[i][0] - p[0]) * e, p[1] + (B[i][1] - p[1]) * e].map(function (v) { return Math.round(v * 10) / 10; }); });
+      el.innerHTML = svgInterno(pts, k < 1 ? "aberta" : para, o);
+      if (k < 1) requestAnimationFrame(passo); else desenhar(el, para);
+    }
+    requestAnimationFrame(passo);
+  }
+  return { LIG: LIG, pontos: pontos, svgInterno: svgInterno, vb: vb, desenhar: desenhar, animar: animar, POSES: POSES };
+})();
+
+(function () {
+  var root = document.documentElement;
+  var ver = document.getElementById('c-ver'), tema = document.getElementById('c-tema');
+  function aplicaVer(v) { root.classList.toggle('dp', v !== 'antes'); root.classList.toggle('an', v === 'antes'); ver.value = v; }
+  function aplicaTema(t) { root.dataset.tema = t; tema.value = t; }
+  ver.addEventListener('change', function () { aplicaVer(ver.value); });
+  tema.addEventListener('change', function () { aplicaTema(tema.value); });
+  /* Parâmetros na URL para conferir sem clicar: ?tema=escuro&ver=antes */
+  var q = new URLSearchParams(location.search);
+  aplicaTema(q.get('tema') || 'auto');
+  aplicaVer(q.get('ver') || 'depois');
+  document.querySelectorAll('svg[data-mao]').forEach(function (el) { MAO.desenhar(el); });
+  document.querySelectorAll('[data-ver-novo]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var el = b.closest('.demo').querySelector('.so-depois svg[data-mao]');
+      if (el) MAO.animar(el, 'aberta', el.getAttribute('data-mao'), 700);
+    });
+  });
+  document.querySelectorAll('.opcoes').forEach(function (g) {
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('.op'); if (!b) return;
+      g.querySelectorAll('.op').forEach(function (o) { o.setAttribute('aria-checked', String(o === b)); });
+    });
+  });
+})();</script>
+</body>
+</html>
