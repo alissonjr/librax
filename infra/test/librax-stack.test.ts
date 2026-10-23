@@ -185,6 +185,13 @@ describe('Cognito', () => {
     });
   });
 
+  test('sem Identity Pool: convidado e 100% local e a API so aceita o JWT do User Pool', () => {
+    const { template } = synth(withDomain);
+    template.resourceCountIs('AWS::Cognito::IdentityPool', 0);
+    template.resourceCountIs('AWS::Cognito::IdentityPoolRoleAttachment', 0);
+    expect(Object.keys(template.toJSON().Outputs ?? {})).not.toContain('IdentityPoolId');
+  });
+
   test('Google pode ser desligado para um primeiro deploy sem credenciais', () => {
     const { template } = synth({ ...withDomain, 'librax:googleEnabled': 'false' });
     template.resourceCountIs('AWS::Cognito::UserPoolIdentityProvider', 0);

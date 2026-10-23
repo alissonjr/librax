@@ -82,7 +82,8 @@ usam as fábricas.
 
 Todos sob `/api` no domínio do app (CloudFront repassa `/api/*` para o estágio `api` da
 HTTP API) e com o autorizador JWT do Cognito. O app manda o **id token** no
-`Authorization: Bearer`.
+`Authorization: Bearer`. Não há Identity Pool: o convidado é 100% local e só chama a API
+depois de criar conta (`POST /v1/guest/migrate`).
 
 | Método | Rota | O que faz |
 |---|---|---|
@@ -269,7 +270,5 @@ do Cognito precisam estar lá.
 - Não há rota de leitura de liga (`GET` da liga atual e do `lastResult`); o app segue no modo
   local (`apps/web-poc/src/lib/leagueLocal.ts`).
 - O mesmo job semanal ainda não zera `xpWeekly`/`xpWeeklyContrib` das squads (SPEC 04 seção 8).
-- O Identity Pool do convidado anônimo continua na stack, sem uso pelo app web (convidado
-  100% local); remover quando a decisão for fechada.
 - `completedAt` e `today` vêm do aparelho; um relógio errado pode deslocar a ofensiva de um
   convidado migrado (limitado a 365 dias atrás e 1 dia à frente).

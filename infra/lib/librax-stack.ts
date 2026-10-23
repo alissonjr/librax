@@ -540,16 +540,8 @@ export class LibraxStack extends cdk.Stack {
     });
     for (const idp of idpResources) userPoolClient.node.addDependency(idp);
 
-    // Identity Pool legado (convidado anonimo da SPEC 02). O plano mobile web deixa o
-    // convidado 100% local; mantido sem roles ate a decisao de remover.
-    const identityPool = new cognito.CfnIdentityPool(this, 'LibraxIdentityPool', {
-      identityPoolName: 'librax_identity',
-      allowUnauthenticatedIdentities: true,
-      cognitoIdentityProviders: [{
-        clientId: userPoolClient.userPoolClientId,
-        providerName: userPool.userPoolProviderName,
-      }],
-    });
+    // Sem Identity Pool: o convidado e 100% local (plano mobile web) e entra na API so depois
+    // de criar conta, com o id token do User Pool (POST /v1/guest/migrate).
 
     // O app manda o id token (tem email e email_verified, usados no opt-in de e-mail)
     const authorizer = new apigatewayv2authorizers.HttpJwtAuthorizer('CognitoAuth', userPool.userPoolProviderUrl, {
@@ -673,10 +665,6 @@ export class LibraxStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'AuthDomainCloudFront', {
       value: userPoolDomain.cloudFrontEndpoint,
       description: 'Destino do CNAME/alias do dominio do Cognito (DNS fora do Route 53)',
-    });
-    new cdk.CfnOutput(this, 'IdentityPoolId', {
-      value: identityPool.ref,
-      description: 'Cognito Identity Pool ID (legado, convidado anonimo)',
     });
     new cdk.CfnOutput(this, 'DistributionDomain', {
       value: distribution.distributionDomainName,
