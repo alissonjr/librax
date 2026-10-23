@@ -123,9 +123,11 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
   if (!lesson || exercises.length === 0) return null;
 
   const ex = exercises[currentIdx];
+  // Exercício com câmera: a tela inteira vira o palco (sempre escuro, nos dois modos)
+  const onStage = CAMERA_EXERCISES.has(ex.type);
 
   return (
-    <div className="lesson-screen">
+    <div className={`lesson-screen${onStage ? ' lesson-screen--stage lx-theme-dark' : ''}`}>
       <div className="lesson-topbar">
         <button className="back-btn" onClick={onExit} aria-label={t('common.back')}>
           <Icon name="arrow_back" />

@@ -165,6 +165,11 @@ ${darkBlock('  ')}
 ${darkBlock('    ')}
   }
 }
+
+/* Escuro em um trecho da tela, nos dois modos: o palco da câmera (exercícios com câmera) */
+.lx-theme-dark {
+${darkBlock('  ')}
+}
 `;
 
 // ---------- tokens.ts ----------

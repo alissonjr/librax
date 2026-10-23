@@ -1,5 +1,6 @@
 import { useT } from '../i18n';
 import { Icon, type IconName } from './Icon';
+import { Wordmark } from './Brand';
 
 export type NavSection = 'aprender' | 'praticar' | 'social' | 'perfil';
 
@@ -27,7 +28,7 @@ export function Nav({ active, onNavigate }: NavProps) {
   return (
     <nav className="nav-sidebar" aria-label={t('nav.ariaLabel')}>
       <div className="nav-logo">
-        <span className="nav-logo-text">Librax</span>
+        <Wordmark size={24} />
       </div>
       {ITEMS.map(item => {
         const isActive = active === item.id;

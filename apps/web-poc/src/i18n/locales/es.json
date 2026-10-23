@@ -341,7 +341,7 @@
     "correctAnswer": "La respuesta correcta es:",
     "pauseVideo": "Pausar video",
     "prompt": "¿Qué seña es esta?",
-    "replay": "Ver de nuevo",
+    "replay": "Ver el movimiento",
     "resumeVideo": "Reanudar video"
   },
   "exerciseWordChooseVideo": {
@@ -522,10 +522,10 @@
     "loading": "Cargando el avatar",
     "loadingProgress": "Cargando el avatar: {pct}%",
     "preparing": "Preparando el avatar",
-    "replay": "Repetir",
-    "replayLabel": "Repetir la seña",
+    "replay": "Ver el movimiento",
+    "replayLabel": "Ver el movimiento de nuevo",
     "retry": "Intentar de nuevo",
-    "showSign": "Ver la seña",
+    "showSign": "Ver el movimiento",
     "speedLabel": "Velocidad {speed}. Toca para cambiar",
     "videoLabel": "Video de la seña {gloss}",
     "videoLabelHidden": "Video de la seña de la pregunta"

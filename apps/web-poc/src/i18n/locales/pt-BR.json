@@ -401,7 +401,7 @@
     "correctAnswer": "A resposta correta é:",
     "pauseVideo": "Pausar vídeo",
     "prompt": "Qual é este sinal?",
-    "replay": "Ver de novo",
+    "replay": "Ver o movimento",
     "resumeVideo": "Retomar vídeo"
   },
   "exerciseWordChooseVideo": {
@@ -648,10 +648,10 @@
     "loading": "Carregando o avatar",
     "loadingProgress": "Carregando o avatar: {pct}%",
     "preparing": "Preparando o avatar",
-    "replay": "Repetir",
-    "replayLabel": "Repetir o sinal",
+    "replay": "Ver o movimento",
+    "replayLabel": "Ver o movimento de novo",
     "retry": "Tentar de novo",
-    "showSign": "Ver o sinal",
+    "showSign": "Ver o movimento",
     "speedLabel": "Velocidade {speed}. Toque para mudar",
     "videoLabel": "Vídeo do sinal {gloss}",
     "videoLabelHidden": "Vídeo do sinal da pergunta"

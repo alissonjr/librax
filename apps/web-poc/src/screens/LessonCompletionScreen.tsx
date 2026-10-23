@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Haptics } from '../lib/haptics';
 import { Sfx } from '../lib/sound';
-import { launchConfetti } from '../lib/confetti';
 import { useT, type TFunc } from '../i18n';
 import type { LessonSessionResult } from './LessonScreen';
 import { Icon } from '../components/Icon';
 import { signsMap } from '../lib/content';
+import { TraceBurst } from '../components/Brand';
 
 function achievementLabel(code: string, t: TFunc): string {
   const labels: Record<string, string> = {
@@ -36,13 +36,13 @@ interface Props {
   onContinue: () => void;
 }
 
-function XpBadge({ xp }: { xp: number }) {
+/** +XP no centro da explosão de setas (Traço): as setas saem do número, uma depois da outra. */
+function XpBurst({ xp, trophy }: { xp: number; trophy: boolean }) {
   const { t } = useT();
-  const [visible, setVisible] = useState(false);
-  useEffect(() => { const timer = setTimeout(() => setVisible(true), 300); return () => clearTimeout(timer); }, []);
   return (
-    <div className={`xp-badge-anim${visible ? ' xp-badge-anim--up' : ''}`}>
-      {t('lessonCompletion.xpGain', { xp })}
+    <div className="completion-burst">
+      {trophy && <Icon name="trophy" filled size="40px" className="completion-burst-trophy" />}
+      <TraceBurst value={`+${xp}`} unit="XP" label={t('lessonCompletion.xpGain', { xp })} />
     </div>
   );
 }
@@ -60,11 +60,8 @@ export function LessonCompletionScreen({ data, onContinue }: Props) {
     if (goalMet) Haptics.goalMet();
     else Haptics.correct();
     Sfx.lessonDone();
-    // Celebra lições com bom desempenho (ou a conclusão do alfabeto) com confete
-    if (isLastLesson || pct >= 80) {
-      launchConfetti(isLastLesson ? 120 : 70, isLastLesson ? 4000 : 2600);
-    }
-  }, [isLastLesson, pct, goalMet]);
+    // A celebração é a explosão de setas (XpBurst), desenhada na própria tela
+  }, [goalMet]);
 
   // Som da conquista junto com o banner (que entra com 1 s de atraso, animate__delay-1s)
   useEffect(() => {
@@ -88,11 +85,7 @@ export function LessonCompletionScreen({ data, onContinue }: Props) {
         </div>
       )}
 
-      <div className="completion-hero wow-glow animate__animated animate__bounceIn">
-        <Icon name={isLastLesson ? 'trophy' : 'sign_language'} filled />
-      </div>
-
-      <XpBadge xp={xpAwarded} />
+      <XpBurst xp={xpAwarded} trophy={isLastLesson} />
 
       <h1 className="animate__animated animate__fadeInUp" style={{ animationDelay: '200ms' }}>
         {isLastLesson ? t('lessonCompletion.titleAlphabet') : pct >= 80 ? t('lessonCompletion.titleGreat') : t('lessonCompletion.titleDone')}

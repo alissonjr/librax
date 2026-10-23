@@ -11,6 +11,7 @@ import { useT, type TFunc } from '../i18n';
 import { Icon } from './Icon';
 import { SignDemo, chooseDemoMode } from './SignDemo';
 import { DemoToggle } from './DemoToggle';
+import { TraceCameraArcs } from './Brand';
 import { HEURISTIC_LETTERS, useRecognizableLetters } from '../recognition/classifier';
 
 /**
@@ -175,6 +176,7 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
             aria-label={t('exerciseCameraSign.correct')}
           >
             <div className="cam-sign-success-card animate__animated animate__bounceIn">
+              <TraceCameraArcs className="cam-sign-success-arcs" />
               <Icon name="check" size="40px" className="cam-sign-success-check" />
               <p className="cam-sign-success-title">
                 {t('exerciseCameraSign.successTitle', { letter: targetLetter })}

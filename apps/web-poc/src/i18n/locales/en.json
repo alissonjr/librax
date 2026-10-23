@@ -341,7 +341,7 @@
     "correctAnswer": "The correct answer is:",
     "pauseVideo": "Pause video",
     "prompt": "Which sign is this?",
-    "replay": "Watch again",
+    "replay": "See the movement",
     "resumeVideo": "Resume video"
   },
   "exerciseWordChooseVideo": {
@@ -522,10 +522,10 @@
     "loading": "Loading the avatar",
     "loadingProgress": "Loading the avatar: {pct}%",
     "preparing": "Getting the avatar ready",
-    "replay": "Replay",
-    "replayLabel": "Replay the sign",
+    "replay": "See the movement",
+    "replayLabel": "See the movement again",
     "retry": "Try again",
-    "showSign": "Show the sign",
+    "showSign": "See the movement",
     "speedLabel": "Speed {speed}. Tap to change",
     "videoLabel": "Video of the sign {gloss}",
     "videoLabelHidden": "Video of the question sign"

@@ -523,3 +523,78 @@
     color-scheme: dark;
   }
 }
+
+/* Escuro em um trecho da tela, nos dois modos: o palco da câmera (exercícios com câmera) */
+.lx-theme-dark {
+  --lx-bg-canvas: #14110E;
+  --lx-bg-surface: #1E1915;
+  --lx-bg-raised: #241E19;
+  --lx-bg-sunken: #0C0A08;
+  --lx-bg-inverse: #F7F2EC;
+  --lx-bg-scrim: #000000B3;
+  --lx-text-primary: #F7F2EC;
+  --lx-text-secondary: #BDB2A6;
+  --lx-text-tertiary: #A09588;
+  --lx-text-disabled: #62574C;
+  --lx-text-inverse: #14110E;
+  --lx-text-brand: #FF9A5C;
+  --lx-border-subtle: #2B2520;
+  --lx-border-default: #3D352E;
+  --lx-border-strong: #8A7F73;
+  --lx-border-focus: #FF9A5C;
+  --lx-action-primary-bg: #FF7F33;
+  --lx-action-primary-bg-pressed: #FF9A5C;
+  --lx-action-primary-base: #B8430A;
+  --lx-action-primary-fg: #1B1510;
+  --lx-action-secondary-bg: #1E1915;
+  --lx-action-secondary-border: #8A7F73;
+  --lx-action-secondary-fg: #FF9A5C;
+  --lx-action-danger-bg: #FF7BA6;
+  --lx-action-danger-fg: #14110E;
+  --lx-action-disabled-bg: #2B2520;
+  --lx-action-disabled-fg: #62574C;
+  --lx-feedback-success-strong: #3CC873;
+  --lx-feedback-success-on-strong: #14110E;
+  --lx-feedback-success-text: #74DE9B;
+  --lx-feedback-success-soft: #0F532C;
+  --lx-feedback-success-on-soft: #D9F7E3;
+  --lx-feedback-error-strong: #FF7BA6;
+  --lx-feedback-error-on-strong: #14110E;
+  --lx-feedback-error-text: #FF9DBD;
+  --lx-feedback-error-soft: #5A1530;
+  --lx-feedback-error-on-soft: #FCE4EE;
+  --lx-feedback-warning-strong: #FFAA2B;
+  --lx-feedback-warning-on-strong: #14110E;
+  --lx-feedback-warning-text: #FFC35C;
+  --lx-feedback-warning-soft: #663D00;
+  --lx-feedback-warning-on-soft: #FFEFD1;
+  --lx-feedback-info-strong: #FF9A5C;
+  --lx-feedback-info-on-strong: #14110E;
+  --lx-feedback-info-text: #FF9A5C;
+  --lx-feedback-info-soft: #4A2310;
+  --lx-feedback-info-on-soft: #FFE8D9;
+  --lx-game-track: #3D352E;
+  --lx-game-progress: #FF8A45;
+  --lx-game-xp-fill: #FACB1E;
+  --lx-game-xp-text: #FFDB4D;
+  --lx-game-xp-soft: #574500;
+  --lx-game-streak-fill: #FF8A45;
+  --lx-game-streak-text: #FFA772;
+  --lx-game-streak-soft: #4A2310;
+  --lx-game-hand-text: #6FDCD5;
+  --lx-game-hand-soft: #0F3D3B;
+  --lx-game-hand-fill: #3FC9C1;
+  --lx-game-hand-on-fill: #14110E;
+  --lx-game-locked-bg: #2B2520;
+  --lx-game-locked-fg: #BDB2A6;
+  --lx-game-trace-fill: #FF8A45;
+  --lx-game-trace-text: #FFA772;
+  --lx-game-trace-soft: #4A2310;
+  --lx-game-trace-on-soft: #FFE8D9;
+  --lx-brand-ink: #F7F2EC;
+  --lx-brand-mark: #FF8A45;
+  --lx-elevation-1: var(--lx-elevation-dark-1);
+  --lx-elevation-2: var(--lx-elevation-dark-2);
+  --lx-elevation-3: var(--lx-elevation-dark-3);
+  color-scheme: dark;
+}
