@@ -1,0 +1,325 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u4-l3",
+  "exercises": [
+    {
+      "id": "u4-l3-ex01",
+      "lesson_id": "u4-l3",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "sinal-IDADE"
+      }
+    },
+    {
+      "id": "u4-l3-ex02",
+      "lesson_id": "u4-l3",
+      "type": "perform_sign",
+      "order": 2,
+      "payload": {
+        "sign_id": "sinal-IDADE",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u4-l3-ex03",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "sinal-IDADE",
+        "correct": "IDADE"
+      }
+    },
+    {
+      "id": "u4-l3-ex04",
+      "lesson_id": "u4-l3",
+      "type": "mirror_practice",
+      "order": 4,
+      "payload": {
+        "sign_id": "sinal-IDADE"
+      }
+    },
+    {
+      "id": "u4-l3-ex05",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "sinal-IDADE",
+        "correct": "IDADE"
+      }
+    },
+    {
+      "id": "u4-l3-ex06",
+      "lesson_id": "u4-l3",
+      "type": "sign_intro",
+      "order": 6,
+      "payload": {
+        "sign_id": "sinal-MORAR"
+      }
+    },
+    {
+      "id": "u4-l3-ex07",
+      "lesson_id": "u4-l3",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "sinal-MORAR",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u4-l3-ex08",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 8,
+      "payload": {
+        "sign_id": "sinal-MORAR",
+        "correct": "MORAR"
+      }
+    },
+    {
+      "id": "u4-l3-ex09",
+      "lesson_id": "u4-l3",
+      "type": "mirror_practice",
+      "order": 9,
+      "payload": {
+        "sign_id": "sinal-MORAR"
+      }
+    },
+    {
+      "id": "u4-l3-ex10",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 10,
+      "payload": {
+        "sign_id": "sinal-MORAR",
+        "correct": "MORAR"
+      }
+    },
+    {
+      "id": "u4-l3-ex11",
+      "lesson_id": "u4-l3",
+      "type": "sign_intro",
+      "order": 11,
+      "payload": {
+        "sign_id": "sinal-NASCER"
+      }
+    },
+    {
+      "id": "u4-l3-ex12",
+      "lesson_id": "u4-l3",
+      "type": "perform_sign",
+      "order": 12,
+      "payload": {
+        "sign_id": "sinal-NASCER",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u4-l3-ex13",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 13,
+      "payload": {
+        "sign_id": "sinal-NASCER",
+        "correct": "NASCER"
+      }
+    },
+    {
+      "id": "u4-l3-ex14",
+      "lesson_id": "u4-l3",
+      "type": "mirror_practice",
+      "order": 14,
+      "payload": {
+        "sign_id": "sinal-NASCER"
+      }
+    },
+    {
+      "id": "u4-l3-ex15",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 15,
+      "payload": {
+        "sign_id": "sinal-NASCER",
+        "correct": "NASCER"
+      }
+    },
+    {
+      "id": "u4-l3-ex16",
+      "lesson_id": "u4-l3",
+      "type": "sign_intro",
+      "order": 16,
+      "payload": {
+        "sign_id": "sinal-CIDADE"
+      }
+    },
+    {
+      "id": "u4-l3-ex17",
+      "lesson_id": "u4-l3",
+      "type": "perform_sign",
+      "order": 17,
+      "payload": {
+        "sign_id": "sinal-CIDADE",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u4-l3-ex18",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 18,
+      "payload": {
+        "sign_id": "sinal-CIDADE",
+        "correct": "CIDADE"
+      }
+    },
+    {
+      "id": "u4-l3-ex19",
+      "lesson_id": "u4-l3",
+      "type": "mirror_practice",
+      "order": 19,
+      "payload": {
+        "sign_id": "sinal-CIDADE"
+      }
+    },
+    {
+      "id": "u4-l3-ex20",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 20,
+      "payload": {
+        "sign_id": "sinal-CIDADE",
+        "correct": "CIDADE"
+      }
+    },
+    {
+      "id": "u4-l3-ex21",
+      "lesson_id": "u4-l3",
+      "type": "match_pairs",
+      "order": 21,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "sinal-IDADE",
+            "gloss": "IDADE"
+          },
+          {
+            "sign_id": "sinal-MORAR",
+            "gloss": "MORAR"
+          },
+          {
+            "sign_id": "sinal-NASCER",
+            "gloss": "NASCER"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u4-l3-ex22",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 22,
+      "payload": {
+        "sign_id": "sinal-IDADE",
+        "correct": "IDADE"
+      }
+    },
+    {
+      "id": "u4-l3-ex23",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 23,
+      "payload": {
+        "sign_id": "sinal-MORAR",
+        "correct": "MORAR"
+      }
+    },
+    {
+      "id": "u4-l3-ex24",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 24,
+      "payload": {
+        "sign_id": "sinal-NASCER",
+        "correct": "NASCER"
+      }
+    },
+    {
+      "id": "u4-l3-ex25",
+      "lesson_id": "u4-l3",
+      "type": "watch_choose_word",
+      "order": 25,
+      "payload": {
+        "sign_id": "sinal-CIDADE",
+        "correct": "CIDADE"
+      }
+    },
+    {
+      "id": "u4-l3-ex26",
+      "lesson_id": "u4-l3",
+      "type": "order_sequence",
+      "order": 26,
+      "payload": {
+        "steps": [
+          "IDADE",
+          "MORAR",
+          "NASCER",
+          "CIDADE"
+        ],
+        "correct_order": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "u4-l3-ex27",
+      "lesson_id": "u4-l3",
+      "type": "build_phrase",
+      "order": 27,
+      "payload": {
+        "pt": "Eu nasci em 18 de setembro de 1965.",
+        "glosses": [
+          "EU",
+          "NASCER",
+          "18",
+          "SETEMBRO",
+          "1965"
+        ],
+        "distractors": [
+          "NOME",
+          "ME@",
+          "A-L-E-X-A-N-D-R-E",
+          "SE@",
+          "IRM@",
+          "SINAL?",
+          "FAMÍLIA",
+          "SURD@",
+          "ONDE",
+          "MORAR",
+          "VOCÊ?"
+        ],
+        "source": {
+          "name": "Dicionário de Libras do INES - exemplo do verbete NASCER",
+          "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/nascerSm_Prog001.mp4"
+        }
+      }
+    }
+  ]
+}

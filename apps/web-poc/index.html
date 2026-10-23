@@ -7,7 +7,15 @@
     <!-- theme-color = token bg.canvas de cada modo, preenchido pelo vite.config.ts (o claro e o theme_color do manifest) -->
     <meta name="theme-color" content="__LX_THEME_LIGHT__" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="__LX_THEME_DARK__" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content="Aprenda Libras no celular, com a câmera mostrando o sinal da sua mão." />
+    <!-- Ícones gerados por tools/pwa/build-icons.mjs; o manifest entra pelo vite-plugin-pwa no build -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- iPhone: app na tela inicial abre sem a barra do Safari, com o nome curto -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Librax" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <!-- Nunito auto-hospedada (public/fonts): sem requisição a terceiros e funciona offline -->
     <link rel="preload" href="/fonts/Nunito-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
     <title>Librax</title>

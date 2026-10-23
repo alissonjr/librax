@@ -338,9 +338,62 @@
     "almost": "Quase!",
     "rightAnswer": "Resposta certa"
   },
+  "install": {
+    "install": "Instalar",
+    "iosStep1": "Toque em Compartilhar, na barra do Safari.",
+    "iosStep2": "Escolha \"Adicionar à Tela de Início\".",
+    "notNow": "Agora não",
+    "settingsLabel": "Instalar o Librax",
+    "settingsValue": "Abra pela tela inicial, como um app",
+    "sub": "Abra direto da tela inicial, em tela cheia, e deixe seu progresso mais protegido no aparelho.",
+    "title": "Coloque o Librax na tela inicial",
+    "understood": "Entendi"
+  },
   "language": {
     "select": "Selecione o idioma",
     "title": "Idioma"
+  },
+  "league": {
+    "title": "Ligas",
+    "tierName": "Liga {name}",
+    "week": "Semana {n}",
+    "weekLong": "Semana {n} do ano",
+    "endsIn": "Encerra em {time}",
+    "timeDH": "{d}d {h}h",
+    "timeHM": "{h}h {m}min",
+    "timeM": "{m}min",
+    "legendPromote": "Top {n} sobem para a Liga {tier}",
+    "legendRelegate": "Últimos {n} descem para a Liga {tier}",
+    "legendTop": "{tier} é a liga mais alta: ninguém sobe daqui",
+    "legendBottom": "{tier} é a primeira liga: ninguém desce daqui",
+    "zonePromotion": "Zona de promoção",
+    "zoneStay": "Permanecem na liga",
+    "zoneRelegation": "Zona de rebaixamento",
+    "zonePromotionShort": "zona de promoção",
+    "zoneRelegationShort": "zona de rebaixamento",
+    "rowPlace": "{rank}º lugar",
+    "rankingLabel": "Ranking da semana",
+    "tiersLabel": "As 7 ligas, da primeira à mais alta",
+    "you": "Você",
+    "yourLeague": "Sua liga",
+    "xp": "{xp} XP",
+    "demoNote": "Modo demonstração: os outros participantes são simulados neste aparelho até as ligas online abrirem. Seu XP é real.",
+    "emptyTitle": "Sua primeira liga começa em breve",
+    "emptyText": "O Librax coloca você em uma liga assim que você ganha XP. Conclua uma lição para entrar na Liga Bronze desta semana.",
+    "emptyTimer": "A semana fecha em {time}",
+    "emptyCta": "Estudar agora",
+    "shortcutNone": "Conclua uma lição para entrar na sua primeira liga",
+    "resultPromoted": "Você subiu de liga!",
+    "resultStayed": "Você ficou na liga!",
+    "resultRelegated": "Você desceu de liga.",
+    "msgPromoted": "Excelente semana! Continue assim na Liga {tier}.",
+    "msgStayed": "Boa semana! Mais XP no topo e você avança na próxima.",
+    "msgRelegated": "Acontece. Uma semana de estudo consistente te traz de volta.",
+    "changeLabel": "Da Liga {from} para a Liga {to}",
+    "finalPosition": "Posição final de {total} membros",
+    "weekXp": "XP ganhos na semana",
+    "seeNewLeague": "Ver minha nova liga",
+    "close": "Fechar"
   },
   "lessonCompletion": {
     "achievement": {
@@ -406,7 +459,11 @@
     "start": "Começar agora",
     "useCamera": "Usar câmera",
     "welcomeSub": "Reconhecimento de gestos em tempo real, pelo navegador. Sem apps, sem cadastro.",
-    "welcomeTitle": "Aprenda Libras do zero"
+    "welcomeTitle": "Aprenda Libras do zero",
+    "soundTitle": "Sons do app",
+    "soundSub": "Sons curtos reforçam acertos e conquistas. Tudo também aparece na tela, e você pode mudar depois nas Configurações.",
+    "soundOn": "Com som",
+    "soundOff": "Sem som"
   },
   "practiceScreen": {
     "allCaughtUp": "Tudo em dia!",
@@ -463,10 +520,15 @@
     "title": "Seu progresso",
     "xpTotal": "XP total"
   },
+  "routeError": {
+    "retry": "Tentar de novo",
+    "title": "Não foi possível carregar."
+  },
   "settings": {
     "about": "Sobre",
     "account": "Conta",
     "activated": "Ativada",
+    "app": "Aplicativo",
     "avatarCredit": "Avatar de sinais",
     "cameraForExercises": "Câmera para exercícios",
     "dailyGoal": "Meta diária",
@@ -488,7 +550,11 @@
     "themeLight": "Claro",
     "themeSystem": "Seguir o sistema",
     "title": "Configurações",
-    "version": "Versão"
+    "version": "Versão",
+    "sound": "Sons",
+    "soundOn": "Ligados",
+    "soundOff": "Desligados",
+    "soundHint": "Tudo o que o som reforça também aparece na tela."
   },
   "signDemo": {
     "avatarLabel": "Avatar VLibras fazendo o sinal {gloss}",
@@ -513,8 +579,8 @@
     "challengesDesc": "Desafie amigos a aprender um sinal específico",
     "challengesTitle": "Desafios entre amigos",
     "comingSoon": "Em breve",
-    "earlyAccess": "Você é um dos primeiros usuários do Librax. Quando as ligas abrirem, você terá acesso antecipado.",
-    "leaguesDesc": "~30 jogadores por liga, ranking por XP semanal, zonas de promoção e rebaixamento",
+    "earlyAccess": "Você é um dos primeiros usuários do Librax. Quando squads e desafios abrirem, você terá acesso antecipado.",
+    "leaguesDesc": "Ranking semanal por XP em 7 ligas, da Bronze à Diamante",
     "leaguesTitle": "Ligas semanais",
     "squadsDesc": "Grupos de amigos e equipes institucionais com metas compartilhadas",
     "squadsTitle": "Squads",

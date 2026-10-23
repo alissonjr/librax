@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useT } from '../i18n';
 import { Haptics } from '../lib/haptics';
+import { Sfx } from '../lib/sound';
 import { Icon } from './Icon';
 import { FeedbackPanel } from './FeedbackPanel';
 
@@ -42,7 +43,7 @@ export function ExerciseBuildPhrase({ pt, glosses, tiles, onAnswer, onNext }: Pr
     const correct = built.length === glosses.length && built.every((g, i) => g === glosses[i]);
     setAnswered(true);
     setIsCorrect(correct);
-    if (correct) Haptics.correct();
+    if (correct) { Haptics.correct(); Sfx.correct(); } else Sfx.neutral();
     onAnswer(correct);
   }
 

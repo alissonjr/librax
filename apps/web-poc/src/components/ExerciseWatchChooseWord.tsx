@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { maskGloss, type Sign } from '../lib/content';
 import { useT } from '../i18n';
 import { Haptics } from '../lib/haptics';
+import { Sfx } from '../lib/sound';
 import { Icon } from './Icon';
 import { FeedbackPanel } from './FeedbackPanel';
 import { SignDemo } from './SignDemo';
@@ -21,7 +22,7 @@ export function ExerciseWatchChooseWord({ sign, choices, onAnswer, onNext }: Pro
     if (answered) return;
     const correct = gloss === sign.gloss;
     setAnswered(gloss);
-    if (correct) Haptics.correct();
+    if (correct) { Haptics.correct(); Sfx.correct(); } else Sfx.neutral();
     onAnswer(correct);
     if (correct) setTimeout(onNext, 1000);
   }

@@ -14,7 +14,7 @@ Princípio que guia todas: **o produto roda no navegador do celular e a experiê
 | 4 | Conta | Fluxo igual para todos: entra como convidado, e a conta é oferecida no fim da primeira lição (como já diz a `spec-02` 12.1), com reforço antes de instalar na tela inicial e antes de ligar lembretes. `navigator.storage.persist()` é chamado sempre. | O Safari pode apagar dados de sites não usados por 7 dias; a conta protege o progresso em qualquer aparelho sem criar fluxo especial de iPhone. |
 | 5 | Tela da câmera | **Vídeo da própria pessoa com o esqueleto 2D por cima**, como dizem a `spec-01` 9.3 e a `spec-05` 1. O avatar 3D sai do MVP (código fica, desligado). | Funciona bem em aparelho fraco, libera a GPU para o reconhecimento e a pessoa vê o próprio sinal, que é o que ensina. |
 | 6 | Reconhecimento | Manter o MediaPipe Tasks Vision (`HandLandmarker`), atualizado para a 1.1.1, com WASM da mesma versão e modelo hospedados por nós e guardados no service worker; delegate GPU (WebGL2) com fallback para CPU, sem depender de WebGPU. Letras estáticas: MLP em TypeScript puro com pesos exportados pelo `train_static.py`, normalizando pulso na origem, escala, rotação (eixo pulso -> dedo médio) e espelhando a mão esquerda. Letras com movimento (J, Z e as que a consultoria surda confirmar) e depois palavras: modelo temporal (CNN 1D ou GRU, janelas de 24 a 32 quadros) no ONNX Runtime Web via WASM. Estabilidade contada por tempo (cerca de 400 ms), não por quadros. Dataset de 15 a 20 pessoas coletado no navegador. As regras feitas à mão saem. Da U3 em diante: duas mãos e PoseLandmarker lite, rosto só pelos lábios. | Avaliação de 2026-10-22: o MediaPipe é a melhor opção hoje para o navegador e roda igual no iPhone e no Android; o que falhava eram as regras feitas à mão e um defeito de estabilidade, não a biblioteca. TF.js está parado, ONNX e LiteRT só rodam modelos, Transformers.js é pesado demais. Não existe modelo pronto de Libras para o navegador. |
-| 7 | Ícones | Material Symbols Rounded em SVG. Sai o FontAwesome. | Já é o que o `design-system.md` 6.1 define, licença Apache 2.0, combina com a Nunito. |
+| 7 | Ícones | Material Symbols Rounded em SVG. Sai o FontAwesome. | Já é o que o `design-system.md` 8 define, licença Apache 2.0, combina com a Nunito. |
 | 8 | Fonte | Nunito auto-hospedada em woff2. | Funciona offline e não faz requisição a terceiros (LGPD). |
 | 9 | Idiomas | MVP só em pt-BR. A estrutura de i18n continua no código, en/es saem do escopo. | O público-alvo é brasileiro e Libras é brasileira. |
 | 10 | Tipos de exercício | `intro` entra oficialmente na `spec-03` 3 como `sign_intro` (é o passo "apresenta (vídeo)" da regra de composição, que não tinha tipo). `mc4` é fundido em `watch_choose_word` (mesmo payload: sinal + 4 glosas). `sign_camera` é renomeado para `perform_sign`. Os exercícios passam a vir do bundle de conteúdo, não de `content.ts`. | Uma só fonte da verdade para o conteúdo. |
@@ -43,10 +43,10 @@ Princípio que guia todas: **o produto roda no navegador do celular e a experiê
 4. O `HandLandmarker` é recriado a cada exercício.
 5. Quatro `setState` por frame e nenhum limite de 15 fps.
 6. `<video>` iniciado com `display:none` (arriscado no iOS) e avatar 3D cobrindo o vídeo.
-7. Sem roteador: o voltar do Android sai do app e não há URLs.
-8. PWA incompleto: faltam `public/` e ícones; `theme_color` diverge entre manifest, `index.html` e design system.
-9. Nunito do Google Fonts e sem `viewport-fit=cover` nem safe areas.
-10. Exercícios gerados em código, fora do schema da `spec-03`; todos os `video_url` são `null`.
+7. Sem roteador: o voltar do Android sai do app e não há URLs. **Corrigido em 2026-10-23**: react-router 6 com as rotas do `design-system.md` 11.13, "Sair da lição?" no voltar, rolagem no topo a cada tela e fallback de SPA no Vite e no service worker.
+8. PWA incompleto: faltam `public/` e ícones; `theme_color` diverge entre manifest, `index.html` e design system. **Corrigido em 2026-10-23**: ícones 192, 512, maskable 512, `favicon.svg` e `apple-touch-icon` gerados por `tools/pwa/build-icons.mjs` com os tokens; manifest completo; metas do iOS; `theme_color` único (`bg.canvas`); Chrome sem erro de instalabilidade além do modo anônimo do teste; sugestão de instalar depois da primeira lição (decisão 13).
+9. Nunito do Google Fonts e sem `viewport-fit=cover` nem safe areas. **Corrigido** (conferido em 2026-10-23): Nunito local em `public/fonts`, `viewport-fit=cover` e `--lx-safe-*` na barra de abas, barras do topo, rodapé da lição e sheets.
+10. Exercícios gerados em código, fora do schema da `spec-03`; todos os `video_url` são `null`. **Corrigido em 2026-10-23** (a parte dos exercícios): bundle por lição no schema da `spec-03` 3, gerado por `tools/content/build-lessons.mjs`. Os `video_url` continuam `null` até a gravação (fase W5).
 11. `navigator.vibrate` sem efeito no iOS; não há sistema de som.
 
 ### 1.3 Flutter
@@ -108,7 +108,7 @@ Princípio que guia todas: **o produto roda no navegador do celular e a experiê
 **`spec-05-experiencia-wow.md`**:
 - 1: canvas 2D sobre o vídeo (decisão 5).
 - 3: Web Audio com buffers pré-carregados, destravados no primeiro toque; AAC/MP3 (OGG falha no Safari); `navigator.audioSession.type = 'ambient'` quando existir; toggle de som sempre visível.
-- 4: `navigator.vibrate` 10/20/40 ms como extra.
+- 4: `navigator.vibrate` como extra, com os padrões dos tokens (`docs/design-tokens.json`).
 - 5: CSS/WAAPI com `cubic-bezier` e `linear()`; `prefers-reduced-motion`; `canvas-confetti`; dotLottie ou SVG/CSS no lugar de Lottie.
 - 12: push só com app instalado no iPhone; lembrete in-app e e-mail como base.
 - 13.2: convite HTTPS.
@@ -172,7 +172,7 @@ Princípio que guia todas: **o produto roda no navegador do celular e a experiê
 - Lambda com `web-push`, inscrições em `USER#<id> / PUSH#<hash>`, disparo pelo EventBridge Scheduler conforme `spec-05` 12.3. Sem Firebase.
 
 ### 3.8 Estrutura do código
-- `apps/web-poc/` vira `apps/web/`, com roteador (rotas de `design-system.md` 11.1), `src/recognition/` (landmarker, normalização, MLP, `evaluatePerformSign`) e `src/platform/` (camera, haptics, audio, wakeLock, share, push), cada um com detecção de suporte.
+- `apps/web-poc/` vira `apps/web/`, com roteador (rotas de `design-system.md` 11.13), `src/recognition/` (landmarker, normalização, MLP, `evaluatePerformSign`) e `src/platform/` (camera, haptics, audio, wakeLock, share, push), cada um com detecção de suporte.
 - Domínio continua por alias; opcionalmente extrair para `packages/core`.
 
 ## 4. Fases (ordem por risco)

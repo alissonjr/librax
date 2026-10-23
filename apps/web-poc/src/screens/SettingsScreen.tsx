@@ -5,6 +5,8 @@ import { useT, LANGUAGES, type Lang } from '../i18n';
 import { getThemePref, setThemePref, type ThemePref } from '../lib/theme';
 import { Icon } from '../components/Icon';
 import { VlibrasCredit } from '../components/SignDemo';
+import { SoundSettingItem } from '../components/SoundPreference';
+import { InstallSheet, useInstallMode } from '../components/InstallSheet';
 
 interface Props {
   userId: string;
@@ -25,6 +27,8 @@ export function SettingsScreen({ userId, repo, onBack }: Props) {
   const [theme, setTheme] = useState<ThemePref>(getThemePref);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
+  const installMode = useInstallMode();
+  const [showInstall, setShowInstall] = useState(false);
   const name = getDisplayName() ?? t('common.defaultName');
   const deleteKeyword = t('settings.deleteKeyword');
 
@@ -51,7 +55,8 @@ export function SettingsScreen({ userId, repo, onBack }: Props) {
       // localStorage e recarregando para voltar ao onboarding.
     }
     localStorage.clear();
-    window.location.reload();
+    // Recomeça do início do app (o roteador leva às boas-vindas)
+    window.location.replace('/');
   }
 
   return (
@@ -113,6 +118,7 @@ export function SettingsScreen({ userId, repo, onBack }: Props) {
               <option value="dark">{t('settings.themeDark')}</option>
             </select>
           </div>
+          <SoundSettingItem />
         </div>
 
         <div className="settings-group">
@@ -153,6 +159,20 @@ export function SettingsScreen({ userId, repo, onBack }: Props) {
             <Icon name="chevron_right" className="settings-item-arrow" />
           </button>
         </div>
+
+        {installMode && (
+          <div className="settings-group">
+            <p className="settings-group-label">{t('settings.app')}</p>
+            <button className="settings-item settings-item--btn" onClick={() => setShowInstall(true)}>
+              <Icon name="mobile_arrow_down" className="settings-item-icon" />
+              <div className="settings-item-text">
+                <span className="settings-item-label">{t('install.settingsLabel')}</span>
+                <span className="settings-item-value">{t('install.settingsValue')}</span>
+              </div>
+              <Icon name="chevron_right" className="settings-item-arrow" />
+            </button>
+          </div>
+        )}
 
         <div className="settings-group">
           <p className="settings-group-label">{t('settings.about')}</p>
@@ -212,6 +232,10 @@ export function SettingsScreen({ userId, repo, onBack }: Props) {
           </div>
         )}
       </div>
+
+      {showInstall && installMode && (
+        <InstallSheet mode={installMode} onClose={() => setShowInstall(false)} />
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { type LibraxDB } from './db';
+import { syncLeague, leagueIdOf, type LeagueState } from './leagueLocal';
 
 export class IdbRepo {
   constructor(private db: LibraxDB, private userId: string) {}
@@ -80,15 +81,45 @@ export class IdbRepo {
   // --- exclusao de dados (LGPD) ---
   /** Apaga todos os dados locais do usuario em todos os object stores. */
   async clearAllData() {
-    const stores = ['profiles', 'lesson_progress', 'srs_items', 'day_xp'] as const;
+    const stores = ['profiles', 'lesson_progress', 'srs_items', 'day_xp', 'league_state', 'league_members'] as const;
     await Promise.all(stores.map(store => this.db.clear(store)));
   }
 
-  // --- squads e ligas: no-ops na PoC ---
+  // --- squads: no-ops na PoC ---
   async listUserSquads() { return []; }
   async incrementSquadXp() {}
-  async getUserLeague() { return null; }
-  async incrementLeagueXp() {}
+
+  // --- ligas (MODO LOCAL / DEMO: ver src/lib/leagueLocal.ts) ---
+  async getLeagueState(_userId: string): Promise<LeagueState | null> {
+    return ((await this.db.get('league_state', this.userId)) as LeagueState | undefined) ?? null;
+  }
+
+  async saveLeagueState(state: LeagueState) {
+    await this.db.put('league_state', { ...state, userId: this.userId });
+  }
+
+  async getLeagueMemberXp(leagueId: string, userId: string): Promise<number> {
+    const rec = await this.db.get('league_members', [leagueId, userId]);
+    return (rec as { xpPeriod: number } | undefined)?.xpPeriod ?? 0;
+  }
+
+  async setLeagueMemberXp(leagueId: string, userId: string, xpPeriod: number) {
+    await this.db.put('league_members', { leagueId, userId, xpPeriod });
+  }
+
+  /**
+   * Liga da semana para o fan-out de XP do completeLesson. Quem ganha XP sem ter liga entra na
+   * Bronze da semana; na virada de semana, a liga anterior é fechada antes (syncLeague).
+   */
+  async getUserLeague(_userId?: string, nowMs: number = Date.now()) {
+    const state = await syncLeague(this, this.userId, nowMs, { enroll: true });
+    return state ? { leagueId: leagueIdOf(state.tier, state.periodStart) } : null;
+  }
+
+  async incrementLeagueXp(leagueId: string, userId: string, amount: number) {
+    const current = await this.getLeagueMemberXp(leagueId, userId);
+    await this.setLeagueMemberXp(leagueId, userId, current + amount);
+  }
 }
 
 /** Uniao das listas de conquistas, sem repetir e mantendo a ordem em que foram ganhas. */

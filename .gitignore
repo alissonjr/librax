@@ -26,3 +26,6 @@ ml-training/out/
 .claude/settings.local.json
 *.log
 .DS_Store
+
+# Worktrees dos subagentes
+.claude/worktrees/
