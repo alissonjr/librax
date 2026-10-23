@@ -76,6 +76,20 @@ describe('ExerciseMc4', () => {
     expect(screen.getByText(/\(HOMEM\)/)).toBeInTheDocument();
   });
 
+  it('a nota de movimento tambem esconde a glosa certa e as outras opcoes citadas', () => {
+    const pai: Sign = {
+      ...sign,
+      id: 'sinal-PAI',
+      gloss: 'PAI',
+      category: 'familia',
+      recognition: 'dynamic',
+      params: { ...sign.params, MOV: 'desliza para baixo (sinal HOMEM) e depois PAI encosta nos lábios' },
+      video_caption: 'Segure o queixo.',
+    };
+    render(<ExerciseMc4 sign={pai} choices={['MÃE', 'HOMEM', 'PAI', 'TIO']} onAnswer={vi.fn()} onNext={vi.fn()} />);
+    expect(screen.getByText(/desliza para baixo \(sinal ___\) e depois ___ encosta/)).toBeInTheDocument();
+  });
+
   it('chama onNext ao clicar em Continuar apos resposta', async () => {
     const onNext = vi.fn();
     render(<ExerciseMc4 sign={sign} choices={choices} onAnswer={vi.fn()} onNext={onNext} />);

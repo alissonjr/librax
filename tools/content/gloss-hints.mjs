@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Levantamento das descrições de sinal (video_caption em signs.json) que citam a glosa de OUTRO
-// sinal do curso, por exemplo "(HOMEM)" na descrição de PAI. Nos exercícios de escolha isso pode
-// dar pista: se HOMEM também é uma das opções, a descrição entrega qual é qual.
+// sinal do curso, por exemplo "(HOMEM)" na descrição de PAI. Também olha a nota de movimento
+// (params.MOV), que o mc4 da prática mostra junto da descrição nos sinais com movimento.
+// Nos exercícios de escolha isso pode dar pista: se HOMEM também é uma das opções, a descrição
+// entrega qual é qual.
 //
 // Só lê: não altera o conteúdo (as descrições ainda são rascunho a validar).
 //
@@ -51,18 +53,24 @@ for (const s of signs) {
   if (!byGloss.has(s.gloss)) byGloss.set(s.gloss, s);
 }
 
-const report = [];
-for (const sign of signs) {
-  const caption = sign.video_caption ?? '';
+function scan(sign, field, text) {
   const hits = [];
   for (const [gloss, other] of byGloss) {
     if (other.id === sign.id || gloss === sign.gloss) continue;
-    const found = caption.match(glossRegex(gloss));
+    const found = text.match(glossRegex(gloss));
     if (!found) continue;
     const citation = found.some((m) => m === m.toUpperCase() && /\p{Lu}/u.test(m));
     if (ONLY_CITATIONS && !citation) continue;
-    hits.push({ gloss, signId: other.id, kind: citation ? 'citacao' : 'palavra', together: together(sign.id, other.id) });
+    hits.push({ gloss, signId: other.id, field, kind: citation ? 'citacao' : 'palavra', together: together(sign.id, other.id) });
   }
+  return hits;
+}
+
+const report = [];
+for (const sign of signs) {
+  const caption = sign.video_caption ?? '';
+  const hits = scan(sign, 'descricao', caption);
+  if (sign.recognition === 'dynamic' && sign.params?.MOV) hits.push(...scan(sign, 'movimento', sign.params.MOV));
   if (hits.length) report.push({ signId: sign.id, gloss: sign.gloss, caption, hits });
 }
 
@@ -73,7 +81,7 @@ if (JSON_OUT) {
   console.log(`${report.length} descrições citam glosa de outro sinal (${citations.length} com citação em maiúsculas).\n`);
   for (const r of report) {
     const list = r.hits
-      .map((h) => `${h.gloss} (${h.kind}${h.together.length ? `; junto em ${h.together.join(', ')}` : ''})`)
+      .map((h) => `${h.gloss} (${h.kind}${h.field === 'movimento' ? ' no movimento' : ''}${h.together.length ? `; junto em ${h.together.join(', ')}` : ''})`)
       .join('; ');
     console.log(`${r.gloss}: ${list}`);
     console.log(`  "${r.caption}"`);
