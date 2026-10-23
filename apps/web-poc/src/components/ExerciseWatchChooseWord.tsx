@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { maskGloss, type Sign } from '../lib/content';
+import { maskChoiceCaption, type Sign } from '../lib/content';
 import { useT } from '../i18n';
 import { Haptics } from '../lib/haptics';
 import { Sfx } from '../lib/sound';
@@ -44,7 +44,7 @@ export function ExerciseWatchChooseWord({ sign, choices, onAnswer, onNext }: Pro
           <div className="exercise-video-wrap">
             <div className="exercise-video-placeholder">
               {showFeedback && <div className="exercise-video-gloss">{sign.gloss}</div>}
-              <p className="exercise-video-caption">{showFeedback ? sign.video_caption : maskGloss(sign.video_caption, sign.gloss)}</p>
+              <p className="exercise-video-caption">{showFeedback ? sign.video_caption : maskChoiceCaption(sign.video_caption, sign.gloss, choices)}</p>
             </div>
           </div>
         }

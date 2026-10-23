@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  course, drawChoices, getSign, isCameraEvaluable, maskGloss, phraseTiles, resolveExercises, signsMap,
+  course, drawChoices, getSign, isCameraEvaluable, maskChoiceCaption, maskGloss, phraseTiles, resolveExercises, signsMap,
   type BundleExercise, type Exercise, type Phrase, type Sign,
 } from '../lib/content';
 import { RECOGNIZABLE_LETTERS } from '../components/ExerciseCameraSign';
@@ -460,11 +460,18 @@ describe('bundle versionado', () => {
         }
         if (e.type === 'word_choose_video') {
           // A descricao de cada opcao nao traz a propria glosa nem a palavra do enunciado
+          // e nem a glosa de outra opcao citada nela (ex.: FILHO na descricao de FILHA)
+          const options = e.payload.video_options.map((id) => signsMap[id]);
           e.payload.video_options.forEach((id) => {
-            const shown = words(maskedCaption(signsMap[id], e.payload.word));
+            const text = maskedCaption(signsMap[id], e.payload.word, options);
+            const shown = words(text);
             for (const g of [signsMap[id].gloss, e.payload.word]) {
               if (g.length >= 2 && !g.includes('-')) expect(shown, `${e.id}: ${id}`).not.toContain(g.toUpperCase());
             }
+            const cited = text.split(/[^\p{L}\p{N}]+/u);
+            options.forEach((o) => {
+              if (o.gloss.length >= 2 && !o.gloss.includes('-')) expect(cited, `${e.id}: ${id}`).not.toContain(o.gloss);
+            });
           });
         }
         if (e.type === 'match_pairs') {
@@ -649,6 +656,40 @@ describe('maskGloss', () => {
   it('nao mexe em pedacos de palavra nem em letras isoladas', () => {
     expect(maskGloss('simples e assim', 'SIM')).toBe('simples e assim');
     expect(maskGloss('a mão fica parada', 'A')).toBe('a mão fica parada');
+  });
+});
+
+describe('maskChoiceCaption (pistas nas descricoes dos exercicios de escolha)', () => {
+  const PAI = 'Segure o queixo com o polegar e o indicador e deslize para baixo (HOMEM); depois encoste o dorso da mão fechada nos lábios, palma para baixo.';
+
+  it('esconde a glosa certa e as glosas das outras opcoes citadas na descricao', () => {
+    expect(maskChoiceCaption(PAI, 'PAI', ['PAI', 'HOMEM', 'MÃE', 'FILHO'])).toBe(
+      'Segure o queixo com o polegar e o indicador e deslize para baixo (___); depois encoste o dorso da mão fechada nos lábios, palma para baixo.',
+    );
+    expect(maskChoiceCaption('Sinal composto: CAFÉ (círculo) e depois MANHÃ.', 'CAFÉ-DA-MANHÃ', ['CAFÉ', 'CAFÉ-DA-MANHÃ']))
+      .toBe('Sinal composto: ___ (círculo) e depois MANHÃ.');
+    expect(maskChoiceCaption('Faça COMER e depois MEIO-DIA.', 'ALMOÇO', ['ALMOÇO', 'MEIO-DIA', 'COMER']))
+      .toBe('Faça ___ e depois ___.');
+  });
+
+  it('glosa que nao e opcao continua visivel', () => {
+    expect(maskChoiceCaption(PAI, 'PAI', ['PAI', 'MÃE', 'TIO', 'FILHO'])).toBe(PAI);
+  });
+
+  it('outra opcao escrita como palavra comum nao e escondida (so a citacao do sinal em maiusculas)', () => {
+    expect(maskChoiceCaption('Mão em casa, como quem pega algo.', 'ESCOLA', ['ESCOLA', 'CASA', 'COMO', 'QUEM']))
+      .toBe('Mão em casa, como quem pega algo.');
+  });
+
+  it('nenhuma descricao do curso mostra a glosa de outra opcao citada nela', () => {
+    const glosses = [...new Set(Object.values(signsMap).map((s) => s.gloss))].filter((g) => g.length >= 2);
+    const words = (text: string) => text.split(/[^\p{L}\p{N}-]+/u);
+    for (const sign of Object.values(signsMap)) {
+      const cited = glosses.filter((g) => g !== sign.gloss && words(sign.video_caption).includes(g));
+      if (cited.length === 0) continue;
+      const shown = words(maskChoiceCaption(sign.video_caption, sign.gloss, [sign.gloss, ...cited]));
+      cited.forEach((g) => expect(shown, `${sign.id}: ${g}`).not.toContain(g));
+    }
   });
 });
 

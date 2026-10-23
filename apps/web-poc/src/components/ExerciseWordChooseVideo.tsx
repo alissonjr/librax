@@ -1,5 +1,5 @@
 import { useRef, useState, useSyncExternalStore } from 'react';
-import { maskGloss, type Sign } from '../lib/content';
+import { maskChoiceCaption, maskGloss, type Sign } from '../lib/content';
 import { getVlibrasState, subscribeVlibras } from '../lib/vlibras';
 import { useT } from '../i18n';
 import { Haptics } from '../lib/haptics';
@@ -19,9 +19,13 @@ interface Props {
   onNext: () => void;
 }
 
-/** Descrição sem a resposta: esconde a glosa da própria opção e a palavra do enunciado. */
-export function maskedCaption(option: Sign, word: string): string {
-  return maskGloss(maskGloss(option.video_caption, option.gloss), word);
+/**
+ * Descrição sem a resposta: esconde a glosa da própria opção, a palavra do enunciado e as
+ * glosas das outras opções citadas nela (ex.: "como no sinal FILHO" na descrição de FILHA).
+ */
+export function maskedCaption(option: Sign, word: string, options: Sign[] = []): string {
+  const others = options.map(o => o.gloss);
+  return maskGloss(maskChoiceCaption(option.video_caption, option.gloss, others), word);
 }
 
 /**
@@ -78,7 +82,7 @@ export function ExerciseWordChooseVideo({ word, sign, options, onAnswer, onNext 
                 // Em modo texto o cartão já mostra a descrição: o palco fica só com o aviso do avatar
                 chooseDemoMode(viewingSign, avatarFailed) === 'text' ? null : (
                   <p className="wcv-stage-text">
-                    {showFeedback ? viewingSign.video_caption : maskedCaption(viewingSign, word)}
+                    {showFeedback ? viewingSign.video_caption : maskedCaption(viewingSign, word, options)}
                   </p>
                 )
               }
@@ -120,7 +124,7 @@ export function ExerciseWordChooseVideo({ word, sign, options, onAnswer, onNext 
                     {showFeedback ? option.gloss : t('exerciseWordChooseVideo.option', { n })}
                   </span>
                   {textOnly && (
-                    <span className="wcv-desc">{showFeedback ? option.video_caption : maskedCaption(option, word)}</span>
+                    <span className="wcv-desc">{showFeedback ? option.video_caption : maskedCaption(option, word, options)}</span>
                   )}
                   {isRight && !isCorrect && <span className="wcv-tag">{t('feedback.rightAnswer')}</span>}
                 </span>

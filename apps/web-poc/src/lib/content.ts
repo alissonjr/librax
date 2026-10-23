@@ -127,12 +127,33 @@ export function shuffle<T>(arr: T[]): T[] {
 /** Esconde a glosa dentro da descricao do sinal (ex.: "descascasse uma banana" em BANANA), para nao entregar a resposta. */
 export function maskGloss(text: string, gloss: string): string {
   if (gloss.length < 2) return text;
+  return text.replace(glossRegex(gloss.toLowerCase(), 'giu'), '___');
+}
+
+/** Glosa como palavra inteira (composta aceita hífen ou espaço entre as partes). */
+function glossRegex(gloss: string, flags: string): RegExp {
   const words = gloss
-    .toLowerCase()
     .split('-')
     .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('[\\s-]+');
-  return text.replace(new RegExp(`(?<![\\p{L}\\p{N}])${words}(?![\\p{L}\\p{N}])`, 'giu'), '___');
+  return new RegExp(`(?<![\\p{L}\\p{N}])${words}(?![\\p{L}\\p{N}])`, flags);
+}
+
+/**
+ * Descrição mostrada num exercício de escolha antes da resposta. Esconde a glosa certa (como o
+ * maskGloss) e também as glosas das outras opções citadas na descrição, como "(HOMEM)" na de PAI
+ * ou "como no sinal FILHO" na de FILHA, que dariam pista de qual opção é qual. A citação de outro
+ * sinal vem em maiúsculas, como glosa; a mesma palavra em minúsculas é texto comum ("como quem
+ * pega") e fica, para a descrição continuar legível.
+ */
+export function maskChoiceCaption(text: string, answer: string, options: string[]): string {
+  let out = maskGloss(text, answer);
+  // As mais longas primeiro: MEIO-DIA sai inteira antes de DIA
+  const others = [...new Set(options)]
+    .filter((g) => g !== answer && g.length >= 2)
+    .sort((a, b) => b.length - a.length);
+  for (const gloss of others) out = out.replace(glossRegex(gloss, 'gu'), '___');
+  return out;
 }
 
 /**
