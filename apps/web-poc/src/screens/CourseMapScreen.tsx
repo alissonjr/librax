@@ -9,6 +9,7 @@ import { Icon } from '../components/Icon';
 import { ScreenSkeleton } from '../components/ScreenSkeleton';
 import { useScrollRestore } from '../hooks/useScrollRestore';
 import { TraceArc, TraceOrbit, Wordmark } from '../components/Brand';
+import { latestLessonRun } from '../lib/lessonRun';
 
 interface MapState {
   xpTotal: number;
@@ -72,6 +73,9 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
   const nextLessonObj = state.nextLesson
     ? course.units.flatMap(u => u.lessons).find(l => l.id === state.nextLesson)
     : null;
+  // Lição em andamento (a página recarregou ou a pessoa saiu pelo menu): Retomar volta ao ponto onde parou
+  const run = latestLessonRun(userId);
+  const inProgress = run && course.lessonsMap[run.lessonId] ? run : null;
 
   return (
     <>
@@ -209,7 +213,13 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
       {/* Resume banner */}
       <div className="resume-banner animate__animated animate__slideInUp">
         <TraceArc className="resume-banner-arc" />
-        {allDone ? (
+        {inProgress ? (
+          <button className="resume-banner-content" onClick={() => onStartLesson(inProgress.lessonId)}>
+            <Icon name="play_arrow" filled />
+            <span>{t('courseMap.resume', { title: t(`course.${inProgress.lessonId}`) })}</span>
+            <Icon name="arrow_forward" className="resume-arrow" />
+          </button>
+        ) : allDone ? (
           <button className="resume-banner-content" onClick={() => onStartLesson(state.nextLesson ?? '')}>
             <Icon name="replay" />
             <span>{t('courseMap.reviewSrs')}</span>
