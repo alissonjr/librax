@@ -6,10 +6,14 @@
   "description": "Librax backend - logica de dominio server-authoritative (SPEC 02 + SPEC 04). Pura e testavel; adaptadores AWS ficam na borda.",
   "scripts": {
     "test": "node --test",
-    "test:watch": "node --test --watch"
+    "test:watch": "node --test --watch",
+    "catalog": "node scripts/build-catalog.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.0.0",
-    "@aws-sdk/lib-dynamodb": "^3.0.0"
+    "@aws-sdk/client-sesv2": "^3.1156.0",
+    "@aws-sdk/client-ssm": "^3.1156.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "web-push": "^3.6.7"
   }
 }
