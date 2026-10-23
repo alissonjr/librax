@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Avatar VLibras</title>
+<!--
+  Ponte entre o Librax e o player do VLibras (Governo Federal).
+
+  O player (UnityLoader e o build WebGL do avatar) é software livre sob LGPL-3.0:
+  https://github.com/spbgovbr-vlibras/vlibras-web-browsers
+  Ele é carregado aqui sem alteração, direto do endereço oficial (vlibras.gov.br/app/unity),
+  que redireciona para a versão publicada no jsDelivr. Nenhum arquivo do player é copiado
+  para o projeto. Este arquivo é código do Librax: só repete o protocolo de mensagens do
+  src/player/unity/index.js oficial (SendMessage para o objeto PlayerManager e os callbacks
+  globais que o Unity chama) e acrescenta pausa do laço de renderização.
+
+  A página fica na mesma origem do app para que:
+  - o service worker do app possa guardar as animações já vistas;
+  - o app possa pausar o laço do Unity (pauseMainLoop) e liberar a GPU para a câmera.
+-->
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  #gameContainer { width: 100vw; height: 100vh; }
+  canvas { display: block; width: 100% !important; height: 100% !important; }
+</style>
+</head>
+<body>
+<div id="gameContainer"></div>
+<script>
+  (function () {
+    'use strict';
+    var BASE = 'https://vlibras.gov.br/app/unity/';
+    var origin = location.origin;
+    var game = null;
+
+    function post(event, data) {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'vlibras_event', event: event, data: data }, origin);
+      }
+    }
+    function args(list) { return Array.prototype.slice.call(list); }
+
+    // Callbacks globais que o build do Unity chama (mesmos nomes do index.js oficial)
+    window.onLoadPlayer = function () { post('on_load_player'); };
+    window.onPlayingStateChange = function () { post('on_playing_state_change', args(arguments)); };
+    window.CounterGloss = function () { post('counter_gloss', args(arguments)); };
+    window.GetAvatar = function (avatar) { post('get_avatar', avatar); };
+    window.FinishWelcome = function (finished) { post('finish_welcome', finished); };
+
+    // O UnityLoader avisa falhas com alert(); aqui vira evento para o app cair no texto
+    window.alert = function (msg) { post('on_error', String(msg || 'alert')); };
+    window.addEventListener('error', function (e) { if (!game) post('on_error', String(e.message || 'error')); });
+
+    var script = document.createElement('script');
+    // CORS (e não "no-cors") para o service worker poder guardar a resposta sem ser opaca
+    script.crossOrigin = 'anonymous';
+    script.src = BASE + 'unity-loader.js';
+    script.onerror = function () { post('on_error', 'loader'); };
+    script.onload = function () {
+      try {
+        game = UnityLoader.instantiate('gameContainer', BASE + 'playerweb.json', {
+          onProgress: function (_, progress) { post('update_progress', progress); },
+          compatibilityCheck: function (_, accept, deny) {
+            if (UnityLoader.SystemInfo.hasWebGL) accept();
+            else { post('on_error', 'unsupported'); deny(); }
+          },
+        });
+      } catch (err) {
+        post('on_error', String(err && err.message || err));
+      }
+    };
+    document.body.appendChild(script);
+
+    window.addEventListener('message', function (e) {
+      if (e.source !== window.parent || e.origin !== origin) return;
+      var m = e.data;
+      if (!m || !game) return;
+      if (m.type === 'unity') {
+        game.SendMessage(m.object, m.method, m.params);
+      } else if (m.type === 'pause_loop') {
+        if (game.Module && game.Module.pauseMainLoop) game.Module.pauseMainLoop();
+      } else if (m.type === 'resume_loop') {
+        if (game.Module && game.Module.resumeMainLoop) game.Module.resumeMainLoop();
+      }
+    });
+  })();
+</script>
+</body>
+</html>

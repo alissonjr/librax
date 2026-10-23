@@ -1,0 +1,28 @@
+# Dependencias e builds
+node_modules/
+dist/
+build/
+cdk.out/
+*.tsbuildinfo
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Python / ML
+__pycache__/
+.venv/
+*.pyc
+ml-training/data/
+ml-training/out/
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Local
+.claude/settings.local.json
+*.log
+.DS_Store

@@ -1,0 +1,133 @@
+import {
+  canCreateSquad,
+  canJoinSquad,
+  leaveOutcome,
+  manageMemberOutcome,
+  DEFAULT_MAX_MEMBERS,
+} from '../domain/squads.js';
+import { generateInviteCode, normalizeInviteCode } from '../domain/invite.js';
+
+// Usecases de squad (SPEC 04 secao 2). Cada um carrega o contexto do repositorio,
+// aplica a guarda pura do dominio e persiste. Falha de guarda vira Error(codigo).
+
+class SquadError extends Error {}
+const fail = (code) => {
+  throw new SquadError(code);
+};
+
+/**
+ * POST /squads (SPEC 04 secao 2 - createSquad).
+ * @param {object} input { userId, isGuest, name, description?, type, genId, rng, now? }
+ */
+export async function createSquad(repo, input) {
+  const { userId, isGuest, name, description = '', type = 'public', genId, rng, now = null } = input;
+
+  const b2cSquadCount = await repo.countUserB2cSquads(userId);
+  const check = canCreateSquad({ isGuest, b2cSquadCount, name });
+  if (!check.ok) fail(check.error);
+
+  const inviteCode = await uniqueInviteCode(repo, rng);
+  const squad = {
+    squadId: genId(),
+    name: name.trim(),
+    description,
+    type,
+    createdBy: userId,
+    inviteCode,
+    maxMembers: DEFAULT_MAX_MEMBERS,
+    memberCount: 1,
+    xpWeekly: 0,
+    xpAllTime: 0,
+    createdAt: now,
+  };
+
+  await repo.putSquad(squad);
+  await repo.putMember(squad.squadId, userId, { role: 'admin', joinedAt: now });
+  await repo.indexInvite(inviteCode, squad.squadId);
+  return squad;
+}
+
+/**
+ * POST /squads/join (SPEC 04 secao 2 - joinSquad).
+ * @param {object} input { userId, isGuest, code? , squadId? }
+ */
+export async function joinSquad(repo, input) {
+  const { userId, isGuest } = input;
+
+  const squadId = input.code
+    ? await repo.findSquadIdByInvite(normalizeInviteCode(input.code))
+    : input.squadId;
+  if (!squadId) fail('SQUAD_NOT_FOUND');
+
+  const squad = await repo.getSquad(squadId);
+  if (!squad) fail('SQUAD_NOT_FOUND');
+
+  const alreadyMember = (await repo.getMember(squadId, userId)) !== null;
+  const b2cSquadCount = await repo.countUserB2cSquads(userId);
+  const check = canJoinSquad({ isGuest, b2cSquadCount, squad, alreadyMember });
+  if (!check.ok) fail(check.error);
+
+  await repo.putMember(squadId, userId, { role: 'member' });
+  await repo.putSquad({ ...squad, memberCount: squad.memberCount + 1 });
+  return repo.getSquad(squadId);
+}
+
+/**
+ * POST /squads/{id}/leave (SPEC 04 secao 2 - leaveSquad).
+ * @param {object} input { userId, squadId }
+ */
+export async function leaveSquad(repo, input) {
+  const { userId, squadId } = input;
+  const member = await repo.getMember(squadId, userId);
+  if (!member) fail('NOT_MEMBER');
+
+  const squad = await repo.getSquad(squadId);
+  const isOnlyAdmin = member.role === 'admin' && (await repo.countAdmins(squadId)) === 1;
+  const outcome = leaveOutcome({ isOnlyAdmin, memberCount: squad.memberCount });
+  if (!outcome.ok) fail(outcome.error);
+
+  if (outcome.action === 'dissolve') {
+    await repo.deleteSquad(squadId);
+  } else {
+    await repo.removeMember(squadId, userId);
+    await repo.putSquad({ ...squad, memberCount: squad.memberCount - 1 });
+  }
+  return outcome;
+}
+
+/**
+ * POST /squads/{id}/members/{userId}/manage (SPEC 04 secao 2 - manageMember).
+ * @param {object} input { actorId, squadId, targetUserId, action }
+ */
+export async function manageMember(repo, input) {
+  const { actorId, squadId, targetUserId, action } = input;
+
+  const actor = await repo.getMember(squadId, actorId);
+  if (!actor || actor.role !== 'admin') fail('NOT_ADMIN');
+
+  const target = await repo.getMember(squadId, targetUserId);
+  if (!target) fail('TARGET_NOT_MEMBER');
+
+  const targetIsOnlyAdmin = target.role === 'admin' && (await repo.countAdmins(squadId)) === 1;
+  const outcome = manageMemberOutcome({ action, actorIsTarget: actorId === targetUserId, targetIsOnlyAdmin });
+  if (!outcome.ok) fail(outcome.error);
+
+  if (outcome.action === 'remove') {
+    const squad = await repo.getSquad(squadId);
+    await repo.removeMember(squadId, targetUserId);
+    await repo.putSquad({ ...squad, memberCount: squad.memberCount - 1 });
+  } else {
+    await repo.putMember(squadId, targetUserId, { ...target, role: outcome.role });
+  }
+  return outcome;
+}
+
+async function uniqueInviteCode(repo, rng, attempts = 10) {
+  for (let i = 0; i < attempts; i++) {
+    const code = generateInviteCode(rng);
+    if ((await repo.findSquadIdByInvite(code)) === null) return code;
+  }
+  throw new SquadError('INVITE_CODE_EXHAUSTED');
+}
+
+export { SquadError };

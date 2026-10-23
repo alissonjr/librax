@@ -1,0 +1,33 @@
+name: librax
+description: "Librax - o Duolingo de Libras. Spike de reconhecimento de maos (Android-first)."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Navegacao declarativa (mobile + web)
+  go_router: ^14.0.0
+  # Feed da camera
+  camera: ^0.11.0
+  # Hand Landmarker do MediaPipe (21 pontos por mao). Android-only nesta versao.
+  # Importado apenas via import condicional (lib/platform/practice_widget_mobile.dart).
+  hand_landmarker: ^2.2.0
+  # Fonte Nunito (DS)
+  google_fonts: ^6.2.1
+  # Permissao de camera
+  permission_handler: ^11.3.1
+  # Persistencia e export do dataset capturado (S2)
+  path_provider: ^2.1.4
+  share_plus: ^10.1.2
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

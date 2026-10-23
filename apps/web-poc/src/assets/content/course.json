@@ -1,0 +1,731 @@
+{
+  "courseId": "A1",
+  "title": "Libras do Zero",
+  "signsOrder": [
+    "letra-A","letra-B","letra-C","letra-D","letra-E",
+    "letra-F","letra-G","letra-H","letra-I","letra-J",
+    "letra-K","letra-L","letra-M","letra-N","letra-O",
+    "letra-P","letra-Q","letra-R","letra-S","letra-T",
+    "letra-U","letra-V","letra-W","letra-X","letra-Y",
+    "letra-Z","numero-0","numero-1","numero-2","numero-3",
+    "numero-4","numero-5","numero-6","numero-7","numero-8",
+    "numero-9","numero-10","sinal-OI","sinal-TCHAU","sinal-BOM-DIA",
+    "sinal-BOA-TARDE","sinal-BOA-NOITE","sinal-TUDO-BEM","sinal-PRAZER","sinal-BEM-VINDO",
+    "sinal-ATE-LOGO","sinal-PARABENS","sinal-OBRIGADO","sinal-POR-FAVOR","sinal-DESCULPA",
+    "sinal-DE-NADA","sinal-COM-LICENCA","sinal-EU","sinal-VOCE","sinal-ELE",
+    "sinal-NOS","sinal-MEU","sinal-SEU","sinal-NOME","sinal-SINAL",
+    "sinal-SURDO","sinal-OUVINTE","sinal-LIBRAS","sinal-IDADE","sinal-MORAR",
+    "sinal-NASCER","sinal-CIDADE","sinal-O-QUE","sinal-QUEM","sinal-ONDE",
+    "sinal-QUAL","sinal-COMO","sinal-QUANDO","sinal-POR-QUE","sinal-QUANTO",
+    "sinal-SIM","sinal-NAO","sinal-ENTENDER","sinal-SABER","sinal-FAMILIA",
+    "sinal-MAE","sinal-PAI","sinal-FILHO","sinal-FILHA","sinal-BEBE",
+    "sinal-HOMEM","sinal-MULHER","sinal-IRMAO","sinal-IRMA","sinal-AVO",
+    "sinal-AVO-F","sinal-TIO","sinal-TIA","sinal-PRIMO","sinal-MARIDO",
+    "sinal-ESPOSA","sinal-FELIZ","sinal-TRISTE","sinal-RAIVA","sinal-MEDO",
+    "sinal-CALMO","sinal-CANSADO","sinal-DOENTE","sinal-FOME","sinal-SONO",
+    "sinal-NERVOSO","sinal-PREOCUPADO","sinal-SAUDADE","sinal-GOSTAR","sinal-AMAR",
+    "sinal-HOJE","sinal-ONTEM","sinal-AMANHA","sinal-AGORA","sinal-DEPOIS",
+    "sinal-ANTES","sinal-DIA","sinal-SEMANA","sinal-MES","sinal-ANO",
+    "sinal-SABADO","sinal-DOMINGO","sinal-SEGUNDA-FEIRA","sinal-TERCA-FEIRA","sinal-QUARTA-FEIRA",
+    "sinal-QUINTA-FEIRA","sinal-SEXTA-FEIRA","sinal-MANHA","sinal-TARDE","sinal-NOITE",
+    "sinal-MEIO-DIA","sinal-HORA","sinal-MINUTO","sinal-JANEIRO","sinal-FEVEREIRO",
+    "sinal-MARCO","sinal-ABRIL","sinal-MAIO","sinal-JUNHO","sinal-JULHO",
+    "sinal-AGOSTO","sinal-SETEMBRO","sinal-OUTUBRO","sinal-NOVEMBRO","sinal-DEZEMBRO",
+    "sinal-COR","sinal-BRANCO","sinal-PRETO","sinal-VERMELHO","sinal-AZUL",
+    "sinal-AMARELO","sinal-VERDE","sinal-LARANJA","sinal-ROSA","sinal-ROXO",
+    "sinal-MARROM","sinal-CINZA","sinal-COMER","sinal-BEBER","sinal-AGUA",
+    "sinal-CAFE","sinal-LEITE","sinal-CAFE-DA-MANHA","sinal-ALMOCO","sinal-JANTAR",
+    "sinal-PAO","sinal-SUCO","sinal-ARROZ","sinal-FEIJAO","sinal-CARNE",
+    "sinal-FRANGO","sinal-PEIXE","sinal-OVO","sinal-FRUTA","sinal-MACA",
+    "sinal-BANANA","sinal-GOSTOSO","sinal-CASA","sinal-QUARTO","sinal-COZINHA",
+    "sinal-BANHEIRO","sinal-SALA","sinal-CAMA","sinal-MESA","sinal-AQUI",
+    "sinal-PERTO","sinal-LONGE","sinal-ESCOLA","sinal-HOSPITAL","sinal-IGREJA",
+    "sinal-MERCADO","sinal-BANCO","sinal-RESTAURANTE","sinal-FARMACIA","sinal-RUA",
+    "sinal-PRAIA","sinal-IR","sinal-VIR","sinal-DAR","sinal-AJUDAR",
+    "sinal-AVISAR","sinal-ESPERAR","sinal-PERGUNTAR","sinal-RESPONDER","sinal-CONVERSAR",
+    "sinal-VER","sinal-OLHAR","sinal-ENSINAR","sinal-TRABALHAR","sinal-ESTUDAR",
+    "sinal-APRENDER","sinal-LER","sinal-ESCREVER","sinal-FAZER","sinal-DORMIR",
+    "sinal-ACORDAR","sinal-QUERER","sinal-PODER","sinal-PRECISAR","sinal-COMPRAR",
+    "numero-11","numero-12","numero-13","numero-14","numero-15",
+    "numero-16","numero-17","numero-18","numero-19","numero-20",
+    "numero-30","numero-40","numero-50","numero-60","numero-70",
+    "numero-80","numero-90","numero-100","sinal-DINHEIRO","sinal-REAL",
+    "sinal-CUSTAR","sinal-PAGAR","sinal-CARO","sinal-BARATO","sinal-AMIGO",
+    "sinal-ENCONTRAR","sinal-DEVAGAR","sinal-DE-NOVO","sinal-COMUNIDADE","sinal-CULTURA",
+    "sinal-INTERPRETE","sinal-LINGUA","sinal-ASSOCIACAO","sinal-APLAUSO"
+  ],
+  "achievementRules": [
+    { "code": "PRIMEIRA_LICAO", "type": "lessons_completed", "gte": 1 },
+    { "code": "SEQUENCIA_3",    "type": "streak",             "gte": 3 },
+    { "code": "SEQUENCIA_7",    "type": "streak",             "gte": 7 },
+    { "code": "SINAIS_5",       "type": "signs_learned",      "gte": 5 },
+    { "code": "SINAIS_10",      "type": "signs_learned",      "gte": 10 },
+    { "code": "SINAIS_26",      "type": "signs_learned",      "gte": 26 },
+    { "code": "ALFABETO",       "type": "alphabet_complete" }
+  ],
+  "units": [
+    {
+      "id": "u1",
+      "title": "Alfabeto",
+      "description": "As 26 configuracoes de mao da datilologia brasileira",
+      "lessons": [
+        {
+          "id": "u1-l1",
+          "title": "Letras A a E",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["letra-A","letra-B","letra-C","letra-D","letra-E"]
+        },
+        {
+          "id": "u1-l2",
+          "title": "Letras F a J",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["letra-F","letra-G","letra-H","letra-I","letra-J"]
+        },
+        {
+          "id": "u1-l3",
+          "title": "Letras K a O",
+          "order": 3,
+          "xpReward": 10,
+          "signIds": ["letra-K","letra-L","letra-M","letra-N","letra-O"]
+        },
+        {
+          "id": "u1-l4",
+          "title": "Letras P a T",
+          "order": 4,
+          "xpReward": 10,
+          "signIds": ["letra-P","letra-Q","letra-R","letra-S","letra-T"]
+        },
+        {
+          "id": "u1-l5",
+          "title": "Letras U a Z",
+          "order": 5,
+          "xpReward": 15,
+          "signIds": ["letra-U","letra-V","letra-W","letra-X","letra-Y","letra-Z"]
+        }
+      ]
+    },
+    {
+      "id": "u2",
+      "title": "Números",
+      "description": "Os números de 0 a 10",
+      "lessons": [
+        {
+          "id": "u2-l1",
+          "title": "Números 0 a 5",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["numero-0","numero-1","numero-2","numero-3","numero-4","numero-5"]
+        },
+        {
+          "id": "u2-l2",
+          "title": "Números 6 a 10",
+          "order": 2,
+          "xpReward": 15,
+          "signIds": ["numero-6","numero-7","numero-8","numero-9","numero-10"]
+        }
+      ]
+    },
+    {
+      "id": "u3",
+      "title": "Saudações e cortesia",
+      "description": "Cumprimentar, agradecer e pedir licença",
+      "lessons": [
+        {
+          "id": "u3-l1",
+          "title": "Oi e tchau",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-OI","sinal-TCHAU","sinal-BOM-DIA","sinal-BOA-TARDE","sinal-BOA-NOITE"]
+        },
+        {
+          "id": "u3-l2",
+          "title": "Tudo bem?",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["sinal-TUDO-BEM","sinal-PRAZER","sinal-BEM-VINDO","sinal-ATE-LOGO","sinal-PARABENS"]
+        },
+        {
+          "id": "u3-l3",
+          "title": "Obrigado e por favor",
+          "order": 3,
+          "xpReward": 15,
+          "signIds": ["sinal-OBRIGADO","sinal-POR-FAVOR","sinal-DESCULPA","sinal-DE-NADA","sinal-COM-LICENCA"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["O-I", "TUDO", "B-E-M?"], "pt": "Oi, tudo bem?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete OI", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/oiSm_Prog001.mp4"} },
+        { "glosses": ["TUDO-BEM", "VOCÊ", "VIAGEM", "CHEGAR", "B-E-M?"], "pt": "Tudo bem! Você chegou bem da viagem?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete TUDO BEM", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/tudo_bemSm_Prog001.mp4"} },
+        { "glosses": ["TCHAU", "AMANHÃ", "ENCONTRAR", "CINEMA"], "pt": "Tchau! Amanhã nos encontramos no cinema.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete TCHAU", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/tchauSm_Prog001.mp4"} },
+        { "glosses": ["VOCÊ", "2sDAR-PRESENTE1s", "CALÇA", "OBRIGAD@"], "pt": "Obrigada pela calça que você me presenteou.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete OBRIGADO1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/obrigado1Sm_Prog001.mp4"} },
+        { "glosses": ["VOCÊ", "P-A-I", "JÁ?", "PARABÉNS"], "pt": "Você já é pai?! Meus parabéns!",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete PARABÉNS", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/parabensSm_Prog001.mp4"} }
+      ]
+    },
+    {
+      "id": "u4",
+      "title": "Apresentação",
+      "description": "Nome, sinal-nome, idade e de onde você é",
+      "lessons": [
+        {
+          "id": "u4-l1",
+          "title": "Eu e você",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-EU","sinal-VOCE","sinal-ELE","sinal-NOS","sinal-MEU","sinal-SEU"]
+        },
+        {
+          "id": "u4-l2",
+          "title": "Nome e sinal",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["sinal-NOME","sinal-SINAL","sinal-SURDO","sinal-OUVINTE","sinal-LIBRAS"]
+        },
+        {
+          "id": "u4-l3",
+          "title": "Idade e origem",
+          "order": 3,
+          "xpReward": 10,
+          "signIds": ["sinal-IDADE","sinal-MORAR","sinal-NASCER","sinal-CIDADE"]
+        },
+        {
+          "id": "u4-l4",
+          "title": "Soletrar o nome",
+          "order": 4,
+          "xpReward": 15,
+          "signIds": ["letra-D","letra-A","letra-V","letra-I","letra-B","letra-L"],
+          "spellWords": ["DAVI", "BIA", "LIA"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["NOME", "ME@", "A-L-E-X-A-N-D-R-E"], "pt": "Meu nome é Alexandre.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete NOME", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/nomeSm_Prog001.mp4"} },
+        { "glosses": ["SE@", "IRM@", "SINAL?"], "pt": "Qual é o sinal do seu irmão?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete SINAL3", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/sinal3Sm_Prog001.mp4"} },
+        { "glosses": ["FAMÍLIA", "ME@", "SURD@"], "pt": "Minha família é surda.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete SURDO1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/surdoSm_Prog001.mp4"} },
+        { "glosses": ["ONDE", "MORAR", "VOCÊ?"], "pt": "Onde você mora?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete MORAR", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/morarSm_Prog001.mp4"} },
+        { "glosses": ["EU", "NASCER", "18", "SETEMBRO", "1965"], "pt": "Eu nasci em 18 de setembro de 1965.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete NASCER", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/nascerSm_Prog001.mp4"} }
+      ],
+      "cultureNotes": [
+        {
+          "title": "O sinal-nome é dado pela comunidade surda",
+          "text": "Na comunidade surda, cada pessoa ganha um sinal-nome num momento chamado de batismo, e passa a ser reconhecida por ele. Nomear alguém é um ato prioritário dos surdos, em geral dos mais velhos ou de pessoas de referência no grupo, como forma de respeito à cultura surda. O sinal costuma partir de uma característica física, de um jeito de ser ou da letra inicial do nome.",
+          "source": {"name": "Menezes e Sousa, 'Antroponímia em Libras: análise de sinais-nome atribuídos por surdos', Revista Raído (UFGD), v. 15, n. 39, 2021", "url": "https://ojs.ufgd.edu.br/index.php/Raido/article/view/15036"}
+        },
+        {
+          "title": "Como chamar a atenção de uma pessoa surda",
+          "text": "Comece buscando contato visual. Se precisar, acene de uma distância razoável, dentro do campo de visão da pessoa, ou dê um leve toque: na cultura surda isso não é falta de educação, e o ombro é um bom lugar para tocar alguém que você não conhece. Não fique cutucando e, durante a conversa, mantenha-se no campo de visão, com boa iluminação no seu rosto.",
+          "source": {"name": "Silva, 'Iniciando a comunicação ainda sem saber Libras', Revista de Educação a Distância do IFSC, v. 1, n. 1, 2024", "url": "https://ojs.ifsc.edu.br/index.php/eadifsc/article/view/3728/4792"}
+        },
+        {
+          "title": "Luz e vibração também chamam a atenção",
+          "text": "Em casas de famílias surdas, a campainha costuma acender uma lâmpada que pisca em todos os cômodos. Para chamar um familiar surdo, dá para ligar e desligar a luz (quando se está perto do interruptor), bater no chão, acenar com a mão, tocar no ombro ou pedir a alguém que avise.",
+          "source": {"name": "Tesouro Linguístico (UFPel), 'Como é viver em uma família surda?'", "url": "https://wp.ufpel.edu.br/tesouro-linguistico/2026/03/12/como-e-viver-em-uma-familia-surda/"}
+        },
+        {
+          "title": "Diga 'surdo', não 'surdo-mudo'",
+          "text": "Não se usa o termo 'surdo-mudo', porque ele passa a ideia de que essas pessoas seriam incapazes. 'Deficiência auditiva' é um termo da área da saúde; quem faz parte da comunidade surda se vê como parte de um grupo cultural, com língua própria, e a maioria prefere ser chamada de surda, e não de deficiente auditiva.",
+          "source": {"name": "Vieira, 'Introdução à cultura surda', Revista de Educação a Distância do IFSC, v. 1, n. 1, 2024", "url": "https://ojs.ifsc.edu.br/index.php/eadifsc/article/view/3727/4793"}
+        }
+      ]
+    },
+    {
+      "id": "u5",
+      "title": "Perguntas",
+      "description": "O que, quem, onde, como, quando, por que e quanto",
+      "lessons": [
+        {
+          "id": "u5-l1",
+          "title": "O que, quem e onde",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-O-QUE","sinal-QUEM","sinal-ONDE","sinal-QUAL"]
+        },
+        {
+          "id": "u5-l2",
+          "title": "Como, quando e por quê",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["sinal-COMO","sinal-QUANDO","sinal-POR-QUE","sinal-QUANTO"]
+        },
+        {
+          "id": "u5-l3",
+          "title": "Sim, não e entender",
+          "order": 3,
+          "xpReward": 15,
+          "signIds": ["sinal-SIM","sinal-NAO","sinal-ENTENDER","sinal-SABER"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["VOCÊ", "BEBER", "O-QUE?"], "pt": "O que você quer beber?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete QUE2", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/que2Sm_Prog001.mp4"} },
+        { "glosses": ["LÁPIS", "ONDE?"], "pt": "Onde está o lápis?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete ONDE", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ondeSm_Prog001.mp4"} },
+        { "glosses": ["AMIG@", "SE@", "QUEM-É?", "EU", "QUERER", "CONHECER!"], "pt": "Quem é o seu amigo? Quero conhecer!",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete QUEM3", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quem3Sm_Prog001.mp4"} },
+        { "glosses": ["PORQUE", "ONTEM", "TRABALHO", "VOCÊ", "FALTAR?"], "pt": "Por que você faltou ao trabalho ontem?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete PORQUE", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/porqueSm_Prog001.mp4"} },
+        { "glosses": ["CASA", "DEL@", "QUARTO", "TER", "QUANT@?"], "pt": "Quantos quartos tem a casa dele?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete QUANTOS", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quantosSm_Prog001.mp4"} }
+      ]
+    },
+    {
+      "id": "u6",
+      "title": "Família",
+      "description": "Pais, filhos, irmãos, avós e parentes",
+      "lessons": [
+        {
+          "id": "u6-l1",
+          "title": "Pais e filhos",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-FAMILIA","sinal-MAE","sinal-PAI","sinal-FILHO","sinal-FILHA","sinal-BEBE"]
+        },
+        {
+          "id": "u6-l2",
+          "title": "Irmãos e avós",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["sinal-HOMEM","sinal-MULHER","sinal-IRMAO","sinal-IRMA","sinal-AVO","sinal-AVO-F"]
+        },
+        {
+          "id": "u6-l3",
+          "title": "Tios, primos e casal",
+          "order": 3,
+          "xpReward": 15,
+          "signIds": ["sinal-TIO","sinal-TIA","sinal-PRIMO","sinal-MARIDO","sinal-ESPOSA"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["FAMÍLIA", "ME@", "SURDA"], "pt": "Minha família é surda.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete FAMÍLIA", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/familiaSm_Prog001.mp4"} },
+        { "glosses": ["PAI", "ME@", "ADVOGAD@", "TRABALHAR", "CIDADE"], "pt": "Meu pai é advogado, trabalha na cidade.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete PAI2", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/pai2Sm_Prog001.mp4"} },
+        { "glosses": ["MENIN@", "AQUEL@", "IRM@", "ME@"], "pt": "Aquele menino é meu irmão.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete IRMÃO", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/irmaoSm_Prog001.mp4"} },
+        { "glosses": ["EU", "TER", "PRIM@", "MORAR", "INTERIOR"], "pt": "Eu tenho primos que moram no interior.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete PRIMO", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/primoSm_Prog001.mp4"} },
+        { "glosses": ["ESPOS@", "ME@", "LIND@!"], "pt": "Minha esposa é linda!",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete ESPOSA", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/esposaSm_Prog001.mp4"} }
+      ]
+    },
+    {
+      "id": "u7",
+      "title": "Sentimentos e estados",
+      "description": "Como você está e o que sente",
+      "lessons": [
+        {
+          "id": "u7-l1",
+          "title": "Como você está",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-FELIZ","sinal-TRISTE","sinal-RAIVA","sinal-MEDO","sinal-CALMO"]
+        },
+        {
+          "id": "u7-l2",
+          "title": "Cansaço, fome e sono",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["sinal-CANSADO","sinal-DOENTE","sinal-FOME","sinal-SONO"]
+        },
+        {
+          "id": "u7-l3",
+          "title": "Gostar e sentir",
+          "order": 3,
+          "xpReward": 15,
+          "signIds": ["sinal-NERVOSO","sinal-PREOCUPADO","sinal-SAUDADE","sinal-GOSTAR","sinal-AMAR"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["ALMOÇO", "DEMORAR", "EU", "FOME", "FORTE"], "pt": "O almoço está demorando e eu estou com muita fome.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete FOME", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/fomeSm_Prog001.mp4"} },
+        { "glosses": ["DENTRO", "ÔNIBUS", "EU", "SEMPRE", "SONO"], "pt": "Dentro do ônibus eu sempre fico com sono.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete SONO", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/sonoSm_Prog001.mp4"} },
+        { "glosses": ["VOCÊ", "GOSTAR", "VIAJAR?"], "pt": "Você gosta de viajar?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete GOSTAR", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/gostarSm_Prog001.mp4"} },
+        { "glosses": ["EU", "SAUDADE", "FAMÍLIA", "LÁ", "ESPANHA"], "pt": "Eu tenho saudades da minha família lá da Espanha.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete SAUDADE", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/saudadeSm_Prog001.mp4"} },
+        { "glosses": ["ESPOSA", "ME@", "CALM@", "N-U-N-C-A", "NERVOS@"], "pt": "Minha esposa é calma, nunca nervosa.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete CALMO1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/calmo1Sm_Prog001.mp4"} }
+      ]
+    },
+    {
+      "id": "u8",
+      "title": "Tempo",
+      "description": "Hoje, ontem, amanhã, dias, meses e horas",
+      "lessons": [
+        {
+          "id": "u8-l1",
+          "title": "Hoje, ontem e amanhã",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-HOJE","sinal-ONTEM","sinal-AMANHA","sinal-AGORA","sinal-DEPOIS","sinal-ANTES"]
+        },
+        {
+          "id": "u8-l2",
+          "title": "Dia, semana, mês e ano",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["sinal-DIA","sinal-SEMANA","sinal-MES","sinal-ANO","sinal-SABADO","sinal-DOMINGO"]
+        },
+        {
+          "id": "u8-l3",
+          "title": "Dias da semana",
+          "order": 3,
+          "xpReward": 10,
+          "signIds": ["sinal-SEGUNDA-FEIRA","sinal-TERCA-FEIRA","sinal-QUARTA-FEIRA","sinal-QUINTA-FEIRA","sinal-SEXTA-FEIRA"]
+        },
+        {
+          "id": "u8-l4",
+          "title": "Partes do dia e horas",
+          "order": 4,
+          "xpReward": 10,
+          "signIds": ["sinal-MANHA","sinal-TARDE","sinal-NOITE","sinal-MEIO-DIA","sinal-HORA","sinal-MINUTO"]
+        },
+        {
+          "id": "u8-l5",
+          "title": "Janeiro a abril",
+          "order": 5,
+          "xpReward": 10,
+          "signIds": ["sinal-JANEIRO","sinal-FEVEREIRO","sinal-MARCO","sinal-ABRIL"]
+        },
+        {
+          "id": "u8-l6",
+          "title": "Maio a agosto",
+          "order": 6,
+          "xpReward": 10,
+          "signIds": ["sinal-MAIO","sinal-JUNHO","sinal-JULHO","sinal-AGOSTO"]
+        },
+        {
+          "id": "u8-l7",
+          "title": "Setembro a dezembro",
+          "order": 7,
+          "xpReward": 15,
+          "signIds": ["sinal-SETEMBRO","sinal-OUTUBRO","sinal-NOVEMBRO","sinal-DEZEMBRO"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["HOJE", "TARDE", "EU", "IR", "CINEMA"], "pt": "Hoje à tarde eu vou ao cinema.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete TARDE", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/tardeSm_Prog001.mp4"} },
+        { "glosses": ["AMANHÃ", "TER", "AULA", "BIOLOGIA"], "pt": "Amanhã haverá aula de biologia.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete AMANHÃ", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/amanhaSm_Prog001.mp4"} },
+        { "glosses": ["ANO", "TER", "12", "MÊS"], "pt": "O ano tem 12 meses.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete ANO", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/anoSm_Prog001.mp4"} },
+        { "glosses": ["ANTES", "EU", "GORD@", "AGORA", "MAGR@"], "pt": "Antes eu era gorda, agora sou magra.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete ANTES1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/antes1Sm_Prog001.mp4"} },
+        { "glosses": ["EU", "TRABALHAR", "NOITE"], "pt": "Eu trabalho à noite.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete NOITE1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/noite1Sm_Prog001.mp4"} }
+      ]
+    },
+    {
+      "id": "u9",
+      "title": "Cores",
+      "description": "As cores do dia a dia",
+      "lessons": [
+        {
+          "id": "u9-l1",
+          "title": "Cores básicas",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-COR","sinal-BRANCO","sinal-PRETO","sinal-VERMELHO","sinal-AZUL","sinal-AMARELO"]
+        },
+        {
+          "id": "u9-l2",
+          "title": "Mais cores",
+          "order": 2,
+          "xpReward": 15,
+          "signIds": ["sinal-VERDE","sinal-LARANJA","sinal-ROSA","sinal-ROXO","sinal-MARROM","sinal-CINZA"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["EU", "COMPRAR", "BLUSA", "C-O-R", "LARANJA"], "pt": "Eu comprei uma blusa de cor laranja.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete COR", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/corSm_Prog001.mp4"} },
+        { "glosses": ["AQUEL@", "CASA", "AMAREL@", "BONIT@"], "pt": "Aquela casa amarela é bonita.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete AMARELO", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/amareloSm_Prog001.mp4"} },
+        { "glosses": ["EU", "COMPRAR", "SAPATO", "MARROM"], "pt": "Eu comprei um sapato marrom.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete MARROM", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/marromSm_Prog001.mp4"} },
+        { "glosses": ["EL@", "GOSTAR", "CALÇA", "CINZA"], "pt": "Ele gosta de calça cinza.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete CINZA1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cinza1Sm_Prog001.mp4"} },
+        { "glosses": ["CADÊ", "BERMUDA", "BRANC@", "ME@?"], "pt": "Cadê minha bermuda branca?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete BRANCO1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/branco1Sm_Prog001.mp4"} }
+      ]
+    },
+    {
+      "id": "u10",
+      "title": "Comida e bebida",
+      "description": "Refeições, alimentos e bebidas",
+      "lessons": [
+        {
+          "id": "u10-l1",
+          "title": "Comer e beber",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-COMER","sinal-BEBER","sinal-AGUA","sinal-CAFE","sinal-LEITE"]
+        },
+        {
+          "id": "u10-l2",
+          "title": "Refeições",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["sinal-CAFE-DA-MANHA","sinal-ALMOCO","sinal-JANTAR","sinal-PAO","sinal-SUCO"]
+        },
+        {
+          "id": "u10-l3",
+          "title": "Prato feito",
+          "order": 3,
+          "xpReward": 10,
+          "signIds": ["sinal-ARROZ","sinal-FEIJAO","sinal-CARNE","sinal-FRANGO","sinal-PEIXE"]
+        },
+        {
+          "id": "u10-l4",
+          "title": "Frutas e mais",
+          "order": 4,
+          "xpReward": 15,
+          "signIds": ["sinal-OVO","sinal-FRUTA","sinal-MACA","sinal-BANANA","sinal-GOSTOSO"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["ADORAR", "ÁGUA", "GELAD@", "BEBER"], "pt": "Adoro beber água gelada!",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete ÁGUA", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/aguaSm_Prog001.mp4"} },
+        { "glosses": ["EU", "ADORAR", "COMER", "PEIXE"], "pt": "Eu adoro comer peixe.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete PEIXE1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/peixe1Sm_Prog001.mp4"} },
+        { "glosses": ["FILH@", "ME@", "GOSTAR", "OVO", "COMER"], "pt": "Meu filho gosta de comer ovo.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete OVO1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ovo1Sm_Prog001.mp4"} },
+        { "glosses": ["BANANA", "COMER", "IMPORTANTE", "SAÚDE", "BO@"], "pt": "Comer banana é importante para a saúde.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete BANANA", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/bananaSm_Prog001.mp4"} },
+        { "glosses": ["EU", "FOME", "COMER^NOITE", "SEM"], "pt": "Eu estou com fome e ainda não jantei.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete JANTAR", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/jantarSm_Prog001.mp4"} }
+      ]
+    },
+    {
+      "id": "u11",
+      "title": "Casa e lugares",
+      "description": "Cômodos da casa e lugares da cidade",
+      "lessons": [
+        {
+          "id": "u11-l1",
+          "title": "Em casa",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-CASA","sinal-QUARTO","sinal-COZINHA","sinal-BANHEIRO","sinal-SALA"]
+        },
+        {
+          "id": "u11-l2",
+          "title": "Aqui, perto e longe",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["sinal-CAMA","sinal-MESA","sinal-AQUI","sinal-PERTO","sinal-LONGE"]
+        },
+        {
+          "id": "u11-l3",
+          "title": "Na cidade",
+          "order": 3,
+          "xpReward": 10,
+          "signIds": ["sinal-ESCOLA","sinal-HOSPITAL","sinal-IGREJA","sinal-MERCADO","sinal-BANCO"]
+        },
+        {
+          "id": "u11-l4",
+          "title": "Passeios e serviços",
+          "order": 4,
+          "xpReward": 15,
+          "signIds": ["sinal-RESTAURANTE","sinal-FARMACIA","sinal-RUA","sinal-PRAIA"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["COZINHA", "ME@", "CASA", "PEQUEN@"], "pt": "A cozinha da minha casa é pequena.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete COZINHA", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cozinhaSm_Prog001.mp4"} },
+        { "glosses": ["MENIN@", "IR", "FARMÁCIA", "COMPRAR", "REMÉDIO"], "pt": "O menino foi à farmácia comprar remédio.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete FARMÁCIA", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/farmaciaSm_Prog001.mp4"} },
+        { "glosses": ["CASA", "ME@", "PERTO", "TRABALHO", "ME@"], "pt": "Minha casa fica perto do meu trabalho.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete PERTO1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/perto1Sm_Prog001.mp4"} },
+        { "glosses": ["EL@", "MORAR", "OUTRA", "CIDADE", "LONGE"], "pt": "Ele mora distante, em outra cidade.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete LONGE1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/longeSm_Prog001.mp4"} },
+        { "glosses": ["SÁBADO", "EU", "IR", "PRAIA", "EU", "BRONZEAR"], "pt": "No sábado que vem irei me bronzear na praia.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete PRAIA", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/praiaSm_Prog001.mp4"} }
+      ]
+    },
+    {
+      "id": "u12",
+      "title": "Verbos do dia a dia",
+      "description": "Ações comuns, incluindo verbos direcionais",
+      "lessons": [
+        {
+          "id": "u12-l1",
+          "title": "Ir, vir e dar",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-IR","sinal-VIR","sinal-DAR","sinal-AJUDAR","sinal-AVISAR","sinal-ESPERAR"]
+        },
+        {
+          "id": "u12-l2",
+          "title": "Perguntar e conversar",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["sinal-PERGUNTAR","sinal-RESPONDER","sinal-CONVERSAR","sinal-VER","sinal-OLHAR","sinal-ENSINAR"]
+        },
+        {
+          "id": "u12-l3",
+          "title": "Estudo e trabalho",
+          "order": 3,
+          "xpReward": 10,
+          "signIds": ["sinal-TRABALHAR","sinal-ESTUDAR","sinal-APRENDER","sinal-LER","sinal-ESCREVER","sinal-FAZER"]
+        },
+        {
+          "id": "u12-l4",
+          "title": "Rotina e vontades",
+          "order": 4,
+          "xpReward": 15,
+          "signIds": ["sinal-DORMIR","sinal-ACORDAR","sinal-QUERER","sinal-PODER","sinal-PRECISAR","sinal-COMPRAR"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["QUERER", "1sAJUDAR2s", "ESTUDAR", "MATEMATICA"], "pt": "Quer que eu te ajude a estudar matemática?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete AJUDAR2", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ajudar2Sm_Prog001.mp4"} },
+        { "glosses": ["FAVOR", "2sPERGUNTAR3s", "HORA"], "pt": "Por favor, pergunte a ela que horas são.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete PERGUNTAR", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/perguntarSm_Prog001.mp4"} },
+        { "glosses": ["3sRESPONDER1s", "CERT@"], "pt": "Ele me respondeu certo.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete RESPONDER", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/responderSm_Prog001.mp4"} },
+        { "glosses": ["EL@", "3sENSINAR1s", "LIBRAS"], "pt": "Ele me ensina Libras.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete ENSINAR", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ensinarSm_Prog001.mp4"} },
+        { "glosses": ["EU", "IR", "CINEMA", "VOCÊ", "QUER", "IR-JUNTO"], "pt": "Vou ao cinema, você quer ir junto?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete IR1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ir1Sm_Prog001.mp4"} }
+      ]
+    },
+    {
+      "id": "u13",
+      "title": "Números 11 a 100 e dinheiro",
+      "description": "Números maiores, preços e pagamento",
+      "lessons": [
+        {
+          "id": "u13-l1",
+          "title": "Números 11 a 15",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["numero-11","numero-12","numero-13","numero-14","numero-15"]
+        },
+        {
+          "id": "u13-l2",
+          "title": "Números 16 a 20",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["numero-16","numero-17","numero-18","numero-19","numero-20"]
+        },
+        {
+          "id": "u13-l3",
+          "title": "Dezenas 30 a 70",
+          "order": 3,
+          "xpReward": 10,
+          "signIds": ["numero-30","numero-40","numero-50","numero-60","numero-70"]
+        },
+        {
+          "id": "u13-l4",
+          "title": "80 a 100 e dinheiro",
+          "order": 4,
+          "xpReward": 10,
+          "signIds": ["numero-80","numero-90","numero-100","sinal-DINHEIRO","sinal-REAL"]
+        },
+        {
+          "id": "u13-l5",
+          "title": "Quanto custa?",
+          "order": 5,
+          "xpReward": 15,
+          "signIds": ["sinal-CUSTAR","sinal-PAGAR","sinal-CARO","sinal-BARATO"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["ESS@", "LIVRO", "QUANTO-CUSTA"], "pt": "Quanto custa esse livro?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete QUANTO", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quanto1Sm_Prog001.mp4"} },
+        { "glosses": ["LOJA", "VESTIDO", "ROXO", "CUSTAR", "VOCÊ", "SABER"], "pt": "Você sabe quanto o vestido roxo custa na loja?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete CUSTAR", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/custarSm_Prog001.mp4"} },
+        { "glosses": ["POR-FAVOR", "20", "R", "2sEMPRESTAR1s"], "pt": "Por favor, empreste-me vinte reais?",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete VINTE", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/vinteSm_Prog001.mp4"} },
+        { "glosses": ["MELHOR", "COMPRAR", "FÁBRICA", "ROUPA", "DINHEIRO", "BARAT@"], "pt": "Melhor comprar roupa na fábrica, é mais barato.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete BARATO1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/barato1Sm_Prog001.mp4"} },
+        { "glosses": ["CURSO", "INFORMÁTICA", "V-A-G-A", "SÓ", "30"], "pt": "Só tem trinta vagas no curso de informática.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete TRINTA", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/trintaSm_Prog001.mp4"} }
+      ]
+    },
+    {
+      "id": "u14",
+      "title": "Conversa e cultura surda",
+      "description": "Revisão em conversa e cultura surda",
+      "lessons": [
+        {
+          "id": "u14-l1",
+          "title": "Conversa com amigos",
+          "order": 1,
+          "xpReward": 10,
+          "signIds": ["sinal-AMIGO","sinal-ENCONTRAR","sinal-DEVAGAR","sinal-DE-NOVO"]
+        },
+        {
+          "id": "u14-l2",
+          "title": "Comunidade surda",
+          "order": 2,
+          "xpReward": 10,
+          "signIds": ["sinal-COMUNIDADE","sinal-CULTURA","sinal-INTERPRETE","sinal-LINGUA","sinal-ASSOCIACAO","sinal-APLAUSO"]
+        },
+        {
+          "id": "u14-l3",
+          "title": "Revisão: apresentação",
+          "order": 3,
+          "xpReward": 10,
+          "signIds": ["sinal-OI","sinal-NOME","sinal-SURDO","sinal-OUVINTE","sinal-ONDE","sinal-MORAR"]
+        },
+        {
+          "id": "u14-l4",
+          "title": "Revisão: dia a dia",
+          "order": 4,
+          "xpReward": 15,
+          "signIds": ["sinal-HOJE","sinal-TRABALHAR","sinal-ESTUDAR","sinal-CASA","sinal-COMER","sinal-OBRIGADO"]
+        }
+      ],
+      "phrases": [
+        { "glosses": ["FALAR", "ENTENDER-NÃO", "REPETIR", "POR-FAVOR"], "pt": "Não entendi o que você falou, por favor repita!",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete REPETIR", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/repetirSm_Prog001.mp4"} },
+        { "glosses": ["EU", "ENTENDER-NÃO", "QUE", "VOCÊ", "FALAR"], "pt": "Não entendi o que você disse.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete QUE1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/que1Sm_Prog001.mp4"} },
+        { "glosses": ["EU", "POR-ACASO", "ENCONTRAR", "ME@", "AMIG@", "R-U-A"], "pt": "Por acaso, encontrei a minha amiga na rua.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete POR ACASO", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/por_acasoSm_Prog001.mp4"} },
+        { "glosses": ["TCHAU", "AMANHÃ", "ENCONTRAR", "CINEMA"], "pt": "Tchau! Amanhã nos encontramos no cinema.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete TCHAU", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/tchauSm_Prog001.mp4"} },
+        { "glosses": ["SURD@", "DIREITO", "INTÉRPRETE", "QUALQUER", "LUGAR"], "pt": "Em qualquer lugar os surdos têm direito a um intérprete.",
+          "source": {"name": "Dicionário de Libras do INES - exemplo do verbete DIREITO1", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/direito1Sm_Prog001.mp4"} }
+      ],
+      "cultureNotes": [
+        {
+          "title": "Aplauso visual",
+          "text": "Entre surdos, o aplauso é visual: as mãos abertas sobem acima da cabeça e tremulam, girando os punhos. O Dicionário de Libras do INES registra que, para os surdos, esse é o sinal mundial de aplaudir.",
+          "source": {"name": "Dicionário de Libras do INES - verbete APLAUDIR2 (acepção)", "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/aplaudir2Sm_Prog001.mp4"}
+        },
+        {
+          "title": "Libras é língua reconhecida por lei",
+          "text": "A Lei nº 10.436, de 24 de abril de 2002, reconhece a Libras como meio legal de comunicação e expressão, com estrutura gramatical própria, vinda das comunidades surdas do Brasil. Ela foi regulamentada pelo Decreto nº 5.626, de 22 de dezembro de 2005, que tornou a Libras disciplina obrigatória na formação de professores e de fonoaudiólogos. A lei também diz que a Libras não substitui a escrita do português.",
+          "source": {"name": "Lei nº 10.436/2002 (Planalto); regulamentada pelo Decreto nº 5.626/2005 (www.planalto.gov.br/ccivil_03/_ato2004-2006/2005/decreto/d5626.htm)", "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm"}
+        },
+        {
+          "title": "Associações de surdos",
+          "text": "As associações de surdos surgiram no Brasil entre 1913 e 1954 como espaços próprios de encontro, onde os surdos compartilham códigos culturais, conversam em Libras e convivem. Também são espaços de luta por direitos e, muitas vezes, o lugar onde ouvintes aprendem Libras e conhecem a comunidade surda.",
+          "source": {"name": "Freitas, W. M. et al. Associação de Surdos de Goiânia, educação e a EPT. Revista Educação em Contexto (SEDUC-GO), v. 4, n. 2, 2025", "url": "https://revistaseduc.educacao.go.gov.br/index.php/rec/article/download/229/127/1188"}
+        },
+        {
+          "title": "O papel do intérprete",
+          "text": "O tradutor e intérprete de Libras é uma profissão regulamentada por lei. Ele interpreta entre a Libras e a língua portuguesa, por exemplo entre surdos e ouvintes, em escolas, concursos, repartições públicas e na Justiça. A lei de 2023 também inclui o guia-intérprete, que atende pessoas surdocegas.",
+          "source": {"name": "Lei nº 12.319/2010, alterada pela Lei nº 14.704/2023 (Planalto)", "url": "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2010/lei/l12319.htm"}
+        },
+        {
+          "title": "Contato visual e campo de visão",
+          "text": "Na conversa em Libras, o olhar é essencial: olhos e expressão facial carregam parte do sentido. Para chamar a atenção de um surdo, acene dentro do campo de visão dele ou toque de leve no ombro, sem cutucar. Fique no campo de visão, não vire o rosto durante a conversa e, se houver intérprete, fale com a pessoa surda, não com o intérprete.",
+          "source": {"name": "Silva, S. G. L. Iniciando a comunicação ainda sem saber Libras. Revista de Educação a Distância do IFSC, v. 1, n. 1, 2024 (texto adaptado do WikiHow)", "url": "https://ojs.ifsc.edu.br/index.php/eadifsc/article/download/3728/4792/17057"}
+        }
+      ]
+    }
+  ]
+}

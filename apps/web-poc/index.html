@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- theme-color = token bg.canvas de cada modo, preenchido pelo vite.config.ts (o claro e o theme_color do manifest) -->
+    <meta name="theme-color" content="__LX_THEME_LIGHT__" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="__LX_THEME_DARK__" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Nunito auto-hospedada (public/fonts): sem requisição a terceiros e funciona offline -->
+    <link rel="preload" href="/fonts/Nunito-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
+    <title>Librax</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

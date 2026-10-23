@@ -1,0 +1,23 @@
+{
+  "name": "@librax/infra",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Librax - infraestrutura AWS via CDK (SPEC 02)",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "deploy": "cdk deploy --all --require-approval never",
+    "diff": "cdk diff",
+    "synth": "cdk synth"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.200.0",
+    "constructs": "^10.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "aws-cdk": "^2.200.0",
+    "typescript": "^5.5.0"
+  }
+}

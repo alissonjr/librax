@@ -1,0 +1,1720 @@
+{
+  "$description": "Librax design tokens v0.1 (proposta). Fonte unica da verdade do produto mobile web (CSS custom properties); geracao para Flutter e opcional. Formato DTCG (W3C Design Tokens Community Group) com valores em string, como no Style Dictionary 4. Ver docs/design-system-proposta.md.",
+  "color": {
+    "$type": "color",
+    "$description": "Primitivos. Nao usar direto nos componentes: usar os tokens de theme, stage e league.",
+    "noite": {
+      "0": {
+        "$value": "#FFFFFF"
+      },
+      "25": {
+        "$value": "#F6F7FA"
+      },
+      "50": {
+        "$value": "#EDEFF5"
+      },
+      "100": {
+        "$value": "#DFE3EC"
+      },
+      "200": {
+        "$value": "#C5CBD8"
+      },
+      "300": {
+        "$value": "#9EA7BA"
+      },
+      "400": {
+        "$value": "#7F89A0"
+      },
+      "500": {
+        "$value": "#5B6479"
+      },
+      "600": {
+        "$value": "#454D60"
+      },
+      "700": {
+        "$value": "#333A4B"
+      },
+      "800": {
+        "$value": "#242A38"
+      },
+      "850": {
+        "$value": "#1B2130"
+      },
+      "900": {
+        "$value": "#141926"
+      },
+      "950": {
+        "$value": "#0C101A"
+      },
+      "1000": {
+        "$value": "#06080E"
+      },
+      "$description": "Neutros azulados (marca). 1000 e o palco da camera."
+    },
+    "azul": {
+      "50": {
+        "$value": "#EEF2FF"
+      },
+      "100": {
+        "$value": "#DFE6FF"
+      },
+      "200": {
+        "$value": "#C2CFFF"
+      },
+      "300": {
+        "$value": "#9BB0FF"
+      },
+      "400": {
+        "$value": "#7290FF"
+      },
+      "500": {
+        "$value": "#4D6BFF"
+      },
+      "600": {
+        "$value": "#3651E6"
+      },
+      "700": {
+        "$value": "#2A3FBF"
+      },
+      "800": {
+        "$value": "#223293"
+      },
+      "900": {
+        "$value": "#1B2768"
+      },
+      "950": {
+        "$value": "#111842"
+      },
+      "$description": "Azul Sinal: cor de acao e marca."
+    },
+    "turquesa": {
+      "100": {
+        "$value": "#CFF7F1"
+      },
+      "200": {
+        "$value": "#9EEDE2"
+      },
+      "300": {
+        "$value": "#5FDECF"
+      },
+      "400": {
+        "$value": "#27C9B8"
+      },
+      "500": {
+        "$value": "#0FAE9F"
+      },
+      "600": {
+        "$value": "#0B8C81"
+      },
+      "700": {
+        "$value": "#0B6F67"
+      },
+      "800": {
+        "$value": "#0A5550"
+      },
+      "$description": "Turquesa Maos: tudo que e Libras, camera e esqueleto da mao (aceno ao Setembro Azul)."
+    },
+    "verde": {
+      "100": {
+        "$value": "#D9F7E3"
+      },
+      "200": {
+        "$value": "#ADEDC3"
+      },
+      "300": {
+        "$value": "#74DE9B"
+      },
+      "400": {
+        "$value": "#3CC873"
+      },
+      "500": {
+        "$value": "#1EAA58"
+      },
+      "600": {
+        "$value": "#14834A"
+      },
+      "700": {
+        "$value": "#126D39"
+      },
+      "800": {
+        "$value": "#0F532C"
+      }
+    },
+    "coral": {
+      "100": {
+        "$value": "#FFE5DF"
+      },
+      "200": {
+        "$value": "#FFC4B7"
+      },
+      "300": {
+        "$value": "#FF9C87"
+      },
+      "400": {
+        "$value": "#FF7A5F"
+      },
+      "500": {
+        "$value": "#EE5638"
+      },
+      "600": {
+        "$value": "#C63F24"
+      },
+      "700": {
+        "$value": "#9C311C"
+      },
+      "800": {
+        "$value": "#702415"
+      },
+      "$description": "Erro nao punitivo: coral, nunca vermelho puro."
+    },
+    "ambar": {
+      "100": {
+        "$value": "#FFEFD1"
+      },
+      "200": {
+        "$value": "#FFDB9C"
+      },
+      "300": {
+        "$value": "#FFC35C"
+      },
+      "400": {
+        "$value": "#FFAA2B"
+      },
+      "500": {
+        "$value": "#E88C00"
+      },
+      "600": {
+        "$value": "#B86E00"
+      },
+      "700": {
+        "$value": "#8F5500"
+      },
+      "800": {
+        "$value": "#663D00"
+      }
+    },
+    "ouro": {
+      "100": {
+        "$value": "#FFF6CC"
+      },
+      "200": {
+        "$value": "#FFEA8F"
+      },
+      "300": {
+        "$value": "#FFDB4D"
+      },
+      "400": {
+        "$value": "#FACB1E"
+      },
+      "500": {
+        "$value": "#DDAE00"
+      },
+      "600": {
+        "$value": "#A98500"
+      },
+      "700": {
+        "$value": "#7D6200"
+      },
+      "800": {
+        "$value": "#574500"
+      },
+      "$description": "XP e conquistas."
+    },
+    "chama": {
+      "100": {
+        "$value": "#FFE6D9"
+      },
+      "200": {
+        "$value": "#FFC6A8"
+      },
+      "300": {
+        "$value": "#FF9E6B"
+      },
+      "400": {
+        "$value": "#FF7A3D"
+      },
+      "500": {
+        "$value": "#F05A1A"
+      },
+      "600": {
+        "$value": "#C24410"
+      },
+      "700": {
+        "$value": "#94340D"
+      },
+      "800": {
+        "$value": "#69250A"
+      },
+      "$description": "Streak (sequencia de dias)."
+    }
+  },
+  "theme": {
+    "light": {
+      "$type": "color",
+      "bg": {
+        "canvas": {
+          "$value": "{color.noite.25}",
+          "$description": "Fundo da tela"
+        },
+        "surface": {
+          "$value": "{color.noite.0}",
+          "$description": "Cards, tab bar, sheets"
+        },
+        "raised": {
+          "$value": "{color.noite.0}",
+          "$description": "Elementos sobre surface (modal, popover). No escuro a elevacao vem da cor"
+        },
+        "sunken": {
+          "$value": "{color.noite.50}",
+          "$description": "Campos, trilhos, areas recuadas"
+        },
+        "inverse": {
+          "$value": "{color.noite.900}",
+          "$description": "Toast e tooltip"
+        },
+        "scrim": {
+          "$value": "#06080E8F",
+          "$description": "Fundo atras de modal e sheet"
+        }
+      },
+      "text": {
+        "primary": {
+          "$value": "{color.noite.900}"
+        },
+        "secondary": {
+          "$value": "{color.noite.600}"
+        },
+        "tertiary": {
+          "$value": "{color.noite.500}",
+          "$description": "Placeholder e metadado. Ainda passa AA"
+        },
+        "disabled": {
+          "$value": "{color.noite.400}",
+          "$description": "Isento de contraste (WCAG 1.4.3), nunca para informacao"
+        },
+        "inverse": {
+          "$value": "{color.noite.0}"
+        },
+        "brand": {
+          "$value": "{color.azul.700}",
+          "$description": "Links e texto de acao"
+        }
+      },
+      "border": {
+        "subtle": {
+          "$value": "{color.noite.100}",
+          "$description": "Separadores decorativos"
+        },
+        "default": {
+          "$value": "{color.noite.200}",
+          "$description": "Borda de card"
+        },
+        "strong": {
+          "$value": "{color.noite.400}",
+          "$description": "Borda de controle interativo (>= 3:1)"
+        },
+        "focus": {
+          "$value": "{color.azul.600}",
+          "$description": "Anel de foco, 3px"
+        }
+      },
+      "action": {
+        "primary": {
+          "bg": {
+            "$value": "{color.azul.600}"
+          },
+          "bgPressed": {
+            "$value": "{color.azul.700}"
+          },
+          "base": {
+            "$value": "{color.azul.800}",
+            "$description": "Borda inferior de 3px (efeito tecla)"
+          },
+          "fg": {
+            "$value": "{color.noite.0}"
+          }
+        },
+        "secondary": {
+          "bg": {
+            "$value": "{color.noite.0}"
+          },
+          "border": {
+            "$value": "{color.noite.400}"
+          },
+          "fg": {
+            "$value": "{color.azul.700}"
+          }
+        },
+        "danger": {
+          "bg": {
+            "$value": "{color.coral.600}"
+          },
+          "fg": {
+            "$value": "{color.noite.0}"
+          }
+        },
+        "disabled": {
+          "bg": {
+            "$value": "{color.noite.100}"
+          },
+          "fg": {
+            "$value": "{color.noite.400}"
+          }
+        }
+      },
+      "feedback": {
+        "success": {
+          "strong": {
+            "$value": "{color.verde.600}"
+          },
+          "onStrong": {
+            "$value": "{color.noite.0}"
+          },
+          "text": {
+            "$value": "{color.verde.700}"
+          },
+          "soft": {
+            "$value": "{color.verde.100}"
+          },
+          "onSoft": {
+            "$value": "{color.verde.800}"
+          }
+        },
+        "error": {
+          "strong": {
+            "$value": "{color.coral.600}"
+          },
+          "onStrong": {
+            "$value": "{color.noite.0}"
+          },
+          "text": {
+            "$value": "{color.coral.700}"
+          },
+          "soft": {
+            "$value": "{color.coral.100}"
+          },
+          "onSoft": {
+            "$value": "{color.coral.800}"
+          }
+        },
+        "warning": {
+          "strong": {
+            "$value": "{color.ambar.400}"
+          },
+          "onStrong": {
+            "$value": "{color.noite.950}"
+          },
+          "text": {
+            "$value": "{color.ambar.700}"
+          },
+          "soft": {
+            "$value": "{color.ambar.100}"
+          },
+          "onSoft": {
+            "$value": "{color.ambar.800}"
+          }
+        },
+        "info": {
+          "strong": {
+            "$value": "{color.azul.600}"
+          },
+          "onStrong": {
+            "$value": "{color.noite.0}"
+          },
+          "text": {
+            "$value": "{color.azul.700}"
+          },
+          "soft": {
+            "$value": "{color.azul.100}"
+          },
+          "onSoft": {
+            "$value": "{color.azul.800}"
+          }
+        }
+      },
+      "game": {
+        "track": {
+          "$value": "{color.noite.50}",
+          "$description": "Trilho de barras de progresso"
+        },
+        "progress": {
+          "$value": "{color.verde.600}",
+          "$description": "Preenchimento da barra de progresso da licao"
+        },
+        "xp": {
+          "fill": {
+            "$value": "{color.ouro.600}"
+          },
+          "text": {
+            "$value": "{color.ouro.700}"
+          },
+          "soft": {
+            "$value": "{color.ouro.100}"
+          }
+        },
+        "streak": {
+          "fill": {
+            "$value": "{color.chama.500}"
+          },
+          "text": {
+            "$value": "{color.chama.700}"
+          },
+          "soft": {
+            "$value": "{color.chama.100}"
+          }
+        },
+        "hand": {
+          "text": {
+            "$value": "{color.turquesa.700}"
+          },
+          "soft": {
+            "$value": "{color.turquesa.100}"
+          },
+          "fill": {
+            "$value": "{color.turquesa.600}"
+          }
+        },
+        "locked": {
+          "bg": {
+            "$value": "{color.noite.100}"
+          },
+          "fg": {
+            "$value": "{color.noite.500}"
+          }
+        }
+      }
+    },
+    "dark": {
+      "$type": "color",
+      "bg": {
+        "canvas": {
+          "$value": "{color.noite.950}",
+          "$description": "Fundo da tela"
+        },
+        "surface": {
+          "$value": "{color.noite.900}",
+          "$description": "Cards, tab bar, sheets"
+        },
+        "raised": {
+          "$value": "{color.noite.850}",
+          "$description": "Elementos sobre surface (modal, popover). No escuro a elevacao vem da cor"
+        },
+        "sunken": {
+          "$value": "{color.noite.1000}",
+          "$description": "Campos, trilhos, areas recuadas"
+        },
+        "inverse": {
+          "$value": "{color.noite.25}",
+          "$description": "Toast e tooltip"
+        },
+        "scrim": {
+          "$value": "#000000B3",
+          "$description": "Fundo atras de modal e sheet"
+        }
+      },
+      "text": {
+        "primary": {
+          "$value": "{color.noite.25}"
+        },
+        "secondary": {
+          "$value": "{color.noite.300}"
+        },
+        "tertiary": {
+          "$value": "{color.noite.400}",
+          "$description": "Placeholder e metadado. Ainda passa AA"
+        },
+        "disabled": {
+          "$value": "{color.noite.500}",
+          "$description": "Isento de contraste (WCAG 1.4.3), nunca para informacao"
+        },
+        "inverse": {
+          "$value": "{color.noite.950}"
+        },
+        "brand": {
+          "$value": "{color.azul.300}",
+          "$description": "Links e texto de acao"
+        }
+      },
+      "border": {
+        "subtle": {
+          "$value": "{color.noite.800}",
+          "$description": "Separadores decorativos"
+        },
+        "default": {
+          "$value": "{color.noite.700}",
+          "$description": "Borda de card"
+        },
+        "strong": {
+          "$value": "{color.noite.400}",
+          "$description": "Borda de controle interativo (>= 3:1)"
+        },
+        "focus": {
+          "$value": "{color.azul.300}",
+          "$description": "Anel de foco, 3px"
+        }
+      },
+      "action": {
+        "primary": {
+          "bg": {
+            "$value": "{color.azul.400}"
+          },
+          "bgPressed": {
+            "$value": "{color.azul.300}"
+          },
+          "base": {
+            "$value": "{color.azul.600}",
+            "$description": "Borda inferior de 3px (efeito tecla)"
+          },
+          "fg": {
+            "$value": "{color.noite.950}"
+          }
+        },
+        "secondary": {
+          "bg": {
+            "$value": "{color.noite.900}"
+          },
+          "border": {
+            "$value": "{color.noite.400}"
+          },
+          "fg": {
+            "$value": "{color.azul.300}"
+          }
+        },
+        "danger": {
+          "bg": {
+            "$value": "{color.coral.400}"
+          },
+          "fg": {
+            "$value": "{color.noite.950}"
+          }
+        },
+        "disabled": {
+          "bg": {
+            "$value": "{color.noite.800}"
+          },
+          "fg": {
+            "$value": "{color.noite.500}"
+          }
+        }
+      },
+      "feedback": {
+        "success": {
+          "strong": {
+            "$value": "{color.verde.400}"
+          },
+          "onStrong": {
+            "$value": "{color.noite.950}"
+          },
+          "text": {
+            "$value": "{color.verde.300}"
+          },
+          "soft": {
+            "$value": "{color.verde.800}"
+          },
+          "onSoft": {
+            "$value": "{color.verde.100}"
+          }
+        },
+        "error": {
+          "strong": {
+            "$value": "{color.coral.400}"
+          },
+          "onStrong": {
+            "$value": "{color.noite.950}"
+          },
+          "text": {
+            "$value": "{color.coral.300}"
+          },
+          "soft": {
+            "$value": "{color.coral.800}"
+          },
+          "onSoft": {
+            "$value": "{color.coral.100}"
+          }
+        },
+        "warning": {
+          "strong": {
+            "$value": "{color.ambar.400}"
+          },
+          "onStrong": {
+            "$value": "{color.noite.950}"
+          },
+          "text": {
+            "$value": "{color.ambar.300}"
+          },
+          "soft": {
+            "$value": "{color.ambar.800}"
+          },
+          "onSoft": {
+            "$value": "{color.ambar.100}"
+          }
+        },
+        "info": {
+          "strong": {
+            "$value": "{color.azul.400}"
+          },
+          "onStrong": {
+            "$value": "{color.noite.950}"
+          },
+          "text": {
+            "$value": "{color.azul.300}"
+          },
+          "soft": {
+            "$value": "{color.azul.900}"
+          },
+          "onSoft": {
+            "$value": "{color.azul.100}"
+          }
+        }
+      },
+      "game": {
+        "track": {
+          "$value": "{color.noite.700}",
+          "$description": "Trilho de barras de progresso"
+        },
+        "progress": {
+          "$value": "{color.verde.400}",
+          "$description": "Preenchimento da barra de progresso da licao"
+        },
+        "xp": {
+          "fill": {
+            "$value": "{color.ouro.400}"
+          },
+          "text": {
+            "$value": "{color.ouro.300}"
+          },
+          "soft": {
+            "$value": "{color.ouro.800}"
+          }
+        },
+        "streak": {
+          "fill": {
+            "$value": "{color.chama.400}"
+          },
+          "text": {
+            "$value": "{color.chama.300}"
+          },
+          "soft": {
+            "$value": "{color.chama.800}"
+          }
+        },
+        "hand": {
+          "text": {
+            "$value": "{color.turquesa.300}"
+          },
+          "soft": {
+            "$value": "{color.turquesa.800}"
+          },
+          "fill": {
+            "$value": "{color.turquesa.400}"
+          }
+        },
+        "locked": {
+          "bg": {
+            "$value": "{color.noite.800}"
+          },
+          "fg": {
+            "$value": "{color.noite.300}"
+          }
+        }
+      }
+    }
+  },
+  "stage": {
+    "$type": "color",
+    "$description": "Palco da camera e das celebracoes. Igual nos dois modos: sempre escuro.",
+    "bg": {
+      "$value": "{color.noite.1000}"
+    },
+    "scrim": {
+      "$value": "#06080EA3",
+      "$description": "64%: garante texto branco >= 6:1 mesmo sobre video branco"
+    },
+    "pill": {
+      "$value": "#0C101ACC",
+      "$description": "Fundo das mensagens de status sobre o video (80%)"
+    },
+    "text": {
+      "$value": "{color.noite.0}"
+    },
+    "textSecondary": {
+      "$value": "{color.noite.100}"
+    },
+    "landmark": {
+      "halo": {
+        "$value": "#06080ED9",
+        "$description": "Contorno escuro (85%) 2px mais largo sob cada linha: legibilidade sobre video claro"
+      },
+      "idle": {
+        "$value": "#FFFFFFCC",
+        "$description": "Mao detectada, confianca baixa"
+      },
+      "tracking": {
+        "$value": "{color.turquesa.300}",
+        "$description": "Confianca subindo (> 40%)"
+      },
+      "ready": {
+        "$value": "{color.verde.400}",
+        "$description": "No limiar"
+      },
+      "correct": {
+        "$value": "{color.verde.300}",
+        "$description": "Acerto confirmado, com glow"
+      },
+      "retry": {
+        "$value": "{color.ambar.400}",
+        "$description": "Dedo com erro (pisca 2x)"
+      },
+      "reference": {
+        "$value": "#9BB0FFCC",
+        "$description": "Esqueleto de referencia, azul 80%, sempre tracejado"
+      }
+    },
+    "guide": {
+      "idle": {
+        "$value": "#FFFFFFB3",
+        "$description": "Guia de enquadramento tracejado"
+      },
+      "ok": {
+        "$value": "{color.verde.300}"
+      },
+      "warn": {
+        "$value": "{color.ambar.300}"
+      }
+    },
+    "glow": {
+      "brand": {
+        "$value": "#4D6BFF66"
+      },
+      "gold": {
+        "$value": "#FACB1E59"
+      }
+    },
+    "gold": {
+      "$value": "{color.ouro.400}",
+      "$description": "Ouro sobre o palco: insignia e XP nas celebracoes (o ouro claro do modo escuro, igual nos dois modos)"
+    }
+  },
+  "league": {
+    "$type": "color",
+    "$description": "Insignias de liga. A cor nunca vem sozinha: cada liga tem forma propria (numero de facetas) e nome escrito.",
+    "bronze": {
+      "$description": "1 faceta (circulo)",
+      "fill": {
+        "$value": "#B0703A"
+      },
+      "onFill": {
+        "$value": "{color.noite.950}"
+      },
+      "edge": {
+        "$value": "#6B4A1F",
+        "$description": "Contorno 2px da insignia (garante 3:1 no claro)"
+      }
+    },
+    "prata": {
+      "$description": "escudo",
+      "fill": {
+        "$value": "#A7B2C2"
+      },
+      "onFill": {
+        "$value": "{color.noite.950}"
+      },
+      "edge": {
+        "$value": "#6E7A8C",
+        "$description": "Contorno 2px da insignia (garante 3:1 no claro)"
+      }
+    },
+    "ouro": {
+      "$description": "escudo com coroa",
+      "fill": {
+        "$value": "#E0AE12"
+      },
+      "onFill": {
+        "$value": "{color.noite.950}"
+      },
+      "edge": {
+        "$value": "#8A6A00",
+        "$description": "Contorno 2px da insignia (garante 3:1 no claro)"
+      }
+    },
+    "safira": {
+      "$description": "hexagono",
+      "fill": {
+        "$value": "#3460E6"
+      },
+      "onFill": {
+        "$value": "{color.noite.0}"
+      },
+      "edge": {
+        "$value": "#1B2768",
+        "$description": "Contorno 2px da insignia (garante 3:1 no claro)"
+      }
+    },
+    "rubi": {
+      "$description": "octogono",
+      "fill": {
+        "$value": "#CC2B57"
+      },
+      "onFill": {
+        "$value": "{color.noite.0}"
+      },
+      "edge": {
+        "$value": "#7A1733",
+        "$description": "Contorno 2px da insignia (garante 3:1 no claro)"
+      }
+    },
+    "ametista": {
+      "$description": "estrela de 5 pontas",
+      "fill": {
+        "$value": "#7B4FE0"
+      },
+      "onFill": {
+        "$value": "{color.noite.0}"
+      },
+      "edge": {
+        "$value": "#45288F",
+        "$description": "Contorno 2px da insignia (garante 3:1 no claro)"
+      }
+    },
+    "diamante": {
+      "$description": "diamante facetado",
+      "fill": {
+        "$value": "#6FD9E8"
+      },
+      "onFill": {
+        "$value": "{color.noite.950}"
+      },
+      "edge": {
+        "$value": "#1A7A88",
+        "$description": "Contorno 2px da insignia (garante 3:1 no claro)"
+      }
+    }
+  },
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "display": {
+        "$value": [
+          "Nunito",
+          "system-ui",
+          "-apple-system",
+          "Roboto",
+          "sans-serif"
+        ],
+        "$description": "Titulos e numeros grandes: Nunito 800/900. SIL OFL 1.1, auto-hospedada em woff2"
+      },
+      "text": {
+        "$value": [
+          "Nunito",
+          "system-ui",
+          "-apple-system",
+          "Roboto",
+          "sans-serif"
+        ],
+        "$description": "Texto e interface: Nunito 400/600/700. Mesma familia; o papel muda o peso"
+      }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": {
+        "$value": 400
+      },
+      "semibold": {
+        "$value": 600
+      },
+      "bold": {
+        "$value": 700
+      },
+      "heavy": {
+        "$value": 800
+      },
+      "black": {
+        "$value": 900
+      }
+    }
+  },
+  "typography": {
+    "$type": "typography",
+    "displayXl": {
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "40px",
+        "fontWeight": "{font.weight.black}",
+        "lineHeight": 1.1,
+        "letterSpacing": "-0.5px"
+      },
+      "$description": "Celebracao (Licao concluida)"
+    },
+    "display": {
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "32px",
+        "fontWeight": "{font.weight.heavy}",
+        "lineHeight": 1.15,
+        "letterSpacing": "-0.3px"
+      },
+      "$description": "Titulo de onboarding e de resultado"
+    },
+    "headline": {
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "26px",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": 1.2,
+        "letterSpacing": "-0.2px"
+      },
+      "$description": "Titulo de tela"
+    },
+    "title": {
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "20px",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": 1.3,
+        "letterSpacing": "0px"
+      },
+      "$description": "Titulo de card, unidade, modal"
+    },
+    "titleSm": {
+      "$value": {
+        "fontFamily": "{font.family.text}",
+        "fontSize": "17px",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": 1.35,
+        "letterSpacing": "0px"
+      },
+      "$description": "Nome de licao, item de lista"
+    },
+    "bodyLg": {
+      "$value": {
+        "fontFamily": "{font.family.text}",
+        "fontSize": "18px",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": 1.5,
+        "letterSpacing": "0px"
+      },
+      "$description": "Enunciado de exercicio"
+    },
+    "body": {
+      "$value": {
+        "fontFamily": "{font.family.text}",
+        "fontSize": "16px",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": 1.5,
+        "letterSpacing": "0px"
+      },
+      "$description": "Texto padrao"
+    },
+    "bodySm": {
+      "$value": {
+        "fontFamily": "{font.family.text}",
+        "fontSize": "14px",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": 1.45,
+        "letterSpacing": "0px"
+      },
+      "$description": "Texto secundario"
+    },
+    "label": {
+      "$value": {
+        "fontFamily": "{font.family.text}",
+        "fontSize": "16px",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": 1.25,
+        "letterSpacing": "0.2px"
+      },
+      "$description": "Botoes"
+    },
+    "labelSm": {
+      "$value": {
+        "fontFamily": "{font.family.text}",
+        "fontSize": "13px",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": 1.25,
+        "letterSpacing": "0.2px"
+      },
+      "$description": "Abas, chips, badges"
+    },
+    "caption": {
+      "$value": {
+        "fontFamily": "{font.family.text}",
+        "fontSize": "12px",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": 1.35,
+        "letterSpacing": "0.2px"
+      },
+      "$description": "Menor texto permitido"
+    },
+    "numericXl": {
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "48px",
+        "fontWeight": "{font.weight.black}",
+        "lineHeight": 1.0,
+        "letterSpacing": "-1px"
+      },
+      "$description": "Contador de XP, streak em destaque",
+      "$extensions": {
+        "br.librax": {
+          "fontFeatures": [
+            "tnum"
+          ]
+        }
+      }
+    },
+    "numeric": {
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "20px",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": 1.2,
+        "letterSpacing": "0px"
+      },
+      "$description": "Ranking, placares",
+      "$extensions": {
+        "br.librax": {
+          "fontFeatures": [
+            "tnum"
+          ]
+        }
+      }
+    }
+  },
+  "space": {
+    "$type": "dimension",
+    "0": {
+      "$value": "0px"
+    },
+    "0_5": {
+      "$value": "2px"
+    },
+    "1": {
+      "$value": "4px"
+    },
+    "2": {
+      "$value": "8px"
+    },
+    "3": {
+      "$value": "12px"
+    },
+    "4": {
+      "$value": "16px"
+    },
+    "5": {
+      "$value": "20px"
+    },
+    "6": {
+      "$value": "24px"
+    },
+    "8": {
+      "$value": "32px"
+    },
+    "10": {
+      "$value": "40px"
+    },
+    "12": {
+      "$value": "48px"
+    },
+    "16": {
+      "$value": "64px"
+    }
+  },
+  "radius": {
+    "$type": "dimension",
+    "xs": {
+      "$value": "6px"
+    },
+    "sm": {
+      "$value": "10px"
+    },
+    "md": {
+      "$value": "14px"
+    },
+    "lg": {
+      "$value": "20px"
+    },
+    "xl": {
+      "$value": "28px"
+    },
+    "full": {
+      "$value": "999px"
+    }
+  },
+  "borderWidth": {
+    "$type": "dimension",
+    "thin": {
+      "$value": "1px"
+    },
+    "thick": {
+      "$value": "2px"
+    },
+    "selected": {
+      "$value": "3px"
+    },
+    "focusRing": {
+      "$value": "3px"
+    },
+    "focusOffset": {
+      "$value": "2px"
+    }
+  },
+  "size": {
+    "$type": "dimension",
+    "touchMin": {
+      "$value": "48px",
+      "$description": "Alvo de toque minimo (Android 48dp, iOS 44pt)"
+    },
+    "touchComfort": {
+      "$value": "56px"
+    },
+    "buttonLg": {
+      "$value": "56px"
+    },
+    "buttonMd": {
+      "$value": "48px"
+    },
+    "buttonSm": {
+      "$value": "40px",
+      "$description": "Visual 40, area de toque 48"
+    },
+    "choiceMin": {
+      "$value": "64px"
+    },
+    "tabBar": {
+      "$value": "64px",
+      "$description": "Mais env(safe-area-inset-bottom)"
+    },
+    "topBar": {
+      "$value": "56px"
+    },
+    "lessonNode": {
+      "$value": "64px"
+    },
+    "lessonNodeCurrent": {
+      "$value": "76px"
+    },
+    "avatar": {
+      "$value": "40px"
+    },
+    "progressLesson": {
+      "$value": "12px"
+    },
+    "progressGoal": {
+      "$value": "10px"
+    },
+    "confidenceBar": {
+      "$value": "8px"
+    },
+    "iconSm": {
+      "$value": "16px"
+    },
+    "iconMd": {
+      "$value": "20px"
+    },
+    "iconLg": {
+      "$value": "24px"
+    },
+    "iconXl": {
+      "$value": "32px"
+    },
+    "iconHero": {
+      "$value": "64px"
+    },
+    "contentMax": {
+      "$value": "560px",
+      "$description": "Coluna maxima do app em telas largas"
+    }
+  },
+  "layout": {
+    "breakpoint": {
+      "$type": "dimension",
+      "medium": {
+        "$value": "600px"
+      },
+      "expanded": {
+        "$value": "840px"
+      }
+    },
+    "grid": {
+      "compact": {
+        "$value": {
+          "columns": 4,
+          "margin": "16px",
+          "gutter": "12px"
+        }
+      },
+      "medium": {
+        "$value": {
+          "columns": 8,
+          "margin": "24px",
+          "gutter": "16px"
+        }
+      },
+      "expanded": {
+        "$value": {
+          "columns": 12,
+          "margin": "32px",
+          "gutter": "16px"
+        }
+      }
+    }
+  },
+  "elevation": {
+    "$type": "shadow",
+    "$description": "Claro: sombra. Escuro: sombra mais forte + bg.raised (a cor e quem eleva).",
+    "light": {
+      "1": {
+        "$value": [
+          {
+            "color": "#0C101A0F",
+            "offsetX": "0px",
+            "offsetY": "1px",
+            "blur": "2px",
+            "spread": "0px"
+          },
+          {
+            "color": "#0C101A1A",
+            "offsetX": "0px",
+            "offsetY": "1px",
+            "blur": "3px",
+            "spread": "0px"
+          }
+        ]
+      },
+      "2": {
+        "$value": [
+          {
+            "color": "#0C101A1F",
+            "offsetX": "0px",
+            "offsetY": "4px",
+            "blur": "12px",
+            "spread": "-2px"
+          }
+        ]
+      },
+      "3": {
+        "$value": [
+          {
+            "color": "#0C101A3D",
+            "offsetX": "0px",
+            "offsetY": "12px",
+            "blur": "32px",
+            "spread": "-8px"
+          }
+        ]
+      }
+    },
+    "dark": {
+      "1": {
+        "$value": [
+          {
+            "color": "#00000066",
+            "offsetX": "0px",
+            "offsetY": "1px",
+            "blur": "2px",
+            "spread": "0px"
+          }
+        ]
+      },
+      "2": {
+        "$value": [
+          {
+            "color": "#00000080",
+            "offsetX": "0px",
+            "offsetY": "4px",
+            "blur": "12px",
+            "spread": "-2px"
+          }
+        ]
+      },
+      "3": {
+        "$value": [
+          {
+            "color": "#000000A6",
+            "offsetX": "0px",
+            "offsetY": "12px",
+            "blur": "32px",
+            "spread": "-8px"
+          }
+        ]
+      }
+    }
+  },
+  "opacity": {
+    "$type": "number",
+    "disabled": {
+      "$value": 0.38
+    },
+    "pressedOverlay": {
+      "$value": 0.12
+    },
+    "hoverOverlay": {
+      "$value": 0.08
+    }
+  },
+  "motion": {
+    "duration": {
+      "$type": "duration",
+      "instant": {
+        "$value": "80ms",
+        "$description": "Toque, troca de estado de botao"
+      },
+      "fast": {
+        "$value": "150ms",
+        "$description": "Feedback de opcao, overlay entrando"
+      },
+      "base": {
+        "$value": "250ms",
+        "$description": "Componentes, crossfade"
+      },
+      "page": {
+        "$value": "300ms",
+        "$description": "Transicao de tela"
+      },
+      "slow": {
+        "$value": "400ms",
+        "$description": "Sheets, modais grandes"
+      },
+      "emphasis": {
+        "$value": "600ms",
+        "$description": "Desbloqueio de fase, conquista"
+      },
+      "celebrate": {
+        "$value": "800ms",
+        "$description": "+XP subindo, contador"
+      },
+      "ambient": {
+        "$value": "2400ms",
+        "$description": "Loops calmos: chama, brilho"
+      }
+    },
+    "easing": {
+      "$type": "cubicBezier",
+      "standard": {
+        "$value": [
+          0.2,
+          0,
+          0,
+          1
+        ]
+      },
+      "decelerate": {
+        "$value": [
+          0,
+          0,
+          0.2,
+          1
+        ],
+        "$description": "Entradas"
+      },
+      "accelerate": {
+        "$value": [
+          0.4,
+          0,
+          1,
+          1
+        ],
+        "$description": "Saidas"
+      },
+      "overshoot": {
+        "$value": [
+          0.34,
+          1.56,
+          0.64,
+          1
+        ],
+        "$description": "So celebracao. Equivale ao spring celebrate"
+      },
+      "linear": {
+        "$value": [
+          0,
+          0,
+          1,
+          1
+        ]
+      }
+    },
+    "spring": {
+      "$description": "Flutter: SpringDescription(mass, stiffness, damping). Web: usar easing.overshoot com a duracao indicada.",
+      "celebrate": {
+        "$value": {
+          "mass": 1,
+          "stiffness": 300,
+          "damping": 20,
+          "webDuration": "400ms"
+        },
+        "$description": "zeta 0.58, overshoot ~8%"
+      },
+      "unlock": {
+        "$value": {
+          "mass": 1,
+          "stiffness": 200,
+          "damping": 18,
+          "webDuration": "600ms"
+        },
+        "$description": "zeta 0.64, overshoot ~5%"
+      },
+      "crystallize": {
+        "$value": {
+          "mass": 1,
+          "stiffness": 500,
+          "damping": 26,
+          "webDuration": "200ms"
+        },
+        "$description": "Esqueleto 1.0 -> 1.08 -> 1.0 no acerto com camera"
+      }
+    },
+    "stagger": {
+      "$value": "70ms",
+      "$description": "Atraso entre itens em entrada escalonada",
+      "$type": "duration"
+    },
+    "autoAdvance": {
+      "$value": "1200ms",
+      "$description": "Pausa apos acerto antes de avancar",
+      "$type": "duration"
+    }
+  },
+  "haptic": {
+    "$description": "Sem $type padrao no DTCG. web = padrao para navigator.vibrate (so Android Chrome; iOS nao vibra); visual = equivalente obrigatorio, sempre exibido; flutter = opcional (Flutter congelado), HapticFeedback com intervalos em ms. Haptica nunca e essencial.",
+    "tap": {
+      "$value": {
+        "web": [
+          10
+        ],
+        "visual": "press: escala 0.97",
+        "flutter": [
+          "lightImpact"
+        ]
+      }
+    },
+    "select": {
+      "$value": {
+        "web": [
+          8
+        ],
+        "visual": "borda selected + escala 0.98",
+        "flutter": [
+          "selectionClick"
+        ]
+      }
+    },
+    "correct": {
+      "$value": {
+        "web": [
+          25
+        ],
+        "visual": "tile verde + icone check",
+        "flutter": [
+          "mediumImpact"
+        ]
+      }
+    },
+    "correctCamera": {
+      "$value": {
+        "web": [
+          40
+        ],
+        "visual": "cristalizacao do esqueleto + anel de luz",
+        "flutter": [
+          "heavyImpact"
+        ]
+      }
+    },
+    "wrong": {
+      "$value": {
+        "web": [],
+        "visual": "tile coral + icone + dica escrita",
+        "flutter": []
+      },
+      "$description": "Erro nunca vibra (spec-05 secao 4)"
+    },
+    "achievement": {
+      "$value": {
+        "web": [
+          100,
+          50,
+          100
+        ],
+        "visual": "insignia com brilho",
+        "flutter": [
+          "heavyImpact",
+          50,
+          "heavyImpact"
+        ]
+      }
+    },
+    "streak": {
+      "$value": {
+        "web": [
+          50,
+          30,
+          50
+        ],
+        "visual": "chama cresce",
+        "flutter": [
+          "lightImpact",
+          30,
+          "lightImpact"
+        ]
+      }
+    },
+    "goalMet": {
+      "$value": {
+        "web": [
+          80,
+          40,
+          80,
+          40,
+          80
+        ],
+        "visual": "barra passa de 100% e assenta",
+        "flutter": [
+          "mediumImpact",
+          40,
+          "mediumImpact",
+          40,
+          "mediumImpact"
+        ]
+      }
+    },
+    "freeze": {
+      "$value": {
+        "web": [
+          200
+        ],
+        "visual": "cristal sobre a chama",
+        "flutter": [
+          "mediumImpact"
+        ]
+      }
+    },
+    "courseDone": {
+      "$value": {
+        "web": [
+          100,
+          50,
+          100,
+          50,
+          200
+        ],
+        "visual": "sequencia coreografada",
+        "flutter": [
+          "heavyImpact",
+          50,
+          "heavyImpact",
+          50,
+          "heavyImpact"
+        ]
+      }
+    }
+  },
+  "sound": {
+    "$description": "Arquivos em public/audio/<file>.m4a (AAC: toca em Safari iOS e Chrome Android). Som desligavel e opcional. Prioridade maior interrompe menor (spec-05 secao 3.2). Nenhum som carrega informacao exclusiva.",
+    "correct": {
+      "$value": {
+        "file": "sfx_correct_soft",
+        "priority": 1,
+        "durationMs": 300
+      }
+    },
+    "correctCamera": {
+      "$value": {
+        "file": "sfx_correct_camera",
+        "priority": 2,
+        "durationMs": 1000
+      }
+    },
+    "neutral": {
+      "$value": {
+        "file": "sfx_neutral",
+        "priority": 0,
+        "durationMs": 200
+      }
+    },
+    "advance": {
+      "$value": {
+        "file": "sfx_advance",
+        "priority": 0,
+        "durationMs": 80
+      }
+    },
+    "xpTick": {
+      "$value": {
+        "file": "sfx_xp_tick",
+        "priority": 0,
+        "durationMs": 50
+      }
+    },
+    "streak": {
+      "$value": {
+        "file": "sfx_streak",
+        "priority": 3,
+        "durationMs": 500
+      }
+    },
+    "goalMet": {
+      "$value": {
+        "file": "sfx_goal_met",
+        "priority": 4,
+        "durationMs": 600
+      }
+    },
+    "lessonDone": {
+      "$value": {
+        "file": "sfx_lesson_done",
+        "priority": 5,
+        "durationMs": 800
+      }
+    },
+    "achievement": {
+      "$value": {
+        "file": "sfx_achievement",
+        "priority": 6,
+        "durationMs": 600
+      }
+    },
+    "unitDone": {
+      "$value": {
+        "file": "sfx_unit_done",
+        "priority": 7,
+        "durationMs": 1200
+      }
+    },
+    "courseDone": {
+      "$value": {
+        "file": "sfx_course_done",
+        "priority": 8,
+        "durationMs": 2500
+      }
+    },
+    "freeze": {
+      "$value": {
+        "file": "sfx_freeze",
+        "priority": 3,
+        "durationMs": 400
+      }
+    }
+  },
+  "zIndex": {
+    "$type": "number",
+    "base": {
+      "$value": 0
+    },
+    "sticky": {
+      "$value": 10
+    },
+    "nav": {
+      "$value": 100
+    },
+    "sheet": {
+      "$value": 200
+    },
+    "toast": {
+      "$value": 300
+    },
+    "celebration": {
+      "$value": 400
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "strict": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@domain/*": ["../../services/api/src/domain/*"],
+      "@apilib/*": ["../../services/api/src/lib/*"],
+      "@usecases/*": ["../../services/api/src/usecases/*"]
+    }
+  },
+  "include": ["src"]
+}
