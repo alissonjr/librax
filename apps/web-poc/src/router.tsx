@@ -11,6 +11,7 @@ import { ROUTES, TAB_PATHS, sectionForPath } from './lib/routes';
 import { useSession } from './hooks/useSession';
 import { HistoryTracker, useAppNavigation } from './hooks/useAppNavigation';
 import { useLessonExit } from './hooks/useLessonExit';
+import { DialogProvider } from './hooks/useDialog';
 import { useT } from './i18n';
 import { Nav } from './components/Nav';
 import { Icon } from './components/Icon';
@@ -105,10 +106,13 @@ function NoticeToast() {
   return notice ? <Toast message={t(notice)} onDone={dismissNotice} /> : null;
 }
 
-/** Raiz de todas as rotas: rolagem (topo ao abrir tela nova, posição de volta ao voltar) e histórico. */
+/**
+ * Raiz de todas as rotas: rolagem (topo ao abrir tela nova, posição de volta ao voltar) e histórico.
+ * Os diálogos (useDialog) ficam aqui dentro do roteador porque o voltar os fecha (useCloseOnBack).
+ */
 function RootLayout() {
   return (
-    <>
+    <DialogProvider>
       <ScrollRestoration />
       <HistoryTracker />
       <RouteAnnouncer />
@@ -116,7 +120,7 @@ function RootLayout() {
         <Outlet />
       </Suspense>
       <NoticeToast />
-    </>
+    </DialogProvider>
   );
 }
 
@@ -358,6 +362,7 @@ function LessonRoute() {
         cancelLabel={t('common.continue')}
         onConfirm={exit.confirm}
         onCancel={exit.cancel}
+        closeOnBack={false}
       />
     </>
   );

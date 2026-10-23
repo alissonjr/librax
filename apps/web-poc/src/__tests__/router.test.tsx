@@ -24,7 +24,7 @@ import { SessionProvider } from '../hooks/useSession';
 import { IdbRepo } from '../lib/idbRepo';
 import { upgradeLibraxDb } from '../lib/db';
 
-async function renderAt(entries: string[], seed?: (repo: IdbRepo) => Promise<void>) {
+async function renderAt(entries: string[], seed?: (repo: IdbRepo) => Promise<void>, brokenStreak = 0) {
   const db = await openDB(`librax-router-${Date.now()}-${Math.random()}`, 1, { upgrade: upgradeLibraxDb });
   const repo = new IdbRepo(db, 'user-test');
   await repo.saveProfile({ userId: 'user-test', xpTotal: 0, streak: 0, achievements: [] });
@@ -35,7 +35,7 @@ async function renderAt(entries: string[], seed?: (repo: IdbRepo) => Promise<voi
     future: ROUTER_FUTURE,
   });
   render(
-    <SessionProvider repo={repo} userId="user-test" brokenStreak={0}>
+    <SessionProvider repo={repo} userId="user-test" brokenStreak={brokenStreak}>
       <RouterProvider router={router} future={{ v7_startTransition: true }} />
     </SessionProvider>,
   );
@@ -125,6 +125,19 @@ describe('roteador', () => {
     });
     await screen.findByRole('progressbar');
     expect(path(router)).toBe('/licao/u1-l1');
+  });
+
+  it('com um sheet aberto, o voltar fecha o sheet e fica na tela', async () => {
+    const router = await renderAt(['/aprender'], undefined, 5);
+    expect(await screen.findByRole('dialog')).toHaveTextContent('5');
+    // Abrir o sheet criou uma entrada no historico com o mesmo endereco
+    await waitFor(() => expect(router.state.historyAction).toBe('PUSH'));
+    expect(path(router)).toBe('/aprender');
+
+    await act(() => router.navigate(-1));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(path(router)).toBe('/aprender');
+    expect(router.state.historyAction).toBe('POP');
   });
 
   it('o voltar dentro da licao abre "Sair da licao?" em vez de sair direto', async () => {

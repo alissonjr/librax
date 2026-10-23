@@ -7,7 +7,6 @@ import { getToday } from './lib/today';
 import { newProfile } from '@domain/profile.js';
 import { Flags } from './lib/flags';
 import { useT } from './i18n';
-import { DialogProvider } from './hooks/useDialog';
 import { SessionProvider } from './hooks/useSession';
 import { routes, ROUTER_FUTURE } from './router';
 
@@ -73,9 +72,7 @@ export function App() {
 
   return (
     <SessionProvider repo={state.repo} userId={state.userId} brokenStreak={state.brokenStreak}>
-      <DialogProvider>
-        <RouterProvider router={router} future={{ v7_startTransition: true }} />
-      </DialogProvider>
+      <RouterProvider router={router} future={{ v7_startTransition: true }} />
     </SessionProvider>
   );
 }
