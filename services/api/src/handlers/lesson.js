@@ -1,57 +1,60 @@
 /**
  * Handlers Lambda para endpoints de licao e fila diaria.
  *
- * POST /v1/lesson/complete  -> completeLesson
+ * POST /v1/lesson/complete  -> completeLesson (idempotente com lessonAttemptId)
  * GET  /v1/lesson/queue     -> getDailyQueue
  *
  * Mapeamento API Gateway HTTP API (payload format 2.0):
  *   event.routeKey = "POST /v1/lesson/complete"
  *   event.requestContext.authorizer.jwt.claims.sub = userId do Cognito
+ *
+ * `makeLessonHandlers({ repo, catalog })` recebe as dependencias (testes usam InMemoryRepo);
+ * os exports nomeados sao as instancias de producao (DynamoRepo + catalogo empacotado).
  */
 
 import { completeLesson } from '../usecases/completeLesson.js';
+import { completeLessonOnce } from '../usecases/completeLessonOnce.js';
 import { getDailyQueue } from '../usecases/getDailyQueue.js';
+import { parseCompletionEntry } from '../domain/lessonCompletion.js';
 import { userId, body, ok, ApiError, wrap } from './_http.js';
-import { repo } from './_repo.js';
+import { repo as dynamoRepo } from './_repo.js';
+import { courseCatalog } from './_catalog.js';
 
-const COURSE_CATALOG = JSON.parse(process.env.COURSE_CATALOG_JSON ?? '{}');
+const utcDay = (d) => d.toISOString().slice(0, 10);
 
-function courseConfig() {
-  if (!COURSE_CATALOG.lessonsMap) {
-    throw new ApiError(503, 'CATALOG_UNAVAILABLE', 'Conteudo do curso indisponivel');
-  }
-  return COURSE_CATALOG;
+export function makeLessonHandlers({ repo, catalog, now = () => new Date() }) {
+  /** POST /v1/lesson/complete */
+  const completeLessonHandler = wrap(async (event) => {
+    const uid = userId(event);
+    const raw = body(event);
+    const today = utcDay(now());
+    // cliente antigo podia omitir `today`: usa o dia UTC do servidor
+    const parsed = parseCompletionEntry(
+      { today, ...raw },
+      { catalog, today, requireAttemptId: false },
+    );
+    if (!parsed.ok) throw new ApiError(400, parsed.error, `Conclusao invalida: ${parsed.error}`);
+
+    const input = { ...parsed.value, userId: uid };
+    const result = input.lessonAttemptId
+      ? await completeLessonOnce(repo, catalog, input)
+      : await completeLesson(repo, catalog, input);
+    return ok(result);
+  });
+
+  /** GET /v1/lesson/queue */
+  const getDailyQueueHandler = wrap(async (event) => {
+    const uid = userId(event);
+    const today = event.queryStringParameters?.today ?? utcDay(now());
+
+    const queue = await getDailyQueue(repo, catalog, { userId: uid, today });
+    return ok({ queue });
+  });
+
+  return { completeLessonHandler, getDailyQueueHandler };
 }
 
-/** POST /v1/lesson/complete */
-export const completeLessonHandler = wrap(async (event) => {
-  const uid = userId(event);
-  const {
-    lessonId,
-    today,
-    score,
-    reviewed = [],
-    signsLearnedDelta = 0,
-    alphabetComplete = false,
-  } = body(event);
-
-  if (!lessonId) throw new ApiError(400, 'MISSING_LESSON_ID', 'lessonId obrigatorio');
-  if (typeof score !== 'number' || score < 0 || score > 1)
-    throw new ApiError(400, 'BAD_SCORE', 'score deve ser numero entre 0 e 1');
-
-  const result = await completeLesson(
-    repo,
-    courseConfig(),
-    { userId: uid, lessonId, today, score, reviewed, signsLearnedDelta, alphabetComplete },
-  );
-  return ok(result);
-});
-
-/** GET /v1/lesson/queue */
-export const getDailyQueueHandler = wrap(async (event) => {
-  const uid = userId(event);
-  const today = event.queryStringParameters?.today ?? new Date().toISOString().slice(0, 10);
-
-  const queue = await getDailyQueue(repo, courseConfig(), { userId: uid, today });
-  return ok({ queue });
+export const { completeLessonHandler, getDailyQueueHandler } = makeLessonHandlers({
+  repo: dynamoRepo,
+  catalog: courseCatalog,
 });

@@ -1,4 +1,5 @@
 import { newProfile } from '../domain/profile.js';
+import { offsetBucket } from '../domain/reminders.js';
 
 /**
  * Adaptador de repositorio em memoria que implementa a porta usada pelos usecases.
@@ -21,6 +22,9 @@ export class InMemoryRepo {
     this._invite = new Map(); // inviteCode -> squadId
     this._userLeague = new Map(); // userId -> leagueId
     this._leagueXp = new Map(); // `${leagueId}#${userId}` -> number
+    this._attempts = new Map(); // `${userId}#${lessonAttemptId}` -> { status, lessonId, result }
+    this._push = new Map(); // userId -> Map(subscriptionId -> { endpoint, keys })
+    this._notif = new Map(); // userId -> preferencias + estado de lembrete (+ balde de fuso)
   }
 
   // --- perfil ---
@@ -163,6 +167,51 @@ export class InMemoryRepo {
   }
   async getLeagueMemberXp(leagueId, userId) {
     return this._leagueXp.get(`${leagueId}#${userId}`) ?? 0;
+  }
+
+  // --- tentativas de licao (idempotencia por lessonAttemptId) ---
+  async claimLessonAttempt(userId, lessonAttemptId, meta = {}) {
+    const key = `${userId}#${lessonAttemptId}`;
+    if (this._attempts.has(key)) return false;
+    this._attempts.set(key, { ...meta, status: 'pending' });
+    return true;
+  }
+  async getLessonAttempt(userId, lessonAttemptId) {
+    const a = this._attempts.get(`${userId}#${lessonAttemptId}`);
+    return a ? { ...a } : null;
+  }
+  async finishLessonAttempt(userId, lessonAttemptId, result) {
+    const key = `${userId}#${lessonAttemptId}`;
+    this._attempts.set(key, { ...this._attempts.get(key), status: 'done', result: { ...result } });
+  }
+  async releaseLessonAttempt(userId, lessonAttemptId) {
+    const key = `${userId}#${lessonAttemptId}`;
+    if (this._attempts.get(key)?.status === 'pending') this._attempts.delete(key);
+  }
+
+  // --- Web Push: inscricoes (USER#<id> / PUSH#<hash>) ---
+  async putPushSubscription(userId, subscriptionId, sub) {
+    if (!this._push.has(userId)) this._push.set(userId, new Map());
+    this._push.get(userId).set(subscriptionId, { ...sub });
+  }
+  async deletePushSubscription(userId, subscriptionId) {
+    this._push.get(userId)?.delete(subscriptionId);
+  }
+  async listPushSubscriptions(userId) {
+    return [...(this._push.get(userId) ?? new Map())].map(([subscriptionId, sub]) => ({ subscriptionId, ...sub }));
+  }
+
+  // --- lembretes: preferencias + estado (USER#<id> / NOTIF, indice por balde de fuso) ---
+  async getNotifState(userId) {
+    const n = this._notif.get(userId);
+    return n ? { ...n } : null;
+  }
+  async saveNotifState(userId, record, now = new Date()) {
+    const bucket = record.reminderHour != null ? offsetBucket(now, record.timezone) : null;
+    this._notif.set(userId, { ...record, userId, bucket });
+  }
+  async listNotifCandidates(bucket) {
+    return [...this._notif.values()].filter((n) => n.bucket === bucket).map((n) => ({ ...n }));
   }
 
   // --- helpers de seed (so para testes / dev) ---
