@@ -3,6 +3,8 @@ import {
   canJoinSquad,
   leaveOutcome,
   manageMemberOutcome,
+  transferOwnershipOutcome,
+  validateSquadChanges,
   DEFAULT_MAX_MEMBERS,
 } from '../domain/squads.js';
 import { generateInviteCode, normalizeInviteCode } from '../domain/invite.js';
@@ -23,7 +25,7 @@ export async function createSquad(repo, input) {
   const { userId, isGuest, name, description = '', type = 'public', genId, rng, now = null } = input;
 
   const b2cSquadCount = await repo.countUserB2cSquads(userId);
-  const check = canCreateSquad({ isGuest, b2cSquadCount, name });
+  const check = canCreateSquad({ isGuest, b2cSquadCount, name, type });
   if (!check.ok) fail(check.error);
 
   const inviteCode = await uniqueInviteCode(repo, rng);
@@ -120,6 +122,90 @@ export async function manageMember(repo, input) {
     await repo.putMember(squadId, targetUserId, { ...target, role: outcome.role });
   }
   return outcome;
+}
+
+/**
+ * POST /squads/{id}/transfer (SPEC 04 secao 2 - transferOwnership).
+ * @param {object} input { userId, squadId, newAdminUserId }
+ */
+export async function transferOwnership(repo, input) {
+  const { userId, squadId, newAdminUserId } = input;
+  await requireSquad(repo, squadId);
+
+  const actor = await repo.getMember(squadId, userId);
+  const target = await repo.getMember(squadId, newAdminUserId);
+  const outcome = transferOwnershipOutcome({
+    actorRole: actor?.role ?? null,
+    actorIsTarget: userId === newAdminUserId,
+    targetIsMember: target !== null,
+  });
+  if (!outcome.ok) fail(outcome.error);
+
+  // promove antes de rebaixar: a squad nunca fica sem admin, mesmo se a 2a escrita falhar
+  await repo.putMember(squadId, newAdminUserId, { ...target, role: outcome.targetRole });
+  await repo.putMember(squadId, userId, { ...actor, role: outcome.actorRole });
+  return outcome;
+}
+
+/**
+ * PATCH /squads/{id} (SPEC 04 secao 2 - updateSquad). A troca de visibilidade ajusta o
+ * GSI4 no adaptador (putSquad so indexa squad publica).
+ * @param {object} input { userId, squadId, changes }
+ */
+export async function updateSquad(repo, input) {
+  const { userId, squadId } = input;
+  const squad = await requireSquad(repo, squadId);
+  await requireAdmin(repo, squadId, userId);
+
+  const check = validateSquadChanges(squad, input.changes);
+  if (!check.ok) fail(check.error);
+
+  const updated = { ...squad, ...check.changes };
+  await repo.putSquad(updated);
+  return updated;
+}
+
+/**
+ * DELETE /squads/{id} (SPEC 04 secao 2 - disbandSquad): remove META, membros, vinculos
+ * dos usuarios e o convite.
+ * @param {object} input { userId, squadId }
+ */
+export async function disbandSquad(repo, input) {
+  const { userId, squadId } = input;
+  await requireSquad(repo, squadId);
+  await requireAdmin(repo, squadId, userId);
+  await repo.deleteSquad(squadId);
+  return { ok: true, action: 'dissolve' };
+}
+
+/**
+ * POST /squads/{id}/invite-code/regenerate (SPEC 04 secao 2 - regenerateInviteCode).
+ * Indexa o codigo novo antes de apagar o antigo: nunca ha janela sem codigo valido.
+ * @param {object} input { userId, squadId, rng }
+ * @returns {Promise<{inviteCode: string}>}
+ */
+export async function regenerateInviteCode(repo, input) {
+  const { userId, squadId, rng } = input;
+  const squad = await requireSquad(repo, squadId);
+  await requireAdmin(repo, squadId, userId);
+
+  const inviteCode = await uniqueInviteCode(repo, rng);
+  await repo.indexInvite(inviteCode, squadId);
+  await repo.putSquad({ ...squad, inviteCode });
+  if (squad.inviteCode) await repo.removeInvite(squad.inviteCode);
+  return { inviteCode };
+}
+
+async function requireSquad(repo, squadId) {
+  const squad = await repo.getSquad(squadId);
+  if (!squad) fail('SQUAD_NOT_FOUND');
+  return squad;
+}
+
+async function requireAdmin(repo, squadId, userId) {
+  const member = await repo.getMember(squadId, userId);
+  if (member?.role !== 'admin') fail('NOT_ADMIN');
+  return member;
 }
 
 async function uniqueInviteCode(repo, rng, attempts = 10) {

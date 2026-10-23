@@ -2,7 +2,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { InMemoryRepo } from '../src/adapters/inMemoryRepo.js';
-import { createSquad, joinSquad, leaveSquad, manageMember } from '../src/usecases/squads.js';
+import {
+  createSquad,
+  joinSquad,
+  leaveSquad,
+  manageMember,
+  transferOwnership,
+  updateSquad,
+  disbandSquad,
+  regenerateInviteCode,
+} from '../src/usecases/squads.js';
 
 // SPEC 04 secao 2. genId/rng injetados para determinismo.
 const rng0 = () => 0; // sempre o 1o char do alfabeto
@@ -111,4 +120,140 @@ test('manageMember: kick remove o membro e decrementa memberCount', async () => 
   assert.equal(r.action, 'remove');
   assert.equal(await repo.getMember('s1', 'u2'), null);
   assert.equal((await repo.getSquad('s1')).memberCount, 1);
+});
+
+test('createSquad recusa tipo org (equipes B2B vem do painel institucional)', async () => {
+  const repo = new InMemoryRepo();
+  await assert.rejects(
+    () => createSquad(repo, { userId: 'u1', isGuest: false, name: 'Coda', type: 'org', genId: () => 's1', rng: rng0 }),
+    /INVALID_TYPE/,
+  );
+});
+
+/** Squad s1 com u1 admin e u2 membro. */
+async function squadWithTwo() {
+  const repo = new InMemoryRepo();
+  const squad = await freshSquad(repo);
+  await repo.seedProfile({ userId: 'u2' });
+  await joinSquad(repo, { userId: 'u2', isGuest: false, code: squad.inviteCode });
+  return { repo, squad };
+}
+
+// --- transferOwnership (POST /squads/{id}/transfer) ---
+
+test('transferOwnership promove o novo admin e rebaixa quem transferiu', async () => {
+  const { repo } = await squadWithTwo();
+  await repo.incrementSquadXp('s1', 'u2', 40);
+
+  const r = await transferOwnership(repo, { userId: 'u1', squadId: 's1', newAdminUserId: 'u2' });
+
+  assert.equal(r.ok, true);
+  assert.equal((await repo.getMember('s1', 'u2')).role, 'admin');
+  assert.equal((await repo.getMember('s1', 'u1')).role, 'member');
+  assert.equal((await repo.getMember('s1', 'u2')).xpWeeklyContrib, 40); // nao zera a contribuicao
+  // depois de transferir, o antigo admin pode sair
+  assert.equal((await leaveSquad(repo, { userId: 'u1', squadId: 's1' })).action, 'remove');
+});
+
+test('transferOwnership: so admin, alvo precisa ser membro, squad precisa existir', async () => {
+  const { repo } = await squadWithTwo();
+  await assert.rejects(
+    () => transferOwnership(repo, { userId: 'u2', squadId: 's1', newAdminUserId: 'u1' }),
+    /NOT_ADMIN/,
+  );
+  await assert.rejects(
+    () => transferOwnership(repo, { userId: 'u1', squadId: 's1', newAdminUserId: 'u9' }),
+    /TARGET_NOT_MEMBER/,
+  );
+  await assert.rejects(
+    () => transferOwnership(repo, { userId: 'u1', squadId: 's1', newAdminUserId: 'u1' }),
+    /CANNOT_MANAGE_SELF/,
+  );
+  await assert.rejects(
+    () => transferOwnership(repo, { userId: 'u1', squadId: 'nao-existe', newAdminUserId: 'u2' }),
+    /SQUAD_NOT_FOUND/,
+  );
+});
+
+// --- updateSquad (PATCH /squads/{id}) ---
+
+test('updateSquad grava so os campos editaveis e devolve a squad', async () => {
+  const { repo, squad } = await squadWithTwo();
+
+  const updated = await updateSquad(repo, {
+    userId: 'u1',
+    squadId: 's1',
+    changes: { name: ' Turma B ', type: 'private', maxMembers: 10, memberCount: 99, inviteCode: 'AAAAAA' },
+  });
+
+  assert.equal(updated.name, 'Turma B');
+  assert.equal(updated.type, 'private');
+  assert.equal(updated.maxMembers, 10);
+  assert.equal(updated.memberCount, 2); // ignorado
+  assert.equal(updated.inviteCode, squad.inviteCode); // ignorado
+  assert.deepEqual(await repo.getSquad('s1'), updated);
+});
+
+test('updateSquad: so admin e maxMembers nunca abaixo do total', async () => {
+  const { repo } = await squadWithTwo();
+  await assert.rejects(
+    () => updateSquad(repo, { userId: 'u2', squadId: 's1', changes: { name: 'Outra' } }),
+    /NOT_ADMIN/,
+  );
+  await assert.rejects(
+    () => updateSquad(repo, { userId: 'u1', squadId: 's1', changes: { maxMembers: 1 } }),
+    /MAX_MEMBERS_BELOW_COUNT/,
+  );
+  await assert.rejects(
+    () => updateSquad(repo, { userId: 'u1', squadId: 'nao-existe', changes: { name: 'Outra' } }),
+    /SQUAD_NOT_FOUND/,
+  );
+});
+
+// --- disbandSquad (DELETE /squads/{id}) ---
+
+test('disbandSquad remove META, membros, vinculos dos usuarios e o convite', async () => {
+  const { repo, squad } = await squadWithTwo();
+
+  const r = await disbandSquad(repo, { userId: 'u1', squadId: 's1' });
+
+  assert.equal(r.ok, true);
+  assert.equal(await repo.getSquad('s1'), null);
+  assert.deepEqual(await repo.listMembers('s1'), []);
+  assert.deepEqual(await repo.listUserSquads('u2'), []);
+  assert.equal(await repo.findSquadIdByInvite(squad.inviteCode), null);
+});
+
+test('disbandSquad: membro comum nao dissolve', async () => {
+  const { repo } = await squadWithTwo();
+  await assert.rejects(() => disbandSquad(repo, { userId: 'u2', squadId: 's1' }), /NOT_ADMIN/);
+  assert.notEqual(await repo.getSquad('s1'), null);
+});
+
+// --- regenerateInviteCode (POST /squads/{id}/invite-code/regenerate) ---
+
+test('regenerateInviteCode troca o codigo e o antigo deixa de funcionar', async () => {
+  const { repo, squad } = await squadWithTwo();
+  const rng = () => 0.99; // ultimo char do alfabeto, diferente do codigo de rng0
+
+  const { inviteCode } = await regenerateInviteCode(repo, { userId: 'u1', squadId: 's1', rng });
+
+  assert.notEqual(inviteCode, squad.inviteCode);
+  assert.equal(inviteCode.length, 6);
+  assert.equal((await repo.getSquad('s1')).inviteCode, inviteCode);
+  assert.equal(await repo.findSquadIdByInvite(inviteCode), 's1');
+  assert.equal(await repo.findSquadIdByInvite(squad.inviteCode), null);
+  await repo.seedProfile({ userId: 'u3' });
+  await assert.rejects(
+    () => joinSquad(repo, { userId: 'u3', isGuest: false, code: squad.inviteCode }),
+    /SQUAD_NOT_FOUND/,
+  );
+});
+
+test('regenerateInviteCode: so admin', async () => {
+  const { repo } = await squadWithTwo();
+  await assert.rejects(
+    () => regenerateInviteCode(repo, { userId: 'u2', squadId: 's1', rng: rng0 }),
+    /NOT_ADMIN/,
+  );
 });

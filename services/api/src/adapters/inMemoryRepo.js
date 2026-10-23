@@ -138,6 +138,9 @@ export class InMemoryRepo {
   async findSquadIdByInvite(code) {
     return this._invite.get(code) ?? null;
   }
+  async removeInvite(code) {
+    this._invite.delete(code);
+  }
 
   // --- squads: fan-out de XP semanal ---
   async listUserSquads(userId) {

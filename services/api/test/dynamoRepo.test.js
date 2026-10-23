@@ -86,3 +86,23 @@ test('listNotifCandidates consulta o GSI6 com paginacao', async () => {
   assert.equal(db.calls[0].input.IndexName, 'GSI6');
   assert.equal(db.calls[1].input.ExclusiveStartKey.k, 1);
 });
+
+test('removeInvite apaga o item INVITE#<codigo> (codigo regenerado deixa de funcionar)', async () => {
+  const db = fakeClient();
+  await new DynamoRepo(db).removeInvite('abc234');
+  const [{ name, input }] = db.calls;
+  assert.equal(name, 'DeleteCommand');
+  assert.deepEqual(input.Key, { PK: 'INVITE#ABC234', SK: 'META' });
+});
+
+test('deleteSquad apaga META, membros, vinculos USER#/SQUAD# e o convite numa transacao', async () => {
+  const db = fakeClient((name) => {
+    if (name === 'GetCommand') return { Item: { PK: 'SQUAD#s1', SK: 'META', squadId: 's1', inviteCode: 'ABC234' } };
+    if (name === 'QueryCommand') return { Items: [{ PK: 'SQUAD#s1', SK: 'MEMBER#u1', userId: 'u1' }] };
+    return {};
+  });
+  await new DynamoRepo(db).deleteSquad('s1');
+  const tx = db.calls.find((c) => c.name === 'TransactWriteCommand');
+  const keys = tx.input.TransactItems.map((i) => `${i.Delete.Key.PK}|${i.Delete.Key.SK}`);
+  assert.deepEqual(keys.sort(), ['INVITE#ABC234|META', 'SQUAD#s1|MEMBER#u1', 'SQUAD#s1|META', 'USER#u1|SQUAD#s1']);
+});

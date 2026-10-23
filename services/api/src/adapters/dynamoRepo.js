@@ -230,6 +230,7 @@ export class DynamoRepo {
 
     const deletes = [
       { Delete: { TableName: TABLE, Key: { PK: `SQUAD#${squadId}`, SK: 'META' } } },
+      ...(squad.inviteCode ? [{ Delete: { TableName: TABLE, Key: this._inviteKey(squad.inviteCode) } }] : []),
       ...members.map((m) => ({
         Delete: { TableName: TABLE, Key: { PK: `SQUAD#${squadId}`, SK: `MEMBER#${m.userId}` } },
       })),
@@ -345,7 +346,7 @@ export class DynamoRepo {
     await this._db.send(
       new PutCommand({
         TableName: TABLE,
-        Item: { PK: `INVITE#${code.toUpperCase()}`, SK: 'META', squadId },
+        Item: { ...this._inviteKey(code), squadId },
       }),
     );
   }
@@ -354,10 +355,19 @@ export class DynamoRepo {
     const { Item } = await this._db.send(
       new GetCommand({
         TableName: TABLE,
-        Key: { PK: `INVITE#${code.toUpperCase()}`, SK: 'META' },
+        Key: this._inviteKey(code),
       }),
     );
     return Item?.squadId ?? null;
+  }
+
+  /** Apaga o codigo antigo (regenerateInviteCode). */
+  async removeInvite(code) {
+    await this._db.send(new DeleteCommand({ TableName: TABLE, Key: this._inviteKey(code) }));
+  }
+
+  _inviteKey(code) {
+    return { PK: `INVITE#${code.toUpperCase()}`, SK: 'META' };
   }
 
   // -----------------------------------------------------------------------
