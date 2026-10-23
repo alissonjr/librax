@@ -2,7 +2,7 @@ import { daysBetween } from '@apilib/dates.js';
 import { isOnboarded } from './auth';
 import { Flags } from './flags';
 import { getToday } from './today';
-import { leagueResultSeen, syncLeague, type LeagueRepo, type LeagueResult } from './leagueLocal';
+import type { LeagueRepo, LeagueResult } from './leagueLocal';
 
 /**
  * AppOpenFlow (spec-02 12.10): o que aparece ao abrir o app ou ao voltar a ele depois de horas,
@@ -47,6 +47,13 @@ export function brokenStreakOnOpen(
   return streak;
 }
 
+const loadLeagues = () => import('./leagueLocal');
+
+/** Começa a baixar o módulo de ligas junto com a abertura do banco local (sem somar espera no boot). */
+export function preloadAppOpen(): void {
+  void loadLeagues().catch(() => {});
+}
+
 export interface AppOpenSteps {
   leagueResult: LeagueResult | null;
   brokenStreak: number;
@@ -67,7 +74,9 @@ export async function evaluateAppOpen(
 
   let leagueResult: LeagueResult | null = null;
   try {
-    // Sem liga ainda, não inscreve: quem nunca participou não tem resultado (spec-02 12.7)
+    // Sem liga ainda, não inscreve: quem nunca participou não tem resultado (spec-02 12.7).
+    // Módulo de ligas sob demanda: fica fora do pedaço inicial
+    const { syncLeague, leagueResultSeen } = await loadLeagues();
     const league = await syncLeague(repo, userId, nowMs, { enroll: false });
     const last = league?.lastResult;
     if (last && last.periodStart !== leagueResultSeen()) leagueResult = last;

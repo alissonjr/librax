@@ -126,6 +126,84 @@ h1[tabindex="-1"]:focus { outline: none; }
 }
 .route-error-btn { max-width: var(--lx-size-content-max); }
 
+/* Carregamento de tela (ScreenSkeleton, seção 11.11): formas da tela em bg.sunken com brilho
+   passando em 1,5 s; com reduzir movimento fica estático */
+.screen-skeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-4);
+  width: 100%;
+  max-width: var(--lx-size-content-max);
+  margin: 0 auto;
+  padding: calc(var(--lx-space-2) + var(--lx-safe-top)) var(--lx-space-4) var(--lx-space-4);
+}
+.skeleton-block {
+  position: relative;
+  overflow: hidden;
+  background: var(--lx-bg-sunken);
+  border-radius: var(--lx-radius-md);
+}
+.skeleton-block::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--lx-bg-raised), transparent);
+  opacity: 0.6;
+  transform: translateX(-100%);
+  /* 1,5 s = 5 x duration.page (não há token de 1,5 s) */
+  animation: lx-skeleton-shine calc(var(--lx-motion-duration-page) * 5) var(--lx-motion-easing-standard) infinite;
+}
+@keyframes lx-skeleton-shine { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block::after { animation: none; display: none; }
+}
+:root[data-reduced-motion="true"] .skeleton-block::after { animation: none; display: none; }
+.screen-skeleton-bar  { height: var(--lx-size-top-bar); }
+.screen-skeleton-card { height: calc(var(--lx-size-top-bar) * 2); border-radius: var(--lx-radius-lg); }
+.screen-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-4);
+}
+.screen-skeleton-node {
+  flex-shrink: 0;
+  width: var(--lx-size-lesson-node);
+  height: var(--lx-size-lesson-node);
+  border-radius: var(--lx-radius-full);
+}
+.screen-skeleton-lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+}
+.screen-skeleton-line { height: var(--lx-space-4); border-radius: var(--lx-radius-xs); }
+.screen-skeleton-line--short { width: 60%; }
+
+/* Aviso discreto (Toast, seção 11.12): acima da barra de abas e da safe area */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--lx-size-tab-bar) + var(--lx-safe-bottom) + var(--lx-space-4));
+  z-index: var(--lx-z-index-toast);
+  width: calc(100% - 2 * var(--lx-space-4));
+  max-width: var(--lx-size-content-max);
+  translate: -50% 0;
+  padding: var(--lx-space-3) var(--lx-space-4);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-bg-inverse);
+  color: var(--lx-text-inverse);
+  font: var(--lx-typography-body-sm);
+  box-shadow: var(--lx-elevation-2);
+}
+@media (min-width: 768px) {
+  .toast {
+    left: calc(50% + var(--lx-sidebar-w) / 2);
+    bottom: calc(var(--lx-safe-bottom) + var(--lx-space-6));
+  }
+}
+
 /* Layout pós-onboarding com abas */
 .app-layout {
   display: flex;
@@ -3737,15 +3815,8 @@ button.profile-stat-card { cursor: pointer; }
 }
 .account-banner-actions .btn-text { align-self: center; }
 
-/* Configurações: e-mail longo quebra e aviso depois de sair */
+/* Configurações: e-mail longo quebra */
 .settings-item-value--wrap { overflow-wrap: anywhere; }
-.settings-account-msg {
-  padding: var(--lx-space-3) var(--lx-space-4);
-  border-radius: var(--lx-radius-md);
-  background: var(--lx-feedback-success-soft);
-  color: var(--lx-feedback-success-on-soft);
-  font: var(--lx-typography-body-sm);
-}
 .settings-item--btn:disabled { cursor: progress; }
 
 /* =========================================================

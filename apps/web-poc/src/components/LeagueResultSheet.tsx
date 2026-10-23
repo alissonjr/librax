@@ -7,6 +7,7 @@ import { launchConfetti } from '../lib/confetti';
 import { Haptics } from '../lib/haptics';
 import { Sfx } from '../lib/sound';
 import { tokens } from '../styles/tokens';
+import { useCloseOnBack } from '../hooks/useCloseOnBack';
 import '../styles/league.css';
 
 interface Props {
@@ -36,6 +37,8 @@ export function LeagueResultSheet({ result, onClose, onSeeLeague }: Props) {
   const [visible, setVisible] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const celebrated = useRef(false);
+  // Voltar fecha o sheet (design-system 11.13)
+  useCloseOnBack(true, onClose);
   const { outcome, fromTier, toTier } = result;
   const from = TIER_NAMES[fromTier];
   const to = TIER_NAMES[toTier];

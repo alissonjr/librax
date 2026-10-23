@@ -2,14 +2,17 @@ import { useEffect, useRef, useState } from 'react';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
 import { BusyLabel } from './BusyLabel';
+import { useCloseOnBack } from '../hooks/useCloseOnBack';
 import { authErrorCode, signInWithGoogle } from '../lib/auth';
 import { authAvailable, authErrorKey } from '../lib/account';
 
 interface Props {
   /** "Criar conta com e-mail": abre /criar-conta. */
   onCreateWithEmail: () => void;
-  /** "Continuar sem conta" (ou fechar): segue o fluxo normal. */
+  /** "Continuar sem conta": segue o fluxo normal. */
   onSkip: () => void;
+  /** Voltar, Esc ou toque fora: só fecha, a pessoa continua na tela de conclusão. */
+  onClose: () => void;
   /** Primeira lição concluída (o texto comemora a primeira). */
   firstLesson?: boolean;
 }
@@ -19,13 +22,15 @@ interface Props {
  * redirect na mesma aba; o progresso já está salvo no aparelho e é migrado na volta.
  * Sem Cognito neste ambiente, avisa que o login está indisponível e só deixa continuar.
  */
-export function ConvertAccountSheet({ onCreateWithEmail, onSkip, firstLesson = false }: Props) {
+export function ConvertAccountSheet({ onCreateWithEmail, onSkip, onClose, firstLesson = false }: Props) {
   const { t } = useT();
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const available = authAvailable();
+  // Voltar fecha o sheet (design-system 11.13)
+  useCloseOnBack(true, onClose);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 50);
@@ -35,11 +40,11 @@ export function ConvertAccountSheet({ onCreateWithEmail, onSkip, firstLesson = f
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !busy) onSkip();
+      if (e.key === 'Escape' && !busy) onClose();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onSkip, busy]);
+  }, [onClose, busy]);
 
   async function handleGoogle() {
     setError(null);
@@ -55,7 +60,7 @@ export function ConvertAccountSheet({ onCreateWithEmail, onSkip, firstLesson = f
   return (
     <div
       className={`streak-sheet-backdrop${visible ? ' streak-sheet-backdrop--visible' : ''}`}
-      onClick={busy ? undefined : onSkip}
+      onClick={busy ? undefined : onClose}
     >
       <div
         className={`streak-sheet${visible ? ' streak-sheet--open' : ''}`}

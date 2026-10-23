@@ -4,11 +4,10 @@ import { getDb } from './lib/db';
 import { IdbRepo } from './lib/idbRepo';
 import { getUserId } from './lib/auth';
 import { startAccount } from './lib/account';
-import { evaluateAppOpen } from './lib/appOpen';
+import { evaluateAppOpen, preloadAppOpen } from './lib/appOpen';
 import type { LeagueResult } from './lib/leagueLocal';
 import { newProfile } from '@domain/profile.js';
 import { useT } from './i18n';
-import { DialogProvider } from './hooks/useDialog';
 import { SessionProvider } from './hooks/useSession';
 import { routes, ROUTER_FUTURE } from './router';
 
@@ -24,6 +23,7 @@ interface Boot {
  * roteador (src/router.tsx): cada tela tem URL e o voltar do navegador e do Android funcionam.
  */
 async function boot(): Promise<Boot> {
+  preloadAppOpen();
   const db = await getDb();
   const userId = getUserId();
   const repo = new IdbRepo(db, userId);
@@ -71,9 +71,7 @@ export function App() {
       brokenStreak={state.brokenStreak}
       leagueResult={state.leagueResult}
     >
-      <DialogProvider>
-        <RouterProvider router={router} future={{ v7_startTransition: true }} />
-      </DialogProvider>
+      <RouterProvider router={router} future={{ v7_startTransition: true }} />
     </SessionProvider>
   );
 }

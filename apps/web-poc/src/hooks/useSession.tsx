@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { completeLesson } from '@usecases/completeLesson.js';
-import { course } from '../lib/content';
+import { course } from '../lib/course';
 import { getToday } from '../lib/today';
 import { Flags } from '../lib/flags';
 import { enqueueLessonCompletion, flushOutbox } from '../lib/sync';
@@ -45,6 +45,10 @@ interface SessionValue {
   markInstallSuggested: () => void;
   /** Grava a lição (domínio completeLesson) e prepara as telas de conclusão. */
   finishLesson: (result: LessonSessionResult) => Promise<AfterLesson>;
+  /** Aviso discreto na tela (toast, design-system 11.12): chave de tradução, ou null. */
+  notice: string | null;
+  showNotice: (key: string) => void;
+  dismissNotice: () => void;
 }
 
 const SessionContext = createContext<SessionValue | null>(null);
@@ -85,6 +89,7 @@ export function SessionProvider({
       if (steps.brokenStreak > 0) setBrokenStreak(steps.brokenStreak);
     }).catch(() => {});
   }), [repo, userId]);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const finishLesson = useCallback(async (result: LessonSessionResult): Promise<AfterLesson> => {
     const today = getToday();
@@ -186,11 +191,16 @@ export function SessionProvider({
     setInstallSuggested(true);
   }, []);
 
+  const showNotice = useCallback((key: string) => setNotice(key), []);
+  const dismissNotice = useCallback(() => setNotice(null), []);
+
   const value = useMemo<SessionValue>(() => ({
     repo, userId, completion, unitCompletion, courseCompletion, leagueResult, dismissLeagueResult,
     brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, finishLesson,
+    notice, showNotice, dismissNotice,
   }), [repo, userId, completion, unitCompletion, courseCompletion, leagueResult, dismissLeagueResult,
-    brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, finishLesson]);
+    brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, finishLesson,
+    notice, showNotice, dismissNotice]);
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

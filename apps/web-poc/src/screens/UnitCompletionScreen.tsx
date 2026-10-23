@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { course } from '../lib/content';
+import { course } from '../lib/course';
 import { launchConfetti } from '../lib/confetti';
 import { Haptics } from '../lib/haptics';
 import { Sfx } from '../lib/sound';

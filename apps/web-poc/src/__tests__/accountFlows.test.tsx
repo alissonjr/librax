@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -47,6 +47,16 @@ async function renderAt(entries: string[], opts: { brokenStreak?: number; league
 }
 
 const path = (router: ReturnType<typeof createMemoryRouter>) => router.state.location.pathname;
+
+// Telas e sheets sob demanda: transforma os módulos antes, para o findBy não estourar em máquina ocupada
+beforeAll(async () => {
+  await Promise.all([
+    import('../lib/content'), import('../lib/leagueLocal'), import('../components/LeagueResultSheet'),
+    import('../screens/CourseMapScreen'), import('../screens/LessonCompletionScreen'), import('../screens/AuthScreen'),
+    import('../screens/AuthCallbackScreen'), import('../screens/ProfileScreen'), import('../screens/SettingsScreen'),
+    import('../screens/LeagueScreen'), import('../screens/StreakScreen'),
+  ]);
+});
 
 beforeEach(() => {
   window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;

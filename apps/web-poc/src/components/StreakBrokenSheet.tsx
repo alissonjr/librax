@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
+import { useCloseOnBack } from '../hooks/useCloseOnBack';
 
 interface Props {
   brokenStreak: number;
@@ -15,6 +16,8 @@ export function StreakBrokenSheet({ brokenStreak, onStudyNow, onOpenHistory, onD
   const { t } = useT();
   const [visible, setVisible] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  // Voltar fecha o sheet (design-system 11.13)
+  useCloseOnBack(true, onDismiss);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 50);

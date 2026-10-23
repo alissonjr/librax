@@ -18,6 +18,8 @@ interface Props {
   onBack: () => void;
   /** Entrar ou criar conta (spec-02 12.3: "Entrar na conta" nas Configurações). */
   onOpenAccount?: (mode: 'login' | 'register') => void;
+  /** Aviso discreto (toast do useSession.showNotice): chave de tradução. */
+  onNotice?: (key: string) => void;
 }
 
 const GOAL_OPTIONS = [
@@ -27,13 +29,12 @@ const GOAL_OPTIONS = [
   { value: 50, key: 'settings.goalIntensivo' },
 ];
 
-export function SettingsScreen({ userId, repo, onBack, onOpenAccount }: Props) {
+export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }: Props) {
   const { t, lang, setLang } = useT();
   const account = useAccount();
   const signedIn = account.status === 'signedIn';
   const [confirmSignOut, setConfirmSignOut] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
-  const [accountMsg, setAccountMsg] = useState<string | null>(null);
   const [dailyGoal, setDailyGoal] = useState(20);
   const [theme, setTheme] = useState<ThemePref>(getThemePref);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -60,13 +61,12 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount }: Props) {
   async function handleSignOut() {
     setConfirmSignOut(false);
     setSigningOut(true);
-    setAccountMsg(null);
     try {
       await signOutAccount();
       await refreshAccount();
-      setAccountMsg(t('account.signedOut'));
+      onNotice?.('account.signedOut');
     } catch {
-      setAccountMsg(t('account.errors.signOut'));
+      onNotice?.('account.errors.signOut');
     } finally {
       setSigningOut(false);
     }
@@ -153,7 +153,6 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount }: Props) {
               </>
             )
           )}
-          {accountMsg && <p className="settings-account-msg" role="status">{accountMsg}</p>}
         </div>
 
         <div className="settings-group">
