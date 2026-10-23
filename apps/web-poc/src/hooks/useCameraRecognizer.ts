@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { recognizeGesture, type Lm, type FingerExtensions } from '../lib/recognizer';
 import { drawSkeleton } from '../lib/cameraUtils';
-
-const MEDIAPIPE_WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.19/wasm';
-const MODEL_URL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+import { HAND_MODEL_URL as MODEL_URL, MEDIAPIPE_WASM_DIR as MEDIAPIPE_WASM } from '../recognition/mlAssets';
 
 export type CamStatus = 'idle' | 'loading' | 'active' | 'denied' | 'error';
 

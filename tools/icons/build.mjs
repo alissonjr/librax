@@ -29,6 +29,8 @@ const ICONS = [
   'share', 'shield', 'info', 'warning', 'drag_indicator', 'progress_activity', 'contrast',
   // demonstração do sinal (vídeo ou avatar VLibras)
   'speed', 'cloud_off',
+  // página de teste da câmera (W0) e ferramenta de coleta
+  'content_copy', 'timer', 'stop', 'swap_horiz', 'memory', 'restart_alt', 'fiber_manual_record',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).
