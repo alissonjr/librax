@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen, act, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -24,17 +24,18 @@ import { SessionProvider } from '../hooks/useSession';
 import { IdbRepo } from '../lib/idbRepo';
 import { upgradeLibraxDb } from '../lib/db';
 
-async function renderAt(entries: string[]) {
+async function renderAt(entries: string[], seed?: (repo: IdbRepo) => Promise<void>, brokenStreak = 0) {
   const db = await openDB(`librax-router-${Date.now()}-${Math.random()}`, 1, { upgrade: upgradeLibraxDb });
   const repo = new IdbRepo(db, 'user-test');
   await repo.saveProfile({ userId: 'user-test', xpTotal: 0, streak: 0, achievements: [] });
+  await seed?.(repo);
   const router = createMemoryRouter(routes, {
     initialEntries: entries,
     initialIndex: entries.length - 1,
     future: ROUTER_FUTURE,
   });
   render(
-    <SessionProvider repo={repo} userId="user-test" brokenStreak={0}>
+    <SessionProvider repo={repo} userId="user-test" brokenStreak={brokenStreak}>
       <RouterProvider router={router} future={{ v7_startTransition: true }} />
     </SessionProvider>,
   );
@@ -42,6 +43,12 @@ async function renderAt(entries: string[]) {
 }
 
 const path = (router: ReturnType<typeof createMemoryRouter>) => router.state.location.pathname;
+
+// As telas e os sinais são carregados sob demanda: transforma os módulos antes, para o primeiro teste
+// de lição não estourar o tempo do findBy em máquina ocupada
+beforeAll(async () => {
+  await Promise.all([import('../lib/content'), import('../screens/LessonScreen'), import('../screens/CourseMapScreen')]);
+});
 
 beforeEach(() => {
   // jsdom não rola a página
@@ -103,6 +110,42 @@ describe('roteador', () => {
     expect(Number(bar.getAttribute('aria-valuemax'))).toBeGreaterThan(10);
   });
 
+  it('licao bloqueada no mapa nao abre pelo endereco: volta ao mapa com aviso', async () => {
+    const router = await renderAt(['/aprender', '/licao/u1-l3']);
+    await waitFor(() => expect(path(router)).toBe('/aprender'));
+    expect(await screen.findByRole('status')).toHaveTextContent('Essa lição ainda está bloqueada');
+  });
+
+  it('licao concluida e a proxima disponivel abrem pelo endereco', async () => {
+    const router = await renderAt(['/licao/u1-l2'], async (repo) => {
+      await repo.saveProgress('user-test', 'u1-l1', { status: 'completed', bestScore: 1 });
+    });
+    await screen.findByRole('progressbar');
+    expect(path(router)).toBe('/licao/u1-l2');
+  });
+
+  it('licao concluida continua aberta para refazer', async () => {
+    const router = await renderAt(['/licao/u1-l1'], async (repo) => {
+      await repo.saveProgress('user-test', 'u1-l1', { status: 'completed', bestScore: 1 });
+      await repo.saveProgress('user-test', 'u1-l2', { status: 'completed', bestScore: 1 });
+    });
+    await screen.findByRole('progressbar');
+    expect(path(router)).toBe('/licao/u1-l1');
+  });
+
+  it('com um sheet aberto, o voltar fecha o sheet e fica na tela', async () => {
+    const router = await renderAt(['/aprender'], undefined, 5);
+    expect(await screen.findByRole('dialog')).toHaveTextContent('5');
+    // Abrir o sheet criou uma entrada no historico com o mesmo endereco
+    await waitFor(() => expect(router.state.historyAction).toBe('PUSH'));
+    expect(path(router)).toBe('/aprender');
+
+    await act(() => router.navigate(-1));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(path(router)).toBe('/aprender');
+    expect(router.state.historyAction).toBe('POP');
+  });
+
   it('o voltar dentro da licao abre "Sair da licao?" em vez de sair direto', async () => {
     const router = await renderAt(['/aprender', '/licao/u1-l1']);
     await screen.findByRole('progressbar');
@@ -121,5 +164,15 @@ describe('roteador', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Voltar' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Sair' }));
     await waitFor(() => expect(path(router)).toBe('/aprender'));
+  });
+
+  it('com "Sair da licao?" aberto, um novo voltar fecha o dialogo e fica na licao', async () => {
+    const router = await renderAt(['/aprender', '/licao/u1-l1']);
+    await screen.findByRole('progressbar');
+    await act(() => router.navigate(-1));
+    expect(await screen.findByText('Sair da lição?')).toBeInTheDocument();
+    await act(() => router.navigate(-1));
+    await waitFor(() => expect(screen.queryByText('Sair da lição?')).not.toBeInTheDocument());
+    expect(path(router)).toBe('/licao/u1-l1');
   });
 });

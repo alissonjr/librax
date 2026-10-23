@@ -213,6 +213,7 @@
     "greetingAfternoon": "Good afternoon",
     "greetingEvening": "Good evening",
     "greetingMorning": "Good morning",
+    "lessonLocked": "This lesson is still locked. Finish the earlier ones to open it.",
     "mastery": "Mastery: {count} of 3",
     "nodeAria": "Lesson {num}, {title}, {status}",
     "profileAria": "Profile",

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getDisplayName } from '../lib/auth';
 import { getToday } from '../lib/today';
-import { course } from '../lib/content';
+import { course } from '../lib/course';
 import { useT } from '../i18n';
 import type { IdbRepo } from '../lib/idbRepo';
 import { Icon } from '../components/Icon';
