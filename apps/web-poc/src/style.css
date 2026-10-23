@@ -181,6 +181,29 @@ h1[tabindex="-1"]:focus { outline: none; }
 .screen-skeleton-line { height: var(--lx-space-4); border-radius: var(--lx-radius-xs); }
 .screen-skeleton-line--short { width: 60%; }
 
+/* Aviso discreto (Toast, seção 11.12): acima da barra de abas e da safe area */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--lx-size-tab-bar) + var(--lx-safe-bottom) + var(--lx-space-4));
+  z-index: var(--lx-z-index-toast);
+  width: calc(100% - 2 * var(--lx-space-4));
+  max-width: var(--lx-size-content-max);
+  translate: -50% 0;
+  padding: var(--lx-space-3) var(--lx-space-4);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-bg-inverse);
+  color: var(--lx-text-inverse);
+  font: var(--lx-typography-body-sm);
+  box-shadow: var(--lx-elevation-2);
+}
+@media (min-width: 768px) {
+  .toast {
+    left: calc(50% + var(--lx-sidebar-w) / 2);
+    bottom: calc(var(--lx-safe-bottom) + var(--lx-space-6));
+  }
+}
+
 /* Layout pós-onboarding com abas */
 .app-layout {
   display: flex;

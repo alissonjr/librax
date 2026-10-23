@@ -24,10 +24,11 @@ import { SessionProvider } from '../hooks/useSession';
 import { IdbRepo } from '../lib/idbRepo';
 import { upgradeLibraxDb } from '../lib/db';
 
-async function renderAt(entries: string[]) {
+async function renderAt(entries: string[], seed?: (repo: IdbRepo) => Promise<void>) {
   const db = await openDB(`librax-router-${Date.now()}-${Math.random()}`, 1, { upgrade: upgradeLibraxDb });
   const repo = new IdbRepo(db, 'user-test');
   await repo.saveProfile({ userId: 'user-test', xpTotal: 0, streak: 0, achievements: [] });
+  await seed?.(repo);
   const router = createMemoryRouter(routes, {
     initialEntries: entries,
     initialIndex: entries.length - 1,
@@ -101,6 +102,29 @@ describe('roteador', () => {
     await renderAt(['/licao/u1-l1']);
     const bar = await screen.findByRole('progressbar');
     expect(Number(bar.getAttribute('aria-valuemax'))).toBeGreaterThan(10);
+  });
+
+  it('licao bloqueada no mapa nao abre pelo endereco: volta ao mapa com aviso', async () => {
+    const router = await renderAt(['/aprender', '/licao/u1-l3']);
+    await waitFor(() => expect(path(router)).toBe('/aprender'));
+    expect(await screen.findByRole('status')).toHaveTextContent('Essa lição ainda está bloqueada');
+  });
+
+  it('licao concluida e a proxima disponivel abrem pelo endereco', async () => {
+    const router = await renderAt(['/licao/u1-l2'], async (repo) => {
+      await repo.saveProgress('user-test', 'u1-l1', { status: 'completed', bestScore: 1 });
+    });
+    await screen.findByRole('progressbar');
+    expect(path(router)).toBe('/licao/u1-l2');
+  });
+
+  it('licao concluida continua aberta para refazer', async () => {
+    const router = await renderAt(['/licao/u1-l1'], async (repo) => {
+      await repo.saveProgress('user-test', 'u1-l1', { status: 'completed', bestScore: 1 });
+      await repo.saveProgress('user-test', 'u1-l2', { status: 'completed', bestScore: 1 });
+    });
+    await screen.findByRole('progressbar');
+    expect(path(router)).toBe('/licao/u1-l1');
   });
 
   it('o voltar dentro da licao abre "Sair da licao?" em vez de sair direto', async () => {

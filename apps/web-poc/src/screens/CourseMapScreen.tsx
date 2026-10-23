@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { course } from '../lib/course';
+import { loadCourseProgress, type LessonStatus } from '../lib/progress';
 import { getDisplayName } from '../lib/auth';
 import { getToday } from '../lib/today';
 import type { IdbRepo } from '../lib/idbRepo';
 import { useT, type TFunc } from '../i18n';
 import { Icon } from '../components/Icon';
 import { ScreenSkeleton } from '../components/ScreenSkeleton';
-
-type LessonStatus = 'completed' | 'available' | 'locked' | 'due_srs';
 
 interface MapState {
   xpTotal: number;
@@ -50,37 +49,8 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
       const dailyGoalXp = (profile?.dailyGoalXp as number) ?? 20;
       const achievements = (profile?.achievements as string[]) ?? [];
       const dayXp = await repo.getDayXp(userId, today);
-
-      const completedLessons = new Set<string>();
-      const bestScores = new Map<string, number>();
-      let nextLesson: string | null = null;
-
-      for (const unit of course.units) {
-        for (const lesson of unit.lessons) {
-          const prog = await repo.getProgress(userId, lesson.id) as Record<string, unknown> | null;
-          if (prog?.status === 'completed') {
-            completedLessons.add(lesson.id);
-            bestScores.set(lesson.id, (prog?.bestScore as number) ?? 0.7);
-          }
-        }
-      }
-
-      const lessonStatuses = new Map<string, LessonStatus>();
-      let foundFirst = false;
-      for (const unit of course.units) {
-        for (const lesson of unit.lessons) {
-          if (completedLessons.has(lesson.id)) {
-            lessonStatuses.set(lesson.id, 'completed');
-          } else if (!foundFirst) {
-            lessonStatuses.set(lesson.id, 'available');
-            if (!nextLesson) nextLesson = lesson.id;
-            foundFirst = true;
-          } else {
-            lessonStatuses.set(lesson.id, 'locked');
-          }
-        }
-      }
-      if (!nextLesson) nextLesson = course.units[0]?.lessons[0]?.id ?? null;
+      // Mesma regra de desbloqueio da guarda de /licao/:id (lib/progress.ts)
+      const { lessonStatuses, bestScores, nextLesson } = await loadCourseProgress(repo, userId);
 
       if (!cancelled) setState({ xpTotal, streak, dayXp, dailyGoalXp, achievements, lessonStatuses, bestScores, nextLesson });
     }

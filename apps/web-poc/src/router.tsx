@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 import { isOnboarded } from './lib/auth';
 import { course } from './lib/course';
+import { isLessonOpen, loadCourseProgress } from './lib/progress';
 import type { Exercise } from './lib/content';
 import { ROUTES, TAB_PATHS, sectionForPath } from './lib/routes';
 import { useSession } from './hooks/useSession';
@@ -14,6 +15,7 @@ import { useT } from './i18n';
 import { Nav } from './components/Nav';
 import { Icon } from './components/Icon';
 import { Dialog } from './components/Dialog';
+import { Toast } from './components/Toast';
 import { ScreenSkeleton } from './components/ScreenSkeleton';
 import { StreakBrokenSheet } from './components/StreakBrokenSheet';
 import { InstallSheet, useInstallMode } from './components/InstallSheet';
@@ -96,6 +98,13 @@ function RouteAnnouncer() {
   return null;
 }
 
+/** Aviso discreto da sessão (por exemplo, lição bloqueada aberta pelo endereço). */
+function NoticeToast() {
+  const { t } = useT();
+  const { notice, dismissNotice } = useSession();
+  return notice ? <Toast message={t(notice)} onDone={dismissNotice} /> : null;
+}
+
 /** Raiz de todas as rotas: rolagem (topo ao abrir tela nova, posição de volta ao voltar) e histórico. */
 function RootLayout() {
   return (
@@ -106,6 +115,7 @@ function RootLayout() {
       <Suspense fallback={<ScreenSkeleton />}>
         <Outlet />
       </Suspense>
+      <NoticeToast />
     </>
   );
 }
@@ -280,23 +290,43 @@ function LessonRoute() {
   const nav = useAppNavigation();
   const session = useSession();
   const { t } = useT();
-  const [exercises, setExercises] = useState<Exercise[] | null | undefined>(undefined);
-  const exit = useLessonExit(!!exercises?.length);
+  const { repo, userId, showNotice } = session;
+  // undefined: carregando; null: lição sem arquivo; 'locked': bloqueada no mapa
+  const [exercises, setExercises] = useState<Exercise[] | null | 'locked' | undefined>(undefined);
+  const ready = Array.isArray(exercises) && exercises.length > 0;
+  const exit = useLessonExit(ready);
 
   useEffect(() => {
     let cancelled = false;
     setExercises(undefined);
-    // content.ts traz os sinais (signs.json): só baixa quando uma lição abre. A tela da lição baixa
-    // junto, para aparecer inteira de uma vez.
-    Promise.all([import('./lib/content'), LessonScreen.preload()])
-      .then(([m]) => m.loadLessonExercises(id))
-      .then(list => { if (!cancelled) setExercises(list); })
+    async function load(): Promise<Exercise[] | null | 'locked'> {
+      // content.ts traz os sinais (signs.json): só baixa quando uma lição abre. A tela da lição
+      // baixa junto, para aparecer inteira de uma vez.
+      const [content, , progress] = await Promise.all([
+        import('./lib/content'), LessonScreen.preload(), loadCourseProgress(repo, userId),
+      ]);
+      // Guarda: a lição bloqueada no mapa não abre pelo endereço (mesma regra do mapa)
+      if (course.lessonsMap[id] && !isLessonOpen(progress, id)) return 'locked';
+      return content.loadLessonExercises(id);
+    }
+    load()
+      .then(result => { if (!cancelled) setExercises(result); })
       .catch(() => { if (!cancelled) setExercises(null); });
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, repo, userId]);
+
+  // Bloqueada: volta ao mapa (voltando no histórico se veio de lá) com um aviso discreto. O ref
+  // evita voltar duas vezes quando o efeito roda de novo (StrictMode em desenvolvimento).
+  const leftLocked = useRef(false);
+  useEffect(() => {
+    if (exercises !== 'locked' || leftLocked.current) return;
+    leftLocked.current = true;
+    showNotice('courseMap.lessonLocked');
+    nav.backTo(ROUTES.learn);
+  }, [exercises, showNotice, nav]);
 
   if (!course.lessonsMap[id] || exercises === null) return <Navigate to={ROUTES.learn} replace />;
-  if (exercises === undefined) return <ScreenSkeleton />;
+  if (!Array.isArray(exercises)) return <ScreenSkeleton />;
 
   async function handleComplete(result: LessonSessionResult) {
     // Libera a saída antes de ir para a conclusão
