@@ -1694,6 +1694,14 @@
         "priority": 3,
         "durationMs": 400
       }
+    },
+    "leagueUp": {
+      "$description": "Subida de liga (LeagueResultSheet, estado promovido). Mesma prioridade da conquista.",
+      "$value": {
+        "file": "sfx_league_up",
+        "priority": 6,
+        "durationMs": 900
+      }
     }
   },
   "zIndex": {

@@ -1,0 +1,82 @@
+/* =========================================================
+   SOM: interruptor das Configurações e pergunta do onboarding
+   Só tokens de src/styles/tokens.css. O estado também está escrito ao lado do interruptor.
+   ========================================================= */
+
+.sound-setting { padding-top: var(--lx-space-3); padding-bottom: var(--lx-space-3); }
+
+/* Interruptor: 52 x 32 visível, a área de toque é o item inteiro (>= 48 px) */
+.sound-switch {
+  flex-shrink: 0;
+  position: relative;
+  width: calc(var(--lx-space-12) + var(--lx-space-1));
+  height: var(--lx-space-8);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-bg-sunken);
+  border: var(--lx-border-width-thick) solid var(--lx-border-strong);
+  transition: background-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
+}
+.sound-switch-thumb {
+  position: absolute;
+  top: 50%;
+  left: var(--lx-space-0-5);
+  width: var(--lx-space-6);
+  height: var(--lx-space-6);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-border-strong);
+  transform: translateY(-50%);
+  transition: left var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
+}
+.sound-switch--on {
+  background: var(--lx-action-primary-bg);
+  border-color: var(--lx-action-primary-bg);
+}
+.sound-switch--on .sound-switch-thumb {
+  left: calc(100% - var(--lx-space-6) - var(--lx-space-0-5));
+  background: var(--lx-action-primary-fg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sound-switch, .sound-switch-thumb { transition: none; }
+}
+
+/* Pergunta do onboarding (passo do motivo) */
+.sound-choice {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+  padding: var(--lx-space-4);
+  background: var(--lx-bg-surface);
+  border: var(--lx-border-width-thin) solid var(--lx-border-default);
+  border-radius: var(--lx-radius-lg);
+  text-align: left;
+}
+.sound-choice-title { font: var(--lx-typography-title-sm); color: var(--lx-text-primary); }
+.sound-choice-sub { font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); }
+.sound-choice-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lx-space-2);
+  margin-top: var(--lx-space-1);
+}
+.sound-choice-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lx-space-2);
+  min-height: var(--lx-size-touch-min);
+  padding: 0 var(--lx-space-3);
+  background: var(--lx-bg-surface);
+  border: var(--lx-border-width-thick) solid var(--lx-border-strong);
+  border-radius: var(--lx-radius-md);
+  color: var(--lx-text-primary);
+  font: var(--lx-typography-label);
+  cursor: pointer;
+}
+.sound-choice-btn .icon { width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); }
+.sound-choice-btn--selected {
+  border-width: var(--lx-border-width-selected);
+  border-color: var(--lx-border-focus);
+  background: var(--lx-feedback-info-soft);
+  color: var(--lx-feedback-info-on-soft);
+}

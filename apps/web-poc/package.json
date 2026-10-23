@@ -8,6 +8,7 @@
     "tokens:check": "node ../../tools/tokens/build.mjs --check && node ../../tools/tokens/check-contrast.mjs",
     "contrast": "node ../../tools/tokens/check-contrast.mjs --verbose",
     "icons": "node ../../tools/icons/build.mjs",
+    "sounds": "node ../../tools/audio/build.mjs",
     "predev": "npm run tokens",
     "dev": "vite",
     "prebuild": "npm run tokens && node ../../tools/tokens/check-contrast.mjs",

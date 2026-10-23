@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useT } from '../i18n';
 import { Haptics } from '../lib/haptics';
+import { Sfx } from '../lib/sound';
 import { Icon } from './Icon';
 import { FeedbackPanel } from './FeedbackPanel';
 
@@ -35,7 +36,7 @@ export function ExerciseOrderSequence({ steps, correctOrder, prompt, onAnswer, o
     const correct = order.every((step, i) => step === correctOrder[i]);
     setAnswered(true);
     setIsCorrect(correct);
-    if (correct) Haptics.correct();
+    if (correct) { Haptics.correct(); Sfx.correct(); } else Sfx.neutral();
     onAnswer(correct);
     if (correct) setTimeout(onNext, 1000);
   }

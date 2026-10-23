@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { course } from '../lib/content';
 import { launchConfetti } from '../lib/confetti';
 import { Haptics } from '../lib/haptics';
+import { Sfx } from '../lib/sound';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 
@@ -21,6 +22,7 @@ export function UnitCompletionScreen({ unitId, signsLearned, xpGained, onContinu
   useEffect(() => {
     launchConfetti(80, 3000);
     Haptics.achievement();
+    Sfx.unitDone();
   }, []);
 
   return (

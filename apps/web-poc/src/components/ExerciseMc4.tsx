@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { maskGloss, type Sign } from '../lib/content';
 import { useT } from '../i18n';
 import { Haptics } from '../lib/haptics';
+import { Sfx } from '../lib/sound';
 import { Icon } from './Icon';
 import { FeedbackPanel } from './FeedbackPanel';
 
@@ -24,7 +25,7 @@ export function ExerciseMc4({ sign, choices, onAnswer, onNext }: Props) {
     const correct = gloss === sign.gloss;
     setChosen(gloss);
     setState(correct ? 'correct' : 'wrong');
-    if (correct) Haptics.correct();
+    if (correct) { Haptics.correct(); Sfx.correct(); } else Sfx.neutral();
     onAnswer(correct);
   }
 
