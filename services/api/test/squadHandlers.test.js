@@ -89,6 +89,20 @@ test('update: admin edita nome, visibilidade e limite', async () => {
   assert.equal(squad.maxMembers, 10);
 });
 
+test('update e join devolvem o XP da semana atual, sem os campos internos de semana', async () => {
+  const { h, repo } = await setup();
+  await repo.incrementSquadXp('s1', 'u2', 30, { period: '2026-w40' }); // semana velha (now e w43)
+
+  const updated = parse(await h.updateSquadHandler(event({ body: { name: 'Turma B' }, pathParameters: { squadId: 's1' } })));
+  assert.equal(updated.xpWeekly, 0);
+  assert.equal(updated.xpWeekPeriod, undefined);
+  assert.equal(updated.xpAllTime, 30);
+
+  const joined = parse(await h.joinSquadHandler(event({ sub: 'u3', body: { inviteCode: updated.inviteCode } })));
+  assert.equal(joined.xpWeekly, 0);
+  assert.equal(joined.xpWeekPeriod, undefined);
+});
+
 test('update: limite abaixo do total e 409; nome invalido e 400; membro comum e 403', async () => {
   const { h } = await setup();
   const below = await h.updateSquadHandler(event({ body: { maxMembers: 1 }, pathParameters: { squadId: 's1' } }));

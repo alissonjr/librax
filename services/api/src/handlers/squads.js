@@ -77,7 +77,7 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
     const squad = await callUsecase(squadUsecases.createSquad, repo, {
       userId: uid, isGuest: false, name, description, type, genId, rng, now: now().toISOString(),
     });
-    return ok(squad, 201);
+    return ok(squadForWeek(squad, currentPeriod(now())), 201);
   });
 
   const joinSquadHandler = wrap(async (event) => {
@@ -86,7 +86,7 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
     const squad = await callUsecase(squadUsecases.joinSquad, repo, {
       userId: uid, isGuest: false, code: inviteCode, squadId: sid, now: now().toISOString(),
     });
-    return ok(squad);
+    return ok(squadForWeek(squad, currentPeriod(now())));
   });
 
   const leaveSquadHandler = wrap(async (event) => {
@@ -110,7 +110,7 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
     const sid = squadId(event);
     const changes = body(event);
     const squad = await callUsecase(squadUsecases.updateSquad, repo, { userId: uid, squadId: sid, changes });
-    return ok(squad);
+    return ok(squadForWeek(squad, currentPeriod(now())));
   });
 
   const disbandSquadHandler = wrap(async (event) => {
