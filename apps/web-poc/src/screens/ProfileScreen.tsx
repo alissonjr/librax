@@ -5,6 +5,7 @@ import { course } from '../lib/content';
 import { useT } from '../i18n';
 import type { IdbRepo } from '../lib/idbRepo';
 import { Icon } from '../components/Icon';
+import { LeagueShortcut } from '../components/LeagueShortcut';
 
 interface Props {
   userId: string;
@@ -12,6 +13,8 @@ interface Props {
   onOpenStreak: () => void;
   onOpenAchievements: () => void;
   onOpenSettings: () => void;
+  /** Toque na insígnia de liga abre a LeagueScreen (spec-02 12.7). */
+  onOpenLeague?: () => void;
 }
 
 interface ProfileData {
@@ -36,7 +39,7 @@ function xpLevel(xp: number) {
   return { level, pct, next: nextThreshold };
 }
 
-export function ProfileScreen({ userId, repo, onOpenStreak, onOpenAchievements, onOpenSettings }: Props) {
+export function ProfileScreen({ userId, repo, onOpenStreak, onOpenAchievements, onOpenSettings, onOpenLeague }: Props) {
   const { t } = useT();
   const [data, setData] = useState<ProfileData | null>(null);
   const name = getDisplayName() ?? t('common.defaultName');
@@ -120,6 +123,9 @@ export function ProfileScreen({ userId, repo, onOpenStreak, onOpenAchievements, 
           <span className="profile-stat-label">{t('profileScreen.lessons')}</span>
         </div>
       </div>
+
+      {/* Insígnia de liga */}
+      {onOpenLeague && <LeagueShortcut userId={userId} repo={repo} onOpen={onOpenLeague} variant="profile" />}
 
       {/* Course progress */}
       <div className="profile-card animate__animated animate__fadeInUp animate__faster" style={{ animationDelay: '320ms' }}>

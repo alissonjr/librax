@@ -34,7 +34,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2,m4a}'],
         // Navegação para qualquer rota do app abre o index.html do precache (funciona offline e ao
         // recarregar). Ficam de fora a página do avatar (iframe próprio) e o que não é tela do app.
         navigateFallback: 'index.html',

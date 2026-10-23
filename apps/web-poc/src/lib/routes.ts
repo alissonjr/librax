@@ -1,7 +1,7 @@
 import type { NavSection } from '../components/Nav';
 
 /**
- * URLs do app (design-system-proposta, "Rotas"). Em português, como as abas.
+ * URLs do app (docs/design-system.md 11.13). Em português, como as abas.
  * Toda tela tem URL: o voltar do navegador e o do Android funcionam e recarregar mantém a tela.
  */
 export const ROUTES = {
@@ -10,6 +10,7 @@ export const ROUTES = {
   learn: '/aprender',
   practice: '/praticar',
   social: '/social',
+  league: '/social/liga',
   profile: '/perfil',
   camera: '/camera',
   streak: '/sequencia',

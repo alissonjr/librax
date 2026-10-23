@@ -77,6 +77,14 @@ describe('roteador', () => {
     await waitFor(() => expect(path(router)).toBe('/aprender'));
   });
 
+  it('Social abre a liga em /social/liga e o voltar retorna a Social', async () => {
+    const router = await renderAt(['/aprender', '/social']);
+    await act(() => router.navigate('/social/liga'));
+    await waitFor(() => expect(path(router)).toBe('/social/liga'));
+    await act(() => router.navigate(-1));
+    await waitFor(() => expect(path(router)).toBe('/social'));
+  });
+
   it('rota desconhecida e licao inexistente voltam para o inicio', async () => {
     const router = await renderAt(['/nao-existe']);
     await waitFor(() => expect(path(router)).toBe('/aprender'));

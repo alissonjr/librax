@@ -775,6 +775,11 @@ export const tokens = {
     "priority": 3,
     "durationMs": 400
   },
+  "sound.leagueUp": {
+    "file": "sfx_league_up",
+    "priority": 6,
+    "durationMs": 900
+  },
   "zIndex.base": 0,
   "zIndex.sticky": 10,
   "zIndex.nav": 100,

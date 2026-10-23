@@ -29,6 +29,8 @@ const ICONS = [
   'share', 'shield', 'info', 'warning', 'drag_indicator', 'progress_activity', 'contrast',
   // demonstração do sinal (vídeo ou avatar VLibras)
   'speed', 'cloud_off',
+  // ligas (LeagueTimer) e som (Configurações)
+  'schedule', 'volume_up', 'volume_off',
   // instalação do app (tela inicial)
   'mobile_arrow_down', 'ios_share', 'add_box',
 ];

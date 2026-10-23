@@ -112,6 +112,9 @@ button { touch-action: manipulation; }
   justify-content: center;
   color: var(--lx-text-secondary);
 }
+/* Título que recebe o foco ao trocar de tela (RouteAnnouncer): sem anel, não é controle */
+h1[tabindex="-1"]:focus { outline: none; }
+
 /* Erro ao abrir uma tela (RouteError): ícone, frase e "Tentar de novo" (seção 11.11 da proposta) */
 .route-error {
   min-height: 100dvh;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Navigate, Outlet, ScrollRestoration, useLocation, useNavigate, useParams, useRouteError,
   type RouteObject,
@@ -26,8 +26,41 @@ import { StreakScreen } from './screens/StreakScreen';
 import { AchievementsScreen } from './screens/AchievementsScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { CameraScreen } from './screens/CameraScreen';
+import { LeagueScreen } from './screens/LeagueScreen';
 
 /* ---------- moldura ---------- */
+
+/**
+ * Ao trocar de rota, o foco vai para o título da nova tela e o título da aba do navegador muda junto,
+ * para o leitor de tela anunciar a troca (design-system 11.13). A primeira tela não rouba o foco.
+ * Algumas telas carregam dados antes de mostrar o título: tenta de novo por um instante.
+ */
+function RouteAnnouncer() {
+  const { pathname } = useLocation();
+  const first = useRef(true);
+  useEffect(() => {
+    const isFirst = first.current;
+    first.current = false;
+    let tries = 0;
+    let timer = 0;
+    const apply = () => {
+      const h1 = document.querySelector<HTMLElement>('main h1, .lesson-screen h1, #app h1');
+      if (!h1 && tries++ < 10) {
+        timer = window.setTimeout(apply, 100);
+        return;
+      }
+      const title = h1?.textContent?.trim();
+      document.title = title && title !== 'Librax' ? `${title} | Librax` : 'Librax';
+      if (h1 && !isFirst) {
+        if (!h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
+        h1.focus({ preventScroll: true });
+      }
+    };
+    apply();
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
+  return null;
+}
 
 /** Raiz de todas as rotas: rolagem (topo ao abrir tela nova, posição de volta ao voltar) e histórico. */
 function RootLayout() {
@@ -35,6 +68,7 @@ function RootLayout() {
     <>
       <ScrollRestoration />
       <HistoryTracker />
+      <RouteAnnouncer />
       <Outlet />
     </>
   );
@@ -132,6 +166,12 @@ function PracticeRoute() {
   return <PracticeScreen userId={userId} repo={repo} onOpenCamera={() => navigate(ROUTES.camera)} />;
 }
 
+function SocialRoute() {
+  const { repo, userId } = useSession();
+  const navigate = useNavigate();
+  return <SocialScreen userId={userId} repo={repo} onOpenLeague={() => navigate(ROUTES.league)} />;
+}
+
 function ProfileRoute() {
   const { repo, userId } = useSession();
   const navigate = useNavigate();
@@ -142,6 +182,7 @@ function ProfileRoute() {
       onOpenStreak={() => navigate(ROUTES.streak)}
       onOpenAchievements={() => navigate(ROUTES.achievements)}
       onOpenSettings={() => navigate(ROUTES.settings)}
+      onOpenLeague={() => navigate(ROUTES.league)}
     />
   );
 }
@@ -180,6 +221,19 @@ function AchievementsRoute() {
   const { repo, userId } = useSession();
   const nav = useAppNavigation();
   return <AchievementsScreen userId={userId} repo={repo} onBack={() => nav.back(ROUTES.profile)} />;
+}
+
+function LeagueRoute() {
+  const { repo, userId } = useSession();
+  const nav = useAppNavigation();
+  return (
+    <LeagueScreen
+      userId={userId}
+      repo={repo}
+      onBack={() => nav.back(ROUTES.social)}
+      onStudy={() => nav.backTo(ROUTES.learn)}
+    />
+  );
 }
 
 function SettingsRoute() {
@@ -292,11 +346,12 @@ export const routes: RouteObject[] = [
             children: [
               { path: 'aprender', element: <LearnRoute /> },
               { path: 'praticar', element: <PracticeRoute /> },
-              { path: 'social', element: <SocialScreen /> },
+              { path: 'social', element: <SocialRoute /> },
               { path: 'perfil', element: <ProfileRoute /> },
               { path: 'camera', element: <CameraRoute /> },
             ],
           },
+          { path: 'social/liga', element: <LeagueRoute /> },
           { path: 'sequencia', element: <StreakRoute /> },
           { path: 'conquistas', element: <AchievementsRoute /> },
           { path: 'configuracoes', element: <SettingsRoute /> },
