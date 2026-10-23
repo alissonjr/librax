@@ -5,6 +5,7 @@ import { RecognizedLetterBadge } from './RecognizedLetterBadge';
 import type { FingerExtensions } from '../lib/recognizer';
 import { Flags } from '../lib/flags';
 import { Haptics } from '../lib/haptics';
+import { Sfx } from '../lib/sound';
 import { launchConfetti } from '../lib/confetti';
 import { useT, type TFunc } from '../i18n';
 import { Icon } from './Icon';
@@ -96,6 +97,7 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
     if (!succeeded && stableGesture === targetLetter) {
       setSucceeded(true);
       Haptics.correctCamera();
+      Sfx.correctCamera();
       launchConfetti();
     }
   }, [stableGesture, targetLetter, succeeded]);

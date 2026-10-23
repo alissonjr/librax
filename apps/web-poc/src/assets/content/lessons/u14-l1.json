@@ -1,0 +1,329 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u14-l1",
+  "exercises": [
+    {
+      "id": "u14-l1-ex01",
+      "lesson_id": "u14-l1",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "sinal-AMIGO"
+      }
+    },
+    {
+      "id": "u14-l1-ex02",
+      "lesson_id": "u14-l1",
+      "type": "perform_sign",
+      "order": 2,
+      "payload": {
+        "sign_id": "sinal-AMIGO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u14-l1-ex03",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "sinal-AMIGO",
+        "correct": "AMIGO"
+      }
+    },
+    {
+      "id": "u14-l1-ex04",
+      "lesson_id": "u14-l1",
+      "type": "mirror_practice",
+      "order": 4,
+      "payload": {
+        "sign_id": "sinal-AMIGO"
+      }
+    },
+    {
+      "id": "u14-l1-ex05",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "sinal-AMIGO",
+        "correct": "AMIGO"
+      }
+    },
+    {
+      "id": "u14-l1-ex06",
+      "lesson_id": "u14-l1",
+      "type": "sign_intro",
+      "order": 6,
+      "payload": {
+        "sign_id": "sinal-ENCONTRAR"
+      }
+    },
+    {
+      "id": "u14-l1-ex07",
+      "lesson_id": "u14-l1",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "sinal-ENCONTRAR",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u14-l1-ex08",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 8,
+      "payload": {
+        "sign_id": "sinal-ENCONTRAR",
+        "correct": "ENCONTRAR"
+      }
+    },
+    {
+      "id": "u14-l1-ex09",
+      "lesson_id": "u14-l1",
+      "type": "mirror_practice",
+      "order": 9,
+      "payload": {
+        "sign_id": "sinal-ENCONTRAR"
+      }
+    },
+    {
+      "id": "u14-l1-ex10",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 10,
+      "payload": {
+        "sign_id": "sinal-ENCONTRAR",
+        "correct": "ENCONTRAR"
+      }
+    },
+    {
+      "id": "u14-l1-ex11",
+      "lesson_id": "u14-l1",
+      "type": "sign_intro",
+      "order": 11,
+      "payload": {
+        "sign_id": "sinal-DEVAGAR"
+      }
+    },
+    {
+      "id": "u14-l1-ex12",
+      "lesson_id": "u14-l1",
+      "type": "perform_sign",
+      "order": 12,
+      "payload": {
+        "sign_id": "sinal-DEVAGAR",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u14-l1-ex13",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 13,
+      "payload": {
+        "sign_id": "sinal-DEVAGAR",
+        "correct": "DEVAGAR"
+      }
+    },
+    {
+      "id": "u14-l1-ex14",
+      "lesson_id": "u14-l1",
+      "type": "mirror_practice",
+      "order": 14,
+      "payload": {
+        "sign_id": "sinal-DEVAGAR"
+      }
+    },
+    {
+      "id": "u14-l1-ex15",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 15,
+      "payload": {
+        "sign_id": "sinal-DEVAGAR",
+        "correct": "DEVAGAR"
+      }
+    },
+    {
+      "id": "u14-l1-ex16",
+      "lesson_id": "u14-l1",
+      "type": "sign_intro",
+      "order": 16,
+      "payload": {
+        "sign_id": "sinal-DE-NOVO"
+      }
+    },
+    {
+      "id": "u14-l1-ex17",
+      "lesson_id": "u14-l1",
+      "type": "perform_sign",
+      "order": 17,
+      "payload": {
+        "sign_id": "sinal-DE-NOVO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u14-l1-ex18",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 18,
+      "payload": {
+        "sign_id": "sinal-DE-NOVO",
+        "correct": "DE-NOVO"
+      }
+    },
+    {
+      "id": "u14-l1-ex19",
+      "lesson_id": "u14-l1",
+      "type": "mirror_practice",
+      "order": 19,
+      "payload": {
+        "sign_id": "sinal-DE-NOVO"
+      }
+    },
+    {
+      "id": "u14-l1-ex20",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 20,
+      "payload": {
+        "sign_id": "sinal-DE-NOVO",
+        "correct": "DE-NOVO"
+      }
+    },
+    {
+      "id": "u14-l1-ex21",
+      "lesson_id": "u14-l1",
+      "type": "match_pairs",
+      "order": 21,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "sinal-AMIGO",
+            "gloss": "AMIGO"
+          },
+          {
+            "sign_id": "sinal-ENCONTRAR",
+            "gloss": "ENCONTRAR"
+          },
+          {
+            "sign_id": "sinal-DEVAGAR",
+            "gloss": "DEVAGAR"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u14-l1-ex22",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 22,
+      "payload": {
+        "sign_id": "sinal-AMIGO",
+        "correct": "AMIGO"
+      }
+    },
+    {
+      "id": "u14-l1-ex23",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 23,
+      "payload": {
+        "sign_id": "sinal-ENCONTRAR",
+        "correct": "ENCONTRAR"
+      }
+    },
+    {
+      "id": "u14-l1-ex24",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 24,
+      "payload": {
+        "sign_id": "sinal-DEVAGAR",
+        "correct": "DEVAGAR"
+      }
+    },
+    {
+      "id": "u14-l1-ex25",
+      "lesson_id": "u14-l1",
+      "type": "watch_choose_word",
+      "order": 25,
+      "payload": {
+        "sign_id": "sinal-DE-NOVO",
+        "correct": "DE-NOVO"
+      }
+    },
+    {
+      "id": "u14-l1-ex26",
+      "lesson_id": "u14-l1",
+      "type": "order_sequence",
+      "order": 26,
+      "payload": {
+        "steps": [
+          "AMIGO",
+          "ENCONTRAR",
+          "DEVAGAR",
+          "DE-NOVO"
+        ],
+        "correct_order": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "u14-l1-ex27",
+      "lesson_id": "u14-l1",
+      "type": "build_phrase",
+      "order": 27,
+      "payload": {
+        "pt": "Tchau! Amanhã nos encontramos no cinema.",
+        "glosses": [
+          "TCHAU",
+          "AMANHÃ",
+          "ENCONTRAR",
+          "CINEMA"
+        ],
+        "distractors": [
+          "FALAR",
+          "ENTENDER-NÃO",
+          "REPETIR",
+          "POR-FAVOR",
+          "EU",
+          "QUE",
+          "VOCÊ",
+          "POR-ACASO",
+          "ME@",
+          "AMIG@",
+          "R-U-A",
+          "SURD@",
+          "DIREITO",
+          "INTÉRPRETE",
+          "QUALQUER",
+          "LUGAR"
+        ],
+        "source": {
+          "name": "Dicionário de Libras do INES - exemplo do verbete TCHAU",
+          "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/tchauSm_Prog001.mp4"
+        }
+      }
+    }
+  ]
+}

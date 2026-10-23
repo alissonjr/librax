@@ -53,7 +53,13 @@ Nao usar para: qualquer colecao que cresca com o uso (itens SRS, progresso).
 - Capacidade: varia por navegador e dispositivo:
   - Chrome: 60% do espaco livre em disco (tipicamente varios GB).
   - Firefox: 10% do espaco livre em disco.
-  - Safari 15.2+: 1 GB por default; pode ser solicitado mais via `StorageManager`.
+  - Safari 17+ (iOS 17+ e macOS Sonoma): cada origem pode usar ate cerca de 60% do disco
+    quando o Safari e o navegador, e cerca de 15% em WebViews e outros apps; o total de
+    todas as origens fica em torno de 80% (navegador) e 20% (outros apps). A quota passou a
+    ser visivel em `navigator.storage.estimate()` e o `navigator.storage.persist()` passou a
+    ser aceito. Ate o Safari 16 o limite era de cerca de 1 GB por origem, com pedido de
+    mais espaco ao usuario.
+  - Safari (qualquer versao): a regra de 7 dias continua valendo, ver secao 10.
 - API: assincrona e baseada em eventos (wrapper `idb` da Google torna isso Promise-based).
 - Formato: objetos JavaScript estruturados (inclui ArrayBuffer, Blob, Date).
 - Persistencia: pode ser eviccionado em dispositivos com pouco espaco. Chamar
@@ -326,9 +332,9 @@ const MODEL_CACHE = 'librax-model-v1';
 const SHELL_ASSETS = [
   '/',
   '/index.html',
-  '/main.dart.js',     // ou main.wasm se compilar em WASM
-  '/manifest.json',
-  // fontes, icons, etc.
+  '/assets/index-<hash>.js',   // bundle do Vite (no web-poc a lista sai do vite-plugin-pwa)
+  '/manifest.webmanifest',
+  // fontes, icones, etc.
 ];
 
 self.addEventListener('install', (event) => {
@@ -390,6 +396,49 @@ self.addEventListener('message', (event) => {
   }
 });
 ```
+
+### 5.4 Cuidados com Workbox (vite-plugin-pwa)
+
+O esboco acima e didatico; no web-poc o SW e gerado pelo `vite-plugin-pwa` (Workbox).
+Tres armadilhas que valem para o mobile web:
+
+**Range requests em video.** O Safari pede video com o header `Range` (`bytes=0-1`
+e depois trechos). Uma resposta completa guardada na Cache API nao atende esse pedido
+sozinha, e o video nao toca offline no iPhone. A rota de video precisa do
+`RangeRequestsPlugin` (que recorta a resposta guardada) e de `cacheableResponse` so com
+status 200, para nunca guardar um `206 Partial Content`:
+
+```javascript
+// vite.config.ts > VitePWA > workbox.runtimeCaching
+{
+  urlPattern: /\/content\/.*\.mp4$/,
+  handler: 'CacheFirst',
+  options: {
+    cacheName: 'librax-videos-v1',
+    rangeRequests: true,                       // liga o RangeRequestsPlugin
+    cacheableResponse: { statuses: [200] },
+    expiration: { maxEntries: 300 },
+  },
+}
+```
+
+Para o primeiro acesso funcionar com o video ja em cache, o pre-cache da proxima licao
+(secao 5.3) deve baixar o arquivo inteiro (`cache.add(url)` sem `Range`).
+
+**Respostas opacas.** Um `fetch` de outra origem sem CORS volta como resposta opaca:
+status 0, sem como saber se deu certo, e o Chrome conta cada uma como cerca de 7 MB na
+quota. Com `CacheFirst`, uma resposta de erro opaca fica guardada para sempre. Regras:
+servir conteudo, video e modelo da mesma origem do app (CloudFront unico, decisao 14 do
+`plano-mobile-web.md`); se algo vier de terceiro, exigir CORS e `cacheableResponse:
+{ statuses: [200] }`; e manter um alerta no build (ou teste) que reprova qualquer rota de
+runtime sem `cacheableResponse`.
+
+**Limite de 2 MB do precache.** O Workbox ignora no precache, so com um aviso no build,
+qualquer arquivo acima de `maximumFileSizeToCacheInBytes` (padrao de 2 MiB). O WASM do
+MediaPipe (cerca de 11 MB) e o modelo `.task` (cerca de 7,8 MB) nunca entram por esse
+caminho. Eles ficam em `/ml/<versao>/` com cache de runtime `CacheFirst`, baixados quando
+a pessoa aceita usar a camera. Nao aumentar o limite do precache para forcar a entrada:
+isso faria todo mundo baixar o ML na primeira visita, mesmo quem nao usa a camera.
 
 ---
 
@@ -584,7 +633,7 @@ para os sinais que o time ja tiver gravado. Dessa forma o total em rede e < 10 M
 |---|---|---|
 | Squads | Requer dados de outros usuarios | Tela com "Em breve" |
 | Ligas | Requer server-side semanal | Tela com "Em breve" |
-| Push notifications | Requer backend + FCM | Omitir |
+| Push notifications | Requer backend: Web Push com VAPID (sem Firebase), inscricao guardada no servidor e disparo agendado. Funciona no Android sempre e no iPhone (iOS 16.4+) so com o app na tela inicial | Omitir; no produto, quem nao tem push recebe lembrete dentro do app e e-mail opcional (decisao 11 do `plano-mobile-web.md`) |
 | Cognito (auth real) | Sem backend | userId = UUID em localStorage; nome digitado na onboarding |
 | Sincronizacao entre dispositivos | Requer backend | Dados ficam so no navegador atual |
 | Analytics (PostHog) | Sem backend; dados nao precisam ir a lugar nenhum na PoC | Omitir; ou logar so no console |
@@ -607,12 +656,20 @@ garantida automaticamente. Exibir uma mensagem ao usuario caso `persist()` retor
 
 **Risco:** nao existe para o nosso caso. Flags e userId ocupam menos de 10 KB.
 
-### Videos nao cacheados em Safari antigo
+### Limpeza de 7 dias do Safari
 
-**Risco:** Safari < 15.2 tem restricoes agressivas de IndexedDB/Cache API (evicao apos 7 dias).
+**Risco:** em qualquer versao atual do Safari (iOS e macOS), o armazenamento gravavel por
+script de um site (IndexedDB, Cache API, localStorage, service worker) e apagado depois de
+7 dias de uso do Safari sem nenhuma interacao com esse site. Isso vale para o site aberto na
+aba. O app adicionado a tela inicial fica fora dessa regra, mas tem armazenamento proprio,
+separado do da aba: o progresso feito no Safari nao aparece no app instalado, e vice-versa.
 
-**Mitigacao:** para a PoC, documentar que o target e Chrome/Firefox. Safari moderno
-(16+) nao tem esse problema.
+**Mitigacao:** chamar `navigator.storage.persist()` sempre (o web-poc ja chama na abertura);
+oferecer a conta no fim da primeira licao, para o progresso ficar no servidor e voltar em
+qualquer aparelho ou modo (decisao 4 do `plano-mobile-web.md`); sugerir "adicionar a tela
+inicial" depois da primeira licao com conta criada (decisao 13). Sem conta, avisar que
+instalar o app comeca um progresso novo. O alvo nao e so Chrome: Safari iOS 16.4+ e
+navegador suportado (decisao 3).
 
 ### Headers de isolamento para SQLite WASM (so se usar drift)
 
@@ -635,9 +692,33 @@ Com compressao gzip no servidor, o JS Flutter cai para ~1.5 MB transferido.
 
 ## 11. Recomendacao e proximos passos
 
+> **Status (2026-10): implementado.** O Caminho B foi construido em `apps/web-poc/` e virou a
+> base do produto mobile web (`plano-mobile-web.md`, decisao 1). O Caminho A (Flutter web) foi
+> descartado. O que existe hoje, conferido no codigo:
+>
+> - `src/lib/db.ts`: banco `librax-poc` versao 1 com as stores da secao 4 (`profiles`,
+>   `lesson_progress` com indice `byUser`, `srs_items` com indice `byUserAndDue`, `day_xp`).
+> - `src/lib/idbRepo.ts`: `IdbRepo` com a mesma porta do `InMemoryRepo`, mais `clearAllData`;
+>   squads e ligas seguem como no-ops.
+> - `src/lib/auth.ts` e `src/lib/flags.ts`: `userId` (`librax_userId`), nome e flags de UI no
+>   `localStorage` com prefixo `librax_`.
+> - Dominio importado por alias do Vite (`@domain`, `@usecases`, `@apilib` apontando para
+>   `services/api/src/`), em vez de symlink; `completeLesson` roda no navegador.
+> - `course.json` e `signs.json` em `src/assets/content/`, importados no bundle JS (nao numa
+>   camada separada da Cache API); atualizam junto com o app.
+> - Service worker do `vite-plugin-pwa` (`registerType: 'autoUpdate'`): precache do shell e
+>   cache de runtime `CacheFirst` para `.mp4` e para o avatar VLibras. Ainda falta o
+>   `RangeRequestsPlugin` na rota de video (secao 5.4).
+> - `navigator.storage.persist()` chamado na abertura do app (`src/App.tsx`).
+>
+> Pendente: o WASM e o modelo do MediaPipe ainda vem de CDNs de terceiros e nao ficam em cache
+> (a camera nao funciona offline); os icones `icon-192.png` e `icon-512.png` citados no manifest
+> nao existem em `public/`; todos os `video_url` do conteudo sao `null`. Essas correcoes estao
+> na fase W2 do `plano-mobile-web.md`.
+
 ### Recomendacao para a PoC
 
-**Usar o Caminho B: web app TypeScript com o dominio JS existente.**
+**Usar o Caminho B: web app TypeScript com o dominio JS existente.** (Adotado.)
 
 Razoes:
 1. O dominio do jogo (`completeLesson`, `getDailyQueue`, `applyStreak`, `updateSrs`) ja existe
@@ -648,32 +729,36 @@ Razoes:
 5. Para uma PoC de validacao com usuarios ou investidores, velocidade de entrega importa mais
    que reaproveitamento de codigo com o futuro app Flutter.
 
-Quando o app Flutter for construido, o dominio JS pode ser portado para Dart - a logica
-ja esta testada e a porta de repositorio esta bem definida. A UI Flutter sera escrita do zero
-de qualquer forma (o componente visual nao e reaproveitavel entre web TS e Flutter).
+Com a revisao de 2026-10 o Flutter ficou congelado e o produto passou a ser so mobile web,
+entao a porta do dominio para Dart deixou de ser necessaria. O dominio JS continua sendo a
+unica implementacao, usada no navegador e nas Lambdas.
 
-### Sequencia de implementacao sugerida (nao e compromisso, e orientacao)
+### Sequencia de implementacao sugerida (feita no web-poc)
 
-1. Setup: `apps/web-poc/` com Vite + `vite-plugin-pwa` + `idb`.
-2. Auth local: gerar UUID no localStorage na primeira abertura; tela de nome.
-3. Adapter IDB: implementar `IdbRepo` (secao 4).
-4. Conectar dominio: importar `completeLesson` e `getDailyQueue` com `IdbRepo`.
-5. Content loader: carregar `course.json` e `signs.json` dos assets.
-6. Telas: CourseMap, LessonScreen (exercicios receptivos), LessonCompletion.
-7. Service Worker: configurar via `vite-plugin-pwa` (offline-first).
-8. Camera (opcional): integrar `@mediapipe/tasks-vision` para exercicios expressivos.
-9. XP, streak, SRS: ja funcionam via dominio - so conectar ao estado da UI.
-10. Telas de engajamento: StreakScreen, AchievementsScreen (dados ja no IndexedDB).
+1. [x] Setup: `apps/web-poc/` com Vite + `vite-plugin-pwa` + `idb`.
+2. [x] Auth local: gerar UUID no localStorage na primeira abertura; tela de nome.
+3. [x] Adapter IDB: implementar `IdbRepo` (secao 4).
+4. [x] Conectar dominio: importar `completeLesson` e `getDailyQueue` com `IdbRepo`.
+5. [x] Content loader: carregar `course.json` e `signs.json` dos assets.
+6. [x] Telas: CourseMap, LessonScreen (exercicios receptivos), LessonCompletion.
+7. [x] Service Worker: configurar via `vite-plugin-pwa` (offline-first). Faltam os ajustes da
+   secao 5.4 e o cache do ML.
+8. [x] Camera: `@mediapipe/tasks-vision` integrado nos exercicios expressivos, ainda com
+   reconhecedor heuristico (o classificador entra na fase W1 do `plano-mobile-web.md`).
+9. [x] XP, streak, SRS: ja funcionam via dominio - so conectar ao estado da UI.
+10. [x] Telas de engajamento: StreakScreen, AchievementsScreen (dados ja no IndexedDB).
 
 ---
 
 ## Apendice: checklist tecnico antes de implementar
 
-- [ ] Decidir entre Caminho A (Flutter web) ou B (TS web app).
-- [ ] Definir se camera entra na PoC ou so exercicios receptivos.
-- [ ] Definir como os videos serao servidos (placeholders / CDN / bundlados).
-- [ ] O dominio JS nao tem dependencias de modulos Node.js. `src/domain/*.js` e
+- [x] Decidir entre Caminho A (Flutter web) ou B (TS web app). Caminho B.
+- [x] Definir se camera entra na PoC ou so exercicios receptivos. Entra, com modo sem camera.
+- [ ] Definir como os videos serao servidos (placeholders / CDN / bundlados). Hoje os sinais
+      sem video usam o avatar VLibras ou a descricao em texto; os videos gravados entram na fase W5.
+- [x] O dominio JS nao tem dependencias de modulos Node.js. `src/domain/*.js` e
       `src/lib/dates.js` usam somente `Date`, `Math` e `RegExp` - rodara no browser
       sem nenhuma alteracao. (Verificado em 2026-06-28.)
-- [ ] Decidir onde hospedar (GitHub Pages, Cloudflare Pages, Vercel, ou so localhost).
-      Se usar drift (SQLite WASM), a hospedagem precisa suportar headers COOP/COEP.
+- [x] Decidir onde hospedar (GitHub Pages, Cloudflare Pages, Vercel, ou so localhost).
+      Decidido: um CloudFront com dominio proprio servindo app, conteudo, ML e API na mesma
+      origem (decisao 14 do `plano-mobile-web.md`). Como o drift saiu, COOP/COEP nao sao exigidos.

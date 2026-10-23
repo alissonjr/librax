@@ -70,6 +70,12 @@ export default defineConfig(({ mode }) => {
   const extraPlugins: PluginOption[] = celular ? [basicSsl({ name: 'librax-dev' }), printPhoneUrl()] : [];
 
   return {
+    // SPA: o servidor de desenvolvimento e o "vite preview" respondem index.html para qualquer rota
+    // do app (/aprender, /licao/u1-l1...), então recarregar numa URL funciona. Em produção o
+    // service worker faz o mesmo (navigateFallback abaixo) e o CDN precisa responder index.html
+    // para rotas que não são arquivo. As páginas avulsas (teste-camera.html, coleta.html) existem
+    // como arquivo e são servidas antes do fallback.
+    appType: 'spa',
     // Modo celular: HTTPS (a câmera exige contexto seguro) e aberto para a rede local.
     // allowedHosts libera o endereço do túnel (alternativa do README quando o certificado trava).
     server: celular
@@ -99,12 +105,17 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2,m4a}'],
           // ML fora do precache: o WASM (13 MB) e o modelo (7,8 MB) estouram o limite de 2 MB
           // e só quem usa a câmera precisa deles. Entram no cache em runtime (abaixo).
           globIgnores: ['ml/**'],
-          // Páginas avulsas (teste da câmera, coleta) não caem no index.html
-          navigateFallbackDenylist: [/^\/ml\//, /^\/teste-camera/, /^\/coleta/],
+          // Navegação para qualquer rota do app abre o index.html do precache (funciona offline e ao
+          // recarregar). Ficam de fora a página do avatar (iframe próprio), o que não é tela do app e
+          // as páginas avulsas da câmera (teste da câmera W0 e coleta), que têm HTML próprio.
+          navigateFallback: 'index.html',
+          navigateFallbackDenylist: [
+            /^\/vlibras\//, /^\/api\//, /^\/content\//, /^\/ml\//, /^\/teste-camera/, /^\/coleta/,
+          ],
           runtimeCaching: [
             // WASM e modelo do MediaPipe: a versão está na URL (/ml/1.1.1/...), então o que foi
             // baixado uma vez vale para sempre e a câmera funciona offline depois do primeiro uso.
@@ -169,16 +180,25 @@ export default defineConfig(({ mode }) => {
             },
           ],
         },
+        // Ícones gerados por tools/pwa/build-icons.mjs (npm run pwa-icons) com as cores dos tokens
         manifest: {
-          name: 'Librax',
+          id: '/',
+          name: 'Librax: aprenda Libras',
           short_name: 'Librax',
-          description: 'Aprenda Libras com reconhecimento de gestos',
+          description: 'Aprenda Libras no celular, com a câmera mostrando o sinal da sua mão.',
+          lang: 'pt-BR',
+          dir: 'ltr',
+          start_url: '/',
+          scope: '/',
+          display: 'standalone',
+          orientation: 'portrait',
           theme_color: THEME_COLOR,
           background_color: THEME_COLOR,
-          display: 'standalone',
+          categories: ['education'],
           icons: [
-            { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
-            { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+            { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+            { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+            { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
         },
       }),

@@ -112,6 +112,19 @@ button { touch-action: manipulation; }
   justify-content: center;
   color: var(--lx-text-secondary);
 }
+/* Título que recebe o foco ao trocar de tela (RouteAnnouncer): sem anel, não é controle */
+h1[tabindex="-1"]:focus { outline: none; }
+
+/* Erro ao abrir uma tela (RouteError): ícone, frase e "Tentar de novo" (seção 11.11 da proposta) */
+.route-error {
+  min-height: 100dvh;
+  flex-direction: column;
+  gap: var(--lx-space-4);
+  padding: calc(var(--lx-space-4) + var(--lx-safe-top)) var(--lx-space-4) calc(var(--lx-space-4) + var(--lx-safe-bottom));
+  text-align: center;
+  font: var(--lx-typography-title);
+}
+.route-error-btn { max-width: var(--lx-size-content-max); }
 
 /* Layout pós-onboarding com abas */
 .app-layout {
@@ -3463,6 +3476,33 @@ button.profile-stat-card { cursor: pointer; }
 .streak-sheet-icon { line-height: 1; }
 .streak-sheet-icon .icon { width: var(--lx-size-icon-hero); height: var(--lx-size-icon-hero); }
 .streak-sheet-icon--broken { color: var(--lx-game-locked-fg); }
+.streak-sheet-icon--install { color: var(--lx-text-brand); }
+
+/* Instalar na tela inicial (InstallSheet): passos do Safari no iPhone */
+.install-steps {
+  list-style: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+}
+.install-step {
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-3);
+  min-height: var(--lx-size-touch-min);
+  padding: var(--lx-space-2) var(--lx-space-4);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-bg-sunken);
+  font: var(--lx-typography-body);
+  color: var(--lx-text-primary);
+}
+.install-step-icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--lx-text-brand);
+}
+.install-step-icon .icon { width: var(--lx-size-icon-lg); height: var(--lx-size-icon-lg); }
 .streak-sheet-title {
   font: var(--lx-typography-title);
   text-align: center;

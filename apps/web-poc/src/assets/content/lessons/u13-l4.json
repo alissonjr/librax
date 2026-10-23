@@ -1,0 +1,394 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u13-l4",
+  "exercises": [
+    {
+      "id": "u13-l4-ex01",
+      "lesson_id": "u13-l4",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "numero-80"
+      }
+    },
+    {
+      "id": "u13-l4-ex02",
+      "lesson_id": "u13-l4",
+      "type": "perform_sign",
+      "order": 2,
+      "payload": {
+        "sign_id": "numero-80",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u13-l4-ex03",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "numero-80",
+        "correct": "80"
+      }
+    },
+    {
+      "id": "u13-l4-ex04",
+      "lesson_id": "u13-l4",
+      "type": "mirror_practice",
+      "order": 4,
+      "payload": {
+        "sign_id": "numero-80"
+      }
+    },
+    {
+      "id": "u13-l4-ex05",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "numero-80",
+        "correct": "80"
+      }
+    },
+    {
+      "id": "u13-l4-ex06",
+      "lesson_id": "u13-l4",
+      "type": "sign_intro",
+      "order": 6,
+      "payload": {
+        "sign_id": "numero-90"
+      }
+    },
+    {
+      "id": "u13-l4-ex07",
+      "lesson_id": "u13-l4",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "numero-90",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u13-l4-ex08",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 8,
+      "payload": {
+        "sign_id": "numero-90",
+        "correct": "90"
+      }
+    },
+    {
+      "id": "u13-l4-ex09",
+      "lesson_id": "u13-l4",
+      "type": "mirror_practice",
+      "order": 9,
+      "payload": {
+        "sign_id": "numero-90"
+      }
+    },
+    {
+      "id": "u13-l4-ex10",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 10,
+      "payload": {
+        "sign_id": "numero-90",
+        "correct": "90"
+      }
+    },
+    {
+      "id": "u13-l4-ex11",
+      "lesson_id": "u13-l4",
+      "type": "sign_intro",
+      "order": 11,
+      "payload": {
+        "sign_id": "numero-100"
+      }
+    },
+    {
+      "id": "u13-l4-ex12",
+      "lesson_id": "u13-l4",
+      "type": "perform_sign",
+      "order": 12,
+      "payload": {
+        "sign_id": "numero-100",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u13-l4-ex13",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 13,
+      "payload": {
+        "sign_id": "numero-100",
+        "correct": "100"
+      }
+    },
+    {
+      "id": "u13-l4-ex14",
+      "lesson_id": "u13-l4",
+      "type": "mirror_practice",
+      "order": 14,
+      "payload": {
+        "sign_id": "numero-100"
+      }
+    },
+    {
+      "id": "u13-l4-ex15",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 15,
+      "payload": {
+        "sign_id": "numero-100",
+        "correct": "100"
+      }
+    },
+    {
+      "id": "u13-l4-ex16",
+      "lesson_id": "u13-l4",
+      "type": "sign_intro",
+      "order": 16,
+      "payload": {
+        "sign_id": "sinal-DINHEIRO"
+      }
+    },
+    {
+      "id": "u13-l4-ex17",
+      "lesson_id": "u13-l4",
+      "type": "perform_sign",
+      "order": 17,
+      "payload": {
+        "sign_id": "sinal-DINHEIRO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u13-l4-ex18",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 18,
+      "payload": {
+        "sign_id": "sinal-DINHEIRO",
+        "correct": "DINHEIRO"
+      }
+    },
+    {
+      "id": "u13-l4-ex19",
+      "lesson_id": "u13-l4",
+      "type": "mirror_practice",
+      "order": 19,
+      "payload": {
+        "sign_id": "sinal-DINHEIRO"
+      }
+    },
+    {
+      "id": "u13-l4-ex20",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 20,
+      "payload": {
+        "sign_id": "sinal-DINHEIRO",
+        "correct": "DINHEIRO"
+      }
+    },
+    {
+      "id": "u13-l4-ex21",
+      "lesson_id": "u13-l4",
+      "type": "sign_intro",
+      "order": 21,
+      "payload": {
+        "sign_id": "sinal-REAL"
+      }
+    },
+    {
+      "id": "u13-l4-ex22",
+      "lesson_id": "u13-l4",
+      "type": "perform_sign",
+      "order": 22,
+      "payload": {
+        "sign_id": "sinal-REAL",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u13-l4-ex23",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 23,
+      "payload": {
+        "sign_id": "sinal-REAL",
+        "correct": "REAL"
+      }
+    },
+    {
+      "id": "u13-l4-ex24",
+      "lesson_id": "u13-l4",
+      "type": "mirror_practice",
+      "order": 24,
+      "payload": {
+        "sign_id": "sinal-REAL"
+      }
+    },
+    {
+      "id": "u13-l4-ex25",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 25,
+      "payload": {
+        "sign_id": "sinal-REAL",
+        "correct": "REAL"
+      }
+    },
+    {
+      "id": "u13-l4-ex26",
+      "lesson_id": "u13-l4",
+      "type": "match_pairs",
+      "order": 26,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "numero-80",
+            "gloss": "80"
+          },
+          {
+            "sign_id": "numero-90",
+            "gloss": "90"
+          },
+          {
+            "sign_id": "numero-100",
+            "gloss": "100"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u13-l4-ex27",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 27,
+      "payload": {
+        "sign_id": "numero-80",
+        "correct": "80"
+      }
+    },
+    {
+      "id": "u13-l4-ex28",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 28,
+      "payload": {
+        "sign_id": "numero-90",
+        "correct": "90"
+      }
+    },
+    {
+      "id": "u13-l4-ex29",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 29,
+      "payload": {
+        "sign_id": "numero-100",
+        "correct": "100"
+      }
+    },
+    {
+      "id": "u13-l4-ex30",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 30,
+      "payload": {
+        "sign_id": "sinal-DINHEIRO",
+        "correct": "DINHEIRO"
+      }
+    },
+    {
+      "id": "u13-l4-ex31",
+      "lesson_id": "u13-l4",
+      "type": "watch_choose_word",
+      "order": 31,
+      "payload": {
+        "sign_id": "sinal-REAL",
+        "correct": "REAL"
+      }
+    },
+    {
+      "id": "u13-l4-ex32",
+      "lesson_id": "u13-l4",
+      "type": "order_sequence",
+      "order": 32,
+      "payload": {
+        "steps": [
+          "80",
+          "90",
+          "100",
+          "DINHEIRO"
+        ],
+        "correct_order": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "u13-l4-ex33",
+      "lesson_id": "u13-l4",
+      "type": "build_phrase",
+      "order": 33,
+      "payload": {
+        "pt": "Melhor comprar roupa na fábrica, é mais barato.",
+        "glosses": [
+          "MELHOR",
+          "COMPRAR",
+          "FÁBRICA",
+          "ROUPA",
+          "DINHEIRO",
+          "BARAT@"
+        ],
+        "distractors": [
+          "ESS@",
+          "LIVRO",
+          "QUANTO-CUSTA",
+          "LOJA",
+          "VESTIDO",
+          "ROXO",
+          "CUSTAR",
+          "VOCÊ",
+          "SABER",
+          "POR-FAVOR",
+          "20",
+          "R",
+          "2sEMPRESTAR1s",
+          "CURSO",
+          "INFORMÁTICA",
+          "V-A-G-A",
+          "SÓ",
+          "30"
+        ],
+        "source": {
+          "name": "Dicionário de Libras do INES - exemplo do verbete BARATO1",
+          "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/barato1Sm_Prog001.mp4"
+        }
+      }
+    }
+  ]
+}

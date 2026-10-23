@@ -1,0 +1,330 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u11-l4",
+  "exercises": [
+    {
+      "id": "u11-l4-ex01",
+      "lesson_id": "u11-l4",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "sinal-RESTAURANTE"
+      }
+    },
+    {
+      "id": "u11-l4-ex02",
+      "lesson_id": "u11-l4",
+      "type": "perform_sign",
+      "order": 2,
+      "payload": {
+        "sign_id": "sinal-RESTAURANTE",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u11-l4-ex03",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "sinal-RESTAURANTE",
+        "correct": "RESTAURANTE"
+      }
+    },
+    {
+      "id": "u11-l4-ex04",
+      "lesson_id": "u11-l4",
+      "type": "mirror_practice",
+      "order": 4,
+      "payload": {
+        "sign_id": "sinal-RESTAURANTE"
+      }
+    },
+    {
+      "id": "u11-l4-ex05",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "sinal-RESTAURANTE",
+        "correct": "RESTAURANTE"
+      }
+    },
+    {
+      "id": "u11-l4-ex06",
+      "lesson_id": "u11-l4",
+      "type": "sign_intro",
+      "order": 6,
+      "payload": {
+        "sign_id": "sinal-FARMACIA"
+      }
+    },
+    {
+      "id": "u11-l4-ex07",
+      "lesson_id": "u11-l4",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "sinal-FARMACIA",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u11-l4-ex08",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 8,
+      "payload": {
+        "sign_id": "sinal-FARMACIA",
+        "correct": "FARMÁCIA"
+      }
+    },
+    {
+      "id": "u11-l4-ex09",
+      "lesson_id": "u11-l4",
+      "type": "mirror_practice",
+      "order": 9,
+      "payload": {
+        "sign_id": "sinal-FARMACIA"
+      }
+    },
+    {
+      "id": "u11-l4-ex10",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 10,
+      "payload": {
+        "sign_id": "sinal-FARMACIA",
+        "correct": "FARMÁCIA"
+      }
+    },
+    {
+      "id": "u11-l4-ex11",
+      "lesson_id": "u11-l4",
+      "type": "sign_intro",
+      "order": 11,
+      "payload": {
+        "sign_id": "sinal-RUA"
+      }
+    },
+    {
+      "id": "u11-l4-ex12",
+      "lesson_id": "u11-l4",
+      "type": "perform_sign",
+      "order": 12,
+      "payload": {
+        "sign_id": "sinal-RUA",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u11-l4-ex13",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 13,
+      "payload": {
+        "sign_id": "sinal-RUA",
+        "correct": "RUA"
+      }
+    },
+    {
+      "id": "u11-l4-ex14",
+      "lesson_id": "u11-l4",
+      "type": "mirror_practice",
+      "order": 14,
+      "payload": {
+        "sign_id": "sinal-RUA"
+      }
+    },
+    {
+      "id": "u11-l4-ex15",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 15,
+      "payload": {
+        "sign_id": "sinal-RUA",
+        "correct": "RUA"
+      }
+    },
+    {
+      "id": "u11-l4-ex16",
+      "lesson_id": "u11-l4",
+      "type": "sign_intro",
+      "order": 16,
+      "payload": {
+        "sign_id": "sinal-PRAIA"
+      }
+    },
+    {
+      "id": "u11-l4-ex17",
+      "lesson_id": "u11-l4",
+      "type": "perform_sign",
+      "order": 17,
+      "payload": {
+        "sign_id": "sinal-PRAIA",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u11-l4-ex18",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 18,
+      "payload": {
+        "sign_id": "sinal-PRAIA",
+        "correct": "PRAIA"
+      }
+    },
+    {
+      "id": "u11-l4-ex19",
+      "lesson_id": "u11-l4",
+      "type": "mirror_practice",
+      "order": 19,
+      "payload": {
+        "sign_id": "sinal-PRAIA"
+      }
+    },
+    {
+      "id": "u11-l4-ex20",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 20,
+      "payload": {
+        "sign_id": "sinal-PRAIA",
+        "correct": "PRAIA"
+      }
+    },
+    {
+      "id": "u11-l4-ex21",
+      "lesson_id": "u11-l4",
+      "type": "match_pairs",
+      "order": 21,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "sinal-RESTAURANTE",
+            "gloss": "RESTAURANTE"
+          },
+          {
+            "sign_id": "sinal-FARMACIA",
+            "gloss": "FARMÁCIA"
+          },
+          {
+            "sign_id": "sinal-RUA",
+            "gloss": "RUA"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u11-l4-ex22",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 22,
+      "payload": {
+        "sign_id": "sinal-RESTAURANTE",
+        "correct": "RESTAURANTE"
+      }
+    },
+    {
+      "id": "u11-l4-ex23",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 23,
+      "payload": {
+        "sign_id": "sinal-FARMACIA",
+        "correct": "FARMÁCIA"
+      }
+    },
+    {
+      "id": "u11-l4-ex24",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 24,
+      "payload": {
+        "sign_id": "sinal-RUA",
+        "correct": "RUA"
+      }
+    },
+    {
+      "id": "u11-l4-ex25",
+      "lesson_id": "u11-l4",
+      "type": "watch_choose_word",
+      "order": 25,
+      "payload": {
+        "sign_id": "sinal-PRAIA",
+        "correct": "PRAIA"
+      }
+    },
+    {
+      "id": "u11-l4-ex26",
+      "lesson_id": "u11-l4",
+      "type": "order_sequence",
+      "order": 26,
+      "payload": {
+        "steps": [
+          "RESTAURANTE",
+          "FARMÁCIA",
+          "RUA",
+          "PRAIA"
+        ],
+        "correct_order": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "u11-l4-ex27",
+      "lesson_id": "u11-l4",
+      "type": "build_phrase",
+      "order": 27,
+      "payload": {
+        "pt": "Minha casa fica perto do meu trabalho.",
+        "glosses": [
+          "CASA",
+          "ME@",
+          "PERTO",
+          "TRABALHO",
+          "ME@"
+        ],
+        "distractors": [
+          "COZINHA",
+          "PEQUEN@",
+          "MENIN@",
+          "IR",
+          "FARMÁCIA",
+          "COMPRAR",
+          "REMÉDIO",
+          "EL@",
+          "MORAR",
+          "OUTRA",
+          "CIDADE",
+          "LONGE",
+          "SÁBADO",
+          "EU",
+          "PRAIA",
+          "BRONZEAR"
+        ],
+        "source": {
+          "name": "Dicionário de Libras do INES - exemplo do verbete PERTO1",
+          "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/perto1Sm_Prog001.mp4"
+        }
+      }
+    }
+  ]
+}

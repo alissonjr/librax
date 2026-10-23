@@ -1,0 +1,330 @@
+import { openDB, type IDBPDatabase } from 'idb';
+import { getSession, onAuthEvent, type Session } from './auth';
+
+/**
+ * Fila offline (outbox) das conclusões de lição: spec-02 seção 7 e plano mobile web, fase W3.
+ *
+ * - Cada conclusão vira uma entrada no IndexedDB com um `lessonAttemptId` único, que o
+ *   servidor usa para não aplicar duas vezes (reenvio, aba duplicada, resposta perdida).
+ * - Convidado: as entradas ficam guardadas (owner null). Ao entrar na conta, vão em lote para
+ *   POST /v1/guest/migrate, que reexecuta tudo no servidor com o mesmo completeLesson.
+ * - Com conta: cada entrada vai para POST /v1/lesson/complete, em ordem.
+ * - Envio na abertura do app, no evento `online`, ao voltar para a aba (`visibilitychange`)
+ *   e ao entrar na conta (startSync). Background Sync fica como extra, não como base.
+ *
+ * O progresso local (IdbRepo) continua sendo a fonte da tela; a fila só leva ao servidor.
+ * Banco próprio (`librax-sync`) para não mexer na versão do banco do app (db.ts).
+ */
+
+export interface ReviewedSign {
+  signId: string;
+  result: { state: string; highConfidence?: boolean };
+}
+
+export interface LessonCompletionInput {
+  lessonId: string;
+  /** Dia local da conclusão ('YYYY-MM-DD'), o mesmo passado ao completeLesson local. */
+  today: string;
+  score: number;
+  reviewed?: ReviewedSign[];
+  signsLearnedDelta?: number;
+  lessonAttemptId?: string;
+  completedAt?: string;
+}
+
+export interface OutboxEntry {
+  lessonAttemptId: string;
+  lessonId: string;
+  today: string;
+  score: number;
+  reviewed: ReviewedSign[];
+  signsLearnedDelta: number;
+  completedAt: string;
+  /** sub do Cognito de quem concluiu; null = convidado (vai pela migração). */
+  owner: string | null;
+  seq: number;
+  attempts: number;
+}
+
+export interface SyncResult {
+  sent: number;
+  dropped: number;
+  remaining: number;
+  skipped?: 'offline' | 'signed_out';
+}
+
+export interface SyncDeps {
+  fetch: typeof fetch;
+  getSession: () => Promise<Session | null>;
+  /** Prefixo da API na mesma origem (CloudFront /api/*). */
+  apiBase: string;
+  now: () => Date;
+}
+
+/** Lote do guest/migrate: metade do limite do servidor (200 conclusões, 256 KB). */
+export const MIGRATE_BATCH = 100;
+
+const DB_NAME = 'librax-sync';
+const STORE = 'outbox';
+
+const defaults = (): SyncDeps => ({
+  fetch: (...args) => fetch(...args),
+  getSession,
+  apiBase: import.meta.env.VITE_API_BASE || '/api',
+  now: () => new Date(),
+});
+
+let deps: SyncDeps = defaults();
+let dbPromise: Promise<IDBPDatabase<unknown>> | null = null;
+let running: Promise<SyncResult> | null = null;
+let seqCounter = 0;
+
+/** Troca dependências (testes, ou outra base de API). */
+export function configureSync(overrides: Partial<SyncDeps>): void {
+  deps = { ...deps, ...overrides };
+}
+
+function db() {
+  dbPromise ??= openDB(DB_NAME, 1, {
+    upgrade(d) {
+      const store = d.createObjectStore(STORE, { keyPath: 'lessonAttemptId' });
+      store.createIndex('bySeq', 'seq');
+    },
+  });
+  return dbPromise;
+}
+
+/** Guarda uma conclusão na fila. Chamar logo depois do completeLesson local. */
+export async function enqueueLessonCompletion(input: LessonCompletionInput): Promise<OutboxEntry> {
+  const session = await deps.getSession();
+  const d = await db();
+  const id = input.lessonAttemptId ?? crypto.randomUUID();
+  const existing = (await d.get(STORE, id)) as OutboxEntry | undefined;
+  if (existing) return existing;
+
+  const entry: OutboxEntry = {
+    lessonAttemptId: id,
+    lessonId: input.lessonId,
+    today: input.today,
+    score: input.score,
+    reviewed: input.reviewed ?? [],
+    signsLearnedDelta: input.signsLearnedDelta ?? 0,
+    completedAt: input.completedAt ?? deps.now().toISOString(),
+    owner: session?.userId ?? null,
+    seq: Date.now() * 1000 + (seqCounter++ % 1000),
+    attempts: 0,
+  };
+  await d.put(STORE, entry);
+  return entry;
+}
+
+/** Entradas ainda não confirmadas pelo servidor, na ordem em que foram concluídas. */
+export async function pendingEntries(): Promise<OutboxEntry[]> {
+  return (await (await db()).getAllFromIndex(STORE, 'bySeq')) as OutboxEntry[];
+}
+
+/** Esvazia a fila (sair da conta com "apagar dados", exclusão LGPD, testes). */
+export async function clearOutbox(): Promise<void> {
+  await (await db()).clear(STORE);
+}
+
+const toPayload = (e: OutboxEntry) => ({
+  lessonAttemptId: e.lessonAttemptId,
+  lessonId: e.lessonId,
+  today: e.today,
+  score: e.score,
+  completedAt: e.completedAt,
+  reviewed: e.reviewed,
+  signsLearnedDelta: e.signsLearnedDelta,
+});
+
+type Outcome = 'ok' | 'drop' | 'auth' | 'retry' | 'too_large';
+
+async function post(path: string, token: string, body: unknown): Promise<{ outcome: Outcome; data: unknown }> {
+  try {
+    const res = await deps.fetch(`${deps.apiBase}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) return { outcome: 'ok', data: await res.json().catch(() => null) };
+    if (res.status === 401 || res.status === 403) return { outcome: 'auth', data: null };
+    if (res.status === 413) return { outcome: 'too_large', data: null };
+    // 400/404/409/422: o servidor recusou o conteúdo; reenviar igual não muda nada
+    if (res.status >= 400 && res.status < 500 && res.status !== 408 && res.status !== 429) {
+      return { outcome: 'drop', data: null };
+    }
+    return { outcome: 'retry', data: null };
+  } catch {
+    return { outcome: 'retry', data: null };
+  }
+}
+
+async function remove(ids: string[]) {
+  const d = await db();
+  const tx = d.transaction(STORE, 'readwrite');
+  await Promise.all([...ids.map((id) => tx.store.delete(id)), tx.done]);
+}
+
+async function bumpAttempts(entry: OutboxEntry) {
+  await (await db()).put(STORE, { ...entry, attempts: entry.attempts + 1 });
+}
+
+interface Tally {
+  sent: number;
+  dropped: number;
+  stop?: 'auth' | 'retry';
+}
+
+/** Manda um lote ao guest/migrate; em 413 divide ao meio. */
+async function migrateBatch(batch: OutboxEntry[], token: string, tally: Tally): Promise<void> {
+  const { outcome, data } = await post('/v1/guest/migrate', token, { entries: batch.map(toPayload) });
+  if (outcome === 'too_large' && batch.length > 1) {
+    const half = Math.ceil(batch.length / 2);
+    await migrateBatch(batch.slice(0, half), token, tally);
+    if (!tally.stop) await migrateBatch(batch.slice(half), token, tally);
+    return;
+  }
+  if (outcome === 'drop' || outcome === 'too_large') {
+    // lote recusado inteiro: só descarta quando é uma conclusão sozinha
+    if (batch.length === 1) {
+      await remove([batch[0].lessonAttemptId]);
+      tally.dropped += 1;
+    } else {
+      const half = Math.ceil(batch.length / 2);
+      await migrateBatch(batch.slice(0, half), token, tally);
+      if (!tally.stop) await migrateBatch(batch.slice(half), token, tally);
+    }
+    return;
+  }
+  if (outcome !== 'ok') {
+    tally.stop = outcome;
+    if (outcome === 'retry') await bumpAttempts(batch[0]);
+    return;
+  }
+
+  const results = ((data as { results?: { lessonAttemptId: string | null; status: string }[] } | null)?.results ?? []);
+  const inBatch = new Set(batch.map((e) => e.lessonAttemptId));
+  const answered = results.filter((r) => r.lessonAttemptId && inBatch.has(r.lessonAttemptId));
+  await remove(answered.map((r) => r.lessonAttemptId as string));
+  for (const r of answered) {
+    if (r.status === 'rejected') tally.dropped += 1;
+    else tally.sent += 1;
+  }
+}
+
+async function runMigration(session: Session, tally: Tally): Promise<void> {
+  const guestEntries = (await pendingEntries()).filter((e) => e.owner === null);
+  for (let i = 0; i < guestEntries.length && !tally.stop; i += MIGRATE_BATCH) {
+    await migrateBatch(guestEntries.slice(i, i + MIGRATE_BATCH), session.token, tally);
+  }
+}
+
+async function runCompletions(session: Session, tally: Tally): Promise<void> {
+  const mine = (await pendingEntries()).filter((e) => e.owner === session.userId);
+  for (const entry of mine) {
+    const { outcome } = await post('/v1/lesson/complete', session.token, toPayload(entry));
+    if (outcome === 'ok') {
+      await remove([entry.lessonAttemptId]);
+      tally.sent += 1;
+    } else if (outcome === 'drop' || outcome === 'too_large') {
+      await remove([entry.lessonAttemptId]);
+      tally.dropped += 1;
+    } else {
+      // para na primeira falha: a ofensiva depende da ordem dos dias
+      if (outcome === 'retry') await bumpAttempts(entry);
+      tally.stop = outcome;
+      return;
+    }
+  }
+}
+
+async function finish(tally: Tally): Promise<SyncResult> {
+  const result: SyncResult = { sent: tally.sent, dropped: tally.dropped, remaining: (await pendingEntries()).length };
+  if (tally.stop === 'auth') result.skipped = 'signed_out';
+  return result;
+}
+
+function singleFlight(fn: () => Promise<SyncResult>): Promise<SyncResult> {
+  running ??= fn().finally(() => {
+    running = null;
+  });
+  return running;
+}
+
+async function precheck(): Promise<Session | SyncResult> {
+  const remaining = async () => (await pendingEntries()).length;
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return { sent: 0, dropped: 0, remaining: await remaining(), skipped: 'offline' };
+  }
+  const session = await deps.getSession();
+  if (!session) return { sent: 0, dropped: 0, remaining: await remaining(), skipped: 'signed_out' };
+  return session;
+}
+
+const isSession = (v: Session | SyncResult): v is Session => 'token' in v;
+
+/**
+ * Manda o log do convidado para POST /v1/guest/migrate. Chamar logo depois de criar a conta
+ * ou entrar (startSync já faz isso pelo evento de login).
+ */
+export function migrateGuest(): Promise<SyncResult> {
+  return singleFlight(async () => {
+    const pre = await precheck();
+    if (!isSession(pre)) return pre;
+    const tally: Tally = { sent: 0, dropped: 0 };
+    await runMigration(pre, tally);
+    return finish(tally);
+  });
+}
+
+/** Envia tudo o que der: primeiro o que sobrou do convidado, depois as conclusões da conta. */
+export function flushOutbox(): Promise<SyncResult> {
+  return singleFlight(async () => {
+    const pre = await precheck();
+    if (!isSession(pre)) return pre;
+    const tally: Tally = { sent: 0, dropped: 0 };
+    await runMigration(pre, tally);
+    if (!tally.stop) await runCompletions(pre, tally);
+    return finish(tally);
+  });
+}
+
+/**
+ * Liga os gatilhos de envio: agora (abertura do app), `online`, aba visível e login.
+ * Devolve a função que desliga tudo.
+ */
+export function startSync(): () => void {
+  const run = () => {
+    void flushOutbox().catch(() => {});
+  };
+  const onVisible = () => {
+    if (document.visibilityState === 'visible') run();
+  };
+  let stopAuth: (() => void) | null = null;
+  let stopped = false;
+
+  window.addEventListener('online', run);
+  document.addEventListener('visibilitychange', onVisible);
+  onAuthEvent((event) => {
+    if (event === 'signedIn') run();
+  })
+    .then((stop) => {
+      if (stopped) stop();
+      else stopAuth = stop;
+    })
+    .catch(() => {});
+  run();
+
+  return () => {
+    stopped = true;
+    window.removeEventListener('online', run);
+    document.removeEventListener('visibilitychange', onVisible);
+    stopAuth?.();
+  };
+}
+
+export function __resetSyncForTests(): void {
+  deps = defaults();
+  running = null;
+}

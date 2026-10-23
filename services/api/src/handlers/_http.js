@@ -2,7 +2,8 @@
  * Utilitarios para handlers Lambda do API Gateway (HTTP API formato 2.0).
  *
  * - `userId(event)` extrai o sub do Cognito authorizer.
- * - `body(event)` faz parse do JSON do body.
+ * - `claims(event)` devolve as claims do JWT (email, email_verified...).
+ * - `body(event, { maxBytes })` faz parse do JSON do body, com limite de tamanho.
  * - `ok(data, status?)` serializa resposta de sucesso.
  * - `fail(code, message, status?)` serializa erro com corpo padrao.
  */
@@ -14,10 +15,25 @@ export function userId(event) {
   return sub;
 }
 
-/** Parse JSON do body; lanca 400 se ausente ou malformado. */
-export function body(event) {
-  const raw = event.body;
+/** Claims do JWT validado pelo authorizer (vazio se nao houver). */
+export function claims(event) {
+  return event.requestContext?.authorizer?.jwt?.claims ?? {};
+}
+
+/** Limite padrao de corpo: bem abaixo dos 10 MB do API Gateway. */
+export const DEFAULT_MAX_BODY_BYTES = 64 * 1024;
+
+/**
+ * Parse JSON do body; lanca 400 se ausente ou malformado e 413 se maior que `maxBytes`
+ * (medido antes do parse, para nao gastar CPU com payload abusivo).
+ */
+export function body(event, { maxBytes = DEFAULT_MAX_BODY_BYTES } = {}) {
+  let raw = event.body;
   if (!raw) throw new ApiError(400, 'MISSING_BODY', 'Body obrigatorio');
+  if (event.isBase64Encoded) raw = Buffer.from(raw, 'base64').toString('utf8');
+  if (Buffer.byteLength(raw, 'utf8') > maxBytes) {
+    throw new ApiError(413, 'PAYLOAD_TOO_LARGE', `Body maior que ${maxBytes} bytes`);
+  }
   try {
     return JSON.parse(raw);
   } catch {

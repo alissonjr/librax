@@ -4,6 +4,9 @@
 > (SPEC 01-04) devem ser executadas para criar experiencias memoraveis. E a camada de
 > polimento emocional que separa "funciona" de "impressiona".
 >
+> Plataforma: **mobile web** (navegador do celular, mesma experiencia no iPhone e no Android;
+> ver `plano-mobile-web.md`). As implementacoes abaixo sao web (`apps/web-poc/`); o Flutter esta congelado.
+>
 > Premissa central: o diferencial do Librax e o momento em que a camera reconhece o sinal
 > do usuario. Tudo o que encanta gira em torno desse triangulo: **camera + Libras + impacto real**.
 
@@ -27,10 +30,15 @@ Efeitos que nao se conectam a nenhum deles sao decoracao; corte sem piedade.
 
 ## 1. A camera como palco (o nucleo do WoW)
 
-O `HandSkeletonPainter` (SPEC 01 secao 9) nao e apenas um overlay tecnico. E o elemento
-mais poderoso do app - o momento em que o usuario ve o app "enxergar" sua mao.
+O esqueleto 2D (SPEC 01 secao 9.3), desenhado num `<canvas>` 2D por cima do `<video>` da propria
+pessoa (espelhado), nao e apenas um overlay tecnico. E o elemento mais poderoso do app - o momento
+em que o usuario ve o app "enxergar" sua mao. Nao ha avatar 3D no MVP (decisao 5 do
+`plano-mobile-web.md`): a pessoa ve o proprio sinal, e a GPU fica livre para o reconhecimento.
 
 ### 1.1 Design visual do esqueleto
+
+As cores vem dos tokens `stage.landmark.*` (`design-system.md` secao 4.3), sempre com o contorno
+`stage.landmark.halo` por baixo para ler sobre qualquer video.
 
 | Estado | Cor dos landmarks | Cor das conexoes | Espessura | Efeito adicional |
 |---|---|---|---|---|
@@ -63,7 +71,7 @@ Este e o pico emocional do produto. A sequencia deve ser precisa:
 2. FeedbackOverlay entra com fade rapido (100ms).
 3. Esqueleto faz a animacao de "cristalizacao" (escala 1.0 -> 1.08 -> 1.0, spring 200ms).
 4. Som de acerto toca (ver secao 3).
-5. Haptico `heavyImpact` dispara simultaneamente ao som.
+5. Vibracao `correctCamera` (40ms) dispara junto com o som, onde houver suporte (secao 4).
 6. Badge "+XP" sobe do centro da tela para a barra de XP (animacao 800ms, easeOut).
 7. Texto "Correto!" aparece em verde, fonte grande, centralizado.
 8. Auto-avanca apos 1.2s.
@@ -109,14 +117,22 @@ recebe uma celebracao adicional apos o FeedbackOverlay padrao:
 Filosofia: sons sao **expressivos, nao punitivos**. O app nunca toca um som negativo para
 um erro. Sons reforcam celebracoes e dao textura ao ritmo de uso.
 
-Default: sons ativados. Toggle em Configuracoes (SPEC 02 secao 12.8). Respeita o modo silencioso
-do SO (se o dispositivo esta no mudo, nenhum som toca, sem excecao).
+Default: perguntado no onboarding, sem presumir nada pela resposta "sou surdo(a)" (`design-system.md` secao 15, item 4).
+Toggle em Configuracoes (SPEC 02 secao 12.8) e **toggle de som sempre visivel** na barra do topo da
+licao, para ligar e desligar sem sair do exercicio. O volume e a chave de silencioso do aparelho
+mandam: com o celular no mudo, nenhum som toca. Nada depende de som (secao 16.1).
 
-**Implementacao Flutter:**
-- Pacote: `just_audio` (pub.dev). Unico player por instancia; fila gerenciada via `AudioSession`.
-- Formato dos arquivos: **OGG Vorbis** (melhor relacao compressao/qualidade; suportado em Android e iOS nativamente via `just_audio`).
-- Pasta: `assets/audio/` (declarada em `pubspec.yaml` como asset bundle).
-- Pre-carregar no `initState` do `LessonScreen` os sons frequentes (`sfx_correct_soft`, `sfx_correct_camera`, `sfx_advance`) com `AudioPlayer.setAsset()` para garantir latencia < 20ms no disparo.
+**Implementacao web:**
+- Web Audio API: um unico `AudioContext` para o app, com os sons decodificados em `AudioBuffer`
+  (`decodeAudioData`) e tocados por `AudioBufferSourceNode`, o que da latencia baixa.
+- O contexto so toca depois de destravado no primeiro toque da pessoa (`audioContext.resume()`
+  dentro de um evento de clique). Antes disso nada toca e nada quebra.
+- Onde existir `navigator.audioSession` (Safari), usar `navigator.audioSession.type = 'ambient'`,
+  para nao interromper a musica da pessoa e respeitar a chave de silencioso.
+- Formato dos arquivos: **AAC (`.m4a`)** ou **MP3**, que tocam no Safari iOS e no Chrome Android.
+  OGG Vorbis nao serve: falha no Safari.
+- Pasta: `public/audio/`, guardada pelo service worker para funcionar offline.
+- Pre-carregar ao entrar no `LessonScreen` os sons frequentes (`sfx_correct_soft`, `sfx_correct_camera`, `sfx_advance`) para o disparo ser imediato.
 - Sons de evento unico (course, unit, achievement) carregados sob demanda.
 - Para `sfx_xp_tick` (pitch crescente conforme XP sobe): pre-gravar 3 variantes em tons distintos (grave, medio, agudo) e alternar por faixa de XP, em vez de manipular pitch em runtime (menos artefatos).
 
@@ -144,40 +160,40 @@ do SO (se o dispositivo esta no mudo, nenhum som toca, sem excecao).
 - Prioridade (maior = toca por cima): course > unit > achievement > lesson > goal > streak > correct.
 - Sons de UI (advance, tick) sao sempre cancelados se qualquer som de celebracao iniciar.
 
-**Implementacao da fila (Flutter):**
-```dart
-class SfxPlayer {
-  static const _priority = {
-    'sfx_course_done': 8, 'sfx_unit_done': 7, 'sfx_achievement': 6,
-    'sfx_lesson_done': 5, 'sfx_goal_met': 4, 'sfx_streak': 3,
-    'sfx_correct_camera': 2, 'sfx_correct_soft': 1,
-    'sfx_advance': 0, 'sfx_xp_tick': 0, 'sfx_neutral': 0,
-  };
-  // Se _currentPriority >= priority do novo som, descartar o novo.
-  // Se _currentPriority < priority do novo som, parar o atual e tocar o novo.
-}
+**Implementacao da fila (web):**
+```ts
+const PRIORITY: Record<string, number> = {
+  sfx_course_done: 8, sfx_unit_done: 7, sfx_achievement: 6,
+  sfx_lesson_done: 5, sfx_goal_met: 4, sfx_streak: 3,
+  sfx_correct_camera: 2, sfx_correct_soft: 1,
+  sfx_advance: 0, sfx_xp_tick: 0, sfx_neutral: 0,
+};
+// Se currentPriority >= PRIORITY do novo som, descartar o novo.
+// Se currentPriority < PRIORITY do novo som, parar o atual (source.stop()) e tocar o novo.
 ```
 
 ---
 
 ## 4. Haptica (feedback tatil)
 
-Flutter: `HapticFeedback` nativo em iOS e Android. Respeita o toggle de haptico do sistema.
-Adicionar toggle em Configuracoes (secao 12.8, grupo "Aprendizado") se o feedback de usuarios
-indicar que e incomodo.
+Haptica e **melhoria opcional**: `navigator.vibrate` vibra no Chrome Android (so depois do
+primeiro toque da pessoa na pagina e com a aba visivel) e nao existe no iPhone, em nenhum
+navegador. Todo evento abaixo ja tem um equivalente visual sempre exibido; a vibracao so reforca.
+Toggle "Vibracao" em Configuracoes (secao 12.8, grupo "Aprendizado"). Os padroes vem dos tokens
+`haptic.*` (`design-system.md` secao 10.2; implementado em `apps/web-poc/src/lib/haptics.ts`).
 
-| Evento | Padrao Flutter | Notas |
+| Evento | Padrao web (`navigator.vibrate`, ms) | Notas |
 |---|---|---|
-| Toque em botao primario | `lightImpact` | Feedback de toque generico |
-| Selecao de opcao (receptivo) | `lightImpact` | Confirma o toque |
-| Acerto receptivo | `mediumImpact` | Satisfatorio sem ser exagerado |
-| Erro receptivo | sem haptico | Nao punir |
-| Acerto com camera | `heavyImpact` | O maior feedback; o corpo sente o acerto |
-| Conquista desbloqueada | padrao de vibracao: 100ms + pausa 50ms + 100ms | Distinto, chamativo |
-| Streak estendida | padrao: 50ms + pausa 30ms + 50ms | Leve, ritimico |
-| Meta diaria atingida | padrao: 80ms + pausa 40ms + 80ms + pausa 40ms + 80ms | Tres pulsos |
-| Freeze usado | padrao: 200ms decrescente | Unico, "cristalizando" |
-| Curso concluido | padrao: 100ms + 50ms + 100ms + 50ms + 200ms | Ritmo celebratorio |
+| Toque em botao primario | `[10]` | Feedback de toque generico |
+| Selecao de opcao (receptivo) | `[8]` | Confirma o toque |
+| Acerto receptivo | `[25]` | Satisfatorio sem ser exagerado |
+| Erro receptivo | sem vibracao | Nao punir |
+| Acerto com camera | `[40]` | O maior feedback; o corpo sente o acerto |
+| Conquista desbloqueada | `[100, 50, 100]` | Distinto, chamativo |
+| Streak estendida | `[50, 30, 50]` | Leve, ritimico |
+| Meta diaria atingida | `[80, 40, 80, 40, 80]` | Tres pulsos |
+| Freeze usado | `[200]` | Unico, "cristalizando" |
+| Curso concluido | `[100, 50, 100, 50, 200]` | Ritmo celebratorio |
 
 ---
 
@@ -188,33 +204,43 @@ emocional. Bounciness = celebratorio.
 
 ### 5.1 Curvas de easing e duracoes padrao
 
-Todas as curvas abaixo usam a API Flutter (`Curves.*`, `Cubic`, `SpringDescription`).
-`SpringDescription(mass, stiffness, damping)` usa coeficiente de amortecimento c (nao ratio).
-Para conferir se ha overshoot: `zeta = c / (2 * sqrt(k * m))`; overshoot quando `zeta < 1`.
+Todas as animacoes sao CSS (`transition`, `@keyframes`) ou Web Animations API (WAAPI,
+`element.animate()`), com curvas `cubic-bezier()`. As molas viram `cubic-bezier` com overshoot ou,
+quando o navegador suporta, a funcao `linear()` com os pontos da mola amostrados (Safari 17.2+,
+Chrome 113+); sem `linear()`, cai no `cubic-bezier` de overshoot. Duracoes e curvas vem dos tokens
+`motion.*` (`design-system.md` secao 9); as molas guardam `mass`, `stiffness` e `damping` no JSON
+para referencia (overshoot quando `zeta = c / (2 * sqrt(k * m)) < 1`).
 
-| Categoria | Duracao | Flutter API | Quando usar |
+| Categoria | Duracao | Curva web | Quando usar |
 |---|---|---|---|
-| Transicao de pagina | 300ms | `Curves.easeInOut` | Navegacao entre telas |
-| Feedback de opcao (correto/errado) | 150ms | `Curves.easeOut` | Rapido e decisivo |
-| Auto-avanco pos-acerto | 200ms | `Curves.easeOut` | Nao deve parecer lento |
-| Barra de progresso | 500ms | `Curves.easeOut` | Satisfatorio |
-| Contador de XP | 800ms | `Curves.easeOut` (com ticks por intervalo) | Lento o suficiente para apreciar |
-| Badge "+XP" subindo | 800ms | `Cubic(0.0, 0.0, 0.2, 1.0)` | Desacelera ao chegar na barra |
-| Achievement badge | 400ms via `animateWith` | `SpringDescription(mass: 1.0, stiffness: 300.0, damping: 20.0)` - zeta=0.58, overshoot ~8% | Bounce celebratorio |
-| LessonNode desbloqueado | 600ms via `animateWith` | `SpringDescription(mass: 1.0, stiffness: 200.0, damping: 18.0)` - zeta=0.64, overshoot ~5% | Bounce visivel, novo conteudo |
-| Streak number change | 300ms | `Cubic(0.4, 0.0, 1.0, 1.0)` | Odometro flip |
-| Confete caindo | 2000-3000ms | fisica via `confetti` package (sec 5.2) | Natural, nao robotico |
-| Overlay de feedback appear | 150ms | `Curves.easeOut` | Entrar rapido e decisivo |
-| Overlay de feedback disappear | 200ms | `Curves.easeIn` | Sair gracioso |
-| Bottom sheets | 350ms | `Curves.fastOutSlowIn` | Consistente com Material |
-| DailyGoalBar - meta atingida | 1000ms | `Curves.elasticOut` (amplitude: 1.0, period: 0.4) | Supera 100%, oscila e estabiliza |
+| Transicao de pagina | 300ms | `cubic-bezier(0.2, 0, 0, 1)` | Navegacao entre telas |
+| Feedback de opcao (correto/errado) | 150ms | `cubic-bezier(0, 0, 0.2, 1)` | Rapido e decisivo |
+| Auto-avanco pos-acerto | 200ms | `cubic-bezier(0, 0, 0.2, 1)` | Nao deve parecer lento |
+| Barra de progresso | 500ms | `cubic-bezier(0, 0, 0.2, 1)` | Satisfatorio |
+| Contador de XP | 800ms | `cubic-bezier(0, 0, 0.2, 1)` (com ticks por intervalo) | Lento o suficiente para apreciar |
+| Badge "+XP" subindo | 800ms | `cubic-bezier(0, 0, 0.2, 1)` | Desacelera ao chegar na barra |
+| Achievement badge | 400ms | mola `celebrate` (mass 1, stiffness 300, damping 20; zeta=0.58, overshoot ~8%): `linear()` ou `cubic-bezier(0.34, 1.56, 0.64, 1)` | Bounce celebratorio |
+| LessonNode desbloqueado | 600ms | mola `unlock` (mass 1, stiffness 200, damping 18; zeta=0.64, overshoot ~5%): `linear()` ou `cubic-bezier(0.34, 1.56, 0.64, 1)` | Bounce visivel, novo conteudo |
+| Streak number change | 300ms | `cubic-bezier(0.4, 0, 1, 1)` | Odometro flip |
+| Confete caindo | 2000-3000ms | fisica do `canvas-confetti` (sec 5.2) | Natural, nao robotico |
+| Overlay de feedback appear | 150ms | `cubic-bezier(0, 0, 0.2, 1)` | Entrar rapido e decisivo |
+| Overlay de feedback disappear | 200ms | `cubic-bezier(0.4, 0, 1, 1)` | Sair gracioso |
+| Bottom sheets | 400ms | `cubic-bezier(0, 0, 0.2, 1)` | Token `motion.duration.slow` |
+| DailyGoalBar - meta atingida | 1000ms | `linear()` com oscilacao amortecida (fallback `cubic-bezier(0.34, 1.56, 0.64, 1)`) | Supera 100%, oscila e estabiliza |
 
-**Usando SpringDescription em Flutter:**
-```dart
-final spring = SpringDescription(mass: 1.0, stiffness: 300.0, damping: 20.0);
-final simulation = SpringSimulation(spring, 0.0, 1.0, 0.0);
-_controller.animateWith(simulation);
+**Mola em WAAPI:**
+```ts
+// linear() com a mola amostrada quando houver suporte; senao, overshoot em cubic-bezier
+// springToLinear: amostra a mola (mass, stiffness, damping do token) em pontos para linear()
+const springEase = CSS.supports('animation-timing-function', 'linear(0, 1)')
+  ? springToLinear(tokens['motion.spring.celebrate'])
+  : 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+el.animate([{ transform: 'scale(0.6)' }, { transform: 'scale(1)' }], { duration: 400, easing: springEase });
 ```
+
+**Reduzir movimento:** com `prefers-reduced-motion: reduce` (ou a opcao "Reduzir animacoes" do app),
+deslocamento, escala e mola viram fade curto; confete desligado; chama da streak estatica. O
+esqueleto continua (e informacao), sem pulso nem brilho (`design-system.md` secao 9.3).
 
 ### 5.2 Confete
 
@@ -230,25 +256,23 @@ Confete e usado criteriosamente - quando usado muito, perde o impacto.
 Particulas de confete: formas mistas (retangulos, circulos, estrelas pequenas). Fisica simples:
 gravidade constante + rotacao aleatoria + leve desvio horizontal.
 
-**Implementacao Flutter:**
-- Pacote: `confetti` (pub.dev, Gabriel Moraes). `ConfettiWidget` com `ConfettiController`.
+**Implementacao web:**
+- Biblioteca: `canvas-confetti` (canvas proprio, leve). Hoje o web-poc usa um confete proprio em
+  canvas (`apps/web-poc/src/lib/confetti.ts`); a troca segue os parametros abaixo.
+- Desligado com `prefers-reduced-motion` (a biblioteca aceita `disableForReducedMotion: true`).
 - Parametros por evento:
-```dart
-// UnitCompletion (media)
-ConfettiController(duration: Duration(seconds: 3))
-..play()
-// numberOfParticles: 3 (por frame, ~50 total), blastDirectionality: BlastDirectionality.explosive
-// maxBlastForce: 20, minBlastForce: 8, gravity: 0.2
+```ts
+// UnitCompletion (media, ~50 particulas)
+confetti({ particleCount: 50, spread: 90, startVelocity: 35, gravity: 1, ticks: 250,
+           disableForReducedMotion: true });
 
-// CourseCompletion (intensa, tela cheia)
-ConfettiController(duration: Duration(seconds: 5))
-..play()
-// numberOfParticles: 8 (por frame, ~150 total), blastDirectionality: BlastDirectionality.explosive
-// maxBlastForce: 35, minBlastForce: 15, gravity: 0.15, shouldLoop: false
-// colors: [Color(0xFF1A56A0), Color(0xFFD4AF37), Colors.white]  // azul royal, dourado, branco
+// CourseCompletion (intensa, tela cheia, ~150 particulas em rajadas durante 5s)
+confetti({ particleCount: 150, spread: 160, startVelocity: 45, gravity: 0.8, ticks: 400,
+           colors: ['#1A56A0', '#D4AF37', '#FFFFFF'], // azul royal, dourado, branco
+           disableForReducedMotion: true });
 ```
-- Para conquistas leves: `numberOfParticles: 2`, `duration: 2s`, disparar de um ponto especifico
-  (centro-topo) em vez de tela cheia: `blastDirection: pi/2` (para baixo).
+- Para conquistas leves: `particleCount: 20`, disparar de um ponto especifico (centro-topo,
+  `origin: { x: 0.5, y: 0 }`, `angle: 270`, para baixo) em vez de tela cheia.
 
 ### 5.3 A chama da streak (StreakHero)
 
@@ -265,6 +289,9 @@ A chama muda de aparencia conforme a streak cresce. Ela e a representacao visual
 | Zerada | outline da chama, cinza | nenhuma animacao; estatica |
 
 A transicao entre faixas deve ser suave (300ms crossfade) para que o usuario sinta a chama "crescendo".
+
+Implementacao: SVG animado com CSS ou dotLottie (`.lottie`, mais leve que o JSON do Lottie) no
+lugar de Lottie classico. Com reduzir movimento, a chama fica estatica na faixa certa.
 
 ---
 
@@ -344,7 +371,7 @@ algo com profundidade, nao so jogando.
 - **Slot fixo: posicao 4** da licao (apos o 3o exercicio, antes do 4o). Se a licao tiver menos
   de 5 exercicios, o cartao nao e exibido nessa licao.
 - **Frequencia: uma vez por unidade**, na primeira licao de cada unidade em que o cartao daquela
-  unidade ainda nao foi exibido. Controlado pela flag local `culturalCardShown: Set<cardId>` no SQLite.
+  unidade ainda nao foi exibido. Controlado pela flag local `culturalCardShown: Set<cardId>` no IndexedDB.
 - **O cartao e vinculado a licao no bundle:** o campo `cultural_card_id` (opcional, string) no
   objeto `lesson` do `course.json` indica qual cartao exibir. Se `null`, nenhum cartao e exibido.
   Isso evita logica de "qual cartao vai em qual licao" no app - e definido no conteudo pelo time.
@@ -373,7 +400,7 @@ algo com profundidade, nao so jogando.
       "id": "cc-01",
       "title": "Libras e uma lingua completa",
       "body": "Libras tem gramatica propria...",
-      "icon": "hands_circle",   // nome do asset SVG em assets/icons/cultural/
+      "icon": "hands_circle",   // nome do SVG em public/icons/cultural/
       "bg_color": "#E8F4F8"     // cor de fundo suave (hex)
     }
   ]
@@ -547,6 +574,15 @@ Estado: usuario completou o curso A1 e nao ha mais licoes no mapa.
 Push notifications sao o canal mais delicado. Mal feitas, viram spam e o usuario desativa.
 Bem feitas, sao a ponte que traz o usuario de volta com genuina expectativa.
 
+**Canais (iguais para todos, conforme o suporte do aparelho):**
+- **Web Push (VAPID)**: no Android sempre; no iPhone **so com o app instalado na tela inicial**
+  (iOS 16.4+). Pedido de permissao so depois de um gesto da pessoa, nunca na primeira abertura.
+- **Lembrete dentro do app** (base para todos): banner ao abrir, com o mesmo copy do catalogo.
+- **E-mail opcional** (SES, com opt-in): garante lembrete para quem nao tem push, inclusive iPhone
+  sem instalar.
+
+O catalogo abaixo vale para os tres canais.
+
 ### 12.1 Principios de voz
 
 - **Tom: coloquial, nao corporativo.** "Seus sinais te esperavam" > "Estude Libras hoje".
@@ -570,7 +606,7 @@ Bem feitas, sao a ponte que traz o usuario de volta com genuina expectativa.
 
 ### 12.3 Inteligencia de timing
 
-- Nunca disparar entre 22h e 7h no fuso do usuario.
+- Nunca disparar entre 22h e 7h no fuso do usuario (push e e-mail).
 - Se o usuario abriu o app nas ultimas 3h, nao disparar o lembrete diario (ja esta ativo).
 - Maximo 2 notificacoes por dia (exceto emergencias de streak).
 - Se o usuario nao interage com nenhuma notificacao em 7 dias seguidos, pausar todas por 3 dias
@@ -590,17 +626,19 @@ Na quinta e sexta-feira, o SquadDetail (SPEC 04 sec 4.2) exibe um estado especia
 
 ### 13.2 Convite com contexto humano
 
-O link de convite (SPEC 04 sec 4.8) tem copy padrao para o share sheet:
+O link de convite (SPEC 04 sec 4.8) tem copy padrao para o compartilhamento:
 "Estou aprendendo Libras no Librax! Entre na minha squad e vamos aprender juntos:
-librax://squad/join?code=<X>"
+https://<dominio>/convite/<X>"
 
-O app gera esse texto automaticamente. O usuario pode editar antes de enviar (e comportamento
-padrao do share sheet nativo).
+O app gera esse texto automaticamente e chama `navigator.share({ text, url })`, que abre a folha
+de compartilhar do sistema (o usuario pode editar antes de enviar). Sem Web Share, o texto e
+copiado com a Clipboard API e aparece "Link copiado!". O link e HTTPS: abre no navegador de
+qualquer aparelho, sem precisar do app instalado.
 
 ### 13.3 In-app notification (alternativa ao push para usuarios ativos)
 
 Se o usuario esta com o app aberto e um evento de squad ocorre (novo membro, membro no top 3),
-exibir um `SnackBar` discreto no rodape em vez de push:
+exibir um snackbar discreto no rodape em vez de push:
 "<Nome> entrou em <Squad>!" ou "<Nome> esta em #1 esta semana."
 Duracao: 4s. Toque no snackbar: abre SquadDetail.
 
@@ -614,10 +652,15 @@ na tela 4 (camera):
 **Modificacao na tela 4 do onboarding:**
 
 Apos o texto de privacidade e ANTES dos botoes "Usar camera" / "Agora nao":
+- O preview so acontece com consentimento explicito: tocar em "Usar camera" e conceder a
+  permissao. Antes dele, o app baixa os arquivos de reconhecimento (WASM e modelo do MediaPipe,
+  de 8 a 12 MB comprimidos) com **barra de progresso** visivel e opcao "Agora nao"; com
+  `Save-Data` ligado, avisa o tamanho antes de baixar. Depois do primeiro download, os arquivos
+  ficam no service worker e a camera funciona offline.
 - Se o usuario tocar em "Usar camera" e a permissao for concedida, ao inves de ir direto
   para o CourseMapScreen, o app exibe um **preview de 5 segundos** com:
   - Camera ativa.
-  - HandSkeletonPainter rodando.
+  - Esqueleto 2D rodando sobre o video.
   - Texto sobreposto: "Mova sua mao e veja o Librax aprender a te conhecer."
   - Nenhuma avaliacao, nenhuma cobranca. Apenas a magica do esqueleto sobre a mao do usuario.
   - Apos 5s (ou toque em qualquer lugar): vai para o CourseMapScreen.
@@ -654,7 +697,11 @@ O certificado gerado localmente (sem dados ao servidor) tem:
 - Texto: "Completei A1: Libras do Zero" + nome do usuario (grande) + data de conclusao.
 - Logo Librax.
 - Decoracao: silhueta de maos em Libras formando um circulo.
-- Formato: imagem PNG 1080x1080 (padrao Instagram). Gerado em Flutter com `Picture.toImage()`.
+- Formato: imagem PNG 1080x1080 (padrao Instagram). Desenhado num `<canvas>` (Canvas 2D) e
+  exportado com `canvas.toBlob('image/png')`.
+- Compartilhar: `navigator.share({ files: [new File([blob], 'librax-a1.png', { type: 'image/png' })] })`
+  quando `navigator.canShare({ files })` for verdadeiro (Android e iPhone recentes). Sem suporte,
+  o botao vira "Baixar imagem" (download do PNG por link `download`).
 
 Este certificado e simples e com dignidade - nao deve ter aparencia de videogame, mas de conquista
 real. O usuario deve se sentir orgulhoso de postar.
@@ -673,13 +720,16 @@ para quem usa o app no silencio.
 
 ### 16.2 Modo escuro (automatico)
 
-O app segue a preferencia do sistema (dark/light mode). O esqueleto de maos e a ConfidenceBar
-mantem contraste adequado em ambos os modos. Verificar com WCAG AA minimo.
+O app segue a preferencia do sistema via `prefers-color-scheme` (com escolha manual "Claro, Escuro,
+Sistema" nas Configuracoes, `design-system.md` secao 15, item 9). O esqueleto de maos e a ConfidenceBar
+ficam sobre o palco escuro (`stage.*`) nos dois modos e mantem contraste adequado. Verificar com
+WCAG AA minimo.
 
 ### 16.3 Tamanho de fonte adaptativo
 
-O app usa `textScaleFactor` do sistema. Nenhum texto deve truncar em escala 1.4x (acessibilidade
-de texto grande). Testar com fonte maxima em todos os exercicios.
+Tamanhos em `rem` (16px = 1rem), para respeitar o tamanho de texto e o zoom do navegador. Nenhum
+texto deve truncar com zoom de texto de 200% (WCAG 1.4.4). Testar com zoom de 200% em todos os
+exercicios, inclusive na tela da camera.
 
 ### 16.4 Usuarios surdos como publico primario real
 
@@ -699,53 +749,61 @@ familiares. Para eles:
 
 O app precisa parecer instantaneo. Performance e uma feature de produto, nao uma feature tecnica.
 
-| Metrica | Meta | Por que importa |
-|---|---|---|
-| Tempo para o primeiro exercicio (cold start) | < 3s | Usuario nao pode esperar para estudar |
-| Tempo de carregamento do HandLandmarkerPlugin | < 1s | Nao pode haver delay ao abrir exercicio expressivo |
-| Frame rate do skeleton | >= 15fps (meta 30fps) | Abaixo disso o skeleton parece "morto" |
-| Latencia de avaliacao (estático) | < 500ms apos estabilidade | Feedback imediato; delays quebram a magia |
-| Abertura do app (warm start) | < 1s | App de habito diario precisa abrir rapido |
-| Download do bundle de conteudo (U1) | <= 10MB | Usuario pode baixar no 4G sem frustracao |
+Metas separadas para a **primeira visita** (nada em cache) e o **retorno** (shell, conteudo e ML
+no service worker).
+
+| Metrica | Primeira visita | Retorno | Por que importa |
+|---|---|---|---|
+| LCP da primeira tela (aparelho classe Moto G, 4G) | < 2,5s | < 1s | Usuario nao pode esperar para estudar |
+| JS inicial | < 200 KB gzip | (cache) | Pagina leve abre rapido em celular de entrada |
+| Tempo para o primeiro exercicio | < 3s | < 1s | App de habito diario precisa abrir rapido |
+| Download do ML (WASM + modelo do `HandLandmarker`) | 8 a 12 MB comprimidos, com progresso, so com consentimento (sec 14) | 0 (cache) | Pesa no 4G pre-pago |
+| Inicializacao do `HandLandmarker` | < 10s em 4G | < 1,5s | Nao pode haver delay ao abrir exercicio expressivo |
+| Frame rate do skeleton | >= 15fps (minimo 10fps em Android de entrada) | igual | Abaixo disso o skeleton parece "morto" |
+| Latencia de avaliacao (estatico) | < 500ms apos estabilidade | igual | Feedback imediato; delays quebram a magia |
+| Download do bundle de conteudo (U1) | <= 10MB sem o ML | (cache) | Usuario pode baixar no 4G sem frustracao |
 
 Estrategia: conteudo pre-baixado (SPEC 02 sec 4) garante que exercicios nao esperem rede.
-O HandLandmarkerPlugin deve ser inicializado em background assim que a camera e ativada,
-nao apenas quando o exercicio expressivo inicia.
+O `HandLandmarker` e criado uma vez por sessao e aquecido assim que a camera e ativada, nao
+apenas quando o exercicio expressivo inicia. O WASM e servido **pre-comprimido em brotli** (`.br`)
+com `Content-Type: application/wasm`, porque a compressao automatica do CloudFront so vale para
+arquivos de ate 10 MB e o WASM passa disso.
 
 ---
 
 ## 18. Definicao de pronto desta spec
 
 ### Dependencias externas (precisam existir antes de implementar)
-- [ ] Sons do catalogo (sec 3.1) gravados/licenciados e entregues como arquivos OGG em `assets/audio/`.
-- [ ] Icones SVG dos cartoes culturais (`assets/icons/cultural/`) criados pelo time de design.
+- [ ] Sons do catalogo (sec 3.1) gravados/licenciados e entregues como arquivos AAC (`.m4a`) ou MP3 em `public/audio/`.
+- [ ] Icones SVG dos cartoes culturais (`public/icons/cultural/`) criados pelo time de design.
 - [ ] Arte do certificado (silhueta de maos, logotipo) entregue como asset vetorial.
 - [ ] Campo `video_caption` preenchido no `signs.json` de U1 pela equipe de conteudo (SPEC 03 sec 2).
 - [ ] Campo `cultural_card_id` preenchido nas licoes do `course.json` correspondentes (sec 8.1).
 
-### Implementacao Flutter (desenvolvedor pode iniciar)
-- [ ] Pacote `just_audio` adicionado ao `pubspec.yaml`; `SfxPlayer` implementado com fila de prioridade (sec 3.2).
-- [ ] Pacote `confetti` adicionado ao `pubspec.yaml`; parametros por evento configurados (sec 5.2).
-- [ ] Design visual do esqueleto com todos os estados de cor (sec 1.1); usar `HandSkeletonPainter` existente como base.
-- [ ] Animacao de "cristalizacao" no acerto com camera (scale spring, sec 1.3).
-- [ ] Esqueleto de comparacao (retry) com dois `CustomPaint` layers sobrepostos (sec 10.2).
-- [ ] Sequencia do Momento Zero implementada (sec 2.1-2.2), flag `firstCameraSuccess` no SQLite.
-- [ ] Hapticos implementados para todos os eventos da sec 4 usando `HapticFeedback` nativo.
-- [ ] Curvas `Cubic` e `SpringDescription` aplicadas conforme tabela da sec 5.1.
-- [ ] Animacao da chama de streak com todas as 7 faixas (sec 5.3); usar `Lottie` ou `CustomPainter`.
-- [ ] Catalogo de marcos com celebracoes especificas (sec 6); flag `firstDynamicSuccess` no SQLite.
+### Implementacao web (`apps/web-poc/`, desenvolvedor pode iniciar)
+- [ ] `SfxPlayer` em Web Audio com buffers pre-carregados, destravado no primeiro toque, `audioSession` `ambient` quando existir, fila de prioridade (sec 3.2) e toggle de som sempre visivel (sec 3).
+- [ ] `canvas-confetti` com parametros por evento e desligado com reduzir movimento (sec 5.2).
+- [ ] Design visual do esqueleto com todos os estados de cor (sec 1.1) no canvas 2D sobre o video, com cores de `stage.landmark.*`.
+- [ ] Animacao de "cristalizacao" no acerto com camera (scale com mola, sec 1.3).
+- [ ] Esqueleto de comparacao (retry) com duas camadas de canvas sobrepostas (sec 10.2).
+- [ ] Sequencia do Momento Zero implementada (sec 2.1-2.2), flag `firstCameraSuccess` local (hoje em `localStorage`, `src/lib/flags.ts`).
+- [ ] Vibracao via `navigator.vibrate` para os eventos da sec 4, so como extra (no iPhone nada e chamado); erro nunca vibra.
+- [ ] Curvas `cubic-bezier` e `linear()` aplicadas conforme tabela da sec 5.1, com `prefers-reduced-motion` respeitado.
+- [ ] Animacao da chama de streak com todas as 7 faixas (sec 5.3); usar SVG/CSS ou dotLottie.
+- [ ] Catalogo de marcos com celebracoes especificas (sec 6); flag `firstDynamicSuccess` local.
 - [ ] `NameFingerspellScreen` implementado e integrado ao `UnitCompletionScreen` de U1 (sec 7).
 - [ ] `CulturalCardWidget` renderizado no slot 4 da `LessonScreen` quando `cultural_card_id` != null (sec 8.1).
 - [ ] `FavoriteSignCard` e badge "Pratica especial" no `ProfileScreen`/`DailyQueueScreen` (sec 9.1-9.2).
 - [ ] Mensagem contextual de boas-vindas na `TopBar` (sec 9.4).
 - [ ] Dicas do `nearestErrorHint` atualizadas com linguagem de coaching (sec 10.1).
 - [ ] Empty states WoW implementados para DailyQueue, SquadHub e LeagueScreen (sec 11).
-- [ ] Copy de todas as notificacoes atualizado conforme catalogo (sec 12.2); logica de pause (12.3) com flag no SQLite.
-- [ ] Preview de camera no onboarding (sec 14) com flag `onboardingCameraPreviewSeen` local.
-- [ ] Sequencia coreografada do `CourseCompletionScreen` com `Future.delayed` encadeados (sec 15.1).
-- [ ] Certificado: `Picture.toImage()` com `Canvas` + `Share.shareXFiles()` do pacote `share_plus` (sec 15.2).
+- [ ] Copy de todas as notificacoes atualizado conforme catalogo (sec 12.2) nos tres canais (Web Push, lembrete no app, e-mail); logica de pause (12.3) com flag local.
+- [ ] Preview de camera no onboarding (sec 14) so com consentimento, com barra de progresso do download do ML e flag `onboardingCameraPreviewSeen` local.
+- [ ] Sequencia coreografada do `CourseCompletionScreen` com WAAPI (`animation.finished`) ou atrasos encadeados (sec 15.1).
+- [ ] Certificado: Canvas 2D + `canvas.toBlob()` + `navigator.share({ files })`, com download como alternativa (sec 15.2).
 - [ ] `video_caption` exibida no `SignVideoPlayer` ao toque longo (sec 16.4).
-- [ ] Metricas de performance validadas em Moto G / Samsung A12 antes de considerar pronto (sec 17).
+- [ ] Modo escuro por `prefers-color-scheme` e teste com zoom de texto de 200% (sec 16).
+- [ ] Metricas de performance (primeira visita e retorno) validadas em Moto G / Samsung A12 (Chrome Android) e em iPhone (Safari) antes de considerar pronto (sec 17).
 
 ### Item pendente de decisao (fora do escopo desta iteracao)
-- Secao 9.3 (lembretes adaptativos): requer gravar timestamps de abertura no SQLite. Definir se entra no MVP ou pos-MVP antes de implementar.
+- Secao 9.3 (lembretes adaptativos): requer gravar timestamps de abertura no IndexedDB. Definir se entra no MVP ou pos-MVP antes de implementar.

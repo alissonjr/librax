@@ -29,6 +29,10 @@ const ICONS = [
   'share', 'shield', 'info', 'warning', 'drag_indicator', 'progress_activity', 'contrast',
   // demonstração do sinal (vídeo ou avatar VLibras)
   'speed', 'cloud_off',
+  // ligas (LeagueTimer) e som (Configurações)
+  'schedule', 'volume_up', 'volume_off',
+  // instalação do app (tela inicial)
+  'mobile_arrow_down', 'ios_share', 'add_box',
   // página de teste da câmera (W0) e ferramenta de coleta
   'content_copy', 'timer', 'stop', 'swap_horiz', 'memory', 'restart_alt', 'fiber_manual_record',
 ];
@@ -37,7 +41,7 @@ const ICONS = [
 const FILLED = new Set([
   'school', 'sign_language', 'group', 'person',
   'local_fire_department', 'bolt', 'military_tech', 'trophy', 'check_circle', 'lightbulb', 'lock',
-  'play_arrow', 'warning', 'info',
+  'play_arrow', 'warning', 'info', 'mobile_arrow_down',
 ]);
 
 const pathOf = (file) => {

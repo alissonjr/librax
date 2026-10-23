@@ -1,0 +1,449 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u12-l2",
+  "exercises": [
+    {
+      "id": "u12-l2-ex01",
+      "lesson_id": "u12-l2",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "sinal-PERGUNTAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex02",
+      "lesson_id": "u12-l2",
+      "type": "perform_sign",
+      "order": 2,
+      "payload": {
+        "sign_id": "sinal-PERGUNTAR",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u12-l2-ex03",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "sinal-PERGUNTAR",
+        "correct": "PERGUNTAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex04",
+      "lesson_id": "u12-l2",
+      "type": "mirror_practice",
+      "order": 4,
+      "payload": {
+        "sign_id": "sinal-PERGUNTAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex05",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "sinal-PERGUNTAR",
+        "correct": "PERGUNTAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex06",
+      "lesson_id": "u12-l2",
+      "type": "sign_intro",
+      "order": 6,
+      "payload": {
+        "sign_id": "sinal-RESPONDER"
+      }
+    },
+    {
+      "id": "u12-l2-ex07",
+      "lesson_id": "u12-l2",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "sinal-RESPONDER",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u12-l2-ex08",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 8,
+      "payload": {
+        "sign_id": "sinal-RESPONDER",
+        "correct": "RESPONDER"
+      }
+    },
+    {
+      "id": "u12-l2-ex09",
+      "lesson_id": "u12-l2",
+      "type": "mirror_practice",
+      "order": 9,
+      "payload": {
+        "sign_id": "sinal-RESPONDER"
+      }
+    },
+    {
+      "id": "u12-l2-ex10",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 10,
+      "payload": {
+        "sign_id": "sinal-RESPONDER",
+        "correct": "RESPONDER"
+      }
+    },
+    {
+      "id": "u12-l2-ex11",
+      "lesson_id": "u12-l2",
+      "type": "sign_intro",
+      "order": 11,
+      "payload": {
+        "sign_id": "sinal-CONVERSAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex12",
+      "lesson_id": "u12-l2",
+      "type": "perform_sign",
+      "order": 12,
+      "payload": {
+        "sign_id": "sinal-CONVERSAR",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u12-l2-ex13",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 13,
+      "payload": {
+        "sign_id": "sinal-CONVERSAR",
+        "correct": "CONVERSAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex14",
+      "lesson_id": "u12-l2",
+      "type": "mirror_practice",
+      "order": 14,
+      "payload": {
+        "sign_id": "sinal-CONVERSAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex15",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 15,
+      "payload": {
+        "sign_id": "sinal-CONVERSAR",
+        "correct": "CONVERSAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex16",
+      "lesson_id": "u12-l2",
+      "type": "sign_intro",
+      "order": 16,
+      "payload": {
+        "sign_id": "sinal-VER"
+      }
+    },
+    {
+      "id": "u12-l2-ex17",
+      "lesson_id": "u12-l2",
+      "type": "perform_sign",
+      "order": 17,
+      "payload": {
+        "sign_id": "sinal-VER",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u12-l2-ex18",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 18,
+      "payload": {
+        "sign_id": "sinal-VER",
+        "correct": "VER"
+      }
+    },
+    {
+      "id": "u12-l2-ex19",
+      "lesson_id": "u12-l2",
+      "type": "mirror_practice",
+      "order": 19,
+      "payload": {
+        "sign_id": "sinal-VER"
+      }
+    },
+    {
+      "id": "u12-l2-ex20",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 20,
+      "payload": {
+        "sign_id": "sinal-VER",
+        "correct": "VER"
+      }
+    },
+    {
+      "id": "u12-l2-ex21",
+      "lesson_id": "u12-l2",
+      "type": "sign_intro",
+      "order": 21,
+      "payload": {
+        "sign_id": "sinal-OLHAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex22",
+      "lesson_id": "u12-l2",
+      "type": "perform_sign",
+      "order": 22,
+      "payload": {
+        "sign_id": "sinal-OLHAR",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u12-l2-ex23",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 23,
+      "payload": {
+        "sign_id": "sinal-OLHAR",
+        "correct": "OLHAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex24",
+      "lesson_id": "u12-l2",
+      "type": "mirror_practice",
+      "order": 24,
+      "payload": {
+        "sign_id": "sinal-OLHAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex25",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 25,
+      "payload": {
+        "sign_id": "sinal-OLHAR",
+        "correct": "OLHAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex26",
+      "lesson_id": "u12-l2",
+      "type": "sign_intro",
+      "order": 26,
+      "payload": {
+        "sign_id": "sinal-ENSINAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex27",
+      "lesson_id": "u12-l2",
+      "type": "perform_sign",
+      "order": 27,
+      "payload": {
+        "sign_id": "sinal-ENSINAR",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u12-l2-ex28",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 28,
+      "payload": {
+        "sign_id": "sinal-ENSINAR",
+        "correct": "ENSINAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex29",
+      "lesson_id": "u12-l2",
+      "type": "mirror_practice",
+      "order": 29,
+      "payload": {
+        "sign_id": "sinal-ENSINAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex30",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 30,
+      "payload": {
+        "sign_id": "sinal-ENSINAR",
+        "correct": "ENSINAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex31",
+      "lesson_id": "u12-l2",
+      "type": "match_pairs",
+      "order": 31,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "sinal-PERGUNTAR",
+            "gloss": "PERGUNTAR"
+          },
+          {
+            "sign_id": "sinal-RESPONDER",
+            "gloss": "RESPONDER"
+          },
+          {
+            "sign_id": "sinal-CONVERSAR",
+            "gloss": "CONVERSAR"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u12-l2-ex32",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 32,
+      "payload": {
+        "sign_id": "sinal-PERGUNTAR",
+        "correct": "PERGUNTAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex33",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 33,
+      "payload": {
+        "sign_id": "sinal-RESPONDER",
+        "correct": "RESPONDER"
+      }
+    },
+    {
+      "id": "u12-l2-ex34",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 34,
+      "payload": {
+        "sign_id": "sinal-CONVERSAR",
+        "correct": "CONVERSAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex35",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 35,
+      "payload": {
+        "sign_id": "sinal-VER",
+        "correct": "VER"
+      }
+    },
+    {
+      "id": "u12-l2-ex36",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 36,
+      "payload": {
+        "sign_id": "sinal-OLHAR",
+        "correct": "OLHAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex37",
+      "lesson_id": "u12-l2",
+      "type": "watch_choose_word",
+      "order": 37,
+      "payload": {
+        "sign_id": "sinal-ENSINAR",
+        "correct": "ENSINAR"
+      }
+    },
+    {
+      "id": "u12-l2-ex38",
+      "lesson_id": "u12-l2",
+      "type": "order_sequence",
+      "order": 38,
+      "payload": {
+        "steps": [
+          "PERGUNTAR",
+          "RESPONDER",
+          "CONVERSAR",
+          "VER"
+        ],
+        "correct_order": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "u12-l2-ex39",
+      "lesson_id": "u12-l2",
+      "type": "build_phrase",
+      "order": 39,
+      "payload": {
+        "pt": "Por favor, pergunte a ela que horas são.",
+        "glosses": [
+          "FAVOR",
+          "2sPERGUNTAR3s",
+          "HORA"
+        ],
+        "distractors": [
+          "QUERER",
+          "1sAJUDAR2s",
+          "ESTUDAR",
+          "MATEMATICA",
+          "3sRESPONDER1s",
+          "CERT@",
+          "EL@",
+          "3sENSINAR1s",
+          "LIBRAS",
+          "EU",
+          "IR",
+          "CINEMA",
+          "VOCÊ",
+          "QUER",
+          "IR-JUNTO"
+        ],
+        "source": {
+          "name": "Dicionário de Libras do INES - exemplo do verbete PERGUNTAR",
+          "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/perguntarSm_Prog001.mp4"
+        }
+      }
+    }
+  ]
+}
