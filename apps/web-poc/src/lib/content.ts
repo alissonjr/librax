@@ -1,5 +1,5 @@
 import signsRaw from '../assets/content/signs.json';
-import courseRaw from '../assets/content/course.json';
+import { course, type Phrase, type SourceRef } from './course';
 import { getClassifier } from '../recognition/classifier';
 
 export interface Sign {
@@ -108,57 +108,9 @@ export interface Exercise {
   tiles?: string[];
 }
 
-export interface Lesson {
-  id: string;
-  title: string;
-  order: number;
-  xpReward: number;
-  signIds: string[];
-  /** Nomes soletrados na lição (U4); viram fingerspell no bundle. */
-  spellWords?: string[];
-}
-
-export interface SourceRef {
-  name: string;
-  url: string;
-}
-
-/** Frase de exemplo (rascunho): glosas na ordem da Libras + traducao. Usada no exercicio build_phrase. */
-export interface Phrase {
-  glosses: string[];
-  pt: string;
-  source: SourceRef;
-}
-
-export interface CultureNote {
-  title: string;
-  text: string;
-  source: SourceRef;
-}
-
-export interface Unit {
-  id: string;
-  title: string;
-  description: string;
-  lessons: Lesson[];
-  phrases?: Phrase[];
-  cultureNotes?: CultureNote[];
-}
-
-export interface AchievementRule {
-  code: string;
-  type: string;
-  gte?: number;
-}
-
-export interface Course {
-  courseId: string;
-  title: string;
-  signsOrder: string[];
-  achievementRules: AchievementRule[];
-  units: Unit[];
-  lessonsMap: Record<string, Lesson>;
-}
+// Os tipos e o curso continuam saindo daqui para quem já importa de content.ts
+export { course };
+export type { Lesson, SourceRef, Phrase, CultureNote, Unit, AchievementRule, Course } from './course';
 
 export const signsMap: Record<string, Sign> = {};
 for (const s of signsRaw as Sign[]) signsMap[s.id] = s;
@@ -355,16 +307,6 @@ export async function loadLessonExercises(lessonId: string): Promise<Exercise[] 
   return items ? resolveExercises(items, lesson.signIds) : null;
 }
 
-function buildCourse(): Course {
-  const raw = courseRaw as Omit<Course, 'lessonsMap'>;
-  const lessonsMap: Record<string, Lesson> = {};
-  for (const unit of raw.units) {
-    for (const lesson of unit.lessons) lessonsMap[lesson.id] = lesson;
-  }
-  return { ...raw, lessonsMap };
-}
-
-export const course = buildCourse();
 
 export function getSign(id: string): Sign {
   const s = signsMap[id];

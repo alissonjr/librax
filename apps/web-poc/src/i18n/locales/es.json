@@ -213,6 +213,7 @@
     "greetingAfternoon": "Buenas tardes",
     "greetingEvening": "Buenas noches",
     "greetingMorning": "Buenos días",
+    "lessonLocked": "Esta lección todavía está bloqueada. Haz las anteriores para abrirla.",
     "mastery": "Dominio: {count} de 3",
     "nodeAria": "Lección {num}, {title}, {status}",
     "profileAria": "Perfil",

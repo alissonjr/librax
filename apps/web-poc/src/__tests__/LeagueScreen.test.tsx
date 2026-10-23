@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { render as rtlRender, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { LeagueScreen, formatTimeLeft } from '../screens/LeagueScreen';
 import { leagueIdOf, type LeagueRepo, type LeagueState } from '../lib/leagueLocal';
 import { useT } from '../i18n';
@@ -8,6 +10,13 @@ import { launchConfetti } from '../lib/confetti';
 import { tokens } from '../styles/tokens';
 
 vi.mock('../lib/confetti', () => ({ launchConfetti: vi.fn() }));
+
+// Sheets e diálogos usam o histórico do roteador (useCloseOnBack)
+const render = (ui: ReactElement) => rtlRender(ui, {
+  wrapper: ({ children }) => (
+    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>{children}</MemoryRouter>
+  ),
+});
 
 const DAY = 24 * 60 * 60 * 1000;
 const MONDAY = Date.UTC(2026, 9, 19);

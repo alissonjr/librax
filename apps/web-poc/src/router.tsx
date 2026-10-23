@@ -1,32 +1,69 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type ComponentType } from 'react';
 import {
   Navigate, Outlet, ScrollRestoration, useLocation, useNavigate, useParams, useRouteError,
   type RouteObject,
 } from 'react-router-dom';
 import { isOnboarded } from './lib/auth';
-import { course, loadLessonExercises, type Exercise } from './lib/content';
+import { course } from './lib/course';
+import { isLessonOpen, loadCourseProgress } from './lib/progress';
+import type { Exercise } from './lib/content';
 import { ROUTES, TAB_PATHS, sectionForPath } from './lib/routes';
 import { useSession } from './hooks/useSession';
 import { HistoryTracker, useAppNavigation } from './hooks/useAppNavigation';
+import { useLessonExit } from './hooks/useLessonExit';
+import { DialogProvider } from './hooks/useDialog';
 import { useT } from './i18n';
 import { Nav } from './components/Nav';
 import { Icon } from './components/Icon';
+import { Dialog } from './components/Dialog';
+import { Toast } from './components/Toast';
+import { ScreenSkeleton } from './components/ScreenSkeleton';
 import { StreakBrokenSheet } from './components/StreakBrokenSheet';
 import { InstallSheet, useInstallMode } from './components/InstallSheet';
-import { OnboardingScreen } from './screens/OnboardingScreen';
-import { CourseMapScreen } from './screens/CourseMapScreen';
-import { LessonScreen, type LessonSessionResult } from './screens/LessonScreen';
-import { LessonCompletionScreen } from './screens/LessonCompletionScreen';
-import { UnitCompletionScreen } from './screens/UnitCompletionScreen';
-import { CourseCompletionScreen } from './screens/CourseCompletionScreen';
-import { PracticeScreen } from './screens/PracticeScreen';
-import { SocialScreen } from './screens/SocialScreen';
-import { ProfileScreen } from './screens/ProfileScreen';
-import { StreakScreen } from './screens/StreakScreen';
-import { AchievementsScreen } from './screens/AchievementsScreen';
-import { SettingsScreen } from './screens/SettingsScreen';
-import { CameraScreen } from './screens/CameraScreen';
-import { LeagueScreen } from './screens/LeagueScreen';
+import type { LessonSessionResult } from './screens/LessonScreen';
+
+/* ---------- telas sob demanda ---------- */
+
+/**
+ * Tela carregada sob demanda: cada uma vira um pedaço do build e o JS inicial fica só com o
+ * roteador, as molduras e a barra de abas (meta da W2: abaixo de 200 KB gzip). Os pedaços entram no
+ * precache do service worker, então continuam abrindo offline. `preload` começa a baixar antes de a
+ * rota montar.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function lazyScreen<K extends string, C extends ComponentType<any>>(load: () => Promise<Record<K, C>>, name: K) {
+  let pending: Promise<{ default: C }> | null = null;
+  const preload = () => {
+    pending ??= load().then(
+      m => ({ default: m[name] }),
+      (err: unknown) => { pending = null; throw err; },
+    );
+    return pending;
+  };
+  return Object.assign(lazy(preload), { preload });
+}
+
+const OnboardingScreen = lazyScreen(() => import('./screens/OnboardingScreen'), 'OnboardingScreen');
+const CourseMapScreen = lazyScreen(() => import('./screens/CourseMapScreen'), 'CourseMapScreen');
+const LessonScreen = lazyScreen(() => import('./screens/LessonScreen'), 'LessonScreen');
+const LessonCompletionScreen = lazyScreen(() => import('./screens/LessonCompletionScreen'), 'LessonCompletionScreen');
+const UnitCompletionScreen = lazyScreen(() => import('./screens/UnitCompletionScreen'), 'UnitCompletionScreen');
+const CourseCompletionScreen = lazyScreen(() => import('./screens/CourseCompletionScreen'), 'CourseCompletionScreen');
+const PracticeScreen = lazyScreen(() => import('./screens/PracticeScreen'), 'PracticeScreen');
+const SocialScreen = lazyScreen(() => import('./screens/SocialScreen'), 'SocialScreen');
+const ProfileScreen = lazyScreen(() => import('./screens/ProfileScreen'), 'ProfileScreen');
+const StreakScreen = lazyScreen(() => import('./screens/StreakScreen'), 'StreakScreen');
+const AchievementsScreen = lazyScreen(() => import('./screens/AchievementsScreen'), 'AchievementsScreen');
+const SettingsScreen = lazyScreen(() => import('./screens/SettingsScreen'), 'SettingsScreen');
+const CameraScreen = lazyScreen(() => import('./screens/CameraScreen'), 'CameraScreen');
+const LeagueScreen = lazyScreen(() => import('./screens/LeagueScreen'), 'LeagueScreen');
+
+// O mapa é a tela de partida: começa a baixar junto com a abertura do banco local (App.tsx),
+// sem esperar o roteador montar, para não somar uma ida à rede no LCP.
+const initialPath = typeof window !== 'undefined' ? window.location.pathname : '';
+if (initialPath === ROUTES.home || initialPath === ROUTES.learn) {
+  void CourseMapScreen.preload().catch(() => {});
+}
 
 /* ---------- moldura ---------- */
 
@@ -62,15 +99,28 @@ function RouteAnnouncer() {
   return null;
 }
 
-/** Raiz de todas as rotas: rolagem (topo ao abrir tela nova, posição de volta ao voltar) e histórico. */
+/** Aviso discreto da sessão (por exemplo, lição bloqueada aberta pelo endereço). */
+function NoticeToast() {
+  const { t } = useT();
+  const { notice, dismissNotice } = useSession();
+  return notice ? <Toast message={t(notice)} onDone={dismissNotice} /> : null;
+}
+
+/**
+ * Raiz de todas as rotas: rolagem (topo ao abrir tela nova, posição de volta ao voltar) e histórico.
+ * Os diálogos (useDialog) ficam aqui dentro do roteador porque o voltar os fecha (useCloseOnBack).
+ */
 function RootLayout() {
   return (
-    <>
+    <DialogProvider>
       <ScrollRestoration />
       <HistoryTracker />
       <RouteAnnouncer />
-      <Outlet />
-    </>
+      <Suspense fallback={<ScreenSkeleton />}>
+        <Outlet />
+      </Suspense>
+      <NoticeToast />
+    </DialogProvider>
   );
 }
 
@@ -84,14 +134,6 @@ function RequireOnboarded() {
   return <Outlet />;
 }
 
-function Loading() {
-  const { t } = useT();
-  return (
-    <div className="app-loading">
-      <p>{t('common.loading')}</p>
-    </div>
-  );
-}
 
 /** Erro ao montar uma rota (por exemplo, pedaço do app que não baixou). Nunca mostra código de erro. */
 function RouteError() {
@@ -137,7 +179,10 @@ function TabsLayout() {
       <Nav active={sectionForPath(pathname)} onNavigate={section => nav.goTab(TAB_PATHS[section])} />
       {/* key: o fade de troca de aba (style.css) roda a cada tela */}
       <main className="main-content" key={pathname}>
-        <Outlet />
+        {/* Suspense aqui dentro: a barra de abas fica na tela enquanto o pedaço da aba baixa */}
+        <Suspense fallback={<ScreenSkeleton />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );
@@ -248,35 +293,78 @@ function LessonRoute() {
   const navigate = useNavigate();
   const nav = useAppNavigation();
   const session = useSession();
-  const [exercises, setExercises] = useState<Exercise[] | null | undefined>(undefined);
+  const { t } = useT();
+  const { repo, userId, showNotice } = session;
+  // undefined: carregando; null: lição sem arquivo; 'locked': bloqueada no mapa
+  const [exercises, setExercises] = useState<Exercise[] | null | 'locked' | undefined>(undefined);
+  const ready = Array.isArray(exercises) && exercises.length > 0;
+  const exit = useLessonExit(ready);
 
   useEffect(() => {
     let cancelled = false;
     setExercises(undefined);
-    loadLessonExercises(id)
-      .then(list => { if (!cancelled) setExercises(list); })
+    async function load(): Promise<Exercise[] | null | 'locked'> {
+      // content.ts traz os sinais (signs.json): só baixa quando uma lição abre. A tela da lição
+      // baixa junto, para aparecer inteira de uma vez.
+      const [content, , progress] = await Promise.all([
+        import('./lib/content'), LessonScreen.preload(), loadCourseProgress(repo, userId),
+      ]);
+      // Guarda: a lição bloqueada no mapa não abre pelo endereço (mesma regra do mapa)
+      if (course.lessonsMap[id] && !isLessonOpen(progress, id)) return 'locked';
+      return content.loadLessonExercises(id);
+    }
+    load()
+      .then(result => { if (!cancelled) setExercises(result); })
       .catch(() => { if (!cancelled) setExercises(null); });
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, repo, userId]);
+
+  // Bloqueada: volta ao mapa (voltando no histórico se veio de lá) com um aviso discreto. O ref
+  // evita voltar duas vezes quando o efeito roda de novo (StrictMode em desenvolvimento).
+  const leftLocked = useRef(false);
+  useEffect(() => {
+    if (exercises !== 'locked' || leftLocked.current) return;
+    leftLocked.current = true;
+    showNotice('courseMap.lessonLocked');
+    nav.backTo(ROUTES.learn);
+  }, [exercises, showNotice, nav]);
 
   if (!course.lessonsMap[id] || exercises === null) return <Navigate to={ROUTES.learn} replace />;
-  if (exercises === undefined) return <Loading />;
+  if (!Array.isArray(exercises)) return <ScreenSkeleton />;
 
   async function handleComplete(result: LessonSessionResult) {
+    // Libera a saída antes de ir para a conclusão
+    exit.finish();
     await session.finishLesson(result);
     // Troca a lição pela conclusão: voltar dali leva ao mapa, não de volta para a lição
     navigate(ROUTES.lessonDone(result.lessonId), { replace: true });
   }
 
-  // key: abrir outra lição pela URL zera o estado da sessão de exercícios
+  // key: abrir outra lição pela URL zera o estado da sessão de exercícios. Suspense próprio: se a
+  // tela ainda suspender por um instante, só ela vira skeleton e esta rota (com o bloqueio da
+  // saída) continua na tela.
   return (
-    <LessonScreen
-      key={id}
-      lessonId={id}
-      exercises={exercises}
-      onComplete={handleComplete}
-      onExit={() => nav.backTo(ROUTES.learn)}
-    />
+    <>
+      <Suspense fallback={<ScreenSkeleton />}>
+        <LessonScreen
+          key={id}
+          lessonId={id}
+          exercises={exercises}
+          onComplete={handleComplete}
+          onExit={() => nav.backTo(ROUTES.learn)}
+        />
+      </Suspense>
+      <Dialog
+        isOpen={exit.asking}
+        title={t('lessonScreen.exitTitle')}
+        message={t('lessonScreen.exitMessage')}
+        confirmLabel={t('lessonScreen.exitConfirm')}
+        cancelLabel={t('common.continue')}
+        onConfirm={exit.confirm}
+        onCancel={exit.cancel}
+        closeOnBack={false}
+      />
+    </>
   );
 }
 

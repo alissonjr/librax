@@ -1,5 +1,6 @@
 import { useT } from '../i18n';
 import { Icon } from './Icon';
+import { useCloseOnBack } from '../hooks/useCloseOnBack';
 
 interface DialogProps {
   isOpen: boolean;
@@ -9,6 +10,11 @@ interface DialogProps {
   cancelLabel?: string;
   onConfirm: () => void;
   onCancel?: () => void;
+  /**
+   * Voltar fecha o diálogo (design-system 11.13): como "Cancelar" quando há, senão como o botão
+   * único. Desligado no "Sair da lição?", que já nasce de um voltar (useLessonExit).
+   */
+  closeOnBack?: boolean;
 }
 
 export function Dialog({
@@ -19,8 +25,10 @@ export function Dialog({
   cancelLabel,
   onConfirm,
   onCancel,
+  closeOnBack = true,
 }: DialogProps) {
   const { t } = useT();
+  useCloseOnBack(isOpen && closeOnBack, onCancel ?? onConfirm);
   if (!isOpen) return null;
 
   const icon = onCancel ? 'warning' : 'info';
