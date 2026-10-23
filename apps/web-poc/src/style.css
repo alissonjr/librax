@@ -3132,12 +3132,10 @@ ol.fingerspell-strip { list-style: none; padding: 0; }
   background: var(--lx-bg-surface);
   border-radius: var(--lx-radius-md);
   border: var(--lx-border-width-thin) solid var(--lx-border-default);
-  border-top: 4px solid var(--lx-border-default);
   text-align: center;
   min-width: 0;
 }
-.srs-item-tile--new    { border-top-color: var(--lx-feedback-success-strong); }
-.srs-item-tile--review { border-top-color: var(--lx-game-hand-fill); }
+/* Novo ou revisão: o selo escrito diz o estado (sem faixa colorida no cartão) */
 .srs-item-gloss {
   font: var(--lx-typography-display);
   letter-spacing: 0.04em;
