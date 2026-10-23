@@ -349,6 +349,7 @@ function LessonDoneRoute() {
       <LessonCompletionScreen data={completion} onContinue={handleContinue} />
       {offerAccount && (
         <ConvertAccountSheet
+          firstLesson={completion.achievementsEarned.includes('PRIMEIRA_LICAO')}
           onCreateWithEmail={() => navigate(ROUTES.register, {
             replace: true,
             state: { returnTo: nextPath ?? ROUTES.learn },

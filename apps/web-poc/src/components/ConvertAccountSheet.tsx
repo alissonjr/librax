@@ -10,6 +10,8 @@ interface Props {
   onCreateWithEmail: () => void;
   /** "Continuar sem conta" (ou fechar): segue o fluxo normal. */
   onSkip: () => void;
+  /** Primeira lição concluída (o texto comemora a primeira). */
+  firstLesson?: boolean;
 }
 
 /**
@@ -17,7 +19,7 @@ interface Props {
  * redirect na mesma aba; o progresso já está salvo no aparelho e é migrado na volta.
  * Sem Cognito neste ambiente, avisa que o login está indisponível e só deixa continuar.
  */
-export function ConvertAccountSheet({ onCreateWithEmail, onSkip }: Props) {
+export function ConvertAccountSheet({ onCreateWithEmail, onSkip, firstLesson = false }: Props) {
   const { t } = useT();
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -71,7 +73,7 @@ export function ConvertAccountSheet({ onCreateWithEmail, onSkip }: Props) {
         <h2 id="account-sheet-title" ref={titleRef} tabIndex={-1} className="streak-sheet-title">
           {t('account.offerTitle')}
         </h2>
-        <p className="streak-sheet-sub">{t('account.offerSub')}</p>
+        <p className="streak-sheet-sub">{firstLesson ? t('account.offerSub') : t('account.offerSubLater')}</p>
 
         {available ? (
           <div className="streak-sheet-actions">
