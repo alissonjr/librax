@@ -9,7 +9,7 @@
  * DELETE /v1/squads/{squadId}                    -> disbandSquad
  * POST   /v1/squads/{squadId}/members/{userId}/manage -> manageMember
  * POST   /v1/squads/{squadId}/invite-code/regenerate  -> regenerateInviteCode
- * GET    /v1/squads/{squadId}                    -> getSquad
+ * GET    /v1/squads/{squadId}                    -> getSquad (nao membro de privada: so dados publicos)
  * GET    /v1/squads/public                       -> listPublicSquads
  * GET    /v1/users/me/squads                     -> listMySquads
  *
@@ -20,7 +20,7 @@
 import { randomUUID, randomInt } from 'node:crypto';
 import * as squadUsecases from '../usecases/squads.js';
 import { SquadError } from '../usecases/squads.js';
-import { memberForWeek, squadForWeek } from '../domain/squads.js';
+import { squadForWeek, squadView } from '../domain/squads.js';
 import { periodKey, periodStartOf } from '../domain/leagues.js';
 import { userId, body, ok, ApiError, wrap } from './_http.js';
 import { repo as dynamoRepo } from './_repo.js';
@@ -142,14 +142,9 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
     const sid = squadId(event);
     const squad = await repo.getSquad(sid);
     if (!squad) throw new ApiError(404, 'SQUAD_NOT_FOUND', 'Squad nao encontrada');
-    const period = currentPeriod(now());
-    const members = (await repo.listMembers(sid)).map((m) => memberForWeek(m, period));
-    const userMembership = members.find((m) => m.userId === uid) ?? null;
-    return ok({
-      squad: squadForWeek(squad, period),
-      members: members.sort((a, b) => (b.xpWeeklyContrib ?? 0) - (a.xpWeeklyContrib ?? 0)),
-      userMembership: userMembership ? { role: userMembership.role } : null,
-    });
+    const members = await repo.listMembers(sid);
+    // nao membro de squad privada ve so os dados publicos (domain/squads.js: squadView)
+    return ok(squadView({ squad, members, viewerId: uid, period: currentPeriod(now()) }));
   });
 
   const listMySquadsHandler = wrap(async (event) => {

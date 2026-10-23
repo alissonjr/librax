@@ -18,9 +18,14 @@ export function canCreateSquad({ isGuest, b2cSquadCount, name, type = 'public' }
   return ok();
 }
 
-/** @returns {{ok: true} | {ok: false, error: string}} */
-export function canJoinSquad({ isGuest, b2cSquadCount, squad, alreadyMember = false }) {
+/**
+ * `viaInvite`: entrou pelo codigo de convite. Por squadId direto so squad publica (SPEC 04
+ * secao 2); privada ou de org responde como inexistente, para nao revelar que existe.
+ * @returns {{ok: true} | {ok: false, error: string}}
+ */
+export function canJoinSquad({ isGuest, b2cSquadCount, squad, alreadyMember = false, viaInvite = true }) {
   if (isGuest) return fail('GUEST_NOT_ALLOWED');
+  if (!viaInvite && squad.type !== 'public') return fail('SQUAD_NOT_FOUND');
   if (alreadyMember) return fail('ALREADY_MEMBER');
   if (squad.memberCount >= squad.maxMembers) return fail('SQUAD_FULL');
   // equipes de org nao contam no limite de 5 (SPEC 04 secao 0.2)
@@ -146,6 +151,39 @@ export function memberForWeek(member, period) {
   const out = { ...member, xpWeeklyContrib: currentWeekXp(member.xpWeeklyContrib, member.xpWeekPeriod, period) };
   for (const k of WEEK_FIELDS) delete out[k];
   return out;
+}
+
+/** Campos da squad que qualquer pessoa autenticada pode ver (cabecalho e diretorio, SPEC 04 4.2 e 4.5). */
+export const PUBLIC_SQUAD_FIELDS = ['squadId', 'name', 'description', 'type', 'memberCount', 'maxMembers', 'xpWeekly'];
+/** Campos de membro no preview de squad publica (ranking sem dados de conta). */
+const PREVIEW_MEMBER_FIELDS = ['userId', 'displayName', 'role', 'xpWeeklyContrib'];
+
+const pick = (obj, keys) => Object.fromEntries(keys.filter((k) => obj[k] !== undefined).map((k) => [k, obj[k]]));
+
+/**
+ * Resposta do GET /squads/{id} para quem chama (SPEC 04 secoes 0.1, 2 e 4.2):
+ * - membro: squad completa (com o convite, para compartilhar) e todos os membros;
+ * - nao membro de squad publica (preview): dados publicos e o ranking, sem convite;
+ * - nao membro de squad privada ou de org: so os dados publicos, sem membros.
+ * Membros por XP da semana `period` desc; campos internos de semana ficam de fora.
+ */
+export function squadView({ squad, members, viewerId, period }) {
+  const ranked = members
+    .map((m) => memberForWeek(m, period))
+    .sort((a, b) => (b.xpWeeklyContrib ?? 0) - (a.xpWeeklyContrib ?? 0));
+  const me = ranked.find((m) => m.userId === viewerId) ?? null;
+  const weekly = squadForWeek(squad, period);
+
+  if (me) {
+    return { squad: weekly, members: ranked, membersVisible: true, userMembership: { role: me.role } };
+  }
+  const visible = squad.type === 'public';
+  return {
+    squad: pick(weekly, PUBLIC_SQUAD_FIELDS),
+    members: visible ? ranked.map((m) => pick(m, PREVIEW_MEMBER_FIELDS)) : [],
+    membersVisible: visible,
+    userMembership: null,
+  };
 }
 
 function isValidName(name) {

@@ -71,7 +71,7 @@ export async function joinSquad(repo, input) {
 
   const alreadyMember = (await repo.getMember(squadId, userId)) !== null;
   const b2cSquadCount = await repo.countUserB2cSquads(userId);
-  const check = canJoinSquad({ isGuest, b2cSquadCount, squad, alreadyMember });
+  const check = canJoinSquad({ isGuest, b2cSquadCount, squad, alreadyMember, viaInvite: Boolean(input.code) });
   if (!check.ok) fail(check.error);
 
   // reserva a vaga antes (ADD condicional ao limite) e devolve se a pessoa ja tinha entrado
