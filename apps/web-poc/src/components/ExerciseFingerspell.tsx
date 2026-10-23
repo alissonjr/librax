@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useCameraRecognizer } from '../hooks/useCameraRecognizer';
-import { RECOGNIZABLE_LETTERS } from './ExerciseCameraSign';
+import { useRecognizableLetters } from '../recognition/classifier';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
 
@@ -17,9 +17,11 @@ export function ExerciseFingerspell({ word, letters, onComplete }: Props) {
   const [current, setCurrent] = useState(0);
   const [lastGesture, setLastGesture] = useState<string | null>(null);
 
-  const isRecognizable = letters.every(l => RECOGNIZABLE_LETTERS.has(l));
+  const recognizable = useRecognizableLetters();
+  const isRecognizable = letters.every(l => recognizable.has(l));
 
-  useEffect(() => { if (isRecognizable) start(); }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (isRecognizable) start(); }, [isRecognizable]);
 
   useEffect(() => {
     if (!stableGesture || stableGesture === lastGesture) return;

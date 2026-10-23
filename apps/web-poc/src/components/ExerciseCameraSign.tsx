@@ -10,8 +10,13 @@ import { useT, type TFunc } from '../i18n';
 import { Icon } from './Icon';
 import { SignDemo, chooseDemoMode } from './SignDemo';
 import { DemoToggle } from './DemoToggle';
+import { HEURISTIC_LETTERS, useRecognizableLetters } from '../recognition/classifier';
 
-export const RECOGNIZABLE_LETTERS = new Set(['A', 'B', 'D', 'F', 'I', 'L', 'U', 'V', 'W', 'Y']);
+/**
+ * Letras que a composição das lições trata como avaliáveis pela câmera (src/lib/content.ts).
+ * Em tempo de execução vale useRecognizableLetters: as do MLP treinado, quando existir.
+ */
+export const RECOGNIZABLE_LETTERS = HEURISTIC_LETTERS;
 
 function MomentoZeroOverlay({ onDismiss, t }: { onDismiss: () => void; t: TFunc }) {
   return (
@@ -75,7 +80,8 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
   const [showMomentoZero, setShowMomentoZero] = useState(false);
   const momentoShownRef = useRef(false);
   const targetLetter = sign.gloss;
-  const isRecognizable = RECOGNIZABLE_LETTERS.has(targetLetter);
+  const recognizable = useRecognizableLetters();
+  const isRecognizable = recognizable.has(targetLetter);
 
   useEffect(() => {
     if (handPresent && !momentoShownRef.current && !Flags.firstCameraSuccess()) {
@@ -94,10 +100,11 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
     }
   }, [stableGesture, targetLetter, succeeded]);
 
+  // Liga ao montar; se o MLP chegar depois e passar a avaliar esta letra, liga nessa hora
   useEffect(() => {
     if (isRecognizable) start();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isRecognizable]);
 
   useEffect(() => {
     if (showDemo) { demoShownRef.current = true; return; }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ExerciseIntro } from '../components/ExerciseIntro';
 import { ExerciseMc4 } from '../components/ExerciseMc4';
 import { ExerciseMatchPairs } from '../components/ExerciseMatchPairs';
@@ -11,6 +11,10 @@ import { course, getSign } from '../lib/content';
 import { useDialog } from '../hooks/useDialog';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
+import { warmUpHandLandmarker } from '../recognition/landmarker';
+
+/** Exercícios que abrem a câmera: a lição que tem algum já começa a carregar o modelo. */
+const CAMERA_EXERCISES = new Set(['sign_camera', 'mirror_practice', 'fingerspell']);
 
 export interface ReviewedItem {
   signId: string;
@@ -49,6 +53,13 @@ export function LessonScreen({ lessonId, onComplete, onBack }: Props) {
   const isLastLesson = alphabetLessons[alphabetLessons.length - 1]?.id === lessonId;
   const exercises = lesson?.exercises ?? [];
   const pct = Math.round((currentIdx / (exercises.length || 1)) * 100);
+  const hasCamera = exercises.some(e => CAMERA_EXERCISES.has(e.type));
+
+  // Aquece o landmarker da sessão ao abrir a lição: quando o exercício de câmera chega, o
+  // modelo já está pronto (ou quase). Ele é criado uma vez e serve a todos os exercícios.
+  useEffect(() => {
+    if (hasCamera) warmUpHandLandmarker();
+  }, [hasCamera]);
 
   const advance = useCallback(() => {
     const next = currentIdx + 1;

@@ -1549,7 +1549,15 @@ button { touch-action: manipulation; }
 .camera-idle--error .camera-idle-icon { color: var(--lx-feedback-error-strong); }
 
 .camera-area { display: flex; flex-direction: column; flex: 1; }
-.camera-area--hidden { display: none; }
+/* Escondida sem display:none: o <video> precisa estar renderizado para o iPhone tocar o stream */
+.camera-area--hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
 
 @media (min-width: 768px) {
   .camera-area {
@@ -1803,7 +1811,8 @@ button { touch-action: manipulation; }
   width: 100%;
   height: 100%;
 }
-.cam-sign-viewport.hidden { display: none; }
+/* Enquanto a câmera abre o vídeo fica transparente sob o aviso, nunca com display:none (iOS) */
+.cam-sign-viewport.hidden { opacity: 0; pointer-events: none; }
 
 /* Acerto: o palco escurece e o cartão sobe com mola */
 .cam-sign-success-overlay {
@@ -2254,7 +2263,15 @@ button { touch-action: manipulation; }
 
 /* Dica do sinal nos exercícios com câmera (a câmera fica pausada) */
 .cam-sign-demo-toggle { margin-top: var(--lx-space-3); }
-.cam-sign-viewport-wrap.hidden { display: none; }
+/* A câmera para com a dica aberta; o palco sai do fluxo sem display:none (o <video> continua renderizado) */
+.cam-sign-viewport-wrap.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
 .cam-sign-demo {
   display: flex;
   flex-direction: column;
