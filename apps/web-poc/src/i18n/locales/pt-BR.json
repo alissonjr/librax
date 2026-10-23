@@ -329,6 +329,10 @@
     "confirm": "Confirmar ordem",
     "correct": "Correto!",
     "correctOrder": "Ordem correta:",
+    "hint": "Arraste os cartões ou use Subir e Descer.",
+    "moveDown": "Descer {step}",
+    "moveUp": "Subir {step}",
+    "moved": "{step}: posição {position} de {total}",
     "prompt": "Ordene os passos do sinal:",
     "spellPrompt": "Soletre {word}: coloque as letras na ordem"
   },

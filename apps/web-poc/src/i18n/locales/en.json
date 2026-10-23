@@ -329,6 +329,10 @@
     "confirm": "Confirm order",
     "correct": "Correct!",
     "correctOrder": "Correct order:",
+    "hint": "Drag the cards or use Move up and Move down.",
+    "moveDown": "Move down {step}",
+    "moveUp": "Move up {step}",
+    "moved": "{step}: position {position} of {total}",
     "prompt": "Put the sign's steps in order:",
     "spellPrompt": "Spell {word}: put the letters in order"
   },
