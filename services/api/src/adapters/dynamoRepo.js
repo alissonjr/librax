@@ -2,7 +2,7 @@
  * Adaptador DynamoDB (producao) que implementa a mesma porta do InMemoryRepo.
  *
  * Tabela single-table `librax` (SPEC 02 secao 3 / SPEC 04 secao 1):
- *   PK + SK primarios; GSI1 (SRS por dueAt); GSI2 (liga do usuario);
+ *   PK + SK primarios; GSI1 (SRS por dueAt); GSI2 (liga do usuario e ligas da semana);
  *   GSI3 (squads do usuario); GSI4 (squads publicas); GSI5 (indice de convite);
  *   GSI6 (lembretes por balde de fuso). TTL no atributo `expiresAt`.
  *
@@ -230,6 +230,7 @@ export class DynamoRepo {
 
     const deletes = [
       { Delete: { TableName: TABLE, Key: { PK: `SQUAD#${squadId}`, SK: 'META' } } },
+      ...(squad.inviteCode ? [{ Delete: { TableName: TABLE, Key: this._inviteKey(squad.inviteCode) } }] : []),
       ...members.map((m) => ({
         Delete: { TableName: TABLE, Key: { PK: `SQUAD#${squadId}`, SK: `MEMBER#${m.userId}` } },
       })),
@@ -345,7 +346,7 @@ export class DynamoRepo {
     await this._db.send(
       new PutCommand({
         TableName: TABLE,
-        Item: { PK: `INVITE#${code.toUpperCase()}`, SK: 'META', squadId },
+        Item: { ...this._inviteKey(code), squadId },
       }),
     );
   }
@@ -354,10 +355,19 @@ export class DynamoRepo {
     const { Item } = await this._db.send(
       new GetCommand({
         TableName: TABLE,
-        Key: { PK: `INVITE#${code.toUpperCase()}`, SK: 'META' },
+        Key: this._inviteKey(code),
       }),
     );
     return Item?.squadId ?? null;
+  }
+
+  /** Apaga o codigo antigo (regenerateInviteCode). */
+  async removeInvite(code) {
+    await this._db.send(new DeleteCommand({ TableName: TABLE, Key: this._inviteKey(code) }));
+  }
+
+  _inviteKey(code) {
+    return { PK: `INVITE#${code.toUpperCase()}`, SK: 'META' };
   }
 
   // -----------------------------------------------------------------------
@@ -411,17 +421,19 @@ export class DynamoRepo {
   // LIGAS - FAN-OUT DE XP SEMANAL (GSI2)
   // -----------------------------------------------------------------------
 
+  /** Liga mais recente do usuario (GSI2SK = LEAGUE#<semana>, do mais novo para o mais velho). */
   async getUserLeague(userId) {
     const { Items = [] } = await this._db.send(
       new QueryCommand({
         TableName: TABLE,
         IndexName: 'GSI2',
-        KeyConditionExpression: 'GSI2PK = :pk',
-        ExpressionAttributeValues: { ':pk': `USER#${userId}` },
+        KeyConditionExpression: 'GSI2PK = :pk AND begins_with(GSI2SK, :prefix)',
+        ExpressionAttributeValues: { ':pk': `USER#${userId}`, ':prefix': 'LEAGUE#' },
+        ScanIndexForward: false,
         Limit: 1,
       }),
     );
-    return Items.length > 0 ? { leagueId: Items[0].leagueId } : null;
+    return Items.length > 0 ? { leagueId: Items[0].leagueId, period: Items[0].period } : null;
   }
 
   async incrementLeagueXp(leagueId, userId, amount) {
@@ -444,6 +456,160 @@ export class DynamoRepo {
       }),
     );
     return Item?.xpPeriod ?? 0;
+  }
+
+  // -----------------------------------------------------------------------
+  // LIGAS - SEMANA, MEMBROS E FECHAMENTO
+  // META:   LEAGUE#<id> / META;  GSI2: LEAGUES#<semana> / LEAGUE#<id> (todas as ligas da semana)
+  // Membro: LEAGUE#<id> / USER#<id>; GSI2: USER#<id> / LEAGUE#<semana> (liga do usuario)
+  // Estado: USER#<id> / LEAGUE (liga atual + resultado da ultima semana fechada)
+  // -----------------------------------------------------------------------
+
+  /** Entra na liga (idempotente): cria o META aberto se faltar e nao zera XP ja somado. */
+  async joinLeague(league, userId) {
+    const { leagueId, tier, period, periodStart, group } = league;
+    const pk = `LEAGUE#${leagueId}`;
+    await this._db.send(
+      new TransactWriteCommand({
+        TransactItems: [
+          {
+            Update: {
+              TableName: TABLE,
+              Key: { PK: pk, SK: `USER#${userId}` },
+              UpdateExpression:
+                'SET leagueId = :lid, userId = :uid, tier = :tier, period = :period, periodStart = :ps, ' +
+                'GSI2PK = :g2pk, GSI2SK = :g2sk, xpPeriod = if_not_exists(xpPeriod, :zero)',
+              ExpressionAttributeValues: {
+                ':lid': leagueId, ':uid': userId, ':tier': tier, ':period': period, ':ps': periodStart,
+                ':g2pk': `USER#${userId}`, ':g2sk': `LEAGUE#${period}`, ':zero': 0,
+              },
+            },
+          },
+          {
+            Update: {
+              TableName: TABLE,
+              Key: { PK: pk, SK: 'META' },
+              UpdateExpression:
+                'SET leagueId = :lid, tier = :tier, period = :period, periodStart = :ps, ' +
+                'GSI2PK = :g2pk, GSI2SK = :g2sk, #status = if_not_exists(#status, :open)' +
+                (group ? ', #group = :group' : ''),
+              ExpressionAttributeNames: { '#status': 'status', ...(group ? { '#group': 'group' } : {}) },
+              ExpressionAttributeValues: {
+                ':lid': leagueId, ':tier': tier, ':period': period, ':ps': periodStart,
+                ':g2pk': `LEAGUES#${period}`, ':g2sk': `LEAGUE#${leagueId}`, ':open': 'open',
+                ...(group ? { ':group': group } : {}),
+              },
+            },
+          },
+        ],
+      }),
+    );
+  }
+
+  async getLeague(leagueId) {
+    const { Item } = await this._db.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `LEAGUE#${leagueId}`, SK: 'META' } }),
+    );
+    return Item ? this._stripKeys(Item) : null;
+  }
+
+  /** Uma pagina das ligas da semana; `cursor` e o LastEvaluatedKey (null no fim). */
+  async listLeaguesOfPeriod(period, { limit = 25, cursor = null } = {}) {
+    const page = await this._db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        IndexName: 'GSI2',
+        KeyConditionExpression: 'GSI2PK = :pk',
+        ExpressionAttributeValues: { ':pk': `LEAGUES#${period}` },
+        Limit: limit,
+        ...(cursor ? { ExclusiveStartKey: cursor } : {}),
+      }),
+    );
+    return {
+      leagues: (page.Items ?? []).map((i) => this._stripKeys(i)),
+      cursor: page.LastEvaluatedKey ?? null,
+    };
+  }
+
+  /** Todos os membros da liga (todas as paginas), sem o META. */
+  async listLeagueMembers(leagueId) {
+    const out = [];
+    let ExclusiveStartKey;
+    do {
+      const page = await this._db.send(
+        new QueryCommand({
+          TableName: TABLE,
+          KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
+          ExpressionAttributeValues: { ':pk': `LEAGUE#${leagueId}`, ':prefix': 'USER#' },
+          ProjectionExpression: 'SK, userId, xpPeriod',
+          ExclusiveStartKey,
+        }),
+      );
+      for (const i of page.Items ?? []) out.push({ userId: i.userId ?? i.SK.slice(5), xpPeriod: i.xpPeriod ?? 0 });
+      ExclusiveStartKey = page.LastEvaluatedKey;
+    } while (ExclusiveStartKey);
+    return out;
+  }
+
+  /**
+   * Grava o resultado da semana em USER#<id> / LEAGUE uma vez so (condicao por semana).
+   * Repetido: devolve o resultado ja gravado, com applied=false.
+   */
+  async applyLeagueResult(userId, result) {
+    try {
+      await this._db.send(
+        new PutCommand({
+          TableName: TABLE,
+          Item: {
+            PK: `USER#${userId}`,
+            SK: 'LEAGUE',
+            userId,
+            tier: result.toTier,
+            lastResult: result,
+            lastClosedPeriod: result.period,
+          },
+          ConditionExpression: 'attribute_not_exists(lastClosedPeriod) OR lastClosedPeriod < :period',
+          ExpressionAttributeValues: { ':period': result.period },
+        }),
+      );
+      return { applied: true, result };
+    } catch (e) {
+      if (!isConditionFailure(e)) throw e;
+      const state = await this.getLeagueState(userId, { consistent: true });
+      return { applied: false, result: state.lastResult };
+    }
+  }
+
+  async getLeagueState(userId, { consistent = false } = {}) {
+    const { Item } = await this._db.send(
+      new GetCommand({
+        TableName: TABLE,
+        Key: { PK: `USER#${userId}`, SK: 'LEAGUE' },
+        ...(consistent ? { ConsistentRead: true } : {}),
+      }),
+    );
+    return Item ? this._stripKeys(Item) : null;
+  }
+
+  async markLeagueClosed(leagueId, summary = {}) {
+    const names = { '#status': 'status' };
+    const values = { ':closed': 'closed' };
+    const sets = ['#status = :closed'];
+    for (const [k, v] of Object.entries(summary)) {
+      names[`#${k}`] = k;
+      values[`:${k}`] = v;
+      sets.push(`#${k} = :${k}`);
+    }
+    await this._db.send(
+      new UpdateCommand({
+        TableName: TABLE,
+        Key: { PK: `LEAGUE#${leagueId}`, SK: 'META' },
+        UpdateExpression: `SET ${sets.join(', ')}`,
+        ExpressionAttributeNames: names,
+        ExpressionAttributeValues: values,
+        ConditionExpression: 'attribute_exists(PK)',
+      }),
+    );
   }
 
   // -----------------------------------------------------------------------

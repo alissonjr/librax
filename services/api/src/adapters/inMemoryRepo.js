@@ -20,8 +20,11 @@ export class InMemoryRepo {
     this._members = new Map(); // `${squadId}#${userId}` -> { userId, role, xpWeeklyContrib, joinedAt }
     this._userSquads = new Map(); // userId -> Set(squadId)
     this._invite = new Map(); // inviteCode -> squadId
-    this._userLeague = new Map(); // userId -> leagueId
+    this._userLeague = new Map(); // userId -> { leagueId, period } (a liga mais recente)
     this._leagueXp = new Map(); // `${leagueId}#${userId}` -> number
+    this._leagues = new Map(); // leagueId -> META { leagueId, tier, period, periodStart, group?, status }
+    this._leagueMembers = new Map(); // leagueId -> Set(userId)
+    this._leagueState = new Map(); // userId -> { tier, lastResult, lastClosedPeriod }
     this._attempts = new Map(); // `${userId}#${lessonAttemptId}` -> { status, lessonId, result }
     this._push = new Map(); // userId -> Map(subscriptionId -> { endpoint, keys })
     this._notif = new Map(); // userId -> preferencias + estado de lembrete (+ balde de fuso)
@@ -138,6 +141,9 @@ export class InMemoryRepo {
   async findSquadIdByInvite(code) {
     return this._invite.get(code) ?? null;
   }
+  async removeInvite(code) {
+    this._invite.delete(code);
+  }
 
   // --- squads: fan-out de XP semanal ---
   async listUserSquads(userId) {
@@ -158,12 +164,71 @@ export class InMemoryRepo {
 
   // --- ligas: fan-out de XP semanal ---
   async getUserLeague(userId) {
-    const leagueId = this._userLeague.get(userId);
-    return leagueId ? { leagueId } : null;
+    const l = this._userLeague.get(userId);
+    return l ? { ...l } : null;
   }
   async incrementLeagueXp(leagueId, userId, amount) {
     const key = `${leagueId}#${userId}`;
     this._leagueXp.set(key, (this._leagueXp.get(key) ?? 0) + amount);
+    this._addLeagueMember(leagueId, userId);
+  }
+
+  // --- ligas: semana, membros e fechamento (espelha GSI2 LEAGUES#<semana> do DynamoRepo) ---
+  /** Cria o META da liga (aberta) ou atualiza os dados sem mexer no status. */
+  async putLeague(league) {
+    const current = this._leagues.get(league.leagueId);
+    this._leagues.set(league.leagueId, { ...current, ...league, status: current?.status ?? 'open' });
+  }
+  async getLeague(leagueId) {
+    const l = this._leagues.get(leagueId);
+    return l ? { ...l } : null;
+  }
+  /** Entra na liga (idempotente): nao zera o XP de quem ja esta nela. */
+  async joinLeague(league, userId) {
+    await this.putLeague(league);
+    this._addLeagueMember(league.leagueId, userId);
+    const key = `${league.leagueId}#${userId}`;
+    if (!this._leagueXp.has(key)) this._leagueXp.set(key, 0);
+    const current = this._userLeague.get(userId);
+    if (!current?.period || current.period <= league.period) {
+      this._userLeague.set(userId, { leagueId: league.leagueId, period: league.period });
+    }
+  }
+  async listLeaguesOfPeriod(period, { limit = 25, cursor = null } = {}) {
+    const all = [...this._leagues.values()]
+      .filter((l) => l.period === period)
+      .sort((a, b) => (a.leagueId < b.leagueId ? -1 : 1));
+    const start = cursor ?? 0;
+    const end = start + limit;
+    return { leagues: all.slice(start, end).map((l) => ({ ...l })), cursor: end < all.length ? end : null };
+  }
+  async listLeagueMembers(leagueId) {
+    return [...(this._leagueMembers.get(leagueId) ?? [])].map((userId) => ({
+      userId,
+      xpPeriod: this._leagueXp.get(`${leagueId}#${userId}`) ?? 0,
+    }));
+  }
+  /** Grava o resultado da semana uma vez so; repetido devolve o que ja estava gravado. */
+  async applyLeagueResult(userId, result) {
+    const state = this._leagueState.get(userId);
+    if (state?.lastClosedPeriod && state.lastClosedPeriod >= result.period) {
+      return { applied: false, result: { ...state.lastResult } };
+    }
+    this._leagueState.set(userId, { tier: result.toTier, lastResult: { ...result }, lastClosedPeriod: result.period });
+    return { applied: true, result };
+  }
+  async getLeagueState(userId) {
+    const s = this._leagueState.get(userId);
+    return s ? { ...s, lastResult: { ...s.lastResult } } : null;
+  }
+  async markLeagueClosed(leagueId, summary = {}) {
+    const l = this._leagues.get(leagueId);
+    if (!l) throw new Error(`liga inexistente: ${leagueId}`);
+    this._leagues.set(leagueId, { ...l, ...summary, status: 'closed' });
+  }
+  _addLeagueMember(leagueId, userId) {
+    if (!this._leagueMembers.has(leagueId)) this._leagueMembers.set(leagueId, new Set());
+    this._leagueMembers.get(leagueId).add(userId);
   }
   async getLeagueMemberXp(leagueId, userId) {
     return this._leagueXp.get(`${leagueId}#${userId}`) ?? 0;
@@ -229,6 +294,6 @@ export class InMemoryRepo {
     if (squad) squad.memberCount = (squad.memberCount ?? 0) + 1;
   }
   async seedLeague(leagueId, userId) {
-    this._userLeague.set(userId, leagueId);
+    this._userLeague.set(userId, { leagueId });
   }
 }
