@@ -3,6 +3,22 @@ import { applyStreak } from '../domain/streak.js';
 import { updateSrs, qualityFromResult, newSrsItem } from '../domain/srs.js';
 import { xpForLesson, isDailyGoalMet } from '../domain/xp.js';
 import { evaluateAchievements } from '../domain/achievements.js';
+import { countsForWeek, periodKey, periodStartOf } from '../domain/leagues.js';
+import { parseIsoDate } from '../lib/dates.js';
+import { ensureLeague } from './leagueEnrollment.js';
+
+const NOON_MS = 12 * 60 * 60 * 1000;
+
+/**
+ * Liga da semana para o fan-out de XP. No servidor (repo com `getLeaguePlacement`, ou seja
+ * InMemoryRepo e DynamoRepo) a pessoa entra na liga certa aqui (ensureLeague). O app tambem
+ * roda este usecase no modo local (apps/web-poc, IdbRepo), cujo `getUserLeague` ja coloca a
+ * pessoa na liga local; para ele, vale o `getUserLeague` como antes.
+ */
+function weekLeague(repo, { userId, nowMs, displayName }) {
+  if (typeof repo.getLeaguePlacement !== 'function') return repo.getUserLeague(userId);
+  return ensureLeague(repo, { userId, nowMs, displayName });
+}
 
 /**
  * Orquestra a conclusao de uma licao (SPEC 02 - Definicao de pronto; SPEC 04 secao 1.4).
@@ -10,11 +26,18 @@ import { evaluateAchievements } from '../domain/achievements.js';
  *
  * @param {object} repo      repositorio (porta) - ver InMemoryRepo
  * @param {object} content   bundle de conteudo: { lessons, achievementRules }
- * @param {object} input     { userId, lessonId, score, today, reviewed[], signsLearnedDelta?, alphabetComplete? }
+ * @param {object} input     { userId, lessonId, score, today, reviewed[], signsLearnedDelta?,
+ *                            alphabetComplete?, now? }
+ *   now: relogio do servidor (epoch ms), que decide a semana da liga e das squads. Os handlers
+ *   sempre mandam; sem ele (testes, scripts) vale o meio-dia UTC de `today`.
  * @returns {Promise<object>} resumo dos efeitos
  */
 export async function completeLesson(repo, content, input) {
   const { userId, lessonId, today, score = 0, reviewed = [] } = input;
+  const nowMs = input.now ?? parseIsoDate(today) + NOON_MS;
+  const periodStart = periodStartOf(nowMs);
+  // licao de outra semana (migracao, fila antiga) soma no perfil, nao na semana atual
+  const thisWeek = countsForWeek(today, periodStart);
 
   const lesson = content.lessons?.[lessonId];
   if (!lesson) throw new Error(`licao desconhecida: ${lessonId}`);
@@ -69,11 +92,21 @@ export async function completeLesson(repo, content, input) {
   for (const code of achievementsEarned) await repo.addAchievement(userId, code);
 
   // 7. Fan-out de XP: squads + liga da semana ---------------------------
+  // A primeira licao da semana coloca a pessoa na liga certa (leagueEnrollment.js).
+  const period = periodKey(periodStart);
   const squads = await repo.listUserSquads(userId);
-  for (const { squadId } of squads) await repo.incrementSquadXp(squadId, userId, xpAwarded);
+  for (const { squadId } of squads) {
+    await repo.incrementSquadXp(squadId, userId, xpAwarded, { period: thisWeek ? period : null });
+  }
 
-  const league = await repo.getUserLeague(userId);
-  if (league) await repo.incrementLeagueXp(league.leagueId, userId, xpAwarded);
+  let leagueId = null;
+  if (thisWeek) {
+    const league = await weekLeague(repo, { userId, nowMs, displayName: profile.displayName });
+    if (league) {
+      await repo.incrementLeagueXp(league.leagueId, userId, xpAwarded);
+      leagueId = league.leagueId;
+    }
+  }
 
   await repo.saveProfile(profile);
 
@@ -86,5 +119,7 @@ export async function completeLesson(repo, content, input) {
     srsUpdated,
     achievementsEarned,
     squadsUpdated: squads.length,
+    leagueId,
+    period,
   };
 }

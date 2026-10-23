@@ -9,7 +9,7 @@
  * DELETE /v1/squads/{squadId}                    -> disbandSquad
  * POST   /v1/squads/{squadId}/members/{userId}/manage -> manageMember
  * POST   /v1/squads/{squadId}/invite-code/regenerate  -> regenerateInviteCode
- * GET    /v1/squads/{squadId}                    -> getSquad
+ * GET    /v1/squads/{squadId}                    -> getSquad (nao membro de privada: so dados publicos)
  * GET    /v1/squads/public                       -> listPublicSquads
  * GET    /v1/users/me/squads                     -> listMySquads
  *
@@ -20,6 +20,8 @@
 import { randomUUID, randomInt } from 'node:crypto';
 import * as squadUsecases from '../usecases/squads.js';
 import { SquadError } from '../usecases/squads.js';
+import { squadForWeek, squadView } from '../domain/squads.js';
+import { periodKey, periodStartOf } from '../domain/leagues.js';
 import { userId, body, ok, ApiError, wrap } from './_http.js';
 import { repo as dynamoRepo } from './_repo.js';
 
@@ -50,6 +52,9 @@ const SQUAD_ERRORS = {
   INVITE_CODE_EXHAUSTED:    [503, 'Nao foi possivel gerar um codigo de convite. Tente de novo.'],
 };
 
+/** Semana corrente (mesma da liga): o XP semanal mostrado e o dela. */
+const currentPeriod = (date) => periodKey(periodStartOf(date.getTime()));
+
 function squadId(event) {
   const id = event.pathParameters?.squadId;
   if (!id) throw new ApiError(400, 'MISSING_SQUAD_ID', 'squadId obrigatorio na URL');
@@ -72,16 +77,16 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
     const squad = await callUsecase(squadUsecases.createSquad, repo, {
       userId: uid, isGuest: false, name, description, type, genId, rng, now: now().toISOString(),
     });
-    return ok(squad, 201);
+    return ok(squadForWeek(squad, currentPeriod(now())), 201);
   });
 
   const joinSquadHandler = wrap(async (event) => {
     const uid = userId(event);
     const { inviteCode, squadId: sid } = body(event);
     const squad = await callUsecase(squadUsecases.joinSquad, repo, {
-      userId: uid, isGuest: false, code: inviteCode, squadId: sid,
+      userId: uid, isGuest: false, code: inviteCode, squadId: sid, now: now().toISOString(),
     });
-    return ok(squad);
+    return ok(squadForWeek(squad, currentPeriod(now())));
   });
 
   const leaveSquadHandler = wrap(async (event) => {
@@ -105,7 +110,7 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
     const sid = squadId(event);
     const changes = body(event);
     const squad = await callUsecase(squadUsecases.updateSquad, repo, { userId: uid, squadId: sid, changes });
-    return ok(squad);
+    return ok(squadForWeek(squad, currentPeriod(now())));
   });
 
   const disbandSquadHandler = wrap(async (event) => {
@@ -138,19 +143,16 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
     const squad = await repo.getSquad(sid);
     if (!squad) throw new ApiError(404, 'SQUAD_NOT_FOUND', 'Squad nao encontrada');
     const members = await repo.listMembers(sid);
-    const userMembership = members.find((m) => m.userId === uid) ?? null;
-    return ok({
-      squad,
-      members: members.sort((a, b) => (b.xpWeeklyContrib ?? 0) - (a.xpWeeklyContrib ?? 0)),
-      userMembership: userMembership ? { role: userMembership.role } : null,
-    });
+    // nao membro de squad privada ve so os dados publicos (domain/squads.js: squadView)
+    return ok(squadView({ squad, members, viewerId: uid, period: currentPeriod(now()) }));
   });
 
   const listMySquadsHandler = wrap(async (event) => {
     const uid = userId(event);
     const squads = await repo.listUserSquads(uid);
     const details = await Promise.all(squads.map(({ squadId: sid }) => repo.getSquad(sid)));
-    return ok({ squads: details.filter(Boolean) });
+    const period = currentPeriod(now());
+    return ok({ squads: details.filter(Boolean).map((sq) => squadForWeek(sq, period)) });
   });
 
   return {

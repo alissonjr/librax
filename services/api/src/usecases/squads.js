@@ -11,6 +11,11 @@ import { generateInviteCode, normalizeInviteCode } from '../domain/invite.js';
 
 // Usecases de squad (SPEC 04 secao 2). Cada um carrega o contexto do repositorio,
 // aplica a guarda pura do dominio e persiste. Falha de guarda vira Error(codigo).
+//
+// Depois de criada, a squad nunca e regravada inteira a partir do que foi lido: edicoes usam
+// updateSquadFields (SET so dos campos), o memberCount usa changeSquadMemberCount (ADD
+// condicional ao limite) e papel de membro usa setMemberRole. Assim o XP somado por uma
+// licao no meio (ADD em incrementSquadXp) e entradas concorrentes nao se perdem.
 
 class SquadError extends Error {}
 const fail = (code) => {
@@ -51,7 +56,7 @@ export async function createSquad(repo, input) {
 
 /**
  * POST /squads/join (SPEC 04 secao 2 - joinSquad).
- * @param {object} input { userId, isGuest, code? , squadId? }
+ * @param {object} input { userId, isGuest, code? , squadId?, now? }
  */
 export async function joinSquad(repo, input) {
   const { userId, isGuest } = input;
@@ -66,11 +71,15 @@ export async function joinSquad(repo, input) {
 
   const alreadyMember = (await repo.getMember(squadId, userId)) !== null;
   const b2cSquadCount = await repo.countUserB2cSquads(userId);
-  const check = canJoinSquad({ isGuest, b2cSquadCount, squad, alreadyMember });
+  const check = canJoinSquad({ isGuest, b2cSquadCount, squad, alreadyMember, viaInvite: Boolean(input.code) });
   if (!check.ok) fail(check.error);
 
-  await repo.putMember(squadId, userId, { role: 'member' });
-  await repo.putSquad({ ...squad, memberCount: squad.memberCount + 1 });
+  // reserva a vaga antes (ADD condicional ao limite) e devolve se a pessoa ja tinha entrado
+  if (!(await repo.changeSquadMemberCount(squadId, 1))) fail('SQUAD_FULL');
+  if (!(await repo.putMember(squadId, userId, { role: 'member', joinedAt: input.now ?? null }))) {
+    await repo.changeSquadMemberCount(squadId, -1);
+    fail('ALREADY_MEMBER');
+  }
   return repo.getSquad(squadId);
 }
 
@@ -92,7 +101,7 @@ export async function leaveSquad(repo, input) {
     await repo.deleteSquad(squadId);
   } else {
     await repo.removeMember(squadId, userId);
-    await repo.putSquad({ ...squad, memberCount: squad.memberCount - 1 });
+    await repo.changeSquadMemberCount(squadId, -1);
   }
   return outcome;
 }
@@ -115,11 +124,10 @@ export async function manageMember(repo, input) {
   if (!outcome.ok) fail(outcome.error);
 
   if (outcome.action === 'remove') {
-    const squad = await repo.getSquad(squadId);
     await repo.removeMember(squadId, targetUserId);
-    await repo.putSquad({ ...squad, memberCount: squad.memberCount - 1 });
+    await repo.changeSquadMemberCount(squadId, -1);
   } else {
-    await repo.putMember(squadId, targetUserId, { ...target, role: outcome.role });
+    await repo.setMemberRole(squadId, targetUserId, outcome.role);
   }
   return outcome;
 }
@@ -142,8 +150,8 @@ export async function transferOwnership(repo, input) {
   if (!outcome.ok) fail(outcome.error);
 
   // promove antes de rebaixar: a squad nunca fica sem admin, mesmo se a 2a escrita falhar
-  await repo.putMember(squadId, newAdminUserId, { ...target, role: outcome.targetRole });
-  await repo.putMember(squadId, userId, { ...actor, role: outcome.actorRole });
+  await repo.setMemberRole(squadId, newAdminUserId, outcome.targetRole);
+  await repo.setMemberRole(squadId, userId, outcome.actorRole);
   return outcome;
 }
 
@@ -160,9 +168,7 @@ export async function updateSquad(repo, input) {
   const check = validateSquadChanges(squad, input.changes);
   if (!check.ok) fail(check.error);
 
-  const updated = { ...squad, ...check.changes };
-  await repo.putSquad(updated);
-  return updated;
+  return repo.updateSquadFields(squadId, check.changes);
 }
 
 /**
@@ -191,7 +197,7 @@ export async function regenerateInviteCode(repo, input) {
 
   const inviteCode = await uniqueInviteCode(repo, rng);
   await repo.indexInvite(inviteCode, squadId);
-  await repo.putSquad({ ...squad, inviteCode });
+  await repo.updateSquadFields(squadId, { inviteCode });
   if (squad.inviteCode) await repo.removeInvite(squad.inviteCode);
   return { inviteCode };
 }

@@ -210,32 +210,125 @@ export class DynamoRepo {
     return Item ? this._stripKeys(Item) : null;
   }
 
+  /**
+   * So na criacao (condicional): depois disso nenhuma escrita regrava a squad inteira, para
+   * nao apagar XP (ADD) nem memberCount somados ao mesmo tempo por outra requisicao.
+   */
   async putSquad(squad) {
     const { squadId, type, inviteCode } = squad;
     const item = {
       PK: `SQUAD#${squadId}`,
       SK: 'META',
       ...squad,
-      ...(type === 'public' ? { GSI4PK: 'SQUADS_PUBLIC', GSI4SK: `XP#${String(squad.xpWeekly ?? 0).padStart(12, '0')}#${squadId}` } : {}),
+      ...(type === 'public' ? this._publicIndex(squadId, squad.xpWeekly) : {}),
       ...(inviteCode ? { GSI5PK: `INVITE#${inviteCode}`, GSI5SK: 'META' } : {}),
     };
-    await this._db.send(new PutCommand({ TableName: TABLE, Item: item }));
+    await this._db.send(
+      new PutCommand({ TableName: TABLE, Item: item, ConditionExpression: 'attribute_not_exists(PK)' }),
+    );
+  }
+
+  /**
+   * Edita so os campos dados (name, description, type, maxMembers, inviteCode) com SET; o XP
+   * e o memberCount ficam com os ADD. Trocar `type` liga ou desliga o GSI4 (diretorio
+   * publico) e trocar `inviteCode` move o GSI5. Devolve a squad depois da escrita.
+   */
+  async updateSquadFields(squadId, fields) {
+    const names = {};
+    const values = {};
+    const sets = [];
+    const removes = [];
+    const set = (attr, value) => {
+      names[`#${attr}`] = attr;
+      values[`:${attr}`] = value;
+      sets.push(`#${attr} = :${attr}`);
+    };
+    for (const [k, v] of Object.entries(fields)) set(k, v);
+    if (fields.type === 'public') {
+      for (const [k, v] of Object.entries(this._publicIndex(squadId, 0))) set(k, v);
+    } else if (fields.type) {
+      removes.push('GSI4PK', 'GSI4SK');
+    }
+    if (fields.inviteCode) {
+      set('GSI5PK', `INVITE#${fields.inviteCode}`);
+      set('GSI5SK', 'META');
+    }
+
+    const { Attributes } = await this._db.send(
+      new UpdateCommand({
+        TableName: TABLE,
+        Key: { PK: `SQUAD#${squadId}`, SK: 'META' },
+        UpdateExpression: `SET ${sets.join(', ')}${removes.length ? ` REMOVE ${removes.join(', ')}` : ''}`,
+        ConditionExpression: 'attribute_exists(PK)',
+        ExpressionAttributeNames: names,
+        ExpressionAttributeValues: values,
+        ReturnValues: 'ALL_NEW',
+      }),
+    );
+    return Attributes ? this._stripKeys(Attributes) : null;
+  }
+
+  /**
+   * Soma `delta` ao memberCount (ADD). Para entrar (delta > 0), so se `memberCount <
+   * maxMembers` na hora da escrita: duas entradas concorrentes nao passam do limite.
+   * @returns {Promise<boolean>} false se a squad esta cheia ou nao existe
+   */
+  async changeSquadMemberCount(squadId, delta) {
+    try {
+      await this._db.send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: { PK: `SQUAD#${squadId}`, SK: 'META' },
+          UpdateExpression: 'ADD memberCount :delta',
+          ConditionExpression: delta > 0 ? 'attribute_exists(PK) AND memberCount < maxMembers' : 'attribute_exists(PK)',
+          ExpressionAttributeValues: { ':delta': delta },
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (isConditionFailure(e)) return false;
+      throw e;
+    }
+  }
+
+  /**
+   * GSI4 do diretorio publico. O SK leva o xpWeekly com zero-padding (SPEC 04 1.2), mas os ADD
+   * de XP nao reescrevem o SK: a ordem por XP fica para quando o diretorio for implementado.
+   */
+  _publicIndex(squadId, xpWeekly = 0) {
+    return { GSI4PK: 'SQUADS_PUBLIC', GSI4SK: `XP#${String(xpWeekly ?? 0).padStart(12, '0')}#${squadId}` };
   }
 
   async deleteSquad(squadId) {
     const squad = await this.getSquad(squadId);
     if (!squad) return;
 
-    const members = await this.listMembers(squadId);
+    // tudo da particao: META, MEMBER# e o historico WEEK#
+    const items = [];
+    let ExclusiveStartKey;
+    do {
+      const page = await this._db.send(
+        new QueryCommand({
+          TableName: TABLE,
+          KeyConditionExpression: 'PK = :pk',
+          ExpressionAttributeValues: { ':pk': `SQUAD#${squadId}` },
+          ProjectionExpression: 'PK, SK, userId',
+          ExclusiveStartKey,
+        }),
+      );
+      items.push(...(page.Items ?? []));
+      ExclusiveStartKey = page.LastEvaluatedKey;
+    } while (ExclusiveStartKey);
+    const members = items.filter((i) => i.SK.startsWith('MEMBER#'));
 
     const deletes = [
       { Delete: { TableName: TABLE, Key: { PK: `SQUAD#${squadId}`, SK: 'META' } } },
       ...(squad.inviteCode ? [{ Delete: { TableName: TABLE, Key: this._inviteKey(squad.inviteCode) } }] : []),
+      ...items
+        .filter((i) => i.SK !== 'META')
+        .map((i) => ({ Delete: { TableName: TABLE, Key: { PK: `SQUAD#${squadId}`, SK: i.SK } } })),
       ...members.map((m) => ({
-        Delete: { TableName: TABLE, Key: { PK: `SQUAD#${squadId}`, SK: `MEMBER#${m.userId}` } },
-      })),
-      ...members.map((m) => ({
-        Delete: { TableName: TABLE, Key: { PK: `USER#${m.userId}`, SK: `SQUAD#${squadId}` } },
+        Delete: { TableName: TABLE, Key: { PK: `USER#${m.userId ?? m.SK.slice(7)}`, SK: `SQUAD#${squadId}` } },
       })),
     ];
 
@@ -259,35 +352,71 @@ export class DynamoRepo {
     return Item ? this._stripKeys(Item) : null;
   }
 
+  /**
+   * Membro novo (MEMBER# + vinculo USER#/SQUAD#). Condicional: nunca sobrescreve um membro
+   * que ja existe (e a contribuicao dele).
+   * @returns {Promise<boolean>} false se a pessoa ja e membro
+   */
   async putMember(squadId, userId, member) {
+    try {
+      await this._db.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            {
+              Put: {
+                TableName: TABLE,
+                Item: {
+                  PK: `SQUAD#${squadId}`,
+                  SK: `MEMBER#${userId}`,
+                  GSI3PK: `USER#${userId}`,
+                  GSI3SK: `SQUAD#${squadId}`,
+                  userId,
+                  xpWeeklyContrib: 0,
+                  ...member,
+                },
+                ConditionExpression: 'attribute_not_exists(PK)',
+              },
+            },
+            {
+              Put: {
+                TableName: TABLE,
+                Item: {
+                  PK: `USER#${userId}`,
+                  SK: `SQUAD#${squadId}`,
+                  squadId,
+                  role: member.role ?? 'member',
+                },
+              },
+            },
+          ],
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (e?.name === 'TransactionCanceledException' && e.CancellationReasons?.[0]?.Code === 'ConditionalCheckFailed') {
+        return false;
+      }
+      throw e;
+    }
+  }
+
+  /** Troca so o papel no MEMBER# e no vinculo USER#/SQUAD# (promote, demote, transfer). */
+  async setMemberRole(squadId, userId, role) {
+    const setRole = (Key, extra = {}) => ({
+      Update: {
+        TableName: TABLE,
+        Key,
+        UpdateExpression: 'SET #role = :role',
+        ExpressionAttributeNames: { '#role': 'role' },
+        ExpressionAttributeValues: { ':role': role },
+        ...extra,
+      },
+    });
     await this._db.send(
       new TransactWriteCommand({
         TransactItems: [
-          {
-            Put: {
-              TableName: TABLE,
-              Item: {
-                PK: `SQUAD#${squadId}`,
-                SK: `MEMBER#${userId}`,
-                GSI3PK: `USER#${userId}`,
-                GSI3SK: `SQUAD#${squadId}`,
-                userId,
-                xpWeeklyContrib: 0,
-                ...member,
-              },
-            },
-          },
-          {
-            Put: {
-              TableName: TABLE,
-              Item: {
-                PK: `USER#${userId}`,
-                SK: `SQUAD#${squadId}`,
-                squadId,
-                role: member.role ?? 'member',
-              },
-            },
-          },
+          setRole({ PK: `SQUAD#${squadId}`, SK: `MEMBER#${userId}` }, { ConditionExpression: 'attribute_exists(PK)' }),
+          setRole({ PK: `USER#${userId}`, SK: `SQUAD#${squadId}` }),
         ],
       }),
     );
@@ -385,25 +514,186 @@ export class DynamoRepo {
     return Items.map((i) => ({ squadId: i.SK.slice(6), type: i.type }));
   }
 
-  async incrementSquadXp(squadId, userId, amount) {
+  /**
+   * Soma XP na squad (META) e no membro, sempre com ADD (nunca le e regrava):
+   * - `period` ('AAAA-wSS'): ADD condicional a `xpWeekPeriod = :p`. Se o item ainda e de uma
+   *   semana velha, vira a semana com escrita condicional (valor anterior em lastWeekXp e
+   *   lastWeekPeriod) e, no META, marca a squad como ativa na semana (`SQUAD#<id> /
+   *   WEEK#<semana>`, GSI2 `SQUADS#<semana>`), que e o que o job semanal percorre;
+   * - `period: null`: licao de outra semana, so xpAllTime;
+   * - sem `period` (seeds e testes antigos): ADD direto no semanal.
+   * Squad ou membro que nao existe mais nao vira item solto (attribute_exists).
+   */
+  async incrementSquadXp(squadId, userId, amount, { period } = {}) {
     await Promise.all([
-      this._db.send(
-        new UpdateCommand({
-          TableName: TABLE,
-          Key: { PK: `SQUAD#${squadId}`, SK: 'META' },
-          UpdateExpression: 'ADD xpWeekly :delta',
-          ExpressionAttributeValues: { ':delta': amount },
-        }),
-      ),
-      this._db.send(
-        new UpdateCommand({
-          TableName: TABLE,
-          Key: { PK: `SQUAD#${squadId}`, SK: `MEMBER#${userId}` },
-          UpdateExpression: 'ADD xpWeeklyContrib :delta',
-          ExpressionAttributeValues: { ':delta': amount },
-        }),
-      ),
+      this._addWeekXp({ PK: `SQUAD#${squadId}`, SK: 'META' }, 'xpWeekly', 'xpAllTime', amount, period, squadId),
+      this._addWeekXp({ PK: `SQUAD#${squadId}`, SK: `MEMBER#${userId}` }, 'xpWeeklyContrib', 'xpAllTimeContrib', amount, period),
     ]);
+  }
+
+  async _addWeekXp(Key, weekly, allTime, amount, period, markSquadId = null) {
+    const update = (UpdateExpression, ConditionExpression, values = {}) =>
+      new UpdateCommand({
+        TableName: TABLE,
+        Key,
+        UpdateExpression,
+        ConditionExpression,
+        ExpressionAttributeValues: { ':d': amount, ...values },
+      });
+    const ignoreMissing = (p) =>
+      p.catch((e) => {
+        if (!isConditionFailure(e)) throw e;
+      });
+
+    if (period === undefined) {
+      return ignoreMissing(this._db.send(update(`ADD ${weekly} :d, ${allTime} :d`, 'attribute_exists(PK)')));
+    }
+    if (period === null) {
+      return ignoreMissing(this._db.send(update(`ADD ${allTime} :d`, 'attribute_exists(PK)')));
+    }
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await this._db.send(
+          update(`ADD ${weekly} :d, ${allTime} :d`, 'attribute_exists(PK) AND xpWeekPeriod = :p', { ':p': period }),
+        );
+        return;
+      } catch (e) {
+        if (!isConditionFailure(e)) throw e;
+      }
+
+      const { Item } = await this._db.send(new GetCommand({ TableName: TABLE, Key, ConsistentRead: true }));
+      if (!Item) return; // squad dissolvida ou membro saiu no meio
+      if (Item.xpWeekPeriod === period) continue; // outra licao acabou de virar a semana
+      if (Item.xpWeekPeriod && Item.xpWeekPeriod > period) {
+        return ignoreMissing(this._db.send(update(`ADD ${allTime} :d`, 'attribute_exists(PK)')));
+      }
+
+      const prev = Item.xpWeekPeriod ?? null;
+      const roll = {
+        TableName: TABLE,
+        Key,
+        UpdateExpression: prev
+          ? `SET lastWeekXp = if_not_exists(${weekly}, :zero), lastWeekPeriod = xpWeekPeriod, ` +
+            `${weekly} = :d, xpWeekPeriod = :p ADD ${allTime} :d`
+          : `SET ${weekly} = :d, xpWeekPeriod = :p ADD ${allTime} :d`,
+        ConditionExpression: prev ? 'xpWeekPeriod = :prev' : 'attribute_exists(PK) AND attribute_not_exists(xpWeekPeriod)',
+        ExpressionAttributeValues: { ':d': amount, ':p': period, ...(prev ? { ':prev': prev, ':zero': 0 } : {}) },
+      };
+      try {
+        if (markSquadId) {
+          await this._db.send(
+            new TransactWriteCommand({
+              TransactItems: [{ Update: roll }, { Update: this._squadWeekMarker(markSquadId, period) }],
+            }),
+          );
+        } else {
+          await this._db.send(new UpdateCommand(roll));
+        }
+        return;
+      } catch (e) {
+        if (!isConditionFailure(e) && e?.name !== 'TransactionCanceledException') throw e;
+      }
+    }
+    throw new Error(`SQUAD_XP_CONFLICT: ${Key.PK} ${Key.SK}`);
+  }
+
+  /** Marca a squad como ativa na semana (upsert, nunca reabre uma semana fechada). */
+  _squadWeekMarker(squadId, period) {
+    return {
+      TableName: TABLE,
+      Key: { PK: `SQUAD#${squadId}`, SK: `WEEK#${period}` },
+      UpdateExpression:
+        'SET squadId = :sid, #period = :p, GSI2PK = :g2pk, GSI2SK = :g2sk, #status = if_not_exists(#status, :open)',
+      ExpressionAttributeNames: { '#period': 'period', '#status': 'status' },
+      ExpressionAttributeValues: {
+        ':sid': squadId, ':p': period, ':g2pk': `SQUADS#${period}`, ':g2sk': `SQUAD#${squadId}`, ':open': 'open',
+      },
+    };
+  }
+
+  // -----------------------------------------------------------------------
+  // SQUADS - RESET SEMANAL E HISTORICO
+  // Semana: SQUAD#<id> / WEEK#<semana>; GSI2: SQUADS#<semana> / SQUAD#<id> (squads com XP na
+  // semana). Escrito uma vez por squad e semana pela licao e fechado pelo job.
+  // -----------------------------------------------------------------------
+
+  /** Uma pagina das squads com XP na semana; `cursor` e o LastEvaluatedKey (null no fim). */
+  async listSquadWeeks(period, { limit = 25, cursor = null } = {}) {
+    const page = await this._db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        IndexName: 'GSI2',
+        KeyConditionExpression: 'GSI2PK = :pk',
+        ExpressionAttributeValues: { ':pk': `SQUADS#${period}` },
+        Limit: limit,
+        ...(cursor ? { ExclusiveStartKey: cursor } : {}),
+      }),
+    );
+    return {
+      weeks: (page.Items ?? []).map((i) => ({ squadId: i.squadId, period: i.period, status: i.status })),
+      cursor: page.LastEvaluatedKey ?? null,
+    };
+  }
+
+  /**
+   * Vira a semana `period` no META e em cada membro que ainda esta nela: o XP vai para
+   * lastWeekXp e o semanal volta a zero. Condicional a `xpWeekPeriod = :old`: quem ja virou
+   * (licao na semana nova) ou ja foi virado (nova tentativa do job) fica como esta.
+   */
+  async rollSquadWeek(squadId, period) {
+    const roll = (SK, weekly) =>
+      this._db
+        .send(
+          new UpdateCommand({
+            TableName: TABLE,
+            Key: { PK: `SQUAD#${squadId}`, SK },
+            UpdateExpression: `SET lastWeekXp = ${weekly}, lastWeekPeriod = :old, ${weekly} = :zero REMOVE xpWeekPeriod`,
+            ConditionExpression: 'xpWeekPeriod = :old',
+            ExpressionAttributeValues: { ':old': period, ':zero': 0 },
+          }),
+        )
+        .catch((e) => {
+          if (!isConditionFailure(e)) throw e;
+        });
+
+    await roll('META', 'xpWeekly');
+    for (const m of await this.listMembers(squadId)) await roll(`MEMBER#${m.userId}`, 'xpWeeklyContrib');
+  }
+
+  /** Fecha a semana com o total e o ranking, uma vez so. @returns {Promise<boolean>} */
+  async saveSquadWeek(squadId, period, snapshot) {
+    const names = { '#status': 'status', '#period': 'period' };
+    const values = { ':closed': 'closed', ':sid': squadId, ':p': period };
+    const sets = ['#status = :closed', 'squadId = :sid', '#period = :p'];
+    for (const [k, v] of Object.entries(snapshot)) {
+      names[`#${k}`] = k;
+      values[`:${k}`] = v;
+      sets.push(`#${k} = :${k}`);
+    }
+    try {
+      await this._db.send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: { PK: `SQUAD#${squadId}`, SK: `WEEK#${period}` },
+          UpdateExpression: `SET ${sets.join(', ')}`,
+          ConditionExpression: 'attribute_not_exists(#status) OR #status <> :closed',
+          ExpressionAttributeNames: names,
+          ExpressionAttributeValues: values,
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (isConditionFailure(e)) return false;
+      throw e;
+    }
+  }
+
+  async getSquadWeek(squadId, period) {
+    const { Item } = await this._db.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `SQUAD#${squadId}`, SK: `WEEK#${period}` } }),
+    );
+    return Item ? this._stripKeys(Item) : null;
   }
 
   async getSquadMemberXp(squadId, userId) {
@@ -465,45 +755,121 @@ export class DynamoRepo {
   // Estado: USER#<id> / LEAGUE (liga atual + resultado da ultima semana fechada)
   // -----------------------------------------------------------------------
 
-  /** Entra na liga (idempotente): cria o META aberto se faltar e nao zera XP ja somado. */
-  async joinLeague(league, userId) {
+  /**
+   * Entra na liga (idempotente): cria o META aberto se faltar e nao zera XP ja somado.
+   * Numa transacao so: membro, META com `ADD memberCount` e a vaga da semana
+   * (`USER#<id> / LEAGUEWEEK#<semana>`, condicional: uma liga por pessoa e semana). Com
+   * `maxMembers`, o META so aceita se `memberCount < maxMembers` (grupos de ate 30 mesmo com
+   * entradas concorrentes).
+   * @returns {Promise<{status: 'joined'|'already'|'full', leagueId: string}>}
+   */
+  async joinLeague(league, userId, { maxMembers = null, displayName = null } = {}) {
     const { leagueId, tier, period, periodStart, group } = league;
     const pk = `LEAGUE#${leagueId}`;
-    await this._db.send(
-      new TransactWriteCommand({
-        TransactItems: [
-          {
-            Update: {
-              TableName: TABLE,
-              Key: { PK: pk, SK: `USER#${userId}` },
-              UpdateExpression:
-                'SET leagueId = :lid, userId = :uid, tier = :tier, period = :period, periodStart = :ps, ' +
-                'GSI2PK = :g2pk, GSI2SK = :g2sk, xpPeriod = if_not_exists(xpPeriod, :zero)',
-              ExpressionAttributeValues: {
-                ':lid': leagueId, ':uid': userId, ':tier': tier, ':period': period, ':ps': periodStart,
-                ':g2pk': `USER#${userId}`, ':g2sk': `LEAGUE#${period}`, ':zero': 0,
+    const capped = maxMembers != null;
+    try {
+      await this._db.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: TABLE,
+                Key: { PK: pk, SK: `USER#${userId}` },
+                UpdateExpression:
+                  'SET leagueId = :lid, userId = :uid, tier = :tier, period = :period, periodStart = :ps, ' +
+                  'GSI2PK = :g2pk, GSI2SK = :g2sk, xpPeriod = if_not_exists(xpPeriod, :zero)' +
+                  (displayName ? ', displayName = :dn' : ''),
+                ExpressionAttributeValues: {
+                  ':lid': leagueId, ':uid': userId, ':tier': tier, ':period': period, ':ps': periodStart,
+                  ':g2pk': `USER#${userId}`, ':g2sk': `LEAGUE#${period}`, ':zero': 0,
+                  ...(displayName ? { ':dn': displayName } : {}),
+                },
               },
             },
-          },
-          {
-            Update: {
-              TableName: TABLE,
-              Key: { PK: pk, SK: 'META' },
-              UpdateExpression:
-                'SET leagueId = :lid, tier = :tier, period = :period, periodStart = :ps, ' +
-                'GSI2PK = :g2pk, GSI2SK = :g2sk, #status = if_not_exists(#status, :open)' +
-                (group ? ', #group = :group' : ''),
-              ExpressionAttributeNames: { '#status': 'status', ...(group ? { '#group': 'group' } : {}) },
-              ExpressionAttributeValues: {
-                ':lid': leagueId, ':tier': tier, ':period': period, ':ps': periodStart,
-                ':g2pk': `LEAGUES#${period}`, ':g2sk': `LEAGUE#${leagueId}`, ':open': 'open',
-                ...(group ? { ':group': group } : {}),
+            {
+              Update: {
+                TableName: TABLE,
+                Key: { PK: pk, SK: 'META' },
+                UpdateExpression:
+                  'SET leagueId = :lid, tier = :tier, period = :period, periodStart = :ps, ' +
+                  'GSI2PK = :g2pk, GSI2SK = :g2sk, #status = if_not_exists(#status, :open)' +
+                  (group ? ', #group = :group' : '') +
+                  ' ADD memberCount :one',
+                ExpressionAttributeNames: { '#status': 'status', ...(group ? { '#group': 'group' } : {}) },
+                ExpressionAttributeValues: {
+                  ':lid': leagueId, ':tier': tier, ':period': period, ':ps': periodStart,
+                  ':g2pk': `LEAGUES#${period}`, ':g2sk': `LEAGUE#${leagueId}`, ':open': 'open', ':one': 1,
+                  ...(group ? { ':group': group } : {}),
+                  ...(capped ? { ':max': maxMembers } : {}),
+                },
+                ...(capped ? { ConditionExpression: 'attribute_not_exists(memberCount) OR memberCount < :max' } : {}),
               },
             },
-          },
-        ],
+            {
+              Put: {
+                TableName: TABLE,
+                Item: { PK: `USER#${userId}`, SK: `LEAGUEWEEK#${period}`, leagueId, tier, period },
+                ConditionExpression: 'attribute_not_exists(PK)',
+              },
+            },
+          ],
+        }),
+      );
+      return { status: 'joined', leagueId };
+    } catch (e) {
+      const reasons = e?.name === 'TransactionCanceledException' ? e.CancellationReasons ?? [] : null;
+      if (!reasons) throw e;
+      if (reasons[2]?.Code === 'ConditionalCheckFailed') {
+        const seat = await this.getLeaguePlacement(userId, period);
+        if (seat) return { status: 'already', leagueId: seat.leagueId };
+      }
+      if (reasons[1]?.Code === 'ConditionalCheckFailed') return { status: 'full', leagueId };
+      throw e;
+    }
+  }
+
+  /** Vaga da pessoa na semana (`USER#<id> / LEAGUEWEEK#<semana>`), leitura consistente. */
+  async getLeaguePlacement(userId, period) {
+    const { Item } = await this._db.send(
+      new GetCommand({
+        TableName: TABLE,
+        Key: { PK: `USER#${userId}`, SK: `LEAGUEWEEK#${period}` },
+        ConsistentRead: true,
       }),
     );
+    return Item ? this._stripKeys(Item) : null;
+  }
+
+  /** Grupo aberto da liga na semana (`LEAGUEGROUPS#<tier>#<semana> / META`), 1 se nao houver. */
+  async getLeagueGroupCursor(tier, period) {
+    const { Item } = await this._db.send(
+      new GetCommand({ TableName: TABLE, Key: this._groupCursorKey(tier, period), ConsistentRead: true }),
+    );
+    return Item?.group ?? 1;
+  }
+
+  /** Avanca o cursor so se ele ainda aponta para `fromGroup` (cheio); senao devolve o atual. */
+  async advanceLeagueGroup(tier, period, fromGroup) {
+    try {
+      await this._db.send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: this._groupCursorKey(tier, period),
+          UpdateExpression: 'SET #group = :next',
+          ConditionExpression: fromGroup === 1 ? 'attribute_not_exists(#group) OR #group = :cur' : '#group = :cur',
+          ExpressionAttributeNames: { '#group': 'group' },
+          ExpressionAttributeValues: { ':next': fromGroup + 1, ':cur': fromGroup },
+        }),
+      );
+      return fromGroup + 1;
+    } catch (e) {
+      if (!isConditionFailure(e)) throw e;
+      return this.getLeagueGroupCursor(tier, period);
+    }
+  }
+
+  _groupCursorKey(tier, period) {
+    return { PK: `LEAGUEGROUPS#${tier}#${period}`, SK: 'META' };
   }
 
   async getLeague(leagueId) {
@@ -541,11 +907,17 @@ export class DynamoRepo {
           TableName: TABLE,
           KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
           ExpressionAttributeValues: { ':pk': `LEAGUE#${leagueId}`, ':prefix': 'USER#' },
-          ProjectionExpression: 'SK, userId, xpPeriod',
+          ProjectionExpression: 'SK, userId, xpPeriod, displayName',
           ExclusiveStartKey,
         }),
       );
-      for (const i of page.Items ?? []) out.push({ userId: i.userId ?? i.SK.slice(5), xpPeriod: i.xpPeriod ?? 0 });
+      for (const i of page.Items ?? []) {
+        out.push({
+          userId: i.userId ?? i.SK.slice(5),
+          xpPeriod: i.xpPeriod ?? 0,
+          ...(i.displayName ? { displayName: i.displayName } : {}),
+        });
+      }
       ExclusiveStartKey = page.LastEvaluatedKey;
     } while (ExclusiveStartKey);
     return out;
@@ -589,6 +961,31 @@ export class DynamoRepo {
       }),
     );
     return Item ? this._stripKeys(Item) : null;
+  }
+
+  /** Semana do ultimo LeagueResultSheet visto (`USER#<id> / LEAGUE_SEEN`), so para frente. */
+  async markLeagueResultSeen(userId, period) {
+    await this._db
+      .send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: { PK: `USER#${userId}`, SK: 'LEAGUE_SEEN' },
+          UpdateExpression: 'SET #period = :p, userId = :uid',
+          ConditionExpression: 'attribute_not_exists(#period) OR #period < :p',
+          ExpressionAttributeNames: { '#period': 'period' },
+          ExpressionAttributeValues: { ':p': period, ':uid': userId },
+        }),
+      )
+      .catch((e) => {
+        if (!isConditionFailure(e)) throw e;
+      });
+  }
+
+  async getLeagueResultSeen(userId) {
+    const { Item } = await this._db.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `USER#${userId}`, SK: 'LEAGUE_SEEN' } }),
+    );
+    return Item?.period ?? null;
   }
 
   async markLeagueClosed(leagueId, summary = {}) {

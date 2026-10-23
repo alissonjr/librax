@@ -89,6 +89,20 @@ test('update: admin edita nome, visibilidade e limite', async () => {
   assert.equal(squad.maxMembers, 10);
 });
 
+test('update e join devolvem o XP da semana atual, sem os campos internos de semana', async () => {
+  const { h, repo } = await setup();
+  await repo.incrementSquadXp('s1', 'u2', 30, { period: '2026-w40' }); // semana velha (now e w43)
+
+  const updated = parse(await h.updateSquadHandler(event({ body: { name: 'Turma B' }, pathParameters: { squadId: 's1' } })));
+  assert.equal(updated.xpWeekly, 0);
+  assert.equal(updated.xpWeekPeriod, undefined);
+  assert.equal(updated.xpAllTime, 30);
+
+  const joined = parse(await h.joinSquadHandler(event({ sub: 'u3', body: { inviteCode: updated.inviteCode } })));
+  assert.equal(joined.xpWeekly, 0);
+  assert.equal(joined.xpWeekPeriod, undefined);
+});
+
 test('update: limite abaixo do total e 409; nome invalido e 400; membro comum e 403', async () => {
   const { h } = await setup();
   const below = await h.updateSquadHandler(event({ body: { maxMembers: 1 }, pathParameters: { squadId: 's1' } }));
@@ -193,6 +207,56 @@ test('leave: unico admin com outros membros recebe 409 MUST_TRANSFER_OWNERSHIP',
   const res = await h.leaveSquadHandler(event({ pathParameters: { squadId: 's1' } }));
   assert.equal(res.statusCode, 409);
   assert.equal(parse(res).error.code, 'MUST_TRANSFER_OWNERSHIP');
+});
+
+// --- GET /v1/squads/{squadId}: dados privados (SPEC 04 secoes 0.1 e 4.2) ---
+
+const PUBLIC_FIELDS = ['description', 'maxMembers', 'memberCount', 'name', 'squadId', 'type', 'xpWeekly'];
+
+test('get: quem nao e membro de squad privada ve so os dados publicos, sem membros nem convite', async () => {
+  const { h, repo } = await setup(); // s1 e privada
+  await repo.incrementSquadXp('s1', 'u2', 30);
+
+  const res = await h.getSquadHandler(event({ sub: 'u9', pathParameters: { squadId: 's1' } }));
+
+  assert.equal(res.statusCode, 200);
+  const body = parse(res);
+  assert.deepEqual(Object.keys(body.squad).sort(), PUBLIC_FIELDS);
+  assert.equal(body.squad.memberCount, 2);
+  assert.equal(body.squad.xpWeekly, 30);
+  assert.deepEqual(body.members, []);
+  assert.equal(body.membersVisible, false);
+  assert.equal(body.userMembership, null);
+});
+
+test('get: membro da squad privada ve tudo (convite, membros e papel)', async () => {
+  const { h, created } = await setup();
+  const body = parse(await h.getSquadHandler(event({ sub: 'u2', pathParameters: { squadId: 's1' } })));
+  assert.equal(body.squad.inviteCode, created.inviteCode);
+  assert.equal(body.membersVisible, true);
+  assert.deepEqual(body.members.map((m) => m.userId).sort(), ['u1', 'u2']);
+  assert.deepEqual(body.userMembership, { role: 'member' });
+});
+
+test('get: squad publica mostra o ranking para quem nao e membro (preview), sem o convite', async () => {
+  const repo = new InMemoryRepo();
+  const h = makeSquadHandlers({ repo, now, genId: () => 's1', rng: () => 0 });
+  await h.createSquadHandler(event({ body: { name: 'Coda aberta', type: 'public' } }));
+  await repo.incrementSquadXp('s1', 'u1', 20);
+
+  const body = parse(await h.getSquadHandler(event({ sub: 'u9', pathParameters: { squadId: 's1' } })));
+
+  assert.deepEqual(Object.keys(body.squad).sort(), PUBLIC_FIELDS);
+  assert.equal(body.membersVisible, true);
+  assert.deepEqual(body.members, [{ userId: 'u1', role: 'admin', xpWeeklyContrib: 20 }]);
+  assert.equal(body.userMembership, null);
+});
+
+test('join: squad privada so entra com codigo (squadId direto so para publica)', async () => {
+  const { h } = await setup();
+  const res = await h.joinSquadHandler(event({ sub: 'u9', body: { squadId: 's1' } }));
+  assert.equal(res.statusCode, 404);
+  assert.equal(parse(res).error.code, 'SQUAD_NOT_FOUND');
 });
 
 test('erro de infraestrutura continua 500 sem vazar a mensagem interna', async () => {
