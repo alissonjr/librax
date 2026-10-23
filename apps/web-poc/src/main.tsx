@@ -6,9 +6,12 @@ import './style.css';
 import { App } from './App';
 import { I18nProvider, getInitialLang } from './i18n';
 import { applyTheme, getThemePref } from './lib/theme';
+import { initInstall } from './lib/install';
 
 document.documentElement.lang = getInitialLang();
 applyTheme(getThemePref());
+// Guarda o beforeinstallprompt do Chrome desde o início: ele pode chegar antes de o React montar
+initInstall();
 
 createRoot(document.getElementById('app')!).render(
   <StrictMode>

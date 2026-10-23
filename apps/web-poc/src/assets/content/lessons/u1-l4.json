@@ -1,0 +1,353 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u1-l4",
+  "exercises": [
+    {
+      "id": "u1-l4-ex01",
+      "lesson_id": "u1-l4",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "letra-P"
+      }
+    },
+    {
+      "id": "u1-l4-ex02",
+      "lesson_id": "u1-l4",
+      "type": "perform_sign",
+      "order": 2,
+      "payload": {
+        "sign_id": "letra-P",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l4-ex03",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "letra-P",
+        "correct": "P"
+      }
+    },
+    {
+      "id": "u1-l4-ex04",
+      "lesson_id": "u1-l4",
+      "type": "mirror_practice",
+      "order": 4,
+      "payload": {
+        "sign_id": "letra-P"
+      }
+    },
+    {
+      "id": "u1-l4-ex05",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "letra-P",
+        "correct": "P"
+      }
+    },
+    {
+      "id": "u1-l4-ex06",
+      "lesson_id": "u1-l4",
+      "type": "sign_intro",
+      "order": 6,
+      "payload": {
+        "sign_id": "letra-Q"
+      }
+    },
+    {
+      "id": "u1-l4-ex07",
+      "lesson_id": "u1-l4",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "letra-Q",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l4-ex08",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 8,
+      "payload": {
+        "sign_id": "letra-Q",
+        "correct": "Q"
+      }
+    },
+    {
+      "id": "u1-l4-ex09",
+      "lesson_id": "u1-l4",
+      "type": "mirror_practice",
+      "order": 9,
+      "payload": {
+        "sign_id": "letra-Q"
+      }
+    },
+    {
+      "id": "u1-l4-ex10",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 10,
+      "payload": {
+        "sign_id": "letra-Q",
+        "correct": "Q"
+      }
+    },
+    {
+      "id": "u1-l4-ex11",
+      "lesson_id": "u1-l4",
+      "type": "sign_intro",
+      "order": 11,
+      "payload": {
+        "sign_id": "letra-R"
+      }
+    },
+    {
+      "id": "u1-l4-ex12",
+      "lesson_id": "u1-l4",
+      "type": "perform_sign",
+      "order": 12,
+      "payload": {
+        "sign_id": "letra-R",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l4-ex13",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 13,
+      "payload": {
+        "sign_id": "letra-R",
+        "correct": "R"
+      }
+    },
+    {
+      "id": "u1-l4-ex14",
+      "lesson_id": "u1-l4",
+      "type": "mirror_practice",
+      "order": 14,
+      "payload": {
+        "sign_id": "letra-R"
+      }
+    },
+    {
+      "id": "u1-l4-ex15",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 15,
+      "payload": {
+        "sign_id": "letra-R",
+        "correct": "R"
+      }
+    },
+    {
+      "id": "u1-l4-ex16",
+      "lesson_id": "u1-l4",
+      "type": "sign_intro",
+      "order": 16,
+      "payload": {
+        "sign_id": "letra-S"
+      }
+    },
+    {
+      "id": "u1-l4-ex17",
+      "lesson_id": "u1-l4",
+      "type": "perform_sign",
+      "order": 17,
+      "payload": {
+        "sign_id": "letra-S",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l4-ex18",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 18,
+      "payload": {
+        "sign_id": "letra-S",
+        "correct": "S"
+      }
+    },
+    {
+      "id": "u1-l4-ex19",
+      "lesson_id": "u1-l4",
+      "type": "mirror_practice",
+      "order": 19,
+      "payload": {
+        "sign_id": "letra-S"
+      }
+    },
+    {
+      "id": "u1-l4-ex20",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 20,
+      "payload": {
+        "sign_id": "letra-S",
+        "correct": "S"
+      }
+    },
+    {
+      "id": "u1-l4-ex21",
+      "lesson_id": "u1-l4",
+      "type": "sign_intro",
+      "order": 21,
+      "payload": {
+        "sign_id": "letra-T"
+      }
+    },
+    {
+      "id": "u1-l4-ex22",
+      "lesson_id": "u1-l4",
+      "type": "perform_sign",
+      "order": 22,
+      "payload": {
+        "sign_id": "letra-T",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l4-ex23",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 23,
+      "payload": {
+        "sign_id": "letra-T",
+        "correct": "T"
+      }
+    },
+    {
+      "id": "u1-l4-ex24",
+      "lesson_id": "u1-l4",
+      "type": "mirror_practice",
+      "order": 24,
+      "payload": {
+        "sign_id": "letra-T"
+      }
+    },
+    {
+      "id": "u1-l4-ex25",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 25,
+      "payload": {
+        "sign_id": "letra-T",
+        "correct": "T"
+      }
+    },
+    {
+      "id": "u1-l4-ex26",
+      "lesson_id": "u1-l4",
+      "type": "match_pairs",
+      "order": 26,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "letra-P",
+            "gloss": "P"
+          },
+          {
+            "sign_id": "letra-Q",
+            "gloss": "Q"
+          },
+          {
+            "sign_id": "letra-R",
+            "gloss": "R"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u1-l4-ex27",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 27,
+      "payload": {
+        "sign_id": "letra-P",
+        "correct": "P"
+      }
+    },
+    {
+      "id": "u1-l4-ex28",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 28,
+      "payload": {
+        "sign_id": "letra-Q",
+        "correct": "Q"
+      }
+    },
+    {
+      "id": "u1-l4-ex29",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 29,
+      "payload": {
+        "sign_id": "letra-R",
+        "correct": "R"
+      }
+    },
+    {
+      "id": "u1-l4-ex30",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 30,
+      "payload": {
+        "sign_id": "letra-S",
+        "correct": "S"
+      }
+    },
+    {
+      "id": "u1-l4-ex31",
+      "lesson_id": "u1-l4",
+      "type": "watch_choose_word",
+      "order": 31,
+      "payload": {
+        "sign_id": "letra-T",
+        "correct": "T"
+      }
+    },
+    {
+      "id": "u1-l4-ex32",
+      "lesson_id": "u1-l4",
+      "type": "order_sequence",
+      "order": 32,
+      "payload": {
+        "steps": [
+          "P",
+          "Q",
+          "R",
+          "S"
+        ],
+        "correct_order": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    }
+  ]
+}

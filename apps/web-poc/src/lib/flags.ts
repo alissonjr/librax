@@ -23,6 +23,10 @@ export const Flags = {
   courseA1Completed:   () => Flags.has('courseA1Completed'),
   setCourseA1Completed: () => Flags.set('courseA1Completed'),
 
-  lastStreakValue: () => parseInt(Flags.get('lastStreakValue') ?? '0', 10),
+  // Sugestão de instalar na tela inicial: aparece uma vez só (decisão 13 do plano mobile web)
+  installSuggested:   () => Flags.has('installSuggested'),
+  setInstallSuggested: () => Flags.set('installSuggested'),
+
+  lastStreakValue:() => parseInt(Flags.get('lastStreakValue') ?? '0', 10),
   setLastStreakValue: (n: number) => Flags.set('lastStreakValue', String(n)),
 };

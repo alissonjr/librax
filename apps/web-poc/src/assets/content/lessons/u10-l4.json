@@ -1,0 +1,388 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u10-l4",
+  "exercises": [
+    {
+      "id": "u10-l4-ex01",
+      "lesson_id": "u10-l4",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "sinal-OVO"
+      }
+    },
+    {
+      "id": "u10-l4-ex02",
+      "lesson_id": "u10-l4",
+      "type": "perform_sign",
+      "order": 2,
+      "payload": {
+        "sign_id": "sinal-OVO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u10-l4-ex03",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "sinal-OVO",
+        "correct": "OVO"
+      }
+    },
+    {
+      "id": "u10-l4-ex04",
+      "lesson_id": "u10-l4",
+      "type": "mirror_practice",
+      "order": 4,
+      "payload": {
+        "sign_id": "sinal-OVO"
+      }
+    },
+    {
+      "id": "u10-l4-ex05",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "sinal-OVO",
+        "correct": "OVO"
+      }
+    },
+    {
+      "id": "u10-l4-ex06",
+      "lesson_id": "u10-l4",
+      "type": "sign_intro",
+      "order": 6,
+      "payload": {
+        "sign_id": "sinal-FRUTA"
+      }
+    },
+    {
+      "id": "u10-l4-ex07",
+      "lesson_id": "u10-l4",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "sinal-FRUTA",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u10-l4-ex08",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 8,
+      "payload": {
+        "sign_id": "sinal-FRUTA",
+        "correct": "FRUTA"
+      }
+    },
+    {
+      "id": "u10-l4-ex09",
+      "lesson_id": "u10-l4",
+      "type": "mirror_practice",
+      "order": 9,
+      "payload": {
+        "sign_id": "sinal-FRUTA"
+      }
+    },
+    {
+      "id": "u10-l4-ex10",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 10,
+      "payload": {
+        "sign_id": "sinal-FRUTA",
+        "correct": "FRUTA"
+      }
+    },
+    {
+      "id": "u10-l4-ex11",
+      "lesson_id": "u10-l4",
+      "type": "sign_intro",
+      "order": 11,
+      "payload": {
+        "sign_id": "sinal-MACA"
+      }
+    },
+    {
+      "id": "u10-l4-ex12",
+      "lesson_id": "u10-l4",
+      "type": "perform_sign",
+      "order": 12,
+      "payload": {
+        "sign_id": "sinal-MACA",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u10-l4-ex13",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 13,
+      "payload": {
+        "sign_id": "sinal-MACA",
+        "correct": "MAÇÃ"
+      }
+    },
+    {
+      "id": "u10-l4-ex14",
+      "lesson_id": "u10-l4",
+      "type": "mirror_practice",
+      "order": 14,
+      "payload": {
+        "sign_id": "sinal-MACA"
+      }
+    },
+    {
+      "id": "u10-l4-ex15",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 15,
+      "payload": {
+        "sign_id": "sinal-MACA",
+        "correct": "MAÇÃ"
+      }
+    },
+    {
+      "id": "u10-l4-ex16",
+      "lesson_id": "u10-l4",
+      "type": "sign_intro",
+      "order": 16,
+      "payload": {
+        "sign_id": "sinal-BANANA"
+      }
+    },
+    {
+      "id": "u10-l4-ex17",
+      "lesson_id": "u10-l4",
+      "type": "perform_sign",
+      "order": 17,
+      "payload": {
+        "sign_id": "sinal-BANANA",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u10-l4-ex18",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 18,
+      "payload": {
+        "sign_id": "sinal-BANANA",
+        "correct": "BANANA"
+      }
+    },
+    {
+      "id": "u10-l4-ex19",
+      "lesson_id": "u10-l4",
+      "type": "mirror_practice",
+      "order": 19,
+      "payload": {
+        "sign_id": "sinal-BANANA"
+      }
+    },
+    {
+      "id": "u10-l4-ex20",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 20,
+      "payload": {
+        "sign_id": "sinal-BANANA",
+        "correct": "BANANA"
+      }
+    },
+    {
+      "id": "u10-l4-ex21",
+      "lesson_id": "u10-l4",
+      "type": "sign_intro",
+      "order": 21,
+      "payload": {
+        "sign_id": "sinal-GOSTOSO"
+      }
+    },
+    {
+      "id": "u10-l4-ex22",
+      "lesson_id": "u10-l4",
+      "type": "perform_sign",
+      "order": 22,
+      "payload": {
+        "sign_id": "sinal-GOSTOSO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u10-l4-ex23",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 23,
+      "payload": {
+        "sign_id": "sinal-GOSTOSO",
+        "correct": "GOSTOSO"
+      }
+    },
+    {
+      "id": "u10-l4-ex24",
+      "lesson_id": "u10-l4",
+      "type": "mirror_practice",
+      "order": 24,
+      "payload": {
+        "sign_id": "sinal-GOSTOSO"
+      }
+    },
+    {
+      "id": "u10-l4-ex25",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 25,
+      "payload": {
+        "sign_id": "sinal-GOSTOSO",
+        "correct": "GOSTOSO"
+      }
+    },
+    {
+      "id": "u10-l4-ex26",
+      "lesson_id": "u10-l4",
+      "type": "match_pairs",
+      "order": 26,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "sinal-OVO",
+            "gloss": "OVO"
+          },
+          {
+            "sign_id": "sinal-FRUTA",
+            "gloss": "FRUTA"
+          },
+          {
+            "sign_id": "sinal-MACA",
+            "gloss": "MAÇÃ"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u10-l4-ex27",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 27,
+      "payload": {
+        "sign_id": "sinal-OVO",
+        "correct": "OVO"
+      }
+    },
+    {
+      "id": "u10-l4-ex28",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 28,
+      "payload": {
+        "sign_id": "sinal-FRUTA",
+        "correct": "FRUTA"
+      }
+    },
+    {
+      "id": "u10-l4-ex29",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 29,
+      "payload": {
+        "sign_id": "sinal-MACA",
+        "correct": "MAÇÃ"
+      }
+    },
+    {
+      "id": "u10-l4-ex30",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 30,
+      "payload": {
+        "sign_id": "sinal-BANANA",
+        "correct": "BANANA"
+      }
+    },
+    {
+      "id": "u10-l4-ex31",
+      "lesson_id": "u10-l4",
+      "type": "watch_choose_word",
+      "order": 31,
+      "payload": {
+        "sign_id": "sinal-GOSTOSO",
+        "correct": "GOSTOSO"
+      }
+    },
+    {
+      "id": "u10-l4-ex32",
+      "lesson_id": "u10-l4",
+      "type": "order_sequence",
+      "order": 32,
+      "payload": {
+        "steps": [
+          "OVO",
+          "FRUTA",
+          "MAÇÃ",
+          "BANANA"
+        ],
+        "correct_order": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "u10-l4-ex33",
+      "lesson_id": "u10-l4",
+      "type": "build_phrase",
+      "order": 33,
+      "payload": {
+        "pt": "Eu estou com fome e ainda não jantei.",
+        "glosses": [
+          "EU",
+          "FOME",
+          "COMER^NOITE",
+          "SEM"
+        ],
+        "distractors": [
+          "ADORAR",
+          "ÁGUA",
+          "GELAD@",
+          "BEBER",
+          "COMER",
+          "PEIXE",
+          "FILH@",
+          "ME@",
+          "GOSTAR",
+          "OVO",
+          "BANANA",
+          "IMPORTANTE",
+          "SAÚDE",
+          "BO@"
+        ],
+        "source": {
+          "name": "Dicionário de Libras do INES - exemplo do verbete JANTAR",
+          "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/jantarSm_Prog001.mp4"
+        }
+      }
+    }
+  ]
+}

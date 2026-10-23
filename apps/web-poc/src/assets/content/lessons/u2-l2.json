@@ -1,0 +1,353 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u2-l2",
+  "exercises": [
+    {
+      "id": "u2-l2-ex01",
+      "lesson_id": "u2-l2",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "numero-6"
+      }
+    },
+    {
+      "id": "u2-l2-ex02",
+      "lesson_id": "u2-l2",
+      "type": "perform_sign",
+      "order": 2,
+      "payload": {
+        "sign_id": "numero-6",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u2-l2-ex03",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "numero-6",
+        "correct": "6"
+      }
+    },
+    {
+      "id": "u2-l2-ex04",
+      "lesson_id": "u2-l2",
+      "type": "mirror_practice",
+      "order": 4,
+      "payload": {
+        "sign_id": "numero-6"
+      }
+    },
+    {
+      "id": "u2-l2-ex05",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "numero-6",
+        "correct": "6"
+      }
+    },
+    {
+      "id": "u2-l2-ex06",
+      "lesson_id": "u2-l2",
+      "type": "sign_intro",
+      "order": 6,
+      "payload": {
+        "sign_id": "numero-7"
+      }
+    },
+    {
+      "id": "u2-l2-ex07",
+      "lesson_id": "u2-l2",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "numero-7",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u2-l2-ex08",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 8,
+      "payload": {
+        "sign_id": "numero-7",
+        "correct": "7"
+      }
+    },
+    {
+      "id": "u2-l2-ex09",
+      "lesson_id": "u2-l2",
+      "type": "mirror_practice",
+      "order": 9,
+      "payload": {
+        "sign_id": "numero-7"
+      }
+    },
+    {
+      "id": "u2-l2-ex10",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 10,
+      "payload": {
+        "sign_id": "numero-7",
+        "correct": "7"
+      }
+    },
+    {
+      "id": "u2-l2-ex11",
+      "lesson_id": "u2-l2",
+      "type": "sign_intro",
+      "order": 11,
+      "payload": {
+        "sign_id": "numero-8"
+      }
+    },
+    {
+      "id": "u2-l2-ex12",
+      "lesson_id": "u2-l2",
+      "type": "perform_sign",
+      "order": 12,
+      "payload": {
+        "sign_id": "numero-8",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u2-l2-ex13",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 13,
+      "payload": {
+        "sign_id": "numero-8",
+        "correct": "8"
+      }
+    },
+    {
+      "id": "u2-l2-ex14",
+      "lesson_id": "u2-l2",
+      "type": "mirror_practice",
+      "order": 14,
+      "payload": {
+        "sign_id": "numero-8"
+      }
+    },
+    {
+      "id": "u2-l2-ex15",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 15,
+      "payload": {
+        "sign_id": "numero-8",
+        "correct": "8"
+      }
+    },
+    {
+      "id": "u2-l2-ex16",
+      "lesson_id": "u2-l2",
+      "type": "sign_intro",
+      "order": 16,
+      "payload": {
+        "sign_id": "numero-9"
+      }
+    },
+    {
+      "id": "u2-l2-ex17",
+      "lesson_id": "u2-l2",
+      "type": "perform_sign",
+      "order": 17,
+      "payload": {
+        "sign_id": "numero-9",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u2-l2-ex18",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 18,
+      "payload": {
+        "sign_id": "numero-9",
+        "correct": "9"
+      }
+    },
+    {
+      "id": "u2-l2-ex19",
+      "lesson_id": "u2-l2",
+      "type": "mirror_practice",
+      "order": 19,
+      "payload": {
+        "sign_id": "numero-9"
+      }
+    },
+    {
+      "id": "u2-l2-ex20",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 20,
+      "payload": {
+        "sign_id": "numero-9",
+        "correct": "9"
+      }
+    },
+    {
+      "id": "u2-l2-ex21",
+      "lesson_id": "u2-l2",
+      "type": "sign_intro",
+      "order": 21,
+      "payload": {
+        "sign_id": "numero-10"
+      }
+    },
+    {
+      "id": "u2-l2-ex22",
+      "lesson_id": "u2-l2",
+      "type": "perform_sign",
+      "order": 22,
+      "payload": {
+        "sign_id": "numero-10",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u2-l2-ex23",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 23,
+      "payload": {
+        "sign_id": "numero-10",
+        "correct": "10"
+      }
+    },
+    {
+      "id": "u2-l2-ex24",
+      "lesson_id": "u2-l2",
+      "type": "mirror_practice",
+      "order": 24,
+      "payload": {
+        "sign_id": "numero-10"
+      }
+    },
+    {
+      "id": "u2-l2-ex25",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 25,
+      "payload": {
+        "sign_id": "numero-10",
+        "correct": "10"
+      }
+    },
+    {
+      "id": "u2-l2-ex26",
+      "lesson_id": "u2-l2",
+      "type": "match_pairs",
+      "order": 26,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "numero-6",
+            "gloss": "6"
+          },
+          {
+            "sign_id": "numero-7",
+            "gloss": "7"
+          },
+          {
+            "sign_id": "numero-8",
+            "gloss": "8"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u2-l2-ex27",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 27,
+      "payload": {
+        "sign_id": "numero-6",
+        "correct": "6"
+      }
+    },
+    {
+      "id": "u2-l2-ex28",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 28,
+      "payload": {
+        "sign_id": "numero-7",
+        "correct": "7"
+      }
+    },
+    {
+      "id": "u2-l2-ex29",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 29,
+      "payload": {
+        "sign_id": "numero-8",
+        "correct": "8"
+      }
+    },
+    {
+      "id": "u2-l2-ex30",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 30,
+      "payload": {
+        "sign_id": "numero-9",
+        "correct": "9"
+      }
+    },
+    {
+      "id": "u2-l2-ex31",
+      "lesson_id": "u2-l2",
+      "type": "watch_choose_word",
+      "order": 31,
+      "payload": {
+        "sign_id": "numero-10",
+        "correct": "10"
+      }
+    },
+    {
+      "id": "u2-l2-ex32",
+      "lesson_id": "u2-l2",
+      "type": "order_sequence",
+      "order": 32,
+      "payload": {
+        "steps": [
+          "6",
+          "7",
+          "8",
+          "9"
+        ],
+        "correct_order": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    }
+  ]
+}

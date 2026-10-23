@@ -16,6 +16,11 @@ const themeColorHtml = (): Plugin => ({
 });
 
 export default defineConfig({
+  // SPA: o servidor de desenvolvimento e o "vite preview" respondem index.html para qualquer rota
+  // do app (/aprender, /licao/u1-l1...), então recarregar numa URL funciona. Em produção o
+  // service worker faz o mesmo (navigateFallback abaixo) e o CDN precisa responder index.html
+  // para rotas que não são arquivo.
+  appType: 'spa',
   resolve: {
     alias: {
       '@domain': resolve(__dirname, '../../services/api/src/domain'),
@@ -30,6 +35,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
+        // Navegação para qualquer rota do app abre o index.html do precache (funciona offline e ao
+        // recarregar). Ficam de fora a página do avatar (iframe próprio) e o que não é tela do app.
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/vlibras\//, /^\/api\//, /^\/content\//, /^\/ml\//],
         runtimeCaching: [
           {
             urlPattern: /\.mp4$/,
@@ -71,16 +80,25 @@ export default defineConfig({
           },
         ],
       },
+      // Ícones gerados por tools/pwa/build-icons.mjs (npm run pwa-icons) com as cores dos tokens
       manifest: {
-        name: 'Librax',
+        id: '/',
+        name: 'Librax: aprenda Libras',
         short_name: 'Librax',
-        description: 'Aprenda Libras com reconhecimento de gestos',
+        description: 'Aprenda Libras no celular, com a câmera mostrando o sinal da sua mão.',
+        lang: 'pt-BR',
+        dir: 'ltr',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        orientation: 'portrait',
         theme_color: THEME_COLOR,
         background_color: THEME_COLOR,
-        display: 'standalone',
+        categories: ['education'],
         icons: [
-          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
     }),
