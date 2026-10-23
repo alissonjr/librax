@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { render, screen, act, waitFor, within } from '@testing-library/react';
+import { render, screen, act, waitFor, within, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { openDB } from 'idb';
@@ -23,6 +23,7 @@ import { routes, ROUTER_FUTURE } from '../router';
 import { SessionProvider } from '../hooks/useSession';
 import { IdbRepo } from '../lib/idbRepo';
 import { upgradeLibraxDb } from '../lib/db';
+import { contentVersion, saveLessonRun } from '../lib/lessonRun';
 
 async function renderAt(entries: string[], seed?: (repo: IdbRepo) => Promise<void>, brokenStreak = 0) {
   const db = await openDB(`librax-router-${Date.now()}-${Math.random()}`, 1, { upgrade: upgradeLibraxDb });
@@ -176,5 +177,95 @@ describe('roteador', () => {
     await act(() => router.navigate(-1));
     await waitFor(() => expect(screen.queryByText('Sair da lição?')).not.toBeInTheDocument());
     expect(path(router)).toBe('/licao/u1-l1');
+  });
+});
+
+describe('lição em andamento (página recarregada)', () => {
+  const RUN_KEY = 'librax_lessonRun:user-test:u1-l1';
+  const progressNow = () => Number(screen.getByRole('progressbar').getAttribute('aria-valuenow'));
+  const choiceButtons = () => screen.getAllByRole('button').filter(b => b.classList.contains('mc-choice'));
+  const choiceTexts = () => choiceButtons().map(b => b.textContent);
+
+  async function openFirstQuestion() {
+    await renderAt(['/aprender', '/licao/u1-l1']);
+    await userEvent.click(await screen.findByRole('button', { name: /Entendi, continuar/ }));
+    await screen.findByRole('heading', { name: 'Qual é este sinal?' });
+  }
+
+  async function savedRun(version?: string, index = 3) {
+    const content = await import('../lib/content');
+    const bundle = await content.loadLessonBundle('u1-l1');
+    const exercises = content.resolveExercises(bundle!, content.course.lessonsMap['u1-l1'].signIds);
+    saveLessonRun('user-test', {
+      lessonId: 'u1-l1', version: version ?? contentVersion(bundle), exercises,
+      index: index < 0 ? exercises.length : index, correct: 1, attempted: 1, reviewed: [], seen: ['letra-A'],
+    });
+  }
+
+  it('recarregar no meio retoma no mesmo exercício e com as mesmas opções', async () => {
+    await openFirstQuestion();
+    expect(progressNow()).toBe(1);
+    const before = choiceTexts();
+    expect(before).toHaveLength(4);
+    expect(localStorage.getItem(RUN_KEY)).not.toBeNull();
+
+    // Recarrega: o app monta de novo, do zero
+    cleanup();
+    await renderAt(['/aprender', '/licao/u1-l1']);
+    await screen.findByRole('heading', { name: 'Qual é este sinal?' });
+    expect(progressNow()).toBe(1);
+    expect(choiceTexts()).toEqual(before);
+  });
+
+  it('exercício já verificado não repete: retoma no seguinte', async () => {
+    await openFirstQuestion();
+    await userEvent.click(choiceButtons()[0]);
+    cleanup();
+    await renderAt(['/aprender', '/licao/u1-l1']);
+    await screen.findByRole('button', { name: /Entendi, continuar/ });
+    expect(progressNow()).toBe(2);
+  });
+
+  it('confirmar "Sair da lição?" apaga a lição em andamento', async () => {
+    await openFirstQuestion();
+    expect(localStorage.getItem(RUN_KEY)).not.toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Voltar' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Sair' }));
+    await waitFor(() => expect(localStorage.getItem(RUN_KEY)).toBeNull());
+  });
+
+  it('concluir a lição apaga a lição em andamento', async () => {
+    // Como se o último exercício já tivesse sido verificado: ao abrir, só falta concluir
+    await savedRun(undefined, -1);
+    const router = await renderAt(['/aprender', '/licao/u1-l1']);
+    await waitFor(() => expect(path(router)).toBe('/licao/u1-l1/concluida'));
+    expect(localStorage.getItem(RUN_KEY)).toBeNull();
+  });
+
+  it('concluir respondendo o último exercício não deixa lição em andamento para trás', async () => {
+    const content = await import('../lib/content');
+    const total = (await content.loadLessonBundle('u1-l1'))!.length;
+    await savedRun(undefined, total - 1);
+    const router = await renderAt(['/aprender', '/licao/u1-l1']);
+    await userEvent.click(await screen.findByRole('button', { name: /Pular este exercício|Continuar/ }));
+    await waitFor(() => expect(path(router)).toBe('/licao/u1-l1/concluida'));
+    await act(async () => { await new Promise(r => setTimeout(r, 0)); });
+    expect(localStorage.getItem(RUN_KEY)).toBeNull();
+  });
+
+  it('lição salva com outra versão do conteúdo é descartada e começa do zero', async () => {
+    await savedRun('outra-versao', 3);
+    await renderAt(['/aprender', '/licao/u1-l1']);
+    await screen.findByRole('button', { name: /Entendi, continuar/ });
+    expect(progressNow()).toBe(0);
+    expect(localStorage.getItem(RUN_KEY)).toBeNull();
+  });
+
+  it('a faixa Retomar do mapa leva à lição em andamento', async () => {
+    await savedRun(undefined, 3);
+    const router = await renderAt(['/aprender']);
+    await userEvent.click(await screen.findByRole('button', { name: /Retomar: Letras A a E/ }));
+    await waitFor(() => expect(path(router)).toBe('/licao/u1-l1'));
+    await waitFor(() => expect(progressNow()).toBe(3));
   });
 });

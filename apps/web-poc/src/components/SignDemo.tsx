@@ -15,6 +15,7 @@ import {
   type VlibrasSpeed,
 } from '../lib/vlibras';
 import { Icon } from './Icon';
+import { TraceArrowIcon } from './Brand';
 
 export type DemoMode = 'video' | 'avatar' | 'text';
 
@@ -77,12 +78,12 @@ function DemoControls({ t, lang, speed, disabled, onReplay, onSpeed }: ControlsP
     <div className="sign-demo-controls">
       <button
         type="button"
-        className="sign-demo-btn"
+        className="sign-demo-btn sign-demo-btn--move"
         onClick={onReplay}
         disabled={disabled}
         aria-label={t('signDemo.replayLabel')}
       >
-        <Icon name="replay" /> {t('signDemo.replay')}
+        <TraceArrowIcon /> {t('signDemo.replay')}
       </button>
       <button
         type="button"

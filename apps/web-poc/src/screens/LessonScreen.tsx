@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { ExerciseIntro } from '../components/ExerciseIntro';
 import { ExerciseMatchPairs } from '../components/ExerciseMatchPairs';
 import { ExerciseCameraSign } from '../components/ExerciseCameraSign';
@@ -12,6 +12,7 @@ import { course, getSign, type Exercise } from '../lib/content';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 import { warmUpHandLandmarker } from '../recognition/landmarker';
+import type { LessonProgress } from '../lib/lessonRun';
 
 /** Exercícios que abrem a câmera: a lição que tem algum já começa a carregar o modelo. */
 const CAMERA_EXERCISES = new Set<string>(['perform_sign', 'mirror_practice', 'fingerspell']);
@@ -40,17 +41,47 @@ interface Props {
    * o diálogo e o bloqueio da saída ficam na rota (useLessonExit).
    */
   onExit: () => void;
+  /** Lição em andamento retomada (página recarregada): abre nesse ponto, com o que já foi respondido. */
+  initial?: LessonProgress;
+  /** Chamado a cada exercício respondido ou passado, para a rota guardar a lição em andamento. */
+  onProgress?: (progress: LessonProgress) => void;
 }
 
-export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props) {
+export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial, onProgress }: Props) {
   const { t } = useT();
   const lesson = course.lessonsMap[lessonId];
 
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [reviewed, setReviewed] = useState<ReviewedItem[]>([]);
-  const [newSignsSeen] = useState(new Set<string>());
-  const [correct, setCorrect] = useState(0);
-  const [attempted, setAttempted] = useState(0);
+  const [currentIdx, setCurrentIdx] = useState(initial?.index ?? 0);
+  const [reviewed, setReviewed] = useState<ReviewedItem[]>(initial?.reviewed ?? []);
+  const [newSignsSeen] = useState(() => new Set<string>(initial?.seen ?? []));
+  const [correct, setCorrect] = useState(initial?.correct ?? 0);
+  const [attempted, setAttempted] = useState(initial?.attempted ?? 0);
+  // Exercício atual já verificado (resposta contada): se a página recarregar, retoma no seguinte
+  const [answeredIdx, setAnsweredIdx] = useState(-1);
+
+  // Guarda a lição em andamento a cada resposta e a cada avanço
+  const progressRef = useRef(onProgress);
+  progressRef.current = onProgress;
+  useEffect(() => {
+    if (currentIdx >= exercises.length) return;
+    const index = answeredIdx === currentIdx ? currentIdx + 1 : currentIdx;
+    // Só abriu a lição e ainda não fez nada: não há o que retomar
+    if (index === 0 && attempted === 0) return;
+    progressRef.current?.({
+      index,
+      correct,
+      attempted,
+      reviewed,
+      seen: [...newSignsSeen],
+    });
+  }, [currentIdx, answeredIdx, correct, attempted, reviewed, newSignsSeen, exercises.length]);
+
+  /** Conta a resposta do exercício atual. */
+  function record(wasCorrect: boolean) {
+    setAttempted(a => a + 1);
+    if (wasCorrect) setCorrect(c => c + 1);
+    setAnsweredIdx(currentIdx);
+  }
 
   // Cada exercício começa do topo (o anterior pode ter rolado até o botão Continuar)
   useEffect(() => {
@@ -70,22 +101,31 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
     if (hasCamera) warmUpHandLandmarker();
   }, [hasCamera]);
 
+  const finish = useCallback(() => {
+    const score = attempted > 0 ? correct / attempted : 1;
+    onComplete({
+      lessonId,
+      score,
+      reviewed,
+      xpReward: lesson.xpReward,
+      signsLearnedDelta: newSignsSeen.size,
+      isLastLesson,
+    });
+  }, [attempted, correct, reviewed, onComplete, lessonId, lesson, newSignsSeen, isLastLesson]);
+
   const advance = useCallback(() => {
     const next = currentIdx + 1;
-    if (next >= exercises.length) {
-      const score = attempted > 0 ? correct / attempted : 1;
-      onComplete({
-        lessonId,
-        score,
-        reviewed,
-        xpReward: lesson.xpReward,
-        signsLearnedDelta: newSignsSeen.size,
-        isLastLesson,
-      });
-    } else {
-      setCurrentIdx(next);
-    }
-  }, [currentIdx, exercises.length, attempted, correct, reviewed, onComplete, lessonId, lesson, newSignsSeen, isLastLesson]);
+    if (next >= exercises.length) finish();
+    else setCurrentIdx(next);
+  }, [currentIdx, exercises.length, finish]);
+
+  // Retomada depois do último exercício já verificado: só falta concluir
+  const finishedOnOpen = useRef(false);
+  useEffect(() => {
+    if (currentIdx < exercises.length || finishedOnOpen.current) return;
+    finishedOnOpen.current = true;
+    finish();
+  }, [currentIdx, exercises.length, finish]);
 
   function handleIntroNext(signId: string) {
     newSignsSeen.add(signId);
@@ -93,8 +133,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
   }
 
   function handleAnswer(signId: string, answeredCorrectly: boolean) {
-    setAttempted((a) => a + 1);
-    if (answeredCorrectly) setCorrect((c) => c + 1);
+    record(answeredCorrectly);
     setReviewed((r) => [
       ...r,
       {
@@ -108,8 +147,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
 
   // Cada sinal do match_pairs entra no SRS: quem errou o par revisa mais cedo
   function handleMatchPairsComplete(signIds: string[], allCorrect: boolean, missed: string[]) {
-    setAttempted((a) => a + 1);
-    if (allCorrect) setCorrect((c) => c + 1);
+    record(allCorrect);
     setReviewed((r) => [
       ...r,
       ...signIds.map((signId) => ({
@@ -120,12 +158,14 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
     advance();
   }
 
-  if (!lesson || exercises.length === 0) return null;
+  if (!lesson || exercises.length === 0 || currentIdx >= exercises.length) return null;
 
   const ex = exercises[currentIdx];
+  // Exercício com câmera: a tela inteira vira o palco (sempre escuro, nos dois modos)
+  const onStage = CAMERA_EXERCISES.has(ex.type);
 
   return (
-    <div className="lesson-screen">
+    <div className={`lesson-screen${onStage ? ' lesson-screen--stage lx-theme-dark' : ''}`}>
       <div className="lesson-topbar">
         <button className="back-btn" onClick={onExit} aria-label={t('common.back')}>
           <Icon name="arrow_back" />
@@ -189,10 +229,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
           word={ex.word}
           letters={ex.letters}
           perLetterConfidence={ex.perLetterConfidence}
-          onAnswer={(wasCorrect) => {
-            setAttempted(a => a + 1);
-            if (wasCorrect) setCorrect(c => c + 1);
-          }}
+          onAnswer={record}
           onNext={advance}
         />
       )}
@@ -211,10 +248,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
           steps={ex.steps ?? []}
           correctOrder={ex.correctOrder ?? (ex.steps ?? []).map((_, i) => i)}
           prompt={ex.word ? t('exerciseOrderSequence.spellPrompt', { word: ex.word }) : undefined}
-          onAnswer={(wasCorrect) => {
-            setAttempted(a => a + 1);
-            if (wasCorrect) setCorrect(c => c + 1);
-          }}
+          onAnswer={record}
           onNext={advance}
         />
       )}
@@ -225,10 +259,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit }: Props)
           pt={ex.phrase.pt}
           glosses={ex.phrase.glosses}
           tiles={ex.tiles ?? ex.phrase.glosses}
-          onAnswer={(wasCorrect) => {
-            setAttempted(a => a + 1);
-            if (wasCorrect) setCorrect(c => c + 1);
-          }}
+          onAnswer={record}
           onNext={advance}
         />
       )}

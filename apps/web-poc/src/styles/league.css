@@ -23,6 +23,21 @@
 .league-badge--ametista { fill: var(--lx-league-ametista-fill); stroke: var(--lx-league-ametista-edge); }
 .league-badge--diamante { fill: var(--lx-league-diamante-fill); stroke: var(--lx-league-diamante-edge); }
 .league-badge .league-badge-facets { fill: none; stroke-width: var(--lx-border-width-thin); }
+/* Seta curva para cima dentro da insígnia (Traço): subir de liga é um movimento */
+.league-badge .league-badge-trace {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: none;
+}
+.league-badge--bronze   .league-badge-trace { stroke: var(--lx-league-bronze-on-fill); }
+.league-badge--prata    .league-badge-trace { stroke: var(--lx-league-prata-on-fill); }
+.league-badge--ouro     .league-badge-trace { stroke: var(--lx-league-ouro-on-fill); }
+.league-badge--safira   .league-badge-trace { stroke: var(--lx-league-safira-on-fill); }
+.league-badge--rubi     .league-badge-trace { stroke: var(--lx-league-rubi-on-fill); }
+.league-badge--ametista .league-badge-trace { stroke: var(--lx-league-ametista-on-fill); }
+.league-badge--diamante .league-badge-trace { stroke: var(--lx-league-diamante-on-fill); }
 
 /* ---------- tela ---------- */
 .league-screen .sub-screen-bar h1 {
@@ -149,6 +164,26 @@
   height: var(--lx-border-width-thin);
   background: var(--lx-border-default);
 }
+/* Zonas de promoção e rebaixamento: tracejado na cor da zona dos dois lados, com seta e texto */
+.league-zone-divider--promotion::before,
+.league-zone-divider--relegation::before {
+  content: '';
+  flex: 1;
+  order: -1;
+  height: var(--lx-border-width-thick);
+}
+.league-zone-divider--promotion::before,
+.league-zone-divider--promotion::after {
+  height: var(--lx-border-width-thick);
+  background: repeating-linear-gradient(90deg, var(--lx-feedback-success-strong) 0 6px, transparent 6px 10px);
+}
+.league-zone-divider--relegation::before,
+.league-zone-divider--relegation::after {
+  height: var(--lx-border-width-thick);
+  background: repeating-linear-gradient(90deg, var(--lx-feedback-error-strong) 0 6px, transparent 6px 10px);
+}
+.league-zone-divider--promotion,
+.league-zone-divider--relegation { font-weight: var(--lx-font-weight-heavy); }
 .league-zone-divider .icon { width: var(--lx-size-icon-sm); height: var(--lx-size-icon-sm); }
 .league-zone-divider--promotion { color: var(--lx-feedback-success-text); }
 .league-zone-divider--relegation { color: var(--lx-feedback-error-text); }
@@ -201,7 +236,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font: var(--lx-typography-title-sm);
+  font: var(--lx-typography-label);
   color: var(--lx-text-primary);
 }
 .league-row-you {
@@ -215,7 +250,8 @@
 }
 .league-row-xp {
   flex-shrink: 0;
-  font: var(--lx-typography-numeric);
+  font: var(--lx-typography-label);
+  font-weight: var(--lx-font-weight-heavy);
   font-variant-numeric: tabular-nums;
   color: var(--lx-text-primary);
   text-align: right;

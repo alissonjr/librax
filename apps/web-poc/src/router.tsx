@@ -10,6 +10,7 @@ import { getToday } from './lib/today';
 import { course } from './lib/course';
 import { isLessonOpen, loadCourseProgress } from './lib/progress';
 import type { Exercise } from './lib/content';
+import { clearLessonRun, contentVersion, loadLessonRun, saveLessonRun, type LessonProgress, type LessonRun } from './lib/lessonRun';
 import { ROUTES, TAB_PATHS, sectionForPath } from './lib/routes';
 import { useSession } from './hooks/useSession';
 import { HistoryTracker, useAppNavigation } from './hooks/useAppNavigation';
@@ -330,7 +331,11 @@ function SettingsRoute() {
   );
 }
 
-/** /licao/:id: carrega os exercícios do bundle e roda a lição. Recarregar a página recomeça a lição. */
+/**
+ * /licao/:id: carrega os exercícios do bundle e roda a lição. Recarregar a página retoma a lição em
+ * andamento (lib/lessonRun.ts) no mesmo exercício e com os mesmos sorteios; concluir ou confirmar
+ * "Sair da lição?" apaga o que estava guardado.
+ */
 function LessonRoute() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
@@ -340,12 +345,19 @@ function LessonRoute() {
   const { repo, userId, showNotice } = session;
   // undefined: carregando; null: lição sem arquivo; 'locked': bloqueada no mapa
   const [exercises, setExercises] = useState<Exercise[] | null | 'locked' | undefined>(undefined);
+  // Lição em andamento retomada e versão do conteúdo (para guardar o andamento)
+  const [resume, setResume] = useState<LessonRun | null>(null);
+  const version = useRef('');
+  // Concluída ou abandonada: nada mais é guardado (a tela ainda pode renderizar depois do fim)
+  const runClosed = useRef(false);
   const ready = Array.isArray(exercises) && exercises.length > 0;
   const exit = useLessonExit(ready);
 
   useEffect(() => {
     let cancelled = false;
     setExercises(undefined);
+    setResume(null);
+    runClosed.current = false;
     async function load(): Promise<Exercise[] | null | 'locked'> {
       // content.ts traz os sinais (signs.json): só baixa quando uma lição abre. A tela da lição
       // baixa junto, para aparecer inteira de uma vez.
@@ -354,7 +366,17 @@ function LessonRoute() {
       ]);
       // Guarda: a lição bloqueada no mapa não abre pelo endereço (mesma regra do mapa)
       if (course.lessonsMap[id] && !isLessonOpen(progress, id)) return 'locked';
-      return content.loadLessonExercises(id);
+      const lesson = course.lessonsMap[id];
+      const bundle = lesson ? await content.loadLessonBundle(id) : null;
+      if (!lesson || !bundle) return null;
+      version.current = contentVersion(bundle);
+      // Página recarregada no meio da lição: os mesmos exercícios (e sorteios), do ponto onde parou
+      const saved = loadLessonRun(userId, id, version.current);
+      if (saved && saved.exercises.every(ex => content.signsMap[ex.signId])) {
+        if (!cancelled) setResume(saved);
+        return saved.exercises;
+      }
+      return content.resolveExercises(bundle, lesson.signIds);
     }
     load()
       .then(result => { if (!cancelled) setExercises(result); })
@@ -375,9 +397,23 @@ function LessonRoute() {
   if (!course.lessonsMap[id] || exercises === null) return <Navigate to={ROUTES.learn} replace />;
   if (!Array.isArray(exercises)) return <ScreenSkeleton />;
 
+  const lessonExercises = exercises;
+  function handleProgress(progress: LessonProgress) {
+    if (runClosed.current) return;
+    saveLessonRun(userId, { lessonId: id, version: version.current, exercises: lessonExercises, ...progress });
+  }
+
+  function confirmExit() {
+    runClosed.current = true;
+    clearLessonRun(userId, id);
+    exit.confirm();
+  }
+
   async function handleComplete(result: LessonSessionResult) {
     // Libera a saída antes de ir para a conclusão
     exit.finish();
+    runClosed.current = true;
+    clearLessonRun(userId, id);
     await session.finishLesson(result);
     // Troca a lição pela conclusão: voltar dali leva ao mapa, não de volta para a lição
     navigate(ROUTES.lessonDone(result.lessonId), { replace: true });
@@ -395,6 +431,8 @@ function LessonRoute() {
           exercises={exercises}
           onComplete={handleComplete}
           onExit={() => nav.backTo(ROUTES.learn)}
+          initial={resume ?? undefined}
+          onProgress={handleProgress}
         />
       </Suspense>
       <Dialog
@@ -403,7 +441,7 @@ function LessonRoute() {
         message={t('lessonScreen.exitMessage')}
         confirmLabel={t('lessonScreen.exitConfirm')}
         cancelLabel={t('common.continue')}
-        onConfirm={exit.confirm}
+        onConfirm={confirmExit}
         onCancel={exit.cancel}
         closeOnBack={false}
       />

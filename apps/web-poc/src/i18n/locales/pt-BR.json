@@ -401,19 +401,17 @@
     "correctAnswer": "A resposta correta é:",
     "pauseVideo": "Pausar vídeo",
     "prompt": "Qual é este sinal?",
-    "replay": "Ver de novo",
+    "replay": "Ver o movimento",
     "resumeVideo": "Retomar vídeo"
   },
   "exerciseWordChooseVideo": {
-    "chooseLabel": "Escolher a opção {n}",
+    "check": "Verificar",
     "correct": "Correto!",
     "correctAnswer": "A resposta certa é a opção {n}:",
-    "hide": "Parar",
     "option": "Opção {n}",
+    "playing": "Tocando a opção {n}",
     "prompt": "Qual é o sinal de",
-    "stageEmpty": "Toque em Ver para assistir cada opção, uma de cada vez. Depois escolha a certa.",
-    "view": "Ver",
-    "viewLabel": "Ver a demonstração da opção {n}"
+    "stageEmpty": "Toque numa opção para ver o sinal dela aqui. Compare quantas quiser e depois toque em Verificar."
   },
   "feedback": {
     "almost": "Quase!",
@@ -648,10 +646,10 @@
     "loading": "Carregando o avatar",
     "loadingProgress": "Carregando o avatar: {pct}%",
     "preparing": "Preparando o avatar",
-    "replay": "Repetir",
-    "replayLabel": "Repetir o sinal",
+    "replay": "Ver o movimento",
+    "replayLabel": "Ver o movimento de novo",
     "retry": "Tentar de novo",
-    "showSign": "Ver o sinal",
+    "showSign": "Ver o movimento",
     "speedLabel": "Velocidade {speed}. Toque para mudar",
     "videoLabel": "Vídeo do sinal {gloss}",
     "videoLabelHidden": "Vídeo do sinal da pergunta"

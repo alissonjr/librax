@@ -7,12 +7,23 @@
    Referência: docs/design-system-proposta.md.
    ========================================================= */
 
-/* Nunito variável auto-hospedada (public/fonts), subset latino: cobre o pt-BR */
+/* Fontes do Traço auto-hospedadas (public/fonts), subset latino: cobre o pt-BR. SIL OFL 1.1.
+   Anybody: títulos, botões, números e glosas, com os eixos de peso e de largura (font-stretch).
+   Figtree: texto e interface. */
 @font-face {
-  font-family: "Nunito";
-  src: url("/fonts/Nunito-latin-wght.woff2") format("woff2-variations"),
-       url("/fonts/Nunito-latin-wght.woff2") format("woff2");
-  font-weight: 200 1000;
+  font-family: "Anybody";
+  src: url("/fonts/Anybody-latin-wdth-wght.woff2") format("woff2-variations"),
+       url("/fonts/Anybody-latin-wdth-wght.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 50% 150%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Figtree";
+  src: url("/fonts/Figtree-latin-wght.woff2") format("woff2-variations"),
+       url("/fonts/Figtree-latin-wght.woff2") format("woff2");
+  font-weight: 300 900;
   font-style: normal;
   font-display: swap;
 }
@@ -229,6 +240,22 @@ h1[tabindex="-1"]:focus { outline: none; }
   flex: 1;
   min-height: 100dvh;
 }
+/* Palco da câmera (Traço): nos exercícios com câmera a lição inteira fica escura, nos dois modos.
+   .lx-theme-dark (tokens.css) aplica o tema escuro só aqui; o fundo é o do palco. */
+.lesson-screen--stage {
+  --lx-bg-canvas: var(--lx-stage-bg);
+  background: var(--lx-bg-canvas);
+  color: var(--lx-text-primary);
+}
+.lesson-screen--stage .lesson-topbar {
+  background: var(--lx-stage-bg);
+  border-bottom-color: var(--lx-border-subtle);
+}
+.lesson-screen--stage .cam-sign-prompt { color: var(--lx-stage-text-secondary); }
+.lesson-screen--stage .cam-sign-letter { color: var(--lx-stage-trace); }
+.lesson-screen--stage .cam-sign-letter--hand { color: var(--lx-game-hand-text); }
+.lesson-screen--stage .cam-sign-viewport-wrap { border: var(--lx-border-width-thin) solid var(--lx-border-subtle); }
+
 .lesson-exercise-wrap {
   display: flex;
   flex-direction: column;
@@ -302,7 +329,7 @@ h1[tabindex="-1"]:focus { outline: none; }
 .nav-item-label { line-height: 1; }
 
 .nav-item--active { color: var(--lx-text-brand); }
-.nav-item--active .nav-item-indicator { background: var(--lx-feedback-info-soft); }
+.nav-item--active .nav-item-indicator { background: var(--lx-feedback-info-soft); color: var(--lx-feedback-info-on-soft); }
 
 /* Tela larga: barra lateral vertical */
 @media (min-width: 768px) {
@@ -333,11 +360,6 @@ h1[tabindex="-1"]:focus { outline: none; }
     padding: var(--lx-space-5) var(--lx-space-5) var(--lx-space-4);
     border-bottom: var(--lx-border-width-thin) solid var(--lx-border-subtle);
     margin-bottom: var(--lx-space-2);
-  }
-  .nav-logo-text {
-    font: var(--lx-typography-headline);
-    font-weight: var(--lx-font-weight-black);
-    color: var(--lx-text-brand);
   }
 
   .nav-item {
@@ -405,6 +427,129 @@ h1[tabindex="-1"]:focus { outline: none; }
 .text-muted { color: var(--lx-text-secondary); }
 
 /* =========================================================
+   MARCA TRAÇO (components/Brand.tsx)
+   O movimento do sinal vira desenho: setas de trajetória dos dicionários de Libras.
+   Ponto cheio onde o movimento começa, ponta onde termina.
+   ========================================================= */
+
+/* Símbolo e palavra-marca: cores de brand.* (mudam com o tema) */
+.brand-mark { flex-shrink: 0; display: block; }
+.brand-mark-trace { stroke: var(--lx-brand-mark); }
+.brand-mark-tip   { fill: var(--lx-brand-mark); stroke: var(--lx-brand-mark); }
+.brand-mark-dot   { fill: var(--lx-brand-ink); }
+.brand-mark--tile .brand-mark-tile  { fill: var(--lx-brand-icon-bg); }
+.brand-mark--tile .brand-mark-trace { stroke: var(--lx-brand-icon-mark); }
+.brand-mark--tile .brand-mark-tip   { fill: var(--lx-brand-icon-mark); stroke: var(--lx-brand-icon-mark); }
+.brand-mark--tile .brand-mark-dot   { fill: var(--lx-brand-icon-dot); }
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--wm) * .32);
+  width: fit-content;
+  line-height: 1;
+}
+.wordmark-text {
+  font-family: var(--lx-font-family-display);
+  font-weight: var(--lx-font-weight-black);
+  font-stretch: var(--lx-font-stretch-wide);
+  font-size: var(--wm);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--lx-brand-ink);
+}
+
+/* Setas de trajetória: traço e ponta na mesma cor */
+.trace-stroke { stroke: var(--lx-game-trace-fill); }
+.trace-stroke--hand { stroke: var(--lx-game-hand-fill); }
+.trace-stroke--muted { stroke: var(--lx-border-strong); }
+.trace-stroke--stage { stroke: var(--lx-stage-trace); }
+.trace-stroke--soft { stroke-opacity: .7; }
+.trace-tip--trace { fill: var(--lx-game-trace-fill); }
+.trace-tip--hand  { fill: var(--lx-game-hand-fill); }
+.trace-tip--muted { fill: var(--lx-border-strong); }
+.trace-tip--stage { fill: var(--lx-stage-trace); }
+.trace-start { fill: var(--lx-text-primary); }
+
+/* Mão desenhada pelos 21 pontos: ossos em texto, articulações em texto de apoio, dedos ativos em tangerina */
+.hand-sketch { display: block; overflow: visible; }
+.hand-sketch-bone { stroke: var(--lx-text-primary); stroke-width: 1.8; stroke-linecap: round; }
+.hand-sketch-joint { fill: var(--lx-text-secondary); }
+.hand-sketch-joint.is-active { fill: var(--lx-game-trace-fill); }
+
+/* Ícone curvo do "Ver o movimento" */
+.trace-arrow-icon { flex-shrink: 0; }
+
+/* Órbita da lição atual: gira devagar; parada com menos movimento */
+.trace-orbit {
+  position: absolute;
+  inset: calc(-1 * var(--lx-space-4));
+  width: calc(100% + 2 * var(--lx-space-4));
+  height: calc(100% + 2 * var(--lx-space-4));
+  overflow: visible;
+  pointer-events: none;
+  animation: lx-spin var(--lx-motion-duration-orbit) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trace-orbit { animation: none; }
+}
+:root[data-reduced-motion="true"] .trace-orbit { animation: none; }
+
+/* Explosão de setas da celebração: cada seta sai do centro, uma depois da outra */
+.trace-burst {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  overflow: visible;
+}
+.trace-burst-ray {
+  transform-box: view-box;
+  transform-origin: 179px 96px;
+  animation: lx-burst-ray var(--lx-motion-duration-emphasis) var(--lx-motion-easing-overshoot) both;
+  animation-delay: calc(var(--i, 0) * var(--lx-motion-stagger) / 2);
+}
+@keyframes lx-burst-ray {
+  from { opacity: 0; transform: scale(calc(1 - 0.45 * var(--lx-motion-scale, 1))); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.trace-burst-value {
+  font-family: var(--lx-font-family-display);
+  font-weight: var(--lx-font-weight-black);
+  font-stretch: var(--lx-font-stretch-wide);
+  font-size: var(--lx-typography-numeric-xl-size);
+  fill: var(--lx-text-primary);
+}
+.trace-burst-unit {
+  font-family: var(--lx-font-family-display);
+  font-weight: var(--lx-font-weight-heavy);
+  font-size: var(--lx-typography-body-size);
+  letter-spacing: 2px;
+  fill: var(--lx-game-xp-text);
+}
+@media (prefers-reduced-motion: reduce) {
+  .trace-burst-ray { animation: none; }
+}
+:root[data-reduced-motion="true"] .trace-burst-ray { animation: none; }
+
+/* Ilustração das boas-vindas: o L e as setas do movimento sobre a tangerina suave */
+.welcome-illustration {
+  position: relative;
+  width: 100%;
+  height: min(30dvh, 240px);
+  border-radius: var(--lx-radius-xl);
+  background: var(--lx-game-trace-soft);
+  overflow: hidden;
+}
+.welcome-arcs { position: absolute; inset: 0; width: 100%; height: 100%; }
+.welcome-hand {
+  position: absolute;
+  inset: var(--lx-space-5) 16% var(--lx-space-5) 14%;
+  width: 70%;
+  height: calc(100% - 2 * var(--lx-space-5));
+}
+
+/* =========================================================
    BOTÕES (seção 11.1)
    Primário com efeito "tecla": base de 3 px que afunda ao tocar.
    ========================================================= */
@@ -419,9 +564,9 @@ h1[tabindex="-1"]:focus { outline: none; }
   min-height: var(--lx-size-button-lg);
   padding: 0 var(--lx-space-6);
   border: none;
-  border-radius: var(--lx-radius-md);
-  font: var(--lx-typography-label);
-  letter-spacing: var(--lx-typography-label-tracking);
+  border-radius: var(--lx-radius-button);
+  font: var(--lx-typography-button);
+  letter-spacing: var(--lx-typography-button-tracking);
   text-align: center;
   text-decoration: none;
   cursor: pointer;
@@ -591,8 +736,29 @@ h1[tabindex="-1"]:focus { outline: none; }
 }
 .progress-bar-fill--xp { background: var(--lx-game-xp-fill); }
 
+/* Progresso da lição: a barra termina numa ponta de seta (Traço) */
+.progress-bar-wrap--lesson {
+  position: relative;
+  overflow: visible;
+  margin-right: var(--lx-space-3);
+}
+.progress-bar-wrap--lesson .progress-bar-fill {
+  position: relative;
+  border-radius: var(--lx-radius-full) 0 0 var(--lx-radius-full);
+}
+.progress-bar-wrap--lesson .progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: calc(-1 * var(--lx-space-3));
+  top: -5px;
+  border-left: 14px solid var(--lx-game-progress);
+  border-top: 11px solid transparent;
+  border-bottom: 11px solid transparent;
+}
+
 .progress-label {
-  font: var(--lx-typography-label-sm);
+  font: var(--lx-typography-numeric);
+  font-size: var(--lx-typography-label-size);
   font-variant-numeric: tabular-nums;
   color: var(--lx-text-secondary);
   min-width: var(--lx-space-10);
@@ -615,21 +781,21 @@ h1[tabindex="-1"]:focus { outline: none; }
   margin: 0 auto;
   width: 100%;
 }
-.onboarding-hero {
-  color: var(--lx-game-hand-fill);
-  line-height: 1;
-}
-.onboarding-hero .icon { width: var(--lx-size-icon-hero); height: var(--lx-size-icon-hero); }
+/* Ilustração das boas-vindas (WelcomeIllustration) ocupa a largura da coluna */
+.onboarding-hero { align-self: stretch; }
 .onboarding h1 {
-  font: var(--lx-typography-display);
-  letter-spacing: var(--lx-typography-display-tracking);
-  text-align: center;
+  align-self: stretch;
+  font: var(--lx-typography-display-xl);
+  letter-spacing: var(--lx-typography-display-xl-tracking);
+  text-align: left;
   color: var(--lx-text-primary);
 }
 .onboarding p {
+  align-self: stretch;
   color: var(--lx-text-secondary);
-  text-align: center;
+  text-align: left;
 }
+.onboarding-brand { align-self: flex-start; }
 .onboarding-field { width: 100%; }
 
 .onboarding-lang {
@@ -683,7 +849,7 @@ h1[tabindex="-1"]:focus { outline: none; }
               width var(--lx-motion-duration-base) var(--lx-motion-easing-standard);
 }
 .onboarding-dot--active {
-  background: var(--lx-action-primary-bg);
+  background: var(--lx-game-trace-fill);
   width: var(--lx-space-6);
 }
 
@@ -696,9 +862,10 @@ h1[tabindex="-1"]:focus { outline: none; }
   max-width: 400px;
 }
 .onboarding-step h2 {
+  align-self: stretch;
   font: var(--lx-typography-headline);
   letter-spacing: var(--lx-typography-headline-tracking);
-  text-align: center;
+  text-align: left;
   color: var(--lx-text-primary);
 }
 .onboarding-sub { font: var(--lx-typography-body); }
@@ -707,7 +874,8 @@ h1[tabindex="-1"]:focus { outline: none; }
   color: var(--lx-text-tertiary) !important;
 }
 .onboarding-step-icon {
-  color: var(--lx-text-brand);
+  align-self: flex-start;
+  color: var(--lx-game-trace-fill);
   line-height: 1;
 }
 .onboarding-step-icon .icon { width: var(--lx-size-icon-hero); height: var(--lx-size-icon-hero); }
@@ -768,7 +936,7 @@ h1[tabindex="-1"]:focus { outline: none; }
   min-height: var(--lx-size-touch-comfort);
   padding: 0 var(--lx-space-4);
   border: var(--lx-border-width-thick) solid var(--lx-border-strong);
-  border-radius: var(--lx-radius-md);
+  border-radius: var(--lx-radius-button);
   font: var(--lx-typography-body-lg);
   font-weight: var(--lx-font-weight-semibold);
   color: var(--lx-text-primary);
@@ -820,13 +988,19 @@ h1[tabindex="-1"]:focus { outline: none; }
   justify-content: space-between;
   gap: var(--lx-space-2);
   min-height: calc(var(--lx-size-top-bar) + var(--lx-safe-top));
-  padding: var(--lx-safe-top) var(--lx-space-4) 0;
+  padding: calc(var(--lx-safe-top) + var(--lx-space-3)) var(--lx-space-4) var(--lx-space-2);
   width: 100%;
   max-width: var(--lx-size-content-max);
   margin: 0 auto;
 }
+.coursemap-hello {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-1);
+  min-width: 0;
+}
 .coursemap-greeting {
-  font: var(--lx-typography-body-sm);
+  font: var(--lx-typography-body);
   color: var(--lx-text-secondary);
   min-width: 0;
 }
@@ -1029,17 +1203,14 @@ h1[tabindex="-1"]:focus { outline: none; }
 .lesson-row:first-child::before,
 .lesson-row:last-child::after { display: none; }
 
-/* Até um nó concluído: sólido em game.progress */
+/* Trecho já feito (sai de um nó concluído): sólido na cor da seta de trajetória */
 .lesson-row.completed::before,
-.lesson-row:has(+ .lesson-row.completed)::after { background: var(--lx-game-progress); }
-/* Até um nó bloqueado: tracejado em border.default */
+.lesson-row.completed::after,
+.lesson-row.completed + .lesson-row::before { background: var(--lx-game-trace-fill); border-radius: var(--lx-radius-xs); }
+/* Caminho até um nó bloqueado: pontilhado em border.strong (pontos de 3 px a cada 10 px) */
 .lesson-row.locked::before,
 .lesson-row:has(+ .lesson-row.locked)::after {
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--lx-border-default) 0 var(--lx-space-2),
-    transparent var(--lx-space-2) var(--lx-space-3)
-  );
+  background: radial-gradient(circle, var(--lx-border-strong) 0 1.5px, transparent 2px) center top / 4px 10px repeat-y;
 }
 
 .lesson-node {
@@ -1057,13 +1228,16 @@ h1[tabindex="-1"]:focus { outline: none; }
   color: var(--lx-action-primary-fg);
   box-shadow: 0 3px 0 var(--lx-action-primary-base);
 }
+/* Concluído: petróleo, a cor de tudo que é mão */
 .lesson-row.completed .lesson-node {
-  background: var(--lx-feedback-success-strong);
-  color: var(--lx-feedback-success-on-strong);
+  background: var(--lx-game-hand-fill);
+  color: var(--lx-game-hand-on-fill);
   box-shadow: none;
 }
+/* Bloqueado: anel neutro com o cadeado (o texto diz "bloqueada") */
 .lesson-row.locked .lesson-node {
-  background: var(--lx-game-locked-bg);
+  background: var(--lx-bg-surface);
+  border: var(--lx-border-width-selected) solid var(--lx-game-locked-bg);
   color: var(--lx-game-locked-fg);
   box-shadow: none;
 }
@@ -1073,47 +1247,28 @@ h1[tabindex="-1"]:focus { outline: none; }
   border: var(--lx-border-width-thick) solid var(--lx-game-hand-fill);
   box-shadow: none;
 }
-/* Atual: 76 px com anel de 4 px em game.hand.fill pulsando devagar */
+/* Atual: 76 px em tangerina, com a seta de trajetória girando em volta (TraceOrbit) */
+.lesson-row.current { margin: var(--lx-space-3) 0; }
 .lesson-row.current .lesson-node {
   width: var(--lx-size-lesson-node-current);
   height: var(--lx-size-lesson-node-current);
   margin: 0;
-  box-shadow:
-    0 3px 0 var(--lx-action-primary-base),
-    0 0 0 4px var(--lx-bg-canvas),
-    0 0 0 8px var(--lx-game-hand-fill);
-}
-.lesson-row.current .lesson-node::after {
-  content: '';
-  position: absolute;
-  inset: -8px;
-  border-radius: inherit;
-  border: 4px solid var(--lx-game-hand-fill);
-  opacity: 0;
-  animation: lx-node-pulse var(--lx-motion-duration-ambient) var(--lx-motion-easing-standard) infinite;
-}
-@keyframes lx-node-pulse {
-  0%   { transform: scale(1); opacity: .6; }
-  70%  { transform: scale(1.18); opacity: 0; }
-  100% { transform: scale(1.18); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .lesson-row.current .lesson-node::after { animation: none; }
+  box-shadow: 0 3px 0 var(--lx-action-primary-base);
 }
 
 .lesson-info { flex: 1; min-width: 0; }
 .lesson-info h3 {
   font: var(--lx-typography-title-sm);
   color: var(--lx-text-primary);
+  overflow-wrap: anywhere;
 }
 .lesson-info p  {
   font: var(--lx-typography-body-sm);
   color: var(--lx-text-secondary);
 }
-.lesson-row.completed .lesson-info h3 { color: var(--lx-text-secondary); }
-.lesson-row.locked .lesson-info h3,
+.lesson-row.locked .lesson-info h3 { color: var(--lx-text-secondary); }
 .lesson-row.locked .lesson-info p { color: var(--lx-text-tertiary); }
-.lesson-row.current .lesson-info h3 { font-weight: var(--lx-font-weight-heavy); }
+.lesson-row.current .lesson-info h3 { font-weight: var(--lx-font-weight-black); }
 
 /* Três marcas de domínio (seção 15 item 11) */
 .lesson-marks {
@@ -1135,7 +1290,17 @@ h1[tabindex="-1"]:focus { outline: none; }
   padding: var(--lx-space-1) var(--lx-space-3);
   border-radius: var(--lx-radius-full);
 }
-.lesson-badge.next { background: var(--lx-feedback-info-soft); color: var(--lx-text-brand); }
+/* "Começar": pílula de ação, como o botão principal */
+.lesson-badge.next {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--lx-size-button-sm);
+  padding: 0 var(--lx-space-4);
+  background: var(--lx-action-primary-bg);
+  color: var(--lx-action-primary-fg);
+  font: var(--lx-typography-button);
+  font-size: var(--lx-typography-body-sm-size);
+}
 .lesson-badge.srs  { background: var(--lx-game-hand-soft); color: var(--lx-game-hand-text); }
 
 /* Card de continuar: o único card escuro no modo claro, antecipa o palco */
@@ -1143,14 +1308,23 @@ h1[tabindex="-1"]:focus { outline: none; }
   position: sticky;
   bottom: var(--lx-nav-offset);
   z-index: var(--lx-z-index-sticky);
-  background:
-    radial-gradient(120% 140% at 0% 0%, var(--lx-stage-glow-brand) 0%, transparent 60%),
-    var(--lx-stage-bg);
+  background: var(--lx-stage-bg);
   color: var(--lx-stage-text);
   border-top: var(--lx-border-width-thin) solid var(--lx-border-subtle);
   box-shadow: var(--lx-elevation-2);
+  overflow: hidden;
+}
+.resume-banner-arc {
+  position: absolute;
+  right: var(--lx-space-12);
+  top: var(--lx-space-1);
+  width: 120px;
+  height: 44px;
+  opacity: .55;
+  pointer-events: none;
 }
 .resume-banner-content {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--lx-space-3);
@@ -1167,16 +1341,16 @@ h1[tabindex="-1"]:focus { outline: none; }
   text-align: left;
 }
 .resume-banner-content .icon:first-child {
-  color: var(--lx-stage-landmark-tracking);
+  color: var(--lx-stage-trace);
   width: var(--lx-size-icon-lg);
   height: var(--lx-size-icon-lg);
 }
 .resume-banner-content--goal .icon:first-child { color: var(--lx-stage-landmark-correct); }
 .resume-arrow {
   margin-left: auto;
-  width: var(--lx-size-button-sm);
-  height: var(--lx-size-button-sm);
-  padding: var(--lx-space-2);
+  width: var(--lx-size-touch-min);
+  height: var(--lx-size-touch-min);
+  padding: var(--lx-space-3);
   border-radius: var(--lx-radius-full);
   background: var(--lx-action-primary-bg);
   color: var(--lx-action-primary-fg);
@@ -1250,11 +1424,13 @@ h1[tabindex="-1"]:focus { outline: none; }
 }
 .video-placeholder .icon { width: var(--lx-size-icon-hero); height: var(--lx-size-icon-hero); }
 
+/* Enunciado: Anybody pesada e larga, alinhado à esquerda (Traço) */
 .exercise-prompt {
   font: var(--lx-typography-title);
+  font-weight: var(--lx-font-weight-black);
   letter-spacing: var(--lx-typography-title-tracking);
   color: var(--lx-text-primary);
-  text-align: center;
+  text-align: left;
 }
 
 /* =========================================================
@@ -1343,7 +1519,7 @@ h1[tabindex="-1"]:focus { outline: none; }
   gap: var(--lx-space-1) var(--lx-space-2);
   background: var(--lx-bg-surface);
   border: var(--lx-border-width-thick) solid var(--lx-border-default);
-  border-radius: var(--lx-radius-md);
+  border-radius: var(--lx-radius-choice);
   padding: var(--lx-space-3) var(--lx-space-2);
   font: var(--lx-typography-headline);
   font-weight: var(--lx-font-weight-heavy);
@@ -1464,6 +1640,8 @@ h1[tabindex="-1"]:focus { outline: none; }
 }
 .feedback-body { font: var(--lx-typography-body); margin-top: var(--lx-space-0-5); }
 .feedback-gloss {
+  font-family: var(--lx-font-family-display);
+  font-stretch: var(--lx-font-stretch-semi);
   font-weight: var(--lx-font-weight-heavy);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1483,21 +1661,35 @@ h1[tabindex="-1"]:focus { outline: none; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--lx-space-8) + var(--lx-safe-top)) var(--lx-space-6) calc(var(--lx-space-8) + var(--lx-safe-bottom));
-  gap: var(--lx-space-6);
+  padding: calc(var(--lx-space-6) + var(--lx-safe-top)) var(--lx-space-4) calc(var(--lx-space-6) + var(--lx-safe-bottom));
+  gap: var(--lx-space-4);
   text-align: center;
   max-width: var(--lx-size-content-max);
   margin: 0 auto;
   width: 100%;
 }
-.completion-hero { color: var(--lx-game-hand-fill); line-height: 1; }
-.completion-hero .icon { width: var(--lx-size-icon-hero); height: var(--lx-size-icon-hero); }
+/* Explosão de setas com o +XP (TraceBurst): ocupa a largura e não deixa o texto descentrado */
+.completion-burst {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.completion-burst-trophy {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% -60%;
+  color: var(--lx-game-xp-fill);
+}
 .completion-screen h1 {
+  align-self: stretch;
   font: var(--lx-typography-display);
   letter-spacing: var(--lx-typography-display-tracking);
   color: var(--lx-text-primary);
+  text-align: left;
 }
-.completion-sub  { color: var(--lx-text-secondary); font: var(--lx-typography-body); max-width: 300px; }
+.completion-sub  { align-self: stretch; color: var(--lx-text-secondary); font: var(--lx-typography-body); text-align: left; }
 .completion-total { font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); font-variant-numeric: tabular-nums; }
 
 .stats-row {
@@ -1518,6 +1710,7 @@ h1[tabindex="-1"]:focus { outline: none; }
 }
 .stat-value {
   font: var(--lx-typography-numeric);
+  font-size: var(--lx-typography-title-size);
   font-weight: var(--lx-font-weight-black);
   font-variant-numeric: tabular-nums;
   color: var(--lx-text-primary);
@@ -1543,33 +1736,12 @@ h1[tabindex="-1"]:focus { outline: none; }
   width: 100%;
 }
 
-/* "+XP" ganho: pílula game.xp.soft que sobe 12 px (motion.duration.celebrate) */
-.xp-badge-anim {
-  font: var(--lx-typography-numeric);
-  font-weight: var(--lx-font-weight-black);
-  font-variant-numeric: tabular-nums;
-  color: var(--lx-game-xp-text);
-  background: var(--lx-game-xp-soft);
-  padding: var(--lx-space-1) var(--lx-space-4);
-  border-radius: var(--lx-radius-full);
-  opacity: 0;
-  transform: translateY(calc(var(--lx-space-3) * var(--lx-motion-scale, 1)));
-  transition:
-    opacity var(--lx-motion-duration-celebrate) var(--lx-motion-easing-overshoot),
-    transform var(--lx-motion-duration-celebrate) var(--lx-motion-easing-overshoot);
-}
-.xp-badge-anim--up {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 .signs-practiced-row {
   width: 100%;
-  max-width: 360px;
-  margin: 0 auto;
+  text-align: left;
 }
 .signs-practiced-label {
-  font: var(--lx-typography-label-sm);
+  font: var(--lx-typography-label);
   color: var(--lx-text-secondary);
   margin-bottom: var(--lx-space-2);
 }
@@ -1577,16 +1749,23 @@ h1[tabindex="-1"]:focus { outline: none; }
   display: flex;
   gap: var(--lx-space-2);
   flex-wrap: wrap;
-  justify-content: center;
 }
+/* Glosas praticadas: chips na tangerina suave, em Anybody */
 .signs-practiced-chip {
-  background: var(--lx-feedback-info-soft);
-  color: var(--lx-feedback-info-on-soft);
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  background: var(--lx-game-trace-soft);
+  color: var(--lx-game-trace-on-soft);
   border-radius: var(--lx-radius-full);
-  padding: var(--lx-space-1) var(--lx-space-3);
+  padding: 0 var(--lx-space-3);
   font: var(--lx-typography-label-sm);
+  font-family: var(--lx-font-family-display);
+  font-stretch: var(--lx-font-stretch-semi);
   font-weight: var(--lx-font-weight-heavy);
+  font-size: var(--lx-typography-body-sm-size);
   letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* Conquista desbloqueada: ouro só para XP e conquistas */
@@ -1869,7 +2048,7 @@ h1[tabindex="-1"]:focus { outline: none; }
 .cam-sign-prompt {
   font: var(--lx-typography-label-sm);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   color: var(--lx-text-secondary);
   margin-bottom: var(--lx-space-1);
 }
@@ -1925,31 +2104,42 @@ h1[tabindex="-1"]:focus { outline: none; }
   background: var(--lx-stage-landmark-ready);
   color: var(--lx-stage-bg);
 }
+/* Cartão de acerto (Traço): superfície do palco, check em verde e setas curtas em volta */
 .cam-sign-success-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--lx-space-3);
   width: min(86%, 320px);
   padding: var(--lx-space-6) var(--lx-space-5);
-  background: var(--lx-bg-raised);
-  color: var(--lx-text-primary);
+  background: var(--lx-stage-surface);
+  color: var(--lx-stage-text);
+  border: var(--lx-border-width-thin) solid var(--lx-stage-border);
   border-radius: var(--lx-radius-lg);
   box-shadow: var(--lx-elevation-3);
   text-align: center;
+}
+.cam-sign-success-arcs {
+  position: absolute;
+  inset: calc(-1 * var(--lx-space-3));
+  width: calc(100% + 2 * var(--lx-space-3));
+  height: calc(100% + 2 * var(--lx-space-3));
+  overflow: visible;
+  pointer-events: none;
 }
 .cam-sign-success-check {
   width: 72px;
   height: 72px;
   padding: var(--lx-space-4);
-  color: var(--lx-feedback-success-on-strong);
-  background: var(--lx-feedback-success-strong);
+  color: var(--lx-stage-bg);
+  background: var(--lx-stage-landmark-correct);
   border-radius: var(--lx-radius-full);
-  box-shadow: 0 0 0 var(--lx-space-2) var(--lx-feedback-success-soft);
 }
 .cam-sign-success-title {
   font: var(--lx-typography-title);
   margin: 0;
+  color: var(--lx-stage-text);
 }
 .cam-sign-success-card .btn { width: 100%; }
 
@@ -2227,11 +2417,11 @@ h1[tabindex="-1"]:focus { outline: none; }
   height: min(40dvh, 420px);
   aspect-ratio: 3 / 4;
   max-width: 100%;
-  padding: var(--lx-space-1);
+  padding: var(--lx-space-2);
   border-radius: var(--lx-radius-lg);
   overflow: hidden;
-  background: var(--lx-stage-bg);
-  color: var(--lx-stage-text);
+  background: var(--lx-game-trace-soft);
+  color: var(--lx-game-trace-on-soft);
 }
 .sign-demo-screen,
 .sign-demo-video {
@@ -2255,19 +2445,19 @@ h1[tabindex="-1"]:focus { outline: none; }
   padding: var(--lx-space-4);
   text-align: center;
   font: var(--lx-typography-body-sm);
-  color: var(--lx-stage-text-secondary);
+  color: var(--lx-game-trace-on-soft);
 }
 .sign-demo-progress {
   width: 70%;
   height: var(--lx-size-confidence-bar);
   border-radius: var(--lx-radius-full);
-  background: var(--lx-stage-pill);
+  background: var(--lx-bg-surface);
   overflow: hidden;
 }
 .sign-demo-progress-fill {
   height: 100%;
   border-radius: inherit;
-  background: var(--lx-stage-landmark-tracking);
+  background: var(--lx-game-trace-fill);
   transition: width var(--lx-motion-duration-base) var(--lx-motion-easing-standard);
 }
 
@@ -2294,6 +2484,13 @@ h1[tabindex="-1"]:focus { outline: none; }
   transition: transform var(--lx-motion-duration-instant) var(--lx-motion-easing-standard);
 }
 .sign-demo-btn:active:not(:disabled) { transform: scale(calc(1 - 0.03 * var(--lx-motion-scale, 1))); }
+/* "Ver o movimento": pílula grafite com a seta curva (Traço) */
+.sign-demo-btn--move {
+  border-color: var(--lx-text-primary);
+  background: var(--lx-text-primary);
+  color: var(--lx-bg-canvas);
+  font: var(--lx-typography-label);
+}
 .sign-demo-btn:disabled {
   background: var(--lx-action-disabled-bg);
   color: var(--lx-action-disabled-fg);
@@ -2735,28 +2932,39 @@ ol.fingerspell-strip { list-style: none; padding: 0; }
 }
 
 .wcv-options {
-  list-style: none;
-  padding: 0;
-  margin: 0;
   display: flex;
   flex-direction: column;
   gap: var(--lx-space-2);
   width: 100%;
 }
+/* Cartão inteiro é o rádio: tocar seleciona e mostra a demonstração no palco; não corrige */
 .wcv-option {
   display: flex;
-  align-items: stretch;
-  gap: var(--lx-space-2);
-  padding: var(--lx-space-1);
+  align-items: center;
+  gap: var(--lx-space-3);
+  width: 100%;
+  min-height: var(--lx-size-touch-comfort);
+  padding: var(--lx-space-2) var(--lx-space-3);
   background: var(--lx-bg-surface);
   border: var(--lx-border-width-thick) solid var(--lx-border-default);
-  border-radius: var(--lx-radius-md);
+  border-radius: var(--lx-radius-choice);
+  color: var(--lx-text-primary);
+  text-align: left;
+  cursor: pointer;
   transition:
+    transform var(--lx-motion-duration-fast) var(--lx-motion-easing-standard),
     border-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard),
     background-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard),
     opacity var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
 }
-.wcv-option--viewing { border-color: var(--lx-game-hand-fill); background: var(--lx-game-hand-soft); }
+.wcv-option:active:not([aria-disabled="true"]) { transform: scale(calc(1 - 0.02 * var(--lx-motion-scale, 1))); }
+.wcv-option[aria-disabled="true"] { cursor: default; }
+/* Selecionada (antes de verificar): contorno completo de 3 px e número preenchido, sem cor de certo ou errado */
+.wcv-option--selected {
+  border-color: var(--lx-border-focus);
+  box-shadow: inset 0 0 0 1px var(--lx-border-focus);
+  background: var(--lx-feedback-info-soft);
+}
 .wcv-option--correct {
   border-color: var(--lx-feedback-success-strong);
   background: var(--lx-feedback-success-soft);
@@ -2770,23 +2978,6 @@ ol.fingerspell-strip { list-style: none; padding: 0; }
 }
 .wcv-option--dimmed { opacity: .6; }
 
-.wcv-pick {
-  flex: 1;
-  min-width: 0;
-  min-height: var(--lx-size-touch-min);
-  display: flex;
-  align-items: center;
-  gap: var(--lx-space-3);
-  padding: var(--lx-space-2);
-  border: 0;
-  border-radius: var(--lx-radius-sm);
-  background: transparent;
-  color: var(--lx-text-primary);
-  text-align: left;
-  cursor: pointer;
-}
-.wcv-pick:disabled { cursor: default; }
-.wcv-pick:active:not(:disabled) { background: var(--lx-bg-sunken); }
 .wcv-badge {
   flex: none;
   display: inline-flex;
@@ -2796,13 +2987,16 @@ ol.fingerspell-strip { list-style: none; padding: 0; }
   height: var(--lx-space-8);
   border-radius: var(--lx-radius-full);
   background: var(--lx-bg-sunken);
-  font: var(--lx-typography-label);
+  font: var(--lx-typography-numeric);
+  font-size: var(--lx-typography-label-size);
   color: var(--lx-text-primary);
 }
+.wcv-option--selected .wcv-badge { background: var(--lx-action-primary-bg); color: var(--lx-action-primary-fg); }
 .wcv-option--correct .wcv-badge,
 .wcv-option--reveal .wcv-badge { background: var(--lx-feedback-success-strong); color: var(--lx-feedback-success-on-strong); }
 .wcv-option--wrong .wcv-badge { background: var(--lx-feedback-error-strong); color: var(--lx-feedback-error-on-strong); }
 .wcv-pick-text {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: var(--lx-space-1);
@@ -2812,6 +3006,7 @@ ol.fingerspell-strip { list-style: none; padding: 0; }
   font: var(--lx-typography-label);
   font-weight: var(--lx-font-weight-heavy);
 }
+.wcv-option--selected .wcv-pick-label { color: var(--lx-feedback-info-on-soft); }
 .wcv-option--correct .wcv-pick-label { color: var(--lx-feedback-success-on-soft); }
 .wcv-option--wrong .wcv-pick-label { color: var(--lx-feedback-error-on-soft); }
 .wcv-desc {
@@ -2822,24 +3017,19 @@ ol.fingerspell-strip { list-style: none; padding: 0; }
   font: var(--lx-typography-caption);
   color: var(--lx-feedback-success-text);
 }
-.wcv-view {
-  flex: none;
-  min-width: var(--lx-size-touch-min);
-  min-height: var(--lx-size-touch-min);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--lx-space-1);
-  padding: 0 var(--lx-space-3);
-  border: var(--lx-border-width-thin) solid var(--lx-action-secondary-border);
-  border-radius: var(--lx-radius-sm);
-  background: var(--lx-action-secondary-bg);
-  color: var(--lx-action-secondary-fg);
-  font: var(--lx-typography-label-sm);
-  cursor: pointer;
+.wcv-play { flex: none; width: var(--lx-size-icon-lg); height: var(--lx-size-icon-lg); color: var(--lx-text-secondary); }
+.wcv-option--selected .wcv-play { color: var(--lx-text-brand); }
+
+/* Verificar fixo embaixo, acima da safe area */
+.wcv-check-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--lx-z-index-sticky);
+  margin: auto calc(-1 * var(--lx-space-4)) calc(-1 * var(--lx-space-4));
+  padding: var(--lx-space-3) var(--lx-space-4) calc(var(--lx-space-4) + var(--lx-feedback-safe, 0px));
+  background: var(--lx-bg-canvas);
+  border-top: var(--lx-border-width-thin) solid var(--lx-border-subtle);
 }
-.wcv-view[aria-pressed="true"] { background: var(--lx-action-primary-bg); border-color: var(--lx-action-primary-bg); color: var(--lx-action-primary-fg); }
-.wcv-view:active { transform: scale(calc(1 - 0.03 * var(--lx-motion-scale, 1))); }
 
 @media (prefers-reduced-motion: reduce) {
   .wcv-option--correct, .wcv-option--wrong { animation: none; }
@@ -2942,12 +3132,10 @@ ol.fingerspell-strip { list-style: none; padding: 0; }
   background: var(--lx-bg-surface);
   border-radius: var(--lx-radius-md);
   border: var(--lx-border-width-thin) solid var(--lx-border-default);
-  border-top: 4px solid var(--lx-border-default);
   text-align: center;
   min-width: 0;
 }
-.srs-item-tile--new    { border-top-color: var(--lx-feedback-success-strong); }
-.srs-item-tile--review { border-top-color: var(--lx-game-hand-fill); }
+/* Novo ou revisão: o selo escrito diz o estado (sem faixa colorida no cartão) */
 .srs-item-gloss {
   font: var(--lx-typography-display);
   letter-spacing: 0.04em;

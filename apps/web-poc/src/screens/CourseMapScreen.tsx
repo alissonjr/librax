@@ -8,6 +8,8 @@ import { useT, type TFunc } from '../i18n';
 import { Icon } from '../components/Icon';
 import { ScreenSkeleton } from '../components/ScreenSkeleton';
 import { useScrollRestore } from '../hooks/useScrollRestore';
+import { TraceArc, TraceOrbit, Wordmark } from '../components/Brand';
+import { latestLessonRun } from '../lib/lessonRun';
 
 interface MapState {
   xpTotal: number;
@@ -71,12 +73,18 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
   const nextLessonObj = state.nextLesson
     ? course.units.flatMap(u => u.lessons).find(l => l.id === state.nextLesson)
     : null;
+  // Lição em andamento (a página recarregou ou a pessoa saiu pelo menu): Retomar volta ao ponto onde parou
+  const run = latestLessonRun(userId);
+  const inProgress = run && course.lessonsMap[run.lessonId] ? run : null;
 
   return (
     <>
       <div className="coursemap-topbar animate__animated animate__fadeInDown animate__faster">
-        <div className="coursemap-greeting">
-          {greetingTime(t)}, <strong>{name}</strong>
+        <div className="coursemap-hello">
+          <Wordmark size={18} />
+          <div className="coursemap-greeting">
+            {greetingTime(t)}, <strong>{name}</strong>
+          </div>
         </div>
         <div className="coursemap-stats">
           <button className="topbar-stat topbar-stat--btn" onClick={onOpenStreak} aria-label={t('courseMap.streakAria')}>
@@ -169,6 +177,7 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
                   <span className="lesson-node" aria-hidden="true">
                     {st === 'completed' && <Icon name="check" size="28px" />}
                     {st === 'available' && <Icon name="play_arrow" filled size="32px" />}
+                    {isCurrent && <TraceOrbit />}
                     {st === 'due_srs' && <Icon name="replay" size="28px" />}
                     {st === 'locked' && <Icon name="lock" filled size="24px" />}
                   </span>
@@ -203,7 +212,14 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
 
       {/* Resume banner */}
       <div className="resume-banner animate__animated animate__slideInUp">
-        {allDone ? (
+        <TraceArc className="resume-banner-arc" />
+        {inProgress ? (
+          <button className="resume-banner-content" onClick={() => onStartLesson(inProgress.lessonId)}>
+            <Icon name="play_arrow" filled />
+            <span>{t('courseMap.resume', { title: t(`course.${inProgress.lessonId}`) })}</span>
+            <Icon name="arrow_forward" className="resume-arrow" />
+          </button>
+        ) : allDone ? (
           <button className="resume-banner-content" onClick={() => onStartLesson(state.nextLesson ?? '')}>
             <Icon name="replay" />
             <span>{t('courseMap.reviewSrs')}</span>

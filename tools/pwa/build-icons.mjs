@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// Ícones do PWA do Librax, desenhados aqui em SVG com as cores dos tokens.
+// Ícones do PWA do Librax (marca Traço), desenhados aqui em SVG com as cores dos tokens.
 //
-// O desenho: a mão fazendo a letra L da datilologia (indicador para cima, polegar de lado),
-// traçada como o esqueleto da câmera, com os pontos das articulações em turquesa. É o "L" de
-// Librax e a mão que é a protagonista do app (design-system-proposta, princípio 1).
+// O desenho: o L de Librax traçado como um movimento, como nos dicionários de Libras. O ponto
+// branco marca onde o movimento começa; o traço desce, faz a curva e termina na ponta da seta, em
+// tangerina sobre grafite. Geometria copiada de estudo/marca/traco.html (caixa de 64 x 64), a
+// mesma do componente BrandMark do app.
 //
 // Gera em apps/web-poc/public/:
 //   favicon.svg             quadrado arredondado, vetorial
@@ -36,60 +37,50 @@ const token = (name) => {
 };
 
 const C = {
-  bgFrom: token('color.azul.500'),
-  bgTo: token('color.azul.700'),
-  bone: token('color.noite.0'),
-  joint: token('color.turquesa.300'),
-  jointRing: token('color.azul.700'),
+  bg: token('brand.icon.bg'),
+  mark: token('brand.icon.mark'),
+  dot: token('brand.icon.dot'),
+};
+
+/** Geometria do símbolo na caixa de 64 x 64 (traco.html): normal e reduzida para a zona segura. */
+const GEOMETRY = {
+  normal: {
+    trace: 'M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0',
+    tip: 'M37.0 36.5L52.0 46.0L37.0 55.5z',
+    dot: [20, 12.5, 5],
+  },
+  safe: {
+    trace: 'M22.6 23.4V32.7Q22.6 42.9 32.7 42.9H37.4',
+    tip: 'M35.9 35.5L47.6 42.9L35.9 50.3z',
+    dot: [22.6, 16.8, 3.9],
+  },
 };
 
 /**
- * Mão em L numa caixa de 100 x 100 (centro em 50, 50). `k` escala o desenho em torno do centro.
- * Indicador: base (31, 75) até a ponta (31, 21). Polegar: base (31, 75) até a ponta (69, 75).
+ * SVG 64 x 64. `rx`: 18 no ícone "any" e no favicon, 0 com fundo até a borda.
+ * `small`: traço mais grosso e ponto maior, para 16 a 24 px (tamanho mínimo do traco.html).
  */
-function hand(k) {
-  const joints = [
-    [31, 21], [31, 48], // indicador: ponta e articulação
-    [31, 75], // base (onde o polegar encontra o indicador)
-    [50, 75], [69, 75], // polegar: articulação e ponta
-  ];
-  const t = (x, y) => [50 + (x - 50) * k, 50 + (y - 50) * k];
-  const [ax, ay] = t(31, 21);
-  const [bx, by] = t(31, 75);
-  const [cx, cy] = t(69, 75);
-  const w = 10 * k;
-  const r = 5.4 * k;
-  const ring = 1.8 * k;
+function svg({ rx, geometry = 'normal', small = false }) {
+  const g = GEOMETRY[geometry];
+  const [cx, cy, r] = g.dot;
   return [
-    `<path d="M${ax} ${ay}L${bx} ${by}L${cx} ${cy}" fill="none" stroke="${C.bone}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`,
-    ...joints.map(([x, y]) => {
-      const [px, py] = t(x, y);
-      return `<circle cx="${px}" cy="${py}" r="${r}" fill="${C.joint}" stroke="${C.jointRing}" stroke-width="${ring}"/>`;
-    }),
-  ].join('');
-}
-
-/** SVG 100 x 100. `rounded`: cantos arredondados (ícone "any" e favicon); senão, fundo até a borda. */
-function svg({ rounded, k }) {
-  const rx = rounded ? 22 : 0;
-  return [
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">',
-    '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">',
-    `<stop offset="0" stop-color="${C.bgFrom}"/><stop offset="1" stop-color="${C.bgTo}"/>`,
-    '</linearGradient></defs>',
-    `<rect width="100" height="100" rx="${rx}" fill="url(#g)"/>`,
-    hand(k),
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">',
+    `<rect width="64" height="64" rx="${rx}" fill="${C.bg}"/>`,
+    `<path d="${g.trace}" fill="none" stroke="${C.mark}" stroke-width="${small ? 8 : 6.5}" stroke-linecap="round"/>`,
+    `<path d="${g.tip}" fill="${C.mark}" stroke="${C.mark}" stroke-width="2" stroke-linejoin="round"/>`,
+    `<circle cx="${cx}" cy="${cy}" r="${small ? 6 : r}" fill="${C.dot}"/>`,
     '</svg>',
   ].join('');
 }
 
-// Zona segura do maskable: círculo de raio 40 no centro. O canto mais distante do desenho
-// (ponta do indicador com o ponto) fica a ~40 do centro com k = 1; com k = 0.8, a ~32.
-const SVG_ANY = svg({ rounded: true, k: 1 });
-const SVG_FULL = svg({ rounded: false, k: 0.8 });
-const SVG_APPLE = svg({ rounded: false, k: 0.9 });
+// Zona segura do maskable: círculo de raio 40% no centro; a geometria "safe" do traco.html cabe nele.
+// O favicon aparece de 16 a 32 px, então usa o traço grosso do tamanho mínimo.
+const SVG_FAVICON = svg({ rx: 18, small: true });
+const SVG_ANY = svg({ rx: 18 });
+const SVG_FULL = svg({ rx: 0, geometry: 'safe' });
+const SVG_APPLE = svg({ rx: 0 });
 
-writeFileSync(resolve(OUT, 'favicon.svg'), `${SVG_ANY}\n`);
+writeFileSync(resolve(OUT, 'favicon.svg'), `${SVG_FAVICON}\n`);
 
 let sharp;
 try {
@@ -101,7 +92,7 @@ try {
 }
 
 const png = (source, size, file) =>
-  sharp(Buffer.from(source), { density: (72 * size) / 100 })
+  sharp(Buffer.from(source), { density: (72 * size) / 64 })
     .resize(size, size)
     .png({ compressionLevel: 9 })
     .toFile(resolve(OUT, file));

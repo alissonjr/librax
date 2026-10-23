@@ -1,3 +1,5 @@
+import { tokens } from '../styles/tokens';
+
 interface Particle {
   x: number; y: number;
   vx: number; vy: number;
@@ -9,10 +11,19 @@ interface Particle {
   rotationSpeed: number;
 }
 
-const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#7C6ACF', '#009688', '#FF7800'];
+// Paleta do Traço (tokens): tangerina da seta, petróleo da mão e ouro do XP, nos tons dos dois modos
+const COLORS = [
+  tokens['color.tangerina.550'],
+  tokens['color.tangerina.400'],
+  tokens['color.petroleo.600'],
+  tokens['color.petroleo.300'],
+  tokens['color.ouro.400'],
+];
 
 /** `colors` troca a paleta (ex.: a cor da liga nova na promoção, spec-05 5.2). */
 export function launchConfetti(count = 60, duration = 2500, colors: readonly string[] = COLORS) {
+  // Com menos movimento não há chuva de confete: o texto e o ícone já dizem que deu certo
+  if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;width:100%;height:100%';
   canvas.width = window.innerWidth;

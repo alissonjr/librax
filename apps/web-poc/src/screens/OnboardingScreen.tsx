@@ -4,6 +4,7 @@ import { useT, LANGUAGES } from '../i18n';
 import { Icon } from '../components/Icon';
 import { SoundOnboardingChoice } from '../components/SoundPreference';
 import { authAvailable } from '../lib/account';
+import { WelcomeIllustration, Wordmark } from '../components/Brand';
 
 interface Props {
   onDone: () => void;
@@ -72,8 +73,9 @@ export function OnboardingScreen({ onDone, onLogin }: Props) {
       {/* Step 1: Nome */}
       {step === 1 && (
         <div className="onboarding-step animate__animated animate__fadeInRight">
-          <div className="onboarding-hero wow-glow animate__animated animate__bounceIn">
-            <Icon name="sign_language" filled />
+          <Wordmark size={28} className="onboarding-brand" />
+          <div className="onboarding-hero animate__animated animate__fadeIn">
+            <WelcomeIllustration />
           </div>
           <h1>{t('onboarding.welcomeTitle')}</h1>
           <p className="onboarding-sub">

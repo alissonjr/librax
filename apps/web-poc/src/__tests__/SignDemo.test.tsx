@@ -87,7 +87,7 @@ describe('SignDemo', () => {
   it('mostra o vídeo com controles e não carrega o avatar', () => {
     const { container } = render(<SignDemo sign={makeSign({ video_url: '/v/banana.mp4' })} fallback={FALLBACK} />);
     expect(container.querySelector('video')).toHaveAttribute('src', '/v/banana.mp4');
-    expect(screen.getByRole('button', { name: /repetir o sinal/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /ver o movimento de novo/i })).toBeInTheDocument();
     expect(mock.attach).not.toHaveBeenCalled();
   });
 
@@ -104,7 +104,7 @@ describe('SignDemo', () => {
 
     act(() => mock.set({ status: 'loading', progress: 0.42 }));
     expect(screen.getByText(/42%/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /repetir o sinal/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /ver o movimento de novo/i })).toBeDisabled();
 
     act(() => mock.set({ status: 'ready', progress: 1 }));
     await waitFor(() => expect(mock.play).toHaveBeenCalledWith('BANANA'));
@@ -116,7 +116,7 @@ describe('SignDemo', () => {
     mock.set({ status: 'ready', progress: 1 });
     render(<SignDemo sign={makeSign()} fallback={FALLBACK} />);
     await waitFor(() => expect(mock.play).toHaveBeenCalledTimes(1));
-    await userEvent.click(screen.getByRole('button', { name: /repetir o sinal/i }));
+    await userEvent.click(screen.getByRole('button', { name: /ver o movimento de novo/i }));
     expect(mock.play).toHaveBeenCalledTimes(2);
     await userEvent.click(screen.getByRole('button', { name: /velocidade/i }));
     expect(mock.setSpeed).toHaveBeenCalledWith(0.75);

@@ -62,6 +62,20 @@ function Shape({ tier }: { tier: TierId }) {
   }
 }
 
+/*
+ * Seta curva para cima (Traço), na cor do texto sobre a insígnia. Geometria do traco.html (caixa
+ * de 64) levada à caixa de 48; a ametista e o diamante, mais estreitos no meio, recebem a seta menor.
+ */
+function Trace({ tier }: { tier: TierId }) {
+  const small = tier === 'ametista' || tier === 'diamante';
+  return (
+    <g className="league-badge-trace" transform={small ? 'translate(24 25) scale(0.7) translate(-24 -25)' : undefined}>
+      <path d="M16.5 33 C 16.5 24, 22.5 18, 30 16.5" />
+      <path d="M27 11.6 L33.75 16.1 L27.75 21.4" />
+    </g>
+  );
+}
+
 interface Props {
   tier: TierId;
   /** Tamanho em px (64 no cabeçalho, 96 no sheet, 32 a 40 em listas). */
@@ -86,6 +100,7 @@ export function LeagueBadge({ tier, size = 48, labelled = false, className }: Pr
       focusable="false"
     >
       <Shape tier={tier} />
+      {size >= 32 && <Trace tier={tier} />}
     </svg>
   );
 }

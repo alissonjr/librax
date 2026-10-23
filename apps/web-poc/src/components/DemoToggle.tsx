@@ -1,5 +1,6 @@
 import { useT } from '../i18n';
 import { Icon } from './Icon';
+import { TraceArrowIcon } from './Brand';
 
 interface Props {
   showDemo: boolean;
@@ -7,7 +8,7 @@ interface Props {
   onClose: () => void;
 }
 
-/** Botão dos exercícios com câmera: "Ver o sinal" (pausa a câmera) e "Voltar para a câmera". */
+/** Botão dos exercícios com câmera: "Ver o movimento" (pausa a câmera) e "Voltar para a câmera". */
 export function DemoToggle({ showDemo, onOpen, onClose }: Props) {
   const { t } = useT();
   return showDemo ? (
@@ -16,7 +17,7 @@ export function DemoToggle({ showDemo, onOpen, onClose }: Props) {
     </button>
   ) : (
     <button type="button" className="btn btn-secondary btn-sm btn-inline cam-sign-demo-toggle" onClick={onOpen}>
-      <Icon name="sign_language" /> {t('signDemo.showSign')}
+      <TraceArrowIcon /> {t('signDemo.showSign')}
     </button>
   );
 }
