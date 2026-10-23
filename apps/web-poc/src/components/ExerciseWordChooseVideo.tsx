@@ -75,9 +75,12 @@ export function ExerciseWordChooseVideo({ word, sign, options, onAnswer, onNext 
               conceal={!showFeedback}
               className="sign-demo--choose"
               fallback={
-                <p className="wcv-stage-text">
-                  {showFeedback ? viewingSign.video_caption : maskedCaption(viewingSign, word)}
-                </p>
+                // Em modo texto o cartão já mostra a descrição: o palco fica só com o aviso do avatar
+                chooseDemoMode(viewingSign, avatarFailed) === 'text' ? null : (
+                  <p className="wcv-stage-text">
+                    {showFeedback ? viewingSign.video_caption : maskedCaption(viewingSign, word)}
+                  </p>
+                )
               }
             />
           </>
@@ -99,7 +102,7 @@ export function ExerciseWordChooseVideo({ word, sign, options, onAnswer, onNext 
           if (isRight) cls += isCorrect ? ' wcv-option--correct' : ' wcv-option--reveal';
           else if (isWrongPick) cls += ' wcv-option--wrong';
           else if (showFeedback) cls += ' wcv-option--dimmed';
-          if (viewing === option.id) cls += ' wcv-option--viewing';
+          if (viewing === option.id && !textOnly) cls += ' wcv-option--viewing';
           return (
             <li key={option.id} className={cls}>
               <button
