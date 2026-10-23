@@ -10,6 +10,8 @@ import { tokens } from './src/styles/tokens';
 // (e o do modo escuro) pelo plugin abaixo, para não haver cor escrita à mão.
 const THEME_COLOR = tokens['theme.light.bg.canvas'];
 const THEME_COLOR_DARK = tokens['theme.dark.bg.canvas'];
+// Tela de abertura do app instalado (Android): o grafite do ícone, com a seta tangerina no centro
+const SPLASH_COLOR = tokens['brand.icon.bg'];
 
 const themeColorHtml = (): Plugin => ({
   name: 'librax-theme-color',
@@ -193,7 +195,7 @@ export default defineConfig(({ mode }) => {
           display: 'standalone',
           orientation: 'portrait',
           theme_color: THEME_COLOR,
-          background_color: THEME_COLOR,
+          background_color: SPLASH_COLOR,
           categories: ['education'],
           icons: [
             { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

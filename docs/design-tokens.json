@@ -1,118 +1,153 @@
 {
-  "$description": "Librax design tokens v0.1 (proposta). Fonte unica da verdade do produto mobile web (CSS custom properties); geracao para Flutter e opcional. Formato DTCG (W3C Design Tokens Community Group) com valores em string, como no Style Dictionary 4. Ver docs/design-system-proposta.md.",
+  "$description": "Librax design tokens v0.2 (Traco). Fonte unica da verdade do produto mobile web (CSS custom properties); geracao para Flutter e opcional. Formato DTCG (W3C Design Tokens Community Group) com valores em string, como no Style Dictionary 4. Ver docs/design-system-proposta.md.",
   "color": {
     "$type": "color",
-    "$description": "Primitivos. Nao usar direto nos componentes: usar os tokens de theme, stage e league.",
-    "noite": {
+    "$description": "Primitivos do Traco (estudo/marca/traco.html). Nao usar direto nos componentes: usar os tokens de theme, stage e league.",
+    "grafite": {
       "0": {
         "$value": "#FFFFFF"
       },
+      "15": {
+        "$value": "#F7F2EC",
+        "$description": "Texto principal no escuro"
+      },
       "25": {
-        "$value": "#F6F7FA"
+        "$value": "#F7F5F2",
+        "$description": "Fundo claro"
+      },
+      "40": {
+        "$value": "#F2EFEA",
+        "$description": "Trilho das barras no claro. Ajuste do #EEEAE4 do prototipo para o ouro do XP passar de 3:1 sobre o trilho"
       },
       "50": {
-        "$value": "#EDEFF5"
+        "$value": "#EEEAE4"
       },
       "100": {
-        "$value": "#DFE3EC"
+        "$value": "#E4DED6"
       },
       "200": {
-        "$value": "#C5CBD8"
+        "$value": "#CFC7BC"
       },
       "300": {
-        "$value": "#9EA7BA"
+        "$value": "#BDB2A6"
+      },
+      "350": {
+        "$value": "#A09588"
       },
       "400": {
-        "$value": "#7F89A0"
+        "$value": "#8A7F73"
+      },
+      "450": {
+        "$value": "#81776B"
       },
       "500": {
-        "$value": "#5B6479"
+        "$value": "#62574C"
       },
       "600": {
-        "$value": "#454D60"
+        "$value": "#4A4037"
       },
       "700": {
-        "$value": "#333A4B"
+        "$value": "#3D352E"
+      },
+      "750": {
+        "$value": "#2B2520"
       },
       "800": {
-        "$value": "#242A38"
+        "$value": "#241E19",
+        "$description": "Derivado (nao esta no prototipo): elevacao do escuro, entre 850 e 750"
       },
       "850": {
-        "$value": "#1B2130"
+        "$value": "#1E1915"
       },
       "900": {
-        "$value": "#141926"
+        "$value": "#1B1510",
+        "$description": "Grafite da marca: tinta da palavra-marca e fundo do icone"
+      },
+      "925": {
+        "$value": "#1A1511",
+        "$description": "Superficie sobre o palco (cartao de acerto da camera)"
       },
       "950": {
-        "$value": "#0C101A"
+        "$value": "#14110E",
+        "$description": "Fundo escuro"
+      },
+      "975": {
+        "$value": "#0E0B09",
+        "$description": "Palco da camera"
       },
       "1000": {
-        "$value": "#06080E"
+        "$value": "#0C0A08",
+        "$description": "Area recuada no escuro e fundo do icone escuro"
       },
-      "$description": "Neutros azulados (marca). 1000 e o palco da camera."
+      "$description": "Neutros quentes (grafite). 975 e o palco da camera; 900 e a tinta da marca."
     },
-    "azul": {
-      "50": {
-        "$value": "#EEF2FF"
-      },
+    "tangerina": {
       "100": {
-        "$value": "#DFE6FF"
+        "$value": "#FFE8D9"
       },
       "200": {
-        "$value": "#C2CFFF"
+        "$value": "#FFA772"
       },
       "300": {
-        "$value": "#9BB0FF"
+        "$value": "#FF9A5C"
       },
       "400": {
-        "$value": "#7290FF"
+        "$value": "#FF8A45"
+      },
+      "450": {
+        "$value": "#FF7F33"
+      },
+      "460": {
+        "$value": "#FF7A2E",
+        "$description": "Seta do icone do app"
       },
       "500": {
-        "$value": "#4D6BFF"
+        "$value": "#F05A0C",
+        "$description": "Acao no claro (5,3:1 com texto grafite)"
+      },
+      "550": {
+        "$value": "#E8560A",
+        "$description": "Seta, progresso e sequencia no claro"
       },
       "600": {
-        "$value": "#3651E6"
+        "$value": "#B8430A",
+        "$description": "Base de 3px do botao (efeito tecla)"
       },
       "700": {
-        "$value": "#2A3FBF"
+        "$value": "#A83B00",
+        "$description": "Marca em texto e anel de foco no claro"
+      },
+      "750": {
+        "$value": "#A33B00"
       },
       "800": {
-        "$value": "#223293"
+        "$value": "#6B2600"
       },
       "900": {
-        "$value": "#1B2768"
+        "$value": "#4A2310"
       },
-      "950": {
-        "$value": "#111842"
-      },
-      "$description": "Azul Sinal: cor de acao e marca."
+      "$description": "Tangerina: acao, marca e a seta de trajetoria. Texto sobre ela e sempre escuro, nunca branco."
     },
-    "turquesa": {
+    "petroleo": {
       "100": {
-        "$value": "#CFF7F1"
+        "$value": "#D2F1EE"
       },
       "200": {
-        "$value": "#9EEDE2"
+        "$value": "#6FDCD5"
       },
       "300": {
-        "$value": "#5FDECF"
-      },
-      "400": {
-        "$value": "#27C9B8"
-      },
-      "500": {
-        "$value": "#0FAE9F"
+        "$value": "#3FC9C1"
       },
       "600": {
-        "$value": "#0B8C81"
+        "$value": "#0E7C7B"
       },
       "700": {
-        "$value": "#0B6F67"
+        "$value": "#0B6463"
       },
       "800": {
-        "$value": "#0A5550"
+        "$value": "#0F3D3B"
       },
-      "$description": "Turquesa Maos: tudo que e Libras, camera e esqueleto da mao (aceno ao Setembro Azul)."
+      "$description": "Petroleo: tudo que e mao, Libras e camera."
     },
     "verde": {
       "100": {
@@ -138,34 +173,32 @@
       },
       "800": {
         "$value": "#0F532C"
-      }
+      },
+      "$description": "Acerto."
     },
-    "coral": {
+    "framboesa": {
       "100": {
-        "$value": "#FFE5DF"
+        "$value": "#FCE4EE"
       },
       "200": {
-        "$value": "#FFC4B7"
+        "$value": "#FF9DBD"
       },
       "300": {
-        "$value": "#FF9C87"
-      },
-      "400": {
-        "$value": "#FF7A5F"
-      },
-      "500": {
-        "$value": "#EE5638"
+        "$value": "#FF7BA6"
       },
       "600": {
-        "$value": "#C63F24"
+        "$value": "#B42A5E"
       },
       "700": {
-        "$value": "#9C311C"
+        "$value": "#8F1F49"
       },
       "800": {
-        "$value": "#702415"
+        "$value": "#5E1230"
       },
-      "$description": "Erro nao punitivo: coral, nunca vermelho puro."
+      "850": {
+        "$value": "#5A1530"
+      },
+      "$description": "Erro nao punitivo: framboesa (rosa escuro), longe do vermelho e da tangerina. Sempre com icone e texto."
     },
     "ambar": {
       "100": {
@@ -191,7 +224,8 @@
       },
       "800": {
         "$value": "#663D00"
-      }
+      },
+      "$description": "Aviso (sequencia em risco, dedo a ajustar na camera). Nao e cor de marca."
     },
     "ouro": {
       "100": {
@@ -219,33 +253,6 @@
         "$value": "#574500"
       },
       "$description": "XP e conquistas."
-    },
-    "chama": {
-      "100": {
-        "$value": "#FFE6D9"
-      },
-      "200": {
-        "$value": "#FFC6A8"
-      },
-      "300": {
-        "$value": "#FF9E6B"
-      },
-      "400": {
-        "$value": "#FF7A3D"
-      },
-      "500": {
-        "$value": "#F05A1A"
-      },
-      "600": {
-        "$value": "#C24410"
-      },
-      "700": {
-        "$value": "#94340D"
-      },
-      "800": {
-        "$value": "#69250A"
-      },
-      "$description": "Streak (sequencia de dias)."
     }
   },
   "theme": {
@@ -253,112 +260,112 @@
       "$type": "color",
       "bg": {
         "canvas": {
-          "$value": "{color.noite.25}",
+          "$value": "{color.grafite.25}",
           "$description": "Fundo da tela"
         },
         "surface": {
-          "$value": "{color.noite.0}",
+          "$value": "{color.grafite.0}",
           "$description": "Cards, tab bar, sheets"
         },
         "raised": {
-          "$value": "{color.noite.0}",
+          "$value": "{color.grafite.0}",
           "$description": "Elementos sobre surface (modal, popover). No escuro a elevacao vem da cor"
         },
         "sunken": {
-          "$value": "{color.noite.50}",
+          "$value": "{color.grafite.50}",
           "$description": "Campos, trilhos, areas recuadas"
         },
         "inverse": {
-          "$value": "{color.noite.900}",
+          "$value": "{color.grafite.900}",
           "$description": "Toast e tooltip"
         },
         "scrim": {
-          "$value": "#06080E8F",
+          "$value": "#0E0B098F",
           "$description": "Fundo atras de modal e sheet"
         }
       },
       "text": {
         "primary": {
-          "$value": "{color.noite.900}"
+          "$value": "{color.grafite.900}"
         },
         "secondary": {
-          "$value": "{color.noite.600}"
+          "$value": "{color.grafite.600}"
         },
         "tertiary": {
-          "$value": "{color.noite.500}",
+          "$value": "{color.grafite.500}",
           "$description": "Placeholder e metadado. Ainda passa AA"
         },
         "disabled": {
-          "$value": "{color.noite.400}",
+          "$value": "{color.grafite.450}",
           "$description": "Isento de contraste (WCAG 1.4.3), nunca para informacao"
         },
         "inverse": {
-          "$value": "{color.noite.0}"
+          "$value": "{color.grafite.25}"
         },
         "brand": {
-          "$value": "{color.azul.700}",
+          "$value": "{color.tangerina.700}",
           "$description": "Links e texto de acao"
         }
       },
       "border": {
         "subtle": {
-          "$value": "{color.noite.100}",
+          "$value": "{color.grafite.100}",
           "$description": "Separadores decorativos"
         },
         "default": {
-          "$value": "{color.noite.200}",
+          "$value": "{color.grafite.200}",
           "$description": "Borda de card"
         },
         "strong": {
-          "$value": "{color.noite.400}",
+          "$value": "{color.grafite.450}",
           "$description": "Borda de controle interativo (>= 3:1)"
         },
         "focus": {
-          "$value": "{color.azul.600}",
+          "$value": "{color.tangerina.700}",
           "$description": "Anel de foco, 3px"
         }
       },
       "action": {
         "primary": {
           "bg": {
-            "$value": "{color.azul.600}"
+            "$value": "{color.tangerina.500}"
           },
           "bgPressed": {
-            "$value": "{color.azul.700}"
+            "$value": "{color.tangerina.550}"
           },
           "base": {
-            "$value": "{color.azul.800}",
+            "$value": "{color.tangerina.600}",
             "$description": "Borda inferior de 3px (efeito tecla)"
           },
           "fg": {
-            "$value": "{color.noite.0}"
+            "$value": "{color.grafite.900}"
           }
         },
         "secondary": {
           "bg": {
-            "$value": "{color.noite.0}"
+            "$value": "{color.grafite.0}"
           },
           "border": {
-            "$value": "{color.noite.400}"
+            "$value": "{color.grafite.450}"
           },
           "fg": {
-            "$value": "{color.azul.700}"
+            "$value": "{color.tangerina.700}"
           }
         },
         "danger": {
           "bg": {
-            "$value": "{color.coral.600}"
+            "$value": "{color.framboesa.600}"
           },
           "fg": {
-            "$value": "{color.noite.0}"
+            "$value": "{color.grafite.0}"
           }
         },
         "disabled": {
           "bg": {
-            "$value": "{color.noite.100}"
+            "$value": "{color.grafite.100}"
           },
           "fg": {
-            "$value": "{color.noite.400}"
+            "$value": "{color.grafite.450}"
           }
         }
       },
@@ -368,7 +375,7 @@
             "$value": "{color.verde.600}"
           },
           "onStrong": {
-            "$value": "{color.noite.0}"
+            "$value": "{color.grafite.0}"
           },
           "text": {
             "$value": "{color.verde.700}"
@@ -382,19 +389,19 @@
         },
         "error": {
           "strong": {
-            "$value": "{color.coral.600}"
+            "$value": "{color.framboesa.600}"
           },
           "onStrong": {
-            "$value": "{color.noite.0}"
+            "$value": "{color.grafite.0}"
           },
           "text": {
-            "$value": "{color.coral.700}"
+            "$value": "{color.framboesa.700}"
           },
           "soft": {
-            "$value": "{color.coral.100}"
+            "$value": "{color.framboesa.100}"
           },
           "onSoft": {
-            "$value": "{color.coral.800}"
+            "$value": "{color.framboesa.800}"
           }
         },
         "warning": {
@@ -402,7 +409,7 @@
             "$value": "{color.ambar.400}"
           },
           "onStrong": {
-            "$value": "{color.noite.950}"
+            "$value": "{color.grafite.900}"
           },
           "text": {
             "$value": "{color.ambar.700}"
@@ -416,29 +423,29 @@
         },
         "info": {
           "strong": {
-            "$value": "{color.azul.600}"
+            "$value": "{color.tangerina.700}"
           },
           "onStrong": {
-            "$value": "{color.noite.0}"
+            "$value": "{color.grafite.0}"
           },
           "text": {
-            "$value": "{color.azul.700}"
+            "$value": "{color.tangerina.700}"
           },
           "soft": {
-            "$value": "{color.azul.100}"
+            "$value": "{color.tangerina.100}"
           },
           "onSoft": {
-            "$value": "{color.azul.800}"
+            "$value": "{color.tangerina.800}"
           }
         }
       },
       "game": {
         "track": {
-          "$value": "{color.noite.50}",
+          "$value": "{color.grafite.40}",
           "$description": "Trilho de barras de progresso"
         },
         "progress": {
-          "$value": "{color.verde.600}",
+          "$value": "{color.tangerina.550}",
           "$description": "Preenchimento da barra de progresso da licao"
         },
         "xp": {
@@ -454,33 +461,65 @@
         },
         "streak": {
           "fill": {
-            "$value": "{color.chama.500}"
+            "$value": "{color.tangerina.550}"
           },
           "text": {
-            "$value": "{color.chama.700}"
+            "$value": "{color.tangerina.750}"
           },
           "soft": {
-            "$value": "{color.chama.100}"
+            "$value": "{color.tangerina.100}"
           }
         },
         "hand": {
           "text": {
-            "$value": "{color.turquesa.700}"
+            "$value": "{color.petroleo.700}"
           },
           "soft": {
-            "$value": "{color.turquesa.100}"
+            "$value": "{color.petroleo.100}"
           },
           "fill": {
-            "$value": "{color.turquesa.600}"
+            "$value": "{color.petroleo.600}"
+          },
+          "onFill": {
+            "$value": "{color.grafite.0}",
+            "$description": "Icone sobre o no concluido do mapa e sobre o petroleo"
           }
         },
         "locked": {
           "bg": {
-            "$value": "{color.noite.100}"
+            "$value": "{color.grafite.50}"
           },
           "fg": {
-            "$value": "{color.noite.500}"
+            "$value": "{color.grafite.500}"
           }
+        },
+        "trace": {
+          "fill": {
+            "$value": "{color.tangerina.550}",
+            "$description": "Seta de trajetoria: orbita da licao atual, conectores feitos, explosao da celebracao"
+          },
+          "text": {
+            "$value": "{color.tangerina.750}",
+            "$description": "Texto de apoio em tangerina"
+          },
+          "soft": {
+            "$value": "{color.tangerina.100}",
+            "$description": "Fundo da demonstracao do sinal e chips de glosa"
+          },
+          "onSoft": {
+            "$value": "{color.tangerina.800}",
+            "$description": "Texto sobre trace.soft"
+          }
+        }
+      },
+      "brand": {
+        "ink": {
+          "$value": "{color.grafite.900}",
+          "$description": "Palavra-marca e ponto inicial do simbolo"
+        },
+        "mark": {
+          "$value": "{color.tangerina.550}",
+          "$description": "Traco e ponta da seta do simbolo"
         }
       }
     },
@@ -488,23 +527,23 @@
       "$type": "color",
       "bg": {
         "canvas": {
-          "$value": "{color.noite.950}",
+          "$value": "{color.grafite.950}",
           "$description": "Fundo da tela"
         },
         "surface": {
-          "$value": "{color.noite.900}",
+          "$value": "{color.grafite.850}",
           "$description": "Cards, tab bar, sheets"
         },
         "raised": {
-          "$value": "{color.noite.850}",
+          "$value": "{color.grafite.800}",
           "$description": "Elementos sobre surface (modal, popover). No escuro a elevacao vem da cor"
         },
         "sunken": {
-          "$value": "{color.noite.1000}",
+          "$value": "{color.grafite.1000}",
           "$description": "Campos, trilhos, areas recuadas"
         },
         "inverse": {
-          "$value": "{color.noite.25}",
+          "$value": "{color.grafite.15}",
           "$description": "Toast e tooltip"
         },
         "scrim": {
@@ -514,86 +553,86 @@
       },
       "text": {
         "primary": {
-          "$value": "{color.noite.25}"
+          "$value": "{color.grafite.15}"
         },
         "secondary": {
-          "$value": "{color.noite.300}"
+          "$value": "{color.grafite.300}"
         },
         "tertiary": {
-          "$value": "{color.noite.400}",
+          "$value": "{color.grafite.350}",
           "$description": "Placeholder e metadado. Ainda passa AA"
         },
         "disabled": {
-          "$value": "{color.noite.500}",
+          "$value": "{color.grafite.500}",
           "$description": "Isento de contraste (WCAG 1.4.3), nunca para informacao"
         },
         "inverse": {
-          "$value": "{color.noite.950}"
+          "$value": "{color.grafite.950}"
         },
         "brand": {
-          "$value": "{color.azul.300}",
+          "$value": "{color.tangerina.300}",
           "$description": "Links e texto de acao"
         }
       },
       "border": {
         "subtle": {
-          "$value": "{color.noite.800}",
+          "$value": "{color.grafite.750}",
           "$description": "Separadores decorativos"
         },
         "default": {
-          "$value": "{color.noite.700}",
+          "$value": "{color.grafite.700}",
           "$description": "Borda de card"
         },
         "strong": {
-          "$value": "{color.noite.400}",
+          "$value": "{color.grafite.400}",
           "$description": "Borda de controle interativo (>= 3:1)"
         },
         "focus": {
-          "$value": "{color.azul.300}",
+          "$value": "{color.tangerina.300}",
           "$description": "Anel de foco, 3px"
         }
       },
       "action": {
         "primary": {
           "bg": {
-            "$value": "{color.azul.400}"
+            "$value": "{color.tangerina.450}"
           },
           "bgPressed": {
-            "$value": "{color.azul.300}"
+            "$value": "{color.tangerina.300}"
           },
           "base": {
-            "$value": "{color.azul.600}",
+            "$value": "{color.tangerina.600}",
             "$description": "Borda inferior de 3px (efeito tecla)"
           },
           "fg": {
-            "$value": "{color.noite.950}"
+            "$value": "{color.grafite.900}"
           }
         },
         "secondary": {
           "bg": {
-            "$value": "{color.noite.900}"
+            "$value": "{color.grafite.850}"
           },
           "border": {
-            "$value": "{color.noite.400}"
+            "$value": "{color.grafite.400}"
           },
           "fg": {
-            "$value": "{color.azul.300}"
+            "$value": "{color.tangerina.300}"
           }
         },
         "danger": {
           "bg": {
-            "$value": "{color.coral.400}"
+            "$value": "{color.framboesa.300}"
           },
           "fg": {
-            "$value": "{color.noite.950}"
+            "$value": "{color.grafite.950}"
           }
         },
         "disabled": {
           "bg": {
-            "$value": "{color.noite.800}"
+            "$value": "{color.grafite.750}"
           },
           "fg": {
-            "$value": "{color.noite.500}"
+            "$value": "{color.grafite.500}"
           }
         }
       },
@@ -603,7 +642,7 @@
             "$value": "{color.verde.400}"
           },
           "onStrong": {
-            "$value": "{color.noite.950}"
+            "$value": "{color.grafite.950}"
           },
           "text": {
             "$value": "{color.verde.300}"
@@ -617,19 +656,19 @@
         },
         "error": {
           "strong": {
-            "$value": "{color.coral.400}"
+            "$value": "{color.framboesa.300}"
           },
           "onStrong": {
-            "$value": "{color.noite.950}"
+            "$value": "{color.grafite.950}"
           },
           "text": {
-            "$value": "{color.coral.300}"
+            "$value": "{color.framboesa.200}"
           },
           "soft": {
-            "$value": "{color.coral.800}"
+            "$value": "{color.framboesa.850}"
           },
           "onSoft": {
-            "$value": "{color.coral.100}"
+            "$value": "{color.framboesa.100}"
           }
         },
         "warning": {
@@ -637,7 +676,7 @@
             "$value": "{color.ambar.400}"
           },
           "onStrong": {
-            "$value": "{color.noite.950}"
+            "$value": "{color.grafite.950}"
           },
           "text": {
             "$value": "{color.ambar.300}"
@@ -651,29 +690,29 @@
         },
         "info": {
           "strong": {
-            "$value": "{color.azul.400}"
+            "$value": "{color.tangerina.300}"
           },
           "onStrong": {
-            "$value": "{color.noite.950}"
+            "$value": "{color.grafite.950}"
           },
           "text": {
-            "$value": "{color.azul.300}"
+            "$value": "{color.tangerina.300}"
           },
           "soft": {
-            "$value": "{color.azul.900}"
+            "$value": "{color.tangerina.900}"
           },
           "onSoft": {
-            "$value": "{color.azul.100}"
+            "$value": "{color.tangerina.100}"
           }
         }
       },
       "game": {
         "track": {
-          "$value": "{color.noite.700}",
+          "$value": "{color.grafite.700}",
           "$description": "Trilho de barras de progresso"
         },
         "progress": {
-          "$value": "{color.verde.400}",
+          "$value": "{color.tangerina.400}",
           "$description": "Preenchimento da barra de progresso da licao"
         },
         "xp": {
@@ -689,33 +728,65 @@
         },
         "streak": {
           "fill": {
-            "$value": "{color.chama.400}"
+            "$value": "{color.tangerina.400}"
           },
           "text": {
-            "$value": "{color.chama.300}"
+            "$value": "{color.tangerina.200}"
           },
           "soft": {
-            "$value": "{color.chama.800}"
+            "$value": "{color.tangerina.900}"
           }
         },
         "hand": {
           "text": {
-            "$value": "{color.turquesa.300}"
+            "$value": "{color.petroleo.200}"
           },
           "soft": {
-            "$value": "{color.turquesa.800}"
+            "$value": "{color.petroleo.800}"
           },
           "fill": {
-            "$value": "{color.turquesa.400}"
+            "$value": "{color.petroleo.300}"
+          },
+          "onFill": {
+            "$value": "{color.grafite.950}",
+            "$description": "Icone sobre o no concluido do mapa e sobre o petroleo"
           }
         },
         "locked": {
           "bg": {
-            "$value": "{color.noite.800}"
+            "$value": "{color.grafite.750}"
           },
           "fg": {
-            "$value": "{color.noite.300}"
+            "$value": "{color.grafite.300}"
           }
+        },
+        "trace": {
+          "fill": {
+            "$value": "{color.tangerina.400}",
+            "$description": "Seta de trajetoria: orbita da licao atual, conectores feitos, explosao da celebracao"
+          },
+          "text": {
+            "$value": "{color.tangerina.200}",
+            "$description": "Texto de apoio em tangerina"
+          },
+          "soft": {
+            "$value": "{color.tangerina.900}",
+            "$description": "Fundo da demonstracao do sinal e chips de glosa"
+          },
+          "onSoft": {
+            "$value": "{color.tangerina.100}",
+            "$description": "Texto sobre trace.soft"
+          }
+        }
+      },
+      "brand": {
+        "ink": {
+          "$value": "{color.grafite.15}",
+          "$description": "Palavra-marca e ponto inicial do simbolo"
+        },
+        "mark": {
+          "$value": "{color.tangerina.400}",
+          "$description": "Traco e ponta da seta do simbolo"
         }
       }
     }
@@ -724,25 +795,25 @@
     "$type": "color",
     "$description": "Palco da camera e das celebracoes. Igual nos dois modos: sempre escuro.",
     "bg": {
-      "$value": "{color.noite.1000}"
+      "$value": "{color.grafite.975}"
     },
     "scrim": {
-      "$value": "#06080EA3",
+      "$value": "#0E0B09A3",
       "$description": "64%: garante texto branco >= 6:1 mesmo sobre video branco"
     },
     "pill": {
-      "$value": "#0C101ACC",
-      "$description": "Fundo das mensagens de status sobre o video (80%)"
+      "$value": "#0E0B09D9",
+      "$description": "Fundo das mensagens de status sobre o video (85%)"
     },
     "text": {
-      "$value": "{color.noite.0}"
+      "$value": "{color.grafite.0}"
     },
     "textSecondary": {
-      "$value": "{color.noite.100}"
+      "$value": "{color.grafite.50}"
     },
     "landmark": {
       "halo": {
-        "$value": "#06080ED9",
+        "$value": "#0E0B09D9",
         "$description": "Contorno escuro (85%) 2px mais largo sob cada linha: legibilidade sobre video claro"
       },
       "idle": {
@@ -750,7 +821,7 @@
         "$description": "Mao detectada, confianca baixa"
       },
       "tracking": {
-        "$value": "{color.turquesa.300}",
+        "$value": "{color.petroleo.200}",
         "$description": "Confianca subindo (> 40%)"
       },
       "ready": {
@@ -766,8 +837,8 @@
         "$description": "Dedo com erro (pisca 2x)"
       },
       "reference": {
-        "$value": "#9BB0FFCC",
-        "$description": "Esqueleto de referencia, azul 80%, sempre tracejado"
+        "$value": "#FFA772CC",
+        "$description": "Esqueleto de referencia, tangerina clara 80%, sempre tracejado"
       }
     },
     "guide": {
@@ -782,9 +853,17 @@
         "$value": "{color.ambar.300}"
       }
     },
+    "surface": {
+      "$value": "{color.grafite.925}",
+      "$description": "Cartao sobre o palco (acerto da camera, card de continuar)"
+    },
+    "border": {
+      "$value": "{color.grafite.700}",
+      "$description": "Contorno do cartao sobre o palco"
+    },
     "glow": {
       "brand": {
-        "$value": "#4D6BFF66"
+        "$value": "#F05A0C4D"
       },
       "gold": {
         "$value": "#FACB1E59"
@@ -793,6 +872,10 @@
     "gold": {
       "$value": "{color.ouro.400}",
       "$description": "Ouro sobre o palco: insignia e XP nas celebracoes (o ouro claro do modo escuro, igual nos dois modos)"
+    },
+    "trace": {
+      "$value": "{color.tangerina.400}",
+      "$description": "Seta de trajetoria sobre o palco (acerto da camera, card de continuar)"
     }
   },
   "league": {
@@ -804,7 +887,7 @@
         "$value": "#B0703A"
       },
       "onFill": {
-        "$value": "{color.noite.950}"
+        "$value": "{color.grafite.950}"
       },
       "edge": {
         "$value": "#6B4A1F",
@@ -817,7 +900,7 @@
         "$value": "#A7B2C2"
       },
       "onFill": {
-        "$value": "{color.noite.950}"
+        "$value": "{color.grafite.950}"
       },
       "edge": {
         "$value": "#6E7A8C",
@@ -830,7 +913,7 @@
         "$value": "#E0AE12"
       },
       "onFill": {
-        "$value": "{color.noite.950}"
+        "$value": "{color.grafite.950}"
       },
       "edge": {
         "$value": "#8A6A00",
@@ -843,7 +926,7 @@
         "$value": "#3460E6"
       },
       "onFill": {
-        "$value": "{color.noite.0}"
+        "$value": "{color.grafite.0}"
       },
       "edge": {
         "$value": "#1B2768",
@@ -856,7 +939,7 @@
         "$value": "#CC2B57"
       },
       "onFill": {
-        "$value": "{color.noite.0}"
+        "$value": "{color.grafite.0}"
       },
       "edge": {
         "$value": "#7A1733",
@@ -869,7 +952,7 @@
         "$value": "#7B4FE0"
       },
       "onFill": {
-        "$value": "{color.noite.0}"
+        "$value": "{color.grafite.0}"
       },
       "edge": {
         "$value": "#45288F",
@@ -882,11 +965,33 @@
         "$value": "#6FD9E8"
       },
       "onFill": {
-        "$value": "{color.noite.950}"
+        "$value": "{color.grafite.950}"
       },
       "edge": {
         "$value": "#1A7A88",
         "$description": "Contorno 2px da insignia (garante 3:1 no claro)"
+      }
+    }
+  },
+  "brand": {
+    "$type": "color",
+    "$description": "Icone do app e favicon (tools/pwa/build-icons.mjs). Iguais nos dois modos. A palavra-marca usa theme.<modo>.brand.",
+    "icon": {
+      "bg": {
+        "$value": "{color.grafite.900}",
+        "$description": "Fundo do icone principal"
+      },
+      "bgDark": {
+        "$value": "{color.grafite.1000}",
+        "$description": "Fundo da versao escura do icone"
+      },
+      "mark": {
+        "$value": "{color.tangerina.460}",
+        "$description": "Traco e ponta da seta"
+      },
+      "dot": {
+        "$value": "{color.grafite.0}",
+        "$description": "Ponto inicial do movimento"
       }
     }
   },
@@ -895,23 +1000,23 @@
       "$type": "fontFamily",
       "display": {
         "$value": [
-          "Nunito",
+          "Anybody",
           "system-ui",
           "-apple-system",
           "Roboto",
           "sans-serif"
         ],
-        "$description": "Titulos e numeros grandes: Nunito 800/900. SIL OFL 1.1, auto-hospedada em woff2"
+        "$description": "Titulos, botoes, numeros e glosas: Anybody variavel (eixos de peso e de largura), 800 e 900, larga. SIL OFL 1.1, auto-hospedada em woff2"
       },
       "text": {
         "$value": [
-          "Nunito",
+          "Figtree",
           "system-ui",
           "-apple-system",
           "Roboto",
           "sans-serif"
         ],
-        "$description": "Texto e interface: Nunito 400/600/700. Mesma familia; o papel muda o peso"
+        "$description": "Texto e interface: Figtree variavel 400 a 800. SIL OFL 1.1, auto-hospedada em woff2"
       }
     },
     "weight": {
@@ -931,6 +1036,21 @@
       "black": {
         "$value": 900
       }
+    },
+    "stretch": {
+      "$description": "Largura da Anybody (eixo wdth). Palavras-chave porque o atalho font do CSS so aceita palavra-chave: semi-expanded = 112,5% e expanded = 125%.",
+      "normal": {
+        "$value": "normal",
+        "$description": "100%"
+      },
+      "semi": {
+        "$value": "semi-expanded",
+        "$description": "112,5%: titulos, botoes, numeros e glosas"
+      },
+      "wide": {
+        "$value": "expanded",
+        "$description": "125%: palavra-marca, titulo de boas-vindas e +XP da celebracao"
+      }
     }
   },
   "typography": {
@@ -940,48 +1060,53 @@
         "fontFamily": "{font.family.display}",
         "fontSize": "40px",
         "fontWeight": "{font.weight.black}",
-        "lineHeight": 1.1,
-        "letterSpacing": "-0.5px"
+        "lineHeight": 1.05,
+        "letterSpacing": "-0.8px",
+        "fontStretch": "{font.stretch.wide}"
       },
-      "$description": "Celebracao (Licao concluida)"
+      "$description": "Titulo de boas-vindas e da conclusao do curso"
     },
     "display": {
       "$value": {
         "fontFamily": "{font.family.display}",
-        "fontSize": "32px",
-        "fontWeight": "{font.weight.heavy}",
-        "lineHeight": 1.15,
-        "letterSpacing": "-0.3px"
+        "fontSize": "34px",
+        "fontWeight": "{font.weight.black}",
+        "lineHeight": 1.1,
+        "letterSpacing": "-0.5px",
+        "fontStretch": "{font.stretch.semi}"
       },
-      "$description": "Titulo de onboarding e de resultado"
+      "$description": "Titulo de celebracao (Licao concluida) e de onboarding"
     },
     "headline": {
       "$value": {
         "fontFamily": "{font.family.display}",
-        "fontSize": "26px",
-        "fontWeight": "{font.weight.bold}",
-        "lineHeight": 1.2,
-        "letterSpacing": "-0.2px"
+        "fontSize": "28px",
+        "fontWeight": "{font.weight.black}",
+        "lineHeight": 1.15,
+        "letterSpacing": "-0.3px",
+        "fontStretch": "{font.stretch.semi}"
       },
-      "$description": "Titulo de tela"
+      "$description": "Titulo de tela, nome da liga, instrucao da camera"
     },
     "title": {
       "$value": {
         "fontFamily": "{font.family.display}",
-        "fontSize": "20px",
-        "fontWeight": "{font.weight.bold}",
-        "lineHeight": 1.3,
-        "letterSpacing": "0px"
+        "fontSize": "22px",
+        "fontWeight": "{font.weight.heavy}",
+        "lineHeight": 1.2,
+        "letterSpacing": "0px",
+        "fontStretch": "{font.stretch.semi}"
       },
-      "$description": "Titulo de card, unidade, modal"
+      "$description": "Titulo de card, unidade, modal, enunciado"
     },
     "titleSm": {
       "$value": {
-        "fontFamily": "{font.family.text}",
-        "fontSize": "17px",
-        "fontWeight": "{font.weight.bold}",
-        "lineHeight": 1.35,
-        "letterSpacing": "0px"
+        "fontFamily": "{font.family.display}",
+        "fontSize": "18px",
+        "fontWeight": "{font.weight.heavy}",
+        "lineHeight": 1.3,
+        "letterSpacing": "0px",
+        "fontStretch": "{font.stretch.semi}"
       },
       "$description": "Nome de licao, item de lista"
     },
@@ -993,7 +1118,7 @@
         "lineHeight": 1.5,
         "letterSpacing": "0px"
       },
-      "$description": "Enunciado de exercicio"
+      "$description": "Texto de destaque"
     },
     "body": {
       "$value": {
@@ -1015,6 +1140,17 @@
       },
       "$description": "Texto secundario"
     },
+    "button": {
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "17px",
+        "fontWeight": "{font.weight.heavy}",
+        "lineHeight": 1.25,
+        "letterSpacing": "0px",
+        "fontStretch": "{font.stretch.semi}"
+      },
+      "$description": "Botoes grandes (primario e secundario)"
+    },
     "label": {
       "$value": {
         "fontFamily": "{font.family.text}",
@@ -1023,7 +1159,7 @@
         "lineHeight": 1.25,
         "letterSpacing": "0.2px"
       },
-      "$description": "Botoes"
+      "$description": "Rotulos, itens de configuracao, opcoes"
     },
     "labelSm": {
       "$value": {
@@ -1048,45 +1184,29 @@
     "numericXl": {
       "$value": {
         "fontFamily": "{font.family.display}",
-        "fontSize": "48px",
+        "fontSize": "52px",
         "fontWeight": "{font.weight.black}",
-        "lineHeight": 1.0,
-        "letterSpacing": "-1px"
+        "lineHeight": 1,
+        "letterSpacing": "-1px",
+        "fontStretch": "{font.stretch.wide}"
       },
-      "$description": "Contador de XP, streak em destaque",
-      "$extensions": {
-        "br.librax": {
-          "fontFeatures": [
-            "tnum"
-          ]
-        }
-      }
+      "$description": "Contador de XP da celebracao, letra em destaque"
     },
     "numeric": {
       "$value": {
         "fontFamily": "{font.family.display}",
         "fontSize": "20px",
-        "fontWeight": "{font.weight.bold}",
+        "fontWeight": "{font.weight.heavy}",
         "lineHeight": 1.2,
-        "letterSpacing": "0px"
+        "letterSpacing": "0px",
+        "fontStretch": "{font.stretch.semi}"
       },
-      "$description": "Ranking, placares",
-      "$extensions": {
-        "br.librax": {
-          "fontFeatures": [
-            "tnum"
-          ]
-        }
-      }
+      "$description": "Ranking, placares, chips de XP e sequencia"
     }
   },
   "space": {
-    "$type": "dimension",
     "0": {
       "$value": "0px"
-    },
-    "0_5": {
-      "$value": "2px"
     },
     "1": {
       "$value": "4px"
@@ -1117,6 +1237,10 @@
     },
     "16": {
       "$value": "64px"
+    },
+    "$type": "dimension",
+    "0_5": {
+      "$value": "2px"
     }
   },
   "radius": {
@@ -1128,16 +1252,24 @@
       "$value": "10px"
     },
     "md": {
-      "$value": "14px"
+      "$value": "16px"
     },
     "lg": {
-      "$value": "20px"
+      "$value": "22px"
     },
     "xl": {
       "$value": "28px"
     },
     "full": {
       "$value": "999px"
+    },
+    "button": {
+      "$value": "{radius.full}",
+      "$description": "Botoes e campos em pilula (Traco)"
+    },
+    "choice": {
+      "$value": "20px",
+      "$description": "Alternativas de multipla escolha"
     }
   },
   "borderWidth": {
@@ -1386,6 +1518,10 @@
       "ambient": {
         "$value": "2400ms",
         "$description": "Loops calmos: chama, brilho"
+      },
+      "orbit": {
+        "$value": "6000ms",
+        "$description": "Volta completa da seta em torno da licao atual (parada com menos movimento)"
       }
     },
     "easing": {
@@ -1524,7 +1660,7 @@
     "wrong": {
       "$value": {
         "web": [],
-        "visual": "tile coral + icone + dica escrita",
+        "visual": "tile framboesa + icone + dica escrita",
         "flutter": []
       },
       "$description": "Erro nunca vibra (spec-05 secao 4)"

@@ -7,12 +7,23 @@
    Referência: docs/design-system-proposta.md.
    ========================================================= */
 
-/* Nunito variável auto-hospedada (public/fonts), subset latino: cobre o pt-BR */
+/* Fontes do Traço auto-hospedadas (public/fonts), subset latino: cobre o pt-BR. SIL OFL 1.1.
+   Anybody: títulos, botões, números e glosas, com os eixos de peso e de largura (font-stretch).
+   Figtree: texto e interface. */
 @font-face {
-  font-family: "Nunito";
-  src: url("/fonts/Nunito-latin-wght.woff2") format("woff2-variations"),
-       url("/fonts/Nunito-latin-wght.woff2") format("woff2");
-  font-weight: 200 1000;
+  font-family: "Anybody";
+  src: url("/fonts/Anybody-latin-wdth-wght.woff2") format("woff2-variations"),
+       url("/fonts/Anybody-latin-wdth-wght.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 50% 150%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Figtree";
+  src: url("/fonts/Figtree-latin-wght.woff2") format("woff2-variations"),
+       url("/fonts/Figtree-latin-wght.woff2") format("woff2");
+  font-weight: 300 900;
   font-style: normal;
   font-display: swap;
 }

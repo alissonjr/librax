@@ -86,8 +86,11 @@ const cssValue = ({ type, value }) => {
       return family(value);
     case 'shadow':
       return value.map((s) => `${s.offsetX} ${s.offsetY} ${s.blur} ${s.spread} ${s.color}`).join(', ');
-    case 'typography':
-      return `${value.fontWeight} ${pxToRem(value.fontSize)}/${value.lineHeight} ${family(value.fontFamily)}`;
+    case 'typography': {
+      // A largura (font-stretch) entra no atalho "font" só como palavra-chave (semi-expanded, expanded)
+      const stretch = value.fontStretch && value.fontStretch !== 'normal' ? ` ${value.fontStretch}` : '';
+      return `${value.fontWeight}${stretch} ${pxToRem(value.fontSize)}/${value.lineHeight} ${family(value.fontFamily)}`;
+    }
     default:
       if (value && typeof value === 'object' && !Array.isArray(value)) {
         // molas (motion.spring.*): no web viram a duração equivalente
@@ -112,6 +115,7 @@ const lines = (list, indent, strip = 0) => {
       out.push(`${indent}--lx-${name}-weight: ${t.value.fontWeight};`);
       out.push(`${indent}--lx-${name}-line-height: ${t.value.lineHeight};`);
       out.push(`${indent}--lx-${name}-tracking: ${t.value.letterSpacing ?? '0px'};`);
+      out.push(`${indent}--lx-${name}-stretch: ${t.value.fontStretch ?? 'normal'};`);
     }
   }
   return out.join('\n');

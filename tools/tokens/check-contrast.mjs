@@ -86,12 +86,14 @@ for (const mode of ['light', 'dark']) {
     'text.primary', 'text.secondary', 'text.tertiary', 'text.brand',
     'feedback.success.text', 'feedback.error.text', 'feedback.warning.text', 'feedback.info.text',
     'game.xp.text', 'game.streak.text', 'game.hand.text',
+    'game.trace.text', 'brand.ink',
   ]) worstBg(p, p, TEXT);
 
   for (const p of [
     'border.strong', 'border.focus', 'action.primary.bg',
     'feedback.success.strong', 'feedback.error.strong',
     'game.xp.fill', 'game.streak.fill', 'game.hand.fill',
+    'game.trace.fill', 'game.progress', 'brand.mark',
   ]) worstBg(`${p} (não texto)`, p, UI);
 
   const pairs = [
@@ -122,6 +124,15 @@ for (const mode of ['light', 'dark']) {
     ['text.primary', 'feedback.info.soft', TEXT], // alternativa/opção selecionada
     ['feedback.success.strong', 'feedback.success.soft', UI], // borda e ícone da alternativa correta
     ['feedback.error.strong', 'feedback.error.soft', UI], // borda e ícone da alternativa incorreta
+    // Traço: elementos de assinatura e marca
+    ['game.hand.onFill', 'game.hand.fill', UI], // ícone sobre o nó concluído do mapa
+    ['game.trace.onSoft', 'game.trace.soft', TEXT], // legenda da demonstração e chips de glosa
+    ['game.trace.text', 'game.trace.soft', TEXT], // texto em tangerina sobre o fundo da demonstração
+    ['game.trace.fill', 'game.trace.soft', UI], // seta de trajetória sobre o fundo da demonstração
+    ['text.primary', 'game.trace.soft', TEXT], // mão desenhada e botão Ver o movimento (grafite) sobre a demonstração
+    ['bg.canvas', 'text.primary', TEXT], // texto do botão Ver o movimento
+    ['game.progress', 'game.trace.soft', UI],
+    ['game.locked.fg', 'bg.surface', UI], // cadeado do nó bloqueado (fundo surface com anel)
   ];
   for (const [fg, bg, min] of pairs) check(mode, `${fg} / ${bg}${min === UI ? ' (não texto)' : ''}`, c(fg), c(bg), min);
 }
@@ -146,6 +157,14 @@ for (const mode of ['light', 'dark']) {
     check('stage', `landmark.${lm} / stage.bg (não texto)`, s(`landmark.${lm}`), stageBg, UI);
   }
   check('stage', 'stage.gold / stage.bg (não texto)', s('gold'), stageBg, UI);
+  // Traço: seta de trajetória e cartão de acerto sobre o palco
+  const stageSurface = s('surface');
+  check('stage', 'stage.trace / stage.bg (não texto)', s('trace'), stageBg, UI);
+  check('stage', 'stage.trace / stage.surface (não texto)', s('trace'), stageSurface, UI);
+  check('stage', 'stage.text / stage.surface', s('text'), stageSurface, TEXT);
+  check('stage', 'stage.textSecondary / stage.surface', s('textSecondary'), stageSurface, TEXT);
+  check('stage', 'landmark.correct / stage.surface', s('landmark.correct'), stageSurface, TEXT);
+  check('stage', 'stage.gold / stage.surface (+XP)', s('gold'), stageSurface, TEXT);
   for (const g of ['idle', 'ok', 'warn']) {
     check('stage', `guide.${g} / stage.bg (não texto)`, s(`guide.${g}`), stageBg, UI);
   }
@@ -160,6 +179,15 @@ for (const mode of ['light', 'dark']) {
     check('liga', `${name}: onFill / fill`, l('onFill'), l('fill'), TEXT);
     check('liga', `${name}: edge / surface claro (não texto)`, l('edge'), lightSurface, UI);
     check('liga', `${name}: fill / surface escuro (não texto)`, l('fill'), darkSurface, UI);
+  }
+}
+
+// Ícone do app e favicon (fixos)
+{
+  const b = (p) => parse(value(`brand.icon.${p}`));
+  for (const bg of ['bg', 'bgDark']) {
+    check('marca', `brand.icon.mark / ${bg} (não texto)`, b('mark'), b(bg), UI);
+    check('marca', `brand.icon.dot / ${bg} (não texto)`, b('dot'), b(bg), UI);
   }
 }
 
