@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { makeGuestHandlers } from '../src/handlers/guest.js';
 import { makeLessonHandlers } from '../src/handlers/lesson.js';
 import { makePushHandlers } from '../src/handlers/push.js';
+import { makeCloseLeagueHandler } from '../src/handlers/closeLeague.js';
 import { InMemoryRepo } from '../src/adapters/inMemoryRepo.js';
 import { LIMITS } from '../src/domain/lessonCompletion.js';
 
@@ -225,4 +226,39 @@ test('preferencias: opt-out do e-mail apaga o endereco guardado', async () => {
   const notif = await repo.getNotifState('u1');
   assert.equal(notif.emailOptIn, false);
   assert.equal(notif.email, null);
+});
+
+// --- Lambda do Scheduler: fechamento semanal da liga ---
+
+async function seedOuroW43(repo) {
+  const l = { leagueId: 'ouro-2026-w43', tier: 'ouro', period: '2026-w43', periodStart: '2026-10-19' };
+  for (const [userId, xp] of [['u1', 50], ['u2', 30], ['u3', 20], ['u4', 10]]) {
+    await repo.joinLeague(l, userId);
+    await repo.incrementLeagueXp(l.leagueId, userId, xp);
+  }
+}
+
+test('closeLeague: evento do Scheduler sem leagueId fecha a semana que terminou', async () => {
+  const repo = new InMemoryRepo();
+  await seedOuroW43(repo);
+  const { handler } = makeCloseLeagueHandler({ repo, now: () => new Date('2026-10-26T00:05:00Z') });
+
+  const report = await handler({});
+
+  assert.equal(report.period, '2026-w43');
+  assert.equal(report.closed, 1);
+  assert.equal((await repo.getLeague('ouro-2026-w43')).status, 'closed');
+  assert.equal((await repo.getLeagueState('u1')).tier, 'safira');
+});
+
+test('closeLeague: periodStart explicito permite refazer uma semana antiga', async () => {
+  const repo = new InMemoryRepo();
+  await seedOuroW43(repo);
+  const { handler } = makeCloseLeagueHandler({ repo, now: () => new Date('2026-11-20T10:00:00Z') });
+
+  const report = await handler({ periodStart: '2026-10-19' });
+
+  assert.equal(report.period, '2026-w43');
+  assert.equal(report.closed, 1);
+  await assert.rejects(() => handler({ periodStart: '2026-10-21' }), /INVALID_PERIOD/);
 });

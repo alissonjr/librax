@@ -23,7 +23,7 @@ npm ci
 npm test            # node --test (Node 20+)
 ```
 
-145 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
+206 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
 o `DynamoRepo` com um client falso que só registra os comandos; nenhum teste chama a AWS.
 
 ## Estrutura
@@ -55,7 +55,8 @@ services/api/
 │   │   ├── migrateGuest.js       reexecuta o log do convidado (POST /v1/guest/migrate)
 │   │   ├── getDailyQueue.js      monta a fila do dia
 │   │   ├── sendReminders.js      rodada de lembretes (Web Push e e-mail opcional)
-│   │   └── squads.js             create / join / leave / manageMember (SPEC 04 seção 2)
+│   │   ├── closeLeagueWeek.js    fechamento semanal de todas as ligas (SPEC 02 seção 5.5)
+│   │   └── squads.js             rotas de escrita de squad (SPEC 04 seção 2)
 │   ├── adapters/
 │   │   ├── inMemoryRepo.js  porta em memória (testes e dev local)
 │   │   └── dynamoRepo.js    porta sobre a tabela single-table `librax`
@@ -68,13 +69,14 @@ services/api/
 │       ├── push.js          inscrição/remoção de Web Push e preferências de lembrete
 │       ├── squads.js        rotas de squad (SPEC 04)
 │       ├── reminders.js     Lambda do Scheduler: lembretes (web-push + VAPID do SSM)
-│       └── closeLeague.js   Lambda do Scheduler: fechar liga semanal
+│       └── closeLeague.js   Lambda do Scheduler: fechar a semana de todas as ligas
 └── test/              um arquivo por módulo; testes escritos antes do código
 ```
 
 Cada handler exporta uma fábrica (`makeLessonHandlers`, `makeGuestHandlers`,
-`makePushHandlers`) que recebe o repositório e o catálogo, mais as instâncias de produção
-já ligadas ao DynamoDB. Os testes usam as fábricas.
+`makePushHandlers`, `makeSquadHandlers`, `makeCloseLeagueHandler`) que recebe o repositório
+(e o catálogo, quando usa), mais as instâncias de produção já ligadas ao DynamoDB. Os testes
+usam as fábricas.
 
 ## Endpoints
 
@@ -90,7 +92,21 @@ HTTP API) e com o autorizador JWT do Cognito. O app manda o **id token** no
 | POST | `/v1/push/subscriptions` | guarda a inscrição Web Push (`PushSubscription.toJSON()`) |
 | DELETE | `/v1/push/subscriptions/{subscriptionId}` | remove a inscrição |
 | PUT | `/v1/notifications/preferences` | horário do lembrete, fuso e opt-in de e-mail |
-| | `/v1/squads/...`, `/v1/users/me/squads` | squads (SPEC 04) |
+| POST | `/v1/squads` | cria squad (`public` ou `private`; `org` só pelo painel B2B) |
+| POST | `/v1/squads/join` | entra por `inviteCode` ou `squadId` |
+| GET | `/v1/squads/{squadId}` | squad, membros por XP da semana e o papel de quem chama |
+| POST | `/v1/squads/{squadId}/leave` | sai (único membro dissolve; único admin precisa transferir) |
+| POST | `/v1/squads/{squadId}/transfer` | admin passa a administração (`newAdminUserId`) e vira membro |
+| PATCH | `/v1/squads/{squadId}` | admin edita `name`, `description`, `type`, `maxMembers` (o resto é ignorado) |
+| DELETE | `/v1/squads/{squadId}` | admin dissolve: META, membros, vínculos e convite |
+| POST | `/v1/squads/{squadId}/members/{userId}/manage` | admin: `promote`, `demote` ou `kick` |
+| POST | `/v1/squads/{squadId}/invite-code/regenerate` | admin troca o código; o antigo deixa de funcionar |
+| GET | `/v1/users/me/squads` | squads de quem chama |
+
+Erros de squad saem com o código do domínio, o mesmo que a tela espera (SPEC 04 seção 4.4):
+`SQUAD_NOT_FOUND` e `TARGET_NOT_MEMBER` (404), `NOT_ADMIN` e `GUEST_NOT_ALLOWED` (403),
+`SQUAD_FULL`, `ALREADY_MEMBER`, `SQUADS_LIMIT_REACHED`, `MUST_TRANSFER_OWNERSHIP`,
+`CANNOT_DEMOTE_ONLY_ADMIN` e `MAX_MEMBERS_BELOW_COUNT` (409), validação (400).
 
 ### POST /v1/guest/migrate
 
@@ -134,6 +150,26 @@ dias).
 - E-mail (SES) só quando não há push entregue, a pessoa fez opt-in com e-mail verificado e a
   infra ligou `librax:emailRemindersEnabled`. Por enquanto é só a estrutura.
 
+### Fechamento semanal das ligas
+
+A Lambda `librax-close-league` roda toda segunda 00:05 UTC (EventBridge Scheduler, evento
+vazio) e fecha a semana que terminou em **todas** as ligas dela (`usecases/closeLeagueWeek.js`):
+
+- Lista as ligas da semana pelo GSI2 (`LEAGUES#<semana>`), 25 por página, e pula as já
+  fechadas.
+- Calcula o resultado com o mesmo domínio que o app usa no modo local
+  (`domain/leagues.js`: `rankLeague` e `closeLeague`, com as zonas por liga: Bronze não
+  rebaixa, Diamante não promove; top 3 sobem, bottom 10 descem).
+- Grava o resultado em `USER#<id> / LEAGUE` com escrita condicional por semana: rodar de novo
+  não promove de novo e devolve o resultado já gravado.
+- Quem fez XP entra na liga da semana seguinte (`toTier`, mesmo grupo), sem zerar XP que já
+  tenha entrado nela. Quem ficou sem XP fica só com o estado (como no app: semana sem estudo
+  não gera rebaixamento extra).
+- Marca a liga como `closed`. Se cair no meio, a nova tentativa continua de onde parou.
+
+Para refazer uma semana a mão: invocar a Lambda com `{ "periodStart": "2026-10-19" }` (a
+segunda-feira da semana).
+
 ## Itens da tabela `librax`
 
 Além dos da SPEC 02 seção 3 e SPEC 04 seção 1:
@@ -143,6 +179,12 @@ Além dos da SPEC 02 seção 3 e SPEC 04 seção 1:
 | Tentativa de lição | `USER#<id>` | `ATTEMPT#<lessonAttemptId>` | `status` pending/done, `result`, TTL `expiresAt` |
 | Inscrição Web Push | `USER#<id>` | `PUSH#<hash>` | `endpoint`, `keys`, `createdAt` |
 | Lembretes | `USER#<id>` | `NOTIF` | preferências + estado; GSI6 `NOTIF#H<balde>` / `USER#<id>` |
+| Liga (META) | `LEAGUE#<leagueId>` | `META` | `tier`, `period`, `periodStart`, `group`?, `status` open/closed; GSI2 `LEAGUES#<semana>` / `LEAGUE#<leagueId>` |
+| Membro de liga | `LEAGUE#<leagueId>` | `USER#<id>` | `xpPeriod`; GSI2 `USER#<id>` / `LEAGUE#<semana>` |
+| Estado de liga | `USER#<id>` | `LEAGUE` | `tier` atual, `lastResult` (para o LeagueResultSheet), `lastClosedPeriod` |
+
+`leagueId` segue o formato do app: `<tier>-<ano>-w<semana ISO>` (ex.: `bronze-2026-w43`), com
+`-g<n>` quando a mesma liga e semana tem mais de um grupo.
 
 ## Infra sem conta AWS
 
@@ -220,10 +262,13 @@ do Cognito precisam estar lá.
 
 ## Pendências conhecidas (fora desta entrega)
 
-- `handlers/squads.js` importa `transferOwnership`, `updateSquad`, `disbandSquad` e
-  `regenerateInviteCode`, que `usecases/squads.js` não exporta: essas rotas respondem 500
-  (o esbuild avisa no synth).
-- A agenda da liga semanal chama `closeLeague` sem `leagueId`; a Lambda só registra e sai.
+- Entrada na liga pelo servidor: ninguém é colocado numa liga ainda (o `completeLesson` só
+  soma XP se a pessoa já tem liga). Falta, na primeira lição da semana, pôr a pessoa na
+  liga do `tier` guardado em `USER#<id> / LEAGUE` (Bronze se não houver), escolhendo um grupo
+  com vaga. O fechamento já monta as ligas da semana seguinte para quem fez XP.
+- Não há rota de leitura de liga (`GET` da liga atual e do `lastResult`); o app segue no modo
+  local (`apps/web-poc/src/lib/leagueLocal.ts`).
+- O mesmo job semanal ainda não zera `xpWeekly`/`xpWeeklyContrib` das squads (SPEC 04 seção 8).
 - O Identity Pool do convidado anônimo continua na stack, sem uso pelo app web (convidado
   100% local); remover quando a decisão for fechada.
 - `completedAt` e `today` vêm do aparelho; um relógio errado pode deslocar a ofensiva de um

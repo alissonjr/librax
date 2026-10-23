@@ -106,3 +106,100 @@ test('deleteSquad apaga META, membros, vinculos USER#/SQUAD# e o convite numa tr
   const keys = tx.input.TransactItems.map((i) => `${i.Delete.Key.PK}|${i.Delete.Key.SK}`);
   assert.deepEqual(keys.sort(), ['INVITE#ABC234|META', 'SQUAD#s1|MEMBER#u1', 'SQUAD#s1|META', 'USER#u1|SQUAD#s1']);
 });
+
+// --- ligas: fechamento semanal (GSI2 sobrecarregado: USER#<id> e LEAGUES#<semana>) ---
+
+const ouroW44 = { leagueId: 'ouro-2026-w44', tier: 'ouro', period: '2026-w44', periodStart: '2026-10-26' };
+
+test('joinLeague grava membro (GSI2 USER#) e META da liga (GSI2 LEAGUES#) sem zerar XP', async () => {
+  const db = fakeClient();
+  await new DynamoRepo(db).joinLeague(ouroW44, 'u1');
+
+  const [{ name, input }] = db.calls;
+  assert.equal(name, 'TransactWriteCommand');
+  const [member, meta] = input.TransactItems.map((i) => i.Update);
+  assert.deepEqual(member.Key, { PK: 'LEAGUE#ouro-2026-w44', SK: 'USER#u1' });
+  assert.match(member.UpdateExpression, /xpPeriod = if_not_exists\(xpPeriod, :zero\)/);
+  assert.equal(member.ExpressionAttributeValues[':g2pk'], 'USER#u1');
+  assert.equal(member.ExpressionAttributeValues[':g2sk'], 'LEAGUE#2026-w44');
+  assert.deepEqual(meta.Key, { PK: 'LEAGUE#ouro-2026-w44', SK: 'META' });
+  assert.match(meta.UpdateExpression, /#status = if_not_exists\(#status, :open\)/);
+  assert.equal(meta.ExpressionAttributeValues[':g2pk'], 'LEAGUES#2026-w44');
+  assert.equal(meta.ExpressionAttributeValues[':g2sk'], 'LEAGUE#ouro-2026-w44');
+});
+
+test('listLeaguesOfPeriod pagina pelo GSI2 e devolve o cursor', async () => {
+  const db = fakeClient(() => ({
+    Items: [{ PK: 'LEAGUE#ouro-2026-w43', SK: 'META', GSI2PK: 'LEAGUES#2026-w43', leagueId: 'ouro-2026-w43', tier: 'ouro' }],
+    LastEvaluatedKey: { PK: 'LEAGUE#ouro-2026-w43' },
+  }));
+  const page = await new DynamoRepo(db).listLeaguesOfPeriod('2026-w43', { limit: 25, cursor: { PK: 'x' } });
+
+  const { input } = db.calls[0];
+  assert.equal(input.IndexName, 'GSI2');
+  assert.equal(input.ExpressionAttributeValues[':pk'], 'LEAGUES#2026-w43');
+  assert.equal(input.Limit, 25);
+  assert.deepEqual(input.ExclusiveStartKey, { PK: 'x' });
+  assert.deepEqual(page.leagues, [{ leagueId: 'ouro-2026-w43', tier: 'ouro' }]);
+  assert.deepEqual(page.cursor, { PK: 'LEAGUE#ouro-2026-w43' });
+});
+
+test('listLeagueMembers le todas as paginas da liga, sem o META', async () => {
+  let page = 0;
+  const db = fakeClient(() => {
+    page += 1;
+    return page === 1
+      ? { Items: [{ PK: 'LEAGUE#l', SK: 'USER#u1', userId: 'u1', xpPeriod: 40 }], LastEvaluatedKey: { k: 1 } }
+      : { Items: [{ PK: 'LEAGUE#l', SK: 'USER#u2', xpPeriod: 0 }] };
+  });
+  const members = await new DynamoRepo(db).listLeagueMembers('l');
+  assert.deepEqual(members, [{ userId: 'u1', xpPeriod: 40 }, { userId: 'u2', xpPeriod: 0 }]);
+  assert.equal(db.calls[0].input.ExpressionAttributeValues[':prefix'], 'USER#');
+  assert.deepEqual(db.calls[1].input.ExclusiveStartKey, { k: 1 });
+});
+
+test('applyLeagueResult grava USER#<id> / LEAGUE so uma vez por semana', async () => {
+  const db = fakeClient();
+  const result = { userId: 'u1', toTier: 'safira', outcome: 'promoted', period: '2026-w43' };
+  const r = await new DynamoRepo(db).applyLeagueResult('u1', result);
+
+  assert.deepEqual(r, { applied: true, result });
+  const { input } = db.calls[0];
+  assert.deepEqual([input.Item.PK, input.Item.SK, input.Item.tier], ['USER#u1', 'LEAGUE', 'safira']);
+  assert.equal(input.ConditionExpression, 'attribute_not_exists(lastClosedPeriod) OR lastClosedPeriod < :period');
+  assert.equal(input.ExpressionAttributeValues[':period'], '2026-w43');
+});
+
+test('applyLeagueResult repetido devolve o resultado ja gravado', async () => {
+  const stored = { userId: 'u1', toTier: 'safira', outcome: 'promoted', period: '2026-w43' };
+  const db = fakeClient((name) => {
+    if (name === 'PutCommand') {
+      const err = new Error('ja aplicado');
+      err.name = 'ConditionalCheckFailedException';
+      throw err;
+    }
+    return { Item: { PK: 'USER#u1', SK: 'LEAGUE', tier: 'safira', lastResult: stored, lastClosedPeriod: '2026-w43' } };
+  });
+  const r = await new DynamoRepo(db).applyLeagueResult('u1', { ...stored, toTier: 'rubi' });
+  assert.deepEqual(r, { applied: false, result: stored });
+  assert.equal(db.calls[1].input.ConsistentRead, true);
+});
+
+test('getUserLeague pega a liga mais recente do usuario (semana atual)', async () => {
+  const db = fakeClient(() => ({ Items: [{ leagueId: 'safira-2026-w44', period: '2026-w44' }] }));
+  const league = await new DynamoRepo(db).getUserLeague('u1');
+  assert.deepEqual(league, { leagueId: 'safira-2026-w44', period: '2026-w44' });
+  const { input } = db.calls[0];
+  assert.equal(input.ScanIndexForward, false);
+  assert.equal(input.ExpressionAttributeValues[':prefix'], 'LEAGUE#');
+});
+
+test('markLeagueClosed marca o META como fechado', async () => {
+  const db = fakeClient();
+  await new DynamoRepo(db).markLeagueClosed('ouro-2026-w43', { closedAt: '2026-10-26T00:05:00.000Z', promoted: 3 });
+  const { name, input } = db.calls[0];
+  assert.equal(name, 'UpdateCommand');
+  assert.deepEqual(input.Key, { PK: 'LEAGUE#ouro-2026-w43', SK: 'META' });
+  assert.equal(input.ExpressionAttributeValues[':closed'], 'closed');
+  assert.equal(input.ConditionExpression, 'attribute_exists(PK)');
+});

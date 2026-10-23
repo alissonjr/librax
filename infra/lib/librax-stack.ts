@@ -90,7 +90,8 @@ export class LibraxStack extends cdk.Stack {
       sortKey:      { name: 'GSI1SK', type: dynamodb.AttributeType.STRING },
     });
 
-    // GSI2: liga do usuario (PK=USER#<id>, SK=LEAGUE#<period>)
+    // GSI2: liga do usuario (PK=USER#<id>, SK=LEAGUE#<period>) e, no mesmo indice, as ligas
+    // de uma semana (PK=LEAGUES#<period>, SK=LEAGUE#<leagueId>) para o fechamento semanal
     table.addGlobalSecondaryIndex({
       indexName: 'GSI2',
       partitionKey: { name: 'GSI2PK', type: dynamodb.AttributeType.STRING },
@@ -613,7 +614,9 @@ export class LibraxStack extends cdk.Stack {
     // 9. EventBridge Scheduler
     // -----------------------------------------------------------------------
 
-    // Fechar liga semanal (toda segunda-feira 00:05 UTC)
+    // Fechar liga semanal (toda segunda-feira 00:05 UTC). O evento vai vazio: a Lambda fecha
+    // todas as ligas da semana que terminou (paginado pelo GSI2) e e idempotente, entao as
+    // novas tentativas da invocacao assincrona nao promovem ninguem duas vezes.
     const schedulerRole = new iam.Role(this, 'SchedulerRole', {
       assumedBy: new iam.ServicePrincipal('scheduler.amazonaws.com'),
     });

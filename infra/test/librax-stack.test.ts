@@ -276,3 +276,33 @@ describe('DNS opcional', () => {
     template.hasResourceProperties('AWS::Route53::RecordSet', { Name: 'auth.librax.example.', Type: 'A' });
   });
 });
+
+describe('Ligas semanais', () => {
+  test('agenda de segunda 00:05 UTC chama a Lambda de fechamento sem leagueId no evento', () => {
+    const { template } = synth(withDomain);
+    const [fnId] = Object.keys(template.findResources('AWS::Lambda::Function', {
+      Properties: { FunctionName: 'librax-close-league' },
+    }));
+    expect(fnId).toBeDefined();
+    const [schedule] = Object.values(template.findResources('AWS::Scheduler::Schedule', {
+      Properties: { Name: 'librax-close-league-weekly' },
+    }));
+    expect(schedule.Properties.ScheduleExpression).toBe('cron(5 0 ? * MON *)');
+    expect(schedule.Properties.ScheduleExpressionTimezone).toBe('UTC');
+    expect(schedule.Properties.Target.Arn).toEqual({ 'Fn::GetAtt': [fnId, 'Arn'] });
+    expect(schedule.Properties.Target.Input).toBeUndefined();
+  });
+
+  test('fechamento usa o GSI2 existente (sem indice novo): GSI1 a GSI6', () => {
+    const { template } = synth(withDomain);
+    const [table] = Object.values(template.findResources('AWS::DynamoDB::Table'));
+    const names = table.Properties.GlobalSecondaryIndexes.map((g: { IndexName: string }) => g.IndexName);
+    expect(names).toEqual(['GSI1', 'GSI2', 'GSI3', 'GSI4', 'GSI5', 'GSI6']);
+    const gsi2 = table.Properties.GlobalSecondaryIndexes.find((g: { IndexName: string }) => g.IndexName === 'GSI2');
+    expect(gsi2.KeySchema).toEqual([
+      { AttributeName: 'GSI2PK', KeyType: 'HASH' },
+      { AttributeName: 'GSI2SK', KeyType: 'RANGE' },
+    ]);
+    expect(gsi2.Projection).toEqual({ ProjectionType: 'ALL' });
+  });
+});
