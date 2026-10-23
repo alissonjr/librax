@@ -673,6 +673,31 @@ export class DynamoRepo {
     return Item ? this._stripKeys(Item) : null;
   }
 
+  /** Semana do ultimo LeagueResultSheet visto (`USER#<id> / LEAGUE_SEEN`), so para frente. */
+  async markLeagueResultSeen(userId, period) {
+    await this._db
+      .send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: { PK: `USER#${userId}`, SK: 'LEAGUE_SEEN' },
+          UpdateExpression: 'SET #period = :p, userId = :uid',
+          ConditionExpression: 'attribute_not_exists(#period) OR #period < :p',
+          ExpressionAttributeNames: { '#period': 'period' },
+          ExpressionAttributeValues: { ':p': period, ':uid': userId },
+        }),
+      )
+      .catch((e) => {
+        if (!isConditionFailure(e)) throw e;
+      });
+  }
+
+  async getLeagueResultSeen(userId) {
+    const { Item } = await this._db.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `USER#${userId}`, SK: 'LEAGUE_SEEN' } }),
+    );
+    return Item?.period ?? null;
+  }
+
   async markLeagueClosed(leagueId, summary = {}) {
     const names = { '#status': 'status' };
     const values = { ':closed': 'closed' };

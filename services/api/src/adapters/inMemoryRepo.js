@@ -266,6 +266,14 @@ export class InMemoryRepo {
     const s = this._leagueState.get(userId);
     return s ? { ...s, lastResult: { ...s.lastResult } } : null;
   }
+  /** Semana do ultimo LeagueResultSheet visto (so anda para frente). */
+  async markLeagueResultSeen(userId, period) {
+    const current = this._leagueSeen.get(userId);
+    if (!current || current < period) this._leagueSeen.set(userId, period);
+  }
+  async getLeagueResultSeen(userId) {
+    return this._leagueSeen.get(userId) ?? null;
+  }
   async markLeagueClosed(leagueId, summary = {}) {
     const l = this._leagues.get(leagueId);
     if (!l) throw new Error(`liga inexistente: ${leagueId}`);

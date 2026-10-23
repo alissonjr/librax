@@ -143,3 +143,73 @@ export function leagueResults(members, tier) {
     return { userId: m.userId, xp: m.xpPeriod, rank: m.rank, total, outcome, fromTier: tier, toTier };
   });
 }
+
+const PERIOD_RE = /^\d{4}-w\d{2}$/;
+
+/** 'AAAA-wSS' valido (formato de periodKey). */
+export function isPeriodKey(value) {
+  return typeof value === 'string' && PERIOD_RE.test(value);
+}
+
+/**
+ * Visao da liga para a LeagueScreen, no formato do `LeagueView` do app
+ * (apps/web-poc/src/lib/leagueLocal.ts), com `mode: 'server'` e sem membros simulados.
+ * Sem liga na semana (`leagueId` null): `enrolled: false`, ranking vazio e `you: null`, com a
+ * liga em que a pessoa vai entrar na proxima licao (`tier`).
+ * `pendingResult` e o ultimo resultado ainda nao visto (`seenPeriod` menor que a semana dele).
+ *
+ * @param {{userId: string, tier: string, leagueId: string|null, members: Array<{userId: string,
+ *   xpPeriod: number, displayName?: string}>, nowMs: number, lastResult?: object|null,
+ *   seenPeriod?: string|null}} input
+ */
+export function buildLeagueView(input) {
+  const { userId, tier, leagueId, members = [], nowMs, lastResult = null, seenPeriod = null } = input;
+  const periodStart = periodStartOf(nowMs);
+  const periodEnd = nextPeriodStart(periodStart);
+  const period = periodKey(periodStart);
+  const opts = zoneOptsForTier(tier);
+  const names = new Map(members.map((m) => [m.userId, m.displayName ?? null]));
+
+  const rows = leagueId
+    ? rankLeague(members.map((m) => ({ userId: m.userId, xpPeriod: m.xpPeriod ?? 0 })), opts).map((m) => ({
+        userId: m.userId,
+        name: names.get(m.userId) ?? null,
+        xpPeriod: m.xpPeriod,
+        rank: m.rank,
+        zone: m.zone,
+        isYou: m.userId === userId,
+        simulated: false,
+      }))
+    : [];
+
+  const pending = lastResult && lastResult.period > (seenPeriod ?? '') ? lastResult : null;
+
+  return {
+    mode: 'server',
+    enrolled: leagueId != null,
+    tier,
+    leagueId,
+    week: Number(period.slice(-2)),
+    period,
+    periodStart,
+    periodEnd,
+    msUntilClose: Math.max(0, periodEnd - nowMs),
+    promote: opts.promote,
+    relegate: opts.relegate,
+    rows,
+    you: rows.find((r) => r.isYou) ?? null,
+    pendingResult: pending
+      ? {
+          period: pending.period,
+          periodStart: parseIsoDate(pending.periodStart),
+          leagueId: pending.leagueId,
+          fromTier: pending.fromTier,
+          toTier: pending.toTier,
+          outcome: pending.outcome,
+          rank: pending.rank,
+          total: pending.total,
+          xp: pending.xp,
+        }
+      : null,
+  };
+}

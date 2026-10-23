@@ -284,6 +284,15 @@ export class LibraxStack extends cdk.Stack {
       functionName: 'librax-regenerate-invite',
     });
 
+    const getLeagueFn = makeFn('GetLeagueFn', 'league.js', 'getCurrentLeagueHandler', {
+      functionName: 'librax-get-league',
+      description: 'Liga da semana, ranking, tempo ate o fechamento e resultado nao visto (SPEC 02 12.7)',
+    });
+    const leagueResultSeenFn = makeFn('LeagueResultSeenFn', 'league.js', 'markLeagueResultSeenHandler', {
+      functionName: 'librax-league-result-seen',
+      description: 'Marca o LeagueResultSheet da semana como visto',
+    });
+
     const subscribePushFn = makeFn('SubscribePushFn', 'push.js', 'subscribePushHandler', {
       functionName: 'librax-push-subscribe',
       description: 'Guarda inscricao Web Push (USER#<id> / PUSH#<hash>)',
@@ -324,6 +333,7 @@ export class LibraxStack extends cdk.Stack {
       createSquadFn, joinSquadFn, leaveSquadFn, getSquadFn,
       manageMemberFn, listMySquadsFn, disbandSquadFn,
       transferOwnershipFn, regenerateInviteFn,
+      getLeagueFn, leagueResultSeenFn,
       subscribePushFn, unsubscribePushFn, notificationPrefsFn,
     ];
     for (const fn of allLambdas) {
@@ -577,6 +587,8 @@ export class LibraxStack extends cdk.Stack {
     addRoute(M.POST,   '/v1/squads/{squadId}/members/{userId}/manage', manageMemberFn);
     addRoute(M.POST,   '/v1/squads/{squadId}/invite-code/regenerate', regenerateInviteFn);
     addRoute(M.GET,    '/v1/users/me/squads',                         listMySquadsFn);
+    addRoute(M.GET,    '/v1/league/current',                          getLeagueFn);
+    addRoute(M.POST,   '/v1/league/result-seen',                      leagueResultSeenFn);
     addRoute(M.POST,   '/v1/push/subscriptions',                      subscribePushFn);
     addRoute(M.DELETE, '/v1/push/subscriptions/{subscriptionId}',     unsubscribePushFn);
     addRoute(M.PUT,    '/v1/notifications/preferences',               notificationPrefsFn);

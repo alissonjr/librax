@@ -279,3 +279,25 @@ test('advanceLeagueGroup so avanca o cursor de quem viu o grupo cheio', async ()
   assert.equal(await new DynamoRepo(raced).advanceLeagueGroup('ouro', '2026-w44', 2), 3);
   assert.equal(raced.calls[0].input.ConditionExpression, '#group = :cur');
 });
+
+test('markLeagueResultSeen guarda a semana vista so para frente', async () => {
+  const db = fakeClient();
+  await new DynamoRepo(db).markLeagueResultSeen('u1', '2026-w43');
+  const { name, input } = db.calls[0];
+  assert.equal(name, 'UpdateCommand');
+  assert.deepEqual(input.Key, { PK: 'USER#u1', SK: 'LEAGUE_SEEN' });
+  assert.equal(input.ConditionExpression, 'attribute_not_exists(#period) OR #period < :p');
+  assert.equal(input.ExpressionAttributeValues[':p'], '2026-w43');
+
+  // semana mais antiga que a ja vista: a condicao falha e nada muda
+  const older = fakeClient(() => {
+    throw conditionFailed();
+  });
+  await new DynamoRepo(older).markLeagueResultSeen('u1', '2026-w40');
+});
+
+test('getLeagueResultSeen devolve a semana vista ou null', async () => {
+  const db = fakeClient(() => ({ Item: { PK: 'USER#u1', SK: 'LEAGUE_SEEN', period: '2026-w43' } }));
+  assert.equal(await new DynamoRepo(db).getLeagueResultSeen('u1'), '2026-w43');
+  assert.equal(await new DynamoRepo(fakeClient()).getLeagueResultSeen('u1'), null);
+});
