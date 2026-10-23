@@ -3,8 +3,12 @@
 // O app roda estas mesmas funcoes no modo local (apps/web-poc/src/lib/leagueLocal.ts); as
 // ligas, as zonas por liga e o formato do leagueId abaixo seguem o que o app ja usa.
 
+import { parseIsoDate } from '../lib/dates.js';
+
 export const PROMOTE = 3;
 export const RELEGATE = 10;
+/** Tamanho maximo de um grupo de liga (mesma semana e liga); acima disso abre `-g<n>`. */
+export const LEAGUE_SIZE = 30;
 const DEFAULTS = { promote: PROMOTE, relegate: RELEGATE };
 
 /** Ligas em ordem crescente (mesma lista do app). */
@@ -57,11 +61,22 @@ export function periodKey(periodStart) {
 }
 
 /**
- * Id da liga: 'bronze-2026-w43' (formato do app). Com mais de ~30 pessoas na mesma liga e
- * semana, o servidor separa em grupos: 'bronze-2026-w43-g2'.
+ * Id da liga: 'bronze-2026-w43' (formato do app). Com mais de 30 pessoas na mesma liga e
+ * semana, o servidor separa em grupos: o 1o fica sem sufixo e os outros 'bronze-2026-w43-g2'.
  */
 export function leagueIdOf(tier, periodStart, group) {
-  return `${tier}-${periodKey(periodStart)}${group ? `-g${group}` : ''}`;
+  return `${tier}-${periodKey(periodStart)}${group > 1 ? `-g${group}` : ''}`;
+}
+
+/**
+ * A licao do dia `today` (data do aparelho, 'AAAA-MM-DD') conta na liga da semana
+ * `periodStart`? Aceita o domingo anterior porque a semana vira na segunda 00:00 UTC, que no
+ * Brasil ainda e domingo a noite. Licao de outra semana (migracao do convidado, fila offline
+ * antiga) soma no perfil, mas nao na liga nem no XP semanal das squads.
+ */
+export function countsForWeek(today, periodStart) {
+  const day = parseIsoDate(today);
+  return day >= periodStart - DAY_MS && day < periodStart + WEEK_MS + DAY_MS;
 }
 
 /**

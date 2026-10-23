@@ -25,6 +25,10 @@ export class InMemoryRepo {
     this._leagues = new Map(); // leagueId -> META { leagueId, tier, period, periodStart, group?, status }
     this._leagueMembers = new Map(); // leagueId -> Set(userId)
     this._leagueState = new Map(); // userId -> { tier, lastResult, lastClosedPeriod }
+    this._leaguePlacement = new Map(); // `${userId}#${period}` -> { leagueId, tier, period } (uma liga por semana)
+    this._leagueGroups = new Map(); // `${tier}#${period}` -> grupo aberto (cursor de alocacao)
+    this._leagueNames = new Map(); // `${leagueId}#${userId}` -> displayName
+    this._leagueSeen = new Map(); // userId -> period do ultimo resultado visto
     this._attempts = new Map(); // `${userId}#${lessonAttemptId}` -> { status, lessonId, result }
     this._push = new Map(); // userId -> Map(subscriptionId -> { endpoint, keys })
     this._notif = new Map(); // userId -> preferencias + estado de lembrete (+ balde de fuso)
@@ -176,6 +180,9 @@ export class InMemoryRepo {
   // --- ligas: semana, membros e fechamento (espelha GSI2 LEAGUES#<semana> do DynamoRepo) ---
   /** Cria o META da liga (aberta) ou atualiza os dados sem mexer no status. */
   async putLeague(league) {
+    this._putLeague(league);
+  }
+  _putLeague(league) {
     const current = this._leagues.get(league.leagueId);
     this._leagues.set(league.leagueId, { ...current, ...league, status: current?.status ?? 'open' });
   }
@@ -183,16 +190,50 @@ export class InMemoryRepo {
     const l = this._leagues.get(leagueId);
     return l ? { ...l } : null;
   }
-  /** Entra na liga (idempotente): nao zera o XP de quem ja esta nela. */
-  async joinLeague(league, userId) {
-    await this.putLeague(league);
+  /**
+   * Entra na liga (idempotente): nao zera o XP de quem ja esta nela. Uma liga por pessoa e
+   * semana (vaga em `USER#<id> / LEAGUEWEEK#<semana>`); com `maxMembers`, so entra se o
+   * `memberCount` do META ainda estiver abaixo dele (mesma regra do contador condicional).
+   * @returns {Promise<{status: 'joined'|'already'|'full', leagueId: string}>}
+   */
+  async joinLeague(league, userId, { maxMembers = null, displayName = null } = {}) {
+    const seatKey = `${userId}#${league.period}`;
+    const seat = this._leaguePlacement.get(seatKey);
+    if (seat) return { status: 'already', leagueId: seat.leagueId };
+    const meta = this._leagues.get(league.leagueId);
+    if (maxMembers != null && (meta?.memberCount ?? 0) >= maxMembers) {
+      return { status: 'full', leagueId: league.leagueId };
+    }
+
+    // sem await entre a checagem e a escrita: atomico como a transacao do DynamoRepo
+    this._putLeague(league);
+    const updated = this._leagues.get(league.leagueId);
+    updated.memberCount = (updated.memberCount ?? 0) + 1;
+    this._leaguePlacement.set(seatKey, { leagueId: league.leagueId, tier: league.tier, period: league.period });
     this._addLeagueMember(league.leagueId, userId);
     const key = `${league.leagueId}#${userId}`;
     if (!this._leagueXp.has(key)) this._leagueXp.set(key, 0);
+    if (displayName) this._leagueNames.set(key, displayName);
     const current = this._userLeague.get(userId);
     if (!current?.period || current.period <= league.period) {
       this._userLeague.set(userId, { leagueId: league.leagueId, period: league.period });
     }
+    return { status: 'joined', leagueId: league.leagueId };
+  }
+  async getLeaguePlacement(userId, period) {
+    const p = this._leaguePlacement.get(`${userId}#${period}`);
+    return p ? { ...p } : null;
+  }
+  /** Grupo aberto da liga `tier` na semana (1 se ninguem encheu um grupo ainda). */
+  async getLeagueGroupCursor(tier, period) {
+    return this._leagueGroups.get(`${tier}#${period}`) ?? 1;
+  }
+  /** Quem viu o grupo `fromGroup` cheio avanca o cursor; se outro ja avancou, vale o atual. */
+  async advanceLeagueGroup(tier, period, fromGroup) {
+    const key = `${tier}#${period}`;
+    const cursor = this._leagueGroups.get(key) ?? 1;
+    if (cursor === fromGroup) this._leagueGroups.set(key, fromGroup + 1);
+    return this._leagueGroups.get(key) ?? 1;
   }
   async listLeaguesOfPeriod(period, { limit = 25, cursor = null } = {}) {
     const all = [...this._leagues.values()]
@@ -203,10 +244,14 @@ export class InMemoryRepo {
     return { leagues: all.slice(start, end).map((l) => ({ ...l })), cursor: end < all.length ? end : null };
   }
   async listLeagueMembers(leagueId) {
-    return [...(this._leagueMembers.get(leagueId) ?? [])].map((userId) => ({
-      userId,
-      xpPeriod: this._leagueXp.get(`${leagueId}#${userId}`) ?? 0,
-    }));
+    return [...(this._leagueMembers.get(leagueId) ?? [])].map((userId) => {
+      const displayName = this._leagueNames.get(`${leagueId}#${userId}`);
+      return {
+        userId,
+        xpPeriod: this._leagueXp.get(`${leagueId}#${userId}`) ?? 0,
+        ...(displayName ? { displayName } : {}),
+      };
+    });
   }
   /** Grava o resultado da semana uma vez so; repetido devolve o que ja estava gravado. */
   async applyLeagueResult(userId, result) {

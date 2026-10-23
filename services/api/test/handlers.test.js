@@ -104,6 +104,28 @@ test('lesson/complete sem lessonAttemptId continua aceito (cliente antigo)', asy
   assert.equal(parse(res).xpAwarded, 10);
 });
 
+test('lesson/complete usa o relogio do servidor para a semana da liga', async () => {
+  const repo = new InMemoryRepo();
+  // segunda 01:00 UTC: no Brasil ainda e domingo, mas a semana da liga ja virou
+  const monday = () => new Date('2026-10-26T01:00:00Z');
+  const { completeLessonHandler } = makeLessonHandlers({ repo, catalog, now: monday });
+  const res = await completeLessonHandler(event({ body: entry('attempt-0001', { today: '2026-10-25' }) }));
+
+  assert.equal(parse(res).leagueId, 'bronze-2026-w44');
+  assert.equal(await repo.getLeagueMemberXp('bronze-2026-w44', 'u1'), 10);
+});
+
+test('guest/migrate: so as licoes da semana atual entram na liga', async () => {
+  const repo = new InMemoryRepo();
+  const { migrateGuestHandler } = makeGuestHandlers({ repo, catalog, now });
+  await migrateGuestHandler(event({
+    body: { entries: [entry('attempt-0001', { today: '2026-09-01' }), entry('attempt-0002')] },
+  }));
+
+  assert.equal((await repo.getProfile('u1')).xpTotal, 20);
+  assert.equal(await repo.getLeagueMemberXp('bronze-2026-w43', 'u1'), 10);
+});
+
 test('lesson/complete rejeita licao desconhecida com 400', async () => {
   const { completeLessonHandler } = makeLessonHandlers({ repo: new InMemoryRepo(), catalog, now });
   const res = await completeLessonHandler(event({ body: entry('attempt-0001', { lessonId: 'x' }) }));

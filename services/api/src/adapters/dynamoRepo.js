@@ -465,45 +465,121 @@ export class DynamoRepo {
   // Estado: USER#<id> / LEAGUE (liga atual + resultado da ultima semana fechada)
   // -----------------------------------------------------------------------
 
-  /** Entra na liga (idempotente): cria o META aberto se faltar e nao zera XP ja somado. */
-  async joinLeague(league, userId) {
+  /**
+   * Entra na liga (idempotente): cria o META aberto se faltar e nao zera XP ja somado.
+   * Numa transacao so: membro, META com `ADD memberCount` e a vaga da semana
+   * (`USER#<id> / LEAGUEWEEK#<semana>`, condicional: uma liga por pessoa e semana). Com
+   * `maxMembers`, o META so aceita se `memberCount < maxMembers` (grupos de ate 30 mesmo com
+   * entradas concorrentes).
+   * @returns {Promise<{status: 'joined'|'already'|'full', leagueId: string}>}
+   */
+  async joinLeague(league, userId, { maxMembers = null, displayName = null } = {}) {
     const { leagueId, tier, period, periodStart, group } = league;
     const pk = `LEAGUE#${leagueId}`;
-    await this._db.send(
-      new TransactWriteCommand({
-        TransactItems: [
-          {
-            Update: {
-              TableName: TABLE,
-              Key: { PK: pk, SK: `USER#${userId}` },
-              UpdateExpression:
-                'SET leagueId = :lid, userId = :uid, tier = :tier, period = :period, periodStart = :ps, ' +
-                'GSI2PK = :g2pk, GSI2SK = :g2sk, xpPeriod = if_not_exists(xpPeriod, :zero)',
-              ExpressionAttributeValues: {
-                ':lid': leagueId, ':uid': userId, ':tier': tier, ':period': period, ':ps': periodStart,
-                ':g2pk': `USER#${userId}`, ':g2sk': `LEAGUE#${period}`, ':zero': 0,
+    const capped = maxMembers != null;
+    try {
+      await this._db.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: TABLE,
+                Key: { PK: pk, SK: `USER#${userId}` },
+                UpdateExpression:
+                  'SET leagueId = :lid, userId = :uid, tier = :tier, period = :period, periodStart = :ps, ' +
+                  'GSI2PK = :g2pk, GSI2SK = :g2sk, xpPeriod = if_not_exists(xpPeriod, :zero)' +
+                  (displayName ? ', displayName = :dn' : ''),
+                ExpressionAttributeValues: {
+                  ':lid': leagueId, ':uid': userId, ':tier': tier, ':period': period, ':ps': periodStart,
+                  ':g2pk': `USER#${userId}`, ':g2sk': `LEAGUE#${period}`, ':zero': 0,
+                  ...(displayName ? { ':dn': displayName } : {}),
+                },
               },
             },
-          },
-          {
-            Update: {
-              TableName: TABLE,
-              Key: { PK: pk, SK: 'META' },
-              UpdateExpression:
-                'SET leagueId = :lid, tier = :tier, period = :period, periodStart = :ps, ' +
-                'GSI2PK = :g2pk, GSI2SK = :g2sk, #status = if_not_exists(#status, :open)' +
-                (group ? ', #group = :group' : ''),
-              ExpressionAttributeNames: { '#status': 'status', ...(group ? { '#group': 'group' } : {}) },
-              ExpressionAttributeValues: {
-                ':lid': leagueId, ':tier': tier, ':period': period, ':ps': periodStart,
-                ':g2pk': `LEAGUES#${period}`, ':g2sk': `LEAGUE#${leagueId}`, ':open': 'open',
-                ...(group ? { ':group': group } : {}),
+            {
+              Update: {
+                TableName: TABLE,
+                Key: { PK: pk, SK: 'META' },
+                UpdateExpression:
+                  'SET leagueId = :lid, tier = :tier, period = :period, periodStart = :ps, ' +
+                  'GSI2PK = :g2pk, GSI2SK = :g2sk, #status = if_not_exists(#status, :open)' +
+                  (group ? ', #group = :group' : '') +
+                  ' ADD memberCount :one',
+                ExpressionAttributeNames: { '#status': 'status', ...(group ? { '#group': 'group' } : {}) },
+                ExpressionAttributeValues: {
+                  ':lid': leagueId, ':tier': tier, ':period': period, ':ps': periodStart,
+                  ':g2pk': `LEAGUES#${period}`, ':g2sk': `LEAGUE#${leagueId}`, ':open': 'open', ':one': 1,
+                  ...(group ? { ':group': group } : {}),
+                  ...(capped ? { ':max': maxMembers } : {}),
+                },
+                ...(capped ? { ConditionExpression: 'attribute_not_exists(memberCount) OR memberCount < :max' } : {}),
               },
             },
-          },
-        ],
+            {
+              Put: {
+                TableName: TABLE,
+                Item: { PK: `USER#${userId}`, SK: `LEAGUEWEEK#${period}`, leagueId, tier, period },
+                ConditionExpression: 'attribute_not_exists(PK)',
+              },
+            },
+          ],
+        }),
+      );
+      return { status: 'joined', leagueId };
+    } catch (e) {
+      const reasons = e?.name === 'TransactionCanceledException' ? e.CancellationReasons ?? [] : null;
+      if (!reasons) throw e;
+      if (reasons[2]?.Code === 'ConditionalCheckFailed') {
+        const seat = await this.getLeaguePlacement(userId, period);
+        if (seat) return { status: 'already', leagueId: seat.leagueId };
+      }
+      if (reasons[1]?.Code === 'ConditionalCheckFailed') return { status: 'full', leagueId };
+      throw e;
+    }
+  }
+
+  /** Vaga da pessoa na semana (`USER#<id> / LEAGUEWEEK#<semana>`), leitura consistente. */
+  async getLeaguePlacement(userId, period) {
+    const { Item } = await this._db.send(
+      new GetCommand({
+        TableName: TABLE,
+        Key: { PK: `USER#${userId}`, SK: `LEAGUEWEEK#${period}` },
+        ConsistentRead: true,
       }),
     );
+    return Item ? this._stripKeys(Item) : null;
+  }
+
+  /** Grupo aberto da liga na semana (`LEAGUEGROUPS#<tier>#<semana> / META`), 1 se nao houver. */
+  async getLeagueGroupCursor(tier, period) {
+    const { Item } = await this._db.send(
+      new GetCommand({ TableName: TABLE, Key: this._groupCursorKey(tier, period), ConsistentRead: true }),
+    );
+    return Item?.group ?? 1;
+  }
+
+  /** Avanca o cursor so se ele ainda aponta para `fromGroup` (cheio); senao devolve o atual. */
+  async advanceLeagueGroup(tier, period, fromGroup) {
+    try {
+      await this._db.send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: this._groupCursorKey(tier, period),
+          UpdateExpression: 'SET #group = :next',
+          ConditionExpression: fromGroup === 1 ? 'attribute_not_exists(#group) OR #group = :cur' : '#group = :cur',
+          ExpressionAttributeNames: { '#group': 'group' },
+          ExpressionAttributeValues: { ':next': fromGroup + 1, ':cur': fromGroup },
+        }),
+      );
+      return fromGroup + 1;
+    } catch (e) {
+      if (!isConditionFailure(e)) throw e;
+      return this.getLeagueGroupCursor(tier, period);
+    }
+  }
+
+  _groupCursorKey(tier, period) {
+    return { PK: `LEAGUEGROUPS#${tier}#${period}`, SK: 'META' };
   }
 
   async getLeague(leagueId) {
@@ -541,11 +617,17 @@ export class DynamoRepo {
           TableName: TABLE,
           KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
           ExpressionAttributeValues: { ':pk': `LEAGUE#${leagueId}`, ':prefix': 'USER#' },
-          ProjectionExpression: 'SK, userId, xpPeriod',
+          ProjectionExpression: 'SK, userId, xpPeriod, displayName',
           ExclusiveStartKey,
         }),
       );
-      for (const i of page.Items ?? []) out.push({ userId: i.userId ?? i.SK.slice(5), xpPeriod: i.xpPeriod ?? 0 });
+      for (const i of page.Items ?? []) {
+        out.push({
+          userId: i.userId ?? i.SK.slice(5),
+          xpPeriod: i.xpPeriod ?? 0,
+          ...(i.displayName ? { displayName: i.displayName } : {}),
+        });
+      }
       ExclusiveStartKey = page.LastEvaluatedKey;
     } while (ExclusiveStartKey);
     return out;

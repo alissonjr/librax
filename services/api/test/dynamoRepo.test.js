@@ -203,3 +203,79 @@ test('markLeagueClosed marca o META como fechado', async () => {
   assert.equal(input.ExpressionAttributeValues[':closed'], 'closed');
   assert.equal(input.ConditionExpression, 'attribute_exists(PK)');
 });
+
+// --- ligas: entrada com grupos de ate 30 (contador condicional) ---
+
+function canceled(codes) {
+  const err = new Error('cancelada');
+  err.name = 'TransactionCanceledException';
+  err.CancellationReasons = codes.map((Code) => ({ Code }));
+  return err;
+}
+
+const conditionFailed = () => {
+  const err = new Error('condicao');
+  err.name = 'ConditionalCheckFailedException';
+  return err;
+};
+
+test('joinLeague com maxMembers: contador condicional no META e uma vaga por pessoa e semana', async () => {
+  const db = fakeClient();
+  const r = await new DynamoRepo(db).joinLeague(ouroW44, 'u1', { maxMembers: 30, displayName: 'Ana' });
+
+  assert.deepEqual(r, { status: 'joined', leagueId: 'ouro-2026-w44' });
+  const [{ name, input }] = db.calls;
+  assert.equal(name, 'TransactWriteCommand');
+  const [member, meta, placement] = input.TransactItems;
+  assert.match(member.Update.UpdateExpression, /displayName = :dn/);
+  assert.match(meta.Update.UpdateExpression, /ADD memberCount :one/);
+  assert.equal(meta.Update.ConditionExpression, 'attribute_not_exists(memberCount) OR memberCount < :max');
+  assert.equal(meta.Update.ExpressionAttributeValues[':max'], 30);
+  assert.deepEqual(placement.Put.Item, {
+    PK: 'USER#u1', SK: 'LEAGUEWEEK#2026-w44', leagueId: 'ouro-2026-w44', tier: 'ouro', period: '2026-w44',
+  });
+  assert.equal(placement.Put.ConditionExpression, 'attribute_not_exists(PK)');
+});
+
+test('joinLeague: META cheio devolve full; pessoa ja colocada devolve a liga dela', async () => {
+  const full = fakeClient(() => {
+    throw canceled(['None', 'ConditionalCheckFailed', 'None']);
+  });
+  assert.deepEqual(await new DynamoRepo(full).joinLeague(ouroW44, 'u1', { maxMembers: 30 }), {
+    status: 'full', leagueId: 'ouro-2026-w44',
+  });
+
+  const placed = fakeClient((name) => {
+    if (name === 'TransactWriteCommand') throw canceled(['None', 'None', 'ConditionalCheckFailed']);
+    return { Item: { PK: 'USER#u1', SK: 'LEAGUEWEEK#2026-w44', leagueId: 'ouro-2026-w44-g2', tier: 'ouro', period: '2026-w44' } };
+  });
+  assert.deepEqual(await new DynamoRepo(placed).joinLeague(ouroW44, 'u1', { maxMembers: 30 }), {
+    status: 'already', leagueId: 'ouro-2026-w44-g2',
+  });
+  assert.equal(placed.calls[1].input.ConsistentRead, true);
+});
+
+test('getLeaguePlacement le USER#<id> / LEAGUEWEEK#<semana> com leitura consistente', async () => {
+  const db = fakeClient(() => ({ Item: { PK: 'USER#u1', SK: 'LEAGUEWEEK#2026-w44', leagueId: 'ouro-2026-w44', tier: 'ouro', period: '2026-w44' } }));
+  const p = await new DynamoRepo(db).getLeaguePlacement('u1', '2026-w44');
+  assert.deepEqual(p, { leagueId: 'ouro-2026-w44', tier: 'ouro', period: '2026-w44' });
+  assert.deepEqual(db.calls[0].input.Key, { PK: 'USER#u1', SK: 'LEAGUEWEEK#2026-w44' });
+  assert.equal(db.calls[0].input.ConsistentRead, true);
+});
+
+test('advanceLeagueGroup so avanca o cursor de quem viu o grupo cheio', async () => {
+  const db = fakeClient();
+  assert.equal(await new DynamoRepo(db).advanceLeagueGroup('ouro', '2026-w44', 1), 2);
+  const { input } = db.calls[0];
+  assert.deepEqual(input.Key, { PK: 'LEAGUEGROUPS#ouro#2026-w44', SK: 'META' });
+  assert.equal(input.ConditionExpression, 'attribute_not_exists(#group) OR #group = :cur');
+  assert.equal(input.ExpressionAttributeValues[':next'], 2);
+
+  // outra escrita ja avancou: devolve o cursor atual
+  const raced = fakeClient((name) => {
+    if (name === 'UpdateCommand') throw conditionFailed();
+    return { Item: { group: 3 } };
+  });
+  assert.equal(await new DynamoRepo(raced).advanceLeagueGroup('ouro', '2026-w44', 2), 3);
+  assert.equal(raced.calls[0].input.ConditionExpression, '#group = :cur');
+});
