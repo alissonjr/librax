@@ -1,4 +1,5 @@
 import { updateSrs, qualityFromResult, newSrsItem } from '../domain/srs.js';
+import { quietly, recordPractice } from './opsMetrics.js';
 
 /**
  * Grava no SRS o resultado de sinais revisados (SPEC 03 secao 6): a pratica diaria chama a cada
@@ -31,7 +32,8 @@ export async function reviewSigns(repo, input) {
  * reviewSigns idempotente por `reviewAttemptId` (POST /v1/practice/review). O SM-2 nao e
  * idempotente: aplicar o mesmo acerto duas vezes alongaria o intervalo de novo. Usa a mesma
  * reserva das conclusoes de licao (`ATTEMPT#<id>`, ver completeLessonOnce); quem nao consegue
- * reservar recebe o resultado ja guardado.
+ * reservar recebe o resultado ja guardado. A rodada aplicada soma nos contadores do painel de
+ * administracao (opsMetrics.js).
  *
  * @param {object} repo
  * @param {object} input  entrada do reviewSigns + reviewAttemptId
@@ -53,5 +55,6 @@ export async function reviewSignsOnce(repo, input) {
     throw err;
   }
   await repo.finishLessonAttempt(userId, reviewAttemptId, result);
+  await quietly('pratica', () => recordPractice(repo, input));
   return { ...result, reviewAttemptId, duplicate: false };
 }

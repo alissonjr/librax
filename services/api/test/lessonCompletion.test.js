@@ -134,3 +134,28 @@ test('parseGuestLog separa invalidas e ordena as validas por dia e horario', () 
   assert.deepEqual(valid.map((e) => e.lessonAttemptId), ['attempt-0001', 'attempt-0002', 'attempt-0003']);
   assert.deepEqual(rejected, [{ index: 3, lessonAttemptId: 'attempt-0004', reason: 'UNKNOWN_LESSON' }]);
 });
+
+// --- exerciseStats (telemetria do painel de administracao) ---
+
+test('exerciseStats valido passa e o invalido some sem recusar a conclusao', () => {
+  const ok = parseCompletionEntry(entry({ exerciseStats: { mc4: { attempted: 1, wrong: 0 } } }), ctx);
+  assert.equal(ok.ok, true);
+  assert.equal(ok.value.exerciseStats, undefined); // tipo desconhecido: telemetria descartada
+
+  const r = parseCompletionEntry(entry({
+    exerciseStats: { watch_choose_word: { attempted: 3, wrong: 1 }, match_pairs: { attempted: 0, wrong: 0 } },
+  }), ctx);
+  assert.deepEqual(r.value.exerciseStats, { watch_choose_word: { attempted: 3, wrong: 1 } });
+
+  for (const bad of [
+    { perform_sign: { attempted: 1, wrong: 2 } },
+    { perform_sign: { attempted: 101, wrong: 0 } },
+    { perform_sign: { attempted: 1.5, wrong: 0 } },
+    { perform_sign: 'muitos' },
+    ['perform_sign'],
+  ]) {
+    const res = parseCompletionEntry(entry({ exerciseStats: bad }), ctx);
+    assert.equal(res.ok, true);
+    assert.equal(res.value.exerciseStats, undefined);
+  }
+});

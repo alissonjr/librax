@@ -3,6 +3,8 @@
  *
  * POST /v1/lesson/complete  -> completeLesson (idempotente com lessonAttemptId)
  * GET  /v1/lesson/queue     -> getDailyQueue
+ * POST /v1/lesson/abandon   -> recordLessonAbandon (saida no meio da licao; so contadores do
+ *                              painel de administracao, sem XP nem SRS)
  *
  * Mapeamento API Gateway HTTP API (payload format 2.0):
  *   event.routeKey = "POST /v1/lesson/complete"
@@ -15,7 +17,8 @@
 import { completeLesson } from '../usecases/completeLesson.js';
 import { completeLessonOnce } from '../usecases/completeLessonOnce.js';
 import { getDailyQueue } from '../usecases/getDailyQueue.js';
-import { parseCompletionEntry } from '../domain/lessonCompletion.js';
+import { parseCompletionEntry, parseLessonAbandon } from '../domain/lessonCompletion.js';
+import { quietly, recordLessonAbandon, recordLessonCompleted } from '../usecases/opsMetrics.js';
 import { userId, body, ok, ApiError, wrap } from './_http.js';
 import { repo as dynamoRepo } from './_repo.js';
 import { courseCatalog } from './_catalog.js';
@@ -37,10 +40,21 @@ export function makeLessonHandlers({ repo, catalog, now = () => new Date() }) {
 
     // `now` (relogio do servidor) decide a semana da liga e das squads, nunca o aparelho
     const input = { ...parsed.value, userId: uid, now: now().getTime() };
-    const result = input.lessonAttemptId
-      ? await completeLessonOnce(repo, catalog, input)
-      : await completeLesson(repo, catalog, input);
+    if (input.lessonAttemptId) return ok(await completeLessonOnce(repo, catalog, input));
+
+    // cliente antigo, sem id da tentativa: aplica direto (completeLessonOnce conta sozinho)
+    const result = await completeLesson(repo, catalog, input);
+    await quietly('licao', () => recordLessonCompleted(repo, input));
     return ok(result);
+  });
+
+  /** POST /v1/lesson/abandon */
+  const abandonLessonHandler = wrap(async (event) => {
+    const uid = userId(event);
+    const parsed = parseLessonAbandon(body(event), { catalog, today: utcDay(now()) });
+    if (!parsed.ok) throw new ApiError(400, parsed.error, `Saida invalida: ${parsed.error}`);
+    await recordLessonAbandon(repo, { ...parsed.value, userId: uid });
+    return ok({ recorded: true });
   });
 
   /** GET /v1/lesson/queue */
@@ -52,10 +66,10 @@ export function makeLessonHandlers({ repo, catalog, now = () => new Date() }) {
     return ok({ queue });
   });
 
-  return { completeLessonHandler, getDailyQueueHandler };
+  return { completeLessonHandler, getDailyQueueHandler, abandonLessonHandler };
 }
 
-export const { completeLessonHandler, getDailyQueueHandler } = makeLessonHandlers({
+export const { completeLessonHandler, getDailyQueueHandler, abandonLessonHandler } = makeLessonHandlers({
   repo: dynamoRepo,
   catalog: courseCatalog,
 });
