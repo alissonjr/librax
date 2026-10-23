@@ -1134,10 +1134,17 @@ O que foi usado ao aplicar este design system em `apps/web-poc/`, item a item da
 1. **Paleta**: Azul Sinal (`#3651E6` no claro, `#7290FF` no escuro) e turquesa para mão e câmera, como proposto.
 2. **Validação cultural**: pendente; não é decisão de código. Paleta, ícones e textos seguem a proposta até a
    consultoria surda validar.
-3. **Ligas**: as 7 ligas propostas ficam nos tokens (`league.*`, com contraste verificado). O app ainda não tem
-   tela de liga (a aba Social mostra "Em breve"), então nada visual foi criado.
-4. **Som padrão**: o app ainda não tem sistema de som; quando entrar, seguir a sugestão (perguntar no
-   onboarding). Os tokens `sound.*` já saem no `tokens.ts`.
+3. **Ligas**: as 7 ligas propostas ficam nos tokens (`league.*`, com contraste verificado). A `LeagueScreen` e o
+   `LeagueResultSheet` usam as insígnias com forma própria (`src/components/LeagueBadge.tsx`), zonas com seta e
+   texto e a pessoa destacada com contorno completo. Enquanto não há API de ligas, o domínio roda no aparelho
+   com concorrentes simulados de forma determinística por semana (`src/lib/leagueLocal.ts`, modo local/demo).
+4. **Som padrão**: perguntar no onboarding (passo do motivo, sem nada marcado e sem presumir nada pela resposta
+   "sou surdo(a)"). Sem escolha, o som fica desligado; o interruptor "Sons" fica sempre visível em
+   Configurações > Preferências. Sistema em `src/lib/sound.ts` (Web Audio, buffers prontos no primeiro toque,
+   `audioSession` 'ambient', fila de prioridade da spec 05 seção 3.2). Os sons são gerados por síntese em
+   `tools/audio/build.mjs` (AAC `.m4a` em `public/audio/`, via ffmpeg ou GStreamer) e, se um arquivo não
+   carregar, sintetizados na hora pelo mesmo código (`src/lib/sfxSynth.js`). Novo token `sound.leagueUp`
+   (subida de liga, prioridade 6). No modo reduzido, os sons de interface (prioridade 0) não tocam.
 5. **Vibração padrão no Android**: ligada (a proposta não recomenda um padrão; mantido o comportamento atual).
    `haptic(evento, enabled)` já aceita a futura opção "Vibração"; erro nunca vibra e no iOS nada é chamado.
 6. **Botão "tecla"**: adotado (base de 3 px em `action.primary.base` que afunda ao tocar).
