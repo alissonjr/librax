@@ -14,43 +14,45 @@
     {
       "id": "u10-l2-ex02",
       "lesson_id": "u10-l2",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-CAFE-DA-MANHA",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "CAFÉ-DA-MANHÃ"
       }
     },
     {
       "id": "u10-l2-ex03",
       "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "sinal-CAFE-DA-MANHA",
-        "correct": "CAFÉ-DA-MANHÃ"
+        "sign_id": "sinal-ALMOCO"
       }
     },
     {
       "id": "u10-l2-ex04",
       "lesson_id": "u10-l2",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "sinal-CAFE-DA-MANHA"
+        "word": "ALMOÇO",
+        "video_options": [
+          "sinal-ALMOCO",
+          "sinal-CAFE-DA-MANHA",
+          "sinal-LEITE",
+          "sinal-CAFE"
+        ],
+        "correct_sign_id": "sinal-ALMOCO"
       }
     },
     {
       "id": "u10-l2-ex05",
       "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "sinal-CAFE-DA-MANHA",
-        "correct": "CAFÉ-DA-MANHÃ"
+        "sign_id": "sinal-JANTAR"
       }
     },
     {
@@ -59,301 +61,71 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "sinal-ALMOCO"
+        "sign_id": "sinal-PAO"
       }
     },
     {
       "id": "u10-l2-ex07",
       "lesson_id": "u10-l2",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "sinal-ALMOCO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-SUCO"
       }
     },
     {
       "id": "u10-l2-ex08",
       "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 8,
-      "payload": {
-        "sign_id": "sinal-ALMOCO",
-        "correct": "ALMOÇO"
-      }
-    },
-    {
-      "id": "u10-l2-ex09",
-      "lesson_id": "u10-l2",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "sinal-ALMOCO"
-      }
-    },
-    {
-      "id": "u10-l2-ex10",
-      "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "sinal-ALMOCO",
-        "correct": "ALMOÇO"
-      }
-    },
-    {
-      "id": "u10-l2-ex11",
-      "lesson_id": "u10-l2",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-JANTAR"
-      }
-    },
-    {
-      "id": "u10-l2-ex12",
-      "lesson_id": "u10-l2",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-JANTAR",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u10-l2-ex13",
-      "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-JANTAR",
-        "correct": "JANTAR"
-      }
-    },
-    {
-      "id": "u10-l2-ex14",
-      "lesson_id": "u10-l2",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-JANTAR"
-      }
-    },
-    {
-      "id": "u10-l2-ex15",
-      "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-JANTAR",
-        "correct": "JANTAR"
-      }
-    },
-    {
-      "id": "u10-l2-ex16",
-      "lesson_id": "u10-l2",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-PAO"
-      }
-    },
-    {
-      "id": "u10-l2-ex17",
-      "lesson_id": "u10-l2",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-PAO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u10-l2-ex18",
-      "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-PAO",
-        "correct": "PÃO"
-      }
-    },
-    {
-      "id": "u10-l2-ex19",
-      "lesson_id": "u10-l2",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-PAO"
-      }
-    },
-    {
-      "id": "u10-l2-ex20",
-      "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-PAO",
-        "correct": "PÃO"
-      }
-    },
-    {
-      "id": "u10-l2-ex21",
-      "lesson_id": "u10-l2",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "sinal-SUCO"
-      }
-    },
-    {
-      "id": "u10-l2-ex22",
-      "lesson_id": "u10-l2",
-      "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-SUCO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u10-l2-ex23",
-      "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-SUCO",
-        "correct": "SUCO"
-      }
-    },
-    {
-      "id": "u10-l2-ex24",
-      "lesson_id": "u10-l2",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-SUCO"
-      }
-    },
-    {
-      "id": "u10-l2-ex25",
-      "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-SUCO",
-        "correct": "SUCO"
-      }
-    },
-    {
-      "id": "u10-l2-ex26",
-      "lesson_id": "u10-l2",
       "type": "match_pairs",
-      "order": 26,
+      "order": 8,
       "payload": {
         "pairs": [
           {
-            "sign_id": "sinal-CAFE-DA-MANHA",
-            "gloss": "CAFÉ-DA-MANHÃ"
-          },
-          {
-            "sign_id": "sinal-ALMOCO",
-            "gloss": "ALMOÇO"
-          },
-          {
             "sign_id": "sinal-JANTAR",
             "gloss": "JANTAR"
+          },
+          {
+            "sign_id": "sinal-PAO",
+            "gloss": "PÃO"
+          },
+          {
+            "sign_id": "sinal-SUCO",
+            "gloss": "SUCO"
           }
         ]
       }
     },
     {
-      "id": "u10-l2-ex27",
+      "id": "u10-l2-ex09",
       "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 27,
+      "type": "perform_sign",
+      "order": 9,
       "payload": {
         "sign_id": "sinal-CAFE-DA-MANHA",
-        "correct": "CAFÉ-DA-MANHÃ"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u10-l2-ex28",
+      "id": "u10-l2-ex10",
       "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 28,
+      "type": "perform_sign",
+      "order": 10,
       "payload": {
         "sign_id": "sinal-ALMOCO",
-        "correct": "ALMOÇO"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u10-l2-ex29",
-      "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 29,
-      "payload": {
-        "sign_id": "sinal-JANTAR",
-        "correct": "JANTAR"
-      }
-    },
-    {
-      "id": "u10-l2-ex30",
-      "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "sinal-PAO",
-        "correct": "PÃO"
-      }
-    },
-    {
-      "id": "u10-l2-ex31",
-      "lesson_id": "u10-l2",
-      "type": "watch_choose_word",
-      "order": 31,
-      "payload": {
-        "sign_id": "sinal-SUCO",
-        "correct": "SUCO"
-      }
-    },
-    {
-      "id": "u10-l2-ex32",
-      "lesson_id": "u10-l2",
-      "type": "order_sequence",
-      "order": 32,
-      "payload": {
-        "steps": [
-          "CAFÉ-DA-MANHÃ",
-          "ALMOÇO",
-          "JANTAR",
-          "PÃO"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u10-l2-ex33",
+      "id": "u10-l2-ex11",
       "lesson_id": "u10-l2",
       "type": "build_phrase",
-      "order": 33,
+      "order": 11,
       "payload": {
         "pt": "Adoro beber água gelada!",
         "glosses": [

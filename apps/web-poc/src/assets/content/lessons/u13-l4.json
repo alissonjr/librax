@@ -14,43 +14,45 @@
     {
       "id": "u13-l4-ex02",
       "lesson_id": "u13-l4",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "numero-80",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "80"
       }
     },
     {
       "id": "u13-l4-ex03",
       "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "numero-80",
-        "correct": "80"
+        "sign_id": "numero-90"
       }
     },
     {
       "id": "u13-l4-ex04",
       "lesson_id": "u13-l4",
-      "type": "mirror_practice",
+      "type": "word_choose_video",
       "order": 4,
       "payload": {
-        "sign_id": "numero-80"
+        "word": "90",
+        "video_options": [
+          "numero-90",
+          "numero-80",
+          "numero-70",
+          "numero-60"
+        ],
+        "correct_sign_id": "numero-90"
       }
     },
     {
       "id": "u13-l4-ex05",
       "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "numero-80",
-        "correct": "80"
+        "sign_id": "numero-100"
       }
     },
     {
@@ -59,301 +61,71 @@
       "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "numero-90"
+        "sign_id": "sinal-DINHEIRO"
       }
     },
     {
       "id": "u13-l4-ex07",
       "lesson_id": "u13-l4",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "numero-90",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "sign_id": "sinal-REAL"
       }
     },
     {
       "id": "u13-l4-ex08",
       "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 8,
-      "payload": {
-        "sign_id": "numero-90",
-        "correct": "90"
-      }
-    },
-    {
-      "id": "u13-l4-ex09",
-      "lesson_id": "u13-l4",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "numero-90"
-      }
-    },
-    {
-      "id": "u13-l4-ex10",
-      "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "numero-90",
-        "correct": "90"
-      }
-    },
-    {
-      "id": "u13-l4-ex11",
-      "lesson_id": "u13-l4",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "numero-100"
-      }
-    },
-    {
-      "id": "u13-l4-ex12",
-      "lesson_id": "u13-l4",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "numero-100",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u13-l4-ex13",
-      "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "numero-100",
-        "correct": "100"
-      }
-    },
-    {
-      "id": "u13-l4-ex14",
-      "lesson_id": "u13-l4",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "numero-100"
-      }
-    },
-    {
-      "id": "u13-l4-ex15",
-      "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "numero-100",
-        "correct": "100"
-      }
-    },
-    {
-      "id": "u13-l4-ex16",
-      "lesson_id": "u13-l4",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-DINHEIRO"
-      }
-    },
-    {
-      "id": "u13-l4-ex17",
-      "lesson_id": "u13-l4",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-DINHEIRO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u13-l4-ex18",
-      "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-DINHEIRO",
-        "correct": "DINHEIRO"
-      }
-    },
-    {
-      "id": "u13-l4-ex19",
-      "lesson_id": "u13-l4",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-DINHEIRO"
-      }
-    },
-    {
-      "id": "u13-l4-ex20",
-      "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-DINHEIRO",
-        "correct": "DINHEIRO"
-      }
-    },
-    {
-      "id": "u13-l4-ex21",
-      "lesson_id": "u13-l4",
-      "type": "sign_intro",
-      "order": 21,
-      "payload": {
-        "sign_id": "sinal-REAL"
-      }
-    },
-    {
-      "id": "u13-l4-ex22",
-      "lesson_id": "u13-l4",
-      "type": "perform_sign",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-REAL",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u13-l4-ex23",
-      "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-REAL",
-        "correct": "REAL"
-      }
-    },
-    {
-      "id": "u13-l4-ex24",
-      "lesson_id": "u13-l4",
-      "type": "mirror_practice",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-REAL"
-      }
-    },
-    {
-      "id": "u13-l4-ex25",
-      "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-REAL",
-        "correct": "REAL"
-      }
-    },
-    {
-      "id": "u13-l4-ex26",
-      "lesson_id": "u13-l4",
       "type": "match_pairs",
-      "order": 26,
+      "order": 8,
       "payload": {
         "pairs": [
           {
-            "sign_id": "numero-80",
-            "gloss": "80"
-          },
-          {
-            "sign_id": "numero-90",
-            "gloss": "90"
-          },
-          {
             "sign_id": "numero-100",
             "gloss": "100"
+          },
+          {
+            "sign_id": "sinal-DINHEIRO",
+            "gloss": "DINHEIRO"
+          },
+          {
+            "sign_id": "sinal-REAL",
+            "gloss": "REAL"
           }
         ]
       }
     },
     {
-      "id": "u13-l4-ex27",
+      "id": "u13-l4-ex09",
       "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 27,
+      "type": "perform_sign",
+      "order": 9,
       "payload": {
         "sign_id": "numero-80",
-        "correct": "80"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u13-l4-ex28",
+      "id": "u13-l4-ex10",
       "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 28,
+      "type": "perform_sign",
+      "order": 10,
       "payload": {
         "sign_id": "numero-90",
-        "correct": "90"
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
-      "id": "u13-l4-ex29",
-      "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 29,
-      "payload": {
-        "sign_id": "numero-100",
-        "correct": "100"
-      }
-    },
-    {
-      "id": "u13-l4-ex30",
-      "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 30,
-      "payload": {
-        "sign_id": "sinal-DINHEIRO",
-        "correct": "DINHEIRO"
-      }
-    },
-    {
-      "id": "u13-l4-ex31",
-      "lesson_id": "u13-l4",
-      "type": "watch_choose_word",
-      "order": 31,
-      "payload": {
-        "sign_id": "sinal-REAL",
-        "correct": "REAL"
-      }
-    },
-    {
-      "id": "u13-l4-ex32",
-      "lesson_id": "u13-l4",
-      "type": "order_sequence",
-      "order": 32,
-      "payload": {
-        "steps": [
-          "80",
-          "90",
-          "100",
-          "DINHEIRO"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u13-l4-ex33",
+      "id": "u13-l4-ex11",
       "lesson_id": "u13-l4",
       "type": "build_phrase",
-      "order": 33,
+      "order": 11,
       "payload": {
         "pt": "Melhor comprar roupa na fábrica, é mais barato.",
         "glosses": [

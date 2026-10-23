@@ -14,59 +14,87 @@
     {
       "id": "u7-l2-ex02",
       "lesson_id": "u7-l2",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 2,
       "payload": {
         "sign_id": "sinal-CANSADO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
+        "correct": "CANSADO"
       }
     },
     {
       "id": "u7-l2-ex03",
       "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 3,
-      "payload": {
-        "sign_id": "sinal-CANSADO",
-        "correct": "CANSADO"
-      }
-    },
-    {
-      "id": "u7-l2-ex04",
-      "lesson_id": "u7-l2",
-      "type": "mirror_practice",
-      "order": 4,
-      "payload": {
-        "sign_id": "sinal-CANSADO"
-      }
-    },
-    {
-      "id": "u7-l2-ex05",
-      "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 5,
-      "payload": {
-        "sign_id": "sinal-CANSADO",
-        "correct": "CANSADO"
-      }
-    },
-    {
-      "id": "u7-l2-ex06",
-      "lesson_id": "u7-l2",
       "type": "sign_intro",
-      "order": 6,
+      "order": 3,
       "payload": {
         "sign_id": "sinal-DOENTE"
       }
     },
     {
+      "id": "u7-l2-ex04",
+      "lesson_id": "u7-l2",
+      "type": "word_choose_video",
+      "order": 4,
+      "payload": {
+        "word": "DOENTE",
+        "video_options": [
+          "sinal-DOENTE",
+          "sinal-CANSADO",
+          "sinal-CALMO",
+          "sinal-MEDO"
+        ],
+        "correct_sign_id": "sinal-DOENTE"
+      }
+    },
+    {
+      "id": "u7-l2-ex05",
+      "lesson_id": "u7-l2",
+      "type": "sign_intro",
+      "order": 5,
+      "payload": {
+        "sign_id": "sinal-FOME"
+      }
+    },
+    {
+      "id": "u7-l2-ex06",
+      "lesson_id": "u7-l2",
+      "type": "watch_choose_word",
+      "order": 6,
+      "payload": {
+        "sign_id": "sinal-FOME",
+        "correct": "FOME"
+      }
+    },
+    {
       "id": "u7-l2-ex07",
       "lesson_id": "u7-l2",
-      "type": "perform_sign",
+      "type": "sign_intro",
       "order": 7,
+      "payload": {
+        "sign_id": "sinal-SONO"
+      }
+    },
+    {
+      "id": "u7-l2-ex08",
+      "lesson_id": "u7-l2",
+      "type": "word_choose_video",
+      "order": 8,
+      "payload": {
+        "word": "SONO",
+        "video_options": [
+          "sinal-SONO",
+          "sinal-CANSADO",
+          "sinal-DOENTE",
+          "sinal-FOME"
+        ],
+        "correct_sign_id": "sinal-SONO"
+      }
+    },
+    {
+      "id": "u7-l2-ex09",
+      "lesson_id": "u7-l2",
+      "type": "perform_sign",
+      "order": 9,
       "payload": {
         "sign_id": "sinal-DOENTE",
         "recognition": "static",
@@ -76,223 +104,23 @@
       }
     },
     {
-      "id": "u7-l2-ex08",
-      "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 8,
-      "payload": {
-        "sign_id": "sinal-DOENTE",
-        "correct": "DOENTE"
-      }
-    },
-    {
-      "id": "u7-l2-ex09",
-      "lesson_id": "u7-l2",
-      "type": "mirror_practice",
-      "order": 9,
-      "payload": {
-        "sign_id": "sinal-DOENTE"
-      }
-    },
-    {
       "id": "u7-l2-ex10",
       "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
+      "type": "perform_sign",
       "order": 10,
       "payload": {
-        "sign_id": "sinal-DOENTE",
-        "correct": "DOENTE"
+        "sign_id": "sinal-CANSADO",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
       "id": "u7-l2-ex11",
       "lesson_id": "u7-l2",
-      "type": "sign_intro",
-      "order": 11,
-      "payload": {
-        "sign_id": "sinal-FOME"
-      }
-    },
-    {
-      "id": "u7-l2-ex12",
-      "lesson_id": "u7-l2",
-      "type": "perform_sign",
-      "order": 12,
-      "payload": {
-        "sign_id": "sinal-FOME",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u7-l2-ex13",
-      "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 13,
-      "payload": {
-        "sign_id": "sinal-FOME",
-        "correct": "FOME"
-      }
-    },
-    {
-      "id": "u7-l2-ex14",
-      "lesson_id": "u7-l2",
-      "type": "mirror_practice",
-      "order": 14,
-      "payload": {
-        "sign_id": "sinal-FOME"
-      }
-    },
-    {
-      "id": "u7-l2-ex15",
-      "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 15,
-      "payload": {
-        "sign_id": "sinal-FOME",
-        "correct": "FOME"
-      }
-    },
-    {
-      "id": "u7-l2-ex16",
-      "lesson_id": "u7-l2",
-      "type": "sign_intro",
-      "order": 16,
-      "payload": {
-        "sign_id": "sinal-SONO"
-      }
-    },
-    {
-      "id": "u7-l2-ex17",
-      "lesson_id": "u7-l2",
-      "type": "perform_sign",
-      "order": 17,
-      "payload": {
-        "sign_id": "sinal-SONO",
-        "recognition": "dynamic",
-        "min_confidence": null,
-        "max_attempts": null,
-        "hint_video_url": null
-      }
-    },
-    {
-      "id": "u7-l2-ex18",
-      "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 18,
-      "payload": {
-        "sign_id": "sinal-SONO",
-        "correct": "SONO"
-      }
-    },
-    {
-      "id": "u7-l2-ex19",
-      "lesson_id": "u7-l2",
-      "type": "mirror_practice",
-      "order": 19,
-      "payload": {
-        "sign_id": "sinal-SONO"
-      }
-    },
-    {
-      "id": "u7-l2-ex20",
-      "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 20,
-      "payload": {
-        "sign_id": "sinal-SONO",
-        "correct": "SONO"
-      }
-    },
-    {
-      "id": "u7-l2-ex21",
-      "lesson_id": "u7-l2",
-      "type": "match_pairs",
-      "order": 21,
-      "payload": {
-        "pairs": [
-          {
-            "sign_id": "sinal-CANSADO",
-            "gloss": "CANSADO"
-          },
-          {
-            "sign_id": "sinal-DOENTE",
-            "gloss": "DOENTE"
-          },
-          {
-            "sign_id": "sinal-FOME",
-            "gloss": "FOME"
-          }
-        ]
-      }
-    },
-    {
-      "id": "u7-l2-ex22",
-      "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 22,
-      "payload": {
-        "sign_id": "sinal-CANSADO",
-        "correct": "CANSADO"
-      }
-    },
-    {
-      "id": "u7-l2-ex23",
-      "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 23,
-      "payload": {
-        "sign_id": "sinal-DOENTE",
-        "correct": "DOENTE"
-      }
-    },
-    {
-      "id": "u7-l2-ex24",
-      "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 24,
-      "payload": {
-        "sign_id": "sinal-FOME",
-        "correct": "FOME"
-      }
-    },
-    {
-      "id": "u7-l2-ex25",
-      "lesson_id": "u7-l2",
-      "type": "watch_choose_word",
-      "order": 25,
-      "payload": {
-        "sign_id": "sinal-SONO",
-        "correct": "SONO"
-      }
-    },
-    {
-      "id": "u7-l2-ex26",
-      "lesson_id": "u7-l2",
-      "type": "order_sequence",
-      "order": 26,
-      "payload": {
-        "steps": [
-          "CANSADO",
-          "DOENTE",
-          "FOME",
-          "SONO"
-        ],
-        "correct_order": [
-          0,
-          1,
-          2,
-          3
-        ]
-      }
-    },
-    {
-      "id": "u7-l2-ex27",
-      "lesson_id": "u7-l2",
       "type": "build_phrase",
-      "order": 27,
+      "order": 11,
       "payload": {
         "pt": "O almoço está demorando e eu estou com muita fome.",
         "glosses": [
