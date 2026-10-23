@@ -210,16 +210,93 @@ export class DynamoRepo {
     return Item ? this._stripKeys(Item) : null;
   }
 
+  /**
+   * So na criacao (condicional): depois disso nenhuma escrita regrava a squad inteira, para
+   * nao apagar XP (ADD) nem memberCount somados ao mesmo tempo por outra requisicao.
+   */
   async putSquad(squad) {
     const { squadId, type, inviteCode } = squad;
     const item = {
       PK: `SQUAD#${squadId}`,
       SK: 'META',
       ...squad,
-      ...(type === 'public' ? { GSI4PK: 'SQUADS_PUBLIC', GSI4SK: `XP#${String(squad.xpWeekly ?? 0).padStart(12, '0')}#${squadId}` } : {}),
+      ...(type === 'public' ? this._publicIndex(squadId, squad.xpWeekly) : {}),
       ...(inviteCode ? { GSI5PK: `INVITE#${inviteCode}`, GSI5SK: 'META' } : {}),
     };
-    await this._db.send(new PutCommand({ TableName: TABLE, Item: item }));
+    await this._db.send(
+      new PutCommand({ TableName: TABLE, Item: item, ConditionExpression: 'attribute_not_exists(PK)' }),
+    );
+  }
+
+  /**
+   * Edita so os campos dados (name, description, type, maxMembers, inviteCode) com SET; o XP
+   * e o memberCount ficam com os ADD. Trocar `type` liga ou desliga o GSI4 (diretorio
+   * publico) e trocar `inviteCode` move o GSI5. Devolve a squad depois da escrita.
+   */
+  async updateSquadFields(squadId, fields) {
+    const names = {};
+    const values = {};
+    const sets = [];
+    const removes = [];
+    const set = (attr, value) => {
+      names[`#${attr}`] = attr;
+      values[`:${attr}`] = value;
+      sets.push(`#${attr} = :${attr}`);
+    };
+    for (const [k, v] of Object.entries(fields)) set(k, v);
+    if (fields.type === 'public') {
+      for (const [k, v] of Object.entries(this._publicIndex(squadId, 0))) set(k, v);
+    } else if (fields.type) {
+      removes.push('GSI4PK', 'GSI4SK');
+    }
+    if (fields.inviteCode) {
+      set('GSI5PK', `INVITE#${fields.inviteCode}`);
+      set('GSI5SK', 'META');
+    }
+
+    const { Attributes } = await this._db.send(
+      new UpdateCommand({
+        TableName: TABLE,
+        Key: { PK: `SQUAD#${squadId}`, SK: 'META' },
+        UpdateExpression: `SET ${sets.join(', ')}${removes.length ? ` REMOVE ${removes.join(', ')}` : ''}`,
+        ConditionExpression: 'attribute_exists(PK)',
+        ExpressionAttributeNames: names,
+        ExpressionAttributeValues: values,
+        ReturnValues: 'ALL_NEW',
+      }),
+    );
+    return Attributes ? this._stripKeys(Attributes) : null;
+  }
+
+  /**
+   * Soma `delta` ao memberCount (ADD). Para entrar (delta > 0), so se `memberCount <
+   * maxMembers` na hora da escrita: duas entradas concorrentes nao passam do limite.
+   * @returns {Promise<boolean>} false se a squad esta cheia ou nao existe
+   */
+  async changeSquadMemberCount(squadId, delta) {
+    try {
+      await this._db.send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: { PK: `SQUAD#${squadId}`, SK: 'META' },
+          UpdateExpression: 'ADD memberCount :delta',
+          ConditionExpression: delta > 0 ? 'attribute_exists(PK) AND memberCount < maxMembers' : 'attribute_exists(PK)',
+          ExpressionAttributeValues: { ':delta': delta },
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (isConditionFailure(e)) return false;
+      throw e;
+    }
+  }
+
+  /**
+   * GSI4 do diretorio publico. O SK leva o xpWeekly com zero-padding (SPEC 04 1.2), mas os ADD
+   * de XP nao reescrevem o SK: a ordem por XP fica para quando o diretorio for implementado.
+   */
+  _publicIndex(squadId, xpWeekly = 0) {
+    return { GSI4PK: 'SQUADS_PUBLIC', GSI4SK: `XP#${String(xpWeekly ?? 0).padStart(12, '0')}#${squadId}` };
   }
 
   async deleteSquad(squadId) {
@@ -259,35 +336,71 @@ export class DynamoRepo {
     return Item ? this._stripKeys(Item) : null;
   }
 
+  /**
+   * Membro novo (MEMBER# + vinculo USER#/SQUAD#). Condicional: nunca sobrescreve um membro
+   * que ja existe (e a contribuicao dele).
+   * @returns {Promise<boolean>} false se a pessoa ja e membro
+   */
   async putMember(squadId, userId, member) {
+    try {
+      await this._db.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            {
+              Put: {
+                TableName: TABLE,
+                Item: {
+                  PK: `SQUAD#${squadId}`,
+                  SK: `MEMBER#${userId}`,
+                  GSI3PK: `USER#${userId}`,
+                  GSI3SK: `SQUAD#${squadId}`,
+                  userId,
+                  xpWeeklyContrib: 0,
+                  ...member,
+                },
+                ConditionExpression: 'attribute_not_exists(PK)',
+              },
+            },
+            {
+              Put: {
+                TableName: TABLE,
+                Item: {
+                  PK: `USER#${userId}`,
+                  SK: `SQUAD#${squadId}`,
+                  squadId,
+                  role: member.role ?? 'member',
+                },
+              },
+            },
+          ],
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (e?.name === 'TransactionCanceledException' && e.CancellationReasons?.[0]?.Code === 'ConditionalCheckFailed') {
+        return false;
+      }
+      throw e;
+    }
+  }
+
+  /** Troca so o papel no MEMBER# e no vinculo USER#/SQUAD# (promote, demote, transfer). */
+  async setMemberRole(squadId, userId, role) {
+    const setRole = (Key, extra = {}) => ({
+      Update: {
+        TableName: TABLE,
+        Key,
+        UpdateExpression: 'SET #role = :role',
+        ExpressionAttributeNames: { '#role': 'role' },
+        ExpressionAttributeValues: { ':role': role },
+        ...extra,
+      },
+    });
     await this._db.send(
       new TransactWriteCommand({
         TransactItems: [
-          {
-            Put: {
-              TableName: TABLE,
-              Item: {
-                PK: `SQUAD#${squadId}`,
-                SK: `MEMBER#${userId}`,
-                GSI3PK: `USER#${userId}`,
-                GSI3SK: `SQUAD#${squadId}`,
-                userId,
-                xpWeeklyContrib: 0,
-                ...member,
-              },
-            },
-          },
-          {
-            Put: {
-              TableName: TABLE,
-              Item: {
-                PK: `USER#${userId}`,
-                SK: `SQUAD#${squadId}`,
-                squadId,
-                role: member.role ?? 'member',
-              },
-            },
-          },
+          setRole({ PK: `SQUAD#${squadId}`, SK: `MEMBER#${userId}` }, { ConditionExpression: 'attribute_exists(PK)' }),
+          setRole({ PK: `USER#${userId}`, SK: `SQUAD#${squadId}` }),
         ],
       }),
     );

@@ -89,8 +89,24 @@ export class InMemoryRepo {
   }
 
   // --- squads: META ---
+  /** So na criacao: depois disso, cada escrita mexe so nos proprios campos. */
   async putSquad(squad) {
     this._squads.set(squad.squadId, { ...squad });
+  }
+  /** Grava so os campos dados (nunca o XP nem o memberCount); devolve a squad atualizada. */
+  async updateSquadFields(squadId, fields) {
+    const squad = this._squads.get(squadId);
+    if (!squad) throw new Error(`squad inexistente: ${squadId}`);
+    Object.assign(squad, fields);
+    return { ...squad };
+  }
+  /** Soma `delta` ao memberCount; para entrar (delta > 0) so se houver vaga. */
+  async changeSquadMemberCount(squadId, delta) {
+    const squad = this._squads.get(squadId);
+    if (!squad) return false;
+    if (delta > 0 && (squad.memberCount ?? 0) >= squad.maxMembers) return false;
+    squad.memberCount = (squad.memberCount ?? 0) + delta;
+    return true;
   }
   async getSquad(squadId) {
     const s = this._squads.get(squadId);
@@ -111,10 +127,20 @@ export class InMemoryRepo {
     const m = this._members.get(`${squadId}#${userId}`);
     return m ? { ...m } : null;
   }
+  /** Membro novo; false se a pessoa ja e membro (nao sobrescreve). */
   async putMember(squadId, userId, member) {
-    this._members.set(`${squadId}#${userId}`, { userId, xpWeeklyContrib: 0, ...member });
+    const key = `${squadId}#${userId}`;
+    if (this._members.has(key)) return false;
+    this._members.set(key, { userId, xpWeeklyContrib: 0, ...member });
     if (!this._userSquads.has(userId)) this._userSquads.set(userId, new Set());
     this._userSquads.get(userId).add(squadId);
+    return true;
+  }
+  /** Troca so o papel (promote, demote, transfer), sem regravar a contribuicao. */
+  async setMemberRole(squadId, userId, role) {
+    const member = this._members.get(`${squadId}#${userId}`);
+    if (!member) throw new Error(`membro inexistente: ${squadId}/${userId}`);
+    member.role = role;
   }
   async removeMember(squadId, userId) {
     this._members.delete(`${squadId}#${userId}`);

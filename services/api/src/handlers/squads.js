@@ -79,7 +79,7 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
     const uid = userId(event);
     const { inviteCode, squadId: sid } = body(event);
     const squad = await callUsecase(squadUsecases.joinSquad, repo, {
-      userId: uid, isGuest: false, code: inviteCode, squadId: sid,
+      userId: uid, isGuest: false, code: inviteCode, squadId: sid, now: now().toISOString(),
     });
     return ok(squad);
   });
