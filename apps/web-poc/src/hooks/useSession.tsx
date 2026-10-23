@@ -1,8 +1,13 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { completeLesson } from '@usecases/completeLesson.js';
 import { course } from '../lib/course';
 import { getToday } from '../lib/today';
 import { Flags } from '../lib/flags';
+import { enqueueLessonCompletion, flushOutbox } from '../lib/sync';
+import { useAccount } from '../lib/account';
+import { shouldSuggestInstall } from '../lib/install';
+import { evaluateAppOpen, onAppReopen } from '../lib/appOpen';
+import type { LeagueResult } from '../lib/leagueLocal';
 import type { IdbRepo } from '../lib/idbRepo';
 import type { LessonSessionResult } from '../screens/LessonScreen';
 import type { CompletionData } from '../screens/LessonCompletionScreen';
@@ -29,10 +34,13 @@ interface SessionValue {
   completion: CompletionData | null;
   unitCompletion: UnitCompletionData | null;
   courseCompletion: CourseCompletionData | null;
-  /** Sequência perdida detectada ao abrir o app (0 = nada a mostrar). */
+  /** AppOpenFlow (spec-02 12.10), passo 1: resultado da liga ainda não visto. */
+  leagueResult: LeagueResult | null;
+  dismissLeagueResult: () => void;
+  /** AppOpenFlow, passo 2: sequência perdida detectada ao abrir o app (0 = nada a mostrar). */
   brokenStreak: number;
   dismissBrokenStreak: () => void;
-  /** Já houve lição concluída e a sugestão de instalar ainda não apareceu. */
+  /** Hora de sugerir instalar na tela inicial (shouldSuggestInstall, decisão 13). */
   suggestInstall: boolean;
   markInstallSuggested: () => void;
   /** Grava a lição (domínio completeLesson) e prepara as telas de conclusão. */
@@ -49,15 +57,38 @@ interface ProviderProps {
   repo: IdbRepo;
   userId: string;
   brokenStreak: number;
+  leagueResult?: LeagueResult | null;
   children: ReactNode;
 }
 
-export function SessionProvider({ repo, userId, brokenStreak: initialBroken, children }: ProviderProps) {
+export function SessionProvider({
+  repo, userId, brokenStreak: initialBroken, leagueResult: initialLeague = null, children,
+}: ProviderProps) {
   const [completion, setCompletion] = useState<CompletionData | null>(null);
   const [unitCompletion, setUnitCompletion] = useState<UnitCompletionData | null>(null);
   const [courseCompletion, setCourseCompletion] = useState<CourseCompletionData | null>(null);
   const [brokenStreak, setBrokenStreak] = useState(initialBroken);
-  const [suggestInstall, setSuggestInstall] = useState(false);
+  const [leagueResult, setLeagueResult] = useState<LeagueResult | null>(initialLeague);
+  const [installSuggested, setInstallSuggested] = useState(Flags.installSuggested);
+  const [lessonsCompleted, setLessonsCompleted] = useState(0);
+  const account = useAccount();
+
+  // Lições concluídas (contando repetições) para a regra de instalar
+  useEffect(() => {
+    let alive = true;
+    repo.getProfile(userId).then(p => {
+      if (alive) setLessonsCompleted(((p as { lessonsCompleted?: number } | null)?.lessonsCompleted) ?? 0);
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [repo, userId]);
+
+  // Voltar ao app depois de horas conta como nova abertura: reavalia o AppOpenFlow
+  useEffect(() => onAppReopen(() => {
+    evaluateAppOpen(repo, userId).then(steps => {
+      if (steps.leagueResult) setLeagueResult(steps.leagueResult);
+      if (steps.brokenStreak > 0) setBrokenStreak(steps.brokenStreak);
+    }).catch(() => {});
+  }), [repo, userId]);
   const [notice, setNotice] = useState<string | null>(null);
 
   const finishLesson = useCallback(async (result: LessonSessionResult): Promise<AfterLesson> => {
@@ -70,6 +101,8 @@ export function SessionProvider({ repo, userId, brokenStreak: initialBroken, chi
     // Alfabeto completo = fim da U1, nao fim do curso (o curso tem varias unidades)
     const alphabetComplete = lessonUnit?.id === course.units[0]?.id && isLastInUnit;
 
+    // Id da tentativa: o servidor usa para não aplicar a mesma conclusão duas vezes
+    const lessonAttemptId = crypto.randomUUID();
     const outcome = await completeLesson(
       repo,
       {
@@ -94,9 +127,20 @@ export function SessionProvider({ repo, userId, brokenStreak: initialBroken, chi
       achievementsEarned: string[];
     };
 
-    // Salva o valor da sequencia para detectar quebra na proxima abertura
-    if (outcome.streak > 0) Flags.setLastStreakValue(outcome.streak);
-    if (!Flags.installSuggested()) setSuggestInstall(true);
+    // Fila offline (sync.ts): com conta vai para o servidor; como convidado fica guardada até a
+    // migração. Falha aqui nunca atrapalha a conclusão, que já está salva no aparelho.
+    enqueueLessonCompletion({
+      lessonAttemptId,
+      lessonId: result.lessonId,
+      today,
+      score: result.score,
+      reviewed: result.reviewed,
+      signsLearnedDelta: result.signsLearnedDelta,
+    })
+      .then(() => flushOutbox())
+      .catch(() => {});
+
+    setLessonsCompleted(n => n + 1);
 
     setCompletion({
       result,
@@ -138,20 +182,29 @@ export function SessionProvider({ repo, userId, brokenStreak: initialBroken, chi
   }, [repo, userId]);
 
   const dismissBrokenStreak = useCallback(() => setBrokenStreak(0), []);
+  const dismissLeagueResult = useCallback(() => setLeagueResult(null), []);
+
+  const suggestInstall = shouldSuggestInstall({
+    alreadySuggested: installSuggested,
+    lessonsCompleted,
+    hasAccount: account.status === 'signedIn',
+  });
 
   const markInstallSuggested = useCallback(() => {
     Flags.setInstallSuggested();
-    setSuggestInstall(false);
+    setInstallSuggested(true);
   }, []);
 
   const showNotice = useCallback((key: string) => setNotice(key), []);
   const dismissNotice = useCallback(() => setNotice(null), []);
 
   const value = useMemo<SessionValue>(() => ({
-    repo, userId, completion, unitCompletion, courseCompletion, brokenStreak, dismissBrokenStreak,
-    suggestInstall, markInstallSuggested, finishLesson, notice, showNotice, dismissNotice,
-  }), [repo, userId, completion, unitCompletion, courseCompletion, brokenStreak, dismissBrokenStreak,
-    suggestInstall, markInstallSuggested, finishLesson, notice, showNotice, dismissNotice]);
+    repo, userId, completion, unitCompletion, courseCompletion, leagueResult, dismissLeagueResult,
+    brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, finishLesson,
+    notice, showNotice, dismissNotice,
+  }), [repo, userId, completion, unitCompletion, courseCompletion, leagueResult, dismissLeagueResult,
+    brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, finishLesson,
+    notice, showNotice, dismissNotice]);
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

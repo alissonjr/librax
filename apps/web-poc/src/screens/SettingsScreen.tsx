@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { getDisplayName } from '../lib/auth';
+import { getDisplayName, signOutAccount } from '../lib/auth';
+import { refreshAccount, useAccount } from '../lib/account';
+import { clearOutbox } from '../lib/sync';
+import { Dialog } from '../components/Dialog';
+import { BusyLabel } from '../components/BusyLabel';
 import type { IdbRepo } from '../lib/idbRepo';
 import { useT, LANGUAGES, type Lang } from '../i18n';
 import { getThemePref, setThemePref, type ThemePref } from '../lib/theme';
@@ -12,6 +16,10 @@ interface Props {
   userId: string;
   repo: IdbRepo;
   onBack: () => void;
+  /** Entrar ou criar conta (spec-02 12.3: "Entrar na conta" nas Configurações). */
+  onOpenAccount?: (mode: 'login' | 'register') => void;
+  /** Aviso discreto (toast do useSession.showNotice): chave de tradução. */
+  onNotice?: (key: string) => void;
 }
 
 const GOAL_OPTIONS = [
@@ -21,8 +29,12 @@ const GOAL_OPTIONS = [
   { value: 50, key: 'settings.goalIntensivo' },
 ];
 
-export function SettingsScreen({ userId, repo, onBack }: Props) {
+export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }: Props) {
   const { t, lang, setLang } = useT();
+  const account = useAccount();
+  const signedIn = account.status === 'signedIn';
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const [dailyGoal, setDailyGoal] = useState(20);
   const [theme, setTheme] = useState<ThemePref>(getThemePref);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -45,8 +57,26 @@ export function SettingsScreen({ userId, repo, onBack }: Props) {
     URL.revokeObjectURL(url);
   }
 
+  /** Sair da conta: o progresso deste aparelho fica e o app segue como convidado. */
+  async function handleSignOut() {
+    setConfirmSignOut(false);
+    setSigningOut(true);
+    try {
+      await signOutAccount();
+      await refreshAccount();
+      onNotice?.('account.signedOut');
+    } catch {
+      onNotice?.('account.errors.signOut');
+    } finally {
+      setSigningOut(false);
+    }
+  }
+
   async function handleDeleteAccount() {
     if (deleteInput !== deleteKeyword) return;
+    // A fila de envio também sai, e a conta conectada é desconectada deste aparelho
+    await clearOutbox().catch(() => {});
+    if (signedIn) await signOutAccount().catch(() => {});
     try {
       // Apaga de fato todos os dados locais (perfil, progresso, SRS, XP).
       await repo.clearAllData();
@@ -78,6 +108,51 @@ export function SettingsScreen({ userId, repo, onBack }: Props) {
               <span className="settings-item-value">{name}</span>
             </div>
           </div>
+          {signedIn ? (
+            <>
+              <div className="settings-item">
+                <Icon name="mail" className="settings-item-icon" />
+                <div className="settings-item-text">
+                  <span className="settings-item-label">{t('account.emailLabel')}</span>
+                  <span className="settings-item-value settings-item-value--wrap">{account.email ?? t('account.statusSignedIn')}</span>
+                </div>
+              </div>
+              <button
+                className="settings-item settings-item--btn"
+                onClick={() => setConfirmSignOut(true)}
+                disabled={signingOut}
+                aria-busy={signingOut || undefined}
+              >
+                <Icon name="logout" className="settings-item-icon" />
+                <div className="settings-item-text">
+                  <span className="settings-item-label">{t('account.signOut')}</span>
+                  <span className="settings-item-value">{t('account.signOutHint')}</span>
+                </div>
+                {signingOut && <BusyLabel text={t('account.sending')} />}
+              </button>
+            </>
+          ) : (
+            onOpenAccount && (
+              <>
+                <button className="settings-item settings-item--btn" onClick={() => onOpenAccount('login')}>
+                  <Icon name="login" className="settings-item-icon" />
+                  <div className="settings-item-text">
+                    <span className="settings-item-label">{t('account.signInToAccount')}</span>
+                    <span className="settings-item-value">{t('account.statusGuest')}</span>
+                  </div>
+                  <Icon name="chevron_right" className="settings-item-arrow" />
+                </button>
+                <button className="settings-item settings-item--btn" onClick={() => onOpenAccount('register')}>
+                  <Icon name="cloud_done" className="settings-item-icon" />
+                  <div className="settings-item-text">
+                    <span className="settings-item-label">{t('account.createAccount')}</span>
+                    <span className="settings-item-value">{t('account.createAccountHint')}</span>
+                  </div>
+                  <Icon name="chevron_right" className="settings-item-arrow" />
+                </button>
+              </>
+            )
+          )}
         </div>
 
         <div className="settings-group">
@@ -232,6 +307,16 @@ export function SettingsScreen({ userId, repo, onBack }: Props) {
           </div>
         )}
       </div>
+
+      <Dialog
+        isOpen={confirmSignOut}
+        title={t('account.signOutTitle')}
+        message={t('account.signOutMessage')}
+        confirmLabel={t('account.signOut')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={handleSignOut}
+        onCancel={() => setConfirmSignOut(false)}
+      />
 
       {showInstall && installMode && (
         <InstallSheet mode={installMode} onClose={() => setShowInstall(false)} />

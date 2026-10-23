@@ -3,9 +3,12 @@ import { setDisplayName } from '../lib/auth';
 import { useT, LANGUAGES } from '../i18n';
 import { Icon } from '../components/Icon';
 import { SoundOnboardingChoice } from '../components/SoundPreference';
+import { authAvailable } from '../lib/account';
 
 interface Props {
   onDone: () => void;
+  /** Link "Entrar" das boas-vindas (spec-02 12.1), só quando o login existe neste ambiente. */
+  onLogin?: () => void;
 }
 
 type Step = 1 | 2 | 3 | 4;
@@ -25,7 +28,7 @@ const METAS = [
   { value: 50, subKey: 'onboarding.metaIntensivo' },
 ];
 
-export function OnboardingScreen({ onDone }: Props) {
+export function OnboardingScreen({ onDone, onLogin }: Props) {
   const { t, lang, setLang } = useT();
   const [step, setStep] = useState<Step>(1);
   const [name, setName] = useState('');
@@ -95,6 +98,11 @@ export function OnboardingScreen({ onDone }: Props) {
           <p className="onboarding-disclaimer">
             {t('onboarding.noAccount')}
           </p>
+          {onLogin && authAvailable() && (
+            <button className="btn-text" onClick={onLogin}>
+              {t('account.haveAccountSignIn')}
+            </button>
+          )}
         </div>
       )}
 
