@@ -8,12 +8,13 @@ App do Librax que roda no navegador do celular (Safari no iPhone, Chrome no Andr
 npm ci                 # instala (uma vez)
 npm run dev            # app em http://localhost:5173
 npm run dev:celular    # HTTPS na rede local, para abrir no celular (ver abaixo)
+npm run dev:local      # contra a AWS simulada na máquina, em http://127.0.0.1:5320 (docs/ambiente-local.md)
 npx vitest run         # testes
 npx tsc --noEmit -p .  # tipos
 npm run build          # build de produção em dist/
 ```
 
-`dev`, `dev:celular` e `build` rodam antes o `npm run ml:assets`, que prepara `public/ml/<versão>/`:
+`dev`, `dev:celular`, `dev:local` e `build` rodam antes o `npm run ml:assets`, que prepara `public/ml/<versão>/`:
 
 - copia o WASM do `@mediapipe/tasks-vision` (versão fixada sem `^` no `package.json`);
 - baixa o modelo `hand_landmarker.task` **uma única vez** para `.cache/ml/`, confere o SHA-256 e copia. Depois disso funciona sem internet.

@@ -184,6 +184,8 @@ favicon vêm do próprio app, na mesma origem.
 Desenvolvimento:
 
 - `npm run dev:mock`: o painel inteiro com dados de exemplo, sem AWS e sem login (porta 5310).
+- `npm run dev:local`: contra o ambiente local que simula a AWS, com login de verdade (PKCE na página local) e os
+  dados da semente (porta 5321). Ver [`docs/ambiente-local.md`](ambiente-local.md).
 - `LIBRAX_API_ORIGIN=https://<domínio> npm run dev`: contra a API de verdade. Precisa do callback de dev no
   client do painel: `-c librax:extraAdminCallbackUrls=http://localhost:5310/admin/auth/callback`,
   `-c librax:extraAdminLogoutUrls=http://localhost:5310/admin/` e `-c librax:extraCorsOrigins=http://localhost:5310`.

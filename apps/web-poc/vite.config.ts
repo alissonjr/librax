@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'path';
+import { existsSync } from 'fs';
 import { networkInterfaces } from 'os';
 import { tokens } from './src/styles/tokens';
 
@@ -67,11 +68,22 @@ const printPhoneUrl = (): Plugin => ({
   },
 });
 
+// npm run dev:local: contra o ambiente local que simula a AWS (docs/ambiente-local.md). As VITE_*
+// vêm da pasta gerada pelo bootstrap (nunca do .env.local, que é o da AWS de verdade) e /api vai
+// para a API local.
+const LOCAL_ENV_DIR = resolve(__dirname, '../../infra/local/.data/env/app');
+const LOCAL_API = 'http://127.0.0.1:5332';
+
 export default defineConfig(({ mode }) => {
   const celular = mode === 'celular';
+  const local = mode === 'ambiente-local';
   const extraPlugins: PluginOption[] = celular ? [basicSsl({ name: 'librax-dev' }), printPhoneUrl()] : [];
+  if (local && !existsSync(resolve(LOCAL_ENV_DIR, '.env'))) {
+    throw new Error('Ambiente local sem bootstrap: rode `npm run local:up` em services/api antes do dev:local.');
+  }
 
   return {
+    ...(local ? { envDir: LOCAL_ENV_DIR } : {}),
     // SPA: o servidor de desenvolvimento e o "vite preview" respondem index.html para qualquer rota
     // do app (/aprender, /licao/u1-l1...), então recarregar numa URL funciona. Em produção o
     // service worker faz o mesmo (navigateFallback abaixo) e o CDN precisa responder index.html
@@ -80,9 +92,12 @@ export default defineConfig(({ mode }) => {
     appType: 'spa',
     // Modo celular: HTTPS (a câmera exige contexto seguro) e aberto para a rede local.
     // allowedHosts libera o endereço do túnel (alternativa do README quando o certificado trava).
+    // Modo local: porta fixa (5300 é do dono) e /api para a API local.
     server: celular
       ? { host: '0.0.0.0', port: 5174, allowedHosts: ['.trycloudflare.com', '.ngrok-free.app'] }
-      : undefined,
+      : local
+        ? { host: '127.0.0.1', port: 5320, strictPort: true, proxy: { '/api': { target: LOCAL_API } } }
+        : undefined,
     build: {
       rollupOptions: {
         input: {

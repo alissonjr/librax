@@ -1,0 +1,57 @@
+# Ambiente local do Librax (docs/ambiente-local.md): simula na maquina o DynamoDB e o Cognito,
+# sem nenhuma chamada a AWS. Quem sobe, cria a tabela e o User Pool e o services/api
+# (`npm run local:up`); este arquivo so descreve os dois containers.
+#
+# - Portas so em 127.0.0.1. 5300 e 5310 sao do dono; 4566 e 55432 sao de outro projeto.
+# - Memoria limitada: a maquina tem pouca memoria livre.
+# - Dados em volumes nomeados: `npm run local:down` para sem apagar, `npm run local:reset` apaga.
+
+name: librax-local
+
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:3.3.1
+    # A imagem roda como `dynamodblocal` e nao tem pasta de dados gravavel: com volume, root.
+    user: root
+    working_dir: /home/dynamodblocal
+    entrypoint: ["java"]
+    command: ["-Xmx192m", "-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "/data"]
+    ports:
+      - "127.0.0.1:5330:8000"
+    volumes:
+      - dynamodb-dados:/data
+    mem_limit: 384m
+    healthcheck:
+      # GET na raiz responde 400, o que basta para saber que o servidor atende
+      test: ["CMD", "curl", "-s", "-o", "/dev/null", "http://127.0.0.1:8000"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  moto:
+    # So o cognito-idp e usado (User Pool, clients, grupo, tokens e JWKS).
+    image: motoserver/moto:5.2.4
+    # Mesma porta dentro e fora: o replay da gravacao chama o host e a porta originais.
+    command: ["-p", "5331"]
+    environment:
+      MOTO_COGNITO_IDP_USER_POOL_ID_STRATEGY: HASH
+      MOTO_COGNITO_IDP_USER_POOL_CLIENT_ID_STRATEGY: HASH
+      # O moto guarda tudo em memoria: a gravacao dos pedidos no volume e o replay ao subir
+      # fazem o papel de persistencia (services/api/local/bootstrap.mjs).
+      MOTO_ENABLE_RECORDING: "True"
+      MOTO_RECORDER_FILEPATH: /data/moto_recording
+    ports:
+      - "127.0.0.1:5331:5331"
+    volumes:
+      - moto-dados:/data
+    mem_limit: 256m
+    healthcheck:
+      # So abre a conexao: um pedido HTTP entraria na gravacao (e o replay o repetiria)
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1', 5331), 2).close()"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  dynamodb-dados:
+  moto-dados:
