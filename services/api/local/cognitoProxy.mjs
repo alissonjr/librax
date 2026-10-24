@@ -8,9 +8,12 @@
  * - ExplicitAuthFlows do client (o moto nao confere).
  * - SignUp, ConfirmSignUp, ResendConfirmationCode, ForgotPassword e ConfirmForgotPassword: o
  *   codigo e gerado e conferido aqui; a senha passa pelo verificador; o PostConfirmation roda.
+ *   O "esqueci a senha" confere a politica de senha e tem limite de pedidos e de codigos errados
+ *   (LimitExceededException).
  * - ChangePassword e AdminSetUserPassword atualizam o verificador.
  * - RevokeToken (inexistente no moto): responde vazio, como o Cognito.
- * - PreventUserExistenceErrors: conta inexistente vira NotAuthorizedException no login.
+ * - PreventUserExistenceErrors: conta inexistente vira NotAuthorizedException no login, e o
+ *   ForgotPassword finge o envio para conta que nao pode trocar a senha (inclusive a do Google).
  */
 
 import { motoRaw, CognitoError, COGNITO_TARGET_PREFIX } from './moto.mjs';
@@ -19,6 +22,14 @@ import { startChallenge, verifyClaim, newSecretBlock } from './srp.mjs';
 
 const CHALLENGE_TTL_MS = 5 * 60 * 1000;
 const BAD_LOGIN = 'Incorrect username or password.';
+const BAD_CODE = 'Invalid verification code provided, please try again.';
+
+// Limites do "esqueci a senha" por conta, numa janela de uma hora. O Cognito nao publica os
+// numeros dele; estes so servem para a tela de "muitas tentativas" aparecer no ambiente local.
+const RESET_WINDOW_MS = 60 * 60 * 1000;
+const RESET_MAX_SENDS = 5;
+const RESET_MAX_BAD_CODES = 5;
+const LIMIT_EXCEEDED = 'Attempt limit exceeded, please try after some time.';
 
 const FLOW_PERMISSION = {
   USER_SRP_AUTH: 'ALLOW_USER_SRP_AUTH',
@@ -31,6 +42,7 @@ const FLOW_PERMISSION = {
 export function makeCognitoProxy({ local, log = console.log }) {
   const { userPoolId, clientsById, srpStore } = local;
   const challenges = new Map();
+  const resets = new Map();
 
   function client(clientId) {
     const c = clientsById.get(clientId);
@@ -138,19 +150,51 @@ export function makeCognitoProxy({ local, log = console.log }) {
     return { CodeDeliveryDetails: delivery(user.attributes.email) };
   }
 
+  /** Pedidos de codigo e codigos errados da conta na ultima hora. */
+  function resetAttempts(username) {
+    const key = String(username ?? '').trim().toLowerCase();
+    const since = Date.now() - RESET_WINDOW_MS;
+    const r = resets.get(key) ?? { sends: [], badCodes: [] };
+    r.sends = r.sends.filter((t) => t > since);
+    r.badCodes = r.badCodes.filter((t) => t > since);
+    resets.set(key, r);
+    return r;
+  }
+
   async function forgotPassword(body) {
     client(body.ClientId);
     const user = await local.getUser(body.Username).catch(() => null);
-    // com PreventUserExistenceErrors o Cognito finge que mandou
-    if (!user) return { CodeDeliveryDetails: delivery(body.Username) };
+    if (!user && !hidesUsers(body.ClientId)) throw new CognitoError('UserNotFoundException', 'Username/client id combination not found.');
+    // Sem conta, desativada, sem cadastro confirmado ou so do Google (sem senha): com
+    // PreventUserExistenceErrors o Cognito finge que mandou e nenhum e-mail sai
+    const google = String(user?.attributes.identities ?? '').includes('Google');
+    if (!user || !user.enabled || user.status === 'UNCONFIRMED' || google) {
+      return { CodeDeliveryDetails: delivery(body.Username) };
+    }
+    const attempts = resetAttempts(body.Username);
+    if (attempts.sends.length >= RESET_MAX_SENDS) throw new CognitoError('LimitExceededException', LIMIT_EXCEEDED);
+    attempts.sends.push(Date.now());
     local.issueCode(body.Username, user.attributes.email, 'nova senha');
     return { CodeDeliveryDetails: delivery(user.attributes.email) };
   }
 
   async function confirmForgotPassword(body) {
     client(body.ClientId);
-    local.checkCode(body.Username, 'nova senha', body.ConfirmationCode);
-    const user = await local.getUser(body.Username);
+    const user = await local.getUser(body.Username).catch(() => null);
+    // Conta inexistente ou desativada: codigo errado, como o Cognito com PreventUserExistenceErrors
+    if (!user || !user.enabled) throw new CognitoError('CodeMismatchException', BAD_CODE);
+    const attempts = resetAttempts(body.Username);
+    if (attempts.badCodes.length >= RESET_MAX_BAD_CODES) throw new CognitoError('LimitExceededException', LIMIT_EXCEEDED);
+    local.checkPassword(body.Password);
+    try {
+      local.checkCode(body.Username, 'nova senha', body.ConfirmationCode);
+    } catch (err) {
+      if (err.type === 'CodeMismatchException') attempts.badCodes.push(Date.now());
+      throw err;
+    }
+    // Senha trocada zera os contadores da conta (o teste de ponta a ponta troca e destroca)
+    attempts.sends = [];
+    attempts.badCodes = [];
     await local.setPassword(user.username, body.Password);
     await local.postConfirmation('PostConfirmation_ConfirmForgotPassword', user, body.ClientId);
     return {};

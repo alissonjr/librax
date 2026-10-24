@@ -202,6 +202,21 @@ describe('Cognito', () => {
     template.hasResourceProperties('AWS::Cognito::UserPool', { UserPoolTier: 'LITE' });
   });
 
+  test('esqueci a senha: so por e-mail, sem revelar se a conta existe, com o envio padrao do Cognito', () => {
+    const { template } = synth(withDomain);
+    template.hasResourceProperties('AWS::Cognito::UserPool', {
+      AccountRecoverySetting: { RecoveryMechanisms: [{ Name: 'verified_email', Priority: 1 }] },
+      // a tela do app usa o mesmo minimo (PASSWORD_MIN em AuthScreen.tsx)
+      Policies: { PasswordPolicy: Match.objectLike({ MinimumLength: 8 }) },
+      // sem SES: o Cognito manda os codigos pelo envio padrao (limite diario baixo)
+      EmailConfiguration: Match.absent(),
+    });
+    template.hasResourceProperties('AWS::Cognito::UserPoolClient', {
+      ExplicitAuthFlows: Match.arrayWith(['ALLOW_USER_SRP_AUTH']),
+      PreventUserExistenceErrors: 'ENABLED',
+    });
+  });
+
   test('tentativas de licao expiram pelo TTL do atributo expiresAt', () => {
     const { template } = synth(withDomain);
     template.hasResourceProperties('AWS::DynamoDB::Table', {

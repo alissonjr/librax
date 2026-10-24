@@ -11,6 +11,8 @@
  * - Login por e-mail e senha: ADMIN_USER_PASSWORD_AUTH no moto (que confere a senha).
  * - Cadastro: SignUp e ConfirmSignUp pelo proxy (codigo conferido, verificador SRP e
  *   PostConfirmation).
+ * - Esqueci a senha: ForgotPassword e ConfirmForgotPassword pelo proxy; trocada a senha, volta ao
+ *   login com o e-mail preenchido.
  * - Google (simulado): primeira vez cria a conta (com `identities` do Google) e dispara o
  *   PostConfirmation, como o primeiro login social no Cognito.
  * - /oauth2/token: authorization_code (com code_verifier S256) e refresh_token.
@@ -81,6 +83,8 @@ function friendly(err) {
     case 'CodeMismatchException':
     case 'ExpiredCodeException':
       return 'Código incorreto ou vencido.';
+    case 'LimitExceededException':
+      return 'Muitas tentativas. Espere um pouco e tente de novo.';
     default:
       return 'Não deu para concluir. Veja o terminal do servidor local.';
   }
@@ -168,10 +172,11 @@ export function makeHostedUi({ local, proxy, state, log = console.log }) {
   // Telas
   // -------------------------------------------------------------------------
 
-  function loginPage(txId, tx, { error, email } = {}) {
+  function loginPage(txId, tx, { error, email, notice } = {}) {
     return html(error ? 400 : 200, page('Entrar', `
 <h1 class="hui-title">Entrar</h1>
 <p class="hui-lead">Para continuar no <strong>${esc(clientLabel(tx.clientId))}</strong>.</p>
+${notice ? `<p class="hui-notice" role="status">${esc(notice)}</p>` : ''}
 ${errorBox(error)}
 <form class="hui-form" method="post" action="/login" novalidate>
 <input type="hidden" name="tx" value="${esc(txId)}">
@@ -185,6 +190,7 @@ ${errorBox(error)}
 </div>
 <button class="btn btn-primary" type="submit">Entrar</button>
 </form>
+<p class="hui-switch"><a class="btn-text" href="/forgot?tx=${esc(txId)}">Esqueci a senha</a></p>
 <p class="hui-divider" role="separator"><span>ou</span></p>
 <a class="btn btn-ghost" href="/google?tx=${esc(txId)}">Google (simulado)</a>
 <p class="hui-switch">Ainda não tem conta? <a class="btn-text" href="/signup?tx=${esc(txId)}">Criar conta</a></p>`));
@@ -229,6 +235,44 @@ ${errorBox(error)}
 </div>
 <button class="btn btn-primary" type="submit">Confirmar</button>
 </form>`));
+  }
+
+  function forgotPage(txId, { error, email } = {}) {
+    return html(error ? 400 : 200, page('Esqueci a senha', `
+<h1 class="hui-title">Esqueci a senha</h1>
+<p class="hui-lead">Mandamos um código para criar uma senha nova (aqui, para a caixa simulada). Conta criada pelo Google não tem senha: entre pelo Google.</p>
+${errorBox(error)}
+<form class="hui-form" method="post" action="/forgot" novalidate>
+<input type="hidden" name="tx" value="${esc(txId)}">
+<div class="hui-field">
+<label class="hui-label" for="email">E-mail</label>
+<input class="hui-input" id="email" name="email" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" required value="${esc(email)}">
+</div>
+<button class="btn btn-primary" type="submit">Enviar código</button>
+</form>
+<p class="hui-switch"><a class="btn-text" href="/login?tx=${esc(txId)}">Voltar para entrar</a></p>`));
+  }
+
+  function resetPage(txId, { email, code, error } = {}) {
+    return html(error ? 400 : 200, page('Senha nova', `
+<h1 class="hui-title">Crie uma senha nova</h1>
+<p class="hui-lead">Se houver uma conta com senha para <strong>${esc(email)}</strong>, o código foi enviado para esse e-mail.</p>
+${code ? `<p class="hui-notice">Caixa de e-mails simulada: o código é <strong>${esc(code)}</strong>.</p>` : ''}
+${errorBox(error)}
+<form class="hui-form" method="post" action="/reset" novalidate>
+<input type="hidden" name="tx" value="${esc(txId)}">
+<div class="hui-field">
+<label class="hui-label" for="code">Código</label>
+<input class="hui-input hui-input--code" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required${error ? ' aria-invalid="true"' : ''}>
+</div>
+<div class="hui-field">
+<label class="hui-label" for="password">Senha nova</label>
+<input class="hui-input" id="password" name="password" type="password" autocomplete="new-password" minlength="8" required aria-describedby="password-hint">
+<p class="hui-hint" id="password-hint">Pelo menos 8 caracteres.</p>
+</div>
+<button class="btn btn-primary" type="submit">Salvar senha nova</button>
+</form>
+<p class="hui-switch"><a class="btn-text" href="/forgot?tx=${esc(txId)}">Pedir outro código</a></p>`));
   }
 
   function googlePage(txId, { error, email = 'gabi.google@librax.example', name = 'Gabi' } = {}) {
@@ -373,6 +417,43 @@ ${items ? `<ul class="hui-list">${items}</ul>` : '<p class="hui-notice">Nenhum c
     }
   }
 
+  async function forgot(form) {
+    const tx = getTx(form.tx);
+    if (!tx) return errorPage('Sessão de login vencida', 'Volte ao app e toque em Entrar de novo.');
+    const email = String(form.email ?? '').trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return forgotPage(form.tx, { error: 'Informe um e-mail válido.', email });
+    const last = local.inbox[0];
+    try {
+      await viaProxy('ForgotPassword', { ClientId: tx.clientId, Username: email });
+      tx.reset = { email };
+      // So mostra o codigo quando ele saiu agora (conta sem senha nao recebe nenhum)
+      const sent = local.inbox[0] !== last ? local.inbox[0] : null;
+      return resetPage(form.tx, { email, code: sent?.code });
+    } catch (err) {
+      if (!(err instanceof CognitoError)) throw err;
+      return forgotPage(form.tx, { error: friendly(err), email });
+    }
+  }
+
+  async function reset(form) {
+    const tx = getTx(form.tx);
+    if (!tx?.reset) return errorPage('Sessão de login vencida', 'Volte ao app e toque em Entrar de novo.');
+    const { email } = tx.reset;
+    try {
+      await viaProxy('ConfirmForgotPassword', {
+        ClientId: tx.clientId,
+        Username: email,
+        ConfirmationCode: String(form.code ?? '').trim(),
+        Password: String(form.password ?? ''),
+      });
+      delete tx.reset;
+      return loginPage(form.tx, tx, { email, notice: 'Senha alterada. Entre com a senha nova.' });
+    } catch (err) {
+      if (!(err instanceof CognitoError)) throw err;
+      return resetPage(form.tx, { email, error: friendly(err) });
+    }
+  }
+
   async function google(form, cookies) {
     const tx = getTx(form.tx);
     if (!tx) return errorPage('Sessão de login vencida', 'Volte ao app e toque em Entrar de novo.');
@@ -490,11 +571,12 @@ ${items ? `<ul class="hui-list">${items}</ul>` : '<p class="hui-notice">Nenhum c
       if (method === 'GET') {
         // /login sem transacao e o mesmo que /oauth2/authorize (como no Cognito)
         if (path === '/oauth2/authorize' || (path === '/login' && !url.searchParams.get('tx'))) return await authorize(url, cookies);
-        if (path === '/login' || path === '/signup' || path === '/google') {
+        if (path === '/login' || path === '/signup' || path === '/google' || path === '/forgot') {
           const txId = url.searchParams.get('tx');
           const tx = getTx(txId);
           if (!tx) return errorPage('Sessão de login vencida', 'Volte ao app e toque em Entrar de novo.');
           if (path === '/signup') return signupPage(txId);
+          if (path === '/forgot') return forgotPage(txId);
           if (path === '/google') return googlePage(txId);
           return loginPage(txId, tx);
         }
@@ -510,6 +592,8 @@ ${items ? `<ul class="hui-list">${items}</ul>` : '<p class="hui-notice">Nenhum c
         if (path === '/signup') return await signup(form);
         if (path === '/confirm') return await confirm(form, cookies);
         if (path === '/google') return await google(form, cookies);
+        if (path === '/forgot') return await forgot(form);
+        if (path === '/reset') return await reset(form);
         if (path === '/oauth2/token') return await tokenEndpoint(form, origin);
       }
       return html(404, page('Não encontrado', '<h1 class="hui-title">Não encontrado</h1>'));

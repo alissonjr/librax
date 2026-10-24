@@ -5,6 +5,8 @@ const amplify = vi.hoisted(() => ({
   configure: vi.fn(),
   signUp: vi.fn(),
   confirmSignUp: vi.fn(),
+  resetPassword: vi.fn(),
+  confirmResetPassword: vi.fn(),
   signIn: vi.fn(),
   signInWithRedirect: vi.fn(),
   signOut: vi.fn(),
@@ -18,6 +20,8 @@ vi.mock('aws-amplify/utils', () => ({ Hub: { listen: amplify.listen } }));
 vi.mock('aws-amplify/auth', () => ({
   signUp: amplify.signUp,
   confirmSignUp: amplify.confirmSignUp,
+  resetPassword: amplify.resetPassword,
+  confirmResetPassword: amplify.confirmResetPassword,
   signIn: amplify.signIn,
   signInWithRedirect: amplify.signInWithRedirect,
   signOut: amplify.signOut,
@@ -30,6 +34,8 @@ import {
   signUpWithEmail,
   confirmEmailCode,
   signInWithEmail,
+  requestPasswordReset,
+  confirmPasswordReset,
   signInWithGoogle,
   signOutAccount,
   getSession,
@@ -139,8 +145,45 @@ describe('e-mail e senha (SRP)', () => {
     expect(authErrorCode(err('NotAuthorizedException'))).toBe('INVALID_CREDENTIALS');
     expect(authErrorCode(err('UserNotConfirmedException'))).toBe('NOT_CONFIRMED');
     expect(authErrorCode(err('CodeMismatchException'))).toBe('BAD_CODE');
+    expect(authErrorCode(err('LimitExceededException'))).toBe('TOO_MANY_ATTEMPTS');
+    expect(authErrorCode(err('TooManyFailedAttemptsException'))).toBe('TOO_MANY_ATTEMPTS');
     expect(authErrorCode(err('NetworkError'))).toBe('NETWORK');
     expect(authErrorCode(new Error('x'))).toBe('UNKNOWN');
+  });
+});
+
+describe('esqueci a senha', () => {
+  beforeEach(async () => {
+    await configureAuth(readAuthConfig(env, 'https://librax.example'));
+  });
+
+  it('pede o código pelo resetPassword', async () => {
+    amplify.resetPassword.mockResolvedValue({
+      isPasswordReset: false,
+      nextStep: { resetPasswordStep: 'CONFIRM_RESET_PASSWORD_WITH_CODE', codeDeliveryDetails: { deliveryMedium: 'EMAIL' } },
+    });
+    await requestPasswordReset('ana@exemplo.com');
+    expect(amplify.resetPassword).toHaveBeenCalledWith({ username: 'ana@exemplo.com' });
+  });
+
+  it('erro que contaria se a conta existe vira sucesso; os outros sobem', async () => {
+    const err = (name: string) => Object.assign(new Error(name), { name });
+    for (const name of ['UserNotFoundException', 'NotAuthorizedException', 'InvalidParameterException']) {
+      amplify.resetPassword.mockRejectedValueOnce(err(name));
+      await expect(requestPasswordReset('ninguem@exemplo.com')).resolves.toBeUndefined();
+    }
+    amplify.resetPassword.mockRejectedValueOnce(err('LimitExceededException'));
+    await expect(requestPasswordReset('ana@exemplo.com')).rejects.toMatchObject({ name: 'LimitExceededException' });
+  });
+
+  it('troca a senha com o código', async () => {
+    amplify.confirmResetPassword.mockResolvedValue(undefined);
+    await confirmPasswordReset('ana@exemplo.com', '123456', 'senha-nova-1');
+    expect(amplify.confirmResetPassword).toHaveBeenCalledWith({
+      username: 'ana@exemplo.com',
+      confirmationCode: '123456',
+      newPassword: 'senha-nova-1',
+    });
   });
 });
 

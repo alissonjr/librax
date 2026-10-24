@@ -67,7 +67,24 @@ export function makeCognitoLocal({ state, plan, invoke, srpStore = makeSrpStore(
 
   async function getUser(username) {
     const user = await cognito('AdminGetUser', { UserPoolId: userPoolId, Username: username });
-    return { username: user.Username, status: user.UserStatus, attributes: attrsOf(user.UserAttributes) };
+    return { username: user.Username, status: user.UserStatus, enabled: user.Enabled !== false, attributes: attrsOf(user.UserAttributes) };
+  }
+
+  /**
+   * Politica de senha do User Pool (do template), com a mensagem do Cognito. Conferida antes de
+   * consumir o codigo da nova senha: senha fraca nao gasta o codigo.
+   */
+  function checkPassword(password) {
+    const policy = plan.userPool.props.Policies?.PasswordPolicy ?? {};
+    const p = String(password ?? '');
+    const reason = [
+      [p.length < (policy.MinimumLength ?? 8), 'Password not long enough'],
+      [policy.RequireLowercase && !/[a-z]/.test(p), 'Password must have lowercase characters'],
+      [policy.RequireUppercase && !/[A-Z]/.test(p), 'Password must have uppercase characters'],
+      [policy.RequireNumbers && !/[0-9]/.test(p), 'Password must have numeric characters'],
+      [policy.RequireSymbols && !/[^A-Za-z0-9]/.test(p), 'Password must have symbol characters'],
+    ].find(([bad]) => bad)?.[1];
+    if (reason) throw new CognitoError('InvalidPasswordException', `Password did not conform with policy: ${reason}`);
   }
 
   /** Senha nova no moto (que confere no USER_PASSWORD_AUTH) e o verificador SRP. */
@@ -168,6 +185,7 @@ export function makeCognitoLocal({ state, plan, invoke, srpStore = makeSrpStore(
     checkCode,
     findByEmail,
     getUser,
+    checkPassword,
     setPassword,
     postConfirmation,
     createAccount,
