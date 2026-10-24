@@ -174,6 +174,24 @@ export class InMemoryRepo {
     this._members.delete(`${squadId}#${userId}`);
     this._userSquads.get(userId)?.delete(squadId);
   }
+  /** Membro, vinculo e memberCount de uma vez; false (sem descontar) se a pessoa ja tinha saido. */
+  async removeMemberWithCount(squadId, userId) {
+    const existed = this._members.delete(`${squadId}#${userId}`);
+    this._userSquads.get(userId)?.delete(squadId);
+    const squad = this._squads.get(squadId);
+    if (existed && squad) squad.memberCount = (squad.memberCount ?? 0) - 1;
+    return existed;
+  }
+  /** Tira a pessoa do createdBy e do ranking das semanas guardadas (exclusao de conta). */
+  async forgetSquadMember(squadId, userId) {
+    const squad = this._squads.get(squadId);
+    if (squad?.createdBy === userId) delete squad.createdBy;
+    for (const [key, week] of this._squadWeeks) {
+      if (key.startsWith(`${squadId}#`) && week.ranking) {
+        week.ranking = week.ranking.filter((r) => r.userId !== userId);
+      }
+    }
+  }
   async listMembers(squadId) {
     const out = [];
     for (const [key, m] of this._members) {
@@ -403,6 +421,22 @@ export class InMemoryRepo {
     if (!l) throw new Error(`liga inexistente: ${leagueId}`);
     this._leagues.set(leagueId, { ...l, ...summary, status: 'closed' });
   }
+  /** Ligas em que a pessoa entrou (membro ou vaga da semana), sem repetir. */
+  async listUserLeagueIds(userId) {
+    const ids = new Set();
+    for (const [leagueId, members] of this._leagueMembers) if (members.has(userId)) ids.add(leagueId);
+    for (const [key, seat] of this._leaguePlacement) if (key.startsWith(`${userId}#`)) ids.add(seat.leagueId);
+    return [...ids];
+  }
+  /** Tira a pessoa da liga; liga aberta libera a vaga (memberCount), uma vez so. */
+  async removeLeagueMember(leagueId, userId) {
+    const existed = this._leagueMembers.get(leagueId)?.delete(userId) ?? false;
+    this._leagueXp.delete(`${leagueId}#${userId}`);
+    this._leagueNames.delete(`${leagueId}#${userId}`);
+    const league = this._leagues.get(leagueId);
+    if (existed && league?.status === 'open') league.memberCount = (league.memberCount ?? 0) - 1;
+    if (this._userLeague.get(userId)?.leagueId === leagueId) this._userLeague.delete(userId);
+  }
   _addLeagueMember(leagueId, userId) {
     if (!this._leagueMembers.has(leagueId)) this._leagueMembers.set(leagueId, new Set());
     this._leagueMembers.get(leagueId).add(userId);
@@ -501,6 +535,38 @@ export class InMemoryRepo {
       .sort((a, b) => (a.key < b.key ? 1 : -1))
       .slice(0, limit)
       .map(opsView);
+  }
+
+  // --- exclusao de conta: tudo o que o DynamoRepo guarda em USER#<id> ---
+  /** @returns {Promise<number>} itens apagados (contados como itens da particao) */
+  async deleteUserItems(userId) {
+    let n = 0;
+    const dropKeys = (map) => {
+      for (const key of [...map.keys()]) {
+        if (key.startsWith(`${userId}#`)) {
+          map.delete(key);
+          n += 1;
+        }
+      }
+    };
+    const dropUser = (map) => {
+      if (map.delete(userId)) n += 1;
+    };
+    dropKeys(this._progress);
+    dropKeys(this._srs);
+    dropKeys(this._dayXp);
+    for (const key of [...this._daysLogged]) if (key.startsWith(`${userId}#`)) this._daysLogged.delete(key);
+    dropKeys(this._leaguePlacement);
+    dropKeys(this._attempts);
+    n += this._achievements.get(userId)?.size ?? 0;
+    this._achievements.delete(userId);
+    n += this._userSquads.get(userId)?.size ?? 0;
+    this._userSquads.delete(userId);
+    n += this._push.get(userId)?.size ?? 0;
+    this._push.delete(userId);
+    for (const map of [this._profiles, this._leagueState, this._leagueSeen, this._notif, this._activity]) dropUser(map);
+    this._userLeague.delete(userId); // no DynamoRepo sai com os membros da liga (GSI2)
+    return n;
   }
 
   // --- helpers de seed (so para testes / dev) ---

@@ -286,3 +286,24 @@ test('CognitoDirectory filtra por comeco do e-mail ou por sub e nao devolve atri
   assert.equal(calls[1].input.Filter, `sub = "${PERSON}"`);
   assert.equal(accountFromCognito({ Attributes: [] }).provider, 'email');
 });
+
+test('CognitoDirectory.deleteUser apaga pelo username (Google tambem); ja apagado conta como feito', async () => {
+  const calls = [];
+  let gone = false;
+  const client = {
+    async send(cmd) {
+      calls.push({ name: cmd.constructor.name, input: cmd.input });
+      if (gone) throw Object.assign(new Error('User does not exist.'), { name: 'UserNotFoundException' });
+      gone = true;
+      return {};
+    },
+  };
+  const dir = new CognitoDirectory(client, 'us-east-1_pool');
+  assert.equal(await dir.deleteUser('google_123'), true);
+  assert.equal(calls[0].name, 'AdminDeleteUserCommand');
+  assert.deepEqual(calls[0].input, { UserPoolId: 'us-east-1_pool', Username: 'google_123' });
+  assert.equal(await dir.deleteUser('google_123'), false);
+
+  const down = new CognitoDirectory({ send: async () => { throw Object.assign(new Error('x'), { name: 'InternalErrorException' }); } }, 'p');
+  await assert.rejects(() => down.deleteUser('u1'), /x/);
+});

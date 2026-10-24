@@ -5,10 +5,15 @@
  * ListUsers com filtro: `email ^= "<comeco>"` ou `sub = "<id>"`. O ListUsers nao e cobrado (o
  * Cognito cobra por usuario ativo no mes) e o painel so chama quando alguem busca.
  *
- * Requer `cognito-idp:ListUsers` no User Pool.
+ * Requer `cognito-idp:ListUsers` no User Pool. A exclusao de conta (DELETE /v1/users/me) usa so
+ * `deleteUser`, com `cognito-idp:AdminDeleteUser` numa Lambda propria.
  */
 
-import { CognitoIdentityProviderClient, ListUsersCommand } from '@aws-sdk/client-cognito-identity-provider';
+import {
+  AdminDeleteUserCommand,
+  CognitoIdentityProviderClient,
+  ListUsersCommand,
+} from '@aws-sdk/client-cognito-identity-provider';
 
 export function makeCognitoClient(options = {}) {
   return new CognitoIdentityProviderClient(options);
@@ -62,5 +67,21 @@ export class CognitoDirectory {
   async get(userId) {
     const [account] = await this.search({ kind: 'sub', term: userId }, { limit: 1 });
     return account ?? null;
+  }
+
+  /**
+   * Apaga o usuario do User Pool (exclusao de conta). `username` e o `cognito:username` do id
+   * token: o sub nas contas de e-mail, `google_<id>` nas do Google. Usuario que ja nao existe
+   * conta como feito, para a nova tentativa terminar sem erro.
+   * @returns {Promise<boolean>} false se ja nao existia
+   */
+  async deleteUser(username) {
+    try {
+      await this._client.send(new AdminDeleteUserCommand({ UserPoolId: this._userPoolId, Username: username }));
+      return true;
+    } catch (e) {
+      if (e?.name === 'UserNotFoundException') return false;
+      throw e;
+    }
   }
 }

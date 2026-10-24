@@ -22,6 +22,7 @@ import {
   DeleteCommand,
   QueryCommand,
   TransactWriteCommand,
+  BatchWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 
 const TABLE = process.env.LIBRAX_TABLE ?? 'librax';
@@ -34,6 +35,9 @@ const TABLE = process.env.LIBRAX_TABLE ?? 'librax';
 export const ATTEMPT_TTL_SECONDS = 60 * 24 * 60 * 60;
 
 const isConditionFailure = (e) => e?.name === 'ConditionalCheckFailedException';
+
+/** Envios de um mesmo lote de exclusao antes de desistir (itens nao processados pelo BatchWrite). */
+const BATCH_ATTEMPTS = 5;
 
 /** Particao dos contadores do painel de administracao. */
 const OPS_PK = 'OPS';
@@ -369,8 +373,9 @@ export class DynamoRepo {
     } while (ExclusiveStartKey);
     const members = items.filter((i) => i.SK.startsWith('MEMBER#'));
 
+    // META por ultimo: se cair entre dois lotes, a squad ainda existe e uma nova tentativa (sair,
+    // dissolver ou excluir a conta) acha o que sobrou
     const deletes = [
-      { Delete: { TableName: TABLE, Key: { PK: `SQUAD#${squadId}`, SK: 'META' } } },
       ...(squad.inviteCode ? [{ Delete: { TableName: TABLE, Key: this._inviteKey(squad.inviteCode) } }] : []),
       ...items
         .filter((i) => i.SK !== 'META')
@@ -378,6 +383,7 @@ export class DynamoRepo {
       ...members.map((m) => ({
         Delete: { TableName: TABLE, Key: { PK: `USER#${m.userId ?? m.SK.slice(7)}`, SK: `SQUAD#${squadId}` } },
       })),
+      { Delete: { TableName: TABLE, Key: { PK: `SQUAD#${squadId}`, SK: 'META' } } },
     ];
 
     // TransactWrite aceita 100 itens no maximo; para MVP esse limite e seguro
@@ -481,6 +487,91 @@ export class DynamoRepo {
         ],
       }),
     );
+  }
+
+  /**
+   * Saida que uma nova tentativa nao conta duas vezes (exclusao de conta): MEMBER#, vinculo
+   * USER#/SQUAD# e `ADD memberCount -1` numa transacao, condicional ao membro existir. Se ele ja
+   * saiu (ou a squad nao existe mais), so apaga o que sobrou, sem mexer no memberCount.
+   * @returns {Promise<boolean>} false se a pessoa ja nao era membro
+   */
+  async removeMemberWithCount(squadId, userId) {
+    const memberKey = { PK: `SQUAD#${squadId}`, SK: `MEMBER#${userId}` };
+    const linkKey = { PK: `USER#${userId}`, SK: `SQUAD#${squadId}` };
+    try {
+      await this._db.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            { Delete: { TableName: TABLE, Key: memberKey, ConditionExpression: 'attribute_exists(PK)' } },
+            { Delete: { TableName: TABLE, Key: linkKey } },
+            {
+              Update: {
+                TableName: TABLE,
+                Key: { PK: `SQUAD#${squadId}`, SK: 'META' },
+                UpdateExpression: 'ADD memberCount :minus',
+                ConditionExpression: 'attribute_exists(PK)',
+                ExpressionAttributeValues: { ':minus': -1 },
+              },
+            },
+          ],
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (e?.name !== 'TransactionCanceledException') throw e;
+      await this._db.send(
+        new TransactWriteCommand({
+          TransactItems: [{ Delete: { TableName: TABLE, Key: memberKey } }, { Delete: { TableName: TABLE, Key: linkKey } }],
+        }),
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Tira a pessoa do que a squad guarda alem do MEMBER# (exclusao de conta): o `createdBy` do
+   * META e a linha dela no ranking das semanas fechadas (`SQUAD#<id> / WEEK#<semana>`). Os totais
+   * da semana (xpWeekly, memberCount) nao identificam ninguem e ficam; a posicao dos outros
+   * tambem fica como foi. Repetir nao muda nada.
+   */
+  async forgetSquadMember(squadId, userId) {
+    await this._db
+      .send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: { PK: `SQUAD#${squadId}`, SK: 'META' },
+          UpdateExpression: 'REMOVE createdBy',
+          ConditionExpression: 'createdBy = :uid',
+          ExpressionAttributeValues: { ':uid': userId },
+        }),
+      )
+      .catch((e) => {
+        if (!isConditionFailure(e)) throw e;
+      });
+
+    const weeks = await this._queryAll({
+      KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
+      ExpressionAttributeValues: { ':pk': `SQUAD#${squadId}`, ':prefix': 'WEEK#' },
+      ProjectionExpression: 'SK, #ranking',
+      ExpressionAttributeNames: { '#ranking': 'ranking' },
+    });
+    for (const week of weeks) {
+      if (!(week.ranking ?? []).some((r) => r.userId === userId)) continue;
+      await this._db
+        .send(
+          new UpdateCommand({
+            TableName: TABLE,
+            Key: { PK: `SQUAD#${squadId}`, SK: week.SK },
+            UpdateExpression: 'SET #ranking = :ranking',
+            ConditionExpression: 'attribute_exists(PK)',
+            ExpressionAttributeNames: { '#ranking': 'ranking' },
+            ExpressionAttributeValues: { ':ranking': week.ranking.filter((r) => r.userId !== userId) },
+          }),
+        )
+        .catch((e) => {
+          if (!isConditionFailure(e)) throw e;
+        });
+    }
   }
 
   async listMembers(squadId) {
@@ -1059,6 +1150,61 @@ export class DynamoRepo {
     );
   }
 
+  /**
+   * Todas as ligas em que a pessoa entrou (exclusao de conta): os membros pelo GSI2
+   * (`USER#<id> / LEAGUE#<semana>`) e as vagas `USER#<id> / LEAGUEWEEK#<semana>`, sem repetir.
+   * @returns {Promise<string[]>} leagueIds
+   */
+  async listUserLeagueIds(userId) {
+    const [members, seats] = await Promise.all([
+      this._queryAll({
+        IndexName: 'GSI2',
+        KeyConditionExpression: 'GSI2PK = :pk AND begins_with(GSI2SK, :prefix)',
+        ExpressionAttributeValues: { ':pk': `USER#${userId}`, ':prefix': 'LEAGUE#' },
+      }),
+      this._queryAll({
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
+        ExpressionAttributeValues: { ':pk': `USER#${userId}`, ':prefix': 'LEAGUEWEEK#' },
+      }),
+    ]);
+    return [...new Set([...members, ...seats].map((i) => i.leagueId).filter(Boolean))];
+  }
+
+  /**
+   * Tira a pessoa da liga (exclusao de conta): apaga `LEAGUE#<id> / USER#<id>`, e o ranking dos
+   * outros passa a ser calculado sem ela. Liga aberta tambem libera a vaga (`ADD memberCount -1`
+   * na mesma transacao, condicional ao membro existir: repetir nao desconta de novo). Liga
+   * fechada guarda so os totais do fechamento, que ficam como estao.
+   */
+  async removeLeagueMember(leagueId, userId) {
+    const memberKey = { PK: `LEAGUE#${leagueId}`, SK: `USER#${userId}` };
+    const league = await this.getLeague(leagueId);
+    if (league?.status === 'open') {
+      try {
+        await this._db.send(
+          new TransactWriteCommand({
+            TransactItems: [
+              { Delete: { TableName: TABLE, Key: memberKey, ConditionExpression: 'attribute_exists(PK)' } },
+              {
+                Update: {
+                  TableName: TABLE,
+                  Key: { PK: `LEAGUE#${leagueId}`, SK: 'META' },
+                  UpdateExpression: 'ADD memberCount :minus',
+                  ConditionExpression: 'attribute_exists(PK)',
+                  ExpressionAttributeValues: { ':minus': -1 },
+                },
+              },
+            ],
+          }),
+        );
+        return;
+      } catch (e) {
+        if (e?.name !== 'TransactionCanceledException') throw e;
+      }
+    }
+    await this._db.send(new DeleteCommand({ TableName: TABLE, Key: memberKey }));
+  }
+
   // -----------------------------------------------------------------------
   // TENTATIVAS DE LICAO (idempotencia por lessonAttemptId)
   // USER#<id> / ATTEMPT#<lessonAttemptId>
@@ -1331,6 +1477,36 @@ export class DynamoRepo {
   _opsItem(item) {
     const { PK, SK, expiresAt, ...rest } = item;
     return { key: SK, ...rest };
+  }
+
+  // -----------------------------------------------------------------------
+  // EXCLUSAO DE CONTA (LGPD): a particao USER#<id> inteira
+  // -----------------------------------------------------------------------
+
+  /**
+   * Apaga todos os itens `USER#<id>` (perfil, progresso, SRS, XP do dia, conquistas, vinculos de
+   * squad, estado e vagas de liga, tentativas, Web Push, lembretes, atividade), 25 por BatchWrite.
+   * As entradas dos indices (GSI1 do SRS, GSI6 dos lembretes) saem com os itens. O que o
+   * BatchWrite devolver sem processar e reenviado algumas vezes; se ainda sobrar, falha e a nova
+   * tentativa da pessoa apaga o resto.
+   * @returns {Promise<number>} itens apagados
+   */
+  async deleteUserItems(userId) {
+    const items = await this._queryAll({
+      KeyConditionExpression: 'PK = :pk',
+      ExpressionAttributeValues: { ':pk': `USER#${userId}` },
+      ProjectionExpression: 'PK, SK',
+    });
+    for (let i = 0; i < items.length; i += 25) {
+      let requests = items.slice(i, i + 25).map(({ PK, SK }) => ({ DeleteRequest: { Key: { PK, SK } } }));
+      for (let attempt = 0; requests.length > 0; attempt++) {
+        if (attempt === BATCH_ATTEMPTS) throw new Error(`DELETE_USER_UNPROCESSED: ${requests.length}`);
+        if (attempt > 0) await new Promise((r) => setTimeout(r, 50 * 2 ** attempt));
+        const { UnprocessedItems } = await this._db.send(new BatchWriteCommand({ RequestItems: { [TABLE]: requests } }));
+        requests = UnprocessedItems?.[TABLE] ?? [];
+      }
+    }
+    return items.length;
   }
 
   // -----------------------------------------------------------------------
