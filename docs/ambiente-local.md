@@ -54,6 +54,13 @@ Senhas só de desenvolvimento, criadas pela semente (`services/api/local/config.
 
 - **Cadastro**: pelo app (Amplify) ou pela página de login. O código de confirmação aparece no terminal do
   `npm run local`, na caixa simulada <https://127.0.0.1:5333/caixa> e, no cadastro pela página, na própria tela.
+- **Esqueci a senha**: pelo app ("Esqueci a senha" em Entrar) ou pela página de login. O código aparece no
+  terminal e na caixa simulada (assunto "nova senha") e, pela página, na própria tela. A senha nova passa a valer
+  no SRP do app na hora. E-mail sem conta, conta do Google simulado e conta não confirmada recebem a mesma
+  resposta de "código enviado", sem código nenhum, como no Cognito com `PreventUserExistenceErrors`. Depois de 5
+  pedidos de código ou 5 códigos errados na mesma hora, a conta recebe `LimitExceededException` até a janela
+  passar, trocar a senha ou reiniciar o `npm run local`. Se trocar a senha de uma conta de teste, a tabela acima
+  deixa de valer para ela até trocar de volta.
 - **Google (simulado)**: botão na página de login (e o "Continuar com Google" do app). Na primeira vez cria a
   conta com o e-mail e o nome informados e dispara o PostConfirmation, como o primeiro login social.
 - O `sub` das contas é o mesmo a cada `local:reset` (o moto usa uma semente fixa).
@@ -78,10 +85,10 @@ Tudo em `127.0.0.1`. As portas 5300 e 5310 são do dono (dev do app e do painel)
 | Handlers, usecases e domínio da API | **reais**: as fábricas `make*Handlers` com o `DynamoRepo` e o catálogo empacotado |
 | `DynamoRepo` e `CognitoDirectory` | **reais** (AWS SDK v3), apontados para o DynamoDB Local e o moto |
 | Tabela `librax` | DynamoDB Local, com as 6 GSIs e o TTL do template |
-| Login do app (SRP, cadastro, confirmação, OAuth com PKCE) | código **real** do Amplify, contra o proxy local e a página local |
+| Login do app (SRP, cadastro, confirmação, esqueci a senha, OAuth com PKCE) | código **real** do Amplify, contra o proxy local e a página local |
 | Login do painel (PKCE) | código **real** do `apps/admin-web/src/lib/auth.ts` |
 | User Pool, clients, grupo `admin`, tokens e JWKS | moto, criados a partir do template |
-| O que o moto não faz como o Cognito | proxy local: confere a senha no SRP, gera e confere o código de confirmação, roda o PostConfirmation, responde o `RevokeToken`, aplica os `ExplicitAuthFlows` do client e o `PreventUserExistenceErrors` |
+| O que o moto não faz como o Cognito | proxy local: confere a senha no SRP, gera e confere o código de confirmação e o da nova senha (com a política de senha do template e o limite de tentativas), roda o PostConfirmation, responde o `RevokeToken`, aplica os `ExplicitAuthFlows` do client e o `PreventUserExistenceErrors` |
 | Hosted UI e Google | página local no visual do Traço; o Google é simulado |
 | API Gateway | imitação local: estágio `api`, rotas, autorizador JWT com as regras da HTTP API (inclusive `/v1/admin` só com o client do painel), CORS do template, evento 2.0 |
 | CloudFront | o proxy de `/api` do Vite |
@@ -122,7 +129,11 @@ do zero, `npm run local:reset` e `npm run local:up`.
   e-mail.
 - **Página de login.** Imita o comportamento do Hosted UI (callbacks e logouts do client, PKCE S256, `state`,
   sessão lembrada), não o visual. A sessão lembrada é por client; no Cognito ela vale para o domínio todo.
-- **E-mails.** Nada é enviado: códigos no terminal e na caixa simulada.
+- **E-mails.** Nada é enviado: códigos no terminal e na caixa simulada. Na AWS, sem SES configurado no User Pool,
+  os códigos de cadastro e de nova senha saem pelo envio padrão do Cognito, com cota diária baixa (50 por dia na
+  cota padrão); aqui não há esse limite.
+- **Limites do esqueci a senha.** O Cognito não publica os números exatos; os do proxy (5 pedidos e 5 códigos
+  errados por conta, por hora) só servem para a mensagem de "muitas tentativas" aparecer.
 - **API Gateway.** Sem throttling (50/100 do estágio), sem limite de tempo e memória das Lambdas, sem cold
   start. Erro não tratado vira 500 como na AWS. O CORS do proxy do Cognito é `*`.
 - **CloudFront.** Sem os cabeçalhos de segurança, a CSP e o cache da distribuição: o Vite serve o app.
@@ -146,7 +157,9 @@ sobe um no próprio processo. O teste (`services/api/e2e/local.e2e.mjs`):
    soma de novo; sem token ou com token adulterado, 401;
 3. chama `/v1/admin` com a conta admin (200), com a comum (403 `ADMIN_ONLY`) e com o token do app (401);
 4. entra por SRP pelo proxy do `cognito-idp`: senha certa entra, errada não; `USER_PASSWORD_AUTH` é recusado
-   pelo client do app.
+   pelo client do app;
+5. troca a senha do aluno pelo esqueci a senha (código lido da caixa simulada), confere que o SRP aceita a nova e
+   recusa a antiga e volta para a senha documentada; e-mail sem conta recebe a mesma resposta de "código enviado".
 
 ## 7. Memória
 

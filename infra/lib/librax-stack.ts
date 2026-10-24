@@ -187,6 +187,8 @@ export class LibraxStack extends cdk.Stack {
         requireDigits: false,
         requireSymbols: false,
       },
+      // "Esqueci a senha" so por e-mail. Sem `email`, os codigos (cadastro e nova senha) saem pelo
+      // envio padrao do Cognito, com limite diario baixo (docs/spec-02-backend-gestao-engajamento.md, secao 2)
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       removalPolicy: RemovalPolicy.RETAIN,
     });
