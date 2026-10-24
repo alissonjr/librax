@@ -7,7 +7,14 @@
   "scripts": {
     "test": "node --test",
     "test:watch": "node --test --watch",
-    "catalog": "node scripts/build-catalog.mjs"
+    "catalog": "node scripts/build-catalog.mjs",
+    "local": "node local/server.mjs",
+    "local:up": "node local/cli.mjs up",
+    "local:down": "node local/cli.mjs down",
+    "local:reset": "node local/cli.mjs reset",
+    "local:jobs": "node local/cli.mjs jobs",
+    "local:status": "node local/cli.mjs status",
+    "test:e2e": "node --test e2e/local.e2e.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.1156.0",
