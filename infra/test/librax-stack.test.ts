@@ -248,6 +248,39 @@ describe('API', () => {
   });
 });
 
+describe('Exclusao de conta (LGPD)', () => {
+  test('DELETE /v1/users/me com o autorizador JWT do app, Lambda propria e o User Pool no ambiente', () => {
+    const { template } = synth(withDomain);
+    const authorizers = template.findResources('AWS::ApiGatewayV2::Authorizer');
+    const [appAuthId] = Object.entries(authorizers).find(([, r]) => r.Properties.Name === 'CognitoAuth')!;
+    const routes = Object.values(template.findResources('AWS::ApiGatewayV2::Route')).map((r) => r.Properties);
+    const route = routes.find((r) => r.RouteKey === 'DELETE /v1/users/me');
+    expect(route.AuthorizationType).toBe('JWT');
+    expect(route.AuthorizerId).toEqual({ Ref: appAuthId });
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      FunctionName: 'librax-delete-account',
+      Handler: 'index.deleteAccountHandler',
+      Timeout: 30,
+      Environment: { Variables: Match.objectLike({ USER_POOL_ID: Match.anyValue(), LIBRAX_TABLE: Match.anyValue() }) },
+    });
+  });
+
+  test('so a Lambda de exclusao pode AdminDeleteUser, e so no proprio User Pool', () => {
+    const { template } = synth(withDomain);
+    const actions = policyActionsOf(template, 'librax-delete-account');
+    expect(actions).toEqual(expect.arrayContaining(['dynamodb:Query', 'dynamodb:DeleteItem', 'dynamodb:BatchWriteItem', 'cognito-idp:AdminDeleteUser']));
+    // nenhuma outra acao do Cognito
+    expect(actions.filter((a) => a.startsWith('cognito-idp:'))).toEqual(['cognito-idp:AdminDeleteUser']);
+    const del = statementsOf(template, 'librax-delete-account').find((st) => [st.Action].flat().includes('cognito-idp:AdminDeleteUser'));
+    expect(del.Resource).toEqual({ 'Fn::GetAtt': [expect.stringMatching(/^LibraxUserPool/), 'Arn'] });
+
+    const policies = Object.values(template.findResources('AWS::IAM::Policy'));
+    const withDelete = policies.filter((p) => JSON.stringify(p.Properties.PolicyDocument).includes('cognito-idp:AdminDeleteUser'));
+    expect(withDelete).toHaveLength(1);
+    expect(policyActionsOf(template, 'librax-admin')).not.toContain('cognito-idp:AdminDeleteUser');
+  });
+});
+
 describe('Web Push, lembretes e e-mail', () => {
   test('tabela com GSI6 (lembretes) e TTL', () => {
     const { template } = synth(withDomain);

@@ -345,6 +345,14 @@ export class LibraxStack extends cdk.Stack {
       description: 'Horario, fuso e opt-in de e-mail dos lembretes',
     });
 
+    // Exclusao de conta (LGPD): squads, ligas, a particao USER#<id> e por ultimo o usuario no Cognito
+    const deleteAccountFn = makeFn('DeleteAccountFn', 'account.js', 'deleteAccountHandler', {
+      functionName: 'librax-delete-account',
+      description: 'Exclusao de conta (LGPD): dados da pessoa na tabela e o usuario no Cognito',
+      timeout: Duration.seconds(30),  // conta grande: varias paginas de SRS e tentativas
+      environment: { USER_POOL_ID: userPool.userPoolId },
+    });
+
     const closeLeagueFn = makeFn('CloseLeagueFn', 'closeLeague.js', 'handler', {
       functionName: 'librax-close-league',
       timeout: Duration.minutes(5),  // operacao batch pode demorar mais
@@ -391,6 +399,7 @@ export class LibraxStack extends cdk.Stack {
       transferOwnershipFn, regenerateInviteFn,
       getLeagueFn, leagueResultSeenFn,
       subscribePushFn, unsubscribePushFn, notificationPrefsFn,
+      deleteAccountFn,
     ];
     for (const fn of allLambdas) {
       table.grantReadWriteData(fn);
@@ -403,6 +412,12 @@ export class LibraxStack extends cdk.Stack {
     // Busca de conta pelo e-mail: so ListUsers, so neste User Pool
     adminFn.addToRolePolicy(new iam.PolicyStatement({
       actions: ['cognito-idp:ListUsers'],
+      resources: [userPool.userPoolArn],
+    }));
+
+    // Exclusao de conta: so AdminDeleteUser, so neste User Pool (nenhuma outra acao do Cognito)
+    deleteAccountFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['cognito-idp:AdminDeleteUser'],
       resources: [userPool.userPoolArn],
     }));
 
@@ -702,6 +717,7 @@ export class LibraxStack extends cdk.Stack {
     addRoute(M.POST,   '/v1/squads/{squadId}/members/{userId}/manage', manageMemberFn);
     addRoute(M.POST,   '/v1/squads/{squadId}/invite-code/regenerate', regenerateInviteFn);
     addRoute(M.GET,    '/v1/users/me/squads',                         listMySquadsFn);
+    addRoute(M.DELETE, '/v1/users/me',                                deleteAccountFn);
     addRoute(M.GET,    '/v1/league/current',                          getLeagueFn);
     addRoute(M.POST,   '/v1/league/result-seen',                      leagueResultSeenFn);
     addRoute(M.POST,   '/v1/push/subscriptions',                      subscribePushFn);
