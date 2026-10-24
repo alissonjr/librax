@@ -88,6 +88,15 @@ describe('configuração por VITE_*', () => {
       redirectSignOut: ['https://librax.example/'],
       responseType: 'code',
     });
+    // sem VITE_COGNITO_ENDPOINT o Amplify fala com o cognito-idp da AWS
+    expect(cognito).not.toHaveProperty('userPoolEndpoint');
+  });
+
+  it('ambiente local: VITE_COGNITO_ENDPOINT manda o cognito-idp para o proxy local', async () => {
+    const config = readAuthConfig({ ...env, VITE_COGNITO_ENDPOINT: 'http://127.0.0.1:5332' }, 'http://127.0.0.1:5320');
+    expect(config?.userPoolEndpoint).toBe('http://127.0.0.1:5332');
+    await configureAuth(config);
+    expect(amplify.configure.mock.calls[0][0].Auth.Cognito.userPoolEndpoint).toBe('http://127.0.0.1:5332');
   });
 });
 

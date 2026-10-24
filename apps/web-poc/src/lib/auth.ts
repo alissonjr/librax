@@ -41,6 +41,11 @@ export interface AuthConfig {
   oauthDomain: string;
   redirectSignIn: string;
   redirectSignOut: string;
+  /**
+   * Endpoint do cognito-idp no lugar do da AWS. Só o ambiente local usa (proxy do Cognito
+   * simulado, docs/ambiente-local.md); sem ele, o Amplify fala com a AWS como sempre.
+   */
+  userPoolEndpoint?: string;
 }
 
 export interface Session {
@@ -79,6 +84,7 @@ export function readAuthConfig(
     oauthDomain,
     redirectSignIn: env.VITE_AUTH_REDIRECT_SIGN_IN || `${origin}/auth/callback`,
     redirectSignOut: env.VITE_AUTH_REDIRECT_SIGN_OUT || `${origin}/`,
+    ...(env.VITE_COGNITO_ENDPOINT ? { userPoolEndpoint: env.VITE_COGNITO_ENDPOINT } : {}),
   };
 }
 
@@ -101,6 +107,7 @@ export function configureAuth(config: AuthConfig | null = readAuthConfig()): Pro
         Cognito: {
           userPoolId: config.userPoolId,
           userPoolClientId: config.userPoolClientId,
+          ...(config.userPoolEndpoint ? { userPoolEndpoint: config.userPoolEndpoint } : {}),
           loginWith: {
             email: true,
             oauth: {

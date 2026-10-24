@@ -17,6 +17,8 @@
     "dev": "vite",
     "predev:celular": "npm run tokens && npm run ml:assets",
     "dev:celular": "vite --mode celular",
+    "predev:local": "npm run tokens && npm run ml:assets",
+    "dev:local": "vite --mode ambiente-local",
     "prebuild": "npm run tokens && node ../../tools/tokens/check-contrast.mjs && npm run content:check && npm run ml:assets",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
