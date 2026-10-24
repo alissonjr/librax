@@ -365,7 +365,7 @@ Convidado (100% local, sem Identity Pool: ele foi removido; migracao por `POST /
 **Fluxo de exclusao de conta (duas etapas):**
 1. Dialogo: "Tem certeza? Todo o seu progresso sera apagado." -> "Cancelar" / "Continuar".
 2. Campo de texto exigindo digitar "EXCLUIR" para habilitar o botao "Excluir conta".
-3. Lambda apaga todos os itens `PK=USER#<id>` e revoga o token Cognito.
+3. Lambda apaga todos os itens `PK=USER#<id>` e revoga o token Cognito. Implementado em `DELETE /v1/users/me`: tira a pessoa das squads (único admin passa para o membro mais antigo; único membro dissolve) e das ligas, apaga a partição e por último o usuário no Cognito (`AdminDeleteUser`). Com conta, o app chama a rota antes de limpar o aparelho; se a chamada falhar, nada é apagado e a tela pede para tentar de novo (detalhes em `services/api/README.md`).
 
 ### 12.9 Adicao a definicao de pronto desta camada
 
