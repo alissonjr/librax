@@ -23,8 +23,21 @@ npm ci
 npm test            # node --test (Node 20+)
 ```
 
-330 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
+344 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
 o `DynamoRepo` com um client falso que só registra os comandos; nenhum teste chama a AWS.
+
+## Ambiente local (AWS simulada)
+
+DynamoDB Local e o Cognito do moto em containers, a API pelas fábricas dos handlers, uma página que imita o
+Hosted UI e o app e o painel apontados para tudo isso, sem chamada à AWS. Tudo sai do template da infra.
+Detalhes, contas de teste e diferenças para a AWS: [`docs/ambiente-local.md`](../../docs/ambiente-local.md).
+
+```bash
+npm run local:up      # containers, template, bootstrap e semente
+npm run local         # API em http://127.0.0.1:5332/api, Cognito local e login em https://127.0.0.1:5333
+npm run test:e2e      # ponta a ponta (fora do npm test, precisa do local:up)
+npm run local:down    # para sem apagar; local:reset apaga os dados
+```
 
 ## Estrutura
 
