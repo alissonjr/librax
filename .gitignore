@@ -29,3 +29,7 @@ ml-training/out/
 
 # Worktrees dos subagentes
 .claude/worktrees/
+
+# Login AWS do projeto (IAM Identity Center) e contexto local do CDK
+/.aws/
+infra/cdk.context.json
