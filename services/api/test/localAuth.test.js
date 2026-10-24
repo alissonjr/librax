@@ -2,13 +2,22 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { generateKeyPairSync, createSign } from 'node:crypto';
 import https from 'node:https';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import { makeVerifier, startChallenge, verifyClaim, clientStart, clientSignature, newSecretBlock, nowString, padHex } from '../local/srp.mjs';
 import { makeJwtVerifier, gatewayClaims } from '../local/jwt.mjs';
 import { isBlockedHost, AwsBlockedError } from '../local/awsGuard.mjs';
+import { makeCognitoLocal } from '../local/cognitoLocal.mjs';
+import { makeCognitoProxy } from '../local/cognitoProxy.mjs';
+import { makeHostedUi } from '../local/hostedUi.mjs';
+import { makeSrpStore } from '../local/srpStore.mjs';
+import { URLS } from '../local/config.mjs';
 
-// Ambiente local: o SRP que o moto nao confere, o autorizador JWT com as regras do API Gateway e
-// a trava que impede chamada a AWS de verdade. Sem containers.
+// Ambiente local: o SRP que o moto nao confere, o autorizador JWT com as regras do API Gateway,
+// a trava que impede chamada a AWS de verdade e o "esqueci a senha" do proxy e da pagina local.
+// Sem containers (onde precisa do moto, ele e de mentira, atras do fetch).
 
 const POOL = 'us-east-1_abc123';
 const USER = '11111111-1111-4111-8111-111111111111';
@@ -110,4 +119,170 @@ test('trava: enderecos da AWS recusados, os locais nao', async () => {
   await assert.rejects(fetch('https://sts.amazonaws.com/'), AwsBlockedError);
   assert.equal(process.env.AWS_ACCESS_KEY_ID, 'local');
   assert.equal(process.env.AWS_ENDPOINT_URL_DYNAMODB, 'http://127.0.0.1:5330');
+});
+
+// --- Esqueci a senha (proxy do cognito-idp e pagina local) -------------------------
+
+const APP_CALLBACK = 'http://127.0.0.1:5320/auth/callback';
+
+/** moto de mentira atras do fetch: so o AdminGetUser e o AdminSetUserPassword da troca de senha. */
+function fakeMoto(t, users) {
+  const passwords = new Map();
+  const guarded = globalThis.fetch;
+  t.mock.method(globalThis, 'fetch', async (url, init) => {
+    if (String(url) !== URLS.moto) return guarded(url, init);
+    const target = init.headers['X-Amz-Target'].split('.').pop();
+    const body = JSON.parse(init.body);
+    const reply = (status, data) => new Response(JSON.stringify(data), { status });
+    const user = users.find((u) => u.Username === String(body.Username).toLowerCase());
+    if (!user) return reply(400, { __type: 'UserNotFoundException', message: 'User does not exist.' });
+    if (target === 'AdminGetUser') return reply(200, user);
+    if (target === 'AdminSetUserPassword') {
+      passwords.set(user.Username, body.Password);
+      return reply(200, {});
+    }
+    return reply(400, { __type: 'InvalidAction', message: target });
+  });
+  return passwords;
+}
+
+const motoUser = (email, sub, extra = {}, status = 'CONFIRMED') => ({
+  Username: email,
+  UserStatus: status,
+  Enabled: true,
+  UserAttributes: Object.entries({ sub, email, email_verified: 'true', ...extra }).map(([Name, Value]) => ({ Name, Value })),
+});
+
+function resetEnv(t) {
+  const passwords = fakeMoto(t, [
+    motoUser('ana@librax.example', USER),
+    motoUser('gabi.google@librax.example', '22222222-2222-4222-8222-222222222222', { identities: '[{"providerName":"Google"}]' }),
+    motoUser('novo@librax.example', '33333333-3333-4333-8333-333333333333', { email_verified: 'false' }, 'UNCONFIRMED'),
+  ]);
+  const dir = mkdtempSync(join(tmpdir(), 'librax-srp-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const srpStore = makeSrpStore(join(dir, 'srp.json'));
+  const state = {
+    region: 'us-east-1',
+    userPoolId: POOL,
+    appClientId: 'app',
+    clients: {
+      app: {
+        clientId: 'app',
+        props: {
+          PreventUserExistenceErrors: 'ENABLED',
+          CallbackURLs: [APP_CALLBACK],
+          AllowedOAuthFlows: ['code'],
+          AllowedOAuthScopes: ['openid', 'email', 'profile'],
+        },
+      },
+    },
+  };
+  const plan = { userPool: { props: { Policies: { PasswordPolicy: { MinimumLength: 8 } } }, postConfirmation: 'librax-post-confirmation' } };
+  const triggers = [];
+  const invoke = async (name, event) => {
+    triggers.push(event.triggerSource);
+    return event;
+  };
+  const local = makeCognitoLocal({ state, plan, invoke, srpStore, log: () => {} });
+  const proxy = makeCognitoProxy({ local, log: () => {} });
+  const call = async (target, body) => {
+    const res = await proxy.handle(`AWSCognitoIdentityProviderService.${target}`, JSON.stringify({ ClientId: 'app', ...body }));
+    return { status: res.status, body: JSON.parse(res.body) };
+  };
+  return { local, proxy, state, call, srpStore, passwords, triggers };
+}
+
+const otherCode = (code) => String((Number(code) + 1) % 1_000_000).padStart(6, '0');
+
+test('esqueci a senha: codigo na caixa simulada e a senha nova passa a valer no SRP', async (t) => {
+  const env = resetEnv(t);
+  env.srpStore.setPassword(POOL, USER, 'senha-velha-1');
+  const Username = 'ana@librax.example';
+
+  const sent = await env.call('ForgotPassword', { Username });
+  assert.equal(sent.status, 200, JSON.stringify(sent.body));
+  assert.deepEqual(sent.body.CodeDeliveryDetails, { Destination: 'a***@l***', DeliveryMedium: 'EMAIL', AttributeName: 'email' });
+  const mail = env.local.inbox[0];
+  assert.equal(mail.to, Username);
+  assert.equal(mail.purpose, 'nova senha');
+
+  // codigo errado nao troca; senha fraca recusada pela politica do template sem gastar o codigo
+  const wrong = await env.call('ConfirmForgotPassword', { Username, ConfirmationCode: otherCode(mail.code), Password: 'senha-nova-1' });
+  assert.equal(wrong.body.__type, 'CodeMismatchException');
+  const weak = await env.call('ConfirmForgotPassword', { Username, ConfirmationCode: mail.code, Password: 'curta' });
+  assert.equal(weak.body.__type, 'InvalidPasswordException');
+  assert.match(weak.body.message, /Password not long enough/);
+
+  const ok = await env.call('ConfirmForgotPassword', { Username, ConfirmationCode: mail.code, Password: 'senha-nova-1' });
+  assert.equal(ok.status, 200, JSON.stringify(ok.body));
+  const { salt, verifier } = env.srpStore.get(POOL, USER);
+  assert.equal(srpLogin(verifier, salt, 'senha-nova-1'), true);
+  assert.equal(srpLogin(verifier, salt, 'senha-velha-1'), false);
+  assert.equal(env.passwords.get(Username), 'senha-nova-1');
+  assert.deepEqual(env.triggers, ['PostConfirmation_ConfirmForgotPassword']);
+
+  // o codigo e de uso unico
+  const again = await env.call('ConfirmForgotPassword', { Username, ConfirmationCode: mail.code, Password: 'senha-nova-2' });
+  assert.equal(again.body.__type, 'ExpiredCodeException');
+});
+
+test('esqueci a senha nao conta se a conta existe: sem conta, so do Google ou nao confirmada', async (t) => {
+  const env = resetEnv(t);
+  for (const Username of ['ninguem@librax.example', 'gabi.google@librax.example', 'novo@librax.example']) {
+    const r = await env.call('ForgotPassword', { Username });
+    assert.equal(r.status, 200, Username);
+    assert.equal(r.body.CodeDeliveryDetails.DeliveryMedium, 'EMAIL');
+  }
+  assert.equal(env.local.inbox.length, 0, 'nenhum e-mail sai');
+  const none = await env.call('ConfirmForgotPassword', { Username: 'ninguem@librax.example', ConfirmationCode: '123456', Password: 'senha-nova-1' });
+  assert.equal(none.body.__type, 'CodeMismatchException');
+});
+
+test('esqueci a senha: limite de pedidos e de codigos errados (LimitExceededException)', async (t) => {
+  const env = resetEnv(t);
+  const Username = 'ana@librax.example';
+  for (let i = 0; i < 5; i++) assert.equal((await env.call('ForgotPassword', { Username })).status, 200);
+  assert.equal((await env.call('ForgotPassword', { Username })).body.__type, 'LimitExceededException');
+
+  const { code } = env.local.inbox[0];
+  for (let i = 0; i < 5; i++) {
+    const r = await env.call('ConfirmForgotPassword', { Username, ConfirmationCode: otherCode(code), Password: 'senha-nova-1' });
+    assert.equal(r.body.__type, 'CodeMismatchException');
+  }
+  // depois de 5 codigos errados nem o certo passa
+  const blocked = await env.call('ConfirmForgotPassword', { Username, ConfirmationCode: code, Password: 'senha-nova-1' });
+  assert.equal(blocked.body.__type, 'LimitExceededException');
+});
+
+test('pagina local: "Esqueci a senha" mostra o codigo e volta ao login com o e-mail', async (t) => {
+  const env = resetEnv(t);
+  const ui = makeHostedUi({ local: env.local, proxy: env.proxy, state: env.state, log: () => {} });
+  const page = (method, path, form = {}) => ui.handle({ method, url: new URL(path, URLS.login), headers: {}, form });
+
+  const query = new URLSearchParams({ response_type: 'code', client_id: 'app', redirect_uri: APP_CALLBACK, scope: 'openid email' });
+  const login = await page('GET', `/oauth2/authorize?${query}`);
+  const tx = /name="tx" value="([^"]+)"/.exec(login.body)?.[1];
+  assert.ok(tx, login.body.slice(0, 300));
+  assert.ok(login.body.includes(`href="/forgot?tx=${tx}">Esqueci a senha`));
+  assert.equal((await page('GET', `/forgot?tx=${tx}`)).status, 200);
+
+  // conta so do Google: mesma tela, sem codigo
+  const google = await page('POST', '/forgot', { tx, email: 'gabi.google@librax.example' });
+  assert.equal(google.status, 200);
+  assert.doesNotMatch(google.body, /o código é/);
+
+  const sent = await page('POST', '/forgot', { tx, email: 'Ana@librax.example' });
+  const code = /o código é <strong>(\d{6})<\/strong>/.exec(sent.body)?.[1];
+  assert.equal(code, env.local.inbox[0].code);
+
+  const weak = await page('POST', '/reset', { tx, code, password: 'curta' });
+  assert.equal(weak.status, 400);
+  assert.match(weak.body, /Senha fraca/);
+
+  const done = await page('POST', '/reset', { tx, code, password: 'senha-nova-1' });
+  assert.equal(done.status, 200);
+  assert.match(done.body, /Senha alterada\. Entre com a senha nova\./);
+  assert.match(done.body, /value="ana@librax\.example"/);
+  assert.equal(env.passwords.get('ana@librax.example'), 'senha-nova-1');
 });

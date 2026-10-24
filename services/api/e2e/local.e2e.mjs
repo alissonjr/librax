@@ -8,6 +8,7 @@
  * 2. Conclui uma licao pela API e confere o progresso direto no DynamoDB Local.
  * 3. /v1/admin com a conta admin (200) e com a comum (403); o token do app nao abre (401).
  * 4. Login por SRP pelo proxy do cognito-idp: senha certa entra, errada nao.
+ * 5. Esqueci a senha: codigo da caixa simulada, senha nova no SRP (a do aluno volta no fim).
  */
 
 import '../local/awsGuard.mjs';
@@ -220,32 +221,35 @@ test('/v1/admin: 200 para a conta admin, 403 para a comum e 401 para o token do 
   assert.equal((await api('/v1/admin/me', { token: appTokens.id_token })).status, 401);
 });
 
-test('login por SRP pelo proxy do cognito-idp: senha certa entra, errada nao', async () => {
-  const call = async (target, body) => {
-    const res = await request(`${URLS.api}/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-amz-json-1.1', 'X-Amz-Target': `AWSCognitoIdentityProviderService.${target}` },
-      body: JSON.stringify(body),
-    });
-    return { status: res.status, body: res.json() };
-  };
-  const attempt = async (password) => {
-    const { a, A } = clientStart();
-    const init = await call('InitiateAuth', { AuthFlow: 'USER_SRP_AUTH', ClientId: state.appClientId, AuthParameters: { USERNAME: aluno.email, SRP_A: A } });
-    assert.equal(init.status, 200, JSON.stringify(init.body));
-    const p = init.body.ChallengeParameters;
-    const timestamp = nowString();
-    const signature = clientSignature({
-      userPoolId: state.userPoolId, userId: p.USER_ID_FOR_SRP, password, a, A, B: p.SRP_B, salt: p.SALT, secretBlock: p.SECRET_BLOCK, timestamp,
-    });
-    return call('RespondToAuthChallenge', {
-      ChallengeName: 'PASSWORD_VERIFIER',
-      ClientId: state.appClientId,
-      Session: init.body.Session,
-      ChallengeResponses: { USERNAME: p.USER_ID_FOR_SRP, PASSWORD_CLAIM_SECRET_BLOCK: p.SECRET_BLOCK, TIMESTAMP: timestamp, PASSWORD_CLAIM_SIGNATURE: signature },
-    });
-  };
+/** Chamada ao proxy do cognito-idp, como o Amplify faz. */
+async function call(target, body) {
+  const res = await request(`${URLS.api}/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-amz-json-1.1', 'X-Amz-Target': `AWSCognitoIdentityProviderService.${target}` },
+    body: JSON.stringify(body),
+  });
+  return { status: res.status, body: res.json() };
+}
 
+/** Login por USER_SRP_AUTH da conta aluno com a senha informada. */
+async function attempt(password) {
+  const { a, A } = clientStart();
+  const init = await call('InitiateAuth', { AuthFlow: 'USER_SRP_AUTH', ClientId: state.appClientId, AuthParameters: { USERNAME: aluno.email, SRP_A: A } });
+  assert.equal(init.status, 200, JSON.stringify(init.body));
+  const p = init.body.ChallengeParameters;
+  const timestamp = nowString();
+  const signature = clientSignature({
+    userPoolId: state.userPoolId, userId: p.USER_ID_FOR_SRP, password, a, A, B: p.SRP_B, salt: p.SALT, secretBlock: p.SECRET_BLOCK, timestamp,
+  });
+  return call('RespondToAuthChallenge', {
+    ChallengeName: 'PASSWORD_VERIFIER',
+    ClientId: state.appClientId,
+    Session: init.body.Session,
+    ChallengeResponses: { USERNAME: p.USER_ID_FOR_SRP, PASSWORD_CLAIM_SECRET_BLOCK: p.SECRET_BLOCK, TIMESTAMP: timestamp, PASSWORD_CLAIM_SIGNATURE: signature },
+  });
+}
+
+test('login por SRP pelo proxy do cognito-idp: senha certa entra, errada nao', async () => {
   const ok = await attempt(aluno.password);
   assert.equal(ok.status, 200, JSON.stringify(ok.body));
   assert.ok(ok.body.AuthenticationResult.IdToken);
@@ -257,4 +261,33 @@ test('login por SRP pelo proxy do cognito-idp: senha certa entra, errada nao', a
   // o client do app nao libera USER_PASSWORD_AUTH (ExplicitAuthFlows do template)
   const plain = await call('InitiateAuth', { AuthFlow: 'USER_PASSWORD_AUTH', ClientId: state.appClientId, AuthParameters: { USERNAME: aluno.email, PASSWORD: aluno.password } });
   assert.equal(plain.body.__type, 'InvalidParameterException');
+});
+
+test('esqueci a senha pelo proxy: o codigo da caixa simulada troca a senha e o SRP passa a aceitar a nova', async () => {
+  const mailbox = new RegExp(`${aluno.email.replace(/[.]/g, '\\.')}<br><small class="hui-hint">nova senha, [^<]*</small></span><span class="hui-code">(\\d{6})<`);
+  const resetTo = async (password) => {
+    const sent = await call('ForgotPassword', { ClientId: state.appClientId, Username: aluno.email });
+    assert.equal(sent.status, 200, JSON.stringify(sent.body));
+    const code = mailbox.exec((await request(`${URLS.login}/caixa`)).text)?.[1];
+    assert.ok(code, 'codigo da nova senha na caixa simulada');
+    const done = await call('ConfirmForgotPassword', { ClientId: state.appClientId, Username: aluno.email, ConfirmationCode: code, Password: password });
+    assert.equal(done.status, 200, JSON.stringify(done.body));
+  };
+
+  await resetTo('senha-trocada-e2e-1');
+  try {
+    assert.equal((await attempt('senha-trocada-e2e-1')).status, 200);
+    assert.equal((await attempt(aluno.password)).body.__type, 'NotAuthorizedException');
+  } finally {
+    // a conta de teste volta para a senha documentada
+    await resetTo(aluno.password);
+  }
+  assert.equal((await attempt(aluno.password)).status, 200);
+
+  // e-mail sem conta: mesma resposta de "codigo enviado"; confirmar da codigo errado
+  const ghost = await call('ForgotPassword', { ClientId: state.appClientId, Username: `ninguem-${randomUUID()}@librax.example` });
+  assert.equal(ghost.status, 200);
+  assert.equal(ghost.body.CodeDeliveryDetails.DeliveryMedium, 'EMAIL');
+  const wrong = await call('ConfirmForgotPassword', { ClientId: state.appClientId, Username: 'ninguem@librax.example', ConfirmationCode: '123456', Password: 'senha-nova-123' });
+  assert.equal(wrong.body.__type, 'CodeMismatchException');
 });
