@@ -88,7 +88,7 @@ Tudo em `127.0.0.1`. As portas 5300 e 5310 são do dono (dev do app e do painel)
 | Login do app (SRP, cadastro, confirmação, esqueci a senha, OAuth com PKCE) | código **real** do Amplify, contra o proxy local e a página local |
 | Login do painel (PKCE) | código **real** do `apps/admin-web/src/lib/auth.ts` |
 | User Pool, clients, grupo `admin`, tokens e JWKS | moto, criados a partir do template |
-| O que o moto não faz como o Cognito | proxy local: confere a senha no SRP, gera e confere o código de confirmação e o da nova senha (com a política de senha do template e o limite de tentativas), roda o PostConfirmation, responde o `RevokeToken`, aplica os `ExplicitAuthFlows` do client e o `PreventUserExistenceErrors` |
+| O que o moto não faz como o Cognito | proxy local: confere a senha no SRP, gera e confere o código de confirmação e o da nova senha (com a política de senha do template e o limite de tentativas), roda o PostConfirmation, responde o `RevokeToken`, aplica os `ExplicitAuthFlows` do client e o `PreventUserExistenceErrors`, e no `AdminDeleteUser` apaga também o verificador SRP (refresh de conta excluída vira `NotAuthorizedException`, como no Cognito) |
 | Hosted UI e Google | página local no visual do Traço; o Google é simulado |
 | API Gateway | imitação local: estágio `api`, rotas, autorizador JWT com as regras da HTTP API (inclusive `/v1/admin` só com o client do painel), CORS do template, evento 2.0 |
 | CloudFront | o proxy de `/api` do Vite |
@@ -117,8 +117,12 @@ do zero, `npm run local:reset` e `npm run local:up`.
   de login não sobrevivem a um `local:down`: é preciso entrar de novo. A data de criação das contas vira a do
   replay.
 - **Senha no SRP.** O verificador fica em `infra/local/.data/srp.json`, gravado quando a senha passa pelo
-  ambiente local (semente, cadastro, troca e recuperação de senha). Conta criada direto no moto, sem passar por
-  ele, não entra por e-mail e senha no app.
+  ambiente local (semente, cadastro, troca e recuperação de senha) e apagado na exclusão da conta. Conta criada
+  direto no moto, sem passar por ele, não entra por e-mail e senha no app.
+- **Exclusão de conta.** A Lambda de `DELETE /v1/users/me` chama o `AdminDeleteUser` pelo proxy do
+  `cognito-idp` (o mesmo endereço do app), não direto no moto, para o verificador SRP sair junto. O id token de
+  quem excluiu continua valendo até expirar, como no API Gateway; o app sai da conta logo depois. Rota nova na
+  infra só aparece aqui depois de um `npm run local:up` (que sintetiza o template de novo).
 - **Tokens.** Mesmo formato do Cognito, assinados com a chave fixa do moto (`kid` "dummy"). O `iss` é o
   endereço real (`https://cognito-idp.us-east-1.amazonaws.com/<pool>`); o autorizador só compara o texto e
   busca as chaves no moto. O `email_verified` vem como texto `"true"` (no Cognito, booleano); a API aceita os
@@ -160,6 +164,10 @@ sobe um no próprio processo. O teste (`services/api/e2e/local.e2e.mjs`):
    pelo client do app;
 5. troca a senha do aluno pelo esqueci a senha (código lido da caixa simulada), confere que o SRP aceita a nova e
    recusa a antiga e volta para a senha documentada; e-mail sem conta recebe a mesma resposta de "código enviado".
+6. cria uma conta nova de e-mail e senha (cadastro pela página local) e uma do Google simulado, conclui uma lição
+   e cria uma squad com cada uma, e exclui com `DELETE /v1/users/me`: a partição `USER#<id>`, os membros de liga e
+   a squad somem do DynamoDB Local, o usuário some do moto, a senha e o refresh token não entram mais e repetir a
+   exclusão responde 200. As contas da semente não são tocadas.
 
 ## 7. Memória
 

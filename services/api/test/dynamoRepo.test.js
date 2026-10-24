@@ -314,3 +314,127 @@ test('getLeagueResultSeen devolve a semana vista ou null', async () => {
   assert.equal(await new DynamoRepo(db).getLeagueResultSeen('u1'), '2026-w43');
   assert.equal(await new DynamoRepo(fakeClient()).getLeagueResultSeen('u1'), null);
 });
+
+// --- exclusao de conta (LGPD) ---
+
+const txCanceled = () =>
+  Object.assign(new Error('cancelada'), { name: 'TransactionCanceledException', CancellationReasons: [{ Code: 'ConditionalCheckFailed' }] });
+
+test('removeMemberWithCount: membro, vinculo e ADD -1 no memberCount numa transacao condicional', async () => {
+  const db = fakeClient();
+  assert.equal(await new DynamoRepo(db).removeMemberWithCount('s1', 'u1'), true);
+  const [{ name, input }] = db.calls;
+  assert.equal(name, 'TransactWriteCommand');
+  const [member, link, meta] = input.TransactItems;
+  assert.deepEqual(member.Delete.Key, { PK: 'SQUAD#s1', SK: 'MEMBER#u1' });
+  assert.equal(member.Delete.ConditionExpression, 'attribute_exists(PK)');
+  assert.deepEqual(link.Delete.Key, { PK: 'USER#u1', SK: 'SQUAD#s1' });
+  assert.deepEqual(meta.Update.Key, { PK: 'SQUAD#s1', SK: 'META' });
+  assert.equal(meta.Update.UpdateExpression, 'ADD memberCount :minus');
+  assert.equal(meta.Update.ExpressionAttributeValues[':minus'], -1);
+});
+
+test('removeMemberWithCount: quem ja saiu so tem o resto apagado, sem descontar', async () => {
+  let first = true;
+  const db = fakeClient((name) => {
+    if (name === 'TransactWriteCommand' && first) {
+      first = false;
+      throw txCanceled();
+    }
+    return {};
+  });
+  assert.equal(await new DynamoRepo(db).removeMemberWithCount('s1', 'u1'), false);
+  const retry = db.calls[1].input.TransactItems;
+  assert.deepEqual(retry.map((i) => Object.keys(i)[0]), ['Delete', 'Delete']);
+  assert.ok(retry.every((i) => !i.Delete.ConditionExpression));
+});
+
+test('forgetSquadMember: tira o createdBy (so se for a pessoa) e a linha dela do ranking das semanas', async () => {
+  const db = fakeClient((name, input) => {
+    if (name === 'QueryCommand') {
+      return {
+        Items: [
+          { SK: 'WEEK#2026-w42', ranking: [{ userId: 'u1', xp: 20, rank: 1 }, { userId: 'u2', xp: 10, rank: 2 }] },
+          { SK: 'WEEK#2026-w43', ranking: [{ userId: 'u2', xp: 5, rank: 1 }] },
+        ],
+      };
+    }
+    if (name === 'UpdateCommand' && input.UpdateExpression === 'REMOVE createdBy') throw conditionFailed();
+    return {};
+  });
+  await new DynamoRepo(db).forgetSquadMember('s1', 'u1');
+  const updates = db.calls.filter((c) => c.name === 'UpdateCommand');
+  assert.equal(updates[0].input.ConditionExpression, 'createdBy = :uid');
+  const query = db.calls.find((c) => c.name === 'QueryCommand').input;
+  assert.equal(query.ExpressionAttributeValues[':prefix'], 'WEEK#');
+  // so a semana em que a pessoa aparece e regravada
+  assert.equal(updates.length, 2);
+  assert.deepEqual(updates[1].input.Key, { PK: 'SQUAD#s1', SK: 'WEEK#2026-w42' });
+  assert.deepEqual(updates[1].input.ExpressionAttributeValues[':ranking'], [{ userId: 'u2', xp: 10, rank: 2 }]);
+});
+
+test('listUserLeagueIds junta os membros do GSI2 e as vagas da semana, sem repetir', async () => {
+  const db = fakeClient((name, input) => {
+    if (input.IndexName === 'GSI2') return { Items: [{ leagueId: 'bronze-2026-w43' }, { leagueId: 'prata-2026-w44' }] };
+    return { Items: [{ SK: 'LEAGUEWEEK#2026-w44', leagueId: 'prata-2026-w44' }, { SK: 'LEAGUEWEEK#2026-w45', leagueId: 'prata-2026-w45' }] };
+  });
+  const ids = await new DynamoRepo(db).listUserLeagueIds('u1');
+  assert.deepEqual(ids.sort(), ['bronze-2026-w43', 'prata-2026-w44', 'prata-2026-w45']);
+  const gsi = db.calls.find((c) => c.input.IndexName === 'GSI2').input;
+  assert.equal(gsi.ExpressionAttributeValues[':pk'], 'USER#u1');
+  assert.equal(gsi.ExpressionAttributeValues[':prefix'], 'LEAGUE#');
+});
+
+test('removeLeagueMember: liga aberta libera a vaga na mesma transacao; fechada so apaga o membro', async () => {
+  const open = fakeClient((name) => (name === 'GetCommand' ? { Item: { PK: 'LEAGUE#l1', SK: 'META', status: 'open' } } : {}));
+  await new DynamoRepo(open).removeLeagueMember('l1', 'u1');
+  const tx = open.calls.find((c) => c.name === 'TransactWriteCommand').input.TransactItems;
+  assert.deepEqual(tx[0].Delete.Key, { PK: 'LEAGUE#l1', SK: 'USER#u1' });
+  assert.equal(tx[0].Delete.ConditionExpression, 'attribute_exists(PK)');
+  assert.equal(tx[1].Update.UpdateExpression, 'ADD memberCount :minus');
+
+  const closed = fakeClient((name) => (name === 'GetCommand' ? { Item: { PK: 'LEAGUE#l0', SK: 'META', status: 'closed' } } : {}));
+  await new DynamoRepo(closed).removeLeagueMember('l0', 'u1');
+  assert.deepEqual(closed.calls.map((c) => c.name), ['GetCommand', 'DeleteCommand']);
+  assert.deepEqual(closed.calls[1].input.Key, { PK: 'LEAGUE#l0', SK: 'USER#u1' });
+
+  // repetido na liga aberta: a condicao falha e so o apagar (sem efeito) e refeito
+  const again = fakeClient((name) => {
+    if (name === 'GetCommand') return { Item: { status: 'open' } };
+    if (name === 'TransactWriteCommand') throw txCanceled();
+    return {};
+  });
+  await new DynamoRepo(again).removeLeagueMember('l1', 'u1');
+  assert.deepEqual(again.calls.map((c) => c.name), ['GetCommand', 'TransactWriteCommand', 'DeleteCommand']);
+});
+
+test('deleteUserItems apaga a particao USER#<id> em lotes de 25 e reenvia o nao processado', async () => {
+  const items = Array.from({ length: 30 }, (_, i) => ({ PK: 'USER#u1', SK: `SRS#s${i}` }));
+  let unprocessedOnce = true;
+  const db = fakeClient((name, input) => {
+    if (name === 'QueryCommand') return { Items: items };
+    if (name === 'BatchWriteCommand' && unprocessedOnce) {
+      unprocessedOnce = false;
+      return { UnprocessedItems: { librax: input.RequestItems.librax.slice(0, 2) } };
+    }
+    return {};
+  });
+  assert.equal(await new DynamoRepo(db).deleteUserItems('u1'), 30);
+  const query = db.calls[0].input;
+  assert.equal(query.KeyConditionExpression, 'PK = :pk');
+  assert.equal(query.ExpressionAttributeValues[':pk'], 'USER#u1');
+  const batches = db.calls.filter((c) => c.name === 'BatchWriteCommand').map((c) => c.input.RequestItems.librax.length);
+  assert.deepEqual(batches, [25, 2, 5]);
+  assert.deepEqual(db.calls[1].input.RequestItems.librax[0], { DeleteRequest: { Key: { PK: 'USER#u1', SK: 'SRS#s0' } } });
+});
+
+test('deleteSquad apaga o META por ultimo (queda entre lotes deixa a squad achavel)', async () => {
+  const db = fakeClient((name) => {
+    if (name === 'GetCommand') return { Item: { PK: 'SQUAD#s1', SK: 'META', squadId: 's1' } };
+    if (name === 'QueryCommand') return { Items: [{ PK: 'SQUAD#s1', SK: 'MEMBER#u1', userId: 'u1' }, { PK: 'SQUAD#s1', SK: 'WEEK#2026-w43' }] };
+    return {};
+  });
+  await new DynamoRepo(db).deleteSquad('s1');
+  const items = db.calls.find((c) => c.name === 'TransactWriteCommand').input.TransactItems;
+  assert.deepEqual(items.at(-1).Delete.Key, { PK: 'SQUAD#s1', SK: 'META' });
+});

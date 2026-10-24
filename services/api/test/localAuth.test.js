@@ -16,7 +16,8 @@ import { makeSrpStore } from '../local/srpStore.mjs';
 import { URLS } from '../local/config.mjs';
 
 // Ambiente local: o SRP que o moto nao confere, o autorizador JWT com as regras do API Gateway,
-// a trava que impede chamada a AWS de verdade e o "esqueci a senha" do proxy e da pagina local.
+// a trava que impede chamada a AWS de verdade, o "esqueci a senha" do proxy e da pagina local e a
+// exclusao de conta pelo proxy do cognito-idp.
 // Sem containers (onde precisa do moto, ele e de mentira, atras do fetch).
 
 const POOL = 'us-east-1_abc123';
@@ -285,4 +286,61 @@ test('pagina local: "Esqueci a senha" mostra o codigo e volta ao login com o e-m
   assert.match(done.body, /Senha alterada\. Entre com a senha nova\./);
   assert.match(done.body, /value="ana@librax\.example"/);
   assert.equal(env.passwords.get('ana@librax.example'), 'senha-nova-1');
+});
+
+// --- Exclusao de conta pelo proxy do cognito-idp -----------------------------------
+
+test('proxy: AdminDeleteUser apaga no moto e o verificador SRP; depois a conta nao entra mais', async () => {
+  const pool = 'us-east-1_local';
+  const sub = '22222222-2222-4222-8222-222222222222';
+  const srpStore = makeSrpStore(join(mkdtempSync(join(tmpdir(), 'librax-srp-')), 'srp.json'));
+  srpStore.setPassword(pool, sub, 'senha-certa-1');
+
+  // moto falso: um usuario, que some no AdminDeleteUser
+  let exists = true;
+  const targets = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (_url, init) => {
+    const target = init.headers['X-Amz-Target'].split('.').pop();
+    targets.push(target);
+    const reply = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/x-amz-json-1.1' } });
+    if (!exists) return reply(400, { __type: 'UserNotFoundException', message: 'User does not exist.' });
+    if (target === 'AdminGetUser') return reply(200, { Username: sub, UserStatus: 'CONFIRMED', UserAttributes: [{ Name: 'sub', Value: sub }] });
+    if (target === 'AdminDeleteUser') {
+      exists = false;
+      return reply(200, {});
+    }
+    return reply(200, { AuthenticationResult: { IdToken: 'x' } });
+  };
+
+  try {
+    const local = makeCognitoLocal({
+      state: {
+        userPoolId: pool,
+        region: 'us-east-1',
+        clients: { app: { clientId: 'app', props: { PreventUserExistenceErrors: 'ENABLED', ExplicitAuthFlows: ['ALLOW_USER_SRP_AUTH', 'ALLOW_REFRESH_TOKEN_AUTH'] } } },
+      },
+      plan: { userPool: { postConfirmation: null } },
+      invoke: async () => {},
+      srpStore,
+      log: () => {},
+    });
+    const proxy = makeCognitoProxy({ local, log: () => {} });
+    const call = async (target, body) => {
+      const res = await proxy.handle(`AWSCognitoIdentityProviderService.${target}`, JSON.stringify(body));
+      return { status: res.status, type: res.headers['x-amzn-ErrorType'] ?? null };
+    };
+
+    assert.deepEqual(await call('AdminDeleteUser', { UserPoolId: pool, Username: sub }), { status: 200, type: null });
+    assert.equal(srpStore.get(pool, sub), null);
+    assert.deepEqual(targets, ['AdminGetUser', 'AdminDeleteUser']);
+
+    // de novo: UserNotFoundException (a Lambda trata como ja apagado)
+    assert.equal((await call('AdminDeleteUser', { UserPoolId: pool, Username: sub })).type, 'UserNotFoundException');
+    // login por SRP e refresh da sessao antiga: NotAuthorizedException, como no Cognito
+    assert.equal((await call('InitiateAuth', { AuthFlow: 'USER_SRP_AUTH', ClientId: 'app', AuthParameters: { USERNAME: 'ana@x.com', SRP_A: 'ab' } })).type, 'NotAuthorizedException');
+    assert.equal((await call('InitiateAuth', { AuthFlow: 'REFRESH_TOKEN_AUTH', ClientId: 'app', AuthParameters: { REFRESH_TOKEN: 'r' } })).type, 'NotAuthorizedException');
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 });

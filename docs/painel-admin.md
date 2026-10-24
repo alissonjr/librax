@@ -217,10 +217,10 @@ quem fez e teste do 403:
 1. **Validar sinal**: marcar `validated` e quem validou (consultor surdo), trocar `status` de `rascunho` para
    `validado`. Pede mover a fonte da verdade do conteúdo do bundle do app para o bucket de conteúdo
    (`content/<curso>/v<N>/`), com versão nova a cada publicação, já que hoje os sinais estão no código.
-2. **Excluir conta (LGPD)**: apagar a partição `USER#<id>` inteira (perfil, progresso, SRS, conquistas,
-   tentativas, Web Push, atividade), tirar a pessoa das squads e ligas (com o `memberCount` certo), apagar o
-   usuário no Cognito e registrar o pedido. Precisa de fila ou Step Functions para contas grandes e de um prazo de
-   arrependimento.
+2. **Excluir conta (LGPD) pelo painel**: a própria pessoa já exclui a conta pelo app (`DELETE /v1/users/me`,
+   `usecases/deleteAccount.js`: partição `USER#<id>`, squads e ligas com o `memberCount` certo e o usuário no
+   Cognito; ver `services/api/README.md`). Pelo painel falta o caminho de admin (outra conta, com registro do
+   pedido), fila ou Step Functions para contas grandes e um prazo de arrependimento.
 3. **Moderar squad**: renomear, tirar membro, dissolver (os usecases de squad já existem, falta o caminho de
    admin sem ser membro) e ver denúncias.
 4. Também para depois: dar e tirar o grupo admin pela própria tela, exportar os números em CSV e um aviso no

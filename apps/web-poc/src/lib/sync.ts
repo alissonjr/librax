@@ -333,6 +333,32 @@ export async function reportLessonAbandon(input: LessonAbandonInput): Promise<bo
   }
 }
 
+/** Resultado da exclusão no servidor; só `deleted` libera a limpeza do aparelho. */
+export type DeleteAccountOutcome = 'deleted' | 'offline' | 'error';
+
+/**
+ * Exclui a conta no servidor (DELETE /v1/users/me): squads, ligas, os dados da conta e o login
+ * no Cognito. Chamar antes de limpar o aparelho: sem rede, sem sessão ou com erro do servidor,
+ * nada foi apagado e a pessoa pode tentar de novo (a rota é idempotente). Espera um envio da
+ * fila que já esteja no meio, para uma conclusão não chegar depois da exclusão.
+ */
+export async function deleteAccountOnServer(): Promise<DeleteAccountOutcome> {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return 'offline';
+  await running?.catch(() => {});
+  const session = await deps.getSession();
+  // com conta na tela e sem sessão: o token não renovou (rede ou sessão vencida)
+  if (!session) return 'error';
+  try {
+    const res = await deps.fetch(`${deps.apiBase}/v1/users/me`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${session.token}` },
+    });
+    return res.ok ? 'deleted' : 'error';
+  } catch {
+    return 'offline';
+  }
+}
+
 /**
  * Liga os gatilhos de envio: agora (abertura do app), `online`, aba visível e login.
  * Devolve a função que desliga tudo.

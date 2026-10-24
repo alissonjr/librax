@@ -77,6 +77,25 @@ export function transferOwnershipOutcome({ actorRole, actorIsTarget, targetIsMem
 }
 
 /**
+ * O que acontece com uma squad quando um membro exclui a conta (DELETE /v1/users/me). Segue o
+ * leaveOutcome, sem o MUST_TRANSFER_OWNERSHIP: quem exclui a conta nao pode mais transferir.
+ * - ninguem mais na squad: dissolve (como o unico membro que sai);
+ * - era o unico admin: o membro mais antigo (joinedAt, desempate pelo userId) vira admin, o
+ *   mesmo que o transferOwnership faria, e a squad continua para os outros;
+ * - havia outro admin ou a pessoa era membro comum: so sai.
+ * @param {{others: {userId: string, role?: string, joinedAt?: string|null}[]}} input  membros que ficam
+ * @returns {{action: 'dissolve'} | {action: 'remove', promote: string|null}}
+ */
+export function accountDeletionOutcome({ others }) {
+  if (others.length === 0) return { action: 'dissolve' };
+  if (others.some((m) => m.role === 'admin')) return { action: 'remove', promote: null };
+  // sem joinedAt (seeds antigos) fica por ultimo
+  const key = (m) => `${m.joinedAt ?? '~'}#${m.userId}`;
+  const [oldest] = [...others].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0));
+  return { action: 'remove', promote: oldest.userId };
+}
+
+/**
  * Valida a edicao da squad (PATCH /squads/{id}). So name, description, type e maxMembers
  * sao editaveis; o resto do corpo e ignorado. maxMembers fica entre o total atual e o
  * padrao de 30 (o admin pode reduzir, SPEC 04 secao 0.1).

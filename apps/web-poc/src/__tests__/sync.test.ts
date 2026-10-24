@@ -25,6 +25,7 @@ import {
   clearOutbox,
   MIGRATE_BATCH,
   reportLessonAbandon,
+  deleteAccountOnServer,
   __resetSyncForTests,
 } from '../lib/sync';
 
@@ -396,5 +397,45 @@ describe('telemetria do painel de administração', () => {
     Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
     configureSync({ fetch: (async () => { throw new Error('rede'); }) as unknown as typeof fetch });
     expect(await reportLessonAbandon(input)).toBe(false);
+  });
+});
+
+describe('exclusão de conta no servidor', () => {
+  it('espera o envio da fila em andamento antes do DELETE /v1/users/me', async () => {
+    signedIn();
+    await enqueueLessonCompletion(lesson());
+    const order: string[] = [];
+    let release: () => void = () => {};
+    const gate = new Promise<void>((r) => { release = r; });
+    configureSync({
+      fetch: (async (url: string, init: RequestInit) => {
+        order.push(`${init.method} ${url}`);
+        if (url.endsWith('/v1/lesson/complete')) await gate;
+        return reply(200, { duplicate: false });
+      }) as unknown as typeof fetch,
+    });
+
+    const flushing = flushOutbox();
+    await vi.waitFor(() => expect(order).toHaveLength(1));
+    const deleting = deleteAccountOnServer();
+    await new Promise((r) => setTimeout(r, 20));
+    expect(order).toEqual(['POST /api/v1/lesson/complete']); // ainda esperando a conclusão
+    release();
+    await flushing;
+    expect(await deleting).toBe('deleted');
+    expect(order).toEqual(['POST /api/v1/lesson/complete', 'DELETE /api/v1/users/me']);
+  });
+
+  it('erro do servidor, sem rede ou sem sessão: não diz que apagou', async () => {
+    signedIn();
+    configureSync({ fetch: (async () => reply(500)) as unknown as typeof fetch });
+    expect(await deleteAccountOnServer()).toBe('error');
+    configureSync({ fetch: (async () => { throw new TypeError('Failed to fetch'); }) as unknown as typeof fetch });
+    expect(await deleteAccountOnServer()).toBe('offline');
+    Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
+    expect(await deleteAccountOnServer()).toBe('offline');
+    Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
+    guest();
+    expect(await deleteAccountOnServer()).toBe('error');
   });
 });

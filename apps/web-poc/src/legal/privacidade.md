@@ -135,7 +135,7 @@ Para fazer um pedido, escreva para {{email}}, de preferência a partir do e-mail
 No próprio app:
 
 - **Exportar meus dados** (Configurações) baixa um arquivo com o perfil e as revisões guardados neste aparelho.
-- **Excluir conta e dados** (Configurações) apaga os dados deste aparelho e desconecta a conta dele. Para apagar também a conta e o progresso guardados no servidor, envie o pedido para {{email}}. Apagamos em até 15 dias e confirmamos por e-mail.
+- **Excluir conta e dados** (Configurações) apaga, na hora e para sempre, a sua conta, o seu login e tudo o que está guardado no servidor (perfil, progresso, revisões, XP, conquistas e participação em ligas), além dos dados deste aparelho. Se faltar internet ou o servidor falhar, nada é apagado e o app pede para tentar de novo. Fora do app, o mesmo pedido pode ser feito pelo e-mail {{email}}, e atendemos em até 15 dias.
 
 Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD), em [gov.br/anpd](https://www.gov.br/anpd).
 

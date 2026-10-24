@@ -23,7 +23,7 @@ npm ci
 npm test            # node --test (Node 20+)
 ```
 
-344 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
+363 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
 o `DynamoRepo` com um client falso que só registra os comandos; nenhum teste chama a AWS.
 
 ## Ambiente local (AWS simulada)
@@ -80,13 +80,14 @@ services/api/
 │   │   ├── leagueView.js         leitura da liga atual e resultado visto (GET/POST /v1/league)
 │   │   ├── resetSquadWeek.js     reset semanal do XP das squads com histórico (SPEC 04 seção 8)
 │   │   ├── squads.js             rotas de escrita de squad (SPEC 04 seção 2)
+│   │   ├── deleteAccount.js      exclusão de conta (LGPD): squads, ligas, USER#<id> e o Cognito
 │   │   ├── opsMetrics.js         contadores do painel (lição, prática, saída, conta nova)
 │   │   ├── admin.js              leituras do painel (operação, conta, squads, custo)
 │   │   └── collectDailyOps.js    job diário: CloudWatch e Cost Explorer na tabela
 │   ├── adapters/
 │   │   ├── inMemoryRepo.js  porta em memória (testes e dev local)
 │   │   ├── dynamoRepo.js    porta sobre a tabela single-table `librax`
-│   │   ├── cognitoDirectory.js  busca de conta (ListUsers do Cognito)
+│   │   ├── cognitoDirectory.js  busca de conta (ListUsers) e exclusão (AdminDeleteUser) no Cognito
 │   │   ├── cloudWatchMetrics.js soma diária do GetMetricData
 │   │   └── costExplorer.js      gasto por serviço (GetCostAndUsage)
 │   └── handlers/      Lambdas (API Gateway HTTP API, payload 2.0)
@@ -99,6 +100,7 @@ services/api/
 │       ├── push.js          inscrição/remoção de Web Push e preferências de lembrete
 │       ├── squads.js        rotas de squad (SPEC 04)
 │       ├── league.js        GET /v1/league/current, POST /v1/league/result-seen
+│       ├── account.js       DELETE /v1/users/me (exclusão de conta)
 │       ├── reminders.js     Lambda do Scheduler: lembretes (web-push + VAPID do SSM)
 │       ├── closeLeague.js   Lambda do Scheduler: fechar as ligas e zerar as squads da semana
 │       ├── admin.js         rotas /v1/admin (uma Lambda, pelo routeKey), só grupo admin
@@ -108,8 +110,8 @@ services/api/
 ```
 
 Cada handler exporta uma fábrica (`makeLessonHandlers`, `makeGuestHandlers`,
-`makePushHandlers`, `makeSquadHandlers`, `makeLeagueHandlers`, `makeCloseLeagueHandler`, `makeAdminHandlers`,
-`makeOpsDailyHandler`, `makePostConfirmationHandler`) que recebe o repositório
+`makePushHandlers`, `makeSquadHandlers`, `makeLeagueHandlers`, `makeAccountHandlers`, `makeCloseLeagueHandler`,
+`makeAdminHandlers`, `makeOpsDailyHandler`, `makePostConfirmationHandler`) que recebe o repositório
 (e o catálogo, quando usa), mais as instâncias de produção já ligadas ao DynamoDB. Os testes
 usam as fábricas.
 
@@ -142,6 +144,7 @@ depois de criar conta (`POST /v1/guest/migrate`).
 | GET | `/v1/users/me/squads` | squads de quem chama |
 | GET | `/v1/league/current` | liga da semana, ranking, tempo até o fechamento e o resultado anterior não visto |
 | POST | `/v1/league/result-seen` | marca o LeagueResultSheet da semana `{ period }` como visto |
+| DELETE | `/v1/users/me` | exclui a conta de quem chama: dados na tabela e o usuário no Cognito (LGPD); idempotente |
 
 ### Painel de administração (`/v1/admin`, só leitura)
 
@@ -320,6 +323,38 @@ Na mesma execução (SPEC 04 seção 0.3: "mesmo job que fecha as ligas"),
 
 Para refazer uma semana a mão: invocar a Lambda com `{ "periodStart": "2026-10-19" }` (a
 segunda-feira da semana).
+
+### Exclusão de conta (DELETE /v1/users/me)
+
+A própria pessoa exclui a conta pelo app (Configurações, spec-02 12.8). Mesmo autorizador JWT das outras rotas:
+só o `sub` do token decide de quem é a conta. Lambda própria (`librax-delete-account`, 30 s), a única com
+`cognito-idp:AdminDeleteUser`, e só no User Pool do app. Resposta `200 { "ok": true }` só depois de tudo apagado;
+erro no meio vira 500 e a pessoa tenta de novo pelo app. O log leva só contagens (`usecases/deleteAccount.js`).
+
+O que sai, nesta ordem:
+
+| Onde | O quê | Decisão |
+|---|---|---|
+| Squads em que a pessoa está (`USER#<id> / SQUAD#<id>`) | `SQUAD#<id> / MEMBER#<id>`, o vínculo e `memberCount - 1` numa transação condicional (`removeMemberWithCount`) | membro comum só sai |
+| Squad em que ela é a única admin | o membro mais antigo (`joinedAt`, desempate pelo `userId`) vira admin antes de ela sair | é o que o `transferOwnership` faria (SPEC 04: a squad precisa de um admin); quem exclui a conta não pode mais transferir e a squad dos outros não some |
+| Squad em que ela é o único membro | dissolve: META, membros, semanas, convite (`INVITE#`) e `SQUADINDEX` (`deleteSquad`, META por último) | é o `leaveSquad` do único membro |
+| `createdBy` do META e `ranking` das semanas fechadas (`SQUAD#<id> / WEEK#<semana>`) | o `createdBy` sai e a linha dela sai do ranking (`forgetSquadMember`) | os totais da semana não identificam ninguém e ficam; a posição dos outros fica como foi |
+| Ligas (GSI2 `USER#<id> / LEAGUE#<semana>` e vagas `LEAGUEWEEK#`) | `LEAGUE#<id> / USER#<id>` (com o `displayName`) | liga aberta: `memberCount - 1` na mesma transação (libera a vaga no grupo de 30) e o ranking dos outros passa a ser calculado sem ela, inclusive no fechamento; liga fechada: os totais do fechamento e o resultado já gravado dos outros ficam |
+| Partição `USER#<id>` inteira | perfil, `PROG#`, `SRS#` (e o GSI1), `DAY#`, `ACH#`, vínculos `SQUAD#`, `LEAGUE`, `LEAGUEWEEK#`, `LEAGUE_SEEN`, `ATTEMPT#`, `PUSH#`, `NOTIF` (e o GSI6), `ACTIVITY` | BatchWrite de 25, com reenvio do não processado (`deleteUserItems`) |
+| Cognito | `AdminDeleteUser` com o `cognito:username` do id token (o `sub` nas contas de e-mail, `google_<id>` nas do Google) | por último: se algo antes falhar, a pessoa ainda entra para tentar de novo; usuário que já não existe conta como feito |
+
+Fica: os contadores agregados do painel (`OPS / DAY#...`, `WEEK#`, `MONTH#`, `COST#`) somam por dia, lição, tipo de
+exercício e sinal (nomes planos como `done:u1-l1`), sem o id de ninguém. O convite (`INVITE#`) é da squad, não da
+pessoa.
+
+Idempotente: cada passo só age sobre o que ainda existe, e as saídas com contador são condicionais ao membro existir,
+então a nova tentativa depois de uma queda no meio termina o serviço sem descontar duas vezes.
+
+Limites conhecidos: o id token continua válido até expirar (até 1 h, o autorizador JWT confere só a assinatura); o
+app sai da conta logo depois. Uma conclusão enviada nesse intervalo por outra aba recriaria itens soltos com o
+`sub`, que não leva a ninguém. Squads de que a pessoa saiu antes da exclusão guardam o `sub` no `createdBy` e nos
+rankings semanais antigos (sem índice da pessoa para essas squads, só um Scan acharia); sem a conta no Cognito, o
+`sub` não identifica ninguém.
 
 ### Contadores do painel e job diário
 

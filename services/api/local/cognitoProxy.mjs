@@ -11,6 +11,9 @@
  *   O "esqueci a senha" confere a politica de senha e tem limite de pedidos e de codigos errados
  *   (LimitExceededException).
  * - ChangePassword e AdminSetUserPassword atualizam o verificador.
+ * - AdminDeleteUser (exclusao de conta) apaga no moto e leva junto o verificador: a conta nao
+ *   entra mais, nem por SRP nem pelo refresh token (que vira NotAuthorizedException, como no
+ *   Cognito, em vez do UserNotFoundException do moto).
  * - RevokeToken (inexistente no moto): responde vazio, como o Cognito.
  * - PreventUserExistenceErrors: conta inexistente vira NotAuthorizedException no login, e o
  *   ForgotPassword finge o envio para conta que nao pode trocar a senha (inclusive a do Google).
@@ -30,6 +33,8 @@ const RESET_WINDOW_MS = 60 * 60 * 1000;
 const RESET_MAX_SENDS = 5;
 const RESET_MAX_BAD_CODES = 5;
 const LIMIT_EXCEEDED = 'Attempt limit exceeded, please try after some time.';
+
+const REFRESH_FLOWS = new Set(['REFRESH_TOKEN_AUTH', 'REFRESH_TOKEN']);
 
 const FLOW_PERMISSION = {
   USER_SRP_AUTH: 'ALLOW_USER_SRP_AUTH',
@@ -66,6 +71,13 @@ export function makeCognitoProxy({ local, log = console.log }) {
     const needed = FLOW_PERMISSION[body.AuthFlow];
     if (needed && !(c.props.ExplicitAuthFlows ?? []).includes(needed)) {
       throw new CognitoError('InvalidParameterException', `${body.AuthFlow} flow not enabled for this client`);
+    }
+    if (REFRESH_FLOWS.has(body.AuthFlow)) {
+      // conta excluida: o moto nao acha o usuario do refresh token; o Cognito diz que foi revogado
+      return forward('InitiateAuth', body).catch((err) => {
+        if (err.type === 'UserNotFoundException') throw new CognitoError('NotAuthorizedException', 'Refresh Token has been revoked');
+        throw err;
+      });
     }
     if (body.AuthFlow !== 'USER_SRP_AUTH') return forward('InitiateAuth', body);
 
@@ -215,6 +227,14 @@ export function makeCognitoProxy({ local, log = console.log }) {
     return res;
   }
 
+  /** Exclusao de conta: o sub sai do moto e o verificador SRP sai do srp.json. */
+  async function adminDeleteUser(body) {
+    const user = await local.getUser(body.Username).catch(() => null);
+    const res = await forward('AdminDeleteUser', body);
+    if (user?.attributes.sub) srpStore.remove(body.UserPoolId ?? userPoolId, user.attributes.sub);
+    return res;
+  }
+
   const handlers = {
     InitiateAuth: initiateAuth,
     RespondToAuthChallenge: respondToAuthChallenge,
@@ -225,6 +245,7 @@ export function makeCognitoProxy({ local, log = console.log }) {
     ConfirmForgotPassword: confirmForgotPassword,
     ChangePassword: changePassword,
     AdminSetUserPassword: adminSetUserPassword,
+    AdminDeleteUser: adminDeleteUser,
     RevokeToken: async () => ({}),
   };
 

@@ -5,6 +5,8 @@
  * - Rotas HTTP: pelo nome exportado que o template guarda no Handler (`index.<nome>`).
  * - Gatilho e jobs (PostConfirmation, Scheduler): pelo nome da funcao no template.
  * - CloudWatch, Cost Explorer e Web Push usam os falsos de fakes.mjs.
+ * - A exclusao de conta fala com o Cognito pelo proxy (cognitoProxy.mjs), como o app: o
+ *   AdminDeleteUser passa por la e leva junto o verificador SRP da conta.
  *
  * `now` pode ser trocado por chamada (a semente gera dias passados com os mesmos usecases).
  */
@@ -21,6 +23,7 @@ import { makeSquadHandlers } from '../src/handlers/squads.js';
 import { makeLeagueHandlers } from '../src/handlers/league.js';
 import { makePushHandlers } from '../src/handlers/push.js';
 import { makeAdminHandlers } from '../src/handlers/admin.js';
+import { makeAccountHandlers } from '../src/handlers/account.js';
 import { makePostConfirmationHandler } from '../src/handlers/postConfirmation.js';
 import { makeCloseLeagueHandler } from '../src/handlers/closeLeague.js';
 import { makeOpsDailyHandler } from '../src/handlers/opsDaily.js';
@@ -43,6 +46,11 @@ export function makeLocalFunctions({ plan, state, log = console.log }) {
     new CognitoIdentityProviderClient({ endpoint: URLS.moto, region: REGION }),
     state.userPoolId,
   );
+  // proxy do cognito-idp no servidor local (POST / com X-Amz-Target), na frente do moto
+  const accounts = new CognitoDirectory(
+    new CognitoIdentityProviderClient({ endpoint: URLS.api, region: REGION }),
+    state.userPoolId,
+  );
   const cloud = new FakeCloudWatchMetrics({ log });
   const costs = new FakeCostExplorerCosts({ log });
   const push = new FakeWebPush({ log });
@@ -56,6 +64,7 @@ export function makeLocalFunctions({ plan, state, log = console.log }) {
       makeSquadHandlers({ repo, now }),
       makeLeagueHandlers({ repo, now }),
       makePushHandlers({ repo, now }),
+      makeAccountHandlers({ repo, directory: accounts, log }),
       (({ adminRouter }) => ({ adminRouter }))(makeAdminHandlers({ repo, directory, now, log })),
     ];
     const out = {};
