@@ -18,6 +18,8 @@
  * - /oauth2/token: authorization_code (com code_verifier S256) e refresh_token.
  * - /logout: confere o logout_uri do client, apaga a sessao e volta.
  * - /caixa: caixa de e-mails simulada com os codigos de confirmacao.
+ * - Cadastro e Google (simulado) repetem a frase de aceite do app, com links para /termos e
+ *   /privacidade do app local.
  */
 
 import { createHash, randomBytes } from 'node:crypto';
@@ -65,6 +67,10 @@ ${body}
 }
 
 const errorBox = (msg) => (msg ? `<p class="hui-error" role="alert">${esc(msg)}</p>` : '');
+
+/** Mesma frase do app (legal.registerConsent), com os links para as páginas do app local. */
+const legalConsent = (lead) =>
+  `<p class="hui-legal">${esc(lead)}, você concorda com os <a href="${esc(URLS.app)}/termos">Termos de Uso</a> e a <a href="${esc(URLS.app)}/privacidade">Política de Privacidade</a>.</p>`;
 
 /** Mensagens do Cognito para quem usa a pagina. */
 function friendly(err) {
@@ -218,6 +224,7 @@ ${errorBox(error)}
 </div>
 <button class="btn btn-primary" type="submit">Criar conta</button>
 </form>
+${legalConsent('Ao criar a conta')}
 <p class="hui-switch">Já tem conta? <a class="btn-text" href="/login?tx=${esc(txId)}">Entrar</a></p>`));
   }
 
@@ -292,6 +299,7 @@ ${errorBox(error)}
 </div>
 <button class="btn btn-primary" type="submit">Continuar</button>
 </form>
+${legalConsent('Ao continuar')}
 <p class="hui-switch"><a class="btn-text" href="/login?tx=${esc(txId)}">Voltar para e-mail e senha</a></p>`));
   }
 

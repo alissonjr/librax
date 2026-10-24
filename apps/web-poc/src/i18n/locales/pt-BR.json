@@ -492,6 +492,22 @@
     "seeNewLeague": "Ver minha nova liga",
     "close": "Fechar"
   },
+  "legal": {
+    "aboutDocument": "Sobre este documento",
+    "contents": "Nesta página",
+    "draft": "Rascunho: dados do responsável a preencher",
+    "effectiveSince": "Em vigor desde {date}",
+    "loginConsent": "Ao continuar, você concorda com os {terms} e a {privacy}.",
+    "onboardingConsent": "Ao começar, você concorda com os {terms} e a {privacy}.",
+    "onlyPortuguese": "Este documento está disponível só em português.",
+    "privacyHint": "Como cuidamos dos seus dados",
+    "privacyTitle": "Política de Privacidade",
+    "registerConsent": "Ao criar a conta, você concorda com os {terms} e a {privacy}.",
+    "seeAlso": "Veja também:",
+    "termsHint": "Regras de uso do Librax",
+    "termsTitle": "Termos de Uso",
+    "version": "Versão {version}"
+  },
   "lessonCompletion": {
     "achievement": {
       "cameraEstreante": "Primeiro sinal pela câmera",

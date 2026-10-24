@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { LibraxStack } from '../lib/librax-stack';
+import { SPA_REWRITE_FUNCTION } from '../lib/web-headers';
 
 // Assertions sobre o template sintetizado, sem conta AWS e sem empacotar as Lambdas
 // (aws:cdk:bundling-stacks vazio pula o esbuild).
@@ -78,6 +79,20 @@ describe('CloudFront unico na mesma origem', () => {
     });
     const def = behaviors(template).DefaultCacheBehavior;
     expect(def.FunctionAssociations[0].EventType).toBe('viewer-request');
+  });
+
+  test('Politica e Termos abrem pelo link direto: /privacidade e /termos recebem o index.html', () => {
+    // Roda o codigo da CloudFront Function como a borda roda (handler(event) devolve o pedido)
+    const handler = new Function(`${SPA_REWRITE_FUNCTION}; return handler;`)() as (
+      event: { request: { uri: string } },
+    ) => { uri: string };
+    const rewrite = (uri: string) => handler({ request: { uri } }).uri;
+    expect(rewrite('/privacidade')).toBe('/index.html');
+    expect(rewrite('/termos')).toBe('/index.html');
+    expect(rewrite('/privacidade/')).toBe('/index.html');
+    // Arquivos seguem para o bucket como estao
+    expect(rewrite('/assets/index-abc123.js')).toBe('/assets/index-abc123.js');
+    expect(rewrite('/sw.js')).toBe('/sw.js');
   });
 
   test('sem certificado: sem alias e com aviso; synth continua funcionando', () => {

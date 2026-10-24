@@ -19,6 +19,9 @@ export const ROUTES = {
   login: '/entrar',
   register: '/criar-conta',
   authCallback: '/auth/callback',
+  // Abertas sem login nem onboarding: o Google pede a URL da política na tela de consentimento
+  privacy: '/privacidade',
+  terms: '/termos',
   courseDone: '/curso/concluido',
   lesson: (id: string) => `/licao/${encodeURIComponent(id)}`,
   lessonDone: (id: string) => `/licao/${encodeURIComponent(id)}/concluida`,

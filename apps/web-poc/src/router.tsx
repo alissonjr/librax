@@ -28,6 +28,7 @@ import { AppOpenFlow } from './components/AppOpenFlow';
 import { ConvertAccountSheet } from './components/ConvertAccountSheet';
 import type { LessonSessionResult } from './screens/LessonScreen';
 import type { AuthMode } from './screens/AuthScreen';
+import type { LegalDocId } from './legal/documents';
 
 /* ---------- telas sob demanda ---------- */
 
@@ -65,6 +66,7 @@ const SettingsScreen = lazyScreen(() => import('./screens/SettingsScreen'), 'Set
 const CameraScreen = lazyScreen(() => import('./screens/CameraScreen'), 'CameraScreen');
 const LeagueScreen = lazyScreen(() => import('./screens/LeagueScreen'), 'LeagueScreen');
 const AuthScreen = lazyScreen(() => import('./screens/AuthScreen'), 'AuthScreen');
+const LegalScreen = lazyScreen(() => import('./screens/LegalScreen'), 'LegalScreen');
 // Leve: só espera configureAuth() e a sessão; nenhum redirecionamento antes disso
 const AuthCallbackScreen = lazyScreen(() => import('./screens/AuthCallbackScreen'), 'AuthCallbackScreen');
 
@@ -288,6 +290,15 @@ function AuthCallbackRoute() {
       onRetry={() => navigate(ROUTES.login, { replace: true })}
     />
   );
+}
+
+/**
+ * /privacidade e /termos: abrem pelo link direto (o Google pede a URL da política na tela de
+ * consentimento), sem conta e sem onboarding. Voltar leva à tela de origem ou, sem histórico, ao início.
+ */
+function LegalRoute({ doc }: { doc: LegalDocId }) {
+  const nav = useAppNavigation();
+  return <LegalScreen doc={doc} onBack={() => nav.back(ROUTES.home)} />;
 }
 
 function StreakRoute() {
@@ -563,6 +574,9 @@ export const routes: RouteObject[] = [
       { path: 'entrar', element: <AuthRoute mode="login" /> },
       { path: 'criar-conta', element: <AuthRoute mode="register" /> },
       { path: 'auth/callback', element: <AuthCallbackRoute /> },
+      // Política e Termos: fora do onboarding, para abrirem por link direto
+      { path: 'privacidade', element: <LegalRoute doc="privacy" /> },
+      { path: 'termos', element: <LegalRoute doc="terms" /> },
       {
         element: <RequireOnboarded />,
         children: [

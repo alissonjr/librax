@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 import { BusyLabel } from '../components/BusyLabel';
+import { LegalConsent } from '../components/LegalLinks';
 import {
   authErrorCode, confirmEmailCode, confirmPasswordReset, getDisplayName, requestPasswordReset, signInWithEmail,
   signInWithGoogle, signUpWithEmail,
@@ -500,6 +501,9 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
               : isRegister ? t('account.createAccount') : t('account.signIn')}
           </button>
         </form>
+
+        {/* Vale também para o Google, que cria a conta na primeira entrada */}
+        <LegalConsent messageKey={isRegister ? 'legal.registerConsent' : 'legal.loginConsent'} />
 
         <p className="auth-switch">
           <span>{isRegister ? t('account.haveAccount') : t('account.noAccount')}</span>

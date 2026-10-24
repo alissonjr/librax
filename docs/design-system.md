@@ -1056,6 +1056,8 @@ voltar do Android) e pelo `ScrollRestoration` (topo ao abrir tela nova, posiçã
 /entrar                    -> AuthScreen, modo Entrar (sem abas; fora do onboarding)
 /criar-conta               -> AuthScreen, modo Criar conta (sem abas; fora do onboarding)
 /auth/callback             -> volta do Google: conclui o login e segue para /aprender
+/privacidade               -> LegalScreen, Política de Privacidade (sem abas; fora do onboarding)
+/termos                    -> LegalScreen, Termos de Uso (sem abas; fora do onboarding)
 /licao/:lessonId           -> LessonScreen (sem abas; exercícios do bundle da lição)
 /licao/:lessonId/concluida -> LessonCompletionScreen (sem abas)
 /unidade/:unitId/concluida -> UnitCompletionScreen (sem abas)
@@ -1094,6 +1096,12 @@ Regras:
   volta para onde a pessoa estava; vinda do convite do fim da lição (`state.returnTo`), segue para a próxima tela
   do fluxo (unidade, curso ou mapa). Sem as variáveis `VITE_COGNITO_*`, as duas telas mostram "Login
   indisponível neste ambiente" e o app segue como convidado.
+- **Política e Termos** (`/privacidade`, `/termos`): abrem pelo link direto, sem conta e sem onboarding (o
+  Google pede a URL da política na tela de consentimento do login). Texto em `src/legal/*.md`, só em português,
+  com versão e vigência em selos no topo, índice das seções e coluna de leitura; os dados de quem responde pelo
+  app ficam em `src/legal/responsavel.ts`. Os links aparecem nas boas-vindas, em Entrar e Criar conta ("Ao criar
+  a conta, você concorda com os Termos de Uso e a Política de Privacidade") e nas Configurações. Voltar leva à
+  tela de origem ou, aberta pelo link direto, ao início.
 - **Volta do Google** (`/auth/callback`): nenhum redirecionamento acontece antes de `configureAuth()` e de a
   sessão estar pronta, porque o Amplify precisa ler o `?code=` da URL (PKCE). Depois a rota troca a entrada
   por `/aprender`. Com erro do Google ou sem resposta, mostra "Não foi possível entrar com o Google." e

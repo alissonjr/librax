@@ -37,6 +37,8 @@ const ICONS = [
   'content_copy', 'timer', 'stop', 'swap_horiz', 'memory', 'restart_alt', 'fiber_manual_record',
   // conta (entrar, criar conta, sair) e sequência (histórico)
   'login', 'logout', 'mail', 'cloud_done', 'visibility', 'visibility_off', 'history',
+  // Termos de Uso (Configurações); a Política de Privacidade usa o shield
+  'description',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).

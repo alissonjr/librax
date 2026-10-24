@@ -383,6 +383,22 @@
     "select": "Select language",
     "title": "Language"
   },
+  "legal": {
+    "aboutDocument": "About this document",
+    "contents": "On this page",
+    "draft": "Draft: controller details still to be filled in",
+    "effectiveSince": "Effective since {date}",
+    "loginConsent": "By continuing, you agree to the {terms} and the {privacy}.",
+    "onboardingConsent": "By starting, you agree to the {terms} and the {privacy}.",
+    "onlyPortuguese": "This document is available in Portuguese only.",
+    "privacyHint": "How we handle your data",
+    "privacyTitle": "Privacy Policy",
+    "registerConsent": "By creating an account, you agree to the {terms} and the {privacy}.",
+    "seeAlso": "See also:",
+    "termsHint": "Rules for using Librax",
+    "termsTitle": "Terms of Use",
+    "version": "Version {version}"
+  },
   "lessonCompletion": {
     "achievement": {
       "cameraEstreante": "First sign via camera",
