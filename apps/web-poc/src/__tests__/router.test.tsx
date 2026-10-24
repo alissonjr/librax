@@ -19,6 +19,13 @@ vi.mock('../lib/vlibras', () => ({
   setVlibrasSpeed: () => {},
 }));
 
+// Saída no meio da lição: só conta no painel de administração (POST /v1/lesson/abandon)
+const reportLessonAbandon = vi.hoisted(() => vi.fn(async () => true));
+vi.mock('../lib/sync', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/sync')>()),
+  reportLessonAbandon,
+}));
+
 import { routes, ROUTER_FUTURE } from '../router';
 import { SessionProvider } from '../hooks/useSession';
 import { IdbRepo } from '../lib/idbRepo';
@@ -232,6 +239,31 @@ describe('lição em andamento (página recarregada)', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Voltar' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Sair' }));
     await waitFor(() => expect(localStorage.getItem(RUN_KEY)).toBeNull());
+  });
+
+  it('a lição em andamento guarda acertos e erros por tipo de exercício', async () => {
+    await openFirstQuestion();
+    await userEvent.click(choiceButtons()[0]);
+    await waitFor(() => {
+      const run = JSON.parse(localStorage.getItem(RUN_KEY) ?? '{}');
+      const stats = Object.values(run.exerciseStats ?? {}) as { attempted: number; wrong: number }[];
+      expect(stats).toHaveLength(1);
+      expect(stats[0].attempted).toBe(1);
+    });
+  });
+
+  it('confirmar "Sair da lição?" avisa onde a pessoa parou (painel de administração)', async () => {
+    reportLessonAbandon.mockClear();
+    await openFirstQuestion();
+    await userEvent.click(choiceButtons()[0]);
+    await userEvent.click(screen.getByRole('button', { name: 'Voltar' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Sair' }));
+    await waitFor(() => expect(reportLessonAbandon).toHaveBeenCalledTimes(1));
+    const [input] = reportLessonAbandon.mock.calls[0] as unknown as [Record<string, unknown>];
+    expect(input).toMatchObject({ lessonId: 'u1-l1', exerciseIndex: 2 });
+    expect(input.exerciseCount as number).toBeGreaterThan(2);
+    expect(typeof input.exerciseType).toBe('string');
+    expect(input.today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
   it('concluir a lição apaga a lição em andamento', async () => {

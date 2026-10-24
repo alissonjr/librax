@@ -5,12 +5,15 @@
  *   PK + SK primarios; GSI1 (SRS por dueAt); GSI2 (liga do usuario e ligas da semana);
  *   GSI3 (squads do usuario); GSI4 (squads publicas); GSI5 (indice de convite);
  *   GSI6 (lembretes por balde de fuso). TTL no atributo `expiresAt`.
+ *   Painel de administracao: contadores em OPS / <chave> e o registro SQUADINDEX (ver
+ *   domain/opsMetrics.js e docs/painel-admin.md).
  *
  * Requer permissoes IAM para as acoes usadas abaixo na tabela `librax`.
  */
 
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { offsetBucket } from '../domain/reminders.js';
+import { freshPeriods } from '../domain/opsMetrics.js';
 import {
   DynamoDBDocumentClient,
   GetCommand,
@@ -31,6 +34,12 @@ const TABLE = process.env.LIBRAX_TABLE ?? 'librax';
 export const ATTEMPT_TTL_SECONDS = 60 * 24 * 60 * 60;
 
 const isConditionFailure = (e) => e?.name === 'ConditionalCheckFailedException';
+
+/** Particao dos contadores do painel de administracao. */
+const OPS_PK = 'OPS';
+/** Registro de todas as squads (lista do painel), da mais nova para a mais velha. */
+const SQUAD_INDEX_PK = 'SQUADINDEX';
+const squadIndexKey = (squadId, createdAt) => ({ PK: SQUAD_INDEX_PK, SK: `SQUAD#${createdAt ?? '-'}#${squadId}` });
 
 /** Cria um client configurado para producao (regiao via env AWS_REGION). */
 export function makeDynamoClient(options = {}) {
@@ -88,6 +97,15 @@ export class DynamoRepo {
         Item: { PK: `USER#${userId}`, SK: `PROG#${lessonId}`, ...progress },
       }),
     );
+  }
+
+  /** Progresso de todas as licoes da pessoa (resumo da conta no painel). */
+  async listProgress(userId) {
+    const items = await this._queryAll({
+      KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
+      ExpressionAttributeValues: { ':pk': `USER#${userId}`, ':prefix': 'PROG#' },
+    });
+    return items.map((i) => ({ lessonId: i.SK.slice(5), ...this._stripKeys(i) }));
   }
 
   // -----------------------------------------------------------------------
@@ -230,6 +248,32 @@ export class DynamoRepo {
     await this._db.send(
       new PutCommand({ TableName: TABLE, Item: item, ConditionExpression: 'attribute_not_exists(PK)' }),
     );
+    // Registro para a lista do painel (sem Scan). Fica fora do META: o XP somado a cada licao
+    // nao escreve nele.
+    await this._db.send(
+      new PutCommand({
+        TableName: TABLE,
+        Item: { ...squadIndexKey(squadId, squad.createdAt), squadId, createdAt: squad.createdAt ?? null },
+      }),
+    );
+  }
+
+  /** Uma pagina do registro de squads, da mais nova para a mais velha. */
+  async listSquadIndex({ limit = 25, cursor = null } = {}) {
+    const page = await this._db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk',
+        ExpressionAttributeValues: { ':pk': SQUAD_INDEX_PK },
+        ScanIndexForward: false,
+        Limit: limit,
+        ...(cursor ? { ExclusiveStartKey: cursor } : {}),
+      }),
+    );
+    return {
+      squads: (page.Items ?? []).map((i) => ({ squadId: i.squadId, createdAt: i.createdAt ?? null })),
+      cursor: page.LastEvaluatedKey ?? null,
+    };
   }
 
   /**
@@ -340,6 +384,8 @@ export class DynamoRepo {
     for (let i = 0; i < deletes.length; i += 100) {
       await this._db.send(new TransactWriteCommand({ TransactItems: deletes.slice(i, i + 100) }));
     }
+    // registro do painel por ultimo: se falhar, a lista so pula a squad que nao existe mais
+    await this._db.send(new DeleteCommand({ TableName: TABLE, Key: squadIndexKey(squadId, squad.createdAt) }));
   }
 
   // -----------------------------------------------------------------------
@@ -1164,8 +1210,144 @@ export class DynamoRepo {
   }
 
   // -----------------------------------------------------------------------
+  // PAINEL DE ADMINISTRACAO - CONTADORES E ATIVIDADE
+  // OPS / DAY#<dia>[#LESSON|#EXERCISE|#SIGN], WEEK#<semana>, MONTH#<mes>, COST#<mes>
+  // USER#<id> / ACTIVITY (ultimo dia, semana e mes em que a pessoa contou como ativa)
+  // -----------------------------------------------------------------------
+
+  async getActivity(userId) {
+    const { Item } = await this._db.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `USER#${userId}`, SK: 'ACTIVITY' } }),
+    );
+    return Item ? this._stripKeys(Item) : null;
+  }
+
+  /**
+   * Marca a pessoa como ativa e devolve o que ainda nao tinha sido contado. Le antes (a maioria
+   * das licoes do dia nao e a primeira e nao escreve nada) e grava com condicao no dia: duas
+   * licoes ao mesmo tempo contam a pessoa uma vez so.
+   * @returns {Promise<{day: boolean, week: boolean, month: boolean}>}
+   */
+  async markActivity(userId, periods) {
+    const none = { day: false, week: false, month: false };
+    if (!freshPeriods(await this.getActivity(userId), periods).day) return none;
+    try {
+      const { Attributes } = await this._db.send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: { PK: `USER#${userId}`, SK: 'ACTIVITY' },
+          UpdateExpression: 'SET lastDay = :d, lastWeek = :w, lastMonth = :m, userId = :uid',
+          ConditionExpression: 'attribute_not_exists(lastDay) OR lastDay < :d',
+          ExpressionAttributeValues: { ':d': periods.day, ':w': periods.week, ':m': periods.month, ':uid': userId },
+          ReturnValues: 'UPDATED_OLD',
+        }),
+      );
+      return freshPeriods(Attributes ?? null, periods);
+    } catch (e) {
+      if (isConditionFailure(e)) return none;
+      throw e;
+    }
+  }
+
+  /** Soma os contadores com ADD (nomes planos, ver domain/opsMetrics.js); TTL so na criacao. */
+  async addOpsCounters(key, counters, { expiresAt = null } = {}) {
+    const entries = Object.entries(counters);
+    if (entries.length === 0) return;
+    const names = {};
+    const values = {};
+    const adds = entries.map(([name, n], i) => {
+      names[`#c${i}`] = name;
+      values[`:c${i}`] = n;
+      return `#c${i} :c${i}`;
+    });
+    let expr = `ADD ${adds.join(', ')}`;
+    if (expiresAt != null) {
+      values[':exp'] = expiresAt;
+      expr += ' SET expiresAt = if_not_exists(expiresAt, :exp)';
+    }
+    await this._db.send(
+      new UpdateCommand({
+        TableName: TABLE,
+        Key: { PK: OPS_PK, SK: key },
+        UpdateExpression: expr,
+        ExpressionAttributeNames: names,
+        ExpressionAttributeValues: values,
+      }),
+    );
+  }
+
+  /** Grava campos com SET (resultado do job diario: CloudWatch e custo), sem mexer nos ADD. */
+  async setOpsFields(key, fields, { expiresAt = null } = {}) {
+    const names = {};
+    const values = {};
+    const sets = Object.entries(fields).map(([name, v], i) => {
+      names[`#f${i}`] = name;
+      values[`:f${i}`] = v;
+      return `#f${i} = :f${i}`;
+    });
+    if (expiresAt != null) {
+      values[':exp'] = expiresAt;
+      sets.push('expiresAt = if_not_exists(expiresAt, :exp)');
+    }
+    await this._db.send(
+      new UpdateCommand({
+        TableName: TABLE,
+        Key: { PK: OPS_PK, SK: key },
+        UpdateExpression: `SET ${sets.join(', ')}`,
+        ExpressionAttributeNames: names,
+        ExpressionAttributeValues: values,
+      }),
+    );
+  }
+
+  async getOpsItem(key) {
+    const { Item } = await this._db.send(new GetCommand({ TableName: TABLE, Key: { PK: OPS_PK, SK: key } }));
+    return Item ? this._opsItem(Item) : null;
+  }
+
+  /** Itens com chave entre `from` e `to` (inclusive): uma Query na particao OPS, nunca Scan. */
+  async listOpsRange(from, to) {
+    const items = await this._queryAll({
+      KeyConditionExpression: 'PK = :pk AND SK BETWEEN :from AND :to',
+      ExpressionAttributeValues: { ':pk': OPS_PK, ':from': from, ':to': to },
+    });
+    return items.map((i) => this._opsItem(i));
+  }
+
+  /** Os `limit` itens mais recentes com o prefixo (WEEK#, MONTH#, COST#). */
+  async listOpsLatest(prefix, limit) {
+    const { Items = [] } = await this._db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
+        ExpressionAttributeValues: { ':pk': OPS_PK, ':prefix': prefix },
+        ScanIndexForward: false,
+        Limit: limit,
+      }),
+    );
+    return Items.map((i) => this._opsItem(i));
+  }
+
+  _opsItem(item) {
+    const { PK, SK, expiresAt, ...rest } = item;
+    return { key: SK, ...rest };
+  }
+
+  // -----------------------------------------------------------------------
   // UTIL
   // -----------------------------------------------------------------------
+
+  /** Query com todas as paginas. */
+  async _queryAll(params) {
+    const out = [];
+    let ExclusiveStartKey;
+    do {
+      const page = await this._db.send(new QueryCommand({ TableName: TABLE, ...params, ExclusiveStartKey }));
+      out.push(...(page.Items ?? []));
+      ExclusiveStartKey = page.LastEvaluatedKey;
+    } while (ExclusiveStartKey);
+    return out;
+  }
 
   /** Remove PK/SK/GSI* antes de devolver ao usecase. */
   _stripKeys(item) {

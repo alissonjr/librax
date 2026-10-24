@@ -3,10 +3,13 @@
  *
  * - `userId(event)` extrai o sub do Cognito authorizer.
  * - `claims(event)` devolve as claims do JWT (email, email_verified...).
+ * - `requireAdmin(event)` exige o grupo `admin` no token (403 para os outros).
  * - `body(event, { maxBytes })` faz parse do JSON do body, com limite de tamanho.
  * - `ok(data, status?)` serializa resposta de sucesso.
  * - `fail(code, message, status?)` serializa erro com corpo padrao.
  */
+
+import { isAdmin } from '../domain/admin.js';
 
 /** Sub do Cognito JWT injetado pelo authorizer nativo do API Gateway HTTP API. */
 export function userId(event) {
@@ -18,6 +21,17 @@ export function userId(event) {
 /** Claims do JWT validado pelo authorizer (vazio se nao houver). */
 export function claims(event) {
   return event.requestContext?.authorizer?.jwt?.claims ?? {};
+}
+
+/**
+ * Rotas do painel de administracao: o autorizador ja validou o token; aqui a Lambda confere o
+ * grupo `admin` (`cognito:groups`). Esconder a tela nao basta: sem o grupo, 403.
+ * @returns {string} sub de quem chamou
+ */
+export function requireAdmin(event) {
+  const sub = userId(event);
+  if (!isAdmin(claims(event))) throw new ApiError(403, 'ADMIN_ONLY', 'Acesso restrito ao grupo admin');
+  return sub;
 }
 
 /** Limite padrao de corpo: bem abaixo dos 10 MB do API Gateway. */

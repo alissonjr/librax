@@ -1,4 +1,5 @@
 import { completeLesson } from './completeLesson.js';
+import { quietly, recordLessonCompleted } from './opsMetrics.js';
 
 /**
  * completeLesson idempotente por `lessonAttemptId` (plano mobile web, fase W3).
@@ -10,6 +11,8 @@ import { completeLesson } from './completeLesson.js';
  * recebe o resultado ja guardado e nada e somado de novo (XP, ofensiva, SRS, liga, squads).
  *
  * Se o completeLesson falhar, a reserva e liberada para o reenvio poder aplicar.
+ *
+ * Conclusao aplicada soma nos contadores do painel de administracao (opsMetrics.js); reenvio nao.
  *
  * @param {object} repo     porta de repositorio (ver InMemoryRepo)
  * @param {object} content  catalogo ({ lessons, achievementRules, ... })
@@ -33,5 +36,6 @@ export async function completeLessonOnce(repo, content, input) {
     throw err;
   }
   await repo.finishLessonAttempt(userId, lessonAttemptId, result);
+  await quietly('licao', () => recordLessonCompleted(repo, input));
   return { ...result, lessonAttemptId, duplicate: false };
 }

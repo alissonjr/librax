@@ -24,6 +24,7 @@ import {
   startSync,
   clearOutbox,
   MIGRATE_BATCH,
+  reportLessonAbandon,
   __resetSyncForTests,
 } from '../lib/sync';
 
@@ -356,5 +357,44 @@ describe('startSync', () => {
     await new Promise((r) => setTimeout(r, 30));
     expect(calls).toHaveLength(0);
     stop();
+  });
+});
+
+describe('telemetria do painel de administração', () => {
+  it('a conclusão leva os erros por tipo de exercício quando houver', async () => {
+    signedIn();
+    const calls = mockFetch(serverOk());
+    await enqueueLessonCompletion(lesson({ exerciseStats: { watch_choose_word: { attempted: 3, wrong: 1 } } }));
+    await enqueueLessonCompletion(lesson({ lessonId: 'u1-l2', exerciseStats: {} }));
+    await flushOutbox();
+    expect((calls[0].body as { exerciseStats?: unknown }).exerciseStats).toEqual({ watch_choose_word: { attempted: 3, wrong: 1 } });
+    expect(calls[1].body).not.toHaveProperty('exerciseStats'); // vazio não vai
+  });
+
+  it('saída no meio da lição vai para /v1/lesson/abandon com o token', async () => {
+    signedIn();
+    const calls = mockFetch(() => reply(200, { recorded: true }));
+    const input = { lessonId: 'u1-l2', today: '2026-10-23', exerciseIndex: 3, exerciseCount: 10, exerciseType: 'perform_sign' };
+    expect(await reportLessonAbandon(input)).toBe(true);
+    expect(calls.map((c) => [c.method, c.url, c.auth])).toEqual([['POST', '/api/v1/lesson/abandon', 'Bearer jwt.id']]);
+    expect(calls[0].body).toEqual(input);
+    expect(await pendingEntries()).toHaveLength(0); // não entra na fila
+  });
+
+  it('convidado, offline ou erro: a saída não é enviada e nada quebra', async () => {
+    const input = { lessonId: 'u1-l2', today: '2026-10-23', exerciseIndex: 0, exerciseCount: 10, exerciseType: null };
+    guest();
+    const calls = mockFetch(() => reply(200));
+    expect(await reportLessonAbandon(input)).toBe(false);
+    expect(calls).toHaveLength(0);
+
+    signedIn();
+    Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
+    expect(await reportLessonAbandon(input)).toBe(false);
+    expect(calls).toHaveLength(0);
+
+    Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
+    configureSync({ fetch: (async () => { throw new Error('rede'); }) as unknown as typeof fetch });
+    expect(await reportLessonAbandon(input)).toBe(false);
   });
 });

@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs';
 
 import { catalogFromCourse } from '../src/content/catalogFromCourse.js';
 import catalog from '../src/content/catalog.js';
+import contentStatus from '../src/content/contentStatus.js';
+import { contentReportFromBundle, labelsFromReport } from '../src/content/contentReport.js';
 
 // O servidor recalcula XP e conquistas a partir da DEFINICAO das licoes (SPEC 02 secao 5.2).
 // O catalogo empacotado na Lambda e derivado do mesmo course.json que o app usa.
@@ -43,4 +45,43 @@ test('catalogo empacotado esta em dia com o course.json do app (rode npm run cat
     readFileSync(new URL('../../../apps/web-poc/src/assets/content/course.json', import.meta.url), 'utf8'),
   );
   assert.deepEqual(catalog, catalogFromCourse(raw));
+});
+
+// --- situacao do conteudo (painel de administracao) ---
+
+test('contentReportFromBundle diz o que falta em cada sinal e soma por unidade', () => {
+  const signs = [
+    { id: 'letra-A', gloss: 'A', validated: true, video_url: 'https://x/a.mp4', avatar: { provider: 'vlibras' }, source: { name: 'INES', url: 'https://ines' } },
+    { id: 'letra-B', gloss: 'B', validated: false, video_url: null, avatar: { provider: 'vlibras' } },
+    { id: 'oi', gloss: 'OI', validated: false, video_url: null, status: 'rascunho' },
+  ];
+  const report = contentReportFromBundle({ ...course, title: 'A1' }, signs);
+  assert.equal(report.totals.units, 2);
+  assert.equal(report.totals.lessons, 3);
+  assert.deepEqual(
+    { signs: report.totals.signs, validated: report.totals.validated, withVideo: report.totals.withVideo, withAvatar: report.totals.withAvatar, withSource: report.totals.withSource },
+    { signs: 3, validated: 1, withVideo: 1, withAvatar: 2, withSource: 1 },
+  );
+  const byId = Object.fromEntries(report.signs.map((s) => [s.id, s]));
+  assert.deepEqual(byId['letra-A'].missing, []);
+  assert.deepEqual(byId['letra-B'].missing, ['validated', 'video', 'source']);
+  assert.deepEqual(byId.oi.missing, ['validated', 'video', 'avatar', 'source']);
+  assert.equal(byId['letra-B'].lessonId, 'u1-l2'); // primeira licao que ensina o sinal
+  assert.equal(byId.oi.unitId, 'u2');
+  assert.deepEqual(report.units[0].lessons.map((l) => l.id), ['u1-l1', 'u1-l2']);
+  assert.equal(report.units[0].validated, 1);
+
+  const labels = labelsFromReport(report);
+  assert.equal(labels.lessons['u2-l1'].unitId, 'u2');
+  assert.equal(labels.signs.oi, 'OI');
+});
+
+test('situacao do conteudo empacotada esta em dia com o app (rode npm run catalog)', () => {
+  const dir = new URL('../../../apps/web-poc/src/assets/content/', import.meta.url);
+  const read = (name) => JSON.parse(readFileSync(new URL(name, dir), 'utf8'));
+  const expected = contentReportFromBundle(read('course.json'), read('signs.json'));
+  assert.deepEqual(contentStatus, expected);
+  // o curso A1: 14 unidades e 254 sinais
+  assert.equal(contentStatus.totals.units, 14);
+  assert.equal(contentStatus.totals.signs, 254);
 });

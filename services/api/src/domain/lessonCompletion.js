@@ -19,6 +19,22 @@ export const LIMITS = {
 
 export const RESULT_STATES = ['correct', 'accept_soft', 'retry_resolved', 'failed', 'no_capture'];
 
+/** Tipos de exercicio do app (apps/web-poc/src/lib/content.ts, RenderedExerciseType). */
+export const EXERCISE_TYPES = [
+  'sign_intro',
+  'perform_sign',
+  'watch_choose_word',
+  'word_choose_video',
+  'match_pairs',
+  'order_sequence',
+  'build_phrase',
+  'fingerspell',
+  'mirror_practice',
+];
+/** Respostas por tipo de exercicio numa licao (as licoes tem de 8 a 20 exercicios). */
+const MAX_ANSWERS_PER_TYPE = 100;
+const MAX_EXERCISE_INDEX = 200;
+
 // UUID v4 passa; aceita outros ids opacos do cliente sem espaco nem separador de chave.
 export const ATTEMPT_ID_RE = /^[A-Za-z0-9_-]{8,64}$/;
 const SIGN_ID_MAX = 64;
@@ -51,6 +67,24 @@ export function parseReviewed(raw, signs) {
     out.push({ signId, result });
   }
   return out;
+}
+
+/**
+ * Respostas e erros por tipo de exercicio (`{ mc4: { attempted, wrong } }`), so para os contadores
+ * do painel de administracao (docs/painel-admin.md). E telemetria: formato invalido vira `null`
+ * e a conclusao segue valendo, sem perder XP por causa dela.
+ */
+export function parseExerciseStats(raw) {
+  if (!isObject(raw)) return null;
+  const out = {};
+  for (const [type, value] of Object.entries(raw)) {
+    if (!EXERCISE_TYPES.includes(type) || !isObject(value)) return null;
+    const { attempted, wrong } = value;
+    const count = (n) => Number.isInteger(n) && n >= 0 && n <= MAX_ANSWERS_PER_TYPE;
+    if (!count(attempted) || !count(wrong) || wrong > attempted) return null;
+    if (attempted > 0) out[type] = { attempted, wrong };
+  }
+  return Object.keys(out).length > 0 ? out : null;
 }
 
 /**
@@ -95,6 +129,7 @@ export function parseCompletionEntry(raw, ctx) {
 
   const signCount = lessons[lessonId].signCount ?? 0;
   const delta = Number.isInteger(raw.signsLearnedDelta) ? raw.signsLearnedDelta : 0;
+  const exerciseStats = parseExerciseStats(raw.exerciseStats);
 
   return {
     ok: true,
@@ -107,8 +142,40 @@ export function parseCompletionEntry(raw, ctx) {
       reviewed,
       signsLearnedDelta: Math.min(Math.max(delta, 0), signCount),
       alphabetComplete: lessonId === catalog.alphabetLessonId,
+      ...(exerciseStats ? { exerciseStats } : {}),
     },
   };
+}
+
+/**
+ * Valida a saida de uma licao no meio (POST /v1/lesson/abandon), que alimenta o "onde as pessoas
+ * desistem" do painel de administracao. Sem XP, sem SRS: so contadores.
+ *
+ * @param {object} raw  { lessonId, today, exerciseIndex, exerciseCount, exerciseType? }
+ * @param {object} ctx  { catalog, today: 'YYYY-MM-DD' (servidor, UTC) }
+ * @returns {{ok: true, value: object} | {ok: false, error: string}}
+ */
+export function parseLessonAbandon(raw, ctx) {
+  const { catalog, today } = ctx;
+  if (!isObject(raw)) return { ok: false, error: 'NOT_OBJECT' };
+
+  const { lessonId } = raw;
+  if (typeof lessonId !== 'string' || !has(catalog.lessons ?? {}, lessonId)) return { ok: false, error: 'UNKNOWN_LESSON' };
+
+  if (!isRealDate(raw.today)) return { ok: false, error: 'BAD_DATE' };
+  const age = daysBetween(today, raw.today);
+  if (age > LIMITS.pastDays || age < -LIMITS.futureDays) return { ok: false, error: 'DATE_OUT_OF_RANGE' };
+
+  const { exerciseIndex, exerciseCount } = raw;
+  const inRange = (n, min) => Number.isInteger(n) && n >= min && n <= MAX_EXERCISE_INDEX;
+  if (!inRange(exerciseCount, 1) || !inRange(exerciseIndex, 0) || exerciseIndex > exerciseCount) {
+    return { ok: false, error: 'BAD_EXERCISE_INDEX' };
+  }
+
+  const exerciseType = raw.exerciseType ?? null;
+  if (exerciseType !== null && !EXERCISE_TYPES.includes(exerciseType)) return { ok: false, error: 'BAD_EXERCISE_TYPE' };
+
+  return { ok: true, value: { lessonId, today: raw.today, exerciseIndex, exerciseCount, exerciseType } };
 }
 
 /**

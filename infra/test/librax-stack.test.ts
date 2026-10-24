@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'vitest';
+import { readFileSync } from 'fs';
+import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { LibraxStack } from '../lib/librax-stack';
@@ -47,12 +49,15 @@ function behaviors(template: Template) {
 }
 
 describe('CloudFront unico na mesma origem', () => {
-  test('um CloudFront so, com /, /assets, /content, /ml, /api e /vlibras', () => {
+  test('um CloudFront so, com /, /assets, /content, /ml, /api, /vlibras e /admin', () => {
     const { template } = synth(withDomain);
     template.resourceCountIs('AWS::CloudFront::Distribution', 1);
     const config = behaviors(template);
     const paths = config.CacheBehaviors.map((b: { PathPattern: string }) => b.PathPattern);
-    expect(paths).toEqual(['/assets/*.wasm', '/assets/*', '/vlibras/*', '/content/*', '/ml/*.wasm', '/ml/*', '/api/*']);
+    expect(paths).toEqual([
+      '/assets/*.wasm', '/assets/*', '/vlibras/*', '/content/*', '/ml/*.wasm', '/ml/*', '/api/*',
+      '/admin/assets/*', '/admin', '/admin/*',
+    ]);
     expect(config.Aliases).toEqual(['librax.example']);
     expect(config.DefaultRootObject).toBe('index.html');
   });
@@ -320,7 +325,7 @@ describe('Ligas semanais', () => {
       Description: Match.stringLikeRegexp('squads'),
       Environment: { Variables: Match.objectLike({ LIBRAX_TABLE: Match.anyValue() }) },
     });
-    template.resourceCountIs('AWS::Scheduler::Schedule', 2); // fechamento semanal + lembretes
+    template.resourceCountIs('AWS::Scheduler::Schedule', 3); // fechamento semanal, lembretes e job do painel
   });
 
   test('rotas de leitura da liga e de resultado visto, com JWT e Lambda propria', () => {
@@ -365,3 +370,202 @@ describe('Ligas semanais', () => {
     expect(gsi2.Projection).toEqual({ ProjectionType: 'ALL' });
   });
 });
+
+describe('Painel de administracao', () => {
+  test('grupo admin no User Pool', () => {
+    const { template } = synth(withDomain);
+    template.hasResourceProperties('AWS::Cognito::UserPoolGroup', { GroupName: 'admin' });
+  });
+
+  test('app client proprio do painel, so OAuth code e callbacks em /admin', () => {
+    const { template } = synth({ ...withDomain, 'librax:extraAdminCallbackUrls': 'http://localhost:5310/admin/auth/callback' });
+    template.hasResourceProperties('AWS::Cognito::UserPoolClient', {
+      ClientName: 'librax-admin',
+      GenerateSecret: false,
+      AllowedOAuthFlows: ['code'],
+      ExplicitAuthFlows: ['ALLOW_REFRESH_TOKEN_AUTH'],
+      CallbackURLs: ['https://librax.example/admin/auth/callback', 'http://localhost:5310/admin/auth/callback'],
+      LogoutURLs: ['https://librax.example/admin/'],
+    });
+  });
+
+  test('rotas /v1/admin com o autorizador do painel (o token do app nao serve)', () => {
+    const { template } = synth(withDomain);
+    const authorizers = template.findResources('AWS::ApiGatewayV2::Authorizer');
+    const adminAuth = Object.entries(authorizers).find(([, r]) => r.Properties.Name === 'CognitoAdminAuth')!;
+    const appAuth = Object.entries(authorizers).find(([, r]) => r.Properties.Name === 'CognitoAuth')!;
+    expect(adminAuth).toBeDefined();
+    const clients = template.findResources('AWS::Cognito::UserPoolClient');
+    const [adminClientId] = Object.entries(clients).find(([, r]) => r.Properties.ClientName === 'librax-admin')!;
+    expect(adminAuth[1].Properties.JwtConfiguration.Audience).toEqual([{ Ref: adminClientId }]);
+
+    const routes = Object.values(template.findResources('AWS::ApiGatewayV2::Route')).map((r) => r.Properties);
+    const admin = routes.filter((r) => r.RouteKey.startsWith('GET /v1/admin/'));
+    expect(admin.map((r) => r.RouteKey).sort()).toEqual([
+      'GET /v1/admin/accounts', 'GET /v1/admin/accounts/{userId}', 'GET /v1/admin/content', 'GET /v1/admin/cost',
+      'GET /v1/admin/me', 'GET /v1/admin/overview', 'GET /v1/admin/squads',
+    ]);
+    for (const r of admin) {
+      expect(r.AuthorizationType).toBe('JWT');
+      expect(r.AuthorizerId).toEqual({ Ref: adminAuth[0] });
+    }
+    // as rotas do app continuam no autorizador do app
+    const lesson = routes.find((r) => r.RouteKey === 'POST /v1/lesson/complete');
+    expect(lesson.AuthorizerId).toEqual({ Ref: appAuth[0] });
+  });
+
+  test('Lambda do painel so le a tabela e so lista usuarios do proprio User Pool', () => {
+    const { template } = synth(withDomain);
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      FunctionName: 'librax-admin',
+      Handler: 'index.adminRouter',
+      Environment: { Variables: Match.objectLike({ USER_POOL_ID: Match.anyValue(), LIBRAX_TABLE: Match.anyValue() }) },
+    });
+    const actions = policyActionsOf(template, 'librax-admin');
+    expect(actions).toEqual(expect.arrayContaining(['dynamodb:GetItem', 'dynamodb:Query', 'cognito-idp:ListUsers']));
+    for (const write of ['dynamodb:PutItem', 'dynamodb:UpdateItem', 'dynamodb:DeleteItem', 'dynamodb:BatchWriteItem']) {
+      expect(actions).not.toContain(write);
+    }
+    const listUsers = statementsOf(template, 'librax-admin').find((st) => [st.Action].flat().includes('cognito-idp:ListUsers'));
+    expect(JSON.stringify(listUsers.Resource)).toContain('LibraxUserPool');
+  });
+
+  test('conta nova: gatilho PostConfirmation conta no painel', () => {
+    const { template } = synth(withDomain);
+    const [fnId] = Object.keys(template.findResources('AWS::Lambda::Function', {
+      Properties: { FunctionName: 'librax-post-confirmation' },
+    }));
+    template.hasResourceProperties('AWS::Cognito::UserPool', {
+      LambdaConfig: { PostConfirmation: { 'Fn::GetAtt': [fnId, 'Arn'] } },
+    });
+  });
+
+  test('saida da licao: POST /v1/lesson/abandon com o JWT do app', () => {
+    const { template } = synth(withDomain);
+    template.hasResourceProperties('AWS::ApiGatewayV2::Route', { RouteKey: 'POST /v1/lesson/abandon', AuthorizationType: 'JWT' });
+    template.hasResourceProperties('AWS::Lambda::Function', { FunctionName: 'librax-abandon-lesson', Handler: 'index.abandonLessonHandler' });
+  });
+
+  test('job diario do painel: 03:30 UTC, sem nova tentativa, com CloudWatch e Cost Explorer', () => {
+    const { template } = synth(withDomain);
+    template.hasResourceProperties('AWS::Scheduler::Schedule', {
+      Name: 'librax-ops-daily',
+      ScheduleExpression: 'cron(30 3 * * ? *)',
+      Target: Match.objectLike({ RetryPolicy: Match.objectLike({ MaximumRetryAttempts: 0 }) }),
+    });
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      FunctionName: 'librax-ops-daily',
+      Environment: { Variables: Match.objectLike({ API_ID: Match.anyValue(), API_STAGE: 'api', FUNCTION_NAMES: Match.anyValue() }) },
+    });
+    expect(policyActionsOf(template, 'librax-ops-daily')).toEqual(
+      expect.arrayContaining(['cloudwatch:GetMetricData', 'ce:GetCostAndUsage', 'dynamodb:UpdateItem']),
+    );
+  });
+
+  test('/admin no mesmo CloudFront, bucket proprio, CSP sem terceiros e sem moldura', () => {
+    const { template } = synth(withDomain);
+    const config = behaviors(template);
+    const admin = config.CacheBehaviors.filter((b: { PathPattern: string }) => b.PathPattern.startsWith('/admin'));
+    expect(admin).toHaveLength(3);
+    const shell = admin.find((b: { PathPattern: string }) => b.PathPattern === '/admin/*');
+    expect(shell.FunctionAssociations[0].EventType).toBe('viewer-request');
+    // origem do painel diferente da do app (o sync --delete de um nao apaga o outro)
+    expect(shell.TargetOriginId).not.toBe(config.DefaultCacheBehavior.TargetOriginId);
+    template.hasResourceProperties('AWS::CloudFront::Function', {
+      FunctionCode: Match.stringLikeRegexp("request.uri = '/admin/index.html'"),
+    });
+    const policy = headerPolicies(template).find((p) => p.Comment === 'Librax - painel admin (no-cache)');
+    const csp = flat(policy.SecurityHeadersConfig.ContentSecurityPolicy.ContentSecurityPolicy);
+    expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).toContain("script-src 'self'");
+    expect(csp).toContain('https://auth.librax.example');
+    expect(csp).not.toContain('jsdelivr');
+    const robots = policy.CustomHeadersConfig.Items.find((h: { Header: string }) => h.Header === 'X-Robots-Tag');
+    expect(robots.Value).toContain('noindex');
+  });
+});
+
+describe('Alarmes e orcamento', () => {
+  test('alarmes de erros e duracao das Lambdas, 5xx da API e throttling do DynamoDB', () => {
+    const { template } = synth({ ...withDomain, 'librax:alarmEmail': 'alertas@exemplo.com' });
+    const alarms = Object.values(template.findResources('AWS::CloudWatch::Alarm')).map((r) => r.Properties);
+    const names = alarms.map((a) => a.AlarmName).sort();
+    expect(names).toEqual([
+      'librax-api-5xx', 'librax-api-lambda-duration', 'librax-close-league-duration', 'librax-dynamodb-throttles',
+      'librax-lambda-errors', 'librax-lambda-throttles', 'librax-ops-daily-duration', 'librax-reminders-duration',
+    ]);
+    const byName = Object.fromEntries(alarms.map((a) => [a.AlarmName, a]));
+    expect(byName['librax-lambda-errors']).toMatchObject({ Namespace: 'AWS/Lambda', MetricName: 'Errors', Threshold: 1 });
+    expect(byName['librax-api-5xx']).toMatchObject({ Namespace: 'AWS/ApiGateway', MetricName: '5xx' });
+    expect(byName['librax-api-lambda-duration']).toMatchObject({ MetricName: 'IntegrationLatency', ExtendedStatistic: 'p95' });
+    expect(byName['librax-close-league-duration'].Threshold).toBe(240000); // 80% de 5 min
+    const ddb = byName['librax-dynamodb-throttles'].Metrics.map((m: { MetricStat?: { Metric: { MetricName: string } } }) =>
+      m.MetricStat?.Metric.MetricName).filter(Boolean);
+    expect(ddb.sort()).toEqual(['ReadThrottleEvents', 'WriteThrottleEvents']);
+    // cabe nos 10 alarmes gratis do CloudWatch (cada metrica conta)
+    const metricCount = alarms.reduce((n, a) => n + (a.Metrics ? a.Metrics.filter((m: { MetricStat?: unknown }) => m.MetricStat).length : 1), 0);
+    expect(metricCount).toBeLessThanOrEqual(10);
+    // todos avisam o topico SNS, ao disparar e ao voltar ao normal
+    const [topicId] = Object.keys(template.findResources('AWS::SNS::Topic'));
+    for (const a of alarms) {
+      expect(a.AlarmActions).toEqual([{ Ref: topicId }]);
+      expect(a.OKActions).toEqual([{ Ref: topicId }]);
+    }
+  });
+
+  test('e-mail dos alarmes vem do contexto; sem ele, topico sem assinatura e aviso', () => {
+    const withEmail = synth({ ...withDomain, 'librax:alarmEmail': 'alertas@exemplo.com' }).template;
+    withEmail.hasResourceProperties('AWS::SNS::Subscription', { Protocol: 'email', Endpoint: 'alertas@exemplo.com' });
+
+    const { stack, template } = synth(withDomain);
+    template.resourceCountIs('AWS::SNS::Subscription', 0);
+    template.resourceCountIs('AWS::SNS::Topic', 1);
+    Annotations.fromStack(stack).hasWarning('*', Match.stringLikeRegexp('librax:alarmEmail'));
+    // nenhum e-mail fixo no codigo da infra (so os modelos com o dominio, como contato@${...})
+    for (const file of ['librax-stack.ts', 'config.ts']) {
+      const code = readFileSync(path.join(__dirname, '..', 'lib', file), 'utf8');
+      expect(code).not.toMatch(/[a-z0-9._-]+@[a-z0-9-]+\.[a-z]{2,}/i);
+    }
+  });
+
+  test('AWS Budget mensal com aviso em 80% e 100% e valor configuravel', () => {
+    const { template } = synth({
+      ...withDomain, 'librax:alarmEmail': 'alertas@exemplo.com', 'librax:budgetEmail': 'financeiro@exemplo.com', 'librax:monthlyBudgetUsd': '25',
+    });
+    const [budget] = Object.values(template.findResources('AWS::Budgets::Budget')).map((r) => r.Properties);
+    expect(budget.Budget).toMatchObject({ BudgetType: 'COST', TimeUnit: 'MONTHLY', BudgetLimit: { Amount: 25, Unit: 'USD' } });
+    expect(budget.NotificationsWithSubscribers.map((n: { Notification: { Threshold: number; NotificationType: string } }) =>
+      [n.Notification.NotificationType, n.Notification.Threshold])).toEqual([['ACTUAL', 80], ['ACTUAL', 100]]);
+    for (const n of budget.NotificationsWithSubscribers) {
+      expect(n.Subscribers).toEqual([{ SubscriptionType: 'EMAIL', Address: 'financeiro@exemplo.com' }]);
+    }
+  });
+
+  test('budget usa o e-mail dos alarmes por padrao, 10 dolares, e nao existe sem e-mail', () => {
+    const { template } = synth({ ...withDomain, 'librax:alarmEmail': 'alertas@exemplo.com' });
+    const [budget] = Object.values(template.findResources('AWS::Budgets::Budget')).map((r) => r.Properties);
+    expect(budget.Budget.BudgetLimit.Amount).toBe(10);
+    expect(budget.NotificationsWithSubscribers[0].Subscribers[0].Address).toBe('alertas@exemplo.com');
+
+    const { stack, template: none } = synth(withDomain);
+    none.resourceCountIs('AWS::Budgets::Budget', 0);
+    Annotations.fromStack(stack).hasWarning('*', Match.stringLikeRegexp('Budget'));
+  });
+
+  test('valor de budget invalido para o synth', () => {
+    expect(() => synth({ ...withDomain, 'librax:alarmEmail': 'a@exemplo.com', 'librax:monthlyBudgetUsd': 'dez' })).toThrow(/monthlyBudgetUsd/);
+  });
+});
+
+/** Declaracoes da politica do papel de uma Lambda. */
+function statementsOf(template: Template, functionName: string) {
+  const fns = template.findResources('AWS::Lambda::Function');
+  const [, fn] = Object.entries(fns).find(([, r]) => r.Properties.FunctionName === functionName)!;
+  const roleRef = fn.Properties.Role['Fn::GetAtt'][0];
+  const policies = Object.values(template.findResources('AWS::IAM::Policy'))
+    .filter((p) => p.Properties.Roles.some((r: { Ref: string }) => r.Ref === roleRef));
+  return policies.flatMap((p) => p.Properties.PolicyDocument.Statement);
+}
+function policyActionsOf(template: Template, functionName: string): string[] {
+  return statementsOf(template, functionName).flatMap((s: { Action: string | string[] }) => [s.Action].flat());
+}

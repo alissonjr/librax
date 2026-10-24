@@ -1,5 +1,9 @@
 import { newProfile } from '../domain/profile.js';
 import { offsetBucket } from '../domain/reminders.js';
+import { freshPeriods } from '../domain/opsMetrics.js';
+
+/** Item do painel como o DynamoRepo devolve: com a chave e sem o TTL. */
+const opsView = ({ expiresAt, ...item }) => structuredClone(item);
 
 /**
  * Adaptador de repositorio em memoria que implementa a porta usada pelos usecases.
@@ -33,6 +37,8 @@ export class InMemoryRepo {
     this._attempts = new Map(); // `${userId}#${lessonAttemptId}` -> { status, lessonId, result }
     this._push = new Map(); // userId -> Map(subscriptionId -> { endpoint, keys })
     this._notif = new Map(); // userId -> preferencias + estado de lembrete (+ balde de fuso)
+    this._ops = new Map(); // chave do painel (DAY#..., WEEK#..., COST#...) -> item (OPS / <chave>)
+    this._activity = new Map(); // userId -> { lastDay, lastWeek, lastMonth }
   }
 
   // --- perfil ---
@@ -49,6 +55,14 @@ export class InMemoryRepo {
   }
   async saveProgress(userId, lessonId, progress) {
     this._progress.set(`${userId}#${lessonId}`, { ...progress });
+  }
+  async listProgress(userId) {
+    const prefix = `${userId}#`;
+    const out = [];
+    for (const [key, p] of this._progress) {
+      if (key.startsWith(prefix)) out.push({ lessonId: key.slice(prefix.length), ...p });
+    }
+    return out;
   }
 
   // --- SRS ---
@@ -124,6 +138,16 @@ export class InMemoryRepo {
       if (key.startsWith(`${squadId}#`)) this._squadWeeks.delete(key);
     }
     this._squads.delete(squadId);
+  }
+
+  /** Squads da mais nova para a mais velha (registro SQUADINDEX do DynamoRepo). */
+  async listSquadIndex({ limit = 25, cursor = null } = {}) {
+    const all = [...this._squads.values()]
+      .map(({ squadId, createdAt }) => ({ squadId, createdAt: createdAt ?? null }))
+      .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? '') || b.squadId.localeCompare(a.squadId));
+    const start = cursor ?? 0;
+    const end = start + limit;
+    return { squads: all.slice(start, end), cursor: end < all.length ? end : null };
   }
 
   // --- squads: membros ---
@@ -430,6 +454,53 @@ export class InMemoryRepo {
   }
   async listNotifCandidates(bucket) {
     return [...this._notif.values()].filter((n) => n.bucket === bucket).map((n) => ({ ...n }));
+  }
+
+  // --- painel de administracao: contadores agregados (OPS / <chave>) e atividade ---
+  async getActivity(userId) {
+    const a = this._activity.get(userId);
+    return a ? { ...a } : null;
+  }
+  /** Marca a pessoa como ativa no dia, semana e mes; devolve o que ainda nao tinha sido contado. */
+  async markActivity(userId, periods) {
+    const fresh = freshPeriods(this._activity.get(userId), periods);
+    if (fresh.day) {
+      this._activity.set(userId, { lastDay: periods.day, lastWeek: periods.week, lastMonth: periods.month });
+    }
+    return fresh;
+  }
+  /** Soma os contadores (ADD); o TTL e o do primeiro registro do item. */
+  async addOpsCounters(key, counters, { expiresAt = null } = {}) {
+    const item = this._ops.get(key) ?? { key };
+    for (const [name, n] of Object.entries(counters)) item[name] = (item[name] ?? 0) + n;
+    if (expiresAt != null && item.expiresAt == null) item.expiresAt = expiresAt;
+    this._ops.set(key, item);
+  }
+  /** Grava os campos dados (SET), sem mexer nos contadores. */
+  async setOpsFields(key, fields, { expiresAt = null } = {}) {
+    const item = this._ops.get(key) ?? { key };
+    Object.assign(item, structuredClone(fields));
+    if (expiresAt != null && item.expiresAt == null) item.expiresAt = expiresAt;
+    this._ops.set(key, item);
+  }
+  async getOpsItem(key) {
+    const item = this._ops.get(key);
+    return item ? opsView(item) : null;
+  }
+  /** Itens com chave entre `from` e `to` (inclusive), em ordem. */
+  async listOpsRange(from, to) {
+    return [...this._ops.values()]
+      .filter((i) => i.key >= from && i.key <= to)
+      .sort((a, b) => (a.key < b.key ? -1 : 1))
+      .map(opsView);
+  }
+  /** Os `limit` itens mais recentes com o prefixo (WEEK#, MONTH#, COST#). */
+  async listOpsLatest(prefix, limit) {
+    return [...this._ops.values()]
+      .filter((i) => i.key.startsWith(prefix))
+      .sort((a, b) => (a.key < b.key ? 1 : -1))
+      .slice(0, limit)
+      .map(opsView);
   }
 
   // --- helpers de seed (so para testes / dev) ---

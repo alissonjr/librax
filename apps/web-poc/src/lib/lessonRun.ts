@@ -1,5 +1,6 @@
 import type { Exercise } from './content';
 import type { ReviewedItem } from '../screens/LessonScreen';
+import type { ExerciseStats } from './sync';
 
 /**
  * Lição em andamento (retomada depois de recarregar a página).
@@ -31,6 +32,8 @@ export interface LessonProgress {
   reviewed: ReviewedItem[];
   /** Sinais apresentados nesta lição (para "sinais novos"). */
   seen: string[];
+  /** Respostas e erros por tipo de exercício (painel de administração). Ausente em runs antigos. */
+  exerciseStats?: ExerciseStats;
 }
 
 export interface LessonRun extends LessonProgress {

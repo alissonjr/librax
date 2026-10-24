@@ -23,14 +23,14 @@ npm ci
 npm test            # node --test (Node 20+)
 ```
 
-265 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
+330 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
 o `DynamoRepo` com um client falso que só registra os comandos; nenhum teste chama a AWS.
 
 ## Estrutura
 
 ```
 services/api/
-├── scripts/build-catalog.mjs   gera src/content/catalog.js a partir do course.json do app
+├── scripts/build-catalog.mjs   gera src/content/catalog.js e contentStatus.js a partir do conteúdo do app
 ├── src/
 │   ├── domain/        funções puras (sem I/O)
 │   │   ├── streak.js            ofensiva (SPEC 02 seção 5.1)
@@ -45,11 +45,16 @@ services/api/
 │   │   ├── lessonCompletion.js  validação e limites das conclusões vindas do cliente
 │   │   ├── practiceReview.js    validação das respostas da prática diária
 │   │   ├── push.js              inscrição Web Push e preferências de lembrete
-│   │   └── reminders.js         regras de horário dos lembretes (SPEC 05 12.2 e 12.3)
+│   │   ├── reminders.js         regras de horário dos lembretes (SPEC 05 12.2 e 12.3)
+│   │   ├── admin.js             grupo admin no token (cognito:groups) e busca de conta
+│   │   ├── opsMetrics.js        contadores agregados do painel e a tela de operação
+│   │   └── costReport.js        janela do Cost Explorer e projeção do mês
 │   ├── lib/dates.js   aritmética de datas-calendário
 │   ├── content/
 │   │   ├── catalogFromCourse.js catálogo mínimo (XP, sinais por lição, conquistas)
-│   │   └── catalog.js           GERADO, empacotado nas Lambdas (npm run catalog)
+│   │   ├── catalog.js           GERADO, empacotado nas Lambdas (npm run catalog)
+│   │   ├── contentReport.js     situação do conteúdo: validado, fonte, vídeo, avatar, o que falta
+│   │   └── contentStatus.js     GERADO, só na Lambda do painel (npm run catalog)
 │   ├── usecases/
 │   │   ├── completeLesson.js     XP + streak + SRS + conquistas + fan-out (SPEC 02/04)
 │   │   ├── completeLessonOnce.js o mesmo, idempotente por lessonAttemptId
@@ -61,10 +66,16 @@ services/api/
 │   │   ├── leagueEnrollment.js   entrada na liga na 1a lição da semana, grupos de até 30
 │   │   ├── leagueView.js         leitura da liga atual e resultado visto (GET/POST /v1/league)
 │   │   ├── resetSquadWeek.js     reset semanal do XP das squads com histórico (SPEC 04 seção 8)
-│   │   └── squads.js             rotas de escrita de squad (SPEC 04 seção 2)
+│   │   ├── squads.js             rotas de escrita de squad (SPEC 04 seção 2)
+│   │   ├── opsMetrics.js         contadores do painel (lição, prática, saída, conta nova)
+│   │   ├── admin.js              leituras do painel (operação, conta, squads, custo)
+│   │   └── collectDailyOps.js    job diário: CloudWatch e Cost Explorer na tabela
 │   ├── adapters/
 │   │   ├── inMemoryRepo.js  porta em memória (testes e dev local)
-│   │   └── dynamoRepo.js    porta sobre a tabela single-table `librax`
+│   │   ├── dynamoRepo.js    porta sobre a tabela single-table `librax`
+│   │   ├── cognitoDirectory.js  busca de conta (ListUsers do Cognito)
+│   │   ├── cloudWatchMetrics.js soma diária do GetMetricData
+│   │   └── costExplorer.js      gasto por serviço (GetCostAndUsage)
 │   └── handlers/      Lambdas (API Gateway HTTP API, payload 2.0)
 │       ├── _http.js         auth pelo JWT, parse com limite de tamanho, envelope de erro
 │       ├── _repo.js         DynamoRepo reaproveitado entre invocações
@@ -76,12 +87,16 @@ services/api/
 │       ├── squads.js        rotas de squad (SPEC 04)
 │       ├── league.js        GET /v1/league/current, POST /v1/league/result-seen
 │       ├── reminders.js     Lambda do Scheduler: lembretes (web-push + VAPID do SSM)
-│       └── closeLeague.js   Lambda do Scheduler: fechar as ligas e zerar as squads da semana
+│       ├── closeLeague.js   Lambda do Scheduler: fechar as ligas e zerar as squads da semana
+│       ├── admin.js         rotas /v1/admin (uma Lambda, pelo routeKey), só grupo admin
+│       ├── opsDaily.js      Lambda do Scheduler: erros do dia e custo do mês para o painel
+│       └── postConfirmation.js  gatilho do Cognito: conta nova nos contadores
 └── test/              um arquivo por módulo; testes escritos antes do código
 ```
 
 Cada handler exporta uma fábrica (`makeLessonHandlers`, `makeGuestHandlers`,
-`makePushHandlers`, `makeSquadHandlers`, `makeLeagueHandlers`, `makeCloseLeagueHandler`) que recebe o repositório
+`makePushHandlers`, `makeSquadHandlers`, `makeLeagueHandlers`, `makeCloseLeagueHandler`, `makeAdminHandlers`,
+`makeOpsDailyHandler`, `makePostConfirmationHandler`) que recebe o repositório
 (e o catálogo, quando usa), mais as instâncias de produção já ligadas ao DynamoDB. Os testes
 usam as fábricas.
 
@@ -96,6 +111,7 @@ depois de criar conta (`POST /v1/guest/migrate`).
 |---|---|---|
 | POST | `/v1/lesson/complete` | conclui uma lição; com `lessonAttemptId` é idempotente (fila offline) |
 | GET | `/v1/lesson/queue` | fila diária de SRS + sinais novos |
+| POST | `/v1/lesson/abandon` | saída no meio da lição (`lessonId`, `today`, `exerciseIndex`, `exerciseCount`, `exerciseType`); só contadores do painel |
 | POST | `/v1/practice/review` | grava no SRS as respostas da prática diária (sem XP nem ofensiva); idempotente por `reviewAttemptId` |
 | POST | `/v1/guest/migrate` | recebe o log de conclusões do convidado e reexecuta no servidor |
 | POST | `/v1/push/subscriptions` | guarda a inscrição Web Push (`PushSubscription.toJSON()`) |
@@ -113,6 +129,27 @@ depois de criar conta (`POST /v1/guest/migrate`).
 | GET | `/v1/users/me/squads` | squads de quem chama |
 | GET | `/v1/league/current` | liga da semana, ranking, tempo até o fechamento e o resultado anterior não visto |
 | POST | `/v1/league/result-seen` | marca o LeagueResultSheet da semana `{ period }` como visto |
+
+### Painel de administração (`/v1/admin`, só leitura)
+
+Detalhes, escolhas de custo e como dar acesso: [`docs/painel-admin.md`](../../docs/painel-admin.md).
+
+As rotas usam um autorizador JWT próprio, que só aceita o id token do app client do painel (`librax-admin`), e a
+Lambda confere o grupo no token (`cognito:groups`): quem não está no grupo `admin` recebe **403 `ADMIN_ONLY`**.
+Uma Lambda só (`librax-admin`, `adminRouter`) atende todas, pelo `routeKey`, e só lê a tabela.
+
+| Método | Rota | O que faz |
+|---|---|---|
+| GET | `/v1/admin/me` | quem está logado e os grupos (o site decide se abre) |
+| GET | `/v1/admin/overview` | 30 dias, 12 semanas e 12 meses de ativos, contas novas, lições, saídas e erros; rankings por lição, exercício e sinal |
+| GET | `/v1/admin/content` | unidades e sinais com `validated`, `source`, vídeo, avatar e `missing` |
+| GET | `/v1/admin/accounts?q=` | busca por começo do e-mail ou pelo sub (Cognito `ListUsers`), até 10 |
+| GET | `/v1/admin/accounts/{userId}` | resumo da conta: perfil, progresso, SRS, conquistas, liga, squads, atividade |
+| GET | `/v1/admin/squads?cursor=&limit=` | squads da mais nova para a mais velha (até 50 por página) |
+| GET | `/v1/admin/cost` | último custo guardado pelo job diário e até 6 meses |
+
+A conclusão de lição aceita também `exerciseStats` (`{ "<tipo>": { "attempted", "wrong" } }`, tipos do app):
+é telemetria do painel, e formato errado é descartado sem recusar a conclusão.
 
 Erros de squad saem com o código do domínio, o mesmo que a tela espera (SPEC 04 seção 4.4):
 `SQUAD_NOT_FOUND` e `TARGET_NOT_MEMBER` (404), `NOT_ADMIN` e `GUEST_NOT_ALLOWED` (403),
@@ -271,6 +308,19 @@ Na mesma execução (SPEC 04 seção 0.3: "mesmo job que fecha as ligas"),
 Para refazer uma semana a mão: invocar a Lambda com `{ "periodStart": "2026-10-19" }` (a
 segunda-feira da semana).
 
+### Contadores do painel e job diário
+
+`completeLessonOnce` (também na migração do convidado), `reviewSignsOnce`, o endpoint legado da lição, a saída
+da lição e o gatilho PostConfirmation do Cognito somam com `ADD` em `OPS / DAY#<dia>` (e `#LESSON`, `#EXERCISE`,
+`#SIGN`), `WEEK#<semana>` e `MONTH#<mês>`. A pessoa conta como ativa uma vez por dia, semana e mês pelo registro
+`USER#<id> / ACTIVITY` (escrita condicional só na primeira atividade do dia). Reenvio idempotente não soma de
+novo, e erro no contador só vai para o log: a lição nunca falha por causa dele.
+
+A Lambda `librax-ops-daily` roda às 03:30 UTC (00:30 em Brasília): soma no dia de Brasília que acabou os 5xx e 4xx
+da API, os erros por Lambda e o throttling (CloudWatch `GetMetricData`) e grava o gasto do mês por serviço (uma
+chamada ao Cost Explorer, US$ 0,01). Refazer um dia: `{ "day": "2026-10-22" }`; sem Cost Explorer:
+`{ "skipCost": true }`.
+
 ## Itens da tabela `librax`
 
 Além dos da SPEC 02 seção 3 e SPEC 04 seção 1:
@@ -287,6 +337,11 @@ Além dos da SPEC 02 seção 3 e SPEC 04 seção 1:
 | Cursor de grupo | `LEAGUEGROUPS#<tier>#<semana>` | `META` | `group` aberto; avança com escrita condicional |
 | Resultado visto | `USER#<id>` | `LEAGUE_SEEN` | `period` do último LeagueResultSheet mostrado |
 | Semana da squad | `SQUAD#<id>` | `WEEK#<semana>` | `status` open/closed, `xpWeekly`, `memberCount`, `ranking`; GSI2 `SQUADS#<semana>` / `SQUAD#<id>` |
+| Contadores do painel | `OPS` | `DAY#<dia>`, `DAY#<dia>#LESSON`, `#EXERCISE`, `#SIGN` | `ADD`; nomes planos (`done:u1-l1`); `cloud` gravado pelo job; TTL `expiresAt` de 400 dias |
+| Semana e mês do painel | `OPS` | `WEEK#<semana>`, `MONTH#<mês>` | ativos, contas novas, lições; TTL de 800 dias na semana |
+| Custo do mês | `OPS` | `COST#<AAAA-MM>` | total, projeção e gasto por serviço (job diário) |
+| Atividade | `USER#<id>` | `ACTIVITY` | `lastDay`, `lastWeek`, `lastMonth` contados no painel |
+| Registro de squads | `SQUADINDEX` | `SQUAD#<createdAt>#<squadId>` | lista do painel sem Scan; apagado ao dissolver |
 
 `leagueId` segue o formato do app: `<tier>-<ano>-w<semana ISO>` (ex.: `bronze-2026-w43`), com
 `-g<n>` a partir do 2o grupo de 30 da mesma liga e semana.
@@ -362,11 +417,16 @@ do Cognito precisam estar lá.
     aws s3 sync dist s3://<WebBucketName> --delete
     ```
     O CloudFront aplica `no-cache` no app shell (`index.html`, `sw.js`) e `immutable` em
-    `/assets/*`, então não precisa invalidar a cada publicação.
+    `/assets/*`, então não precisa invalidar a cada publicação. O painel de administração tem bucket próprio
+    (`AdminBucketName`) e vai em `admin/`: ver [`docs/painel-admin.md`](../../docs/painel-admin.md).
 11. **Conteúdo e modelos.** No bucket `ContentBucketName`, a chave repete a URL:
     `content/<courseId>/v<N>/...` e `ml/<versao>/...`. Suba `.wasm` com
     `--content-type application/wasm` (o CloudFront também força esse tipo em `*.wasm`).
-12. **CSP.** No primeiro teste em aparelho, dá para mandar a CSP como Report-Only com
+12. **Alertas e orçamento.** Passar `-c librax:alarmEmail=<e-mail>` (e, se quiser outro,
+    `librax:budgetEmail`) e confirmar a assinatura no e-mail que a AWS manda. O AWS Budget avisa em 80% e 100% de
+    `librax:monthlyBudgetUsd` (padrão 10). Ativar o Cost Explorer no console de Billing para a tela de custo.
+13. **Admin.** Colocar as contas de administração no grupo `admin` do Cognito (docs/painel-admin.md).
+14. **CSP.** No primeiro teste em aparelho, dá para mandar a CSP como Report-Only com
     `-c librax:cspReportOnly=true` e olhar o console antes de travar.
 
 ## Ligas no app: o que precisa mudar
