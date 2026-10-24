@@ -403,6 +403,9 @@ do Cognito precisam estar lá.
    ```
    O template só leva a referência; o valor é resolvido no deploy. Para publicar antes de ter
    o Google: `-c librax:googleEnabled=false`.
+   Na tela de consentimento do OAuth, informar a Política de Privacidade
+   (`https://<dominio>/privacidade`) e os Termos de Uso (`https://<dominio>/termos`), que abrem
+   sem login (a CloudFront Function do app entrega o `index.html` para essas rotas).
 5. **Apple (opcional, desligada).** Para ligar: `librax:appleEnabled=true` e os parâmetros
    `/librax/apple/services-id`, `/librax/apple/team-id`, `/librax/apple/key-id` (SSM) e o
    segredo `librax/apple/private-key` (Secrets Manager).
@@ -441,6 +444,10 @@ do Cognito precisam estar lá.
 13. **Admin.** Colocar as contas de administração no grupo `admin` do Cognito (docs/painel-admin.md).
 14. **CSP.** No primeiro teste em aparelho, dá para mandar a CSP como Report-Only com
     `-c librax:cspReportOnly=true` e olhar o console antes de travar.
+15. **Política e Termos.** Preencher quem responde pelo app em
+    `apps/web-poc/src/legal/responsavel.ts` (nome, CNPJ ou CPF, e-mail de contato e foro) e subir a
+    versão e a data de vigência no topo de `privacidade.md` e `termos.md`. Enquanto houver marcador
+    entre colchetes, as páginas mostram o selo "Rascunho".
 
 ## Ligas no app: o que precisa mudar
 

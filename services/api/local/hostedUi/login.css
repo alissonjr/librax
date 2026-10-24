@@ -179,6 +179,19 @@ html, body {
 .hui-notice { background: var(--lx-feedback-info-soft); color: var(--lx-feedback-info-on-soft); }
 .hui-notice strong { font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
 
+/* Frase de aceite com os links para os Termos e a Política do app */
+.hui-legal {
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-secondary);
+  text-align: center;
+}
+.hui-legal a {
+  color: var(--lx-text-brand);
+  font-weight: var(--lx-font-weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .hui-switch {
   display: flex;
   flex-wrap: wrap;
