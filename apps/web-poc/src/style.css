@@ -4102,6 +4102,11 @@ button.profile-stat-card { cursor: pointer; }
   font: var(--lx-typography-body-sm);
   color: var(--lx-text-secondary);
 }
+/* "Esqueci a senha": link de texto alinhado à direita, embaixo do campo de senha */
+.auth-forgot {
+  align-self: flex-end;
+  padding: 0 var(--lx-space-1);
+}
 /* Erro inline: fundo suave inteiro, ícone e texto (nunca só a cor) */
 .auth-error {
   display: flex;

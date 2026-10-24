@@ -6,6 +6,8 @@ const auth = vi.hoisted(() => ({
   signInWithEmail: vi.fn(),
   signUpWithEmail: vi.fn(),
   confirmEmailCode: vi.fn(),
+  requestPasswordReset: vi.fn(),
+  confirmPasswordReset: vi.fn(),
   signInWithGoogle: vi.fn(),
   getSession: vi.fn(async () => null),
 }));
@@ -111,6 +113,137 @@ describe('entrar (spec-02 12.3)', () => {
     await userEvent.type(screen.getByLabelText('Senha'), 'segredo123');
     await userEvent.click(screen.getByRole('button', { name: 'Entrar' }));
     expect(await screen.findByRole('heading', { name: 'Confirme seu e-mail' })).toBeInTheDocument();
+  });
+});
+
+describe('esqueci a senha', () => {
+  beforeEach(cognitoEnv);
+
+  async function openForgot(email = 'ana@librax.example') {
+    renderAuth('login');
+    await userEvent.type(screen.getByLabelText('E-mail'), email);
+    await userEvent.click(screen.getByRole('button', { name: 'Esqueci a senha' }));
+    expect(screen.getByRole('heading', { name: 'Recuperar a senha' })).toBeInTheDocument();
+  }
+
+  async function askCode() {
+    await userEvent.click(screen.getByRole('button', { name: 'Enviar código' }));
+    return screen.findByRole('heading', { name: 'Crie uma senha nova' });
+  }
+
+  it('só aparece em Entrar; leva o e-mail digitado e orienta quem entrou com o Google', async () => {
+    renderAuth('register');
+    expect(screen.queryByRole('button', { name: 'Esqueci a senha' })).not.toBeInTheDocument();
+    cleanup();
+
+    await openForgot();
+    expect(screen.getByLabelText('E-mail')).toHaveValue('ana@librax.example');
+    expect(screen.getByRole('note')).toHaveTextContent('Criou a conta com o Google? Ela não tem senha');
+    auth.signInWithGoogle.mockReturnValue(new Promise(() => {}));
+    await userEvent.click(screen.getByRole('button', { name: 'Continuar com Google' }));
+    expect(auth.signInWithGoogle).toHaveBeenCalled();
+  });
+
+  it('a resposta não conta se o e-mail tem conta', async () => {
+    auth.requestPasswordReset.mockResolvedValue(undefined);
+    await openForgot('ninguem@librax.example');
+    await askCode();
+    expect(auth.requestPasswordReset).toHaveBeenCalledWith('ninguem@librax.example');
+    expect(screen.getByText(/Se houver uma conta com senha para ninguem@librax.example/)).toBeInTheDocument();
+  });
+
+  it('código e senha nova: troca a senha e entra com ela', async () => {
+    auth.requestPasswordReset.mockResolvedValue(undefined);
+    auth.confirmPasswordReset.mockResolvedValue(undefined);
+    auth.signInWithEmail.mockResolvedValue({ done: true, nextStep: 'DONE' });
+    renderAuth('login');
+    await userEvent.type(screen.getByLabelText('E-mail'), 'ana@librax.example');
+    await userEvent.type(screen.getByLabelText('Senha'), 'senha-velha');
+    await userEvent.click(screen.getByRole('button', { name: 'Esqueci a senha' }));
+    await askCode();
+
+    // a senha velha digitada não vira a nova; a nova segue a regra do cadastro
+    const password = screen.getByLabelText('Senha nova');
+    expect(password).toHaveValue('');
+    await userEvent.type(screen.getByLabelText('Código de 6 números'), '123456');
+    await userEvent.type(password, '1234567');
+    const save = screen.getByRole('button', { name: 'Salvar senha nova' });
+    expect(save).toBeDisabled();
+    await userEvent.type(password, '8');
+    await userEvent.click(save);
+
+    await waitFor(() => expect(auth.signInWithEmail).toHaveBeenCalledWith('ana@librax.example', '12345678'));
+    expect(auth.confirmPasswordReset).toHaveBeenCalledWith('ana@librax.example', '123456', '12345678');
+  });
+
+  it('se o login depois da troca falhar, volta para Entrar com o e-mail e o aviso de sucesso', async () => {
+    auth.requestPasswordReset.mockResolvedValue(undefined);
+    auth.confirmPasswordReset.mockResolvedValue(undefined);
+    auth.signInWithEmail.mockRejectedValue(cognitoError('NetworkError'));
+    await openForgot();
+    await askCode();
+    await userEvent.type(screen.getByLabelText('Código de 6 números'), '123456');
+    await userEvent.type(screen.getByLabelText('Senha nova'), 'senha-nova-1');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar senha nova' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Sem conexão');
+    expect(screen.getByRole('status')).toHaveTextContent('Senha alterada. Agora é só entrar com a senha nova.');
+    expect(screen.getByLabelText('E-mail')).toHaveValue('ana@librax.example');
+    expect(screen.getByLabelText('Senha')).toHaveValue('senha-nova-1');
+  });
+
+  it('código errado ou vencido: mensagem com a saída de pedir outro; reenviar avisa', async () => {
+    auth.requestPasswordReset.mockResolvedValue(undefined);
+    auth.confirmPasswordReset.mockRejectedValueOnce(cognitoError('CodeMismatchException'));
+    await openForgot();
+    await askCode();
+    await userEvent.type(screen.getByLabelText('Código de 6 números'), '000000');
+    await userEvent.type(screen.getByLabelText('Senha nova'), 'senha-nova-1');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar senha nova' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Código incorreto ou vencido. Confira o e-mail ou peça outro código.');
+
+    // conta inexistente responde como código errado, nunca como "e-mail sem conta"
+    auth.confirmPasswordReset.mockRejectedValueOnce(cognitoError('UserNotFoundException'));
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar senha nova' }));
+    await waitFor(() => expect(auth.confirmPasswordReset).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole('alert')).toHaveTextContent('Código incorreto ou vencido');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reenviar código' }));
+    expect(await screen.findByRole('status')).toHaveTextContent('Pedimos outro código');
+    expect(auth.requestPasswordReset).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('muitas tentativas e senha fraca têm mensagem própria', async () => {
+    auth.requestPasswordReset.mockResolvedValueOnce(undefined);
+    await openForgot();
+    await askCode();
+
+    auth.confirmPasswordReset.mockRejectedValueOnce(cognitoError('InvalidPasswordException'));
+    await userEvent.type(screen.getByLabelText('Código de 6 números'), '123456');
+    await userEvent.type(screen.getByLabelText('Senha nova'), 'senha-nova-1');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar senha nova' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Senha muito curta. Use pelo menos 8 caracteres.');
+
+    auth.confirmPasswordReset.mockRejectedValueOnce(cognitoError('LimitExceededException'));
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar senha nova' }));
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Muitas tentativas seguidas'));
+
+    auth.requestPasswordReset.mockRejectedValueOnce(cognitoError('LimitExceededException'));
+    await userEvent.click(screen.getByRole('button', { name: 'Reenviar código' }));
+    await waitFor(() => expect(auth.requestPasswordReset).toHaveBeenCalledTimes(2));
+    expect(screen.getByRole('alert')).toHaveTextContent('Muitas tentativas seguidas');
+  });
+
+  it('"Usar outro e-mail" volta ao pedido do código e "Voltar para entrar" ao login', async () => {
+    auth.requestPasswordReset.mockResolvedValue(undefined);
+    await openForgot();
+    await askCode();
+    await userEvent.click(screen.getByRole('button', { name: 'Usar outro e-mail' }));
+    expect(screen.getByRole('heading', { name: 'Recuperar a senha' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Voltar para entrar' }));
+    expect(screen.getByRole('button', { name: 'Entrar' })).toBeInTheDocument();
+    expect(screen.getByLabelText('E-mail')).toHaveValue('ana@librax.example');
   });
 });
 

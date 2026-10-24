@@ -54,6 +54,7 @@ export function authErrorKey(code: AuthErrorCode): string {
     INVALID_CREDENTIALS: 'account.errors.invalidCredentials',
     NOT_CONFIRMED: 'account.errors.notConfirmed',
     BAD_CODE: 'account.errors.badCode',
+    TOO_MANY_ATTEMPTS: 'account.errors.tooManyAttempts',
     NETWORK: 'account.errors.network',
     UNKNOWN: 'account.errors.unknown',
   };

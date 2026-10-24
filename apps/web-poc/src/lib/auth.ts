@@ -64,6 +64,7 @@ export type AuthErrorCode =
   | 'INVALID_CREDENTIALS'
   | 'NOT_CONFIRMED'
   | 'BAD_CODE'
+  | 'TOO_MANY_ATTEMPTS'
   | 'NETWORK'
   | 'UNKNOWN';
 
@@ -158,6 +159,33 @@ export async function signInWithEmail(email: string, password: string) {
   return { done: r.isSignedIn, nextStep: r.nextStep.signInStep };
 }
 
+/** Erros do ForgotPassword que contariam se a conta existe (ver requestPasswordReset). */
+const HIDDEN_RESET_ERRORS = ['UserNotFoundException', 'NotAuthorizedException', 'InvalidParameterException'];
+
+/**
+ * "Esqueci a senha": o Cognito manda um código para o e-mail (confirmPasswordReset).
+ *
+ * O client tem PreventUserExistenceErrors: e-mail sem conta, conta só do Google (sem senha) e
+ * conta sem e-mail verificado recebem a mesma resposta de "código enviado", sem e-mail nenhum.
+ * Os erros que ainda poderiam contar se a conta existe (client sem essa opção) também viram
+ * sucesso aqui, para a tela nunca saber.
+ */
+export async function requestPasswordReset(email: string): Promise<void> {
+  const { resetPassword } = await amplifyAuth();
+  try {
+    await resetPassword({ username: email });
+  } catch (err) {
+    const name = (err as { name?: string } | null)?.name ?? '';
+    if (!HIDDEN_RESET_ERRORS.includes(name)) throw err;
+  }
+}
+
+/** Troca a senha com o código do e-mail. A senha nova segue a mesma política do cadastro. */
+export async function confirmPasswordReset(email: string, code: string, newPassword: string): Promise<void> {
+  const { confirmResetPassword } = await amplifyAuth();
+  await confirmResetPassword({ username: email, confirmationCode: code, newPassword });
+}
+
 /** Sai para o Google pelo domínio do Cognito; volta em /auth/callback. */
 export async function signInWithGoogle(): Promise<void> {
   const { signInWithRedirect } = await amplifyAuth();
@@ -212,6 +240,10 @@ export function authErrorCode(err: unknown): AuthErrorCode {
     case 'CodeMismatchException':
     case 'ExpiredCodeException':
       return 'BAD_CODE';
+    case 'LimitExceededException':
+    case 'TooManyRequestsException':
+    case 'TooManyFailedAttemptsException':
+      return 'TOO_MANY_ATTEMPTS';
     case 'NetworkError':
       return 'NETWORK';
     default:

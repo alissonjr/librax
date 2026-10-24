@@ -1,4 +1,26 @@
 {
+  "account": {
+    "errors": {
+      "tooManyAttempts": "Too many attempts in a row. Wait a few minutes and try again."
+    },
+    "reset": {
+      "backToSignIn": "Back to sign in",
+      "badCode": "Wrong or expired code. Check your email or ask for a new code.",
+      "codeSub": "If there is an account with a password for {email}, we sent a code to that email. Enter the code and your new password.",
+      "codeTitle": "Create a new password",
+      "done": "Password changed. Now just sign in with the new password.",
+      "googleNote": "Signed up with Google? Your account has no password: sign in with the Continue with Google button.",
+      "lead": "Enter your account email. We will send you a code to create a new password.",
+      "link": "Forgot password",
+      "newPasswordLabel": "New password",
+      "notReceived": "Nothing after a few minutes? Check your spam folder or ask for another code.",
+      "resend": "Resend code",
+      "resent": "We asked for another code. Use the most recent one.",
+      "save": "Save new password",
+      "sendCode": "Send code",
+      "title": "Recover password"
+    }
+  },
   "achievementsScreen": {
     "ach_cameraEstreante_desc": "First sign recognized by the camera",
     "ach_cameraEstreante_name": "Debut",
