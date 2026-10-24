@@ -28,6 +28,14 @@ import { Node } from 'constructs';
  * | librax:emailRemindersEnabled   | false                           | liga o lembrete por e-mail (SES) |
  * | librax:emailFrom               | lembretes@<domainName>          | remetente verificado no SES |
  * | librax:cspReportOnly           | false                           | manda a CSP como Report-Only (diagnostico) |
+ * | librax:extraAdminCallbackUrls  | (vazio)                         | callbacks extras do painel (ex.: http://localhost:5310/admin/auth/callback) |
+ * | librax:extraAdminLogoutUrls    | (vazio)                         | logouts extras do painel |
+ * | librax:alarmEmail              | (vazio)                         | e-mail que recebe os alarmes (SNS); sem ele o topico fica sem assinatura |
+ * | librax:budgetEmail             | = alarmEmail                    | e-mail dos avisos do AWS Budget (80% e 100%) |
+ * | librax:monthlyBudgetUsd        | 10                              | valor mensal do AWS Budget, em dolares |
+ *
+ * Os e-mails nunca ficam no codigo: passe por contexto (`-c librax:alarmEmail=...`) ou no
+ * cdk.context.json local, que nao vai para o repositorio.
  */
 export interface LibraxConfig {
   domainName: string;
@@ -49,6 +57,10 @@ export interface LibraxConfig {
   vapid: { publicKeyParam: string; privateKeyParam: string; subject: string };
   email: { enabled: boolean; from: string };
   cspReportOnly: boolean;
+  extraAdminCallbackUrls: string[];
+  extraAdminLogoutUrls: string[];
+  alarms: { email?: string };
+  budget: { email?: string; monthlyUsd: number };
 }
 
 export const PLACEHOLDER_DOMAIN = 'librax.example';
@@ -104,5 +116,18 @@ export function readConfig(node: Node): LibraxConfig {
       from: str('emailFrom', `lembretes@${domainName}`),
     },
     cspReportOnly: bool('cspReportOnly', false),
+    extraAdminCallbackUrls: list('extraAdminCallbackUrls'),
+    extraAdminLogoutUrls: list('extraAdminLogoutUrls'),
+    alarms: { email: str('alarmEmail') || undefined },
+    budget: {
+      email: str('budgetEmail') || str('alarmEmail') || undefined,
+      monthlyUsd: positiveNumber(str('monthlyBudgetUsd', '10'), 'monthlyBudgetUsd'),
+    },
   };
+}
+
+function positiveNumber(raw: string, key: string): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) throw new Error(`librax:${key} deve ser um numero maior que zero (veio "${raw}")`);
+  return n;
 }

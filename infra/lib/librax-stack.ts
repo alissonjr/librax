@@ -19,11 +19,18 @@ import * as schedulerTargets from 'aws-cdk-lib/aws-scheduler-targets';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
+import * as budgets from 'aws-cdk-lib/aws-budgets';
 import { Annotations, Duration, RemovalPolicy, SecretValue } from 'aws-cdk-lib';
 import { readConfig, PLACEHOLDER_DOMAIN } from './config';
 import {
+  adminCsp,
   appCsp,
   vlibrasCsp,
+  ADMIN_SPA_REWRITE_FUNCTION,
   IMMUTABLE,
   NO_CACHE,
   PERMISSIONS_POLICY,
@@ -43,7 +50,10 @@ const API_DIR = path.join(__dirname, '..', '..', 'services', 'api');
  * - Lambda functions (Node 22, empacotadas com esbuild) para cada endpoint
  * - API Gateway HTTP API (autorizador JWT Cognito) no estagio `api`
  * - CloudFront unico na mesma origem: `/` app, `/content/*`, `/ml/*`, `/api/*`
- * - EventBridge Scheduler: fechar liga semanal e lembretes (Web Push e e-mail opcional)
+ * - EventBridge Scheduler: fechar liga semanal, lembretes (Web Push e e-mail opcional) e o job
+ *   diario do painel de administracao (CloudWatch e Cost Explorer)
+ * - Painel de administracao em /admin (bucket proprio), so para o grupo `admin` do Cognito
+ * - Alarmes do CloudWatch com aviso por e-mail (SNS) e AWS Budget mensal (80% e 100%)
  *
  * Parametros de contexto: ver lib/config.ts. O dominio padrao (librax.example) e placeholder.
  */
@@ -149,6 +159,16 @@ export class LibraxStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
+    // Painel de administracao (apps/admin-web, dist/ em admin/). Bucket proprio para o
+    // `s3 sync --delete` do app nunca apagar o painel (e vice-versa).
+    const adminBucket = new s3.Bucket(this, 'LibraxAdminBucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+      versioned: true,
+      removalPolicy: RemovalPolicy.RETAIN,
+    });
+
     // -----------------------------------------------------------------------
     // 3. Cognito User Pool (dominio proprio, OAuth code + PKCE, Google, Apple opcional)
     // -----------------------------------------------------------------------
@@ -220,6 +240,15 @@ export class LibraxStack extends cdk.Stack {
       identityProviders.push(cognito.UserPoolClientIdentityProvider.APPLE);
     }
 
+    // Grupo do painel de administracao: o id token de quem esta nele leva `cognito:groups`, que
+    // a Lambda do painel confere. Dar acesso: docs/painel-admin.md.
+    new cognito.CfnUserPoolGroup(this, 'AdminGroup', {
+      userPoolId: userPool.userPoolId,
+      groupName: 'admin',
+      description: 'Painel de administracao (/admin), so leitura',
+      precedence: 0,
+    });
+
     // -----------------------------------------------------------------------
     // 4. Lambda functions (esbuild: ESM do services/api vira um arquivo por handler)
     // -----------------------------------------------------------------------
@@ -265,6 +294,10 @@ export class LibraxStack extends cdk.Stack {
     const getDailyQueueFn = makeFn('GetDailyQueueFn', 'lesson.js', 'getDailyQueueHandler', {
       functionName: 'librax-get-daily-queue',
       description: 'Monta a fila diaria de SRS + conteudo novo (SPEC 03)',
+    });
+    const abandonLessonFn = makeFn('AbandonLessonFn', 'lesson.js', 'abandonLessonHandler', {
+      functionName: 'librax-abandon-lesson',
+      description: 'Saida no meio da licao: so contadores do painel de administracao',
     });
     const reviewSignsFn = makeFn('ReviewSignsFn', 'practice.js', 'reviewSignsHandler', {
       functionName: 'librax-review-signs',
@@ -334,9 +367,25 @@ export class LibraxStack extends cdk.Stack {
       },
     });
 
+    // Painel de administracao: uma Lambda para todas as rotas /v1/admin (so leitura)
+    const adminFn = makeFn('AdminFn', 'admin.js', 'adminRouter', {
+      functionName: 'librax-admin',
+      description: 'Painel de administracao (so leitura, grupo admin): operacao, conteudo, contas, squads, custo',
+      memorySize: 512,
+      timeout: Duration.seconds(15),
+      environment: { USER_POOL_ID: userPool.userPoolId },
+    });
+    // Conta nova (gatilho PostConfirmation do Cognito): so soma nos contadores do painel
+    const postConfirmationFn = makeFn('PostConfirmationFn', 'postConfirmation.js', 'handler', {
+      functionName: 'librax-post-confirmation',
+      description: 'Conta nova nos contadores do painel; nunca bloqueia o cadastro',
+      timeout: Duration.seconds(5),
+    });
+    userPool.addTrigger(cognito.UserPoolOperation.POST_CONFIRMATION, postConfirmationFn);
+
     // Permissoes DynamoDB (principio do menor privilegio)
     const allLambdas = [
-      completeLessonFn, getDailyQueueFn, reviewSignsFn, migrateGuestFn,
+      completeLessonFn, getDailyQueueFn, abandonLessonFn, reviewSignsFn, migrateGuestFn,
       createSquadFn, joinSquadFn, leaveSquadFn, getSquadFn,
       manageMemberFn, listMySquadsFn, disbandSquadFn,
       transferOwnershipFn, regenerateInviteFn,
@@ -348,6 +397,14 @@ export class LibraxStack extends cdk.Stack {
     }
     table.grantReadWriteData(closeLeagueFn);
     table.grantReadWriteData(reminderFn);
+    table.grantReadData(adminFn);          // o painel so le
+    table.grantWriteData(postConfirmationFn);
+
+    // Busca de conta pelo e-mail: so ListUsers, so neste User Pool
+    adminFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['cognito-idp:ListUsers'],
+      resources: [userPool.userPoolArn],
+    }));
 
     // Chaves VAPID: so leitura dos dois parametros; a SecureString usa a chave aws/ssm.
     const ssmArn = (name: string) =>
@@ -409,6 +466,7 @@ export class LibraxStack extends cdk.Stack {
     // -----------------------------------------------------------------------
 
     const webOrigin = cloudfrontOrigins.S3BucketOrigin.withOriginAccessControl(webBucket);
+    const adminOrigin = cloudfrontOrigins.S3BucketOrigin.withOriginAccessControl(adminBucket);
     const contentOrigin = cloudfrontOrigins.S3BucketOrigin.withOriginAccessControl(contentBucket);
     const apiOrigin = new cloudfrontOrigins.HttpOrigin(
       cdk.Fn.select(2, cdk.Fn.split('/', httpApi.apiEndpoint)),
@@ -449,6 +507,16 @@ export class LibraxStack extends cdk.Stack {
     const vlibrasHeaders = headerPolicy('VlibrasHeaders', 'Librax - player VLibras (Unity)', {
       csp: vlibrasCsp(),
       extra: { 'Cache-Control': NO_CACHE },
+    });
+    // Painel: CSP propria (sem terceiros), sem moldura e fora dos buscadores
+    const adminCspValue = adminCsp(`https://${authHost}`, `https://cognito-idp.${this.region}.amazonaws.com`);
+    const adminShellHeaders = headerPolicy('AdminShellHeaders', 'Librax - painel admin (no-cache)', {
+      csp: adminCspValue,
+      extra: { 'Cache-Control': NO_CACHE, 'X-Robots-Tag': 'noindex, nofollow' },
+    });
+    const adminAssetHeaders = headerPolicy('AdminAssetHeaders', 'Librax - painel admin, arquivos com hash (immutable)', {
+      csp: adminCspValue,
+      extra: { 'Cache-Control': IMMUTABLE, 'X-Robots-Tag': 'noindex, nofollow' },
     });
     const apiHeaders = new cloudfront.ResponseHeadersPolicy(this, 'ApiHeaders', {
       comment: 'Librax - API',
@@ -493,6 +561,15 @@ export class LibraxStack extends cdk.Stack {
       runtime: cloudfront.FunctionRuntime.JS_2_0,
       code: cloudfront.FunctionCode.fromInline(WASM_CONTENT_TYPE_FUNCTION),
     });
+    const adminRewrite = new cloudfront.Function(this, 'AdminSpaRewrite', {
+      comment: 'Rotas do painel sem extensao -> /admin/index.html',
+      runtime: cloudfront.FunctionRuntime.JS_2_0,
+      code: cloudfront.FunctionCode.fromInline(ADMIN_SPA_REWRITE_FUNCTION),
+    });
+    const adminShellBehavior: cloudfront.BehaviorOptions = {
+      ...staticBehavior(adminOrigin, adminShellHeaders, appShellCache),
+      functionAssociations: [{ function: adminRewrite, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
+    };
     const wasmBehavior = (origin: cloudfront.IOrigin): cloudfront.BehaviorOptions => ({
       ...staticBehavior(origin, immutableHeaders),
       functionAssociations: [{ function: wasmContentType, eventType: cloudfront.FunctionEventType.VIEWER_RESPONSE }],
@@ -526,6 +603,9 @@ export class LibraxStack extends cdk.Stack {
           responseHeadersPolicy: apiHeaders,
           compress: true,
         },
+        '/admin/assets/*': staticBehavior(adminOrigin, adminAssetHeaders),
+        '/admin': adminShellBehavior,
+        '/admin/*': adminShellBehavior,
       },
     });
 
@@ -565,10 +645,36 @@ export class LibraxStack extends cdk.Stack {
       jwtAudience: [userPoolClient.userPoolClientId],
     });
 
+    // Painel de administracao: app client proprio (callbacks em /admin) e autorizador que so
+    // aceita o id token dele. O token do app nao abre as rotas /v1/admin, e a Lambda ainda
+    // confere o grupo `admin` (cognito:groups).
+    const adminClient = new cognito.UserPoolClient(this, 'LibraxAdminClient', {
+      userPool,
+      userPoolClientName: 'librax-admin',
+      authFlows: { userSrp: false, userPassword: false, custom: false, adminUserPassword: false },
+      oAuth: {
+        flows: { authorizationCodeGrant: true, implicitCodeGrant: false },
+        scopes: [cognito.OAuthScope.OPENID, cognito.OAuthScope.EMAIL, cognito.OAuthScope.PROFILE],
+        callbackUrls: [...origins.map((o) => `${o}/admin/auth/callback`), ...config.extraAdminCallbackUrls],
+        logoutUrls: [...origins.map((o) => `${o}/admin/`), ...config.extraAdminLogoutUrls],
+      },
+      supportedIdentityProviders: identityProviders,
+      generateSecret: false,
+      preventUserExistenceErrors: true,
+      accessTokenValidity: Duration.hours(1),
+      idTokenValidity: Duration.hours(1),
+      refreshTokenValidity: Duration.hours(12),
+    });
+    for (const idp of idpResources) adminClient.node.addDependency(idp);
+    const adminAuthorizer = new apigatewayv2authorizers.HttpJwtAuthorizer('CognitoAdminAuth', userPool.userPoolProviderUrl, {
+      jwtAudience: [adminClient.userPoolClientId],
+    });
+
     const addRoute = (
       method: apigatewayv2.HttpMethod,
       routePath: string,
       fn: lambda.IFunction,
+      routeAuthorizer: apigatewayv2.IHttpRouteAuthorizer = authorizer,
     ) =>
       httpApi.addRoutes({
         path: routePath,
@@ -577,13 +683,14 @@ export class LibraxStack extends cdk.Stack {
           `${fn.node.id}${method}${routePath.replace(/[^A-Za-z0-9]/g, '')}Int`,
           fn,
         ),
-        authorizer,
+        authorizer: routeAuthorizer,
       });
 
     const M = apigatewayv2.HttpMethod;
 
     addRoute(M.POST,   '/v1/lesson/complete',                         completeLessonFn);
     addRoute(M.GET,    '/v1/lesson/queue',                            getDailyQueueFn);
+    addRoute(M.POST,   '/v1/lesson/abandon',                          abandonLessonFn);
     addRoute(M.POST,   '/v1/practice/review',                         reviewSignsFn);
     addRoute(M.POST,   '/v1/guest/migrate',                           migrateGuestFn);
     addRoute(M.POST,   '/v1/squads',                                  createSquadFn);
@@ -600,6 +707,19 @@ export class LibraxStack extends cdk.Stack {
     addRoute(M.POST,   '/v1/push/subscriptions',                      subscribePushFn);
     addRoute(M.DELETE, '/v1/push/subscriptions/{subscriptionId}',     unsubscribePushFn);
     addRoute(M.PUT,    '/v1/notifications/preferences',               notificationPrefsFn);
+
+    // Painel de administracao (so leitura): mesma Lambda, autorizador do app client do painel
+    for (const routePath of [
+      '/v1/admin/me',
+      '/v1/admin/overview',
+      '/v1/admin/content',
+      '/v1/admin/accounts',
+      '/v1/admin/accounts/{userId}',
+      '/v1/admin/squads',
+      '/v1/admin/cost',
+    ]) {
+      addRoute(M.GET, routePath, adminFn, adminAuthorizer);
+    }
 
     // -----------------------------------------------------------------------
     // 8. DNS (opcional): A/AAAA do app e do dominio do Cognito
@@ -656,8 +776,156 @@ export class LibraxStack extends cdk.Stack {
       target: new schedulerTargets.LambdaInvoke(reminderFn, { retryAttempts: 0 }),
     });
 
+    // Job diario do painel (00:30 em Brasilia): erros do dia que acabou (CloudWatch) e gasto do
+    // mes (Cost Explorer, US$ 0,01 por chamada). Sem nova tentativa: cada uma pagaria de novo; o
+    // alarme de erros avisa se falhar, e da para refazer o dia a mao ({ "day": "AAAA-MM-DD" }).
+    const opsDailyName = 'librax-ops-daily';
+    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, postConfirmationFn];
+    const opsDailyFn = makeFn('OpsDailyFn', 'opsDaily.js', 'handler', {
+      functionName: opsDailyName,
+      timeout: Duration.minutes(2),
+      description: 'Painel de administracao: erros do dia (CloudWatch) e custo do mes (Cost Explorer)',
+      environment: {
+        API_ID: httpApi.apiId,
+        API_STAGE: apiStage.stageName,
+        FUNCTION_NAMES: [...watchedFns.map((fn) => fn.functionName), opsDailyName].join(','),
+      },
+    });
+    table.grantWriteData(opsDailyFn);
+    opsDailyFn.addToRolePolicy(new iam.PolicyStatement({
+      // as duas APIs so aceitam recurso `*`
+      actions: ['cloudwatch:GetMetricData', 'ce:GetCostAndUsage'],
+      resources: ['*'],
+    }));
+    new scheduler.Schedule(this, 'OpsDailySchedule', {
+      scheduleName: opsDailyName,
+      description: 'Painel de administracao: CloudWatch e Cost Explorer uma vez por dia',
+      schedule: scheduler.ScheduleExpression.cron({ minute: '30', hour: '3' }),
+      target: new schedulerTargets.LambdaInvoke(opsDailyFn, { retryAttempts: 0 }),
+    });
+
     // -----------------------------------------------------------------------
-    // 10. Outputs uteis (viram VITE_* no build do app, ver apps/web-poc/.env.example)
+    // 10. Alarmes (CloudWatch + SNS por e-mail) e AWS Budget
+    // -----------------------------------------------------------------------
+
+    // Alarmes agregados, para caber nos 10 alarmes gratis do CloudWatch (9 metricas aqui): erros
+    // e throttling de todas as Lambdas da conta, duracao das Lambdas da API pela latencia de
+    // integracao do estagio, duracao maxima dos jobs perto do timeout, 5xx da API e throttling
+    // do DynamoDB. O detalhe por funcao fica no painel (job diario).
+    const alarmTopic = new sns.Topic(this, 'AlarmTopic', {
+      topicName: 'librax-alarms',
+      displayName: 'Librax - alertas',
+    });
+    if (config.alarms.email) {
+      alarmTopic.addSubscription(new snsSubscriptions.EmailSubscription(config.alarms.email));
+    } else {
+      Annotations.of(this).addWarningV2(
+        'librax:no-alarm-email',
+        'Sem librax:alarmEmail: os alarmes existem, mas ninguem recebe o aviso por e-mail.',
+      );
+    }
+    const notify = new cloudwatchActions.SnsAction(alarmTopic);
+    const FIVE_MIN = Duration.minutes(5);
+    const alarm = (id: string, props: cloudwatch.AlarmProps) => {
+      const a = new cloudwatch.Alarm(this, id, {
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+        comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        ...props,
+      });
+      a.addAlarmAction(notify);
+      a.addOkAction(notify); // avisa tambem quando volta ao normal
+      return a;
+    };
+
+    alarm('LambdaErrorsAlarm', {
+      alarmName: 'librax-lambda-errors',
+      alarmDescription: 'Alguma Lambda falhou (excecao nao tratada, timeout ou job com erro). Detalhe por funcao no painel.',
+      metric: new cloudwatch.Metric({ namespace: 'AWS/Lambda', metricName: 'Errors', statistic: 'Sum', period: FIVE_MIN }),
+      threshold: 1,
+      evaluationPeriods: 1,
+    });
+    alarm('LambdaThrottlesAlarm', {
+      alarmName: 'librax-lambda-throttles',
+      alarmDescription: 'Lambda recusada por limite de concorrencia da conta.',
+      metric: new cloudwatch.Metric({ namespace: 'AWS/Lambda', metricName: 'Throttles', statistic: 'Sum', period: FIVE_MIN }),
+      threshold: 1,
+      evaluationPeriods: 1,
+    });
+    alarm('ApiLatencyAlarm', {
+      alarmName: 'librax-api-lambda-duration',
+      alarmDescription: 'Lambdas da API lentas: p95 da latencia de integracao acima de 5 s em 2 de 3 periodos.',
+      metric: apiStage.metricIntegrationLatency({ statistic: 'p95', period: FIVE_MIN }),
+      threshold: 5000,
+      evaluationPeriods: 3,
+      datapointsToAlarm: 2,
+    });
+    alarm('Api5xxAlarm', {
+      alarmName: 'librax-api-5xx',
+      alarmDescription: 'Respostas 5xx da API (erro interno nas Lambdas ou no API Gateway): 3 ou mais em 5 min.',
+      metric: apiStage.metricServerError({ statistic: 'Sum', period: FIVE_MIN }),
+      threshold: 3,
+      evaluationPeriods: 1,
+    });
+    const jobs: Array<[string, lambdaNodejs.NodejsFunction, string, Duration]> = [
+      ['CloseLeagueDurationAlarm', closeLeagueFn, 'librax-close-league', Duration.minutes(5)],
+      ['ReminderDurationAlarm', reminderFn, 'librax-reminders', Duration.minutes(5)],
+      ['OpsDailyDurationAlarm', opsDailyFn, opsDailyName, Duration.minutes(2)],
+    ];
+    for (const [id, fn, name, timeout] of jobs) {
+      alarm(id, {
+        alarmName: `${name}-duration`,
+        alarmDescription: `Job ${name} perto do timeout (duracao maxima acima de 80%).`,
+        metric: fn.metricDuration({ statistic: 'Maximum', period: FIVE_MIN }),
+        threshold: timeout.toMilliseconds() * 0.8,
+        evaluationPeriods: 1,
+      });
+    }
+    alarm('DynamoThrottleAlarm', {
+      alarmName: 'librax-dynamodb-throttles',
+      alarmDescription: 'Leitura ou escrita recusada na tabela librax (throttling).',
+      metric: new cloudwatch.MathExpression({
+        expression: 'r + w',
+        usingMetrics: {
+          r: table.metric('ReadThrottleEvents', { statistic: 'Sum', period: FIVE_MIN }),
+          w: table.metric('WriteThrottleEvents', { statistic: 'Sum', period: FIVE_MIN }),
+        },
+        period: FIVE_MIN,
+        label: 'Throttling da tabela',
+      }),
+      threshold: 1,
+      evaluationPeriods: 1,
+    });
+
+    // Orcamento mensal com aviso por e-mail em 80% e 100% do gasto real (valor em
+    // librax:monthlyBudgetUsd). Budgets sem acoes nao sao cobrados.
+    const budgetEmail = config.budget.email;
+    if (budgetEmail) {
+      new budgets.CfnBudget(this, 'MonthlyBudget', {
+        budget: {
+          budgetName: 'librax-mensal',
+          budgetType: 'COST',
+          timeUnit: 'MONTHLY',
+          budgetLimit: { amount: config.budget.monthlyUsd, unit: 'USD' },
+        },
+        notificationsWithSubscribers: [80, 100].map((threshold) => ({
+          notification: {
+            notificationType: 'ACTUAL',
+            comparisonOperator: 'GREATER_THAN',
+            threshold,
+            thresholdType: 'PERCENTAGE',
+          },
+          subscribers: [{ subscriptionType: 'EMAIL', address: budgetEmail }],
+        })),
+      });
+    } else {
+      Annotations.of(this).addWarningV2(
+        'librax:no-budget-email',
+        'Sem librax:budgetEmail (ou librax:alarmEmail): o AWS Budget mensal nao e criado.',
+      );
+    }
+
+    // -----------------------------------------------------------------------
+    // 11. Outputs uteis (viram VITE_* no build do app, ver apps/web-poc/.env.example)
     // -----------------------------------------------------------------------
 
     new cdk.CfnOutput(this, 'AppUrl', {
@@ -703,6 +971,22 @@ export class LibraxStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'ContentBucketName', {
       value: contentBucket.bucketName,
       description: 'Bucket de conteudo (content/...) e modelos (ml/<versao>/...)',
+    });
+    new cdk.CfnOutput(this, 'AdminUrl', {
+      value: `${certificate ? appUrl : `https://${distribution.distributionDomainName}`}/admin/`,
+      description: 'Painel de administracao (so o grupo admin do Cognito)',
+    });
+    new cdk.CfnOutput(this, 'AdminClientId', {
+      value: adminClient.userPoolClientId,
+      description: 'App client do painel (VITE_COGNITO_CLIENT_ID do apps/admin-web)',
+    });
+    new cdk.CfnOutput(this, 'AdminBucketName', {
+      value: adminBucket.bucketName,
+      description: 'Bucket do painel (dist/ do apps/admin-web vai para admin/)',
+    });
+    new cdk.CfnOutput(this, 'AlarmTopicArn', {
+      value: alarmTopic.topicArn,
+      description: 'Topico SNS dos alarmes (confirme a assinatura no e-mail)',
     });
     new cdk.CfnOutput(this, 'TableName', {
       value: table.tableName,

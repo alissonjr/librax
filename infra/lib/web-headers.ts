@@ -77,6 +77,27 @@ export function appCsp(authOrigin: string, cognitoIdpOrigin: string): string {
   });
 }
 
+/**
+ * CSP do painel de administracao (/admin/*, apps/admin-web). Sem terceiros: o painel so fala com a
+ * propria origem (API e fontes) e com o Cognito (troca do code por tokens). Nao pode ser
+ * emoldurado por nenhuma pagina.
+ */
+export function adminCsp(authOrigin: string, cognitoIdpOrigin: string): string {
+  return join({
+    'default-src': ["'self'"],
+    'script-src': ["'self'"],
+    'connect-src': ["'self'", authOrigin, cognitoIdpOrigin],
+    'img-src': ["'self'", 'data:'],
+    'style-src': ["'self'", "'unsafe-inline'"],
+    'font-src': ["'self'"],
+    'frame-ancestors': ["'none'"],
+    'object-src': ["'none'"],
+    'base-uri': ["'self'"],
+    'form-action': ["'self'"],
+    'upgrade-insecure-requests': [],
+  });
+}
+
 /** CSP da pagina do avatar VLibras (/vlibras/*), que roda o build WebGL do Unity. */
 export function vlibrasCsp(): string {
   return join({
@@ -115,4 +136,21 @@ export const WASM_CONTENT_TYPE_FUNCTION = `function handler(event) {
   var response = event.response;
   response.headers['content-type'] = { value: 'application/wasm' };
   return response;
+}`;
+
+/**
+ * CloudFront Function (viewer-request) do painel (/admin e /admin/*): `/admin` vira `/admin/` e
+ * as rotas sem extensao (/admin/contas, /admin/auth/callback) recebem o /admin/index.html do
+ * bucket do painel. Arquivos com extensao seguem como estao.
+ */
+export const ADMIN_SPA_REWRITE_FUNCTION = `function handler(event) {
+  var request = event.request;
+  if (request.uri === '/admin') {
+    return { statusCode: 301, statusDescription: 'Moved Permanently', headers: { location: { value: '/admin/' } } };
+  }
+  var last = request.uri.split('/').pop();
+  if (last === '' || last.indexOf('.') === -1) {
+    request.uri = '/admin/index.html';
+  }
+  return request;
 }`;
