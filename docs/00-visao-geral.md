@@ -52,6 +52,9 @@ Specs executáveis (fonte da verdade):
 - [SPEC 04 - Squads e equipes](./spec-04-squads.md) - squads B2C (criadas por usuários), equipes B2B (criadas por admins de org), ranking semanal, diretório, convites, frontend completo.
 - [SPEC 05 - Experiência WoW](./spec-05-experiencia-wow.md) - design emocional: câmera como palco, motion design, som, háptica, marcos de progressão, cartões de cultura surda, notificações com voz humana, empty states, CourseCompletion coreografado, performance como feature.
 
+Operação:
+- [Painel de administração](./painel-admin.md) - painel só de leitura em `/admin` (grupo `admin` do Cognito): operação, conteúdo, contas, squads e custo, com contadores agregados, job diário, alarmes por e-mail e AWS Budget. Inclui como dar acesso e o custo extra estimado.
+
 Notas técnicas:
 - [PoC web storage](./poc-web-storage.md) - progresso local em IndexedDB rodando o domínio no navegador (o "Caminho B", implementado no web-poc).
 
@@ -70,6 +73,7 @@ Conferido no código em 2026-10-23.
   - Progresso em IndexedDB (`src/lib/idbRepo.ts`) rodando o mesmo domínio de `services/api/src` por alias (`completeLesson` no navegador). Testes com vitest (15 arquivos).
 - `services/api/` - **núcleo de domínio do backend (SPEC 02 + SPEC 04) com TDD**: streak, SRS (SM-2), XP, conquistas, squads, ligas, fila diária, e os usecases `completeLesson`/`getDailyQueue`/squads sobre uma porta de repositório. 76 testes. A borda AWS já começou: handlers Lambda (`src/handlers/`: lição, squads, fechamento da liga) e adaptador DynamoDB (`src/adapters/dynamoRepo.js`), além do adaptador em memória. O `services/api/README.md` ainda diz que eles faltam.
 - `infra/` - **AWS CDK** (`infra/lib/librax-stack.ts`): DynamoDB single-table com GSI1 a GSI5, Cognito User Pool (e-mail e Google; o convidado é 100% local, sem Identity Pool), Lambdas Node 22 por endpoint, HTTP API com authorizer JWT do Cognito, S3 e CloudFront para o conteúdo e EventBridge Scheduler para fechar a liga semanal. Ainda não tem o CloudFront único com domínio próprio nem a migração do convidado (fase W3).
+- `apps/admin-web/` - **painel de administração** (Vite, React, TypeScript), só leitura, publicado em `/admin` no mesmo CloudFront. Ver [`painel-admin.md`](./painel-admin.md).
 - `ml-training/train_static.py` - treino do classificador estático (MLP, split por pessoa), pronto para rodar quando houver dataset. Hoje exporta `.tflite`; a fase W1 passa a exportar pesos para inferência em TypeScript.
 - `apps/mobile_flutter/` - **congelado**. Spike de reconhecimento (S1 esqueleto + S2 captura de dataset), nunca compilado em aparelho. Fica como referência da normalização (`lib/hand_skeleton.dart`). Ver `spike-01-findings.md`.
 
