@@ -13,6 +13,7 @@ import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 import { warmUpHandLandmarker } from '../recognition/landmarker';
 import type { LessonProgress } from '../lib/lessonRun';
+import type { ExerciseStats } from '../lib/sync';
 
 /** Exercícios que abrem a câmera: a lição que tem algum já começa a carregar o modelo. */
 const CAMERA_EXERCISES = new Set<string>(['perform_sign', 'mirror_practice', 'fingerspell']);
@@ -29,6 +30,8 @@ export interface LessonSessionResult {
   xpReward: number;
   signsLearnedDelta: number;
   isLastLesson: boolean;
+  /** Respostas e erros por tipo de exercício, para o painel de administração. */
+  exerciseStats?: ExerciseStats;
 }
 
 interface Props {
@@ -56,6 +59,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
   const [newSignsSeen] = useState(() => new Set<string>(initial?.seen ?? []));
   const [correct, setCorrect] = useState(initial?.correct ?? 0);
   const [attempted, setAttempted] = useState(initial?.attempted ?? 0);
+  const [exerciseStats, setExerciseStats] = useState<ExerciseStats>(initial?.exerciseStats ?? {});
   // Exercício atual já verificado (resposta contada): se a página recarregar, retoma no seguinte
   const [answeredIdx, setAnsweredIdx] = useState(-1);
 
@@ -73,14 +77,22 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
       attempted,
       reviewed,
       seen: [...newSignsSeen],
+      exerciseStats,
     });
-  }, [currentIdx, answeredIdx, correct, attempted, reviewed, newSignsSeen, exercises.length]);
+  }, [currentIdx, answeredIdx, correct, attempted, reviewed, newSignsSeen, exerciseStats, exercises.length]);
 
-  /** Conta a resposta do exercício atual. */
+  /** Conta a resposta do exercício atual (no total e no tipo do exercício). */
   function record(wasCorrect: boolean) {
     setAttempted(a => a + 1);
     if (wasCorrect) setCorrect(c => c + 1);
     setAnsweredIdx(currentIdx);
+    const type = exercises[currentIdx]?.type;
+    if (type) {
+      setExerciseStats(s => {
+        const cur = s[type] ?? { attempted: 0, wrong: 0 };
+        return { ...s, [type]: { attempted: cur.attempted + 1, wrong: cur.wrong + (wasCorrect ? 0 : 1) } };
+      });
+    }
   }
 
   // Cada exercício começa do topo (o anterior pode ter rolado até o botão Continuar)
@@ -110,8 +122,9 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
       xpReward: lesson.xpReward,
       signsLearnedDelta: newSignsSeen.size,
       isLastLesson,
+      exerciseStats,
     });
-  }, [attempted, correct, reviewed, onComplete, lessonId, lesson, newSignsSeen, isLastLesson]);
+  }, [attempted, correct, reviewed, onComplete, lessonId, lesson, newSignsSeen, isLastLesson, exerciseStats]);
 
   const advance = useCallback(() => {
     const next = currentIdx + 1;

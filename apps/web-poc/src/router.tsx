@@ -7,6 +7,7 @@ import { isOnboarded } from './lib/auth';
 import { shouldOfferAccount, useAccount } from './lib/account';
 import { Flags } from './lib/flags';
 import { getToday } from './lib/today';
+import { reportLessonAbandon } from './lib/sync';
 import { course } from './lib/course';
 import { isLessonOpen, loadCourseProgress } from './lib/progress';
 import type { Exercise } from './lib/content';
@@ -350,6 +351,8 @@ function LessonRoute() {
   const version = useRef('');
   // Concluída ou abandonada: nada mais é guardado (a tela ainda pode renderizar depois do fim)
   const runClosed = useRef(false);
+  // Próximo exercício a abrir (o último progresso guardado), para contar onde a pessoa saiu
+  const lastIndex = useRef(0);
   const ready = Array.isArray(exercises) && exercises.length > 0;
   const exit = useLessonExit(ready);
 
@@ -358,6 +361,7 @@ function LessonRoute() {
     setExercises(undefined);
     setResume(null);
     runClosed.current = false;
+    lastIndex.current = 0;
     async function load(): Promise<Exercise[] | null | 'locked'> {
       // content.ts traz os sinais (signs.json): só baixa quando uma lição abre. A tela da lição
       // baixa junto, para aparecer inteira de uma vez.
@@ -373,7 +377,10 @@ function LessonRoute() {
       // Página recarregada no meio da lição: os mesmos exercícios (e sorteios), do ponto onde parou
       const saved = loadLessonRun(userId, id, version.current);
       if (saved && saved.exercises.every(ex => content.signsMap[ex.signId])) {
-        if (!cancelled) setResume(saved);
+        if (!cancelled) {
+          setResume(saved);
+          lastIndex.current = saved.index;
+        }
         return saved.exercises;
       }
       return content.resolveExercises(bundle, lesson.signIds);
@@ -399,6 +406,7 @@ function LessonRoute() {
 
   const lessonExercises = exercises;
   function handleProgress(progress: LessonProgress) {
+    lastIndex.current = progress.index;
     if (runClosed.current) return;
     saveLessonRun(userId, { lessonId: id, version: version.current, exercises: lessonExercises, ...progress });
   }
@@ -406,6 +414,15 @@ function LessonRoute() {
   function confirmExit() {
     runClosed.current = true;
     clearLessonRun(userId, id);
+    // Onde a pessoa parou, para o painel de administração (só com conta; sem esperar a rede)
+    const index = Math.min(lastIndex.current, lessonExercises.length - 1);
+    void reportLessonAbandon({
+      lessonId: id,
+      today: getToday(),
+      exerciseIndex: index,
+      exerciseCount: lessonExercises.length,
+      exerciseType: lessonExercises[index]?.type ?? null,
+    });
     exit.confirm();
   }
 

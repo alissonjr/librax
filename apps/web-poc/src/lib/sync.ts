@@ -21,6 +21,13 @@ export interface ReviewedSign {
   result: { state: string; highConfidence?: boolean };
 }
 
+/**
+ * Respostas e erros por tipo de exercício numa lição (`{ watch_choose_word: { attempted, wrong } }`).
+ * Só alimenta os contadores do painel de administração (onde as pessoas mais erram); o servidor
+ * descarta o que vier fora do formato sem recusar a conclusão.
+ */
+export type ExerciseStats = Record<string, { attempted: number; wrong: number }>;
+
 export interface LessonCompletionInput {
   lessonId: string;
   /** Dia local da conclusão ('YYYY-MM-DD'), o mesmo passado ao completeLesson local. */
@@ -30,6 +37,7 @@ export interface LessonCompletionInput {
   signsLearnedDelta?: number;
   lessonAttemptId?: string;
   completedAt?: string;
+  exerciseStats?: ExerciseStats;
 }
 
 export interface OutboxEntry {
@@ -40,6 +48,7 @@ export interface OutboxEntry {
   reviewed: ReviewedSign[];
   signsLearnedDelta: number;
   completedAt: string;
+  exerciseStats?: ExerciseStats;
   /** sub do Cognito de quem concluiu; null = convidado (vai pela migração). */
   owner: string | null;
   seq: number;
@@ -110,6 +119,7 @@ export async function enqueueLessonCompletion(input: LessonCompletionInput): Pro
     reviewed: input.reviewed ?? [],
     signsLearnedDelta: input.signsLearnedDelta ?? 0,
     completedAt: input.completedAt ?? deps.now().toISOString(),
+    ...(input.exerciseStats && Object.keys(input.exerciseStats).length ? { exerciseStats: input.exerciseStats } : {}),
     owner: session?.userId ?? null,
     seq: Date.now() * 1000 + (seqCounter++ % 1000),
     attempts: 0,
@@ -136,6 +146,7 @@ const toPayload = (e: OutboxEntry) => ({
   completedAt: e.completedAt,
   reviewed: e.reviewed,
   signsLearnedDelta: e.signsLearnedDelta,
+  ...(e.exerciseStats ? { exerciseStats: e.exerciseStats } : {}),
 });
 
 type Outcome = 'ok' | 'drop' | 'auth' | 'retry' | 'too_large';
@@ -288,6 +299,38 @@ export function flushOutbox(): Promise<SyncResult> {
     if (!tally.stop) await runCompletions(pre, tally);
     return finish(tally);
   });
+}
+
+export interface LessonAbandonInput {
+  lessonId: string;
+  /** Dia local ('YYYY-MM-DD'), o mesmo das conclusões. */
+  today: string;
+  /** Exercício em que a pessoa parou (o próximo a abrir) e quantos a lição tem. */
+  exerciseIndex: number;
+  exerciseCount: number;
+  exerciseType: string | null;
+}
+
+/**
+ * Avisa o servidor que a pessoa saiu da lição no meio (POST /v1/lesson/abandon), para o painel
+ * de administração mostrar onde as pessoas desistem. É só contagem: sem conta, sem rede ou com
+ * erro, não manda nada e nada é guardado para depois (não vale uma fila).
+ */
+export async function reportLessonAbandon(input: LessonAbandonInput): Promise<boolean> {
+  try {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return false;
+    const session = await deps.getSession();
+    if (!session) return false;
+    const res = await deps.fetch(`${deps.apiBase}/v1/lesson/abandon`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.token}` },
+      body: JSON.stringify(input),
+      keepalive: true, // a tela está saindo da lição
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 /**
