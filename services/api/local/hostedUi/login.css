@@ -1,0 +1,210 @@
+/*
+ * Pagina local que imita o Hosted UI do Cognito (services/api/local/hostedUi.mjs).
+ * Visual do Traco: so tokens do app (apps/web-poc/src/styles/tokens.css, servido em
+ * /static/tokens.css) e a mesma anatomia da tela de conta do app (.auth-* em style.css).
+ * Nada de faixa colorida em card: o aviso de ambiente local e um selo.
+ */
+
+@font-face {
+  font-family: "Anybody";
+  src: url("/fonts/Anybody-latin-wdth-wght.woff2") format("woff2-variations"),
+       url("/fonts/Anybody-latin-wdth-wght.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 50% 150%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Figtree";
+  src: url("/fonts/Figtree-latin-wght.woff2") format("woff2-variations"),
+       url("/fonts/Figtree-latin-wght.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100%;
+  background: var(--lx-bg-canvas);
+  color: var(--lx-text-primary);
+  font: var(--lx-typography-body);
+  -webkit-text-size-adjust: 100%;
+}
+
+.hui {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-4);
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: var(--lx-space-8) var(--lx-space-4) var(--lx-space-10);
+}
+
+.hui-head {
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-3);
+}
+.hui-head img { width: 40px; height: 40px; border-radius: var(--lx-radius-sm); }
+.hui-brand {
+  font: var(--lx-typography-title);
+  font-family: var(--lx-font-family-display);
+  font-stretch: var(--lx-font-stretch-semi);
+  color: var(--lx-text-primary);
+}
+/* Selo de ambiente local */
+.hui-chip {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 var(--lx-space-3);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-feedback-warning-soft);
+  color: var(--lx-feedback-warning-on-soft);
+  font: var(--lx-typography-label-sm);
+  white-space: nowrap;
+}
+
+.hui-title {
+  font: var(--lx-typography-display);
+  font-family: var(--lx-font-family-display);
+  color: var(--lx-text-primary);
+  margin-top: var(--lx-space-4);
+}
+.hui-nowrap { white-space: nowrap; }
+.hui-lead { font: var(--lx-typography-body); color: var(--lx-text-secondary); }
+.hui-lead strong { color: var(--lx-text-primary); }
+
+.hui-form { display: flex; flex-direction: column; gap: var(--lx-space-4); }
+.hui-field { display: flex; flex-direction: column; gap: var(--lx-space-1); }
+.hui-label { font: var(--lx-typography-label); color: var(--lx-text-primary); }
+.hui-hint { font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); }
+.hui-input {
+  width: 100%;
+  min-height: var(--lx-size-touch-comfort);
+  padding: 0 var(--lx-space-4);
+  border: var(--lx-border-width-thick) solid var(--lx-border-strong);
+  border-radius: var(--lx-radius-md);
+  font: var(--lx-typography-body-lg);
+  color: var(--lx-text-primary);
+  background: var(--lx-bg-surface);
+}
+.hui-input:focus { border-color: var(--lx-border-focus); outline: none; }
+.hui-input:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: var(--lx-border-width-focus-offset);
+}
+.hui-input[aria-invalid="true"] { border-color: var(--lx-feedback-error-strong); }
+.hui-input--code { letter-spacing: 0.3em; text-align: center; font-variant-numeric: tabular-nums; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lx-space-2);
+  width: 100%;
+  min-height: var(--lx-size-button-lg);
+  padding: 0 var(--lx-space-6);
+  border: none;
+  border-radius: var(--lx-radius-button);
+  text-align: center;
+  font: var(--lx-typography-button);
+  letter-spacing: var(--lx-typography-button-tracking);
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: var(--lx-border-width-focus-offset);
+}
+.btn-primary {
+  background: var(--lx-action-primary-bg);
+  color: var(--lx-action-primary-fg);
+  box-shadow: 0 3px 0 var(--lx-action-primary-base);
+  margin-bottom: 3px;
+}
+.btn-primary:active {
+  background: var(--lx-action-primary-bg-pressed);
+  box-shadow: 0 1px 0 var(--lx-action-primary-base);
+  transform: translateY(2px);
+}
+.btn-ghost {
+  background: var(--lx-action-secondary-bg);
+  color: var(--lx-action-secondary-fg);
+  border: var(--lx-border-width-thick) solid var(--lx-action-secondary-border);
+  min-height: var(--lx-size-button-md);
+}
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  min-height: var(--lx-size-touch-min);
+  padding: 0 var(--lx-space-2);
+  color: var(--lx-text-brand);
+  font: var(--lx-typography-label);
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-text:hover, .btn-text:focus-visible { text-decoration: underline; }
+
+.hui-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-3);
+  font: var(--lx-typography-label-sm);
+  color: var(--lx-text-secondary);
+}
+.hui-divider::before,
+.hui-divider::after {
+  content: '';
+  flex: 1;
+  height: var(--lx-border-width-thin);
+  background: var(--lx-border-default);
+}
+
+/* Mensagens: fundo suave inteiro, nunca so a cor (nada de faixa lateral) */
+.hui-error,
+.hui-notice {
+  padding: var(--lx-space-3) var(--lx-space-4);
+  border-radius: var(--lx-radius-md);
+  font: var(--lx-typography-body);
+  overflow-wrap: anywhere;
+}
+.hui-error { background: var(--lx-feedback-error-soft); color: var(--lx-feedback-error-on-soft); }
+.hui-notice { background: var(--lx-feedback-info-soft); color: var(--lx-feedback-info-on-soft); }
+.hui-notice strong { font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
+
+.hui-switch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 var(--lx-space-1);
+  font: var(--lx-typography-body);
+  color: var(--lx-text-secondary);
+}
+
+.hui-list { display: flex; flex-direction: column; gap: var(--lx-space-2); list-style: none; }
+.hui-list li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--lx-space-2);
+  padding: var(--lx-space-3) var(--lx-space-4);
+  background: var(--lx-bg-surface);
+  border: var(--lx-border-width-thin) solid var(--lx-border-default);
+  border-radius: var(--lx-radius-md);
+}
+.hui-list .hui-code { font: var(--lx-typography-title); font-variant-numeric: tabular-nums; letter-spacing: 0.1em; }
+
+.hui-foot {
+  margin-top: var(--lx-space-4);
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-tertiary);
+  text-align: center;
+}
