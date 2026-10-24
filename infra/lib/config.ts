@@ -9,6 +9,7 @@ import { Node } from 'constructs';
  *
  * | chave                          | padrao                          | uso |
  * |--------------------------------|---------------------------------|-----|
+ * | librax:accountId               | (vazio)                         | conta AWS do Librax; deploy, diff e bootstrap recusam outra conta |
  * | librax:domainName              | librax.example                  | dominio do app (CloudFront) |
  * | librax:authDomainName          | auth.<domainName>               | dominio proprio do Cognito |
  * | librax:certificateArn          | (vazio)                         | ACM em us-east-1 cobrindo os dois dominios; sem ele, sem dominio proprio |

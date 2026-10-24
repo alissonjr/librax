@@ -418,7 +418,10 @@ do Cognito precisam estar lá.
 7. **SES (opcional).** Verificar a identidade do domínio no SES (DKIM no DNS), pedir saída do
    sandbox e então `-c librax:emailRemindersEnabled=true -c librax:emailFrom=lembretes@<dominio>`.
    Sem isso o lembrete por e-mail fica desligado.
-8. **Bootstrap do CDK** na conta e região (`cdk bootstrap`), feito pelo dono da conta.
+8. **Login e bootstrap.** Configurar o login da conta pelo IAM Identity Center e fixar
+   `librax:accountId` ([`docs/conta-aws.md`](../../docs/conta-aws.md)). Depois, em `infra`,
+   `npm run bootstrap` (o bootstrap do CDK na conta e região). `bootstrap`, `diff` e `deploy`
+   recusam qualquer conta que não seja a fixada.
 9. **Callbacks de dev.** Para testar o login no `localhost`, acrescentar
    `-c librax:extraCallbackUrls=http://localhost:5173/auth/callback`,
    `librax:extraLogoutUrls=http://localhost:5173/` e
