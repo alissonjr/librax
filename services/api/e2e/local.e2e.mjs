@@ -8,6 +8,9 @@
  * 2. Conclui uma licao pela API e confere o progresso direto no DynamoDB Local.
  * 3. /v1/admin com a conta admin (200) e com a comum (403); o token do app nao abre (401).
  * 4. Login por SRP pelo proxy do cognito-idp: senha certa entra, errada nao.
+ * 5. Exclusao de conta (DELETE /v1/users/me) de uma conta nova de e-mail e senha e de uma do
+ *    Google simulado: some do banco e do Cognito, e a conta nao entra mais. As contas de teste
+ *    da semente nao sao tocadas.
  */
 
 import '../local/awsGuard.mjs';
@@ -19,7 +22,7 @@ import net from 'node:net';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { PATHS, URLS, PORTS, HOST, REGION, ACCOUNTS } from '../local/config.mjs';
 import { clientStart, clientSignature, nowString } from '../local/srp.mjs';
 import catalog from '../src/content/catalog.js';
@@ -65,8 +68,8 @@ function portOpen(port) {
   });
 }
 
-/** Authorize, formulario de login e volta com o code (PKCE S256), como o app e o painel fazem. */
-async function hostedLogin({ clientId, redirectUri, email, password }) {
+/** Authorize com PKCE S256 ate a pagina (login ou Google simulado) com a transacao. */
+async function authorizeFlow({ clientId, redirectUri, identityProvider = null }) {
   const verifier = randomBytes(48).toString('base64url');
   const stateParam = randomBytes(8).toString('hex');
   const authorize = new URL(`${URLS.login}/oauth2/authorize`);
@@ -78,14 +81,20 @@ async function hostedLogin({ clientId, redirectUri, email, password }) {
     state: stateParam,
     code_challenge: createHash('sha256').update(verifier).digest('base64url'),
     code_challenge_method: 'S256',
+    ...(identityProvider ? { identity_provider: identityProvider } : {}),
   });
   const page = await request(authorize.toString());
   assert.equal(page.status, 200, 'pagina de login');
   const tx = /name="tx" value="([^"]+)"/.exec(page.text)?.[1];
   assert.ok(tx, 'pagina de login sem transacao');
+  return { authorize, tx, verifier, stateParam, clientId, redirectUri };
+}
 
-  const login = await request(`${URLS.login}/login`, { method: 'POST', headers: FORM, body: form({ tx, email, password }) });
-  return { authorize, tx, login, verifier, stateParam, clientId, redirectUri };
+/** Authorize, formulario de login e volta com o code (PKCE S256), como o app e o painel fazem. */
+async function hostedLogin({ clientId, redirectUri, email, password }) {
+  const flow = await authorizeFlow({ clientId, redirectUri });
+  const login = await request(`${URLS.login}/login`, { method: 'POST', headers: FORM, body: form({ tx: flow.tx, email, password }) });
+  return { ...flow, login };
 }
 
 /** Troca o code pelos tokens no /oauth2/token. */
@@ -114,6 +123,16 @@ const api = (path, { token, method = 'GET', body } = {}) =>
   });
 
 const claimsOf = (jwt) => JSON.parse(Buffer.from(jwt.split('.')[1], 'base64url').toString('utf8'));
+
+/** cognito-idp pelo proxy do servidor local (o mesmo endpoint que o Amplify do app usa). */
+async function cognitoCall(target, body) {
+  const res = await request(`${URLS.api}/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-amz-json-1.1', 'X-Amz-Target': `AWSCognitoIdentityProviderService.${target}` },
+    body: JSON.stringify(body),
+  });
+  return { status: res.status, body: res.json() };
+}
 
 before(async () => {
   for (const [name, port] of [['DynamoDB Local', PORTS.dynamodb], ['moto', PORTS.moto]]) {
@@ -257,4 +276,84 @@ test('login por SRP pelo proxy do cognito-idp: senha certa entra, errada nao', a
   // o client do app nao libera USER_PASSWORD_AUTH (ExplicitAuthFlows do template)
   const plain = await call('InitiateAuth', { AuthFlow: 'USER_PASSWORD_AUTH', ClientId: state.appClientId, AuthParameters: { USERNAME: aluno.email, PASSWORD: aluno.password } });
   assert.equal(plain.body.__type, 'InvalidParameterException');
+});
+
+/** Itens que ainda guardam a conta: a particao USER#<id> e os membros de liga (GSI2). */
+async function leftovers(db, sub) {
+  const own = await db.send(new QueryCommand({ TableName: 'librax', KeyConditionExpression: 'PK = :pk', ExpressionAttributeValues: { ':pk': `USER#${sub}` } }));
+  const leagues = await db.send(new QueryCommand({
+    TableName: 'librax', IndexName: 'GSI2', KeyConditionExpression: 'GSI2PK = :pk', ExpressionAttributeValues: { ':pk': `USER#${sub}` },
+  }));
+  return [...(own.Items ?? []), ...(leagues.Items ?? [])].map((i) => `${i.PK} ${i.SK}`);
+}
+
+/** Conclui uma licao e cria uma squad so da pessoa (dissolve na exclusao). */
+async function giveProgress(token) {
+  const today = new Date().toISOString().slice(0, 10);
+  const lesson = await api('/v1/lesson/complete', {
+    token, method: 'POST', body: { lessonAttemptId: `e2e-${randomUUID()}`, lessonId: 'u1-l1', today, score: 1 },
+  });
+  assert.equal(lesson.status, 200, lesson.text);
+  const squad = await api('/v1/squads', { token, method: 'POST', body: { name: 'Squad do e2e', type: 'private' } });
+  assert.equal(squad.status, 201, squad.text);
+  return squad.json().squadId;
+}
+
+test('exclusao de conta (e-mail e senha): some do banco e do Cognito, e a conta nao entra mais', async () => {
+  const db = DynamoDBDocumentClient.from(new DynamoDBClient({ endpoint: URLS.dynamodb, region: REGION }));
+  const email = `e2e-${randomUUID().slice(0, 8)}@librax.example`;
+  const password = 'e2e-local-123';
+
+  // cadastro pela pagina local: a caixa de e-mails simulada mostra o codigo na propria pagina
+  const flow = await authorizeFlow({ clientId: state.appClientId, redirectUri: APP_CALLBACK });
+  const signup = await request(`${URLS.login}/signup`, { method: 'POST', headers: FORM, body: form({ tx: flow.tx, email, name: 'E2E', password }) });
+  const code = /o código é <strong>(\d{6})<\/strong>/.exec(signup.text)?.[1];
+  assert.ok(code, `cadastro sem codigo: ${signup.text.slice(0, 200)}`);
+  const login = await request(`${URLS.login}/confirm`, { method: 'POST', headers: FORM, body: form({ tx: flow.tx, code }) });
+  assert.equal(login.status, 302, login.text.slice(0, 200));
+  const tokens = (await exchange({ ...flow, login }, flow.verifier)).json();
+  const { sub } = claimsOf(tokens.id_token);
+
+  const squadId = await giveProgress(tokens.id_token);
+  assert.ok((await leftovers(db, sub)).length > 0);
+
+  const res = await api('/v1/users/me', { token: tokens.id_token, method: 'DELETE' });
+  assert.equal(res.status, 200, res.text);
+  assert.deepEqual(res.json(), { ok: true });
+  assert.deepEqual(await leftovers(db, sub), []);
+  assert.equal((await db.send(new GetCommand({ TableName: 'librax', Key: { PK: `SQUAD#${squadId}`, SK: 'META' } }))).Item, undefined);
+
+  // Cognito: o usuario nao existe mais, a senha nao entra e a sessao antiga nao renova
+  assert.equal((await cognitoCall('AdminGetUser', { UserPoolId: state.userPoolId, Username: sub })).body.__type, 'UserNotFoundException');
+  const again = await hostedLogin({ clientId: state.appClientId, redirectUri: APP_CALLBACK, email, password });
+  assert.equal(again.login.status, 400);
+  const { A } = clientStart();
+  const srp = await cognitoCall('InitiateAuth', { AuthFlow: 'USER_SRP_AUTH', ClientId: state.appClientId, AuthParameters: { USERNAME: email, SRP_A: A } });
+  assert.equal(srp.body.__type, 'NotAuthorizedException');
+  const refresh = await request(`${URLS.login}/oauth2/token`, {
+    method: 'POST', headers: FORM, body: form({ grant_type: 'refresh_token', client_id: state.appClientId, refresh_token: tokens.refresh_token }),
+  });
+  assert.equal(refresh.status, 400);
+  const proxyRefresh = await cognitoCall('InitiateAuth', { AuthFlow: 'REFRESH_TOKEN_AUTH', ClientId: state.appClientId, AuthParameters: { REFRESH_TOKEN: tokens.refresh_token } });
+  assert.equal(proxyRefresh.body.__type, 'NotAuthorizedException');
+
+  // o id token ainda vale ate expirar (como no API Gateway): repetir a exclusao responde 200
+  assert.equal((await api('/v1/users/me', { token: tokens.id_token, method: 'DELETE' })).status, 200);
+});
+
+test('exclusao de conta do Google simulado: apaga pelo cognito:username do token', async () => {
+  const db = DynamoDBDocumentClient.from(new DynamoDBClient({ endpoint: URLS.dynamodb, region: REGION }));
+  const email = `e2e-google-${randomUUID().slice(0, 8)}@librax.example`;
+  const flow = await authorizeFlow({ clientId: state.appClientId, redirectUri: APP_CALLBACK, identityProvider: 'Google' });
+  const login = await request(`${URLS.login}/google`, { method: 'POST', headers: FORM, body: form({ tx: flow.tx, email, name: 'Gabi' }) });
+  assert.equal(login.status, 302, login.text.slice(0, 200));
+  const tokens = (await exchange({ ...flow, login }, flow.verifier)).json();
+  const claims = claimsOf(tokens.id_token);
+  assert.ok(claims['cognito:username']);
+
+  await giveProgress(tokens.id_token);
+  assert.equal((await api('/v1/users/me', { token: tokens.id_token, method: 'DELETE' })).status, 200);
+  assert.deepEqual(await leftovers(db, claims.sub), []);
+  const found = await cognitoCall('ListUsers', { UserPoolId: state.userPoolId, Filter: `email = "${email}"` });
+  assert.deepEqual(found.body.Users, []);
 });
