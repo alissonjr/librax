@@ -361,6 +361,22 @@
     "select": "Selecciona el idioma",
     "title": "Idioma"
   },
+  "legal": {
+    "aboutDocument": "Sobre este documento",
+    "contents": "En esta página",
+    "draft": "Borrador: faltan los datos del responsable",
+    "effectiveSince": "Vigente desde el {date}",
+    "loginConsent": "Al continuar, aceptas los {terms} y la {privacy}.",
+    "onboardingConsent": "Al empezar, aceptas los {terms} y la {privacy}.",
+    "onlyPortuguese": "Este documento solo está disponible en portugués.",
+    "privacyHint": "Cómo cuidamos tus datos",
+    "privacyTitle": "Política de Privacidad",
+    "registerConsent": "Al crear la cuenta, aceptas los {terms} y la {privacy}.",
+    "seeAlso": "Ver también:",
+    "termsHint": "Reglas de uso de Librax",
+    "termsTitle": "Términos de Uso",
+    "version": "Versión {version}"
+  },
   "lessonCompletion": {
     "achievement": {
       "cameraEstreante": "Primera seña por cámara",

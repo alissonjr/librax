@@ -1,5 +1,5 @@
 import {
-  createContext, useContext, useState, useCallback, useMemo, type ReactNode,
+  createContext, Fragment, useContext, useState, useCallback, useMemo, type ReactNode,
 } from 'react';
 import ptBR from './locales/pt-BR.json';
 import en from './locales/en.json';
@@ -69,6 +69,13 @@ function interpolate(template: string, params?: Record<string, string | number>)
   return template.replace(/\{(\w+)\}/g, (match, name: string) =>
     name in params ? String(params[name]) : match,
   );
+}
+
+/** Monta um texto traduzido com elementos (links) no lugar de {chaves}. */
+export function withLinks(template: string, links: Record<string, ReactNode>): ReactNode {
+  return template.split(/\{(\w+)\}/).map((part, i) => (
+    <Fragment key={i}>{i % 2 === 1 ? links[part] ?? part : part}</Fragment>
+  ));
 }
 
 export type TFunc = (key: string, params?: Record<string, string | number>) => string;

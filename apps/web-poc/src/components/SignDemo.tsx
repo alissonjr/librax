@@ -1,6 +1,6 @@
-import { Fragment, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import type { Sign } from '../lib/content';
-import { useT, type TFunc } from '../i18n';
+import { useT, withLinks, type TFunc } from '../i18n';
 import {
   VLIBRAS_LICENSE_URL,
   VLIBRAS_SITE_URL,
@@ -32,13 +32,6 @@ export function chooseDemoMode(sign: Sign, avatarFailed = false): DemoMode {
   if (sign.video_url) return 'video';
   if (!avatarFailed && avatarGloss(sign)) return 'avatar';
   return 'text';
-}
-
-/** Monta um texto traduzido com links no lugar de {chaves}. */
-function withLinks(template: string, links: Record<string, ReactNode>): ReactNode {
-  return template.split(/\{(\w+)\}/).map((part, i) => (
-    <Fragment key={i}>{i % 2 === 1 ? links[part] ?? part : part}</Fragment>
-  ));
 }
 
 /** Crédito exigido pela licença, discreto, junto ao avatar e nas Configurações. */

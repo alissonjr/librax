@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, waitFor, within, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const auth = vi.hoisted(() => ({
@@ -160,5 +160,24 @@ describe('criar conta (spec-02 12.3)', () => {
     const props = renderAuth('register');
     await userEvent.click(screen.getByRole('button', { name: 'Entrar' }));
     expect(props.onSwitchMode).toHaveBeenCalledWith('login');
+  });
+
+  it('avisa que criar a conta aceita os Termos e a Política, com os dois links', () => {
+    renderAuth('register');
+    const consent = screen.getByText(/Ao criar a conta, você concorda com os/);
+    expect(consent).toHaveTextContent('Ao criar a conta, você concorda com os Termos de Uso e a Política de Privacidade.');
+    expect(within(consent).getByRole('link', { name: 'Termos de Uso' })).toHaveAttribute('href', '/termos');
+    expect(within(consent).getByRole('link', { name: 'Política de Privacidade' })).toHaveAttribute('href', '/privacidade');
+  });
+});
+
+describe('Termos e Política no Entrar', () => {
+  beforeEach(cognitoEnv);
+
+  it('o Google pode criar a conta na primeira entrada: a frase também aparece ao entrar', () => {
+    renderAuth('login');
+    const consent = screen.getByText(/Ao continuar, você concorda com os/);
+    expect(within(consent).getByRole('link', { name: 'Termos de Uso' })).toHaveAttribute('href', '/termos');
+    expect(within(consent).getByRole('link', { name: 'Política de Privacidade' })).toHaveAttribute('href', '/privacidade');
   });
 });

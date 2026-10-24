@@ -11,6 +11,8 @@ import { Icon } from '../components/Icon';
 import { VlibrasCredit } from '../components/SignDemo';
 import { SoundSettingItem } from '../components/SoundPreference';
 import { InstallSheet, useInstallMode } from '../components/InstallSheet';
+import { LegalLink } from '../components/LegalLinks';
+import { ROUTES } from '../lib/routes';
 
 interface Props {
   userId: string;
@@ -233,6 +235,14 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }
             </div>
             <Icon name="chevron_right" className="settings-item-arrow" />
           </button>
+          <LegalLink to={ROUTES.privacy} className="settings-item settings-item--btn settings-item--link">
+            <Icon name="shield" className="settings-item-icon" />
+            <div className="settings-item-text">
+              <span className="settings-item-label">{t('legal.privacyTitle')}</span>
+              <span className="settings-item-value">{t('legal.privacyHint')}</span>
+            </div>
+            <Icon name="chevron_right" className="settings-item-arrow" />
+          </LegalLink>
         </div>
 
         {installMode && (
@@ -258,6 +268,14 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }
               <span className="settings-item-value">PoC 1.0</span>
             </div>
           </div>
+          <LegalLink to={ROUTES.terms} className="settings-item settings-item--btn settings-item--link">
+            <Icon name="description" className="settings-item-icon" />
+            <div className="settings-item-text">
+              <span className="settings-item-label">{t('legal.termsTitle')}</span>
+              <span className="settings-item-value">{t('legal.termsHint')}</span>
+            </div>
+            <Icon name="chevron_right" className="settings-item-arrow" />
+          </LegalLink>
           {/* Crédito e licença do avatar que demonstra os sinais (src/lib/vlibras.ts) */}
           <div className="settings-item">
             <Icon name="sign_language" className="settings-item-icon" />

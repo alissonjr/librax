@@ -41,6 +41,13 @@ describe('OnboardingScreen', () => {
     expect(onDone).toHaveBeenCalledOnce();
   });
 
+  it('as boas-vindas levam aos Termos de Uso e à Política de Privacidade', () => {
+    render(<OnboardingScreen onDone={vi.fn()} />);
+    expect(screen.getByText(/Ao começar, você concorda com os/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Termos de Uso' })).toHaveAttribute('href', '/termos');
+    expect(screen.getByRole('link', { name: 'Política de Privacidade' })).toHaveAttribute('href', '/privacidade');
+  });
+
   it('persiste o nome no localStorage ao concluir o onboarding', async () => {
     await completeOnboarding(vi.fn(), 'Joao');
     expect(localStorage.getItem('librax_displayName')).toBe('Joao');

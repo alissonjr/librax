@@ -4227,6 +4227,145 @@ button.profile-stat-card { cursor: pointer; }
 .settings-item--btn:disabled { cursor: progress; }
 
 /* =========================================================
+   POLÍTICA DE PRIVACIDADE E TERMOS DE USO (/privacidade, /termos)
+   ========================================================= */
+
+/* Frase de aceite com os links (boas-vindas, Entrar e Criar conta) */
+.legal-consent {
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-secondary);
+  text-align: center;
+}
+.legal-consent a,
+.legal-doc a,
+.legal-related a {
+  color: var(--lx-text-brand);
+  font-weight: var(--lx-font-weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  overflow-wrap: anywhere;
+}
+/* Item das Configurações que é link (Política e Termos) */
+.settings-item--link { text-decoration: none; }
+
+.legal-body {
+  padding: var(--lx-space-5) var(--lx-space-4) var(--lx-space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-5);
+  max-width: var(--lx-size-content-max);
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Versão, vigência e rascunho: selos, nada de faixa */
+.legal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lx-space-2);
+  list-style: none;
+}
+.legal-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: var(--lx-space-1) var(--lx-space-3);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-bg-sunken);
+  color: var(--lx-text-secondary);
+  font: var(--lx-typography-label-sm);
+}
+.legal-chip--draft {
+  background: var(--lx-feedback-warning-soft);
+  color: var(--lx-feedback-warning-on-soft);
+}
+
+/* Aviso de texto só em português: fundo suave inteiro */
+.legal-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lx-space-2);
+  padding: var(--lx-space-3) var(--lx-space-4);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-feedback-info-soft);
+  color: var(--lx-feedback-info-on-soft);
+  font: var(--lx-typography-body);
+}
+.legal-notice .icon { flex: none; width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); }
+
+/* Índice das seções */
+.legal-toc {
+  padding: var(--lx-space-3) var(--lx-space-4);
+  background: var(--lx-bg-surface);
+  border: var(--lx-border-width-thin) solid var(--lx-border-default);
+  border-radius: var(--lx-radius-lg);
+}
+.legal-toc-title {
+  font: var(--lx-typography-label-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--lx-text-secondary);
+  padding: var(--lx-space-1) 0;
+}
+.legal-toc ul { list-style: none; display: flex; flex-direction: column; }
+.legal-toc a {
+  display: flex;
+  align-items: center;
+  min-height: var(--lx-size-touch-min);
+  color: var(--lx-text-primary);
+  font: var(--lx-typography-body);
+  text-decoration: none;
+}
+.legal-toc a:hover,
+.legal-toc a:focus-visible { color: var(--lx-text-brand); text-decoration: underline; }
+
+/* Texto: corpo de leitura com títulos de seção que recebem o foco do índice */
+.legal-doc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-3);
+  font: var(--lx-typography-body);
+  color: var(--lx-text-primary);
+}
+.legal-doc h2 {
+  margin-top: var(--lx-space-5);
+  font: var(--lx-typography-title-sm);
+  color: var(--lx-text-primary);
+  scroll-margin-top: calc(var(--lx-size-top-bar) + var(--lx-safe-top) + var(--lx-space-4));
+}
+.legal-doc h2:focus { outline: none; }
+.legal-doc h2:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: var(--lx-border-width-focus-offset);
+}
+.legal-doc h3 {
+  margin-top: var(--lx-space-2);
+  font: var(--lx-typography-label);
+  color: var(--lx-text-primary);
+}
+.legal-doc ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+  padding-left: var(--lx-space-5);
+}
+.legal-doc strong { font-weight: var(--lx-font-weight-bold); }
+/* Marcador de responsavel.ts ainda não preenchido */
+.legal-pending {
+  padding: 0 var(--lx-space-1);
+  border-radius: var(--lx-radius-sm);
+  background: var(--lx-feedback-warning-soft);
+  color: var(--lx-feedback-warning-on-soft);
+  font-weight: var(--lx-font-weight-semibold);
+}
+.legal-related {
+  padding-top: var(--lx-space-4);
+  border-top: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+  font: var(--lx-typography-body);
+  color: var(--lx-text-secondary);
+}
+
+/* =========================================================
    REALCES DE ANIMAÇÃO (animate.css + tokens de motion)
    ========================================================= */
 

@@ -5,6 +5,7 @@ import { Icon } from '../components/Icon';
 import { SoundOnboardingChoice } from '../components/SoundPreference';
 import { authAvailable } from '../lib/account';
 import { WelcomeIllustration, Wordmark } from '../components/Brand';
+import { LegalConsent } from '../components/LegalLinks';
 
 interface Props {
   onDone: () => void;
@@ -100,6 +101,7 @@ export function OnboardingScreen({ onDone, onLogin }: Props) {
           <p className="onboarding-disclaimer">
             {t('onboarding.noAccount')}
           </p>
+          <LegalConsent messageKey="legal.onboardingConsent" />
           {onLogin && authAvailable() && (
             <button className="btn-text" onClick={onLogin}>
               {t('account.haveAccountSignIn')}
