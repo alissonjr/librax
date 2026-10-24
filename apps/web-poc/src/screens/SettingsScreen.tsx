@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { getDisplayName, signOutAccount } from '../lib/auth';
 import { refreshAccount, useAccount } from '../lib/account';
-import { clearOutbox } from '../lib/sync';
+import { clearOutbox, deleteAccountOnServer } from '../lib/sync';
 import { Dialog } from '../components/Dialog';
 import { BusyLabel } from '../components/BusyLabel';
 import type { IdbRepo } from '../lib/idbRepo';
@@ -39,6 +39,8 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }
   const [theme, setTheme] = useState<ThemePref>(getThemePref);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const installMode = useInstallMode();
   const [showInstall, setShowInstall] = useState(false);
   const name = getDisplayName() ?? t('common.defaultName');
@@ -73,7 +75,18 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }
   }
 
   async function handleDeleteAccount() {
-    if (deleteInput !== deleteKeyword) return;
+    if (deleteInput !== deleteKeyword || deleting) return;
+    setDeleteError(null);
+    if (signedIn) {
+      // Com conta, o servidor apaga primeiro (dados e login). Se falhar, nada sai do aparelho.
+      setDeleting(true);
+      const outcome = await deleteAccountOnServer();
+      if (outcome !== 'deleted') {
+        setDeleting(false);
+        setDeleteError(outcome === 'offline' ? 'settings.deleteErrorOffline' : 'settings.deleteErrorServer');
+        return;
+      }
+    }
     // A fila de envio também sai, e a conta conectada é desconectada deste aparelho
     await clearOutbox().catch(() => {});
     if (signedIn) await signOutAccount().catch(() => {});
@@ -277,6 +290,7 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }
           </button>
         ) : (
           <div className="settings-delete-confirm">
+            <p>{t(signedIn ? 'settings.deleteWarningAccount' : 'settings.deleteWarningLocal')}</p>
             <p>
               {t('settings.deleteConfirmInstr').split('{word}')[0]}
               <strong>{deleteKeyword}</strong>
@@ -288,20 +302,29 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }
               onChange={e => setDeleteInput(e.target.value)}
               placeholder={deleteKeyword}
               autoComplete="off"
+              disabled={deleting}
             />
+            {deleteError && (
+              <p className="settings-delete-error" role="alert">
+                <Icon name="warning" filled /> <span>{t(deleteError)}</span>
+              </p>
+            )}
             <div className="settings-delete-actions">
               <button
                 className="btn btn-ghost"
-                onClick={() => { setShowDeleteConfirm(false); setDeleteInput(''); }}
+                disabled={deleting}
+                onClick={() => { setShowDeleteConfirm(false); setDeleteInput(''); setDeleteError(null); }}
               >
                 {t('common.cancel')}
               </button>
               <button
                 className="btn btn-wrong"
-                disabled={deleteInput !== deleteKeyword}
+                // conferindo a sessão: ainda não dá para saber se apaga também no servidor
+                disabled={deleteInput !== deleteKeyword || deleting || account.status === 'checking'}
+                aria-busy={deleting || undefined}
                 onClick={handleDeleteAccount}
               >
-                {t('settings.deleteConfirmBtn')}
+                {deleting ? <BusyLabel text={t('settings.deleting')} /> : t('settings.deleteConfirmBtn')}
               </button>
             </div>
           </div>

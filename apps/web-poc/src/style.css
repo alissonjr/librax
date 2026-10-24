@@ -3550,6 +3550,17 @@ ol.fingerspell-strip { list-style: none; padding: 0; }
   background: var(--lx-bg-surface);
   color: var(--lx-text-primary);
 }
+.settings-delete-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lx-space-2);
+  padding: var(--lx-space-3);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-bg-surface);
+  color: var(--lx-feedback-error-text);
+  font: var(--lx-typography-body);
+}
+.settings-delete-error .icon { flex: none; width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); }
 .settings-delete-actions { display: flex; gap: var(--lx-space-3); }
 .settings-delete-actions .btn { flex: 1; min-height: var(--lx-size-button-md); padding: 0 var(--lx-space-3); }
 
