@@ -110,21 +110,21 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "polegar e indicador formam circulo, tres dedos restantes estendidos",
+      "CM": "indicador esticado na horizontal, apontando para o lado, polegar encostado embaixo dele, medio, anelar e minimo estendidos",
       "PA": "espaco neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Polegar e indicador formam um circulo (OK), os outros tres dedos ficam estendidos.",
+    "video_caption": "Indicador esticado na horizontal, apontando para o lado, com o polegar encostado embaixo dele; medio, anelar e minimo ficam estendidos para cima.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "F"
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "A CONFERIR no dicionario do INES (2026-10-25): em mais de 20 videos do alfabeto em Libras no YouTube, F e T aparecem quase iguais (indicador tocando o polegar, os outros tres dedos estendidos) e a diferenca entre eles nao ficou clara. A descricao do F bate com os videos; falta confirmar o que a separa do T."
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/fSm_Prog001.mp4 e tSm_Prog001.mp4) e no avatar VLibras: as duas fontes concordam. A descricao anterior (polegar e indicador formando um circulo, como o OK) era a do F do alfabeto americano. Diferenca para o T: no F o indicador fica esticado; no T ele curva e a ponta toca a ponta do polegar."
   },
   {
     "id": "letra-G",
@@ -419,7 +419,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "A CONFERIR no dicionario do INES (2026-10-25): em mais de 20 videos do alfabeto em Libras no YouTube, F e T aparecem quase iguais (indicador tocando o polegar, os outros tres dedos estendidos) e a diferenca entre eles nao ficou clara. A descricao anterior (polegar entre o indicador e o medio) era a do T do alfabeto americano e nenhum dos videos mostra essa forma; foi trocada pela forma que os professores fazem."
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/fSm_Prog001.mp4 e tSm_Prog001.mp4) e no avatar VLibras: as duas fontes concordam. A descricao anterior (polegar entre o indicador e o medio) era a do T do alfabeto americano. Diferenca para o F: no T o indicador curva e a ponta toca a ponta do polegar; no F ele fica esticado na horizontal."
   },
   {
     "id": "letra-U",
