@@ -51,8 +51,9 @@ export const OWN_NAME_MAX = 8;
 /**
  * Letras do primeiro nome do perfil para o "soletre seu nome", ou null quando o nome não dá:
  * caixa alta, sem acento (Á vira A, mas Ç continua Ç) e só letras. Nome vazio, de uma letra, com
- * mais de OWN_NAME_MAX letras ou com J, Z ou Ç (letras com movimento, que a câmera não avalia)
- * dá null, e a lição usa a palavra de reserva do bundle.
+ * mais de OWN_NAME_MAX letras ou com J, Z ou Ç dá null, e a lição usa a palavra de reserva do
+ * bundle. J, Z e Ç são letras com movimento: a soletração pela câmera lê só a forma parada da mão,
+ * então não as avalia, mesmo J e Ç tendo câmera no perform_sign (modelo das letras com movimento).
  */
 export function ownNameLetters(displayName: string | null | undefined): string[] | null {
   const first = (displayName ?? '').trim().split(/\s+/)[0];

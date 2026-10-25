@@ -28,8 +28,8 @@ Hoje só 10 letras têm exercício de câmera (A, B, F, G, K, L, P, Q, U, V), ma
 - J, Z e Ç têm movimento: ficam com prática livre até entrarem no modelo de sinais.
 
 Feito em 2026-10-25 (letras com movimento, spec-01 seção 3.3): modelo próprio, só com as mãos, para H, J, K, X, Z e
-Ç. Com ele publicado em `public/ml/letras-mov/`, H, K e J são avaliadas com o movimento (J entrou no `produce` da
-U1 L2). X (3/6) e Z (4/7) ficaram abaixo de 70% com pessoas nunca vistas e seguem como prática livre; o Y fica nas
+Ç. Com ele publicado em `public/ml/letras-mov/`, H, K, J e Ç são avaliadas com o movimento (J entrou no `produce` da
+U1 L2; o Ç ganhou a U1 L6, "Letra Ç", depois do Z, com o C, o J e o Z de revisão). X (3/6) e Z (4/7) ficaram abaixo de 70% com pessoas nunca vistas e seguem como prática livre; o Y fica nas
 letras paradas (nos vídeos a mão não se mexe).
 
 Feito: C, D, E, H, I, O, S, W e Y ganharam câmera (`produce` de cada lição da U1). M, N, R, T e X
@@ -74,8 +74,9 @@ americano. O mesmo cruzamento vale para todo o alfabeto e os números:
   em cada entrada do `signs.json`). G, H, M, N, P e Q eram do alfabeto americano; H, K e X têm
   movimento nas duas fontes, mas seguem `static` porque o modelo da câmera lê a forma parada (com o modelo das
   letras com movimento publicado, H e K passam a ser avaliadas com o movimento; X ainda não).
-  Ficaram "A CONFERIR": Y (vídeo do INES não abre), 1, 5, 7, 11, 17, 40 e 70 (avatar diferente do
-  INES).
+  Ficaram "A CONFERIR": 1, 5, 7, 11, 17, 40 e 70 (avatar diferente do INES). O Y saiu da lista: o vídeo
+  do INES continua com 404, mas a configuração de mão do verbete (cg40), o VLibras e os vídeos do alfabeto
+  concordam com a descrição e mostram a mão parada.
 - Sinais com mais de uma forma (MESA apareceu com variantes diferentes entre canais): registrar a
   variante ensinada no `signs.json` e, se o modelo aprender as duas, aceitar as duas na câmera.
 

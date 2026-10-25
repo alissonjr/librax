@@ -14,7 +14,7 @@ import {
  * - weights.bin: pesos float32 (mlp.ts).
  *
  * Sem modelo publicado nada muda: H e K continuam com o modelo das letras paradas (a forma da mão)
- * e J e Z como prática livre. O model.json é lido uma vez por sessão, ao abrir a lição; os pesos,
+ * e J, Z e Ç como prática livre. O model.json é lido uma vez por sessão, ao abrir a lição; os pesos,
  * quando um exercício de letra com movimento abre.
  */
 

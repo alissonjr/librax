@@ -46,7 +46,7 @@ junto ao video correspondente. Obrigatorio para todos os sinais do bundle antes 
 
 | Unidade | Tipo reconh. | Sinais (gloss) |
 |---|---|---|
-| U1 Alfabeto | static (J e Z dynamic) | A..Z (26) |
+| U1 Alfabeto | static (J, Z e Ç dynamic) | A..Z e Ç (27) |
 | U2 Números | mix | 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 (11) |
 | U3 Saudações e cortesia | dynamic | OI, TCHAU, BOM-DIA, BOA-TARDE, BOA-NOITE, TUDO-BEM, PRAZER, BEM-VINDO, ATÉ-LOGO, PARABÉNS, OBRIGADO, POR-FAVOR, DESCULPA, DE-NADA, COM-LICENÇA (15) |
 | U4 Apresentação | dynamic | EU, VOCÊ, ELE, NÓS, MEU, SEU, NOME, SINAL, SURDO, OUVINTE, LIBRAS, IDADE, MORAR, NASCER, CIDADE (15); soletrar nome com letras da U1 (DAVI, BIA, LIA) |
@@ -127,7 +127,9 @@ reconhece receptivo -> produz expressivo, com a frase no fim. Receptivo cobre qu
    `perform_sign`. Se nem agrupando a lição coubesse, a produção sem lista cairia para 1 `perform_sign`; se ainda
    assim não coubesse, o script falha e pede para dividir a lição (nenhuma lição do A1 chega nisso: elas têm de 4
    a 6 sinais). O script também falha se uma palavra soletrada usa letra que ainda não teve `perform_sign` até a
-   lição: a soletração só pede letras já ensinadas e que a câmera lê bem.
+   lição: a soletração só pede letras já ensinadas e que a câmera lê bem. Falha também com letra de movimento
+   (`recognition: "dynamic"`: J, Z e Ç), porque a soletração pela câmera lê só a forma parada da mão, mesmo que a
+   letra tenha `perform_sign` com o modelo das letras com movimento.
 4. **Frase.** Da U3 em diante, o `build_phrase` fecha a sessão.
 
 **Câmera no alfabeto** (plano `plano-licoes-pos-treino.md`, seção 1): cada lição da U1 tem `perform_sign` para as
@@ -135,13 +137,20 @@ letras que o modelo v6 lê com 80% ou mais no teste fixo (C, D, E, H, I, O, S, W
 (A, B, F, G, K, L, P, Q, U, V; F, Q e U ficaram abaixo de 80% e seguem em observação). M, N, R, T e X entram quando
 passarem de 80%. As letras com movimento (H, J, K, X, Z e Ç) têm um modelo próprio, que lê a forma da mão e o
 movimento (`ml-training/train_letras_mov.py`, spec-01 seção 3.3): quando ele está publicado em
-`public/ml/letras-mov/`, o `perform_sign` de H, K e J usa esse modelo (só as letras de `camera_letters` do
-`model.json`, que passaram de 70% com pessoas nunca vistas); sem ele, H e K seguem com o modelo das letras paradas e J
-vira prática livre. J está no `produce` da U1 L2; X e Z ficaram abaixo de 70% e seguem como prática livre; Ç não tem
-lição. Para acrescentar uma letra, basta pô-la no
+`public/ml/letras-mov/`, o `perform_sign` de H, K, J e Ç usa esse modelo (só as letras de `camera_letters` do
+`model.json`, que passaram de 70% com pessoas nunca vistas); sem ele, H e K seguem com o modelo das letras paradas e
+J e Ç viram prática livre. J está no `produce` da U1 L2 e Ç no da U1 L6; X e Z ficaram abaixo de 70% e seguem como
+prática livre. Para acrescentar uma letra, basta pô-la no
 `produce` da lição em que ela é ensinada. As palavras de revisão usam só letras com câmera até a lição: CHEGA
-(U1 L2), BOLO (U1 L3), SAPO (U1 L4) e YAGO (U1 L5); a U1 L1 não tem, para a primeira lição começar leve (as letras
-dela voltam em CHEGA).
+(U1 L2), BOLO (U1 L3), SAPO (U1 L4), YAGO (U1 L5) e CASA (U1 L6); a U1 L1 não tem, para a primeira lição começar leve
+(as letras dela voltam em CHEGA).
+
+**Ç (U1 L6, "Letra Ç")**: vem depois do Z, numa lição própria, porque não cabe na U1 L5 (já com 13 exercícios) nem
+na U1 L1 (5 letras com câmera). A forma é a do C e o que muda é o movimento (a mão treme de um lado para o outro), então
+a lição revisa o C (no `word_choose_video` do C, o Ç é uma das opções) e as outras letras com movimento, J e Z, e a
+pessoa faz o C e logo depois o Ç na câmera. O Ç não tem avatar (o VLibras não tem uma glosa que funcione no player
+do app): a apresentação e os exercícios de reconhecimento mostram a descrição da forma e do movimento. Ç fica fora da
+soletração (palavras de revisão e "soletre seu nome").
 
 Lição que ficasse com menos de 7 ganharia uma rodada de `watch_choose_word` antes da frase (não acontece no A1).
 
@@ -151,6 +160,7 @@ Exemplos (bundle atual):
 |---|---|---|---|
 | U1 L1 (A, B, C, D, E) | 5 novos, sem frase, `produce` A a E | intro A, watch A, intro B, C, D e E, match_pairs dos 4, perform A, B, C, D e E | 12 |
 | U1 L5 (U, V, W, X, Y, Z) | 6 novos, `produce` U, V, W e Y, revisão YAGO | intro U, V e W, match_pairs dos 3, intro X, Y e Z, match_pairs dos 3, perform U, V, W e Y, fingerspell YAGO | 13 |
+| U1 L6 (Ç; revisão C, J e Z) | 1 novo e 3 de revisão, `produce` C e Ç, revisão CASA | intro Ç, watch Ç, word_choose_video C, watch J, word_choose_video Z, perform C e Ç, fingerspell CASA | 8 |
 | U3 L1 (OI, TCHAU, BOM-DIA, BOA-TARDE, BOA-NOITE) | 5 novos + frase | intro e watch OI, intro e word_choose_video TCHAU, intro BOM-DIA, BOA-TARDE e BOA-NOITE, match_pairs dos 3, perform OI, perform TCHAU, build_phrase | 11 |
 | U6 L1 (FAMÍLIA, MÃE, PAI, FILHO, FILHA, BEBÊ) | 6 novos + frase | intro e watch FAMÍLIA, intro e word_choose_video MÃE, intro PAI, FILHO, FILHA e BEBÊ, match_pairs dos 4, perform FAMÍLIA, perform MÃE, build_phrase | 12 |
 | U4 L4 (D, A, V, I, B, L; nomes DAVI, BIA, LIA e o da pessoa) | 6 de revisão + frase | watch e word_choose_video alternados para os 6 sinais, fingerspell DAVI, BIA e LIA, "soletre seu nome" (reserva LIDIA), build_phrase | 11 |
@@ -220,8 +230,9 @@ function evaluatePerformSign(scoreStream, payload) {
 - **Soletre seu nome** (U4 L4, `own_name`): o app pega o nome que a pessoa deu no onboarding (`librax_displayName`
   no aparelho, então funciona offline e sem conta), fica com o primeiro nome, passa para caixa alta, tira os acentos
   (Á vira A, mas Ç continua Ç) e guarda só as letras (`ownNameLetters` em `src/lib/fingerspell.ts`). Se o nome
-  ficar vazio ou com uma letra, tiver mais de 8 letras ou tiver J, Z ou Ç (letras com movimento, que a câmera não
-  avalia), o exercício usa a palavra de reserva do bundle (LIDIA) como uma soletração comum. Nomes com letras que o
+  ficar vazio ou com uma letra, tiver mais de 8 letras ou tiver J, Z ou Ç (letras com movimento, que a soletração
+  pela câmera não avalia: ela lê só a forma parada, mesmo J e Ç tendo câmera no `perform_sign`), o exercício usa a
+  palavra de reserva do bundle (LIDIA) como uma soletração comum. Nomes com letras que o
   modelo ainda lê mal (M, N, R, T, X) seguem com a câmera; a pessoa pode pular.
 
 ## 6. Repetição espaçada (algoritmo concreto - SM-2 adaptado)

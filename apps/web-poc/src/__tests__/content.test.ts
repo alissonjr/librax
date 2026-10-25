@@ -265,6 +265,20 @@ describe('composicao da licao (bundle)', () => {
     expect(() => composeCourse(fake(['CABA']), signsRaw)).not.toThrow();
     expect(() => composeCourse(fake(['CAMA']), signsRaw)).toThrow(/CAMA usa letra sem exercício de câmera até aqui \(M\)/);
   });
+
+  it('o curso falha ao gerar se uma palavra soletrada usa letra com movimento, mesmo com camera no perform_sign', () => {
+    const lesson = (id: string, signIds: string[], extra = {}) => ({ id, title: id, order: 1, xpReward: 10, signIds, ...extra });
+    const fake = (spellWords: string[]) => ({
+      ...courseRaw,
+      units: [{ id: 'u1', title: 'x', description: 'x', lessons: [
+        lesson('a', ['letra-A', 'letra-C', 'letra-Ç', 'letra-O'], { produce: ['letra-A', 'letra-C', 'letra-Ç', 'letra-O'] }),
+        lesson('b', ['letra-A', 'letra-C', 'letra-O'], { spellWords }),
+      ] }],
+    });
+    expect(() => composeCourse(fake(['OCA']), signsRaw)).not.toThrow();
+    // Ç teve perform_sign (modelo das letras com movimento), mas a soletracao le so a forma parada
+    expect(() => composeCourse(fake(['ACO', 'AÇO']), signsRaw)).toThrow(/AÇO usa letra com movimento \(Ç\)/);
+  });
 });
 
 describe('resolveExercises (sorteios da sessao)', () => {
@@ -550,6 +564,24 @@ describe('letras com movimento avaliadas pelo modelo das letras com movimento (/
     });
     expect(ex.filter((e) => e.type === 'perform_sign').map((e) => e.recognizer)).toEqual(['letras-mov']);
   });
+
+  it('Ç (U1 L6): o modelo publicado tem o Ç na câmera; o C segue com o modelo das letras paradas', () => {
+    const [published] = Object.values(import.meta.glob<{ camera_letters: string[] }>(
+      '../../public/ml/letras-mov/model.json', { eager: true, import: 'default' },
+    ));
+    expect(published.camera_letters).toContain('Ç');
+    setLetterMotionModelForTests({ model: fakeModel(published.camera_letters.concat('_')) });
+    const lesson = course.lessonsMap['u1-l6'];
+    const ex = resolveExercises(BUNDLE['u1-l6'], lesson.signIds, { canEvaluate: (s) => ['C', 'A', 'S'].includes(s?.gloss ?? '') });
+    expect(ex.filter((e) => e.type === 'perform_sign').map((e) => [e.signId, e.recognizer]))
+      .toEqual([['letra-C', undefined], ['letra-Ç', 'letras-mov']]);
+    // CASA só tem letras paradas: a soletração usa a câmera
+    expect(ex.find((e) => e.word === 'CASA')?.type).toBe('fingerspell');
+    // sem o modelo das letras com movimento, o Ç vira prática livre
+    setLetterMotionModelForTests(null);
+    const off = resolveExercises(BUNDLE['u1-l6'], lesson.signIds, { canEvaluate: (s) => s?.gloss === 'C' });
+    expect(off.filter((e) => e.signId === 'letra-Ç' && e.type === 'mirror_practice')).toHaveLength(1);
+  });
 });
 
 describe('isCameraEvaluable', () => {
@@ -580,12 +612,12 @@ describe('getSign', () => {
 });
 
 describe('signsMap', () => {
-  it('contem 26 letras do alfabeto', () => {
-    expect(LETTER_IDS).toHaveLength(26);
+  it('contem 27 letras do alfabeto (A a Z e o Ç)', () => {
+    expect(LETTER_IDS).toHaveLength(27);
   });
 
-  it('todas as letras de A a Z estao presentes', () => {
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((letter) => {
+  it('todas as letras de A a Z e o Ç estao presentes', () => {
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZÇ'.split('').forEach((letter) => {
       expect(signsMap[`letra-${letter}`]).toBeDefined();
     });
   });
@@ -615,7 +647,7 @@ describe('signsMap', () => {
   });
 
   it('ids seguem a convencao letra-X, numero-N ou sinal-GLOSA', () => {
-    ALL_IDS.forEach((id) => expect(id).toMatch(/^(letra-[A-Z]|numero-\d+|sinal-[A-Z0-9]+(-[A-Z0-9]+)*)$/));
+    ALL_IDS.forEach((id) => expect(id).toMatch(/^(letra-[A-ZÇ]|numero-\d+|sinal-[A-Z0-9]+(-[A-Z0-9]+)*)$/));
   });
 });
 
@@ -820,7 +852,7 @@ describe('course', () => {
 
   it('soletracao so na U1 (revisao) e na licao de nomes da U4, com letras que ja tiveram camera', () => {
     const spell = lessons.filter((l) => BUNDLE[l.id].some((e) => e.type === 'fingerspell'));
-    expect(spell.map((l) => l.id)).toEqual(['u1-l2', 'u1-l3', 'u1-l4', 'u1-l5', 'u4-l4']);
+    expect(spell.map((l) => l.id)).toEqual(['u1-l2', 'u1-l3', 'u1-l4', 'u1-l5', 'u1-l6', 'u4-l4']);
     const produced = new Set<string>();
     lessons.forEach((l) => {
       BUNDLE[l.id].forEach((e) => {
@@ -852,6 +884,9 @@ describe('course', () => {
     expect(perform('u1-l3')).toEqual(['K', 'L', 'O']);
     expect(perform('u1-l4')).toEqual(['P', 'Q', 'S']);
     expect(perform('u1-l5')).toEqual(['U', 'V', 'W', 'Y']);
+    // Ç: depois do Z, com o C de revisão antes (mesma forma, o Ç treme); avaliado pelo modelo das
+    // letras com movimento (sem ele, prática livre)
+    expect(perform('u1-l6')).toEqual(['C', 'Ç']);
     // Fracas no teste fixo (abaixo de 80%) e X e Z, abaixo de 70% no modelo das letras com
     // movimento, ficam sem camera por enquanto
     const all = course.units[0].lessons.flatMap((l) => perform(l.id));

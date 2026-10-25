@@ -150,11 +150,11 @@ test('a tela de operacao nao faz Scan: so Querys na particao OPS', async () => {
 
 // --- conteudo ---
 
-test('GET /v1/admin/content: 14 unidades e 254 sinais com o que falta', async () => {
+test('GET /v1/admin/content: 14 unidades e 255 sinais com o que falta', async () => {
   const { adminRouter } = setup();
   const body = parse(await adminRouter(event({ routeKey: 'GET /v1/admin/content' })));
   assert.equal(body.units.length, 14);
-  assert.equal(body.signs.length, 254);
+  assert.equal(body.signs.length, 255);
   const a = body.signs.find((s) => s.id === 'letra-A');
   assert.equal(a.validated, false);
   assert.ok(a.missing.includes('validated'));
@@ -203,7 +203,7 @@ test('resumo da conta: perfil, progresso, liga, squads e atividade', async () =>
   assert.equal(s.account.email, 'ana@exemplo.com');
   assert.equal(s.profile.xpTotal, 40);
   assert.equal(s.progress.distinctLessons, 1);
-  assert.equal(s.progress.totalLessons, 53);
+  assert.equal(s.progress.totalLessons, 54);
   assert.equal(s.progress.lessons[0].unitId, 'u1');
   assert.deepEqual(s.srs, { signs: 1, due: 1 });
   assert.deepEqual(s.achievements, ['PRIMEIRA_LICAO']);

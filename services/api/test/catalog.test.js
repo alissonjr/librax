@@ -96,7 +96,7 @@ test('situacao do conteudo empacotada esta em dia com o app (rode npm run catalo
   const read = (name) => JSON.parse(readFileSync(new URL(name, dir), 'utf8'));
   const expected = contentReportFromBundle(read('course.json'), read('signs.json'));
   assert.deepEqual(contentStatus, expected);
-  // o curso A1: 14 unidades e 254 sinais
+  // o curso A1: 14 unidades e 255 sinais (o Ç entrou na U1)
   assert.equal(contentStatus.totals.units, 14);
-  assert.equal(contentStatus.totals.signs, 254);
+  assert.equal(contentStatus.totals.signs, 255);
 });
