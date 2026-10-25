@@ -9,7 +9,7 @@ import type { MlpModel } from '../recognition/mlp';
 import { evaluateAchievements } from '@domain/achievements.js';
 import {
   composeCourse, composeLessonExercises, knownGlossCount, lessonFile, normalizeGloss, numberExercises,
-  phraseDistractors, pickPhrase, MAX_EXERCISES, MIN_EXERCISES, PHRASE_FIRST_UNIT_INDEX,
+  phraseDistractors, pickPhrase, splitMatchGroups, MATCH_MAX, MAX_EXERCISES, MIN_EXERCISES, PHRASE_FIRST_UNIT_INDEX,
 } from '../../../../tools/content/compose.mjs';
 import { maskedCaption } from '../components/ExerciseWordChooseVideo';
 import { completeLesson } from '@usecases/completeLesson.js';
@@ -198,18 +198,40 @@ describe('composicao da licao (bundle)', () => {
     expect((out.find((e) => e.type === 'match_pairs')!.payload.pairs as { sign_id: string }[]).map((p) => p.sign_id)).toEqual(five.slice(2));
   });
 
-  it('licao com produce junta ate 6 sinais no match_pairs para caber em 12', () => {
+  it('licao com produce agrupa ate 6 sinais, divididos em dois match_pairs de 3 (a licao passa de 12)', () => {
     const six = ['letra-U', 'letra-V', 'letra-W', 'letra-X', 'letra-Y', 'letra-Z'];
     const out: Composed[] = composeLessonExercises(
       { signIds: six, produce: ['letra-U', 'letra-V', 'letra-W', 'letra-Y'], spellWords: ['YAGO'] },
       signsMap,
     );
-    expect(out).toHaveLength(MAX_EXERCISES);
-    expect((out.find((e) => e.type === 'match_pairs')!.payload.pairs as unknown[])).toHaveLength(6);
-    // sem a lista de producao o teto continua 4
+    // 12 com um match_pairs so; o segundo grupo soma um exercicio
+    expect(out).toHaveLength(MAX_EXERCISES + 1);
+    const matches = out.filter((e) => e.type === 'match_pairs').map((e) => (e.payload.pairs as { sign_id: string }[]).map((p) => p.sign_id));
+    expect(matches).toEqual([six.slice(0, 3), six.slice(3)]);
+    // cada match_pairs vem logo depois dos sign_intro dos seus sinais
+    expect(out.slice(0, 8).map((e) => e.type)).toEqual([
+      'sign_intro', 'sign_intro', 'sign_intro', 'match_pairs', 'sign_intro', 'sign_intro', 'sign_intro', 'match_pairs',
+    ]);
+    // sem a lista de producao o agrupamento continua ate 4
     const words = ['UVA', 'VIVA', 'OVO', 'YAGO'];
     expect(() => composeLessonExercises({ id: 'x', signIds: six, spellWords: words }, signsMap)).toThrow(/Divida a lição/);
-    expect(composeLessonExercises({ id: 'x', signIds: six, spellWords: words, produce: [] }, signsMap)).toHaveLength(MAX_EXERCISES);
+    // produce vazio: 5 agrupados viram 3 + 2
+    const five: Composed[] = composeLessonExercises({ id: 'x', signIds: six, spellWords: words, produce: [] }, signsMap);
+    expect(five.filter((e) => e.type === 'match_pairs').map((e) => (e.payload.pairs as unknown[]).length)).toEqual([3, 2]);
+    expect(five).toHaveLength(MAX_EXERCISES + 1);
+  });
+
+  it('splitMatchGroups divide em grupos equilibrados de ate 4', () => {
+    const ids = (n: number) => Array.from({ length: n }, (_, i) => `s${i}`);
+    const sizes = (n: number) => splitMatchGroups(ids(n)).map((g: string[]) => g.length);
+    expect(sizes(0)).toEqual([]);
+    expect(sizes(3)).toEqual([3]);
+    expect(sizes(4)).toEqual([4]);
+    expect(sizes(5)).toEqual([3, 2]);
+    expect(sizes(6)).toEqual([3, 3]);
+    expect(sizes(9)).toEqual([3, 3, 3]);
+    expect(splitMatchGroups(ids(6)).flat()).toEqual(ids(6));
+    expect(MATCH_MAX).toBe(4);
   });
 
   it('produce com sinal fora da licao falha', () => {
@@ -672,16 +694,32 @@ describe('course', () => {
 
   it('toda licao tem de 7 a 12 exercicios (spec-03 secao 4), com ou sem camera avaliada', () => {
     lessons.forEach((l) => {
+      // Excecao: o match_pairs dividido (mais de 4 pares) soma um exercicio por grupo extra
+      const matches = BUNDLE[l.id].filter((e) => e.type === 'match_pairs').length;
+      const max = MAX_EXERCISES + Math.max(0, matches - 1);
       expect(BUNDLE[l.id].length, l.id).toBeGreaterThanOrEqual(MIN_EXERCISES);
-      expect(BUNDLE[l.id].length, l.id).toBeLessThanOrEqual(MAX_EXERCISES);
+      expect(BUNDLE[l.id].length, l.id).toBeLessThanOrEqual(max);
       for (const canEvaluate of [isCameraEvaluable, () => false]) {
         const n = resolveExercises(BUNDLE[l.id], l.signIds, { canEvaluate }).length;
         expect(n, l.id).toBeGreaterThanOrEqual(MIN_EXERCISES);
-        expect(n, l.id).toBeLessThanOrEqual(MAX_EXERCISES);
+        expect(n, l.id).toBeLessThanOrEqual(max);
       }
     });
     expect(MIN_EXERCISES).toBe(7);
     expect(MAX_EXERCISES).toBe(12);
+  });
+
+  it('nenhum match_pairs passa de 4 pares (mais que isso passa de duas telas no celular)', () => {
+    lessons.forEach((l) =>
+      BUNDLE[l.id].filter((e) => e.type === 'match_pairs').forEach((e) => {
+        const n = (e.payload as { pairs: unknown[] }).pairs.length;
+        expect(n, e.id).toBeGreaterThanOrEqual(2);
+        expect(n, e.id).toBeLessThanOrEqual(MATCH_MAX);
+      }),
+    );
+    // a U1 L5 (U a Z) fica com dois match_pairs de 3
+    const u1l5 = BUNDLE['u1-l5'].filter((e) => e.type === 'match_pairs').map((e) => (e.payload as { pairs: unknown[] }).pairs.length);
+    expect(u1l5).toEqual([3, 3]);
   });
 
   it('todo sinal novo e apresentado (sign_intro) antes de qualquer outro exercicio com ele', () => {
