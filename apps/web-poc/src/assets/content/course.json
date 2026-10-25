@@ -60,7 +60,7 @@
     { "code": "SEQUENCIA_7",    "type": "streak",             "gte": 7 },
     { "code": "SINAIS_5",       "type": "signs_learned",      "gte": 5 },
     { "code": "SINAIS_10",      "type": "signs_learned",      "gte": 10 },
-    { "code": "SINAIS_26",      "type": "signs_learned",      "gte": 26 },
+    { "code": "SINAIS_26",      "type": "alphabet_complete" },
     { "code": "ALFABETO",       "type": "alphabet_complete" }
   ],
   "units": [

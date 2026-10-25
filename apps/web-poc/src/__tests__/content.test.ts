@@ -942,6 +942,26 @@ describe('course', () => {
     const state = { streak: 0, signsLearned: 0, lessonsCompleted: 0, alphabetComplete: false };
     expect(() => evaluateAchievements(course.achievementRules, state, [])).not.toThrow();
   });
+
+  it('Alfabeto completo (SINAIS_26) pede as 27 letras da U1, nao 26 sinais quaisquer', async () => {
+    // O codigo fica (ja esta no perfil de quem ganhou); a regra e a do alfabeto completo, que o
+    // useSession marca ao concluir a ultima licao da U1 (as licoes abrem em ordem)
+    expect(course.achievementRules.find((r) => r.code === 'SINAIS_26')).toEqual({ code: 'SINAIS_26', type: 'alphabet_complete' });
+    const u1 = course.units[0].lessons;
+    const letters = new Set(u1.flatMap((l) => l.signIds).filter((id) => id.startsWith('letra-')));
+    expect(letters.size).toBe(27);
+    expect([...letters].sort()).toEqual([...LETTER_IDS].sort());
+
+    const content = { lessons: course.lessonsMap, achievementRules: course.achievementRules, signsOrder: course.signsOrder };
+    const repo = new InMemoryRepo();
+    await repo.seedProfile({ userId: 'u', signsLearned: 26 });
+    const done = (lessonId: string, signsLearnedDelta: number, alphabetComplete: boolean) =>
+      completeLesson(repo, content, { userId: 'u', lessonId, today: '2026-10-25', score: 1, reviewed: [], signsLearnedDelta, alphabetComplete }) as
+        Promise<{ achievementsEarned: string[] }>;
+    const u2 = course.units[1].lessons[0];
+    expect((await done(u2.id, u2.signIds.length, false)).achievementsEarned).not.toContain('SINAIS_26');
+    expect((await done(u1[u1.length - 1].id, 0, true)).achievementsEarned).toContain('SINAIS_26');
+  });
 });
 
 describe('textos do conteudo', () => {
