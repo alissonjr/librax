@@ -4,6 +4,8 @@ modo sinais) e gera o dataset do modelo de movimento.
 
 Cada vídeo "sinal de X em Libras" tem introdução, fala e o sinal (às vezes repetido). O título diz
 qual é o sinal, mas não quando. Como sai o trecho:
+0. Vídeo cujo título fala de outra coisa com a glosa dentro ("Tênis de Mesa", "Arroz doce",
+   "Almoço x Jantar") fica de fora (titulo_composto).
 1. Quadro ativo: mão presente, corpo presente e pulso acima de ATIVO_ABAIXO_OMBRO larguras de
    ombro abaixo da linha dos ombros. Trechos ativos viram janelas candidatas de JANELAS_S
    segundos (passo PASSO_S), reamostradas para T quadros.
@@ -13,6 +15,8 @@ qual é o sinal, mas não quando. Como sai o trecho:
 3. Repetições no mesmo vídeo entram se ficarem tão perto quanto a escolhida (REPETICAO_FOLGA).
    Vídeo cuja melhor janela destoa dos outros (mediana + 2 MAD) sai inteiro: provavelmente é
    outro sinal ou outra variante.
+   Quando o sinal tem vídeo de dicionário (só o sinal, sem introdução nem fala), as rodadas de
+   refinamento comparam só com as janelas escolhidas nos dicionários.
 4. Janelas ativas que não se sobrepõem às escolhidas, em vídeos aceitos, viram "_" (nenhum sinal),
    até NEGATIVAS_POR_VIDEO por vídeo.
 
@@ -33,7 +37,9 @@ import argparse
 import glob
 import json
 import os
+import re
 import sys
+import unicodedata
 
 import numpy as np
 
@@ -55,11 +61,44 @@ RODADAS = 3
 REPETICAO_FOLGA = 1.15
 NEGATIVAS_POR_VIDEO = 4
 NENHUM = "_"
+DICIONARIO = "dic-"  # prefixo dos vídeos de dicionário (video/baixar_dicionarios.py)
 
 # Índices do PoseLandmarker
 NARIZ, OMBRO_E, OMBRO_D = 0, 11, 12
 POR_MAO = 70
 F = 2 * POR_MAO
+
+
+# ---------------------------------------------------------------------------
+# Título
+# ---------------------------------------------------------------------------
+
+# Palavras de título que não mudam o sinal ("Sinal de MESA em Libras", "Como eu falo CAMA")
+GENERICAS = set("""sinal sinais de em da do na no libras como que se fala falo eu o a e ou diz dizer faz fazer
+basico dicionario ed aprenda aprender aula curso shorts short para voce lingua brasileira sinalizado
+sinalizar portugues palavra significado the numero cor fruta mes""".split())
+CONTRASTE = (" x ", "diferen", "dialogo", "exemplo", "classificador", "frase", "kilogram", "cuantos")
+
+
+def _sem_acento(t):
+    return unicodedata.normalize("NFKD", t.lower()).encode("ascii", "ignore").decode()
+
+
+def titulo_composto(glosa, titulo):
+    """True quando o título fala de outra coisa que contém a glosa: palavra colada antes ou
+    depois ("Tênis de Mesa", "Arroz doce", "Quadro branco") ou comparação ("Almoço x Jantar")."""
+    t = " " + re.sub(r"\s+", " ", _sem_acento(titulo)) + " "
+    if any(c in t for c in CONTRASTE):
+        return True
+    g = _sem_acento(glosa).replace("-", " ")
+    m = re.search(r"(?<![a-z])" + re.escape(g) + r"(?![a-z])", t)
+    if not m:
+        return False
+    antes = t[:m.start()].rstrip()
+    colada_antes = re.findall(r"([a-z]+)$", antes)
+    com_de = re.findall(r"([a-z]+) de$", antes)
+    depois = re.findall(r"^ ?([a-z]+)", t[m.end():])
+    return any(w and w[0] not in GENERICAS for w in (colada_antes, com_de, depois))
 
 
 # ---------------------------------------------------------------------------
@@ -204,7 +243,7 @@ def resumo(x):
 # Consenso por sinal
 # ---------------------------------------------------------------------------
 
-def consenso(videos):
+def consenso(videos, usar_ancoras=True):
     """Para os vídeos de um sinal, escolhe as janelas do sinal. Devolve {id: [índices]} e notas."""
     vids = [v for v in videos if v["_cands"]]
     if len(vids) < 3:
@@ -222,11 +261,14 @@ def consenso(videos):
         notas.append(np.median(np.stack(por_video), axis=0))
     escolha = [int(np.argmin(n)) for n in notas]
 
+    # Vídeos de dicionário (só o sinal, sem introdução) viram a referência quando existem
+    ancoras = [j for j, v in enumerate(vids) if usar_ancoras and v["id"].startswith(DICIONARIO)]
     for _ in range(RODADAS):
         refs = [R[j][escolha[j]] for j in range(len(R))]
         notas = []
         for i, A in enumerate(R):
-            outras = np.stack([refs[j] for j in range(len(R)) if j != i])
+            base = [j for j in ancoras if j != i] or [j for j in range(len(R)) if j != i]
+            outras = np.stack([refs[j] for j in base])
             notas.append(np.median(dist(A, outras), axis=1))
         escolha = [int(np.argmin(n)) for n in notas]
 
@@ -254,15 +296,21 @@ def consenso(videos):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--glosas", default="", help="só estas glosas (separadas por vírgula)")
+    ap.add_argument("--sem-ancoras", action="store_true", help="não usa os dicionários como referência")
+    ap.add_argument("--saida", default=SAIDA)
     args = ap.parse_args()
     filtro = {g for g in args.glosas.split(",") if g}
 
+    with open(os.path.join(DATA, "fontes_sinais.json")) as f:
+        titulos = {x["id"]: x.get("title", "") for x in json.load(f)}
     por_glosa = {}
     for path in sorted(glob.glob(os.path.join(ENTRADA, "*.json"))):
         with open(path) as f:
             v = json.load(f)
         g = v.get("glosa")
         if not g or (filtro and g not in filtro):
+            continue
+        if not v["id"].startswith(DICIONARIO) and titulo_composto(g, titulos.get(v["id"], "")):
             continue
         ts, feats, ativo = quadros(v)
         v["_ts"], v["_cands"] = ts, candidatas(ts, feats, ativo)
@@ -274,7 +322,7 @@ def main():
     rng = np.random.default_rng(0)
     for g in sorted(por_glosa):
         vids = por_glosa[g]
-        escolhidas, notas = consenso(vids)
+        escolhidas, notas = consenso(vids, not args.sem_ancoras)
         aceitos = 0
         for v in vids:
             pegos = escolhidas.get(v["id"], [])
@@ -303,9 +351,9 @@ def main():
                 }, f, ensure_ascii=False)
         print(f"{g}: {aceitos}/{len(vids)} vídeos aceitos, {sum(1 for yy in y if yy == g)} janelas", flush=True)
 
-    np.savez_compressed(SAIDA, X=np.array(X, dtype=np.float32), y=np.array(y), pessoa=np.array(pessoa),
+    np.savez_compressed(args.saida, X=np.array(X, dtype=np.float32), y=np.array(y), pessoa=np.array(pessoa),
                         video=np.array(video), t0=np.array(t0s), t1=np.array(t1s))
-    print(f"{len(X)} janelas ({sum(1 for yy in y if yy == NENHUM)} de nenhum sinal) em {SAIDA}")
+    print(f"{len(X)} janelas ({sum(1 for yy in y if yy == NENHUM)} de nenhum sinal) em {args.saida}")
 
 
 if __name__ == "__main__":
