@@ -1,6 +1,6 @@
 ---
-versao: 1.0
-vigencia: 2026-10-24
+versao: 1.1
+vigencia: 2026-10-25
 ---
 
 Esta política explica, em linguagem simples, quais dados o Librax usa, para quê, onde eles ficam, por quanto tempo e como você exerce seus direitos pela Lei Geral de Proteção de Dados (LGPD, Lei nº 13.709/2018). Ela vale junto com os [Termos de Uso](/termos).
@@ -27,6 +27,7 @@ Enquanto você usa o Librax sem conta, os dados abaixo ficam guardados no navega
 - o nome ou apelido que você digita nas boas-vindas;
 - o seu progresso: XP, sequência de dias, lições concluídas, conquistas, as revisões programadas de cada sinal e a liga da semana;
 - a lição em andamento, para você continuar de onde parou se a página recarregar;
+- o desempenho da câmera: quantas tentativas e quantos pulos cada letra ou sinal teve nos exercícios com câmera e qual letra ou sinal a câmera leu no lugar. São só números, sem imagem, e você vê e apaga tudo em Configurações, "Desempenho da câmera";
 - suas preferências: idioma, tema, sons e avisos que você já viu;
 - um código aleatório criado pelo app para separar os dados deste aparelho, que não identifica você;
 - as lições concluídas que ainda vão ser enviadas, se você tiver ou criar uma conta;
@@ -134,7 +135,7 @@ Para fazer um pedido, escreva para {{email}}, de preferência a partir do e-mail
 
 No próprio app:
 
-- **Exportar meus dados** (Configurações) baixa um arquivo com o perfil e as revisões guardados neste aparelho.
+- **Exportar meus dados** (Configurações) baixa um arquivo com o perfil, as revisões e o desempenho da câmera guardados neste aparelho.
 - **Excluir conta e dados** (Configurações) apaga, na hora e para sempre, a sua conta, o seu login e tudo o que está guardado no servidor (perfil, progresso, revisões, XP, conquistas e participação em ligas), além dos dados deste aparelho. Se faltar internet ou o servidor falhar, nada é apagado e o app pede para tentar de novo. Fora do app, o mesmo pedido pode ser feito pelo e-mail {{email}}, e atendemos em até 15 dias.
 
 Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD), em [gov.br/anpd](https://www.gov.br/anpd).

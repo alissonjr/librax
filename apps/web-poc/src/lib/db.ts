@@ -27,10 +27,15 @@ export function upgradeLibraxDb(db: IDBPDatabase<unknown>, oldVersion = 0) {
     db.createObjectStore('league_state', { keyPath: 'userId' });
     db.createObjectStore('league_members', { keyPath: ['leagueId', 'userId'] });
   }
+
+  if (oldVersion < 3) {
+    // Desempenho da câmera por sinal (src/lib/cameraStats.ts): só contagens, sem imagem.
+    db.createObjectStore('camera_stats', { keyPath: 'signId' });
+  }
 }
 
 export async function getDb(): Promise<LibraxDB> {
   if (_db) return _db;
-  _db = await openDB('librax-poc', 2, { upgrade: (db, oldVersion) => upgradeLibraxDb(db, oldVersion) });
+  _db = await openDB('librax-poc', 3, { upgrade: (db, oldVersion) => upgradeLibraxDb(db, oldVersion) });
   return _db;
 }

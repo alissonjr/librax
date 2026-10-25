@@ -81,7 +81,9 @@ export class IdbRepo {
   // --- exclusao de dados (LGPD) ---
   /** Apaga todos os dados locais do usuario em todos os object stores. */
   async clearAllData() {
-    const stores = ['profiles', 'lesson_progress', 'srs_items', 'day_xp', 'league_state', 'league_members'] as const;
+    const stores = [
+      'profiles', 'lesson_progress', 'srs_items', 'day_xp', 'league_state', 'league_members', 'camera_stats',
+    ] as const;
     await Promise.all(stores.map(store => this.db.clear(store)));
   }
 

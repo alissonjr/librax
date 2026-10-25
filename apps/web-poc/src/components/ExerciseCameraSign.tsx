@@ -13,6 +13,7 @@ import { SignDemo, chooseDemoMode } from './SignDemo';
 import { DemoToggle } from './DemoToggle';
 import { TraceCameraArcs } from './Brand';
 import { HEURISTIC_LETTERS, useRecognizableLetters } from '../recognition/classifier';
+import { CameraRun, saveCameraRun } from '../lib/cameraStats';
 
 /**
  * Letras que a composição das lições trata como avaliáveis pela câmera (src/lib/content.ts).
@@ -84,6 +85,16 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
   const targetLetter = sign.gloss;
   const recognizable = useRecognizableLetters();
   const isRecognizable = recognizable.has(targetLetter);
+  // Desempenho da câmera (lib/cameraStats.ts): tentativas, leituras erradas e pulo desta letra
+  const [run] = useState(() => new CameraRun(sign.id, targetLetter, 'letter'));
+
+  useEffect(() => {
+    if (status === 'active') run.started = true;
+  }, [status, run]);
+
+  useEffect(() => {
+    if (!succeeded) run.observe(stableGesture);
+  }, [stableGesture, succeeded, run]);
 
   useEffect(() => {
     if (handPresent && !momentoShownRef.current && !Flags.firstCameraSuccess()) {
@@ -97,11 +108,12 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
   useEffect(() => {
     if (!succeeded && stableGesture === targetLetter) {
       setSucceeded(true);
+      saveCameraRun(run.finish('success'));
       Haptics.correctCamera();
       Sfx.correctCamera();
       launchConfetti();
     }
-  }, [stableGesture, targetLetter, succeeded]);
+  }, [stableGesture, targetLetter, succeeded, run]);
 
   // Liga ao montar; se o MLP chegar depois e passar a avaliar esta letra, liga nessa hora
   useEffect(() => {
@@ -124,6 +136,11 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
   function openDemo() {
     stop();
     setShowDemo(true);
+  }
+
+  function skip() {
+    saveCameraRun(run.finish('skip'));
+    onComplete(false);
   }
 
   if (!isRecognizable) {
@@ -249,7 +266,7 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
       {!succeeded && (
         <button
           className="btn btn-ghost cam-sign-skip"
-          onClick={() => onComplete(false)}
+          onClick={skip}
           aria-label={t('exerciseCameraSign.skipExercise')}
         >
           <Icon name="skip_next" /> {t('common.skip')}
