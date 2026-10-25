@@ -123,7 +123,8 @@
       "gloss": "F"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "A CONFERIR no dicionario do INES (2026-10-25): em mais de 20 videos do alfabeto em Libras no YouTube, F e T aparecem quase iguais (indicador tocando o polegar, os outros tres dedos estendidos) e a diferenca entre eles nao ficou clara. A descricao do F bate com os videos; falta confirmar o que a separa do T."
   },
   {
     "id": "letra-G",
@@ -404,20 +405,21 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "polegar inserido entre o indicador e o medio, ambos curvados",
+      "CM": "indicador curvado com a ponta tocando a ponta do polegar, medio, anelar e minimo estendidos",
       "PA": "espaco neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Polegar espremido entre o indicador e o medio curvados, palma para frente.",
+    "video_caption": "A ponta do indicador curvado toca a ponta do polegar; medio, anelar e minimo ficam estendidos, palma para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "T"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "A CONFERIR no dicionario do INES (2026-10-25): em mais de 20 videos do alfabeto em Libras no YouTube, F e T aparecem quase iguais (indicador tocando o polegar, os outros tres dedos estendidos) e a diferenca entre eles nao ficou clara. A descricao anterior (polegar entre o indicador e o medio) era a do T do alfabeto americano e nenhum dos videos mostra essa forma; foi trocada pela forma que os professores fazem."
   },
   {
     "id": "letra-U",

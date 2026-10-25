@@ -15,8 +15,8 @@ qual é o sinal, mas não quando. Como sai o trecho:
 3. Repetições no mesmo vídeo entram se ficarem tão perto quanto a escolhida (REPETICAO_FOLGA).
    Vídeo cuja melhor janela destoa dos outros (mediana + 2 MAD) sai inteiro: provavelmente é
    outro sinal ou outra variante.
-   Quando o sinal tem vídeo de dicionário (só o sinal, sem introdução nem fala), as rodadas de
-   refinamento comparam só com as janelas escolhidas nos dicionários.
+   Com --ancoras, quando o sinal tem vídeo de dicionário (só o sinal, sem introdução nem fala), as
+   rodadas de refinamento comparam só com as janelas escolhidas nos dicionários.
 4. Janelas ativas que não se sobrepõem às escolhidas, em vídeos aceitos, viram "_" (nenhum sinal),
    até NEGATIVAS_POR_VIDEO por vídeo.
 
@@ -243,7 +243,7 @@ def resumo(x):
 # Consenso por sinal
 # ---------------------------------------------------------------------------
 
-def consenso(videos, usar_ancoras=True):
+def consenso(videos, usar_ancoras=False):
     """Para os vídeos de um sinal, escolhe as janelas do sinal. Devolve {id: [índices]} e notas."""
     vids = [v for v in videos if v["_cands"]]
     if len(vids) < 3:
@@ -296,7 +296,8 @@ def consenso(videos, usar_ancoras=True):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--glosas", default="", help="só estas glosas (separadas por vírgula)")
-    ap.add_argument("--sem-ancoras", action="store_true", help="não usa os dicionários como referência")
+    # Em 2026-10-25, no piloto de 20 sinais, as âncoras pioraram a validação cruzada (41% contra 47%)
+    ap.add_argument("--ancoras", action="store_true", help="usa os dicionários como referência do consenso")
     ap.add_argument("--saida", default=SAIDA)
     args = ap.parse_args()
     filtro = {g for g in args.glosas.split(",") if g}
@@ -322,7 +323,7 @@ def main():
     rng = np.random.default_rng(0)
     for g in sorted(por_glosa):
         vids = por_glosa[g]
-        escolhidas, notas = consenso(vids, not args.sem_ancoras)
+        escolhidas, notas = consenso(vids, args.ancoras)
         aceitos = 0
         for v in vids:
             pegos = escolhidas.get(v["id"], [])
