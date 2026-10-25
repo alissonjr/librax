@@ -5,13 +5,12 @@
  * profundidade delas, maos-z.json). A cada volta a mão de cada letra é de outra pessoa, com a
  * transição suave entre as poses e um tom de pele diferente por pessoa.
  *
- * Modelo da mão: "generic-hand" do pacote npm @webxr-input-profiles/assets 1.0.20
- * (https://github.com/immersive-web/webxr-input-profiles), Copyright (c) 2019 Amazon, licença
- * MIT (LICENSE.md do pacote). As articulações seguem os nomes do WebXR Hand Input; o
- * retargeting dos 21 landmarks está em src/retarget.ts.
+ * Modelo da mão: nosso (src/mao-3d.glb, gerado no Blender por scripts/mao3d/gerar.py), com
+ * unhas, dobras da pele num mapa de normais e um osso por segmento do MediaPipe. O retargeting
+ * dos 21 landmarks está em src/retarget.ts. Luz de estúdio neutra: a cor do estado da câmera
+ * fica só na moldura, na letra e nos selos, nunca na pele.
  */
 import {
-  AmbientLight,
   Bone,
   BufferGeometry,
   Color,
@@ -20,7 +19,9 @@ import {
   HemisphereLight,
   LineBasicMaterial,
   LineSegments,
+  type Material,
   MeshPhysicalMaterial,
+  MeshStandardMaterial,
   NeutralToneMapping,
   Object3D,
   PerspectiveCamera,
@@ -33,12 +34,13 @@ import {
   WebGLRenderer,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import handUrl from '@webxr-input-profiles/assets/dist/profiles/generic-hand/right.glb?url';
+import handUrl from './mao-3d.glb?url';
 import maos from './maos.json';
 import maosZ from './maos-z.json';
 import { HAND_LINKS, HERO_LETTERS, easeStandard } from './hands';
-import { JOINTS, SPECS, makeRest, positions, retarget, slerpPose, type Rest } from './retarget';
+import { BONES, clonePose, makeRig, mixPose, positions, retarget, solveCollisions, type HandPose, type Rig } from './retarget';
 
 /**
  * Tons de pele (sRGB), do mais claro ao mais escuro. Ilustrativos: os dados da mão não dizem
@@ -50,12 +52,6 @@ const SKIN_ORDER = [0, 3, 1, 4, 2, 5];
 
 /** O z do MediaPipe sai achatado: com 1,8 o comprimento de cada osso varia menos entre as 48 poses. */
 const DEPTH = 1.8;
-/**
- * Os dedos do modelo são curtos e grossos perto dos dados (o dedo médio dos landmarks mede ~1,2
- * palma; o do modelo, ~0,95): as falanges ficam mais longas e um pouco mais finas.
- */
-const FINGER_LENGTH = 1.14;
-const FINGER_WIDTH = 0.9;
 const MOVE_MS = 950;
 const READY_MS = 260;
 const HOLD_MS = 1150;
@@ -66,7 +62,11 @@ type Letter = (typeof HERO_LETTERS)[number];
 
 interface Options {
   reduced: boolean;
+  /** Pose fixa (para comparar com o desenho 2D): letra e pessoa (índice da pose). */
+  still?: { letter: string; person: number };
   debug?: boolean;
+  /** Giro extra da mão em volta do eixo vertical (graus), para conferir a pose de lado. */
+  turn?: number;
 }
 
 const letras = maos.letras as Record<string, { centro: number[]; poses: number[][] }>;
@@ -109,62 +109,75 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
 
   const stageColor = (state: State) =>
     new Color(cssVar(stage, `--lx-stage-landmark-${state === 'idle' ? 'idle' : state}`, '#74DE9B').slice(0, 7));
-  scene.add(new HemisphereLight(0xfff1e6, 0x2b2018, 0.9));
-  scene.add(new AmbientLight(0xffffff, 0.15));
-  const key = new DirectionalLight(0xfff6ee, 2.4);
-  key.position.set(-1.2, 1.6, 3);
-  const fill = new DirectionalLight(0xffe2cc, 0.6);
-  fill.position.set(2, -0.5, 2);
-  // Luz de recorte por trás, na cor do estado da câmera (como os ossos do esqueleto)
-  const rim = new DirectionalLight(stageColor('tracking'), 1.6);
-  rim.position.set(1.5, 1.2, -2.5);
-  scene.add(key, fill, rim);
+  // Estúdio: céu quente e chão escuro, luz principal suave do alto à esquerda, preenchimento
+  // do outro lado e um contorno branco fraco por trás (sem cor na pele)
+  scene.add(new HemisphereLight(0xfff4ec, 0x3a2c24, 1.1));
+  const key = new DirectionalLight(0xfff3ea, 2.1);
+  key.position.set(-1.4, 1.8, 3);
+  const fill = new DirectionalLight(0xffeee4, 0.75);
+  fill.position.set(2.2, 0.2, 2.2);
+  const back = new DirectionalLight(0xffffff, 0.55);
+  back.position.set(0.8, 1.5, -2.5);
+  scene.add(key, fill, back);
 
   const camera = new PerspectiveCamera(16, 4 / 3, 0.1, 100);
 
   // ---------- modelo ----------
-  const gltf = await new GLTFLoader().loadAsync(handUrl);
+  const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+  const gltf = await loader.loadAsync(handUrl);
   const bones = new Map<string, Bone>();
-  let mesh: SkinnedMesh | null = null;
+  const meshes: SkinnedMesh[] = [];
   gltf.scene.traverse((o: Object3D) => {
     if ((o as Bone).isBone) bones.set(o.name, o as Bone);
-    if ((o as SkinnedMesh).isSkinnedMesh) mesh = o as SkinnedMesh;
+    if ((o as SkinnedMesh).isSkinnedMesh) meshes.push(o as SkinnedMesh);
   });
-  const joints = JOINTS.map((n) => bones.get(n));
-  if (!mesh || joints.some((b) => !b)) throw new Error('modelo da mão sem as articulações esperadas');
-  const handMesh = mesh as SkinnedMesh;
-  const jointBones = joints as Bone[];
+  const rig: Rig = makeRig(
+    [...bones.values()].map((b) => ({ name: b.name, position: b.position.clone(), quaternion: b.quaternion.clone() })),
+  );
+  const jointBones = BONES.map((n) => bones.get(n)!);
+  const skinMesh = meshes.find((m) => (m.material as Material).name === 'pele');
+  const nailMesh = meshes.find((m) => (m.material as Material).name === 'unha');
+  if (!skinMesh || !nailMesh) throw new Error('modelo da mão sem pele ou unhas');
+  const baked = skinMesh.material as MeshStandardMaterial;
+  // Pele: o tom vem daqui (o modelo é branco); dobras e unhas vêm do mapa de normais do modelo
   const skin = new MeshPhysicalMaterial({
     color: new Color(SKIN[0]),
-    roughness: 0.62,
+    roughness: 0.56,
     metalness: 0,
-    sheen: 0.55,
-    sheenRoughness: 0.55,
-    sheenColor: new Color('#f2a48c'),
+    normalMap: baked.normalMap,
+    normalScale: baked.normalScale.clone().multiplyScalar(0.9),
+    specularIntensity: 0.45,
+    sheen: 0.4,
+    sheenRoughness: 0.5,
+    sheenColor: new Color('#ff9f87'),
   });
-  handMesh.material = skin;
-  handMesh.frustumCulled = false;
+  const nail = new MeshPhysicalMaterial({
+    color: new Color(SKIN[0]),
+    vertexColors: true,
+    roughness: 0.48,
+    metalness: 0,
+    specularIntensity: 0.5,
+    clearcoat: 0.12,
+    clearcoatRoughness: 0.4,
+  });
+  skinMesh.material = skin;
+  nailMesh.material = nail;
+  for (const m of meshes) m.frustumCulled = false;
+  baked.dispose();
 
-  const rest: Rest = makeRest(
-    jointBones.map((b) => b.position.clone()),
-    jointBones.map((b) => b.quaternion.clone()),
-  );
-  // Falanges (tudo que não é pulso nem metacarpo dos quatro dedos) e as pontas
-  const stretch = SPECS.map((sp, j) => (j > 0 && !(sp.kind === 'palm') ? FINGER_LENGTH : 1));
-  jointBones.forEach((b, j) => {
-    if (stretch[j] !== 1) b.scale.set(FINGER_WIDTH, FINGER_WIDTH, stretch[j]);
-  });
   // Mesma escala dos dados: palma (pulso -> base do médio) = 1
-  const palmLen = rest.pos[11].distanceTo(rest.pos[0]);
+  const palmLen = rig.palmLen;
   const hand = new Object3D();
   gltf.scene.scale.setScalar(1 / palmLen);
   hand.add(gltf.scene);
   scene.add(hand);
 
-  // Poses de todas as letras, já como rotações
+  // Poses de todas as letras, já como ângulos (a colisão entre dedos é resolvida a cada quadro)
   const poses = Object.fromEntries(
-    HERO_LETTERS.map((L) => [L, letras[L].poses.map((_, k) => retarget(rest, landmarks(L, k)))]),
-  ) as Record<Letter, Quaternion[][]>;
+    HERO_LETTERS.map((L) => [L, letras[L].poses.map((_, k) => retarget(rig, landmarks(L, k)))]),
+  ) as Record<Letter, HandPose[]>;
+  /** Rotações locais sem pele atravessando pele (a pose de entrada não muda). */
+  const solve = (p: HandPose) => solveCollisions(rig, clonePose(p));
 
   // Esqueleto dos dados por cima (só com ?esqueleto), para comparar com o desenho 2D
   let debugLines: LineSegments | null = null;
@@ -193,15 +206,18 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   };
 
   // ---------- estado ----------
-  const current: Quaternion[] = poses.L[0].map((q) => q.clone());
+  let currentPose: HandPose = poses.L[0];
+  let current: Quaternion[] = solve(currentPose);
   const tone = new Color(SKIN[SKIN_ORDER[0]]);
+  /** Unha: o mesmo tom, clareado e rosado. */
+  const NAIL_TINT = new Color('#f2d4cc');
   // Enquadramento: caixa das articulações de todas as poses de cada letra (mais a grossura dos
   // dedos); o lado é o mesmo em todas as letras, como no desenho 2D, e o centro muda com a letra
   const boxes = Object.fromEntries(
     HERO_LETTERS.map((L) => {
       let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-      for (const q of poses[L]) {
-        for (const p of positions(rest, q, stretch)) {
+      for (const pose of poses[L]) {
+        for (const p of positions(rig, solve(pose))) {
           x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y);
         }
       }
@@ -220,18 +236,17 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   const camCenter = centerOf(HERO_LETTERS[0]);
 
   function applyPose() {
-    const pos = positions(rest, current, stretch);
-    jointBones.forEach((b, j) => {
-      b.position.copy(pos[j]);
-      b.quaternion.copy(current[j]);
-    });
+    jointBones.forEach((b, j) => b.quaternion.copy(current[j]));
     if (jointLines) {
+      const pos = positions(rig, current);
       const arr: number[] = [];
-      SPECS.forEach((sp, j) => { if (sp.parent >= 0) arr.push(...pos[sp.parent].toArray(), ...pos[j].toArray()); });
+      rig.parent.forEach((p, j) => { if (p >= 0) arr.push(...pos[p].toArray(), ...pos[j].toArray()); });
       jointLines.geometry.setAttribute('position', new Float32BufferAttribute(arr, 3));
     }
     skin.color.copy(tone);
-    hand.rotation.set(Math.sin(sway / 2300) * 0.05, Math.sin(sway / 1700) * 0.12, 0);
+    // a cor por vértice do modelo (0,74 a 0,9) escurece um pouco; aqui volta ao nível da pele
+    nail.color.copy(tone).lerp(NAIL_TINT, 0.1).multiplyScalar(1.1);
+    hand.rotation.set(Math.sin(sway / 2300) * 0.05, Math.sin(sway / 1700) * 0.12 + ((opts.turn ?? 0) * Math.PI) / 180, 0);
   }
 
   function resize() {
@@ -256,7 +271,6 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
 
   const setState = (s: State) => {
     view.dataset.state = s;
-    rim.color.copy(stageColor(s));
   };
 
   new ResizeObserver(() => {
@@ -266,16 +280,20 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   resize();
 
   // ---------- menos movimento: o estado final, parado ----------
-  const last = HERO_LETTERS[HERO_LETTERS.length - 1];
-  if (opts.reduced) {
+  const stillLetter = HERO_LETTERS.find((L) => L === opts.still?.letter);
+  if (opts.reduced || stillLetter) {
+    const last = stillLetter ?? HERO_LETTERS[HERO_LETTERS.length - 1];
+    const li = HERO_LETTERS.indexOf(last);
+    const k = stillLetter ? Math.abs(opts.still!.person) % letras[last].poses.length : 0;
     await renderer.compileAsync(scene, camera);
-    poses[last][0].forEach((q, j) => current[j].copy(q));
-    tone.set(SKIN[SKIN_ORDER[HERO_LETTERS.length - 1]]);
+    currentPose = poses[last][k];
+    current = solve(currentPose);
+    tone.set(SKIN[SKIN_ORDER[(li + k) % SKIN_ORDER.length]]);
     camCenter.copy(centerOf(last));
     if (letterEl) letterEl.textContent = last;
-    chips.forEach((c) => (c.dataset.state = 'correct'));
+    chips.forEach((c, i) => (c.dataset.state = i <= li ? 'correct' : 'idle'));
     setState('correct');
-    showDebug(landmarks(last, 0));
+    showDebug(landmarks(last, k));
     stage.dataset.view = '3d';
     root.hidden = false;
     resize();
@@ -325,7 +343,7 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   }
 
   async function moveTo(L: Letter, k: number, toneIndex: number) {
-    const from = current.map((q) => q.clone());
+    const from = currentPose;
     const to = poses[L][k];
     const fromTone = tone.clone();
     const toTone = new Color(SKIN[toneIndex]);
@@ -333,7 +351,9 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
     const toCam = centerOf(L);
     showDebug(landmarks(L, k));
     await tween(MOVE_MS, (t) => {
-      slerpPose(from, to, t, current);
+      // Mistura os ângulos e resolve a colisão de novo a cada quadro da transição
+      currentPose = mixPose(from, to, t);
+      current = solve(currentPose);
       tone.lerpColors(fromTone, toTone, t);
       camCenter.lerpVectors(fromCam, toCam, t);
     });

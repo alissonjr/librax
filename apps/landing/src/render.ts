@@ -96,7 +96,7 @@ const PROTO = {
   bannerLink: 'Ver a versão atual',
   caption:
     'Cada letra é a mão de uma pessoa diferente, na posição em que o app a enxergou e reconheceu. Os tons de pele variam para lembrar que são pessoas diferentes.',
-  credit: 'Modelo da mão: WebXR Input Profiles (generic-hand), da Amazon, licença MIT.',
+  credit: 'Mão em 3D: modelo próprio do Librax, feito para esta página.',
 };
 
 export function renderPage(locale: Locale, opts: PageOptions = {}): string {

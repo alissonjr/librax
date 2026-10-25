@@ -11,3 +11,4 @@ node_modules/
 /public/apple-touch-icon.png
 /public/icon-192.png
 /public/icon-512.png
+__pycache__/
