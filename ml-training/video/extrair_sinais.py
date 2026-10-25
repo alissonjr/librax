@@ -126,6 +126,26 @@ def extrair(job):
     return fonte["id"], len(frames), time.time() - inicio, None
 
 
+def glosas_com_camera():
+    """Glosas dos sinais com exercício de câmera (perform_sign) nas lições do app."""
+    import glob
+
+    conteudo = os.path.join(AQUI, "..", "..", "apps", "web-poc", "src", "assets", "content")
+    try:
+        with open(os.path.join(conteudo, "signs.json")) as f:
+            glosa_de = {s["id"]: s["gloss"] for s in json.load(f)}
+    except OSError:
+        return set()
+    out = set()
+    for path in glob.glob(os.path.join(conteudo, "lessons", "*.json")):
+        with open(path) as f:
+            for e in json.load(f).get("exercises", []):
+                sid = e.get("payload", {}).get("sign_id")
+                if e.get("type") == "perform_sign" and sid in glosa_de:
+                    out.add(glosa_de[sid])
+    return out
+
+
 def duracao(path):
     import cv2
 
@@ -158,11 +178,13 @@ def main():
     pedidos = set(args.ids)
     escolhidas = [x for x in fontes if x.get("tipo") == "sinal" and x.get("arquivo")
                   and (not pedidos or x["id"] in pedidos) and (not glosas or x.get("glosa") in glosas)]
-    # Primeiro as glosas com mais pessoas (canais): são as que dá para treinar antes de tudo acabar
+    # Primeiro as glosas dos exercícios de câmera das lições (perform_sign) e, dentro delas, as com
+    # mais pessoas (canais): são as que dá para treinar antes de tudo acabar
     canais = {}
     for x in escolhidas:
         canais.setdefault(x.get("glosa"), set()).add(x.get("channel_id") or x["id"])
-    escolhidas.sort(key=lambda x: -len(canais[x.get("glosa")]))
+    camera = glosas_com_camera()
+    escolhidas.sort(key=lambda x: (x.get("glosa") not in camera, -len(canais[x.get("glosa")])))
     os.makedirs(args.saida, exist_ok=True)
     jobs = []
     for x in escolhidas:
