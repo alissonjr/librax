@@ -260,6 +260,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
           word={ex.word}
           letters={ex.letters}
           perLetterConfidence={ex.perLetterConfidence}
+          ownName={ex.ownName}
           onAnswer={record}
           onNext={advance}
         />
@@ -278,7 +279,9 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
           key={ex.id}
           steps={ex.steps ?? []}
           correctOrder={ex.correctOrder ?? (ex.steps ?? []).map((_, i) => i)}
-          prompt={ex.word ? t('exerciseOrderSequence.spellPrompt', { word: ex.word }) : undefined}
+          prompt={ex.word
+            ? t(ex.ownName ? 'exerciseOrderSequence.spellOwnNamePrompt' : 'exerciseOrderSequence.spellPrompt', { word: ex.word })
+            : undefined}
           onAnswer={record}
           onNext={advance}
         />

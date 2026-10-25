@@ -27,7 +27,10 @@ export interface SignCameraReading {
   handPresent: boolean;
   /** Corpo (nariz e ombros) no quadro: sem ele não há leitura. */
   bodyPresent: boolean;
-  /** Glosa lida na última avaliação, ou null. */
+  /**
+   * Glosa lida em CONFIRM_READINGS avaliações seguidas, ou null. A leitura de uma avaliação só
+   * não chega aqui: nos testes ao vivo apareciam leituras passageiras erradas antes do acerto.
+   */
   gloss: string | null;
   /** Probabilidade da glosa alvo na última avaliação (0 a 1). */
   targetProbability: number;
@@ -46,6 +49,28 @@ const DETECT_FPS = 15;
 const PUBLISH_MS = 100;
 
 const EMPTY: SignCameraReading = { handPresent: false, bodyPresent: false, gloss: null, targetProbability: 0 };
+
+/** Avaliações seguidas com a mesma glosa para a leitura valer ("Vimos X" ou acerto). */
+export const CONFIRM_READINGS = 2;
+
+/** Glosa da última avaliação e quantas avaliações seguidas a leram. */
+export interface GlossStreak {
+  gloss: string | null;
+  count: number;
+}
+
+export const NO_STREAK: GlossStreak = { gloss: null, count: 0 };
+
+/** Soma uma avaliação: a mesma glosa conta mais uma; outra glosa recomeça; nenhuma zera. */
+export function nextStreak(prev: GlossStreak, gloss: string | null): GlossStreak {
+  if (gloss === null) return NO_STREAK;
+  return gloss === prev.gloss ? { gloss, count: prev.count + 1 } : { gloss, count: 1 };
+}
+
+/** A glosa da sequência, quando ela já tem CONFIRM_READINGS avaliações; senão null. */
+export function confirmedGloss(streak: GlossStreak): string | null {
+  return streak.count >= CONFIRM_READINGS ? streak.gloss : null;
+}
 
 function same(a: SignCameraReading, b: SignCameraReading): boolean {
   return a.handPresent === b.handPresent && a.bodyPresent === b.bodyPresent && a.gloss === b.gloss
@@ -74,6 +99,7 @@ export function useSignCameraRecognizer(target: string): UseSignCameraRecognizer
   const lastEvalRef = useRef(-Infinity);
   const lastPublishRef = useRef(-Infinity);
   const readingRef = useRef<SignCameraReading>(EMPTY);
+  const streakRef = useRef<GlossStreak>(NO_STREAK);
   const targetRef = useRef(target);
   targetRef.current = target;
   const mountedRef = useRef(false);
@@ -106,7 +132,12 @@ export function useSignCameraRecognizer(target: string): UseSignCameraRecognizer
     if (evaluated) {
       lastEvalRef.current = now;
       const r = recognizer.evaluate();
-      next = { ...presence, gloss: r.gloss, targetProbability: probabilityOf(r, recognizer.labels, targetRef.current) };
+      streakRef.current = nextStreak(streakRef.current, r.gloss);
+      next = {
+        ...presence,
+        gloss: confirmedGloss(streakRef.current),
+        targetProbability: probabilityOf(r, recognizer.labels, targetRef.current),
+      };
     } else {
       next = { ...readingRef.current, ...presence };
     }
@@ -135,6 +166,7 @@ export function useSignCameraRecognizer(target: string): UseSignCameraRecognizer
     wakeRef.current?.release();
     wakeRef.current = null;
     recognizerRef.current?.reset();
+    streakRef.current = NO_STREAK;
   }, []);
 
   const start = useCallback(async () => {

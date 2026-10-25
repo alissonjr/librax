@@ -373,6 +373,7 @@
     "releaseRepeat": "Tire a mão ou mude de forma e faça {letter} de novo",
     "retry": "Tentar novamente",
     "skipExercise": "Pular este exercício",
+    "spellOwnName": "Soletre seu nome: {word}",
     "spellWord": "Soletre: {word}",
     "starting": "Iniciando...",
     "wordComplete": "Palavra completa!"
@@ -423,6 +424,7 @@
     "moveUp": "Subir {step}",
     "moved": "{step}: posição {position} de {total}",
     "prompt": "Ordene os passos do sinal:",
+    "spellOwnNamePrompt": "Seu nome, {word}: coloque as letras na ordem",
     "spellPrompt": "Soletre {word}: coloque as letras na ordem"
   },
   "exerciseWatchChooseWord": {

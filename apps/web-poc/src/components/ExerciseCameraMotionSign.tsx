@@ -18,7 +18,8 @@ interface Props {
 /**
  * perform_sign de sinal com movimento (palavras como ARROZ e MESA), quando o modelo de sinais
  * publicado em /ml/sinais/ conhece a glosa (src/lib/content.ts decide). Mãos e corpo pela
- * câmera, avaliados em janelas de 1 a 2 s; acerta quando a leitura é a glosa do exercício.
+ * câmera, avaliados em janelas de 1 a 2 s; acerta quando a leitura confirmada (a mesma glosa em
+ * duas avaliações seguidas, useSignCameraRecognizer) é a glosa do exercício.
  * As letras continuam no ExerciseCameraSign.
  */
 export function ExerciseCameraMotionSign({ sign, onComplete }: Props) {

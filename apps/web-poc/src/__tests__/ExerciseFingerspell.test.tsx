@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SPELL_START, needsRelease, spellStep, type SpellState } from '../lib/fingerspell';
+import { OWN_NAME_MAX, SPELL_START, needsRelease, ownNameLetters, spellStep, type SpellState } from '../lib/fingerspell';
 import type { UseCameraRecognizerReturn } from '../hooks/useCameraRecognizer';
 
 const mockStart = vi.fn();
@@ -74,6 +74,42 @@ describe('spellStep (regra da soletração)', () => {
     const done = run(['A'], ['A']);
     expect(spellStep(['A'], done, null)).toBe(done);
   });
+
+  it('pausa entre letras ("nenhuma letra" do modelo chega como null) não conta nem volta a palavra', () => {
+    const CHEGA = ['C', 'H', 'E', 'G', 'A'];
+    expect(run(CHEGA, [null, 'C', null, null, 'H', null, 'E', null, 'G', null, 'A']).index).toBe(5);
+    // null antes da primeira letra e no meio não mexe no estado
+    expect(spellStep(CHEGA, SPELL_START, null)).toBe(SPELL_START);
+    const s = run(CHEGA, ['C', 'H']);
+    expect(spellStep(CHEGA, { ...s, waitingRelease: false }, null)).toEqual({ ...s, waitingRelease: false });
+  });
+});
+
+describe('ownNameLetters (nome do perfil para o "soletre seu nome")', () => {
+  it('primeiro nome em caixa alta, sem acento e só com letras', () => {
+    expect(ownNameLetters('Ana Maria')).toEqual(['A', 'N', 'A']);
+    expect(ownNameLetters('  álvaro  ')).toEqual(['A', 'L', 'V', 'A', 'R', 'O']);
+    expect(ownNameLetters("D'Ávila")).toEqual(['D', 'A', 'V', 'I', 'L', 'A']);
+    expect(ownNameLetters('Bruna2')).toEqual(['B', 'R', 'U', 'N', 'A']);
+    expect(ownNameLetters('Ítalo')).toEqual(['I', 'T', 'A', 'L', 'O']);
+  });
+
+  it('J, Z e Ç (letras com movimento) não entram: a lição usa a palavra de reserva', () => {
+    expect(ownNameLetters('João')).toBeNull();
+    expect(ownNameLetters('Zeca')).toBeNull();
+    expect(ownNameLetters('Conceição')).toBeNull();
+    // o Ç continua Ç (não vira C), mesmo escrito com o cedilha separado
+    expect(ownNameLetters('Iraça')).toBeNull();
+  });
+
+  it('vazio, de uma letra ou com mais de OWN_NAME_MAX letras não dá', () => {
+    expect(ownNameLetters(null)).toBeNull();
+    expect(ownNameLetters(undefined)).toBeNull();
+    expect(ownNameLetters('   ')).toBeNull();
+    expect(ownNameLetters('A')).toBeNull();
+    expect(ownNameLetters('Wellington')).toBeNull();
+    expect(ownNameLetters('Henrique')).toHaveLength(OWN_NAME_MAX);
+  });
 });
 
 describe('ExerciseFingerspell', () => {
@@ -116,6 +152,14 @@ describe('ExerciseFingerspell', () => {
     vi.mocked(useCameraRecognizer).mockReturnValue({ ...base, stableGesture: 'A' });
     view.rerender(<ExerciseFingerspell word="AA" letters={letters} onAnswer={vi.fn()} onNext={vi.fn()} />);
     expect(screen.getByText('Palavra soletrada!')).toBeInTheDocument();
+  });
+
+  it('"soletre seu nome": o enunciado diz que é o nome, com câmera e sem ela', () => {
+    const view = render(<ExerciseFingerspell word="BIA" letters={['B', 'I', 'A']} ownName onAnswer={vi.fn()} onNext={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: 'Soletre seu nome: BIA' })).toBeInTheDocument();
+    view.unmount();
+    render(<ExerciseFingerspell word="OTO" letters={['O', 'T', 'O']} ownName onAnswer={vi.fn()} onNext={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: 'Seu nome, OTO: coloque as letras na ordem' })).toBeInTheDocument();
   });
 
   it('palavra com letra que o classificador não avalia vira order_sequence, sem câmera', () => {

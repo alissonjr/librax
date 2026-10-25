@@ -279,7 +279,8 @@ describe('lição em andamento (página recarregada)', () => {
     const total = (await content.loadLessonBundle('u1-l1'))!.length;
     await savedRun(undefined, total - 1);
     const router = await renderAt(['/aprender', '/licao/u1-l1']);
-    await userEvent.click(await screen.findByRole('button', { name: /Pular este exercício|Continuar/ }));
+    // O último é a câmera da letra E: prática livre (Pronto) enquanto o classificador é o heurístico
+    await userEvent.click(await screen.findByRole('button', { name: /Pular este exercício|Continuar|Pronto/ }));
     await waitFor(() => expect(path(router)).toBe('/licao/u1-l1/concluida'));
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
     expect(localStorage.getItem(RUN_KEY)).toBeNull();
