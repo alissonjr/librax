@@ -5,6 +5,7 @@ import { IdbRepo } from './lib/idbRepo';
 import { getUserId } from './lib/auth';
 import { startAccount } from './lib/account';
 import { evaluateAppOpen, preloadAppOpen } from './lib/appOpen';
+import { setSplashLabel, splashStep } from './lib/splash';
 import type { LeagueResult } from './lib/leagueLocal';
 import { newProfile } from '@domain/profile.js';
 import { useT } from './i18n';
@@ -43,6 +44,8 @@ async function boot(): Promise<Boot> {
 
   // AppOpenFlow (spec-02 12.10): resultado da liga e sequência quebrada, nessa ordem
   const { leagueResult, brokenStreak } = await evaluateAppOpen(repo, userId);
+  // Tela de abertura: banco local e perfil prontos
+  splashStep('storage');
 
   return { repo, userId, brokenStreak, leagueResult };
 }
@@ -55,6 +58,9 @@ export function App() {
   useEffect(() => {
     boot().then(setState);
   }, []);
+
+  // A barra da abertura é anunciada no idioma do app (o index.html sai em pt-BR)
+  useEffect(() => { setSplashLabel(t('splash.label')); }, [t]);
 
   if (!state) {
     return (

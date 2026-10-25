@@ -10,6 +10,8 @@ import { ScreenSkeleton } from '../components/ScreenSkeleton';
 import { useScrollRestore } from '../hooks/useScrollRestore';
 import { TraceArc, TraceOrbit, Wordmark } from '../components/Brand';
 import { latestLessonRun } from '../lib/lessonRun';
+import { scheduleCameraPrefetch } from '../lib/assetDownload';
+import { CameraPrepChip } from '../components/CameraPrepChip';
 
 interface MapState {
   xpTotal: number;
@@ -44,6 +46,10 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
   const hoursNow = new Date().getHours();
   // Ao voltar de uma lição, o mapa volta à posição em que estava, depois que os dados carregam
   useScrollRestore(state !== null);
+
+  // Quem chegou ao mapa vai usar a câmera: os arquivos dela baixam em segundo plano, depois da
+  // abertura e com o app ocioso (uma vez por sessão; nada se a conexão for lenta ou economizando dados)
+  useEffect(() => { scheduleCameraPrefetch(); }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,6 +105,8 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
       </div>
 
       <div className="coursemap-body">
+        <CameraPrepChip />
+
         {/* Daily Goal Bar */}
         <div className="xp-bar-card">
           <div className="xp-bar-header">

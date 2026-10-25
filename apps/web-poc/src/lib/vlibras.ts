@@ -28,6 +28,20 @@ export const VLIBRAS_LICENSE_URL = 'https://www.gnu.org/licenses/lgpl-3.0.html';
  */
 export const VLIBRAS_BUNDLES_PATH = '/vlibras/sinais/2018.3.1/';
 
+/** Pasta do player (a mesma BASE de public/vlibras/player.html e PLAYER_VERSION do script). */
+export const VLIBRAS_PLAYER_PATH = '/vlibras/v7.12.2/';
+/**
+ * Arquivos do player com o tamanho da versão fixada (conferidos pelo SHA-256 do
+ * scripts/vlibras-manifest.json), para o download de "usar offline" (lib/offlinePack.ts).
+ */
+export const VLIBRAS_PLAYER_FILES: readonly { name: string; bytes: number }[] = [
+  { name: 'unity-loader.js', bytes: 150_016 },
+  { name: 'playerweb.json', bytes: 464 },
+  { name: 'playerweb.wasm.framework.unityweb', bytes: 76_883 },
+  { name: 'playerweb.wasm.code.unityweb', bytes: 2_996_753 },
+  { name: 'playerweb.data.unityweb', bytes: 16_992_528 },
+];
+
 /** URL absoluta das animações: o Unity recebe pelo setBaseUrl e monta baseUrl + glosa. */
 function bundlesUrl(): string {
   return new URL(VLIBRAS_BUNDLES_PATH, window.location.origin).href;
