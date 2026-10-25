@@ -105,7 +105,8 @@ Nomes finais (decisão 10 do `plano-mobile-web.md`): `intro` virou `sign_intro`;
 
 **Regra de composição da lição**: toda lição mistura receptivo + expressivo, na sequência apresenta (vídeo) ->
 reconhece receptivo -> produz expressivo, com a frase no fim. Receptivo cobre quem está sem câmera. A sessão tem
-**de 7 a 12 exercícios** (seção 4), gerada por `composeLessonExercises` em `tools/content/compose.mjs`:
+**de 7 a 12 exercícios** (seção 4; a única exceção é o `match_pairs` dividido do item 2), gerada por
+`composeLessonExercises` em `tools/content/compose.mjs`:
 
 1. **Apresenta e reconhece.** Cada sinal novo ganha um `sign_intro` e, logo depois, um exercício receptivo próprio,
    alternando `watch_choose_word` (vê o sinal, escolhe a palavra) e `word_choose_video` (vê a palavra, escolhe o
@@ -114,7 +115,10 @@ reconhece receptivo -> produz expressivo, com a frase no fim. Receptivo cobre qu
 2. **Agrupa quando não cabe.** Se a lição passaria de 12 (6 sinais novos, ou 5 com a frase), os últimos 3 ou 4
    sinais dividem um `match_pairs` no lugar dos receptivos individuais; os `sign_intro` deles vêm antes do
    `match_pairs`. O tamanho do grupo é o menor que faz a lição caber (mínimo 3, máximo 4; até 6 na lição com
-   `produce`, item 3).
+   `produce`, item 3). Um `match_pairs` nunca passa de 4 pares (com 6 letras ele ocupava cerca de 2,4 telas no
+   celular): grupo maior é dividido em `match_pairs` equilibrados (6 viram 3 + 3, 5 viram 3 + 2), cada um logo
+   depois dos `sign_intro` dos seus sinais. Só nesse caso a lição passa de 12, com um exercício a mais por grupo
+   extra (hoje só a U1 L5, com 13).
 3. **Produz.** 2 `perform_sign` com sinais novos da lição (estáticos primeiro, que a câmera tem mais chance de
    avaliar). A lição pode listar em `produce` (course.json) quais sinais a pessoa faz na câmera: as do alfabeto
    listam cada letra que o modelo lê bem (ver abaixo). Depois vêm os `fingerspell`, um por palavra de
@@ -141,7 +145,7 @@ Exemplos (bundle atual):
 | Lição | Sinais | Sequência | Total |
 |---|---|---|---|
 | U1 L1 (A, B, C, D, E) | 5 novos, sem frase, `produce` A a E | intro A, watch A, intro B, C, D e E, match_pairs dos 4, perform A, B, C, D e E | 12 |
-| U1 L5 (U, V, W, X, Y, Z) | 6 novos, `produce` U, V, W e Y, revisão YAGO | intro das 6, match_pairs das 6, perform U, V, W e Y, fingerspell YAGO | 12 |
+| U1 L5 (U, V, W, X, Y, Z) | 6 novos, `produce` U, V, W e Y, revisão YAGO | intro U, V e W, match_pairs dos 3, intro X, Y e Z, match_pairs dos 3, perform U, V, W e Y, fingerspell YAGO | 13 |
 | U3 L1 (OI, TCHAU, BOM-DIA, BOA-TARDE, BOA-NOITE) | 5 novos + frase | intro e watch OI, intro e word_choose_video TCHAU, intro BOM-DIA, BOA-TARDE e BOA-NOITE, match_pairs dos 3, perform OI, perform TCHAU, build_phrase | 11 |
 | U6 L1 (FAMÍLIA, MÃE, PAI, FILHO, FILHA, BEBÊ) | 6 novos + frase | intro e watch FAMÍLIA, intro e word_choose_video MÃE, intro PAI, FILHO, FILHA e BEBÊ, match_pairs dos 4, perform FAMÍLIA, perform MÃE, build_phrase | 12 |
 | U4 L4 (D, A, V, I, B, L; nomes DAVI, BIA, LIA e o da pessoa) | 6 de revisão + frase | watch e word_choose_video alternados para os 6 sinais, fingerspell DAVI, BIA e LIA, "soletre seu nome" (reserva LIDIA), build_phrase | 11 |
@@ -161,7 +165,7 @@ conhecer mais sinais.
 
 ## 4. Estrutura de uma sessão (lição)
 - 7-12 exercícios, dificuldade crescente, tipos misturados, na sequência apresenta -> reconhece -> produz -> frase
-  (regra de composição na seção 3). O teste `content.test.ts` do web-poc garante os limites em todas as lições, com
+  (regra de composição na seção 3; a lição com `match_pairs` dividido em dois grupos fica com 13, como a U1 L5). O teste `content.test.ts` do web-poc garante os limites em todas as lições, com
   e sem câmera avaliada (quando o `perform_sign` vira `mirror_practice` e o `fingerspell` vira `order_sequence`, a
   contagem não muda).
 - Toda lição apresenta (`sign_intro`) todos os seus sinais novos e reconhece cada sinal ao menos uma vez com nota.
