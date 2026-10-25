@@ -1,10 +1,13 @@
 /*
  * Comportamento da landing, por cima do HTML pronto (que funciona sem JS):
- * - a abertura soletra LIBRAX com as mãos e depois troca de pessoa em cada letra;
+ * - a abertura soletra LIBRAX com as seis mãos desenhadas e depois troca de pessoa em cada letra;
+ *   com 3D no navegador, a mão em 3D (mao3d.ts, com o motor 3D e o modelo) ocupa o palco no
+ *   lugar delas (start3d);
  * - as instruções de instalação viram abas e abrem na plataforma de quem visita;
- * - o seletor de idioma guarda a escolha (e avisa o app, que lê a mesma chave) e
- *   a faixa sugere o idioma do navegador quando ele é outro.
+ * - o seletor de idioma guarda a escolha e a faixa sugere o idioma do navegador quando ele é
+ *   outro. O app fica em outro endereço: o idioma vai para ele no link (?lang=, config.ts).
  */
+import handUrl from './mao-3d.glb?url';
 import maos from './maos.json';
 import { bonesPath, easeStandard, lerpPose, HERO_LETTERS, type Pose } from './hands';
 import { detectPlatform, type Platform } from './install';
@@ -91,8 +94,8 @@ function initStage() {
   const reading = status?.dataset.reading ?? '';
   const done = status?.dataset.done ?? '';
 
-  // No protótipo em 3D (prototipo-3d.ts), a vista em 3D assume o palco e as seis mãos param
-  const canRun = () => !paused && visible && !document.hidden && stage.dataset.view !== '3d';
+  // As seis mãos desenhadas só andam quando ficam no palco (sem 3D ou se ele falhou, start3d)
+  const canRun = () => !paused && visible && !document.hidden && stage.dataset.view === '2d';
   const until = async () => {
     while (!canRun()) await wait(250);
   };
@@ -121,6 +124,7 @@ function initStage() {
   async function loop() {
     if (running) return;
     running = true;
+    await until();
     await spell();
     let k = 0;
     for (;;) {
@@ -151,6 +155,62 @@ function initStage() {
     visible = entries.some((e) => e.isIntersecting);
     if (visible) void loop();
   }, { threshold: 0.15 }).observe(stage);
+}
+
+// ---------- abertura em 3D ----------
+
+function canDraw3d(): boolean {
+  try {
+    return Boolean(document.createElement('canvas').getContext('webgl2'));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Se a mão em 3D não aparecer nesse tempo (rede muito lenta, erro), o palco fica com as mãos
+ * desenhadas. Num 3G rápido ela aparece em uns 3,5 s depois da página.
+ */
+const FALLBACK_MS = 8000;
+
+/**
+ * Abertura: com JS, o palco começa só com a moldura vazia (classe lx-js, posta no <head> antes de
+ * desenhar), e a mão em 3D aparece por cima quando fica pronta. As seis mãos desenhadas só entram
+ * sem 3D no navegador, se o 3D falhar ou demorar demais (e sem JS, direto no HTML).
+ * O código 3D e o modelo são pedidos juntos e já no começo, sem esperar o resto da página.
+ */
+function start3d() {
+  const stage = document.querySelector<HTMLElement>('[data-stage]');
+  if (!stage) return;
+  const show2d = () => {
+    if (stage.dataset.view !== '3d') stage.dataset.view = '2d';
+  };
+  if (!canDraw3d()) {
+    show2d();
+    return;
+  }
+  const timer = window.setTimeout(show2d, FALLBACK_MS);
+  const model = fetch(handUrl).then((r) => {
+    if (!r.ok) throw new Error(`modelo da mão: ${r.status}`);
+    return r.arrayBuffer();
+  });
+  model.catch(() => { /* o erro chega pelo startHand3d */ });
+  // ?letra=A&pessoa=3: uma pose parada, para comparar com o desenho 2D da mesma pessoa
+  const params = new URLSearchParams(location.search);
+  const letter = params.get('letra')?.toUpperCase();
+  const still = letter ? { letter, person: Number(params.get('pessoa') ?? 0) || 0 } : undefined;
+  const claim = () => {
+    if (stage.dataset.view === '2d') return false;
+    window.clearTimeout(timer);
+    return true;
+  };
+  import('./mao3d')
+    .then((m) => m.startHand3d(stage, { model, reduced: reduceMotion.matches, claim, still }))
+    .catch((e) => {
+      // Sem a mão em 3D, a abertura fica com as mãos desenhadas
+      console.warn('abertura em 3D indisponível', e);
+      show2d();
+    });
 }
 
 // ---------- instalar: abas por plataforma ----------
@@ -250,6 +310,7 @@ function initLanguage() {
   bar.hidden = false;
 }
 
+start3d();
 initStage();
 initInstall();
 initLanguage();

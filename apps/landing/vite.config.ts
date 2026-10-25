@@ -6,9 +6,6 @@ import { isLocale } from './src/locale';
 
 const ROOT = __dirname;
 const PAGES = { 'pt-BR': 'index.html', en: 'en/index.html', es: 'es/index.html' } as const;
-/** Protótipo da abertura com a mão em 3D: sempre no dev; no build só com PROTOTIPO_3D=1. */
-const PROTOTIPO = 'prototipo-3d.html';
-const withPrototype = process.env.PROTOTIPO_3D === '1';
 
 /**
  * As páginas são geradas de src/render.ts (scripts/gerar-paginas.ts). No dev, cada mudança em
@@ -24,7 +21,6 @@ function pages(): Plugin {
       mkdirSync(dirname(out), { recursive: true });
       writeFileSync(out, render.renderPage(locale as keyof typeof PAGES));
     }
-    writeFileSync(resolve(ROOT, PROTOTIPO), render.renderPage('pt-BR', { prototipo3d: true }));
   };
   return {
     name: 'librax-landing-pages',
@@ -65,7 +61,7 @@ export default defineConfig({
     target: 'es2020',
     cssCodeSplit: false,
     rollupOptions: {
-      input: [...Object.values(PAGES), ...(withPrototype ? [PROTOTIPO] : [])].map((f) => resolve(ROOT, f)),
+      input: Object.values(PAGES).map((f) => resolve(ROOT, f)),
     },
   },
   plugins: [pages(), links()],

@@ -46,7 +46,7 @@ export const pt = {
     stageReading: 'Lendo as letras',
     stageDone: 'Reconhecido',
     stageCaption:
-      'Cada mão é de uma pessoa diferente, desenhada pelos 21 pontos que o app enxerga. Todas foram reconhecidas pelo próprio app.',
+      'Cada letra é a mão de uma pessoa diferente, na posição em que o app a enxergou e reconheceu.',
     pause: 'Pausar animação',
     play: 'Retomar animação',
     letter: 'Letra {l}',
@@ -235,6 +235,7 @@ export const pt = {
     terms: 'Termos de Uso',
     credits: 'Créditos',
     creditsText: 'Avatar: VLibras, do Governo Federal. Reconhecimento de mãos: Google. Fontes: Anybody e Figtree.',
+    creditsHand: 'Mão em 3D da abertura: modelo próprio do Librax.',
     libras: 'Libras é uma língua, com gramática própria. O Librax é um primeiro passo para conversar com a comunidade surda.',
     rights: '© 2026 Librax',
   },

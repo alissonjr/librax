@@ -42,7 +42,7 @@ export const es: Copy = {
     stageReading: 'Leyendo las letras',
     stageDone: 'Reconocido',
     stageCaption:
-      'Cada mano es de una persona diferente, dibujada con los 21 puntos que ve la app. Todas fueron reconocidas por la propia app.',
+      'Cada letra es la mano de una persona diferente, en la posición en que la app la vio y la reconoció.',
     pause: 'Pausar animación',
     play: 'Reanudar animación',
     letter: 'Letra {l}',
@@ -231,6 +231,7 @@ export const es: Copy = {
     terms: 'Términos de Uso',
     credits: 'Créditos',
     creditsText: 'Avatar: VLibras, del Gobierno de Brasil. Reconocimiento de manos: Google. Fuentes: Anybody y Figtree.',
+    creditsHand: 'Mano en 3D de la portada: modelo propio de Librax.',
     libras: 'Libras es una lengua, con gramática propia. Librax es un primer paso para conversar con la comunidad sorda.',
     rights: '© 2026 Librax',
   },

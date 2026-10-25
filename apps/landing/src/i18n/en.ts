@@ -42,7 +42,7 @@ export const en: Copy = {
     stageReading: 'Reading letters',
     stageDone: 'Recognized',
     stageCaption:
-      'Each hand belongs to a different person, drawn from the 21 points the app sees. All of them were recognized by the app itself.',
+      'Each letter is a different person\'s hand, in the position the app saw and recognized.',
     pause: 'Pause animation',
     play: 'Resume animation',
     letter: 'Letter {l}',
@@ -231,6 +231,7 @@ export const en: Copy = {
     terms: 'Terms of Use',
     credits: 'Credits',
     creditsText: 'Avatar: VLibras, from the Brazilian government. Hand recognition: Google. Fonts: Anybody and Figtree.',
+    creditsHand: '3D hand at the top: Librax\'s own model.',
     libras: 'Libras is a language with its own grammar. Librax is a first step toward talking with the Deaf community.',
     rights: '© 2026 Librax',
   },

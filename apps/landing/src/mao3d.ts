@@ -1,5 +1,5 @@
 /*
- * Protótipo da abertura com uma mão em 3D (carregado sob demanda por src/prototipo-3d.ts).
+ * Abertura com a mão em 3D (carregada sob demanda por src/main.ts, depois que a página carrega).
  *
  * Uma mão só, no palco, soletra L, I, B, R, A, X com as mesmas poses reais do maos.json (e a
  * profundidade delas, maos-z.json). A cada volta a mão de cada letra é de outra pessoa, com a
@@ -7,18 +7,18 @@
  *
  * Modelo da mão: nosso (src/mao-3d.glb, gerado no Blender por scripts/mao3d/gerar.py), com
  * unhas, dobras da pele num mapa de normais e um osso por segmento do MediaPipe. O retargeting
- * dos 21 landmarks está em src/retarget.ts. Luz de estúdio neutra: a cor do estado da câmera
- * fica só na moldura, na letra e nos selos, nunca na pele.
+ * dos 21 landmarks e a colisão entre os dedos estão em src/retarget.ts. Luz de estúdio neutra: a
+ * cor do estado da câmera fica só na moldura, na letra e nos selos, nunca na pele.
+ *
+ * Até a mão aparecer, o palco mostra só a moldura vazia (main.ts e abertura-3d.css); com menos
+ * movimento ela fica parada no estado final. Sem 3D no navegador, se o 3D falhar ou demorar, ou sem
+ * JS, a abertura fica nas seis mãos desenhadas.
  */
 import {
   Bone,
-  BufferGeometry,
   Color,
   DirectionalLight,
-  Float32BufferAttribute,
   HemisphereLight,
-  LineBasicMaterial,
-  LineSegments,
   type Material,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
@@ -36,10 +36,9 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import handUrl from './mao-3d.glb?url';
 import maos from './maos.json';
 import maosZ from './maos-z.json';
-import { HAND_LINKS, HERO_LETTERS, easeStandard } from './hands';
+import { HERO_LETTERS, easeStandard } from './hands';
 import { BONES, clonePose, makeRig, mixPose, positions, retarget, solveCollisions, type HandPose, type Rig } from './retarget';
 
 /**
@@ -61,12 +60,17 @@ type State = 'idle' | 'tracking' | 'ready' | 'correct';
 type Letter = (typeof HERO_LETTERS)[number];
 
 interface Options {
+  /** O modelo (src/mao-3d.glb), já pedido pelo main.ts junto com este código. */
+  model: Promise<ArrayBuffer>;
+  /** Menos movimento: a mão fica parada no estado final (o X de LIBRAX). */
   reduced: boolean;
-  /** Pose fixa (para comparar com o desenho 2D): letra e pessoa (índice da pose). */
+  /**
+   * Pede o palco na hora de aparecer: false se a abertura já ficou nas mãos desenhadas (demorou
+   * demais), e aí a mão em 3D desiste sem aparecer.
+   */
+  claim: () => boolean;
+  /** Pose fixa (para comparar com o desenho 2D, ?letra=A&pessoa=3): letra e pessoa. */
   still?: { letter: string; person: number };
-  debug?: boolean;
-  /** Giro extra da mão em volta do eixo vertical (graus), para conferir a pose de lado. */
-  turn?: number;
 }
 
 const letras = maos.letras as Record<string, { centro: number[]; poses: number[][] }>;
@@ -77,10 +81,6 @@ function landmarks(letter: Letter, k: number): Vector3[] {
   const p = letras[letter].poses[k];
   const z = profundidade[letter][k];
   return Array.from({ length: 21 }, (_, i) => new Vector3(p[i * 2], -p[i * 2 + 1], -z[i] * DEPTH));
-}
-
-function cssVar(el: Element, name: string, fallback: string): string {
-  return getComputedStyle(el).getPropertyValue(name).trim() || fallback;
 }
 
 export async function startHand3d(stage: HTMLElement, opts: Options): Promise<void> {
@@ -107,8 +107,6 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   scene.environmentIntensity = 0.45;
   pmrem.dispose();
 
-  const stageColor = (state: State) =>
-    new Color(cssVar(stage, `--lx-stage-landmark-${state === 'idle' ? 'idle' : state}`, '#74DE9B').slice(0, 7));
   // Estúdio: céu quente e chão escuro, luz principal suave do alto à esquerda, preenchimento
   // do outro lado e um contorno branco fraco por trás (sem cor na pele)
   scene.add(new HemisphereLight(0xfff4ec, 0x3a2c24, 1.1));
@@ -124,7 +122,7 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
 
   // ---------- modelo ----------
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
-  const gltf = await loader.loadAsync(handUrl);
+  const gltf = await loader.parseAsync(await opts.model, '');
   const bones = new Map<string, Bone>();
   const meshes: SkinnedMesh[] = [];
   gltf.scene.traverse((o: Object3D) => {
@@ -179,32 +177,6 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   /** Rotações locais sem pele atravessando pele (a pose de entrada não muda). */
   const solve = (p: HandPose) => solveCollisions(rig, clonePose(p));
 
-  // Esqueleto dos dados por cima (só com ?esqueleto), para comparar com o desenho 2D
-  let debugLines: LineSegments | null = null;
-  let jointLines: LineSegments | null = null;
-  if (opts.debug) {
-    debugLines = new LineSegments(
-      new BufferGeometry(),
-      new LineBasicMaterial({ color: stageColor('correct'), depthTest: false, transparent: true, opacity: 0.85 }),
-    );
-    debugLines.renderOrder = 10;
-    debugLines.frustumCulled = false;
-    hand.add(debugLines);
-    jointLines = new LineSegments(
-      new BufferGeometry(),
-      new LineBasicMaterial({ color: 0xff3344, depthTest: false, transparent: true, opacity: 0.9 }),
-    );
-    jointLines.renderOrder = 11;
-    jointLines.frustumCulled = false;
-    gltf.scene.add(jointLines);
-  }
-  const showDebug = (lm: Vector3[]) => {
-    if (!debugLines) return;
-    const arr: number[] = [];
-    for (const [a, b] of HAND_LINKS) arr.push(...lm[a].toArray(), ...lm[b].toArray());
-    debugLines.geometry.setAttribute('position', new Float32BufferAttribute(arr, 3));
-  };
-
   // ---------- estado ----------
   let currentPose: HandPose = poses.L[0];
   let current: Quaternion[] = solve(currentPose);
@@ -237,16 +209,10 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
 
   function applyPose() {
     jointBones.forEach((b, j) => b.quaternion.copy(current[j]));
-    if (jointLines) {
-      const pos = positions(rig, current);
-      const arr: number[] = [];
-      rig.parent.forEach((p, j) => { if (p >= 0) arr.push(...pos[p].toArray(), ...pos[j].toArray()); });
-      jointLines.geometry.setAttribute('position', new Float32BufferAttribute(arr, 3));
-    }
     skin.color.copy(tone);
     // a cor por vértice do modelo (0,74 a 0,9) escurece um pouco; aqui volta ao nível da pele
     nail.color.copy(tone).lerp(NAIL_TINT, 0.1).multiplyScalar(1.1);
-    hand.rotation.set(Math.sin(sway / 2300) * 0.05, Math.sin(sway / 1700) * 0.12 + ((opts.turn ?? 0) * Math.PI) / 180, 0);
+    hand.rotation.set(Math.sin(sway / 2300) * 0.05, Math.sin(sway / 1700) * 0.12, 0);
   }
 
   function resize() {
@@ -279,9 +245,20 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   }).observe(canvas);
   resize();
 
-  // ---------- menos movimento: o estado final, parado ----------
+  // ---------- parada: menos movimento (estado final) ou ?letra=A&pessoa=3 (comparar com o 2D) ----------
+  /** Assume o palco (as mãos desenhadas nunca aparecem); false se ele já ficou com elas. */
+  const takeStage = () => {
+    if (!opts.claim()) {
+      renderer.dispose();
+      return false;
+    }
+    stage.dataset.view = '3d';
+    view.removeAttribute('data-loading');
+    return true;
+  };
+
   const stillLetter = HERO_LETTERS.find((L) => L === opts.still?.letter);
-  if (opts.reduced || stillLetter) {
+  if (stillLetter || opts.reduced) {
     const last = stillLetter ?? HERO_LETTERS[HERO_LETTERS.length - 1];
     const li = HERO_LETTERS.indexOf(last);
     const k = stillLetter ? Math.abs(opts.still!.person) % letras[last].poses.length : 0;
@@ -293,9 +270,7 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
     if (letterEl) letterEl.textContent = last;
     chips.forEach((c, i) => (c.dataset.state = i <= li ? 'correct' : 'idle'));
     setState('correct');
-    showDebug(landmarks(last, k));
-    stage.dataset.view = '3d';
-    root.hidden = false;
+    if (!takeStage()) return;
     resize();
     render();
     return;
@@ -349,7 +324,6 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
     const toTone = new Color(SKIN[toneIndex]);
     const fromCam = camCenter.clone();
     const toCam = centerOf(L);
-    showDebug(landmarks(L, k));
     await tween(MOVE_MS, (t) => {
       // Mistura os ângulos e resolve a colisão de novo a cada quadro da transição
       currentPose = mixPose(from, to, t);
@@ -392,9 +366,8 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   // Prepara os shaders antes de trocar, para a vista não abrir vazia
   await renderer.compileAsync(scene, camera);
 
-  // Assume o palco: as seis mãos desenhadas param (main.ts) e somem
-  stage.dataset.view = '3d';
-  root.hidden = false;
+  // Assume o palco (até aqui ele mostrava só a moldura vazia, carregando)
+  if (!takeStage()) return;
   resize();
   setState('tracking');
   render();

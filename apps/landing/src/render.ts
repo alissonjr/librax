@@ -11,7 +11,7 @@ import maos from './maos.json';
 import telas from './telas.json';
 import { COPY, fill, formatDate, formatNumber, type Copy } from './i18n';
 import { LOCALES, localePath, rootRedirectScript, type Locale } from './locale';
-import { APP_URL, appLink } from './config';
+import { appLink } from './config';
 import { PLATFORMS } from './install';
 import { HERO_LETTERS, bonesPath, handViewBox, type Pose } from './hands';
 
@@ -47,12 +47,16 @@ function handSvg(pose: Pose, letter: string, state: string | null, cls = ''): st
   return `<svg class="hand ${cls}"${st} viewBox="${handViewBox(letter)}" aria-hidden="true" focusable="false"><path class="hand-halo" d="${d}"/><path class="hand-bones" d="${d}"/><g class="hand-joints">${joints}</g></svg>`;
 }
 
-/** Vista em 3D do protótipo: escondida até a mão carregar (o main das seis mãos segue valendo). */
+/**
+ * Vista em 3D da abertura. Com JS, o palco abre só com esta moldura vazia (carregando) e a mão
+ * aparece nela; sem JS, ou sem 3D no navegador, ficam as seis mãos desenhadas (as .tiles).
+ * Quem decide é o CSS (abertura-3d.css), pela classe lx-js e pelo data-view do palco.
+ */
 function stage3d(): string {
   const letters = HERO_LETTERS.map((L) => `<li data-letter="${L}" data-state="idle">${L}</li>`).join('');
   return `
-      <div class="stage3d" data-stage3d hidden>
-        <div class="tile stage3d-view" data-state="tracking" data-stage3d-view>
+      <div class="stage3d" data-stage3d>
+        <div class="tile stage3d-view" data-state="idle" data-stage3d-view data-loading>
           <span class="tile-guide" aria-hidden="true"></span>
           <canvas class="stage3d-canvas" data-stage3d-canvas aria-hidden="true"></canvas>
           <span class="tile-letter" aria-hidden="true" data-stage3d-letter>${HERO_LETTERS[0]}</span>
@@ -85,22 +89,13 @@ export function headLinks(locale: Locale, origin = ''): string {
 }
 
 /**
- * Protótipo da abertura com uma mão em 3D (prototipo-3d.html), para comparar com a abertura
- * atual antes de decidir. Mesma página, só em português, fora dos buscadores; o palco ganha a
- * vista em 3D por cima das seis mãos desenhadas, que ficam como reserva enquanto carrega ou
- * quando o navegador não desenha em 3D. Textos do protótipo ficam aqui (não entram no i18n).
+ * Marca o <html> com JS antes de desenhar: o palco já abre na moldura da mão em 3D, sem mostrar as
+ * mãos desenhadas antes. Script inline igual nas três páginas: a CSP da landing libera pelo hash
+ * (infra/lib/landing.ts, LANDING_INLINE_SCRIPT_HASHES).
  */
-export interface PageOptions { prototipo3d?: boolean }
-const PROTO = {
-  banner: 'Protótipo da abertura com a mão em 3D, para comparar com a versão atual.',
-  bannerLink: 'Ver a versão atual',
-  caption:
-    'Cada letra é a mão de uma pessoa diferente, na posição em que o app a enxergou e reconheceu. Os tons de pele variam para lembrar que são pessoas diferentes.',
-  credit: 'Mão em 3D: modelo próprio do Librax, feito para esta página.',
-};
+export const JS_CLASS_SCRIPT = "document.documentElement.classList.add('lx-js')";
 
-export function renderPage(locale: Locale, opts: PageOptions = {}): string {
-  const proto = Boolean(opts.prototipo3d);
+export function renderPage(locale: Locale): string {
   const c: Copy = COPY[locale];
   const n = (v: number, d = 0) => formatNumber(locale, v, d);
   const N = numeros;
@@ -212,12 +207,12 @@ export function renderPage(locale: Locale, opts: PageOptions = {}): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-${locale === 'pt-BR' && !proto ? `<script>${rootRedirectScript()}</script>\n` : ''}${proto ? '<meta name="robots" content="noindex">\n' : ''}<title>${esc(c.meta.title)}</title>
+${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>${esc(c.meta.title)}</title>
 <meta name="description" content="${esc(c.meta.description)}">
 <meta name="theme-color" content="${tokens['theme.light.bg.canvas']}" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="${tokens['theme.dark.bg.canvas']}" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
-${proto ? '' : `<!--lx:links:${locale}-->`}
+<!--lx:links:${locale}-->
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(c.meta.title)}">
 <meta property="og:description" content="${esc(c.meta.description)}">
@@ -227,8 +222,9 @@ ${proto ? '' : `<!--lx:links:${locale}-->`}
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/Anybody-latin-wdth-wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/Figtree-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+<script>${JS_CLASS_SCRIPT}</script>
 <link rel="stylesheet" href="/src/style.css">
-<script type="module" src="/src/${proto ? 'prototipo-3d' : 'main'}.ts"></script>
+<script type="module" src="/src/main.ts"></script>
 </head>
 <body>
 <svg width="0" height="0" class="sr-defs" aria-hidden="true" focusable="false"><defs><marker id="lx-tip" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="trace-tip"/></marker></defs></svg>
@@ -242,7 +238,7 @@ ${proto ? '' : `<!--lx:links:${locale}-->`}
     </nav>
     <div class="header-actions">
       ${langMenu}
-      <a class="btn btn-primary btn-sm" href="${APP_URL}">${esc(c.nav.open)}</a>
+      <a class="btn btn-primary btn-sm" href="${appLink('', locale)}">${esc(c.nav.open)}</a>
     </div>
   </div>
 </header>
@@ -256,7 +252,7 @@ ${proto ? '' : `<!--lx:links:${locale}-->`}
   </div>
 </div>
 
-${proto ? `<div class="proto-banner"><div class="wrap proto-banner-row">${icon('sign_language', { filled: true })}<p>${esc(PROTO.banner)}</p><a class="btn-text" href="/">${esc(PROTO.bannerLink)}</a></div></div>\n` : ''}<main id="conteudo" tabindex="-1">
+<main id="conteudo" tabindex="-1">
 
 <section class="hero" aria-labelledby="hero-title">
   <div class="wrap hero-grid">
@@ -265,7 +261,7 @@ ${proto ? `<div class="proto-banner"><div class="wrap proto-banner-row">${icon('
       <h1 id="hero-title"><span>${esc(c.hero.titleA)}</span> <span class="hero-accent">${esc(c.hero.titleB)}</span></h1>
       <p class="lead">${esc(c.hero.lead)}</p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="${APP_URL}">${esc(c.hero.cta)}${icon('arrow_forward')}</a>
+        <a class="btn btn-primary" href="${appLink('', locale)}">${esc(c.hero.cta)}${icon('arrow_forward')}</a>
         <a class="btn btn-secondary" href="#instalar">${icon('mobile_arrow_down')}${esc(c.hero.install)}</a>
       </div>
       <p class="hero-note">${icon('shield', { filled: true })}${esc(c.hero.privacy)}</p>
@@ -275,9 +271,9 @@ ${proto ? `<div class="proto-banner"><div class="wrap proto-banner-row">${icon('
         <span class="stage-pill"><span class="rec-dot" aria-hidden="true"></span>${esc(c.hero.stageStatus)}</span>
         <span class="stage-pill stage-status" aria-hidden="true" data-stage-status data-reading="${esc(c.hero.stageReading)}" data-done="${esc(c.hero.stageDone)}">${icon('check_circle', { filled: true })}<span data-stage-word>${esc(c.hero.stageDone)}: LIBRAX</span></span>
       </div>
-      <ol class="tiles" role="list">${tiles}</ol>${proto ? stage3d() : ''}
+      <ol class="tiles" role="list">${tiles}</ol>${stage3d()}
       <figcaption class="stage-caption">
-        <span>${esc(proto ? PROTO.caption : c.hero.stageCaption)}</span>
+        <span>${esc(c.hero.stageCaption)}</span>
         <button class="stage-toggle" type="button" data-stage-toggle hidden data-pause="${esc(c.hero.pause)}" data-play="${esc(c.hero.play)}" aria-label="${esc(c.hero.pause)}">${icon('pause', { filled: true, cls: 'when-playing' })}${icon('play_arrow', { filled: true, cls: 'when-paused' })}</button>
       </figcaption>
     </figure>
@@ -411,7 +407,7 @@ ${proto ? `<div class="proto-banner"><div class="wrap proto-banner-row">${icon('
         ${installPanels}
       </div>
       <div class="cta-row">
-        <a class="btn btn-primary" href="${APP_URL}">${esc(c.install.cta)}${icon('arrow_forward')}</a>
+        <a class="btn btn-primary" href="${appLink('', locale)}">${esc(c.install.cta)}${icon('arrow_forward')}</a>
       </div>
       <div class="stores">
         <h3 class="eyebrow">${esc(c.install.storesTitle)}</h3>
@@ -465,15 +461,15 @@ ${proto ? `<div class="proto-banner"><div class="wrap proto-banner-row">${icon('
     <nav aria-label="${esc(c.footer.app)}">
       <h2 class="footer-title">${esc(c.footer.app)}</h2>
       <ul>
-        <li><a href="${APP_URL}">${esc(c.footer.open)}</a></li>
+        <li><a href="${appLink('', locale)}">${esc(c.footer.open)}</a></li>
         <li><a href="#instalar">${esc(c.footer.install)}</a></li>
       </ul>
     </nav>
     <nav aria-label="${esc(c.footer.legal)}">
       <h2 class="footer-title">${esc(c.footer.legal)}</h2>
       <ul>
-        <li><a href="${appLink('privacidade')}">${esc(c.footer.privacy)}</a></li>
-        <li><a href="${appLink('termos')}">${esc(c.footer.terms)}</a></li>
+        <li><a href="${appLink('privacidade', locale)}">${esc(c.footer.privacy)}</a></li>
+        <li><a href="${appLink('termos', locale)}">${esc(c.footer.terms)}</a></li>
       </ul>
     </nav>
     <nav aria-label="${esc(c.lang.label)}">
@@ -482,7 +478,8 @@ ${proto ? `<div class="proto-banner"><div class="wrap proto-banner-row">${icon('
     </nav>
     <div class="footer-credits">
       <h2 class="footer-title">${esc(c.footer.credits)}</h2>
-      <p>${esc(c.footer.creditsText)}</p>${proto ? `\n      <p>${esc(PROTO.credit)}</p>` : ''}
+      <p>${esc(c.footer.creditsText)}</p>
+      <p>${esc(c.footer.creditsHand)}</p>
       <p class="footer-rights">${esc(c.footer.rights)}</p>
     </div>
   </div>

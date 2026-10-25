@@ -8,6 +8,7 @@
    movimento respeitado (seção 9.3).
    ========================================================= */
 @import '../../web-poc/src/styles/tokens.css';
+@import './abertura-3d.css';
 
 @font-face {
   font-family: "Anybody";

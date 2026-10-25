@@ -1,17 +1,28 @@
 /*
- * Protótipo da abertura com a mão em 3D (prototipo-3d.html). Só tokens do design system; o palco
- * continua escuro nos dois modos (seção 4.3). Sem faixa colorida lateral: o estado aparece nos
- * cantos da moldura, na letra e no selo de acerto, como nas seis mãos da abertura atual.
+ * Abertura com a mão em 3D (src/mao3d.ts). Só tokens do design system; o palco continua escuro
+ * nos dois modos (seção 4.3). Sem faixa colorida lateral: o estado aparece nos cantos da moldura,
+ * na letra e no selo de acerto, como nas seis mãos desenhadas (que ficam até o 3D carregar).
  */
-.proto-banner { background: var(--lx-game-hand-soft); color: var(--lx-game-hand-text); }
-.proto-banner-row { display: flex; align-items: center; gap: var(--lx-space-2) var(--lx-space-3); min-height: 48px; padding-block: var(--lx-space-2); }
-.proto-banner-row > .icon { flex-shrink: 0; }
-.proto-banner-row p { flex: 1; font: var(--lx-typography-body-sm); }
-.proto-banner-row .btn-text { margin-left: auto; white-space: nowrap; color: var(--lx-game-hand-text); text-decoration: underline; }
-
-.stage[data-view="3d"] .tiles { display: none; }
-.stage3d { position: relative; display: flex; flex-direction: column; gap: var(--lx-space-3); }
-.stage3d[hidden] { display: none; }
+/*
+ * Quem mostra o quê no palco:
+ * - sem JS (html sem .lx-js): só as seis mãos desenhadas;
+ * - com JS, carregando (sem data-view): só a moldura vazia, com os cantos pulsando de leve;
+ * - data-view="3d": a mão em 3D aparece suave por cima da moldura;
+ * - data-view="2d" (sem 3D no navegador, ou o 3D falhou ou demorou): as seis mãos desenhadas.
+ */
+.stage3d { position: relative; display: none; flex-direction: column; gap: var(--lx-space-3); }
+.lx-js .stage:not([data-view="2d"]) .stage3d { display: flex; }
+.lx-js .stage:not([data-view="2d"]) .tiles { display: none; }
+.stage3d-canvas { opacity: 0; transition: opacity var(--lx-motion-duration-emphasis) var(--lx-motion-easing-standard); }
+.stage[data-view="3d"] .stage3d-canvas { opacity: 1; }
+.stage3d-view[data-loading] .tile-letter,
+.stage3d-view[data-loading] .tile-ok { visibility: hidden; }
+.stage3d-view[data-loading] .tile-guide { --c: var(--lx-stage-guide-idle); animation: lx-stage3d-wait 1.6s ease-in-out infinite; }
+@keyframes lx-stage3d-wait { 0%, 100% { opacity: .35; } 50% { opacity: .85; } }
+@media (prefers-reduced-motion: reduce) {
+  .stage3d-view[data-loading] .tile-guide { animation: none; opacity: .6; }
+  .stage3d-canvas { transition: none; }
+}
 
 .stage3d-view.tile { aspect-ratio: 4 / 3; }
 @media (max-width: 599px) { .stage3d-view.tile { aspect-ratio: 1 / 1; } }

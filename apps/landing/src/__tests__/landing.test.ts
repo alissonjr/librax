@@ -3,7 +3,7 @@ import { detectPlatform } from '../install';
 import { initialLocale, localeFromPath, localePath, matchLocale, rootRedirectScript, suggestLocale, switchHref, LOCALES } from '../locale';
 import { COPY, fill, formatNumber } from '../i18n';
 import { normalizeAppUrl, appLink } from '../config';
-import { renderPage } from '../render';
+import { JS_CLASS_SCRIPT, renderPage } from '../render';
 import { bonesPath, handViewBox, lerpPose, HAND_LINKS, HERO_LETTERS } from '../hands';
 import maos from '../maos.json';
 
@@ -95,6 +95,10 @@ describe('endereço do app', () => {
     expect(normalizeAppUrl('/app/')).toBe('/app/');
     expect(appLink('/privacidade')).toMatch(/\/privacidade$/);
   });
+  it('leva o idioma junto (o app fica em outro endereço e não lê o armazenamento da landing)', () => {
+    expect(appLink('', 'en')).toMatch(/\/\?lang=en$/);
+    expect(appLink('termos', 'pt-BR')).toMatch(/\/termos\?lang=pt-BR$/);
+  });
 });
 
 describe('páginas geradas', () => {
@@ -106,6 +110,22 @@ describe('páginas geradas', () => {
       const text = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<style[\s\S]*?<\/style>/g, '');
       expect(text).not.toMatch(/\{[a-z]\w*\}/);
       expect(html).not.toMatch(/[\u2013\u2014]/);
+    });
+    it(`${l}: todo link para o app leva o idioma da página`, () => {
+      const links = [...html.matchAll(/href="(\/app\/[^"]*)"/g)].map((m) => m[1]);
+      expect(links.length).toBeGreaterThanOrEqual(5);
+      for (const href of links) expect(href).toMatch(new RegExp(`\\?lang=${l}$`));
+    });
+    it(`${l}: abertura com a moldura da mão em 3D (carregando) e as seis mãos desenhadas para quem não tem JS`, () => {
+      expect(html).toContain('data-stage3d-view data-loading');
+      // a classe lx-js entra antes da folha de estilo: com JS, as mãos desenhadas nem chegam a aparecer
+      const head = html.slice(0, html.indexOf('</head>'));
+      expect(head.indexOf(`<script>${JS_CLASS_SCRIPT}</script>`)).toBeGreaterThan(0);
+      expect(head.indexOf(`<script>${JS_CLASS_SCRIPT}</script>`)).toBeLessThan(head.indexOf('rel="stylesheet"'));
+      expect(html.match(/class="tile[ "]/g)?.length).toBeGreaterThanOrEqual(6);
+      expect(html).toContain(COPY[l].footer.creditsHand);
+      expect(COPY[l].footer.creditsHand).toMatch(/Librax/);
+      expect(html).not.toContain('prototipo');
     });
     it(`${l}: títulos sem pular nível e imagens com alt`, () => {
       const levels = [...html.matchAll(/<h([1-6])[\s>]/g)].map((m) => Number(m[1]));
