@@ -9,7 +9,10 @@ export type Locale = 'pt-BR' | 'en' | 'es';
 export const LOCALES: readonly Locale[] = ['pt-BR', 'en', 'es'];
 export const DEFAULT_LOCALE: Locale = 'pt-BR';
 
-/** Chave que o app (web-poc) usa para o idioma. Mesma origem: o app abre no idioma escolhido aqui. */
+/**
+ * Chave que o app (web-poc) usa para o idioma. Só ajuda quando landing e app dividem a origem (no
+ * dev); em produção o app fica em outro endereço e o idioma vai no link (?lang=, config.ts).
+ */
 export const APP_LANG_KEY = 'librax_lang';
 /** Escolha feita no seletor da landing (para não sugerir outro idioma de novo). */
 export const LANDING_LANG_KEY = 'librax_landing_lang';

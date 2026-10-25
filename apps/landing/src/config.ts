@@ -1,3 +1,5 @@
+import type { Locale } from './locale';
+
 /**
  * Endereço do app (o PWA do apps/web-poc). A landing fica na raiz do domínio e o app em outro
  * caminho ou domínio, ainda não definido (infra/lib/config.ts usa um domínio provisório).
@@ -14,7 +16,15 @@ export function normalizeAppUrl(url: string): string {
   return trimmed.endsWith('/') ? trimmed : `${trimmed}/`;
 }
 
-/** Caminho dentro do app (rotas do web-poc, ex.: "privacidade"). */
-export function appLink(path = ''): string {
-  return `${APP_URL}${path.replace(/^\//, '')}`;
+/** Parâmetro com o idioma da landing nos links para o app (o app aplica e tira da URL). */
+export const APP_LANG_PARAM = 'lang';
+
+/**
+ * Caminho dentro do app (rotas do web-poc, ex.: "privacidade"). Com o idioma, o link leva
+ * ?lang=pt-BR|en|es: a landing e o app ficam em endereços diferentes e não dividem o
+ * armazenamento do navegador, então o idioma escolhido aqui vai junto no link.
+ */
+export function appLink(path = '', locale?: Locale): string {
+  const base = `${APP_URL}${path.replace(/^\//, '')}`;
+  return locale ? `${base}?${APP_LANG_PARAM}=${encodeURIComponent(locale)}` : base;
 }
