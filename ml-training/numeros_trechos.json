@@ -1,0 +1,8 @@
+{
+ "_sobre": "Trechos de aulas longas que mostram os números cardinais em sequência (conferidos a olho). Lido por video/rotular_numeros.py.",
+ "trechos": [
+  {"id": "cT3l6iP7NXY", "pasta": "landmarks", "ini": 161.0, "fim": 187.5,
+   "sequencia": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "1", "0"],
+   "nota": "Cecierj, aula 3: cardinais de 1 a 10 com o número escrito na tela; ordinais e quantidade, que vêm depois, ficam de fora"}
+ ]
+}
