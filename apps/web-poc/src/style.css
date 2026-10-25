@@ -1044,9 +1044,15 @@ h1[tabindex="-1"]:focus { outline: none; }
   margin: 0 auto;
 }
 
-/* Câmera baixando em segundo plano (CameraPrepChip): selo pequeno, sem bloquear nada */
+/* Câmera baixando em segundo plano (CameraPrepChip): selo pequeno, sem bloquear nada. Flutua
+   acima do card de continuar, fora do fluxo, para o mapa não pular quando ele aparece e some.
+   Não recebe toque: o que está embaixo continua clicável. Só opacidade anima. */
 .prep-chip {
-  align-self: flex-start;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + var(--lx-space-3));
+  translate: -50% 0;
+  margin: 0;
   display: inline-flex;
   align-items: center;
   gap: var(--lx-space-1);
@@ -1054,12 +1060,19 @@ h1[tabindex="-1"]:focus { outline: none; }
   border-radius: var(--lx-radius-full);
   background: var(--lx-game-hand-soft);
   color: var(--lx-game-hand-text);
+  box-shadow: var(--lx-elevation-2);
   font: var(--lx-typography-label-sm);
   letter-spacing: var(--lx-typography-label-sm-tracking);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
   animation: lx-fade-in var(--lx-motion-duration-base) var(--lx-motion-easing-decelerate);
 }
 .prep-chip-icon { width: var(--lx-size-icon-sm); height: var(--lx-size-icon-sm); }
+@media (prefers-reduced-motion: reduce) {
+  .prep-chip { animation-duration: var(--lx-motion-duration-fast); }
+}
+:root[data-reduced-motion="true"] .prep-chip { animation-duration: var(--lx-motion-duration-fast); }
 
 .coursemap-footnote {
   font: var(--lx-typography-caption);
@@ -1320,11 +1333,16 @@ h1[tabindex="-1"]:focus { outline: none; }
 }
 .lesson-badge.srs  { background: var(--lx-game-hand-soft); color: var(--lx-game-hand-text); }
 
-/* Card de continuar: o único card escuro no modo claro, antecipa o palco */
-.resume-banner {
+/* Rodapé fixo do mapa: card de continuar e, acima dele, o selo da câmera (CameraPrepChip) */
+.coursemap-dock {
   position: sticky;
   bottom: var(--lx-nav-offset);
   z-index: var(--lx-z-index-sticky);
+}
+
+/* Card de continuar: o único card escuro no modo claro, antecipa o palco */
+.resume-banner {
+  position: relative;
   background: var(--lx-stage-bg);
   color: var(--lx-stage-text);
   border-top: var(--lx-border-width-thin) solid var(--lx-border-subtle);

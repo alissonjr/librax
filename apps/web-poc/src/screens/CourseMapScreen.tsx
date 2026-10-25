@@ -105,8 +105,6 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
       </div>
 
       <div className="coursemap-body">
-        <CameraPrepChip />
-
         {/* Daily Goal Bar */}
         <div className="xp-bar-card">
           <div className="xp-bar-header">
@@ -218,34 +216,37 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
         </p>
       </div>
 
-      {/* Resume banner */}
-      <div className="resume-banner animate__animated animate__slideInUp">
-        <TraceArc className="resume-banner-arc" />
-        {inProgress ? (
-          <button className="resume-banner-content" onClick={() => onStartLesson(inProgress.lessonId)}>
-            <Icon name="play_arrow" filled />
-            <span>{t('courseMap.resume', { title: t(`course.${inProgress.lessonId}`) })}</span>
-            <Icon name="arrow_forward" className="resume-arrow" />
-          </button>
-        ) : allDone ? (
-          <button className="resume-banner-content" onClick={() => onStartLesson(state.nextLesson ?? '')}>
-            <Icon name="replay" />
-            <span>{t('courseMap.reviewSrs')}</span>
-            <Icon name="arrow_forward" className="resume-arrow" />
-          </button>
-        ) : goalDone ? (
-          <button className="resume-banner-content resume-banner-content--goal" onClick={() => onStartLesson(state.nextLesson ?? '')}>
-            <Icon name="check_circle" filled />
-            <span>{t('courseMap.goalDoneKeepPracticing')}</span>
-            <Icon name="arrow_forward" className="resume-arrow" />
-          </button>
-        ) : nextLessonObj ? (
-          <button className="resume-banner-content" onClick={() => onStartLesson(nextLessonObj.id)}>
-            <Icon name="play_arrow" filled />
-            <span>{t('courseMap.resume', { title: t(`course.${nextLessonObj.id}`) })}</span>
-            <Icon name="arrow_forward" className="resume-arrow" />
-          </button>
-        ) : null}
+      {/* Resume banner, com o selo da câmera flutuando acima dele (fora do fluxo: o mapa não se mexe) */}
+      <div className="coursemap-dock">
+        <CameraPrepChip />
+        <div className="resume-banner animate__animated animate__slideInUp">
+          <TraceArc className="resume-banner-arc" />
+          {inProgress ? (
+            <button className="resume-banner-content" onClick={() => onStartLesson(inProgress.lessonId)}>
+              <Icon name="play_arrow" filled />
+              <span>{t('courseMap.resume', { title: t(`course.${inProgress.lessonId}`) })}</span>
+              <Icon name="arrow_forward" className="resume-arrow" />
+            </button>
+          ) : allDone ? (
+            <button className="resume-banner-content" onClick={() => onStartLesson(state.nextLesson ?? '')}>
+              <Icon name="replay" />
+              <span>{t('courseMap.reviewSrs')}</span>
+              <Icon name="arrow_forward" className="resume-arrow" />
+            </button>
+          ) : goalDone ? (
+            <button className="resume-banner-content resume-banner-content--goal" onClick={() => onStartLesson(state.nextLesson ?? '')}>
+              <Icon name="check_circle" filled />
+              <span>{t('courseMap.goalDoneKeepPracticing')}</span>
+              <Icon name="arrow_forward" className="resume-arrow" />
+            </button>
+          ) : nextLessonObj ? (
+            <button className="resume-banner-content" onClick={() => onStartLesson(nextLessonObj.id)}>
+              <Icon name="play_arrow" filled />
+              <span>{t('courseMap.resume', { title: t(`course.${nextLessonObj.id}`) })}</span>
+              <Icon name="arrow_forward" className="resume-arrow" />
+            </button>
+          ) : null}
+        </div>
       </div>
     </>
   );
