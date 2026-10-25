@@ -29,8 +29,7 @@ export function courseGlosses(signs: Iterable<AvatarSign>): string[] {
  * (encodeURIComponent, em vlibras.ts) e, quando a glosa tem caractere reservado (o "&" de
  * ACORDAR&DESPERTAR), também como o Unity pede (a glosa crua, só com os acentos codificados):
  * o cache do service worker guarda por endereço. Animação que falhar não derruba o resto: sem
- * ela o avatar cai na descrição em texto, como já acontece online (o servidor do Vite, por
- * exemplo, não entende o %26).
+ * ela o avatar cai na descrição em texto, como já acontece online.
  */
 export function vlibrasFiles(glosses: readonly string[]): AssetFile[] {
   const files: AssetFile[] = VLIBRAS_PLAYER_FILES.map(f => ({ url: VLIBRAS_PLAYER_PATH + f.name, bytes: f.bytes }));
