@@ -166,7 +166,8 @@ def cmd_buscar_sinais(args):
     for sign in sinais_com_camera():
         nome = sign["gloss"].replace("-", " ").lower()
         queries = ([f"número {nome} em libras", f"numero {nome} libras"] if sign["category"] == "numeros"
-                   else [f"sinal de {nome} em libras", f"{nome} em libras"])
+                   else [f"sinal de {nome} em libras", f"{nome} em libras", f"{nome} libras",
+                         f"como se diz {nome} em libras"])
         n = 0
         for q in queries:
             for e in buscar(q, args.por_sinal):
