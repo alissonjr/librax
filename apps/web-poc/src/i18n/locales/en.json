@@ -317,6 +317,7 @@
     "releaseRepeat": "Move your hand away or change shape, then make {letter} again",
     "retry": "Try again",
     "skipExercise": "Skip this exercise",
+    "spellOwnName": "Spell your name: {word}",
     "spellWord": "Spell: {word}",
     "starting": "Starting...",
     "wordComplete": "Word complete!"
@@ -367,6 +368,7 @@
     "moveUp": "Move up {step}",
     "moved": "{step}: position {position} of {total}",
     "prompt": "Put the sign's steps in order:",
+    "spellOwnNamePrompt": "Your name, {word}: put the letters in order",
     "spellPrompt": "Spell {word}: put the letters in order"
   },
   "exerciseWatchChooseWord": {

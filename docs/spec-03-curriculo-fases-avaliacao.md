@@ -100,7 +100,7 @@ Nomes finais (decisão 10 do `plano-mobile-web.md`): `intro` virou `sign_intro`;
 | type | payload |
 |---|---|
 | `perform_sign` | `{ sign_id, recognition: "static"\|"dynamic", min_confidence, max_attempts, hint_video_url }` (`min_confidence` e `max_attempts` ficam `null`, padrão do reconhecedor, até a calibração da seção 5.3) |
-| `fingerspell` | `{ word, letters[], per_letter_confidence }` (nomes da U4; `per_letter_confidence` fica `null` até a calibração. Com a câmera só quando o classificador em uso avalia todas as letras da palavra; senão o app mostra como `order_sequence`) |
+| `fingerspell` | `{ word, letters[], per_letter_confidence, own_name? }` (nomes da U4 e palavras de revisão do alfabeto; `per_letter_confidence` fica `null` até a calibração. Com a câmera só quando o classificador em uso avalia todas as letras da palavra; senão o app mostra como `order_sequence`. `own_name: true` é o "soletre seu nome": o app troca a palavra pelo primeiro nome do perfil e `word` fica de reserva, ver seção 5.4) |
 | `mirror_practice` | `{ sign_id }` (prática livre, sem nota) |
 
 **Regra de composição da lição**: toda lição mistura receptivo + expressivo, na sequência apresenta (vídeo) ->
@@ -113,13 +113,26 @@ reconhece receptivo -> produz expressivo, com a frase no fim. Receptivo cobre qu
    ganha só o receptivo.
 2. **Agrupa quando não cabe.** Se a lição passaria de 12 (6 sinais novos, ou 5 com a frase), os últimos 3 ou 4
    sinais dividem um `match_pairs` no lugar dos receptivos individuais; os `sign_intro` deles vêm antes do
-   `match_pairs`. O tamanho do grupo é o menor que faz a lição caber (mínimo 3, máximo 4).
+   `match_pairs`. O tamanho do grupo é o menor que faz a lição caber (mínimo 3, máximo 4; até 6 na lição com
+   `produce`, item 3).
 3. **Produz.** 2 `perform_sign` com sinais novos da lição (estáticos primeiro, que a câmera tem mais chance de
-   avaliar). Na lição de nomes da U4, os `fingerspell` (um por nome) fazem esse papel no lugar do `perform_sign`.
-   Se nem agrupando 4 sinais a lição coubesse, a produção cairia para 1 `perform_sign`; se ainda assim não
-   coubesse, o script falha e pede para dividir a lição (nenhuma lição do A1 chega nisso: elas têm de 4 a 6
-   sinais).
+   avaliar). A lição pode listar em `produce` (course.json) quais sinais a pessoa faz na câmera: as do alfabeto
+   listam cada letra que o modelo lê bem (ver abaixo). Depois vêm os `fingerspell`, um por palavra de
+   `spellWords` (nomes da U4, palavras de revisão no fim das lições do alfabeto) e, se a lição tiver
+   `spellOwnName`, o "soletre seu nome". Na lição de nomes da U4, sem `produce`, os `fingerspell` fazem o papel do
+   `perform_sign`. Se nem agrupando a lição coubesse, a produção sem lista cairia para 1 `perform_sign`; se ainda
+   assim não coubesse, o script falha e pede para dividir a lição (nenhuma lição do A1 chega nisso: elas têm de 4
+   a 6 sinais). O script também falha se uma palavra soletrada usa letra que ainda não teve `perform_sign` até a
+   lição: a soletração só pede letras já ensinadas e que a câmera lê bem.
 4. **Frase.** Da U3 em diante, o `build_phrase` fecha a sessão.
+
+**Câmera no alfabeto** (plano `plano-licoes-pos-treino.md`, seção 1): cada lição da U1 tem `perform_sign` para as
+letras que o modelo v6 lê com 80% ou mais no teste fixo (C, D, E, H, I, O, S, W, Y), além das 10 que já tinham
+(A, B, F, G, K, L, P, Q, U, V; F, Q e U ficaram abaixo de 80% e seguem em observação). M, N, R, T e X entram quando
+passarem de 80%; J, Z e Ç têm movimento e seguem como prática livre. Para acrescentar uma letra, basta pô-la no
+`produce` da lição em que ela é ensinada. As palavras de revisão usam só letras com câmera até a lição: CHEGA
+(U1 L2), BOLO (U1 L3), SAPO (U1 L4) e YAGO (U1 L5); a U1 L1 não tem, para a primeira lição começar leve (as letras
+dela voltam em CHEGA).
 
 Lição que ficasse com menos de 7 ganharia uma rodada de `watch_choose_word` antes da frase (não acontece no A1).
 
@@ -127,10 +140,11 @@ Exemplos (bundle atual):
 
 | Lição | Sinais | Sequência | Total |
 |---|---|---|---|
-| U1 L1 (A, B, C, D, E) | 5 novos, sem frase | intro A, watch A, intro B, word_choose_video B, intro C, watch C, intro D, word_choose_video D, intro E, watch E, perform A, perform B | 12 |
+| U1 L1 (A, B, C, D, E) | 5 novos, sem frase, `produce` A a E | intro A, watch A, intro B, C, D e E, match_pairs dos 4, perform A, B, C, D e E | 12 |
+| U1 L5 (U, V, W, X, Y, Z) | 6 novos, `produce` U, V, W e Y, revisão YAGO | intro das 6, match_pairs das 6, perform U, V, W e Y, fingerspell YAGO | 12 |
 | U3 L1 (OI, TCHAU, BOM-DIA, BOA-TARDE, BOA-NOITE) | 5 novos + frase | intro e watch OI, intro e word_choose_video TCHAU, intro BOM-DIA, BOA-TARDE e BOA-NOITE, match_pairs dos 3, perform OI, perform TCHAU, build_phrase | 11 |
 | U6 L1 (FAMÍLIA, MÃE, PAI, FILHO, FILHA, BEBÊ) | 6 novos + frase | intro e watch FAMÍLIA, intro e word_choose_video MÃE, intro PAI, FILHO, FILHA e BEBÊ, match_pairs dos 4, perform FAMÍLIA, perform MÃE, build_phrase | 12 |
-| U4 L4 (D, A, V, I, B, L; nomes DAVI, BIA, LIA) | 6 de revisão + frase | watch e word_choose_video alternados para os 6 sinais, fingerspell DAVI, BIA e LIA, build_phrase | 10 |
+| U4 L4 (D, A, V, I, B, L; nomes DAVI, BIA, LIA e o da pessoa) | 6 de revisão + frase | watch e word_choose_video alternados para os 6 sinais, fingerspell DAVI, BIA e LIA, "soletre seu nome" (reserva LIDIA), build_phrase | 11 |
 | U14 L3 (OI, NOME, SURDO, OUVINTE, ONDE, MORAR) | 6 de revisão + frase | 6 receptivos alternados, perform OI, perform NOME, build_phrase | 9 |
 
 **Revisão fora da lição**: a repetição do mesmo sinal várias vezes saiu da lição e fica na prática diária (aba
@@ -192,6 +206,14 @@ function evaluatePerformSign(scoreStream, payload) {
 - Avalia letra a letra (estático) em sequência; aceita a palavra se cada letra passou `per_letter_confidence`; permite repetir letra que falhou sem reiniciar a palavra.
 - Letra igual à anterior (o SS de OSSO) só conta de novo depois que a mão sai do quadro ou muda de forma (seção 11.8).
 - Só usa a câmera em palavra cujas letras o classificador em uso avalia; senão vira `order_sequence`.
+- A pausa entre letras (a classe "nenhuma letra" do modelo, ou a mão fora do quadro) chega como leitura vazia: não
+  conta como letra, não volta a palavra e libera a letra repetida.
+- **Soletre seu nome** (U4 L4, `own_name`): o app pega o nome que a pessoa deu no onboarding (`librax_displayName`
+  no aparelho, então funciona offline e sem conta), fica com o primeiro nome, passa para caixa alta, tira os acentos
+  (Á vira A, mas Ç continua Ç) e guarda só as letras (`ownNameLetters` em `src/lib/fingerspell.ts`). Se o nome
+  ficar vazio ou com uma letra, tiver mais de 8 letras ou tiver J, Z ou Ç (letras com movimento, que a câmera não
+  avalia), o exercício usa a palavra de reserva do bundle (LIDIA) como uma soletração comum. Nomes com letras que o
+  modelo ainda lê mal (M, N, R, T, X) seguem com a câmera; a pessoa pode pular.
 
 ## 6. Repetição espaçada (algoritmo concreto - SM-2 adaptado)
 

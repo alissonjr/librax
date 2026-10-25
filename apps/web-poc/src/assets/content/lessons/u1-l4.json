@@ -58,11 +58,10 @@
     {
       "id": "u1-l4-ex06",
       "lesson_id": "u1-l4",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "letra-R",
-        "correct": "R"
+        "sign_id": "letra-S"
       }
     },
     {
@@ -71,49 +70,36 @@
       "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "letra-S"
+        "sign_id": "letra-T"
       }
     },
     {
       "id": "u1-l4-ex08",
       "lesson_id": "u1-l4",
-      "type": "word_choose_video",
+      "type": "match_pairs",
       "order": 8,
       "payload": {
-        "word": "S",
-        "video_options": [
-          "letra-S",
-          "letra-P",
-          "letra-Q",
-          "letra-R"
-        ],
-        "correct_sign_id": "letra-S"
+        "pairs": [
+          {
+            "sign_id": "letra-R",
+            "gloss": "R"
+          },
+          {
+            "sign_id": "letra-S",
+            "gloss": "S"
+          },
+          {
+            "sign_id": "letra-T",
+            "gloss": "T"
+          }
+        ]
       }
     },
     {
       "id": "u1-l4-ex09",
       "lesson_id": "u1-l4",
-      "type": "sign_intro",
-      "order": 9,
-      "payload": {
-        "sign_id": "letra-T"
-      }
-    },
-    {
-      "id": "u1-l4-ex10",
-      "lesson_id": "u1-l4",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "letra-T",
-        "correct": "T"
-      }
-    },
-    {
-      "id": "u1-l4-ex11",
-      "lesson_id": "u1-l4",
       "type": "perform_sign",
-      "order": 11,
+      "order": 9,
       "payload": {
         "sign_id": "letra-P",
         "recognition": "static",
@@ -123,16 +109,45 @@
       }
     },
     {
-      "id": "u1-l4-ex12",
+      "id": "u1-l4-ex10",
       "lesson_id": "u1-l4",
       "type": "perform_sign",
-      "order": 12,
+      "order": 10,
       "payload": {
         "sign_id": "letra-Q",
         "recognition": "static",
         "min_confidence": null,
         "max_attempts": null,
         "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l4-ex11",
+      "lesson_id": "u1-l4",
+      "type": "perform_sign",
+      "order": 11,
+      "payload": {
+        "sign_id": "letra-S",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l4-ex12",
+      "lesson_id": "u1-l4",
+      "type": "fingerspell",
+      "order": 12,
+      "payload": {
+        "word": "SAPO",
+        "letters": [
+          "S",
+          "A",
+          "P",
+          "O"
+        ],
+        "per_letter_confidence": null
       }
     }
   ]

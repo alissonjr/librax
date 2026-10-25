@@ -12,8 +12,12 @@ export interface Lesson {
   order: number;
   xpReward: number;
   signIds: string[];
-  /** Nomes soletrados na lição (U4); viram fingerspell no bundle. */
+  /** Palavras soletradas na lição (nomes da U4, revisão do alfabeto); viram fingerspell no bundle. */
   spellWords?: string[];
+  /** Sinais que a pessoa faz na câmera (perform_sign); sem a lista, a composição escolhe 2. */
+  produce?: string[];
+  /** "Soletre seu nome" (U4): palavra de reserva para quando o nome do perfil não dá. */
+  spellOwnName?: string;
 }
 
 export interface SourceRef {

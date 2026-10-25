@@ -2,6 +2,8 @@ import signsRaw from '../assets/content/signs.json';
 import { course, type Phrase, type SourceRef } from './course';
 import { getClassifier } from '../recognition/classifier';
 import { getSignGlosses, loadSignIndex } from '../recognition/signModel';
+import { getDisplayName } from './auth';
+import { ownNameLetters } from './fingerspell';
 
 export interface Sign {
   id: string;
@@ -71,7 +73,13 @@ export type BundleExercise =
   | BundleBase<'match_pairs', { pairs: { sign_id: string; gloss: string }[] }>
   | BundleBase<'order_sequence', { steps: string[]; correct_order: number[]; word?: string }>
   | BundleBase<'build_phrase', { pt: string; glosses: string[]; distractors: string[]; source: SourceRef }>
-  | BundleBase<'fingerspell', { word: string; letters: string[]; per_letter_confidence: number | null }>
+  | BundleBase<'fingerspell', {
+      word: string;
+      letters: string[];
+      per_letter_confidence: number | null;
+      /** "Soletre seu nome": o app troca a palavra pelo nome do perfil; `word` é a reserva. */
+      own_name?: boolean;
+    }>
   | BundleBase<'mirror_practice', { sign_id: string }>;
 
 /** Tipos que o LessonScreen renderiza hoje. */
@@ -101,6 +109,8 @@ export interface Exercise {
   letters?: string[];
   /** fingerspell: confiança mínima por letra (null = padrão do reconhecedor). */
   perLetterConfidence?: number | null;
+  /** fingerspell e order_sequence de soletração: a palavra é o nome do perfil. */
+  ownName?: boolean;
   /** word_choose_video: os sinais das 4 demonstrações, em ordem sorteada (`signId` é o certo). */
   videoOptions?: string[];
   /** build_phrase: frase da unidade (glosas na ordem certa + tradução). */
@@ -235,6 +245,8 @@ export interface ResolveOptions {
   canEvaluate?: (sign: Sign | undefined) => boolean;
   /** Se o modelo dos sinais com movimento avalia o sinal (padrao: isMotionSignEvaluable). */
   canEvaluateMotion?: (sign: Sign | undefined) => boolean;
+  /** Nome do perfil para o "soletre seu nome" (padrao: o salvo no aparelho pelo onboarding). */
+  displayName?: string | null;
 }
 
 /**
@@ -247,7 +259,9 @@ export interface ResolveOptions {
  *   (pratica livre, sem nota, para nao contar erro que a pessoa nao cometeu) e a pratica livre
  *   repetida do mesmo sinal sai;
  * - fingerspell so usa a camera quando ela avalia todas as letras da palavra; senao vira
- *   order_sequence com as letras (a pessoa poe as letras na ordem).
+ *   order_sequence com as letras (a pessoa poe as letras na ordem). No "soletre seu nome"
+ *   (`own_name`), a palavra e o primeiro nome do perfil (ownNameLetters); se o nome nao da, fica a
+ *   palavra de reserva do bundle, como um fingerspell comum.
  * `lessonSignIds[0]` e o sinal de referencia dos exercicios que nao tem um sinal so.
  */
 export function resolveExercises(items: BundleExercise[], lessonSignIds: string[], opts: ResolveOptions = {}): Exercise[] {
@@ -304,12 +318,18 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
         break;
       }
       case 'fingerspell': {
-        const { word, letters, per_letter_confidence } = item.payload;
+        const { per_letter_confidence } = item.payload;
+        const name = item.payload.own_name
+          ? ownNameLetters(opts.displayName !== undefined ? opts.displayName : getDisplayName())
+          : null;
+        const letters = name ?? item.payload.letters;
+        const word = name ? name.join('') : item.payload.word;
+        const own = name ? { ownName: true } : {};
         const signId = `letra-${letters[0]}`;
         if (letters.every((l) => canEvaluate(map[`letra-${l}`]))) {
-          out.push({ id, type: 'fingerspell', signId, word, letters, perLetterConfidence: per_letter_confidence });
+          out.push({ id, type: 'fingerspell', signId, word, letters, perLetterConfidence: per_letter_confidence, ...own });
         } else {
-          out.push({ id, type: 'order_sequence', signId, steps: letters, correctOrder: letters.map((_, i) => i), word });
+          out.push({ id, type: 'order_sequence', signId, steps: letters, correctOrder: letters.map((_, i) => i), word, ...own });
         }
         break;
       }

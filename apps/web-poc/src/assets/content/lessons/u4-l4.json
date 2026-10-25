@@ -129,8 +129,26 @@
     {
       "id": "u4-l4-ex10",
       "lesson_id": "u4-l4",
-      "type": "build_phrase",
+      "type": "fingerspell",
       "order": 10,
+      "payload": {
+        "word": "LIDIA",
+        "letters": [
+          "L",
+          "I",
+          "D",
+          "I",
+          "A"
+        ],
+        "per_letter_confidence": null,
+        "own_name": true
+      }
+    },
+    {
+      "id": "u4-l4-ex11",
+      "lesson_id": "u4-l4",
+      "type": "build_phrase",
+      "order": 11,
       "payload": {
         "pt": "Qual é o sinal do seu irmão?",
         "glosses": [

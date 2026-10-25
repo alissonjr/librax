@@ -24,14 +24,23 @@ interface Drag {
   centers: number[];
 }
 
+/**
+ * O passo na posição está certo. Compara o texto, não o índice: na palavra com letra repetida
+ * (BOLO, ANA) as duas letras iguais podem trocar de lugar sem errar.
+ */
+function inPlace(steps: string[], correctOrder: number[], stepIdx: number, position: number): boolean {
+  return steps[stepIdx] === steps[correctOrder[position]];
+}
+
 /** Embaralha sem comecar ja na ordem certa (com 2 ou mais passos). */
 function initialOrder(steps: string[], correctOrder: number[]): number[] {
   const keys = [...steps.keys()];
+  const solved = (order: number[]) => order.every((s, j) => inPlace(steps, correctOrder, s, j));
   let order = shuffle(keys);
-  for (let i = 0; i < 5 && keys.length > 1 && order.every((s, j) => s === correctOrder[j]); i++) {
+  for (let i = 0; i < 5 && keys.length > 1 && solved(order); i++) {
     order = shuffle(keys);
   }
-  if (keys.length > 1 && order.every((s, j) => s === correctOrder[j])) order = [...order.slice(1), order[0]];
+  if (keys.length > 1 && solved(order)) order = [...order.slice(1), order[0]];
   return order;
 }
 
@@ -136,7 +145,7 @@ export function ExerciseOrderSequence({ steps, correctOrder, prompt, onAnswer, o
   }
 
   function handleConfirm() {
-    const correct = order.every((step, i) => step === correctOrder[i]);
+    const correct = order.every((step, i) => inPlace(steps, correctOrder, step, i));
     setAnswered(true);
     setIsCorrect(correct);
     if (correct) { Haptics.correct(); Sfx.correct(); } else Sfx.neutral();
@@ -155,7 +164,7 @@ export function ExerciseOrderSequence({ steps, correctOrder, prompt, onAnswer, o
           const isDragging = dragging?.stepIdx === stepIdx;
           let cls = 'order-item';
           if (answered) {
-            cls += stepIdx === correctOrder[position] ? ' order-item--correct' : ' order-item--wrong';
+            cls += inPlace(steps, correctOrder, stepIdx, position) ? ' order-item--correct' : ' order-item--wrong';
           }
           if (isDragging) cls += ' order-item--dragging';
           return (
@@ -171,7 +180,7 @@ export function ExerciseOrderSequence({ steps, correctOrder, prompt, onAnswer, o
               <Icon name="drag_indicator" className="order-grip" />
               <span className="order-text">{step}</span>
               {answered ? (
-                stepIdx === correctOrder[position]
+                inPlace(steps, correctOrder, stepIdx, position)
                   ? <Icon name="check" className="order-status-icon order-status-icon--ok" />
                   : <Icon name="close" className="order-status-icon order-status-icon--err" />
               ) : (

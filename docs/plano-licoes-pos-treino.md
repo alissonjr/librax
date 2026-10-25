@@ -1,6 +1,7 @@
 # Plano: lições depois do treino por vídeo
 
-Status: proposta de 2026-10-25, nada executado.
+Status: proposta de 2026-10-25. Feito em 2026-10-25: seções 1 e 2 (com as letras fortes) e as duas leituras
+seguidas da seção 5; o que entrou está descrito na spec-03 (seções 3 e 5.4).
 
 O treino com vídeos do YouTube e de dicionários mudou o que a câmera consegue avaliar e mostrou
 erros no conteúdo. Este plano lista o que mudaria nas lições por causa disso, em ordem de
@@ -26,6 +27,10 @@ Hoje só 10 letras têm exercício de câmera (A, B, F, G, K, L, P, Q, U, V), ma
   Letra fraca entra só quando o teste fixo dela passar de 80%.
 - J, Z e Ç têm movimento: ficam com prática livre até entrarem no modelo de sinais.
 
+Feito: C, D, E, H, I, O, S, W e Y ganharam câmera (`produce` de cada lição da U1). M, N, R, T e X
+esperam passar de 80%. F (3/4), Q (4/6) e U (1/3) já tinham câmera e continuam, mas estão abaixo de
+80%: decidir se saem do `produce` até o próximo treino.
+
 ## 2. Soletração de verdade (prioridade alta)
 
 A soletração (`fingerspell`) existe em uma lição só (u4-l4: DAVI, BIA, LIA) e já usa a regra de
@@ -36,6 +41,9 @@ soltar a mão entre letras (`src/lib/fingerspell.ts`).
   prática livre nessas letras).
 - Palavras curtas de revisão ao fim de cada lição do alfabeto, só com letras já ensinadas.
 - A classe "nenhuma letra" ajuda aqui: a pausa entre letras deixa de ser lida como letra.
+
+Feito: "soletre seu nome" no fim da U4 L4 (nome com J, Z, Ç, vazio ou com mais de 8 letras usa a
+palavra de reserva LIDIA) e revisão CHEGA, BOLO, SAPO e YAGO no fim das lições 2 a 5 da U1.
 
 ## 3. Dicas de erro específicas (prioridade média)
 
@@ -67,7 +75,7 @@ O app já avalia sinais quando existe `public/ml/sinais/model.json` (componente
 
 - Instalar o modelo só com os sinais que passarem de 70% no teste com pessoas nunca vistas; os
   outros continuam como prática livre, sem nota. O app já faz essa separação por glosa.
-- Exigir duas leituras seguidas da mesma glosa antes de mostrar "Vimos X", porque no teste ao vivo
+- (Feito) Exigir duas leituras seguidas da mesma glosa antes de mostrar "Vimos X", porque no teste ao vivo
   apareceram leituras passageiras erradas antes do acerto.
 - Mão dominante calculada por janela também no treino (hoje é por vídeo inteiro), para bater com
   o app.

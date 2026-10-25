@@ -295,6 +295,7 @@
     "releaseRepeat": "Retira la mano o cambia la forma y haz {letter} otra vez",
     "retry": "Intentar de nuevo",
     "skipExercise": "Saltar este ejercicio",
+    "spellOwnName": "Deletrea tu nombre: {word}",
     "spellWord": "Deletrea: {word}",
     "starting": "Iniciando...",
     "wordComplete": "¡Palabra completa!"
@@ -345,6 +346,7 @@
     "moveUp": "Subir {step}",
     "moved": "{step}: posición {position} de {total}",
     "prompt": "Ordena los pasos de la seña:",
+    "spellOwnNamePrompt": "Tu nombre, {word}: pon las letras en orden",
     "spellPrompt": "Deletrea {word}: pon las letras en orden"
   },
   "exerciseWatchChooseWord": {

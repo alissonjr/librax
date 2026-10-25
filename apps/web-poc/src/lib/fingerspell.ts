@@ -16,6 +16,8 @@ export const SPELL_START: SpellState = { index: 0, waitingRelease: false };
 /**
  * Avança a soletração com a leitura estável da câmera (`gesture`: letra confirmada pelo
  * reconhecedor, ou null sem mão ou sem letra). `minConfidence` null = padrão do reconhecedor.
+ * A pausa entre letras (a classe "nenhuma letra" do modelo, ou a mão fora do quadro) chega como
+ * null: não conta como letra, não volta a palavra e solta a espera da letra repetida.
  * Função pura: devolve o mesmo objeto quando nada muda.
  */
 export function spellStep(
@@ -41,4 +43,23 @@ export function spellStep(
 export function needsRelease(letters: readonly string[], state: SpellState): boolean {
   return state.waitingRelease && state.index > 0 && state.index < letters.length
     && letters[state.index] === letters[state.index - 1];
+}
+
+/** Nome mais longo que vira o "soletre seu nome"; acima disso fica a palavra de reserva. */
+export const OWN_NAME_MAX = 8;
+
+/**
+ * Letras do primeiro nome do perfil para o "soletre seu nome", ou null quando o nome não dá:
+ * caixa alta, sem acento (Á vira A, mas Ç continua Ç) e só letras. Nome vazio, de uma letra, com
+ * mais de OWN_NAME_MAX letras ou com J, Z ou Ç (letras com movimento, que a câmera não avalia)
+ * dá null, e a lição usa a palavra de reserva do bundle.
+ */
+export function ownNameLetters(displayName: string | null | undefined): string[] | null {
+  const first = (displayName ?? '').trim().split(/\s+/)[0];
+  const word = [...first.normalize('NFC').toUpperCase()]
+    .map(c => (c === 'Ç' ? c : c.normalize('NFD').replace(/\p{M}/gu, '')))
+    .join('')
+    .replace(/[^A-ZÇ]/g, '');
+  if (word.length < 2 || word.length > OWN_NAME_MAX || /[JZÇ]/.test(word)) return null;
+  return [...word];
 }
