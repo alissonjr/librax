@@ -1,0 +1,16 @@
+{
+ "_sobre": "Verbetes das letras no dicionário do INES (uma pessoa, fora do YouTube) usados como teste à parte do modelo das letras com movimento. P, I, D e C são as letras paradas com a mesma forma de mão de H/K, J, Z e Ç: medem o alarme falso. O Y não abre (404). Lido por video/extrair_maos.py --ines e train_letras_mov.py.",
+ "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/{arquivo}",
+ "videos": [
+  {"id": "ines-H", "rotulo": "H", "arquivo": "hSm_Prog001.mp4"},
+  {"id": "ines-J", "rotulo": "J", "arquivo": "jSm_Prog001.mp4"},
+  {"id": "ines-K", "rotulo": "K", "arquivo": "kSm_Prog001.mp4"},
+  {"id": "ines-X", "rotulo": "X", "arquivo": "xSm_Prog001.mp4"},
+  {"id": "ines-Z", "rotulo": "Z", "arquivo": "zSm_Prog001.mp4"},
+  {"id": "ines-Ç", "rotulo": "Ç", "arquivo": "cedilhaSm_Prog001.mp4"},
+  {"id": "ines-P", "rotulo": "P", "arquivo": "pSm_Prog001.mp4"},
+  {"id": "ines-I", "rotulo": "I", "arquivo": "iSm_Prog001.mp4"},
+  {"id": "ines-D", "rotulo": "D", "arquivo": "dSm_Prog001.mp4"},
+  {"id": "ines-C", "rotulo": "C", "arquivo": "cSm_Prog001.mp4"}
+ ]
+}

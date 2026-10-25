@@ -161,6 +161,28 @@ describe('ExerciseOrderSequence', () => {
     expect(screen.getByRole('heading', { name: 'Soletre LIA: coloque as letras na ordem' })).toBeInTheDocument();
   });
 
+  it('letra repetida (OVO): as duas letras iguais podem trocar de lugar sem errar', async () => {
+    const onAnswer = vi.fn();
+    const spy = vi.spyOn(Math, 'random').mockReturnValue(0);
+    render(<ExerciseOrderSequence steps={['O', 'V', 'O']} correctOrder={[0, 1, 2]} onAnswer={onAnswer} onNext={vi.fn()} />);
+    spy.mockRestore();
+    expect(order()).toEqual(['V', 'O', 'O']);
+    // V desce: fica O, V, O com o segundo O na frente
+    await userEvent.click(screen.getByRole('button', { name: 'Descer V' }));
+    expect(order()).toEqual(['O', 'V', 'O']);
+    await userEvent.click(screen.getByRole('button', { name: /confirmar ordem/i }));
+    expect(onAnswer).toHaveBeenCalledWith(true);
+    expect(document.querySelectorAll('.order-item--wrong')).toHaveLength(0);
+  });
+
+  it('letra repetida: também não começa com a palavra já montada', () => {
+    // 1º embaralhamento dá O(2), V, O(0): a palavra certa com os O trocados; embaralha de novo
+    const spy = vi.spyOn(Math, 'random').mockReturnValueOnce(0).mockReturnValueOnce(0.6).mockReturnValue(0);
+    render(<ExerciseOrderSequence steps={['O', 'V', 'O']} correctOrder={[0, 1, 2]} onAnswer={vi.fn()} onNext={vi.fn()} />);
+    spy.mockRestore();
+    expect(order()).not.toEqual(['O', 'V', 'O']);
+  });
+
   it('sem prompt mostra o enunciado padrão', () => {
     setup();
     expect(screen.getByRole('heading', { name: 'Ordene os passos do sinal:' })).toBeInTheDocument();

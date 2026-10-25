@@ -1,0 +1,40 @@
+{
+  "format": "librax-mlp",
+  "format_version": 1,
+  "normalization_version": 2,
+  "input_dim": 552,
+  "labels": [
+    "H",
+    "J",
+    "K",
+    "_"
+  ],
+  "layers": [
+    {
+      "in": 552,
+      "out": 8,
+      "activation": "relu"
+    },
+    {
+      "in": 8,
+      "out": 4,
+      "activation": "softmax"
+    }
+  ],
+  "weights": {
+    "file": "weights.bin",
+    "dtype": "float32",
+    "byte_length": 17840
+  },
+  "kind": "letras-mov",
+  "frames": 8,
+  "features_per_frame": 69,
+  "window_frames": 24,
+  "windows_s": [
+    0.8,
+    1.2,
+    1.6
+  ],
+  "min_presence": 0.6,
+  "channels": 0
+}

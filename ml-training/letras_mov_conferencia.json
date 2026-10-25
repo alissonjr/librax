@@ -1,0 +1,21 @@
+{
+ "_sobre": "Revisão a olho das folhas de conferência (data/letras_mov/conferir/letra-<L>.jpg, video/rotular_letras_mov.py --folhas) em 2026-10-25: trechos que não mostram a letra ficam de fora do treino e do teste.",
+ "fora": [
+  {"id": "0CjU7Mz8rSU", "letra": "J", "motivo": "quadros pretos no meio (corte de cena), a letra não aparece"},
+  {"id": "0CjU7Mz8rSU", "letra": "Z", "motivo": "o avatar não faz o Z no trecho"},
+  {"id": "EZxkymw426U", "letra": "Z", "motivo": "fim do vídeo com a vinheta por cima, sem o Z"},
+  {"id": "cunMtTYomTo", "letra": "Z", "motivo": "trecho na logomarca do canal"},
+  {"id": "THp3VUZKFxg", "letra": "Z", "motivo": "vinheta do fim do vídeo"},
+  {"id": "tjVLKt2vGdw", "letra": "Z", "motivo": "só o punho, sem o indicador do Z"},
+  {"id": "gbeuuXH7BlI", "letra": "J", "motivo": "mão borrada e letreiro, sem o J"},
+  {"id": "SSYy2jh71ks", "letra": "J", "motivo": "exemplo de palavra (FEIJÃO), não a letra"},
+  {"id": "yFPlVthRMSs", "letra": "J", "motivo": "mão aberta no escuro, sem o J"},
+  {"id": "SSYy2jh71ks", "letra": "K", "motivo": "indicador na testa, explicando, sem o K"},
+  {"id": "THp3VUZKFxg", "letra": "K", "motivo": "duas mãos explicando, sem o K"},
+  {"id": "ZHUqjtJewOY", "letra": "K", "motivo": "apontando para o painel, sem o K"},
+  {"id": "B2U7c6OXgBg", "letra": "Ç", "motivo": "mãos juntas em repouso, sem o Ç"},
+  {"id": "QwfJJqTDPyc", "letra": "Ç", "motivo": "indicador para cima, sem o C"},
+  {"id": "SSYy2jh71ks", "letra": "Ç", "motivo": "exemplo de palavra (CORAÇÃO), não a letra"},
+  {"id": "yFPlVthRMSs", "letra": "Ç", "motivo": "mão aberta no escuro, sem o C"}
+ ]
+}

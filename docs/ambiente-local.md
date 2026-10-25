@@ -104,7 +104,7 @@ todo serviço para o moto e o DynamoDB para o DynamoDB Local, e faz `http`, `htt
 ### Semente
 
 Gerada pelas mesmas fábricas e usecases da API, com o relógio do servidor no dia de cada evento: 7 contas, cerca
-de 60 lições nas duas últimas semanas (com `exerciseStats` e sinais revisados), práticas, saídas no meio da
+de 60 lições nas duas últimas semanas (com `exerciseStats`, desempenho da câmera nas letras e sinais revisados), práticas, saídas no meio da
 lição, duas squads, o fechamento das ligas da semana passada (o job `librax-close-league`) e o job diário do
 painel nos últimos 14 dias. Só roda a atividade se nenhuma conta da semente tem perfil na tabela; para recomeçar
 do zero, `npm run local:reset` e `npm run local:up`.

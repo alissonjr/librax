@@ -24,7 +24,7 @@
       "network": "Sem conexão. Confira a internet e tente de novo.",
       "notConfirmed": "Confirme seu e-mail com o código que enviamos.",
       "signOut": "Não foi possível sair da conta agora. Tente de novo.",
-    "tooManyAttempts": "Muitas tentativas seguidas. Espere alguns minutos e tente de novo.",
+      "tooManyAttempts": "Muitas tentativas seguidas. Espere alguns minutos e tente de novo.",
       "unknown": "Não foi possível concluir agora. Tente de novo.",
       "weakPassword": "Senha muito curta. Use pelo menos 8 caracteres."
     },
@@ -147,6 +147,39 @@
     "retry": "Tentar novamente",
     "subtitle": "Posicione sua mão em frente à câmera e tente os sinais do alfabeto",
     "title": "Reconhecimento de mãos"
+  },
+  "cameraStats": {
+    "title": "Desempenho da câmera",
+    "settingsHint": "Tentativas e pulos por letra e sinal",
+    "intro": "Quantas tentativas cada letra e sinal precisou nos exercícios com câmera e quantas vezes houve pulo. Mostra onde o reconhecimento ou a descrição do sinal falham.",
+    "emptyTitle": "Ainda sem números",
+    "emptyBody": "Faça um exercício com a câmera numa lição e os números aparecem aqui.",
+    "summaryLabel": "Resumo",
+    "summarySigns": "Letras e sinais: {n}",
+    "summarySuccesses": "Acertos: {n}",
+    "summarySkips": "Pulos: {n}",
+    "listLabel": "Do mais difícil para o mais fácil",
+    "kindLetter": "Letra",
+    "kindSign": "Sinal",
+    "runs": "Vezes na câmera: {n}",
+    "level": {
+      "hard": "Difícil",
+      "attention": "Atenção",
+      "ok": "Vai bem"
+    },
+    "skips": "Pulos",
+    "skipsValue": "{skips} de {runs} ({pct})",
+    "attempts": "Tentativas até acertar",
+    "attemptsValue": "{avg} em média",
+    "attemptsNone": "Ainda sem acerto",
+    "readAs": "A câmera leu no lugar:",
+    "readAsItem": "{label} ({count})",
+    "export": "Exportar JSON",
+    "clear": "Apagar estes números",
+    "clearTitle": "Apagar o desempenho da câmera?",
+    "clearMessage": "As tentativas e os pulos guardados neste aparelho somem. Seu progresso nas lições continua.",
+    "clearConfirm": "Apagar",
+    "privacyNote": "Só números, sem imagem nem vídeo. Com conta, os números de cada lição vão junto com ela para o servidor, só para os totais de todas as pessoas, sem identificar você."
   },
   "common": {
     "back": "Voltar",
@@ -360,6 +393,13 @@
     "successTitle": "Boa! Você fez o sinal {gloss}",
     "watching": "Vendo o movimento: faça o sinal inteiro"
   },
+  "exerciseCameraMotionLetter": {
+    "detected": "Vimos {gesture}. Faça a letra {letter} com o movimento",
+    "makeLetter": "Faça a letra com o movimento:",
+    "notAvailable": "O reconhecimento do movimento da letra \"{letter}\" não carregou. Pratique pela descrição acima e continue quando estiver pronto.",
+    "raiseHand": "Mostre a mão e faça a letra com o movimento",
+    "watching": "Vendo o movimento: faça a letra inteira, com o movimento"
+  },
   "exerciseFingerspell": {
     "cameraFeed": "Feed da câmera",
     "cameraUnavailable": "Câmera indisponível",
@@ -373,6 +413,7 @@
     "releaseRepeat": "Tire a mão ou mude de forma e faça {letter} de novo",
     "retry": "Tentar novamente",
     "skipExercise": "Pular este exercício",
+    "spellOwnName": "Soletre seu nome: {word}",
     "spellWord": "Soletre: {word}",
     "starting": "Iniciando...",
     "wordComplete": "Palavra completa!"
@@ -423,6 +464,7 @@
     "moveUp": "Subir {step}",
     "moved": "{step}: posição {position} de {total}",
     "prompt": "Ordene os passos do sinal:",
+    "spellOwnNamePrompt": "Seu nome, {word}: coloque as letras na ordem",
     "spellPrompt": "Soletre {word}: coloque as letras na ordem"
   },
   "exerciseWatchChooseWord": {

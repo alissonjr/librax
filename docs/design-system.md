@@ -1057,6 +1057,7 @@ voltar do Android) e pelo `ScrollRestoration` (topo ao abrir tela nova, posiçã
 /sequencia                 -> StreakScreen (sem abas)
 /conquistas                -> AchievementsScreen (sem abas)
 /configuracoes             -> SettingsScreen (sem abas)
+/configuracoes/camera      -> CameraStatsScreen, desempenho da câmera por sinal (sem abas)
 /entrar                    -> AuthScreen, modo Entrar (sem abas; fora do onboarding)
 /criar-conta               -> AuthScreen, modo Criar conta (sem abas; fora do onboarding)
 /auth/callback             -> volta do Google: conclui o login e segue para /aprender

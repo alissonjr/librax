@@ -9,6 +9,7 @@ import { Icon } from './Icon';
 import { SignDemo, chooseDemoMode } from './SignDemo';
 import { DemoToggle } from './DemoToggle';
 import { TraceCameraArcs } from './Brand';
+import { CameraRun, saveCameraRun } from '../lib/cameraStats';
 
 interface Props {
   sign: Sign;
@@ -18,7 +19,8 @@ interface Props {
 /**
  * perform_sign de sinal com movimento (palavras como ARROZ e MESA), quando o modelo de sinais
  * publicado em /ml/sinais/ conhece a glosa (src/lib/content.ts decide). Mãos e corpo pela
- * câmera, avaliados em janelas de 1 a 2 s; acerta quando a leitura é a glosa do exercício.
+ * câmera, avaliados em janelas de 1 a 2 s; acerta quando a leitura confirmada (a mesma glosa em
+ * duas avaliações seguidas, useSignCameraRecognizer) é a glosa do exercício.
  * As letras continuam no ExerciseCameraSign.
  */
 export function ExerciseCameraMotionSign({ sign, onComplete }: Props) {
@@ -34,18 +36,27 @@ export function ExerciseCameraMotionSign({ sign, onComplete }: Props) {
   const hasDemo = chooseDemoMode(sign) !== 'text';
   // Última leitura de outro sinal, para a dica "Vimos X" não piscar entre as avaliações
   const [lastOther, setLastOther] = useState<string | null>(null);
+  // Desempenho da câmera (lib/cameraStats.ts): tentativas, leituras de outro sinal e pulo
+  const [run] = useState(() => new CameraRun(sign.id, gloss, 'sign'));
 
   useEffect(() => {
-    if (succeeded || !read) return;
+    if (status === 'active') run.started = true;
+  }, [status, run]);
+
+  useEffect(() => {
+    if (succeeded) return;
+    run.observe(read);
+    if (!read) return;
     if (read === gloss) {
       setSucceeded(true);
+      saveCameraRun(run.finish('success'));
       Haptics.correctCamera();
       Sfx.correctCamera();
       launchConfetti();
     } else {
       setLastOther(read);
     }
-  }, [read, gloss, succeeded]);
+  }, [read, gloss, succeeded, run]);
 
   useEffect(() => {
     start();
@@ -65,6 +76,11 @@ export function ExerciseCameraMotionSign({ sign, onComplete }: Props) {
   function openDemo() {
     stop();
     setShowDemo(true);
+  }
+
+  function skip() {
+    saveCameraRun(run.finish('skip'));
+    onComplete(false);
   }
 
   if (status === 'unavailable') {
@@ -176,7 +192,7 @@ export function ExerciseCameraMotionSign({ sign, onComplete }: Props) {
       {!succeeded && (
         <button
           className="btn btn-ghost cam-sign-skip"
-          onClick={() => onComplete(false)}
+          onClick={skip}
           aria-label={t('exerciseCameraSign.skipExercise')}
         >
           <Icon name="skip_next" /> {t('common.skip')}

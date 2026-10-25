@@ -137,6 +137,7 @@ export function SessionProvider({
       reviewed: result.reviewed,
       signsLearnedDelta: result.signsLearnedDelta,
       exerciseStats: result.exerciseStats,
+      cameraStats: result.cameraStats,
     })
       .then(() => flushOutbox())
       .catch(() => {});

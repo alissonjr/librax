@@ -1,6 +1,7 @@
 # Plano: lições depois do treino por vídeo
 
-Status: proposta de 2026-10-25, nada executado.
+Status: proposta de 2026-10-25. Feito em 2026-10-25: seções 1 e 2 (com as letras fortes) e as duas leituras
+seguidas da seção 5; o que entrou está descrito na spec-03 (seções 3 e 5.4).
 
 O treino com vídeos do YouTube e de dicionários mudou o que a câmera consegue avaliar e mostrou
 erros no conteúdo. Este plano lista o que mudaria nas lições por causa disso, em ordem de
@@ -26,6 +27,15 @@ Hoje só 10 letras têm exercício de câmera (A, B, F, G, K, L, P, Q, U, V), ma
   Letra fraca entra só quando o teste fixo dela passar de 80%.
 - J, Z e Ç têm movimento: ficam com prática livre até entrarem no modelo de sinais.
 
+Feito em 2026-10-25 (letras com movimento, spec-01 seção 3.3): modelo próprio, só com as mãos, para H, J, K, X, Z e
+Ç. Com ele publicado em `public/ml/letras-mov/`, H, K e J são avaliadas com o movimento (J entrou no `produce` da
+U1 L2). X (3/6) e Z (4/7) ficaram abaixo de 70% com pessoas nunca vistas e seguem como prática livre; o Y fica nas
+letras paradas (nos vídeos a mão não se mexe).
+
+Feito: C, D, E, H, I, O, S, W e Y ganharam câmera (`produce` de cada lição da U1). M, N, R, T e X
+esperam passar de 80%. F (3/4), Q (4/6) e U (1/3) já tinham câmera e continuam, mas estão abaixo de
+80%: decidir se saem do `produce` até o próximo treino.
+
 ## 2. Soletração de verdade (prioridade alta)
 
 A soletração (`fingerspell`) existe em uma lição só (u4-l4: DAVI, BIA, LIA) e já usa a regra de
@@ -36,6 +46,9 @@ soltar a mão entre letras (`src/lib/fingerspell.ts`).
   prática livre nessas letras).
 - Palavras curtas de revisão ao fim de cada lição do alfabeto, só com letras já ensinadas.
 - A classe "nenhuma letra" ajuda aqui: a pausa entre letras deixa de ser lida como letra.
+
+Feito: "soletre seu nome" no fim da U4 L4 (nome com J, Z, Ç, vazio ou com mais de 8 letras usa a
+palavra de reserva LIDIA) e revisão CHEGA, BOLO, SAPO e YAGO no fim das lições 2 a 5 da U1.
 
 ## 3. Dicas de erro específicas (prioridade média)
 
@@ -57,6 +70,12 @@ americano. O mesmo cruzamento vale para todo o alfabeto e os números:
 - Script que mede, para cada letra, quais dedos ficam esticados e qual dedo toca o polegar nas
   paradas aceitas, e compara com o `CM` do `signs.json`. Divergência vira nota "A CONFERIR".
 - Revisar F e T no dicionário do INES (nota já gravada nas duas).
+- Feito em 2026-10-25: alfabeto e números conferidos no vídeo do INES e no avatar VLibras (notas
+  em cada entrada do `signs.json`). G, H, M, N, P e Q eram do alfabeto americano; H, K e X têm
+  movimento nas duas fontes, mas seguem `static` porque o modelo da câmera lê a forma parada (com o modelo das
+  letras com movimento publicado, H e K passam a ser avaliadas com o movimento; X ainda não).
+  Ficaram "A CONFERIR": Y (vídeo do INES não abre), 1, 5, 7, 11, 17, 40 e 70 (avatar diferente do
+  INES).
 - Sinais com mais de uma forma (MESA apareceu com variantes diferentes entre canais): registrar a
   variante ensinada no `signs.json` e, se o modelo aprender as duas, aceitar as duas na câmera.
 
@@ -67,7 +86,7 @@ O app já avalia sinais quando existe `public/ml/sinais/model.json` (componente
 
 - Instalar o modelo só com os sinais que passarem de 70% no teste com pessoas nunca vistas; os
   outros continuam como prática livre, sem nota. O app já faz essa separação por glosa.
-- Exigir duas leituras seguidas da mesma glosa antes de mostrar "Vimos X", porque no teste ao vivo
+- (Feito) Exigir duas leituras seguidas da mesma glosa antes de mostrar "Vimos X", porque no teste ao vivo
   apareceram leituras passageiras erradas antes do acerto.
 - Mão dominante calculada por janela também no treino (hoje é por vídeo inteiro), para bater com
   o app.
@@ -85,6 +104,24 @@ parada, conferência por OCR do número na tela) e ligar a câmera na unidade 2.
 - Registrar, sem imagem, quantas tentativas cada letra e sinal precisou e quantas vezes a pessoa
   pulou. Letra ou sinal com muitos pulos indica modelo fraco ou descrição confusa.
 - Usar esses números para decidir a ordem dos próximos treinos.
+
+Feito em 2026-10-25, só no aparelho:
+
+- `src/lib/cameraStats.ts` guarda no IndexedDB do app (store `camera_stats`, banco na versão 3), por
+  sinal: acertos, pulos, tentativas até acertar e quantas vezes a câmera leu outra letra ou glosa no
+  lugar (K lida como H). Uma tentativa é cada leitura estável diferente da anterior. Grava nas letras
+  paradas, em cada letra da soletração (pulo conta só para a letra da vez) e nos sinais com
+  movimento. Pulo com a câmera que nunca ligou (permissão negada, modelo ausente) não conta.
+- Tela em Configurações, "Desempenho da câmera" (`/configuracoes/camera`): do mais difícil para o
+  mais fácil (taxa de pulo, depois média de tentativas), com as leituras erradas mais comuns, exportar
+  JSON e apagar. A Política de Privacidade (1.1) cita esses números entre os dados do aparelho.
+- Também vai ao servidor (2026-10-25), para somar os números de todas as pessoas: a conclusão de
+  lição leva `cameraStats: { "<signId>": { successes, skips, attempts, wrong: { "<rótulo>": n } } }`
+  só com a diferença daquela lição (nunca o acumulado), pela fila offline e só com conta (o
+  convidado manda na migração). O servidor aceita só sinais e glosas do curso, com tetos, e
+  descarta o que vier fora do formato sem recusar a conclusão; soma no item `DAY#<dia>#CAMERA`
+  (`success:`, `skip:`, `attempts:` e `wrong:<signId>:<rótulo>`), sem id de pessoa. O painel tem
+  a tela "Câmera" (docs/painel-admin.md) e a Política (1.1) diz isso nos itens 3, 4, 5 e 6.
 
 ## Ordem sugerida
 

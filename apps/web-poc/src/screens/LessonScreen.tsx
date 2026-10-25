@@ -3,6 +3,7 @@ import { ExerciseIntro } from '../components/ExerciseIntro';
 import { ExerciseMatchPairs } from '../components/ExerciseMatchPairs';
 import { ExerciseCameraSign } from '../components/ExerciseCameraSign';
 import { ExerciseCameraMotionSign } from '../components/ExerciseCameraMotionSign';
+import { ExerciseCameraMotionLetter } from '../components/ExerciseCameraMotionLetter';
 import { ExerciseWatchChooseWord } from '../components/ExerciseWatchChooseWord';
 import { ExerciseWordChooseVideo } from '../components/ExerciseWordChooseVideo';
 import { ExerciseFingerspell } from '../components/ExerciseFingerspell';
@@ -16,6 +17,7 @@ import { warmUpHandLandmarker } from '../recognition/landmarker';
 import { warmUpPoseLandmarker } from '../recognition/poseLandmarker';
 import type { LessonProgress } from '../lib/lessonRun';
 import type { ExerciseStats } from '../lib/sync';
+import { addRunToLesson, onCameraRun, type LessonCameraStats } from '../lib/cameraStats';
 
 /** Exercícios que abrem a câmera: a lição que tem algum já começa a carregar o modelo. */
 const CAMERA_EXERCISES = new Set<string>(['perform_sign', 'mirror_practice', 'fingerspell']);
@@ -34,6 +36,8 @@ export interface LessonSessionResult {
   isLastLesson: boolean;
   /** Respostas e erros por tipo de exercício, para o painel de administração. */
   exerciseStats?: ExerciseStats;
+  /** Desempenho da câmera só desta lição (não o acumulado), para o painel de administração. */
+  cameraStats?: LessonCameraStats;
 }
 
 interface Props {
@@ -62,6 +66,14 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
   const [correct, setCorrect] = useState(initial?.correct ?? 0);
   const [attempted, setAttempted] = useState(initial?.attempted ?? 0);
   const [exerciseStats, setExerciseStats] = useState<ExerciseStats>(initial?.exerciseStats ?? {});
+  // Desempenho da câmera desta lição: o ref é lido na conclusão, que pode vir no mesmo clique do
+  // pulo (o estado ainda não renderizou); o estado guarda a lição em andamento a cada vez fechada.
+  const cameraRef = useRef<LessonCameraStats>(initial?.cameraStats ?? {});
+  const [cameraStats, setCameraStats] = useState<LessonCameraStats>(cameraRef.current);
+  useEffect(() => onCameraRun((run) => {
+    cameraRef.current = addRunToLesson(cameraRef.current, run);
+    setCameraStats(cameraRef.current);
+  }), []);
   // Exercício atual já verificado (resposta contada): se a página recarregar, retoma no seguinte
   const [answeredIdx, setAnsweredIdx] = useState(-1);
 
@@ -80,8 +92,9 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
       reviewed,
       seen: [...newSignsSeen],
       exerciseStats,
+      cameraStats,
     });
-  }, [currentIdx, answeredIdx, correct, attempted, reviewed, newSignsSeen, exerciseStats, exercises.length]);
+  }, [currentIdx, answeredIdx, correct, attempted, reviewed, newSignsSeen, exerciseStats, cameraStats, exercises.length]);
 
   /** Conta a resposta do exercício atual (no total e no tipo do exercício). */
   function record(wasCorrect: boolean) {
@@ -130,6 +143,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
       signsLearnedDelta: newSignsSeen.size,
       isLastLesson,
       exerciseStats,
+      cameraStats: cameraRef.current,
     });
   }, [attempted, correct, reviewed, onComplete, lessonId, lesson, newSignsSeen, isLastLesson, exerciseStats]);
 
@@ -214,7 +228,18 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
         />
       )}
 
-      {ex.type === 'perform_sign' && ex.recognizer !== 'sinais' && (
+      {ex.type === 'perform_sign' && ex.recognizer === 'letras-mov' && (
+        <ExerciseCameraMotionLetter
+          key={ex.id}
+          sign={getSign(ex.signId)}
+          onComplete={(wasCorrect) => {
+            handleAnswer(ex.signId, wasCorrect);
+            advance();
+          }}
+        />
+      )}
+
+      {ex.type === 'perform_sign' && !ex.recognizer && (
         <ExerciseCameraSign
           key={ex.id}
           sign={getSign(ex.signId)}
@@ -260,6 +285,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
           word={ex.word}
           letters={ex.letters}
           perLetterConfidence={ex.perLetterConfidence}
+          ownName={ex.ownName}
           onAnswer={record}
           onNext={advance}
         />
@@ -278,7 +304,9 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
           key={ex.id}
           steps={ex.steps ?? []}
           correctOrder={ex.correctOrder ?? (ex.steps ?? []).map((_, i) => i)}
-          prompt={ex.word ? t('exerciseOrderSequence.spellPrompt', { word: ex.word }) : undefined}
+          prompt={ex.word
+            ? t(ex.ownName ? 'exerciseOrderSequence.spellOwnNamePrompt' : 'exerciseOrderSequence.spellPrompt', { word: ex.word })
+            : undefined}
           onAnswer={record}
           onNext={advance}
         />

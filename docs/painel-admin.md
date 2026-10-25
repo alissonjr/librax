@@ -4,7 +4,7 @@
 > `cdk synth`, mas o deploy é do dono da conta.
 
 Um lugar para ver a operação do Librax e o que o app tem na nuvem, sem abrir o console da AWS. Fica em
-`https://<domínio>/admin/`, no mesmo CloudFront do app, e só abre para contas no grupo `admin` do Cognito.
+`https://app.<domínio>/admin/`, no mesmo CloudFront do app, e só abre para contas no grupo `admin` do Cognito.
 
 Código:
 
@@ -21,6 +21,7 @@ Código:
 | Tela | O que tem | De onde vem |
 |---|---|---|
 | **Operação** | pessoas ativas por dia (30 dias), semana (12) e mês (12); contas novas; lições concluídas; lições onde mais desistem e mais erram; erros por tipo de exercício; sinais mais errados; erros do servidor por dia e por Lambda | contadores agregados (seção 3) e o job diário |
+| **Câmera** | letras e sinais do mais difícil para o mais fácil nos mesmos 30 dias (taxa de pulo, depois média de tentativas até acertar), com nível, filtro de letras ou sinais e as leituras trocadas mais comuns (K lida como H) | item `CAMERA` do dia (seção 3), pela mesma rota da Operação |
 | **Conteúdo** | as 14 unidades e os 254 sinais: validado (`validated`), origem (`source`), vídeo, avatar e o que falta em cada sinal, com filtros | `services/api/src/content/contentStatus.js`, gerado do bundle do app por `npm run catalog` |
 | **Contas** | busca pelo começo do e-mail ou pelo id; resumo com perfil, progresso, liga, squads e última atividade | Cognito (`ListUsers`) e a partição `USER#<id>` |
 | **Squads** | nome, tipo, tamanho e criação, da mais nova para a mais velha | registro `SQUADINDEX` e o META de cada squad |
@@ -37,6 +38,10 @@ Definições usadas nas telas:
 - **Erro**: resposta errada num exercício (contada por tipo de exercício e por lição) e sinal com estado
   `failed` na revisão.
 - **Erros do servidor**: 5xx da API mais erros das Lambdas, do CloudWatch, até o dia anterior.
+- **Câmera**: uma vez é do momento em que a câmera abre até acertar ou pular; tentativa é cada leitura
+  diferente da câmera até acertar. Nível difícil com metade ou mais de pulos ou 3 tentativas ou mais em média,
+  atenção a partir de 20% de pulos ou 2 tentativas (a mesma regra da tela "Desempenho da câmera" do app). A
+  lista esconde, por padrão, quem tem menos de 5 vezes no período.
 
 Limites conhecidos: o convidado joga 100% no aparelho e só entra nos números quando cria conta (a migração
 soma as lições dele nos dias em que foram feitas). Para análise de produto mais fina continua valendo o PostHog
@@ -86,6 +91,7 @@ dia, e as telas leem só esses itens por chave ou por uma Query na partição `O
 | Por lição | `OPS` / `DAY#<dia>#LESSON` | `done:`, `abandon:`, `attempted:`, `wrong:`, `failedSigns:`, `reviewedSigns:` + id da lição | 400 dias |
 | Por exercício | `OPS` / `DAY#<dia>#EXERCISE` | `attempted:`, `wrong:`, `abandon:` + tipo | 400 dias |
 | Por sinal | `OPS` / `DAY#<dia>#SIGN` | `failed:` + id do sinal | 400 dias |
+| Câmera | `OPS` / `DAY#<dia>#CAMERA` | `success:`, `skip:`, `attempts:` + id do sinal e `wrong:<id>:<rótulo>` | 400 dias |
 | Semana | `OPS` / `WEEK#<AAAA-wSS>` | ativos, contas novas e lições | 800 dias |
 | Mês | `OPS` / `MONTH#<AAAA-MM>` | ativos, contas novas e lições | sem TTL (12 itens por ano) |
 | Custo | `OPS` / `COST#<AAAA-MM>` | total, projeção, gasto por serviço | sem TTL |
@@ -103,7 +109,10 @@ Escolhas e porquês:
   são novos. As outras lições do dia só leem o registro (0,5 RRU) e não escrevem nele.
 - **Nomes planos** (`done:u1-l1`): o `ADD` do DynamoDB não cria mapa aninhado que ainda não existe.
 - **Itens separados por assunto**: o `UpdateItem` cobra pelo tamanho do item; o de totais fica pequeno e o de
-  lições (cerca de 5 KB com as 53 lições) só cresce até esse teto.
+  lições (cerca de 5 KB com as 53 lições) só cresce até esse teto. O da câmera fica separado do `SIGN` pelo
+  mesmo motivo: com as letras e os sinais com modelo e as trocas entre eles, deve ficar entre 3 e 8 KB por dia
+  (de 3 a 8 WRU a mais por lição com câmera, só nas lições que têm câmera). Lição com muitos sinais divide o
+  `ADD` em partes de 100 contadores (teto de 4 KB da expressão do DynamoDB).
 - **Uma partição só.** Aguenta até 1.000 WRU por segundo, muito acima do piloto (cerca de 7 WRU por lição). Se
   um dia passar disso, o caminho é dividir em `OPS#<n>` e somar na leitura.
 - **Squads**: o registro fica fora do META para o XP somado a cada lição não escrever nele de novo (o META já é
@@ -119,6 +128,12 @@ Para "onde erram ou desistem" o app passou a mandar duas coisas, só com conta:
   exercício. Formato errado é descartado sem recusar a conclusão.
 - `POST /v1/lesson/abandon` ao confirmar "Sair da lição?": lição, exercício onde parou, quantos a lição tem e o
   dia. Sem fila offline: sem rede, não manda.
+- `cameraStats` na conclusão (e na migração): o desempenho da câmera só daquela lição, por sinal (acertos,
+  pulos, tentativas e leituras de outro sinal). O app junta na lição as vezes que os exercícios de câmera
+  fecham (`onCameraRun` em `apps/web-poc/src/lib/cameraStats.ts`), guarda com a lição em andamento e manda
+  pela fila offline com a conclusão: sem rede, vai quando a rede volta; sem conta, fica na fila e vai na
+  migração, ao entrar. O acumulado do aparelho nunca é enviado. O servidor só aceita sinais e glosas do curso
+  (formato no `services/api/README.md`) e grava só a soma do dia, sem id de pessoa.
 
 ## 4. Job diário e custo
 
@@ -186,7 +201,7 @@ Desenvolvimento:
 - `npm run dev:mock`: o painel inteiro com dados de exemplo, sem AWS e sem login (porta 5310).
 - `npm run dev:local`: contra o ambiente local que simula a AWS, com login de verdade (PKCE na página local) e os
   dados da semente (porta 5321). Ver [`docs/ambiente-local.md`](ambiente-local.md).
-- `LIBRAX_API_ORIGIN=https://<domínio> npm run dev`: contra a API de verdade. Precisa do callback de dev no
+- `LIBRAX_API_ORIGIN=https://app.<domínio> npm run dev`: contra a API de verdade. Precisa do callback de dev no
   client do painel: `-c librax:extraAdminCallbackUrls=http://localhost:5310/admin/auth/callback`,
   `-c librax:extraAdminLogoutUrls=http://localhost:5310/admin/` e `-c librax:extraCorsOrigins=http://localhost:5310`.
 

@@ -10,7 +10,9 @@ Uso:
     python video/conferir.py [id ...]     (sem id: todos os vídeos rotulados)
     python video/conferir.py --letra U [--letra V ...]
     python video/conferir.py --sinal ARROZ     (início, meio e fim do trecho escolhido em cada vídeo)
-Saída: ml-training/data/conferir/<id>.jpg, letra-<L>.jpg e sinal-<GLOSA>.jpg
+    python video/conferir.py --numero 6 [--numero 7 ...]   (paradas do número, de rotular_numeros.py)
+Saída: ml-training/data/conferir/<id>.jpg, letra-<L>.jpg e sinal-<GLOSA>.jpg; as dos números em
+data/numeros/conferir/numero-<N>.jpg. LIBRAX_DATA aponta para outra pasta de dados.
 """
 
 import glob
@@ -22,7 +24,7 @@ import cv2
 import numpy as np
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
-DATA = os.path.join(AQUI, "..", "data")
+DATA = os.environ.get("LIBRAX_DATA") or os.path.join(AQUI, "..", "data")
 LADO = 150
 COLUNAS = 9
 
@@ -152,7 +154,57 @@ def galeria_sinal(glosa):
     return out
 
 
+def galeria_numero(numero):
+    """
+    As paradas que o rotular_numeros.py deu como o número, uma por quadro: aceitas com o rótulo em
+    verde, recusadas na checagem em cinza. Embaixo, o vídeo, o canal e o tempo.
+    """
+    tiles = []
+    for rot_path in sorted(glob.glob(os.path.join(DATA, "numeros", "rotulos", "*.json"))):
+        rot = json.load(open(rot_path))
+        ps = [p for p in rot["paradas"] if p["numero"] == numero]
+        if not ps or not rot.get("arquivo"):
+            continue
+        lms = json.load(open(os.path.join(DATA, rot["pasta"], f"{rot['id']}.json")))
+        tempos = np.array([f["t"] for f in lms["frames"]])
+        cap = cv2.VideoCapture(os.path.join(DATA, "videos", rot["arquivo"]))
+        for p in ps:
+            i = int(np.argmin(np.abs(tempos - p["meio"])))
+            hands = lms["frames"][i]["hands"]
+            cap.set(cv2.CAP_PROP_POS_MSEC, p["meio"] * 1000)
+            ok, frame = cap.read()
+            if not ok or not hands:
+                continue
+            # a mão que o rótulo usou (pulso gravado no rótulo); sem ele, a mais alta
+            alvo = p.get("pulso")
+            mao = min(hands, key=lambda h: (h["lm"][0] - alvo[0]) ** 2 + (h["lm"][1] - alvo[1]) ** 2 if alvo
+                      else h["lm"][1])
+            tile = recorte(frame, mao["lm"], lms["aspect"])
+            cor = (40, 200, 40) if p["aceita"] else (140, 140, 140)
+            cv2.rectangle(tile, (0, 0), (LADO, 26), (0, 0, 0), -1)
+            cv2.putText(tile, numero if p["aceita"] else f"{numero}?", (6, 21), cv2.FONT_HERSHEY_SIMPLEX, 0.7, cor, 2)
+            cv2.putText(tile, f"{p['meio']:.1f}s", (LADO - 56, 19), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (220, 220, 220), 1)
+            cv2.rectangle(tile, (0, LADO - 20), (LADO, LADO), (0, 0, 0), -1)
+            cv2.putText(tile, f"{rot['id'][:11]} {(rot.get('channel') or '')[:6]}", (3, LADO - 6),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.38, (220, 220, 220), 1)
+            tiles.append(tile)
+        cap.release()
+    if not tiles:
+        return None
+    while len(tiles) % COLUNAS:
+        tiles.append(np.zeros_like(tiles[0]))
+    img = np.vstack([np.hstack(tiles[i:i + COLUNAS]) for i in range(0, len(tiles), COLUNAS)])
+    out = os.path.join(DATA, "numeros", "conferir", f"numero-{numero}.jpg")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    cv2.imwrite(out, img, [cv2.IMWRITE_JPEG_QUALITY, 80])
+    return out
+
+
 def main():
+    if "--numero" in sys.argv:
+        for n in [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--numero"]:
+            print(galeria_numero(n) or f"{n}: nenhuma parada")
+        return
     if "--sinal" in sys.argv:
         for g in [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--sinal"]:
             print(galeria_sinal(g) or f"{g}: nenhum vídeo aceito")

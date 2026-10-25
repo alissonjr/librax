@@ -31,6 +31,8 @@ import { SessionProvider } from '../hooks/useSession';
 import { IdbRepo } from '../lib/idbRepo';
 import { upgradeLibraxDb } from '../lib/db';
 import { contentVersion, saveLessonRun } from '../lib/lessonRun';
+import { saveCameraRun } from '../lib/cameraStats';
+import { pendingEntries } from '../lib/sync';
 
 async function renderAt(entries: string[], seed?: (repo: IdbRepo) => Promise<void>, brokenStreak = 0) {
   const db = await openDB(`librax-router-${Date.now()}-${Math.random()}`, 1, { upgrade: upgradeLibraxDb });
@@ -252,6 +254,33 @@ describe('lição em andamento (página recarregada)', () => {
     });
   });
 
+  it('a lição em andamento guarda o desempenho da câmera só desta lição', async () => {
+    await openFirstQuestion();
+    // Um exercício de câmera fechou uma vez (o próprio exercício chama saveCameraRun)
+    act(() => saveCameraRun({ signId: 'letra-A', label: 'A', kind: 'letter', outcome: 'success', wrongReadings: { B: 1 } }));
+    await waitFor(() => {
+      const run = JSON.parse(localStorage.getItem(RUN_KEY) ?? '{}');
+      expect(run.cameraStats).toEqual({ 'letra-A': { successes: 1, skips: 0, attempts: 2, wrong: { B: 1 } } });
+    });
+  });
+
+  it('a conclusão leva para a fila o desempenho da câmera da lição retomada', async () => {
+    const cameraStats = { 'letra-B': { successes: 0, skips: 1, attempts: 0, wrong: { A: 2 } } };
+    const content = await import('../lib/content');
+    const bundle = await content.loadLessonBundle('u1-l1');
+    const exercises = content.resolveExercises(bundle!, content.course.lessonsMap['u1-l1'].signIds);
+    saveLessonRun('user-test', {
+      lessonId: 'u1-l1', version: contentVersion(bundle), exercises,
+      index: exercises.length, correct: 1, attempted: 1, reviewed: [], seen: ['letra-A'], cameraStats,
+    });
+    const router = await renderAt(['/aprender', '/licao/u1-l1']);
+    await waitFor(() => expect(path(router)).toBe('/licao/u1-l1/concluida'));
+    await waitFor(async () => {
+      const mine = (await pendingEntries()).filter((e) => e.cameraStats);
+      expect(mine.map((e) => e.cameraStats)).toContainEqual(cameraStats);
+    });
+  });
+
   it('confirmar "Sair da lição?" avisa onde a pessoa parou (painel de administração)', async () => {
     reportLessonAbandon.mockClear();
     await openFirstQuestion();
@@ -279,7 +308,8 @@ describe('lição em andamento (página recarregada)', () => {
     const total = (await content.loadLessonBundle('u1-l1'))!.length;
     await savedRun(undefined, total - 1);
     const router = await renderAt(['/aprender', '/licao/u1-l1']);
-    await userEvent.click(await screen.findByRole('button', { name: /Pular este exercício|Continuar/ }));
+    // O último é a câmera da letra E: prática livre (Pronto) enquanto o classificador é o heurístico
+    await userEvent.click(await screen.findByRole('button', { name: /Pular este exercício|Continuar|Pronto/ }));
     await waitFor(() => expect(path(router)).toBe('/licao/u1-l1/concluida'));
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
     expect(localStorage.getItem(RUN_KEY)).toBeNull();

@@ -11,12 +11,15 @@ import { FeedbackPanel } from './FeedbackPanel';
 import { DemoToggle } from './DemoToggle';
 import { SignDemo, chooseDemoMode } from './SignDemo';
 import { ExerciseOrderSequence } from './ExerciseOrderSequence';
+import { CameraRun, saveCameraRun } from '../lib/cameraStats';
 
 interface Props {
   word: string;
   letters: string[];
   /** Confiança mínima por letra (null = padrão do reconhecedor, spec-03 5.3). */
   perLetterConfidence?: number | null;
+  /** "Soletre seu nome": a palavra é o nome do perfil (muda o enunciado). */
+  ownName?: boolean;
   onAnswer: (correct: boolean) => void;
   onNext: () => void;
 }
@@ -26,44 +29,48 @@ interface Props {
  * letras. Errar uma letra não reinicia a palavra: a letra da vez continua esperando.
  * Se o classificador em uso não avalia alguma letra da palavra, vira order_sequence.
  */
-export function ExerciseFingerspell({ word, letters, perLetterConfidence = null, onAnswer, onNext }: Props) {
+export function ExerciseFingerspell({ word, letters, perLetterConfidence = null, ownName = false, onAnswer, onNext }: Props) {
   const recognizable = useRecognizableLetters();
   const evaluable = letters.every(l => recognizable.has(l));
 
   if (!evaluable) {
-    return <FingerspellOrder word={word} letters={letters} onAnswer={onAnswer} onNext={onNext} />;
+    return <FingerspellOrder word={word} letters={letters} ownName={ownName} onAnswer={onAnswer} onNext={onNext} />;
   }
   return (
     <FingerspellCamera
       word={word}
       letters={letters}
       perLetterConfidence={perLetterConfidence}
+      ownName={ownName}
       onAnswer={onAnswer}
       onNext={onNext}
     />
   );
 }
 
-function FingerspellOrder({ word, letters, onAnswer, onNext }: Omit<Props, 'perLetterConfidence'>) {
+function FingerspellOrder({ word, letters, ownName, onAnswer, onNext }: Omit<Props, 'perLetterConfidence'>) {
   const { t } = useT();
   return (
     <ExerciseOrderSequence
       steps={letters}
       correctOrder={letters.map((_, i) => i)}
-      prompt={t('exerciseOrderSequence.spellPrompt', { word })}
+      prompt={t(ownName ? 'exerciseOrderSequence.spellOwnNamePrompt' : 'exerciseOrderSequence.spellPrompt', { word })}
       onAnswer={onAnswer}
       onNext={onNext}
     />
   );
 }
 
-function FingerspellCamera({ word, letters, perLetterConfidence = null, onAnswer, onNext }: Props) {
+function FingerspellCamera({ word, letters, perLetterConfidence = null, ownName, onAnswer, onNext }: Props) {
   const { t } = useT();
   const { videoRef, canvasRef, status, stableGesture, handPresent, confidence, start, stop } = useCameraRecognizer();
   const [spell, setSpell] = useState<SpellState>(SPELL_START);
   const [showDemo, setShowDemo] = useState(false);
   const demoShownRef = useRef(false);
   const answeredRef = useRef(false);
+  // Desempenho da câmera (lib/cameraStats.ts): cada letra da palavra é uma vez da letra
+  const cameraStartedRef = useRef(false);
+  const runRef = useRef<CameraRun>(new CameraRun(`letra-${letters[0]}`, letters[0], 'letter'));
 
   const done = spell.index >= letters.length;
   const current = letters[Math.min(spell.index, letters.length - 1)];
@@ -76,14 +83,29 @@ function FingerspellCamera({ word, letters, perLetterConfidence = null, onAnswer
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (status !== 'active') return;
+    cameraStartedRef.current = true;
+    runRef.current.started = true;
+  }, [status]);
+
   // Cada leitura estável passa pela regra da soletração (src/lib/fingerspell.ts)
   useEffect(() => {
     if (showDemo) return;
+    // A letra anterior da palavra (ainda na mão ou repetida na troca de forma) não é leitura errada
+    runRef.current.observe(stableGesture, spell.index > 0 ? letters[spell.index - 1] : null);
     const next = spellStep(letters, spell, stableGesture, confidence, perLetterConfidence);
     if (next === spell) return;
     if (next.index > spell.index) {
       Haptics.correctCamera();
       Sfx.correct();
+      saveCameraRun(runRef.current.finish('success'));
+      if (next.index < letters.length) {
+        const letter = letters[next.index];
+        const run = new CameraRun(`letra-${letter}`, letter, 'letter', stableGesture);
+        run.started = cameraStartedRef.current;
+        runRef.current = run;
+      }
     }
     setSpell(next);
   }, [spell, stableGesture, confidence, perLetterConfidence, letters, showDemo]);
@@ -110,6 +132,8 @@ function FingerspellCamera({ word, letters, perLetterConfidence = null, onAnswer
   function skip() {
     if (answeredRef.current) return;
     answeredRef.current = true;
+    // Só a letra da vez conta o pulo: as seguintes nem chegaram à câmera
+    saveCameraRun(runRef.current.finish('skip'));
     stop();
     onAnswer(false);
     onNext();
@@ -126,7 +150,7 @@ function FingerspellCamera({ word, letters, perLetterConfidence = null, onAnswer
   return (
     <div className="exercise-screen cam-sign-layout">
       <div className="cam-sign-target">
-        <h2 className="exercise-prompt">{t('exerciseFingerspell.spellWord', { word })}</h2>
+        <h2 className="exercise-prompt">{t(ownName ? 'exerciseFingerspell.spellOwnName' : 'exerciseFingerspell.spellWord', { word })}</h2>
 
         <ol className="fingerspell-strip" aria-label={t('exerciseFingerspell.progress', { done: spell.index, total: letters.length })}>
           {letters.map((l, i) => {

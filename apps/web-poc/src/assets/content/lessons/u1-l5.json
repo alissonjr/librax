@@ -14,11 +14,10 @@
     {
       "id": "u1-l5-ex02",
       "lesson_id": "u1-l5",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 2,
       "payload": {
-        "sign_id": "letra-U",
-        "correct": "U"
+        "sign_id": "letra-V"
       }
     },
     {
@@ -27,23 +26,29 @@
       "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "letra-V"
+        "sign_id": "letra-W"
       }
     },
     {
       "id": "u1-l5-ex04",
       "lesson_id": "u1-l5",
-      "type": "word_choose_video",
+      "type": "match_pairs",
       "order": 4,
       "payload": {
-        "word": "V",
-        "video_options": [
-          "letra-V",
-          "letra-U",
-          "letra-T",
-          "letra-S"
-        ],
-        "correct_sign_id": "letra-V"
+        "pairs": [
+          {
+            "sign_id": "letra-U",
+            "gloss": "U"
+          },
+          {
+            "sign_id": "letra-V",
+            "gloss": "V"
+          },
+          {
+            "sign_id": "letra-W",
+            "gloss": "W"
+          }
+        ]
       }
     },
     {
@@ -52,17 +57,16 @@
       "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "letra-W"
+        "sign_id": "letra-X"
       }
     },
     {
       "id": "u1-l5-ex06",
       "lesson_id": "u1-l5",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "letra-W",
-        "correct": "W"
+        "sign_id": "letra-Y"
       }
     },
     {
@@ -71,32 +75,14 @@
       "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "letra-X"
+        "sign_id": "letra-Z"
       }
     },
     {
       "id": "u1-l5-ex08",
       "lesson_id": "u1-l5",
-      "type": "sign_intro",
-      "order": 8,
-      "payload": {
-        "sign_id": "letra-Y"
-      }
-    },
-    {
-      "id": "u1-l5-ex09",
-      "lesson_id": "u1-l5",
-      "type": "sign_intro",
-      "order": 9,
-      "payload": {
-        "sign_id": "letra-Z"
-      }
-    },
-    {
-      "id": "u1-l5-ex10",
-      "lesson_id": "u1-l5",
       "type": "match_pairs",
-      "order": 10,
+      "order": 8,
       "payload": {
         "pairs": [
           {
@@ -115,12 +101,38 @@
       }
     },
     {
+      "id": "u1-l5-ex09",
+      "lesson_id": "u1-l5",
+      "type": "perform_sign",
+      "order": 9,
+      "payload": {
+        "sign_id": "letra-U",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l5-ex10",
+      "lesson_id": "u1-l5",
+      "type": "perform_sign",
+      "order": 10,
+      "payload": {
+        "sign_id": "letra-V",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
       "id": "u1-l5-ex11",
       "lesson_id": "u1-l5",
       "type": "perform_sign",
       "order": 11,
       "payload": {
-        "sign_id": "letra-U",
+        "sign_id": "letra-W",
         "recognition": "static",
         "min_confidence": null,
         "max_attempts": null,
@@ -133,11 +145,27 @@
       "type": "perform_sign",
       "order": 12,
       "payload": {
-        "sign_id": "letra-V",
+        "sign_id": "letra-Y",
         "recognition": "static",
         "min_confidence": null,
         "max_attempts": null,
         "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l5-ex13",
+      "lesson_id": "u1-l5",
+      "type": "fingerspell",
+      "order": 13,
+      "payload": {
+        "word": "YAGO",
+        "letters": [
+          "Y",
+          "A",
+          "G",
+          "O"
+        ],
+        "per_letter_confidence": null
       }
     }
   ]

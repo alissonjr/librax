@@ -49,6 +49,37 @@ export interface ExerciseRow {
   abandon: number;
 }
 
+export type CameraLevel = 'hard' | 'attention' | 'ok';
+
+/** Uma letra ou sinal na câmera, somando todas as pessoas na janela da tela. */
+export interface CameraSignRow {
+  signId: string;
+  gloss: string | null;
+  /** letter: alfabeto; sign: os outros sinais. null: sinal que saiu do curso. */
+  kind: 'letter' | 'sign' | null;
+  runs: number;
+  successes: number;
+  skips: number;
+  /** Pulos / vezes (0 a 1). */
+  skipRate: number;
+  /** Soma das tentativas das vezes que terminaram em acerto. */
+  attempts: number;
+  /** Média de tentativas até acertar; null sem nenhum acerto. */
+  avgAttempts: number | null;
+  wrongReadings: number;
+  /** Leituras de outro sinal no lugar deste, da mais comum para a menos. */
+  topWrong: Array<{ label: string; count: number }>;
+  level: CameraLevel;
+}
+
+export interface CameraView {
+  totals: { signs: number; runs: number; successes: number; skips: number; wrongReadings: number };
+  /** Do mais difícil para o mais fácil. */
+  signs: CameraSignRow[];
+  /** Leituras trocadas mais comuns (K lida como H). */
+  confusions: Array<{ signId: string; gloss: string | null; label: string; count: number }>;
+}
+
 export interface Overview {
   today: string;
   range: { from: string; to: string };
@@ -67,6 +98,7 @@ export interface Overview {
   lessons: LessonRow[];
   exercises: ExerciseRow[];
   signs: Array<{ signId: string; gloss: string | null; failed: number }>;
+  camera: CameraView;
   serverErrors: { collectedThrough: string | null; byFunction: Array<{ name: string; errors: number }> };
 }
 

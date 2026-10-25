@@ -24,3 +24,9 @@ export const POSE_MODEL_URL = `${ML_BASE}/pose_landmarker_lite.task`;
 
 /** Modelo dos sinais com movimento (ml-training/train_sinais.py). Se não existir, nada muda. */
 export const SIGN_MODEL_DIR = '/ml/sinais';
+
+/**
+ * Modelo das letras com movimento (ml-training/train_letras_mov.py): só as mãos, sem o modelo do
+ * corpo. Se não existir, nada muda.
+ */
+export const LETTER_MOTION_DIR = '/ml/letras-mov';

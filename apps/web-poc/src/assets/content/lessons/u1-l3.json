@@ -58,11 +58,10 @@
     {
       "id": "u1-l3-ex06",
       "lesson_id": "u1-l3",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "letra-M",
-        "correct": "M"
+        "sign_id": "letra-N"
       }
     },
     {
@@ -71,49 +70,36 @@
       "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "letra-N"
+        "sign_id": "letra-O"
       }
     },
     {
       "id": "u1-l3-ex08",
       "lesson_id": "u1-l3",
-      "type": "word_choose_video",
+      "type": "match_pairs",
       "order": 8,
       "payload": {
-        "word": "N",
-        "video_options": [
-          "letra-N",
-          "letra-K",
-          "letra-L",
-          "letra-M"
-        ],
-        "correct_sign_id": "letra-N"
+        "pairs": [
+          {
+            "sign_id": "letra-M",
+            "gloss": "M"
+          },
+          {
+            "sign_id": "letra-N",
+            "gloss": "N"
+          },
+          {
+            "sign_id": "letra-O",
+            "gloss": "O"
+          }
+        ]
       }
     },
     {
       "id": "u1-l3-ex09",
       "lesson_id": "u1-l3",
-      "type": "sign_intro",
-      "order": 9,
-      "payload": {
-        "sign_id": "letra-O"
-      }
-    },
-    {
-      "id": "u1-l3-ex10",
-      "lesson_id": "u1-l3",
-      "type": "watch_choose_word",
-      "order": 10,
-      "payload": {
-        "sign_id": "letra-O",
-        "correct": "O"
-      }
-    },
-    {
-      "id": "u1-l3-ex11",
-      "lesson_id": "u1-l3",
       "type": "perform_sign",
-      "order": 11,
+      "order": 9,
       "payload": {
         "sign_id": "letra-K",
         "recognition": "static",
@@ -123,16 +109,45 @@
       }
     },
     {
-      "id": "u1-l3-ex12",
+      "id": "u1-l3-ex10",
       "lesson_id": "u1-l3",
       "type": "perform_sign",
-      "order": 12,
+      "order": 10,
       "payload": {
         "sign_id": "letra-L",
         "recognition": "static",
         "min_confidence": null,
         "max_attempts": null,
         "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l3-ex11",
+      "lesson_id": "u1-l3",
+      "type": "perform_sign",
+      "order": 11,
+      "payload": {
+        "sign_id": "letra-O",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l3-ex12",
+      "lesson_id": "u1-l3",
+      "type": "fingerspell",
+      "order": 12,
+      "payload": {
+        "word": "BOLO",
+        "letters": [
+          "B",
+          "O",
+          "L",
+          "O"
+        ],
+        "per_letter_confidence": null
       }
     }
   ]

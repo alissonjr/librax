@@ -1,15 +1,16 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import {
-  course, drawChoices, getSign, isCameraEvaluable, isMotionSignEvaluable, maskChoiceCaption, maskGloss, phraseTiles, resolveExercises, signsMap,
+  course, drawChoices, getSign, isCameraEvaluable, isLetterMotionEvaluable, isMotionSignEvaluable, maskChoiceCaption, maskGloss, phraseTiles, resolveExercises, signsMap,
   type BundleExercise, type Exercise, type Phrase, type Sign,
 } from '../lib/content';
 import { RECOGNIZABLE_LETTERS } from '../components/ExerciseCameraSign';
 import { setSignModelForTests } from '../recognition/signModel';
+import { setLetterMotionModelForTests } from '../recognition/letterMotionModel';
 import type { MlpModel } from '../recognition/mlp';
 import { evaluateAchievements } from '@domain/achievements.js';
 import {
   composeCourse, composeLessonExercises, knownGlossCount, lessonFile, normalizeGloss, numberExercises,
-  phraseDistractors, pickPhrase, MAX_EXERCISES, MIN_EXERCISES, PHRASE_FIRST_UNIT_INDEX,
+  phraseDistractors, pickPhrase, splitMatchGroups, MATCH_MAX, MAX_EXERCISES, MIN_EXERCISES, PHRASE_FIRST_UNIT_INDEX,
 } from '../../../../tools/content/compose.mjs';
 import { maskedCaption } from '../components/ExerciseWordChooseVideo';
 import { completeLesson } from '@usecases/completeLesson.js';
@@ -184,6 +185,86 @@ describe('composicao da licao (bundle)', () => {
       { word: 'LIA', letters: ['L', 'I', 'A'], per_letter_confidence: null },
     ]);
   });
+
+  it('licao com produce: perform_sign de cada sinal listado e a palavra de revisao no fim', () => {
+    const five = ['letra-K', 'letra-L', 'letra-M', 'letra-N', 'letra-O'];
+    const out: Composed[] = composeLessonExercises(
+      { signIds: five, produce: ['letra-K', 'letra-L', 'letra-O'], spellWords: ['BOLO'] },
+      signsMap,
+    );
+    expect(out).toHaveLength(MAX_EXERCISES);
+    expect(out.filter((e) => e.type === 'perform_sign').map((e) => e.payload.sign_id)).toEqual(['letra-K', 'letra-L', 'letra-O']);
+    expect(out[out.length - 1]).toEqual({ type: 'fingerspell', payload: { word: 'BOLO', letters: ['B', 'O', 'L', 'O'], per_letter_confidence: null } });
+    // para caber em 12, os 3 ultimos dividem o match_pairs
+    expect((out.find((e) => e.type === 'match_pairs')!.payload.pairs as { sign_id: string }[]).map((p) => p.sign_id)).toEqual(five.slice(2));
+  });
+
+  it('licao com produce agrupa ate 6 sinais, divididos em dois match_pairs de 3 (a licao passa de 12)', () => {
+    const six = ['letra-U', 'letra-V', 'letra-W', 'letra-X', 'letra-Y', 'letra-Z'];
+    const out: Composed[] = composeLessonExercises(
+      { signIds: six, produce: ['letra-U', 'letra-V', 'letra-W', 'letra-Y'], spellWords: ['YAGO'] },
+      signsMap,
+    );
+    // 12 com um match_pairs so; o segundo grupo soma um exercicio
+    expect(out).toHaveLength(MAX_EXERCISES + 1);
+    const matches = out.filter((e) => e.type === 'match_pairs').map((e) => (e.payload.pairs as { sign_id: string }[]).map((p) => p.sign_id));
+    expect(matches).toEqual([six.slice(0, 3), six.slice(3)]);
+    // cada match_pairs vem logo depois dos sign_intro dos seus sinais
+    expect(out.slice(0, 8).map((e) => e.type)).toEqual([
+      'sign_intro', 'sign_intro', 'sign_intro', 'match_pairs', 'sign_intro', 'sign_intro', 'sign_intro', 'match_pairs',
+    ]);
+    // sem a lista de producao o agrupamento continua ate 4
+    const words = ['UVA', 'VIVA', 'OVO', 'YAGO'];
+    expect(() => composeLessonExercises({ id: 'x', signIds: six, spellWords: words }, signsMap)).toThrow(/Divida a lição/);
+    // produce vazio: 5 agrupados viram 3 + 2
+    const five: Composed[] = composeLessonExercises({ id: 'x', signIds: six, spellWords: words, produce: [] }, signsMap);
+    expect(five.filter((e) => e.type === 'match_pairs').map((e) => (e.payload.pairs as unknown[]).length)).toEqual([3, 2]);
+    expect(five).toHaveLength(MAX_EXERCISES + 1);
+  });
+
+  it('splitMatchGroups divide em grupos equilibrados de ate 4', () => {
+    const ids = (n: number) => Array.from({ length: n }, (_, i) => `s${i}`);
+    const sizes = (n: number) => splitMatchGroups(ids(n)).map((g: string[]) => g.length);
+    expect(sizes(0)).toEqual([]);
+    expect(sizes(3)).toEqual([3]);
+    expect(sizes(4)).toEqual([4]);
+    expect(sizes(5)).toEqual([3, 2]);
+    expect(sizes(6)).toEqual([3, 3]);
+    expect(sizes(9)).toEqual([3, 3, 3]);
+    expect(splitMatchGroups(ids(6)).flat()).toEqual(ids(6));
+    expect(MATCH_MAX).toBe(4);
+  });
+
+  it('produce com sinal fora da licao falha', () => {
+    expect(() => composeLessonExercises({ id: 'x', signIds: ['letra-A', 'letra-B'], produce: ['letra-C'] }, signsMap))
+      .toThrow(/fora da lição/);
+  });
+
+  it('"soletre seu nome" vira fingerspell com own_name e a palavra de reserva', () => {
+    const out: Composed[] = composeLessonExercises(
+      { signIds: ['letra-L', 'letra-I', 'letra-D', 'letra-A'], spellWords: ['LIA'], spellOwnName: 'LIDIA' },
+      signsMap,
+      { seenSigns: new Set(['letra-L', 'letra-I', 'letra-D', 'letra-A']) },
+    );
+    expect(out.filter((e) => e.type === 'fingerspell').map((e) => e.payload)).toEqual([
+      { word: 'LIA', letters: ['L', 'I', 'A'], per_letter_confidence: null },
+      { word: 'LIDIA', letters: ['L', 'I', 'D', 'I', 'A'], per_letter_confidence: null, own_name: true },
+    ]);
+    expect(out.filter((e) => e.type === 'perform_sign')).toHaveLength(0);
+  });
+
+  it('o curso falha ao gerar se uma palavra soletrada usa letra sem camera ate a licao', () => {
+    const lesson = (id: string, signIds: string[], extra = {}) => ({ id, title: id, order: 1, xpReward: 10, signIds, ...extra });
+    const fake = (spellWords: string[]) => ({
+      ...courseRaw,
+      units: [{ id: 'u1', title: 'x', description: 'x', lessons: [
+        lesson('a', ['letra-A', 'letra-B', 'letra-C', 'letra-M'], { produce: ['letra-A', 'letra-B', 'letra-C'] }),
+        lesson('b', ['letra-A', 'letra-B', 'letra-C', 'letra-M'], { spellWords }),
+      ] }],
+    });
+    expect(() => composeCourse(fake(['CABA']), signsRaw)).not.toThrow();
+    expect(() => composeCourse(fake(['CAMA']), signsRaw)).toThrow(/CAMA usa letra sem exercício de câmera até aqui \(M\)/);
+  });
 });
 
 describe('resolveExercises (sorteios da sessao)', () => {
@@ -278,6 +359,39 @@ describe('resolveExercises (sorteios da sessao)', () => {
     expect(osso).toMatchObject({ type: 'order_sequence', word: 'OSSO', steps: ['O', 'S', 'S', 'O'], correctOrder: [0, 1, 2, 3] });
     const [off] = resolveExercises([fs('BIA')], ['letra-B'], { canEvaluate: () => false });
     expect(off.type).toBe('order_sequence');
+  });
+
+  describe('"soletre seu nome" (own_name)', () => {
+    const own: BundleExercise = {
+      id: 'x-own', lesson_id: 'x', type: 'fingerspell', order: 1,
+      payload: { word: 'LIDIA', letters: ['L', 'I', 'D', 'I', 'A'], per_letter_confidence: null, own_name: true },
+    };
+    const all = () => true;
+    afterEach(() => localStorage.clear());
+
+    it('troca a palavra pelo primeiro nome do perfil, sem acento', () => {
+      const [ex] = resolveExercises([own], ['letra-L'], { canEvaluate: all, displayName: 'Ágata Souza' });
+      expect(ex).toMatchObject({ type: 'fingerspell', word: 'AGATA', letters: ['A', 'G', 'A', 'T', 'A'], ownName: true, signId: 'letra-A' });
+    });
+
+    it('sem dizer o nome, le o salvo no aparelho pelo onboarding (funciona sem conta e offline)', () => {
+      localStorage.setItem('librax_displayName', 'Bruno');
+      const [ex] = resolveExercises([own], ['letra-L'], { canEvaluate: all });
+      expect(ex).toMatchObject({ word: 'BRUNO', ownName: true });
+    });
+
+    it('nome que nao da (J, Z, Ç, longo demais ou vazio) fica com a palavra de reserva', () => {
+      for (const name of ['João', 'Zeca', 'Conceição', 'Maximiliano', '', null, '123']) {
+        const [ex] = resolveExercises([own], ['letra-L'], { canEvaluate: all, displayName: name });
+        expect(ex, String(name)).toMatchObject({ type: 'fingerspell', word: 'LIDIA' });
+        expect(ex.ownName, String(name)).toBeUndefined();
+      }
+    });
+
+    it('sem camera para todas as letras do nome vira order_sequence, ainda com o nome', () => {
+      const [ex] = resolveExercises([own], ['letra-L'], { canEvaluate: () => false, displayName: 'Ana' });
+      expect(ex).toMatchObject({ type: 'order_sequence', word: 'ANA', steps: ['A', 'N', 'A'], ownName: true });
+    });
   });
 
   it('cada exercicio tem id unico', () => {
@@ -389,6 +503,52 @@ describe('sinais com movimento avaliados pelo modelo de sinais (/ml/sinais/)', (
       signsMap: map, allSignIds: ids, canEvaluateMotion: () => true,
     });
     expect(ex.filter((e) => e.type === 'perform_sign').map((e) => e.recognizer)).toEqual(['sinais']);
+  });
+});
+
+describe('letras com movimento avaliadas pelo modelo das letras com movimento (/ml/letras-mov/)', () => {
+  const map: Record<string, Sign> = {
+    'letra-H': fakeSign('letra-H', 'H', 'alfabeto', 'static'),
+    'letra-J': fakeSign('letra-J', 'J', 'alfabeto', 'dynamic'),
+    'letra-A': fakeSign('letra-A', 'A', 'alfabeto', 'static'),
+    'sinal-OI': fakeSign('sinal-OI', 'OI', 'saudacoes', 'dynamic'),
+  };
+  const ids = Object.keys(map);
+  const fakeModel = (labels: string[]) => ({ labels, normalizationVersion: 2, inputDim: 552, layers: [] }) as MlpModel;
+  const staticAH = (s: Sign | undefined) => s?.gloss === 'A' || s?.gloss === 'H';
+  // As lições do alfabeto listam as letras com câmera (produce)
+  const produced = (signIds: string[]) =>
+    numberExercises('t-l1', composeLessonExercises({ signIds, produce: signIds }, map)) as BundleExercise[];
+
+  afterEach(() => setLetterMotionModelForTests(null));
+
+  it('sem modelo publicado nada muda: H com o modelo das letras paradas, J prática livre', () => {
+    expect(isLetterMotionEvaluable(map['letra-H'])).toBe(false);
+    const ex = resolveExercises(produced(['letra-H', 'letra-J']), ['letra-H', 'letra-J'], {
+      signsMap: map, allSignIds: ids, canEvaluate: staticAH,
+    });
+    expect(ex.filter((e) => e.type === 'perform_sign').map((e) => [e.signId, e.recognizer])).toEqual([['letra-H', undefined]]);
+    expect(ex.filter((e) => e.type === 'mirror_practice').map((e) => e.signId)).toEqual(['letra-J']);
+  });
+
+  it('letra que o modelo conhece vira perform_sign com o movimento, antes do modelo das letras paradas', () => {
+    setLetterMotionModelForTests({ model: fakeModel(['H', 'J', '_']) });
+    expect(isLetterMotionEvaluable(map['letra-H'])).toBe(true);
+    expect(isLetterMotionEvaluable(map['letra-A'])).toBe(false);
+    // só letras do alfabeto: um sinal com a mesma glosa não entra
+    expect(isLetterMotionEvaluable(fakeSign('sinal-H', 'H', 'saudacoes', 'dynamic'))).toBe(false);
+    const ex = resolveExercises(produced(['letra-H', 'letra-J', 'letra-A']), ['letra-H', 'letra-J', 'letra-A'], {
+      signsMap: map, allSignIds: ids, canEvaluate: staticAH,
+    });
+    expect(ex.filter((e) => e.type === 'perform_sign').map((e) => [e.signId, e.recognizer]))
+      .toEqual([['letra-H', 'letras-mov'], ['letra-J', 'letras-mov'], ['letra-A', undefined]]);
+  });
+
+  it('a opção canEvaluateLetterMotion decide no lugar do modelo', () => {
+    const ex = resolveExercises(produced(['letra-J']), ['letra-J'], {
+      signsMap: map, allSignIds: ids, canEvaluateLetterMotion: (s) => s?.gloss === 'J',
+    });
+    expect(ex.filter((e) => e.type === 'perform_sign').map((e) => e.recognizer)).toEqual(['letras-mov']);
   });
 });
 
@@ -581,16 +741,32 @@ describe('course', () => {
 
   it('toda licao tem de 7 a 12 exercicios (spec-03 secao 4), com ou sem camera avaliada', () => {
     lessons.forEach((l) => {
+      // Excecao: o match_pairs dividido (mais de 4 pares) soma um exercicio por grupo extra
+      const matches = BUNDLE[l.id].filter((e) => e.type === 'match_pairs').length;
+      const max = MAX_EXERCISES + Math.max(0, matches - 1);
       expect(BUNDLE[l.id].length, l.id).toBeGreaterThanOrEqual(MIN_EXERCISES);
-      expect(BUNDLE[l.id].length, l.id).toBeLessThanOrEqual(MAX_EXERCISES);
+      expect(BUNDLE[l.id].length, l.id).toBeLessThanOrEqual(max);
       for (const canEvaluate of [isCameraEvaluable, () => false]) {
         const n = resolveExercises(BUNDLE[l.id], l.signIds, { canEvaluate }).length;
         expect(n, l.id).toBeGreaterThanOrEqual(MIN_EXERCISES);
-        expect(n, l.id).toBeLessThanOrEqual(MAX_EXERCISES);
+        expect(n, l.id).toBeLessThanOrEqual(max);
       }
     });
     expect(MIN_EXERCISES).toBe(7);
     expect(MAX_EXERCISES).toBe(12);
+  });
+
+  it('nenhum match_pairs passa de 4 pares (mais que isso passa de duas telas no celular)', () => {
+    lessons.forEach((l) =>
+      BUNDLE[l.id].filter((e) => e.type === 'match_pairs').forEach((e) => {
+        const n = (e.payload as { pairs: unknown[] }).pairs.length;
+        expect(n, e.id).toBeGreaterThanOrEqual(2);
+        expect(n, e.id).toBeLessThanOrEqual(MATCH_MAX);
+      }),
+    );
+    // a U1 L5 (U a Z) fica com dois match_pairs de 3
+    const u1l5 = BUNDLE['u1-l5'].filter((e) => e.type === 'match_pairs').map((e) => (e.payload as { pairs: unknown[] }).pairs.length);
+    expect(u1l5).toEqual([3, 3]);
   });
 
   it('todo sinal novo e apresentado (sign_intro) antes de qualquer outro exercicio com ele', () => {
@@ -642,25 +818,52 @@ describe('course', () => {
     lessons.forEach((l) => resolveExercises(BUNDLE[l.id], l.signIds).forEach((e) => expect(rendered.has(e.type), `${l.id}: ${e.type}`).toBe(true)));
   });
 
-  it('a licao de soletrar nome da U4 usa so letras ja aprendidas', () => {
+  it('soletracao so na U1 (revisao) e na licao de nomes da U4, com letras que ja tiveram camera', () => {
     const spell = lessons.filter((l) => BUNDLE[l.id].some((e) => e.type === 'fingerspell'));
-    expect(spell.length).toBeGreaterThan(0);
-    spell.forEach((l) => {
-      expect(l.id.startsWith('u4-')).toBe(true);
+    expect(spell.map((l) => l.id)).toEqual(['u1-l2', 'u1-l3', 'u1-l4', 'u1-l5', 'u4-l4']);
+    const produced = new Set<string>();
+    lessons.forEach((l) => {
+      BUNDLE[l.id].forEach((e) => {
+        if (e.type === 'perform_sign' && signsMap[e.payload.sign_id].category === 'alfabeto') produced.add(signsMap[e.payload.sign_id].gloss);
+      });
       BUNDLE[l.id].forEach((e) => {
         if (e.type !== 'fingerspell') return;
         expect(e.payload.letters.join('')).toBe(e.payload.word);
-        e.payload.letters.forEach((letter) => expect(signsMap[`letra-${letter}`]).toBeDefined());
+        e.payload.letters.forEach((letter) => expect(produced.has(letter), `${l.id}: ${e.payload.word} ${letter}`).toBe(true));
       });
-      // com o heuristico, D, A, V, I, B e L sao avaliadas: a soletracao usa a camera
-      const resolved = resolveExercises(BUNDLE[l.id], l.signIds).filter((e) => e.word);
-      resolved.forEach((e) => expect(e.type, `${l.id}: ${e.word}`).toBe('fingerspell'));
+      if (!spell.includes(l)) return;
       // sem camera avaliada vira order_sequence com as letras na ordem
-      resolveExercises(BUNDLE[l.id], l.signIds, { canEvaluate: () => false }).filter((e) => e.word).forEach((e) => {
+      resolveExercises(BUNDLE[l.id], l.signIds, { canEvaluate: () => false, displayName: null }).filter((e) => e.word).forEach((e) => {
         expect(e.type).toBe('order_sequence');
         expect(e.steps!.join('')).toBe(e.word);
       });
     });
+    // com o heuristico, D, A, V, I, B e L sao avaliadas: os nomes da U4 usam a camera
+    resolveExercises(BUNDLE['u4-l4'], course.lessonsMap['u4-l4'].signIds, { displayName: null })
+      .filter((e) => e.word)
+      .forEach((e) => expect(e.type, e.word).toBe('fingerspell'));
+  });
+
+  it('camera nas letras do alfabeto que o modelo le bem, cada uma na licao em que e ensinada', () => {
+    const perform = (id: string) => BUNDLE[id].filter((e) => e.type === 'perform_sign').map((e) => signsMap[(e.payload as { sign_id: string }).sign_id].gloss);
+    expect(perform('u1-l1')).toEqual(['A', 'B', 'C', 'D', 'E']);
+    // J: letra com movimento, avaliada pelo modelo das letras com movimento (sem ele, prática livre)
+    expect(perform('u1-l2')).toEqual(['F', 'G', 'H', 'I', 'J']);
+    expect(perform('u1-l3')).toEqual(['K', 'L', 'O']);
+    expect(perform('u1-l4')).toEqual(['P', 'Q', 'S']);
+    expect(perform('u1-l5')).toEqual(['U', 'V', 'W', 'Y']);
+    // Fracas no teste fixo (abaixo de 80%) e X e Z, abaixo de 70% no modelo das letras com
+    // movimento, ficam sem camera por enquanto
+    const all = course.units[0].lessons.flatMap((l) => perform(l.id));
+    for (const letter of ['M', 'N', 'R', 'T', 'X', 'Z']) expect(all).not.toContain(letter);
+  });
+
+  it('"soletre seu nome" fica na licao de nomes da U4, depois dos nomes fixos', () => {
+    const own = Object.entries(BUNDLE).flatMap(([id, items]) =>
+      items.flatMap((e) => (e.type === 'fingerspell' && e.payload.own_name ? [[id, e.payload.word]] : [])));
+    expect(own).toEqual([['u4-l4', 'LIDIA']]);
+    const words = BUNDLE['u4-l4'].filter((e) => e.type === 'fingerspell').map((e) => (e.payload as { word: string }).word);
+    expect(words).toEqual(['DAVI', 'BIA', 'LIA', 'LIDIA']);
   });
 
   it('frases de exemplo e notas de cultura tem fonte', () => {

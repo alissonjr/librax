@@ -1,0 +1,98 @@
+{
+  "format": "librax-mlp",
+  "format_version": 1,
+  "normalization_version": 2,
+  "input_dim": 552,
+  "labels": [
+    "H",
+    "J",
+    "K",
+    "X",
+    "Z",
+    "_",
+    "Ç"
+  ],
+  "layers": [
+    {
+      "in": 552,
+      "out": 128,
+      "activation": "relu"
+    },
+    {
+      "in": 128,
+      "out": 64,
+      "activation": "relu"
+    },
+    {
+      "in": 64,
+      "out": 7,
+      "activation": "softmax"
+    }
+  ],
+  "weights": {
+    "file": "weights.bin",
+    "dtype": "float32",
+    "byte_length": 317980
+  },
+  "kind": "letras-mov",
+  "frames": 8,
+  "features_per_frame": 69,
+  "window_frames": 24,
+  "windows_s": [
+    0.8,
+    1.2,
+    1.6
+  ],
+  "min_presence": 0.6,
+  "channels": 26,
+  "heldout": {
+    "H": {
+      "certas": 6,
+      "total": 6
+    },
+    "J": {
+      "certas": 5,
+      "total": 5
+    },
+    "K": {
+      "certas": 4,
+      "total": 6
+    },
+    "X": {
+      "certas": 3,
+      "total": 5
+    },
+    "Z": {
+      "certas": 3,
+      "total": 6
+    },
+    "Ç": {
+      "certas": 2,
+      "total": 3
+    }
+  },
+  "heldout_false_alarms": {
+    "alarmes": 9,
+    "paradas": 99
+  },
+  "ines": {
+    "H": "leu nada",
+    "J": "certa",
+    "K": "certa",
+    "X": "leu nada",
+    "Z": "certa",
+    "Ç": "certa",
+    "P": "sem alarme",
+    "I": "alarme J",
+    "D": "sem alarme",
+    "C": "alarme Ç"
+  },
+  "source": "scikit-learn",
+  "camera_letters": [
+    "H",
+    "J",
+    "K",
+    "Ç"
+  ],
+  "camera_min_heldout": 0.7
+}

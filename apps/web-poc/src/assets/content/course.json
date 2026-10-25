@@ -74,35 +74,44 @@
           "title": "Letras A a E",
           "order": 1,
           "xpReward": 10,
-          "signIds": ["letra-A","letra-B","letra-C","letra-D","letra-E"]
+          "signIds": ["letra-A","letra-B","letra-C","letra-D","letra-E"],
+          "produce": ["letra-A","letra-B","letra-C","letra-D","letra-E"]
         },
         {
           "id": "u1-l2",
           "title": "Letras F a J",
           "order": 2,
           "xpReward": 10,
-          "signIds": ["letra-F","letra-G","letra-H","letra-I","letra-J"]
+          "signIds": ["letra-F","letra-G","letra-H","letra-I","letra-J"],
+          "produce": ["letra-F","letra-G","letra-H","letra-I","letra-J"],
+          "spellWords": ["CHEGA"]
         },
         {
           "id": "u1-l3",
           "title": "Letras K a O",
           "order": 3,
           "xpReward": 10,
-          "signIds": ["letra-K","letra-L","letra-M","letra-N","letra-O"]
+          "signIds": ["letra-K","letra-L","letra-M","letra-N","letra-O"],
+          "produce": ["letra-K","letra-L","letra-O"],
+          "spellWords": ["BOLO"]
         },
         {
           "id": "u1-l4",
           "title": "Letras P a T",
           "order": 4,
           "xpReward": 10,
-          "signIds": ["letra-P","letra-Q","letra-R","letra-S","letra-T"]
+          "signIds": ["letra-P","letra-Q","letra-R","letra-S","letra-T"],
+          "produce": ["letra-P","letra-Q","letra-S"],
+          "spellWords": ["SAPO"]
         },
         {
           "id": "u1-l5",
           "title": "Letras U a Z",
           "order": 5,
           "xpReward": 15,
-          "signIds": ["letra-U","letra-V","letra-W","letra-X","letra-Y","letra-Z"]
+          "signIds": ["letra-U","letra-V","letra-W","letra-X","letra-Y","letra-Z"],
+          "produce": ["letra-U","letra-V","letra-W","letra-Y"],
+          "spellWords": ["YAGO"]
         }
       ]
     },
@@ -199,7 +208,8 @@
           "order": 4,
           "xpReward": 15,
           "signIds": ["letra-D","letra-A","letra-V","letra-I","letra-B","letra-L"],
-          "spellWords": ["DAVI", "BIA", "LIA"]
+          "spellWords": ["DAVI", "BIA", "LIA"],
+          "spellOwnName": "LIDIA"
         }
       ],
       "phrases": [

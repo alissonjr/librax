@@ -252,6 +252,16 @@ export default defineConfig(({ mode }) => {
                 cacheableResponse: { statuses: [200] },
               },
             },
+            // Modelo das letras com movimento (/ml/letras-mov/): mesma regra
+            {
+              urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/ml/letras-mov/'),
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'librax-letras-mov-v1',
+                expiration: { maxEntries: 4 },
+                cacheableResponse: { statuses: [200] },
+              },
+            },
             {
               urlPattern: /\.mp4$/,
               handler: 'CacheFirst',

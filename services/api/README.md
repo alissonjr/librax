@@ -157,7 +157,7 @@ Uma Lambda só (`librax-admin`, `adminRouter`) atende todas, pelo `routeKey`, e 
 | Método | Rota | O que faz |
 |---|---|---|
 | GET | `/v1/admin/me` | quem está logado e os grupos (o site decide se abre) |
-| GET | `/v1/admin/overview` | 30 dias, 12 semanas e 12 meses de ativos, contas novas, lições, saídas e erros; rankings por lição, exercício e sinal |
+| GET | `/v1/admin/overview` | 30 dias, 12 semanas e 12 meses de ativos, contas novas, lições, saídas e erros; rankings por lição, exercício e sinal; desempenho da câmera (`camera`) |
 | GET | `/v1/admin/content` | unidades e sinais com `validated`, `source`, vídeo, avatar e `missing` |
 | GET | `/v1/admin/accounts?q=` | busca por começo do e-mail ou pelo sub (Cognito `ListUsers`), até 10 |
 | GET | `/v1/admin/accounts/{userId}` | resumo da conta: perfil, progresso, SRS, conquistas, liga, squads, atividade |
@@ -166,6 +166,20 @@ Uma Lambda só (`librax-admin`, `adminRouter`) atende todas, pelo `routeKey`, e 
 
 A conclusão de lição aceita também `exerciseStats` (`{ "<tipo>": { "attempted", "wrong" } }`, tipos do app):
 é telemetria do painel, e formato errado é descartado sem recusar a conclusão.
+
+E aceita `cameraStats`, o desempenho da câmera só daquela lição (nunca o acumulado do aparelho):
+
+```json
+"cameraStats": { "letra-K": { "successes": 1, "skips": 1, "attempts": 3, "wrong": { "H": 2 } } }
+```
+
+`attempts` soma as tentativas das vezes que terminaram em acerto (então `attempts >= successes`, e 0 sem
+acerto); `wrong` conta as leituras de outro sinal no lugar. Validação em `parseCameraStats`
+(`domain/lessonCompletion.js`): só sinais do curso e, em `wrong`, só glosas de outros sinais do curso
+(`catalog.signGlosses`, gerado do `signs.json` por `npm run catalog`); tetos de 40 sinais por lição, 50 vezes
+por sinal, 500 por contagem e 8 rótulos errados por sinal. Sinal fora do formato some sozinho, rótulo
+desconhecido some do `wrong` e a conclusão segue valendo. Vale também na migração do convidado. A soma vai
+para o item `OPS / DAY#<dia>#CAMERA`, sem id de pessoa (docs/painel-admin.md).
 
 Erros de squad saem com o código do domínio, o mesmo que a tela espera (SPEC 04 seção 4.4):
 `SQUAD_NOT_FOUND` e `TARGET_NOT_MEMBER` (404), `NOT_ADMIN` e `GUEST_NOT_ALLOWED` (403),
@@ -417,18 +431,22 @@ Nada disso foi criado: é a lista do que o dono da conta precisa decidir ou cria
 a stack usa `us-east-1` por padrão porque o certificado do CloudFront e o do domínio próprio
 do Cognito precisam estar lá.
 
-1. **Domínio.** Escolher o domínio do app (ex.: `librax.com.br`) e passar
-   `-c librax:domainName=<dominio>`. O Cognito usa `auth.<dominio>` (mude com
-   `librax:authDomainName`).
-2. **Certificado.** Pedir no ACM em `us-east-1` um certificado com `<dominio>` e
-   `auth.<dominio>`, validar por DNS e passar `-c librax:certificateArn=<arn>`. Sem ele o app
-   fica no `*.cloudfront.net` e o Cognito no prefixo `librax-example.auth.us-east-1.amazoncognito.com`
+1. **Domínio.** Escolher o domínio (ex.: `librax.com.br`) e passar
+   `-c librax:domainName=<dominio>`. A landing fica em `<dominio>` (com `www.<dominio>`
+   redirecionando), o app em `app.<dominio>` e o Cognito em `auth.<dominio>` (mude com
+   `librax:landingDomainName`, `librax:wwwDomainName`, `librax:appDomainName` e
+   `librax:authDomainName`). Nomes, registros DNS e publicação da landing:
+   [`docs/conta-aws.md`](../../docs/conta-aws.md#domínio-landing-e-app).
+2. **Certificado.** Pedir no ACM em `us-east-1` um certificado com `<dominio>`, `www.<dominio>`,
+   `app.<dominio>` e `auth.<dominio>` (ou `<dominio>` e `*.<dominio>`), validar por DNS e passar
+   `-c librax:certificateArn=<arn>`. Sem ele o app e a landing ficam no `*.cloudfront.net` e o
+   Cognito no prefixo `librax-example.auth.us-east-1.amazoncognito.com`
    (mude com `librax:cognitoDomainPrefix`).
 3. **DNS.** Com zona no Route 53, passar `librax:hostedZoneId` e `librax:hostedZoneName`: a
-   stack cria A/AAAA do app e A do `auth.` na ordem certa. Com DNS fora da AWS: o Cognito só
-   aceita domínio próprio se o domínio pai já resolver, então crie antes um registro A
-   provisório para `<dominio>`; depois do deploy aponte `<dominio>` para o output
-   `DistributionDomain` e `auth.<dominio>` para `AuthDomainCloudFront`.
+   stack cria A/AAAA da landing (`<dominio>` e `www.`), do app (`app.`) e A do `auth.` na ordem
+   certa. Com DNS fora da AWS: o Cognito só aceita domínio próprio se o domínio pai já resolver,
+   então crie antes um registro A provisório para `<dominio>`; depois do deploy aponte os nomes
+   para os outputs (tabela em [`docs/conta-aws.md`](../../docs/conta-aws.md#domínio-landing-e-app)).
 4. **Google.** No Google Cloud Console, criar um cliente OAuth do tipo "Aplicativo da Web"
    com origem `https://auth.<dominio>` e URI de redirecionamento
    `https://auth.<dominio>/oauth2/idpresponse`. Guardar:
@@ -439,7 +457,7 @@ do Cognito precisam estar lá.
    O template só leva a referência; o valor é resolvido no deploy. Para publicar antes de ter
    o Google: `-c librax:googleEnabled=false`.
    Na tela de consentimento do OAuth, informar a Política de Privacidade
-   (`https://<dominio>/privacidade`) e os Termos de Uso (`https://<dominio>/termos`), que abrem
+   (`https://app.<dominio>/privacidade`) e os Termos de Uso (`https://app.<dominio>/termos`), que abrem
    sem login (a CloudFront Function do app entrega o `index.html` para essas rotas).
 5. **Apple (opcional, desligada).** Para ligar: `librax:appleEnabled=true` e os parâmetros
    `/librax/apple/services-id`, `/librax/apple/team-id`, `/librax/apple/key-id` (SSM) e o
@@ -473,6 +491,8 @@ do Cognito precisam estar lá.
     O CloudFront aplica `no-cache` no app shell (`index.html`, `sw.js`) e `immutable` em
     `/assets/*`, então não precisa invalidar a cada publicação. O painel de administração tem bucket próprio
     (`AdminBucketName`) e vai em `admin/`: ver [`docs/painel-admin.md`](../../docs/painel-admin.md).
+    A landing tem bucket e CloudFront próprios: `npm run landing:publicar` (em `infra`), ver
+    [`docs/conta-aws.md`](../../docs/conta-aws.md#publicar-a-landing).
 11. **Conteúdo e modelos.** No bucket `ContentBucketName`, a chave repete a URL:
     `content/<courseId>/v<N>/...` e `ml/<versao>/...`. Suba `.wasm` com
     `--content-type application/wasm` (o CloudFront também força esse tipo em `*.wasm`).

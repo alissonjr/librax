@@ -70,6 +70,39 @@
     "subtitle": "Coloca tu mano frente a la cámara e intenta las señas del alfabeto",
     "title": "Reconocimiento de manos"
   },
+  "cameraStats": {
+    "title": "Rendimiento de la cámara",
+    "settingsHint": "Intentos y saltos por letra y seña",
+    "intro": "Cuántos intentos necesitó cada letra y seña en los ejercicios con cámara y cuántas veces se saltaron. Muestra dónde fallan el reconocimiento o la descripción de la seña.",
+    "emptyTitle": "Todavía no hay números",
+    "emptyBody": "Haz un ejercicio con la cámara en una lección y los números aparecerán aquí.",
+    "summaryLabel": "Resumen",
+    "summarySigns": "Letras y señas: {n}",
+    "summarySuccesses": "Aciertos: {n}",
+    "summarySkips": "Saltos: {n}",
+    "listLabel": "De la más difícil a la más fácil",
+    "kindLetter": "Letra",
+    "kindSign": "Seña",
+    "runs": "Veces en la cámara: {n}",
+    "level": {
+      "hard": "Difícil",
+      "attention": "Atención",
+      "ok": "Va bien"
+    },
+    "skips": "Saltos",
+    "skipsValue": "{skips} de {runs} ({pct})",
+    "attempts": "Intentos hasta acertar",
+    "attemptsValue": "{avg} en promedio",
+    "attemptsNone": "Todavía sin acierto",
+    "readAs": "La cámara leyó en su lugar:",
+    "readAsItem": "{label} ({count})",
+    "export": "Exportar JSON",
+    "clear": "Borrar estos números",
+    "clearTitle": "¿Borrar el rendimiento de la cámara?",
+    "clearMessage": "Los intentos y saltos guardados en este dispositivo se borrarán. Tu progreso en las lecciones se mantiene.",
+    "clearConfirm": "Borrar",
+    "privacyNote": "Solo números, sin imagen ni video. Con cuenta, los números de cada lección se envían junto con ella, solo para los totales de todas las personas, sin identificarte."
+  },
   "common": {
     "back": "Volver",
     "cancel": "Cancelar",
@@ -282,6 +315,13 @@
     "successTitle": "¡Bien! Hiciste la seña {gloss}",
     "watching": "Viendo el movimiento: haz la seña completa"
   },
+  "exerciseCameraMotionLetter": {
+    "detected": "Vimos {gesture}. Haz la letra {letter} con el movimiento",
+    "makeLetter": "Haz la letra con el movimiento:",
+    "notAvailable": "El reconocimiento del movimiento de la letra \"{letter}\" no cargó. Practícala con la descripción de arriba y continúa cuando estés listo.",
+    "raiseHand": "Muestra la mano y haz la letra con el movimiento",
+    "watching": "Viendo el movimiento: haz la letra completa, con el movimiento"
+  },
   "exerciseFingerspell": {
     "cameraFeed": "Imagen de la cámara",
     "cameraUnavailable": "Cámara no disponible",
@@ -295,6 +335,7 @@
     "releaseRepeat": "Retira la mano o cambia la forma y haz {letter} otra vez",
     "retry": "Intentar de nuevo",
     "skipExercise": "Saltar este ejercicio",
+    "spellOwnName": "Deletrea tu nombre: {word}",
     "spellWord": "Deletrea: {word}",
     "starting": "Iniciando...",
     "wordComplete": "¡Palabra completa!"
@@ -345,6 +386,7 @@
     "moveUp": "Subir {step}",
     "moved": "{step}: posición {position} de {total}",
     "prompt": "Ordena los pasos de la seña:",
+    "spellOwnNamePrompt": "Tu nombre, {word}: pon las letras en orden",
     "spellPrompt": "Deletrea {word}: pon las letras en orden"
   },
   "exerciseWatchChooseWord": {

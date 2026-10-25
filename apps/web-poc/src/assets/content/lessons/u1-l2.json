@@ -14,11 +14,10 @@
     {
       "id": "u1-l2-ex02",
       "lesson_id": "u1-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 2,
       "payload": {
-        "sign_id": "letra-F",
-        "correct": "F"
+        "sign_id": "letra-G"
       }
     },
     {
@@ -27,23 +26,29 @@
       "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "letra-G"
+        "sign_id": "letra-H"
       }
     },
     {
       "id": "u1-l2-ex04",
       "lesson_id": "u1-l2",
-      "type": "word_choose_video",
+      "type": "match_pairs",
       "order": 4,
       "payload": {
-        "word": "G",
-        "video_options": [
-          "letra-G",
-          "letra-F",
-          "letra-E",
-          "letra-D"
-        ],
-        "correct_sign_id": "letra-G"
+        "pairs": [
+          {
+            "sign_id": "letra-F",
+            "gloss": "F"
+          },
+          {
+            "sign_id": "letra-G",
+            "gloss": "G"
+          },
+          {
+            "sign_id": "letra-H",
+            "gloss": "H"
+          }
+        ]
       }
     },
     {
@@ -52,61 +57,73 @@
       "type": "sign_intro",
       "order": 5,
       "payload": {
-        "sign_id": "letra-H"
+        "sign_id": "letra-I"
       }
     },
     {
       "id": "u1-l2-ex06",
       "lesson_id": "u1-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 6,
-      "payload": {
-        "sign_id": "letra-H",
-        "correct": "H"
-      }
-    },
-    {
-      "id": "u1-l2-ex07",
-      "lesson_id": "u1-l2",
-      "type": "sign_intro",
-      "order": 7,
-      "payload": {
-        "sign_id": "letra-I"
-      }
-    },
-    {
-      "id": "u1-l2-ex08",
-      "lesson_id": "u1-l2",
-      "type": "word_choose_video",
-      "order": 8,
-      "payload": {
-        "word": "I",
-        "video_options": [
-          "letra-I",
-          "letra-F",
-          "letra-G",
-          "letra-H"
-        ],
-        "correct_sign_id": "letra-I"
-      }
-    },
-    {
-      "id": "u1-l2-ex09",
-      "lesson_id": "u1-l2",
-      "type": "sign_intro",
-      "order": 9,
       "payload": {
         "sign_id": "letra-J"
       }
     },
     {
+      "id": "u1-l2-ex07",
+      "lesson_id": "u1-l2",
+      "type": "match_pairs",
+      "order": 7,
+      "payload": {
+        "pairs": [
+          {
+            "sign_id": "letra-I",
+            "gloss": "I"
+          },
+          {
+            "sign_id": "letra-J",
+            "gloss": "J"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u1-l2-ex08",
+      "lesson_id": "u1-l2",
+      "type": "perform_sign",
+      "order": 8,
+      "payload": {
+        "sign_id": "letra-F",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l2-ex09",
+      "lesson_id": "u1-l2",
+      "type": "perform_sign",
+      "order": 9,
+      "payload": {
+        "sign_id": "letra-G",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
       "id": "u1-l2-ex10",
       "lesson_id": "u1-l2",
-      "type": "watch_choose_word",
+      "type": "perform_sign",
       "order": 10,
       "payload": {
-        "sign_id": "letra-J",
-        "correct": "J"
+        "sign_id": "letra-H",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
@@ -115,7 +132,7 @@
       "type": "perform_sign",
       "order": 11,
       "payload": {
-        "sign_id": "letra-F",
+        "sign_id": "letra-I",
         "recognition": "static",
         "min_confidence": null,
         "max_attempts": null,
@@ -128,11 +145,28 @@
       "type": "perform_sign",
       "order": 12,
       "payload": {
-        "sign_id": "letra-G",
-        "recognition": "static",
+        "sign_id": "letra-J",
+        "recognition": "dynamic",
         "min_confidence": null,
         "max_attempts": null,
         "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l2-ex13",
+      "lesson_id": "u1-l2",
+      "type": "fingerspell",
+      "order": 13,
+      "payload": {
+        "word": "CHEGA",
+        "letters": [
+          "C",
+          "H",
+          "E",
+          "G",
+          "A"
+        ],
+        "per_letter_confidence": null
       }
     }
   ]
