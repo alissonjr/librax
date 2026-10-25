@@ -3322,6 +3322,8 @@ ol.fingerspell-strip { list-style: none; padding: 0; }
   font: var(--lx-typography-title);
   color: var(--lx-text-primary);
   flex: 1;
+  /* Título em duas linhas (Desempenho da câmera): o topo das letras não encosta na borda */
+  padding-block: var(--lx-space-2);
 }
 
 /* =========================================================
@@ -4300,6 +4302,138 @@ button.profile-stat-card { cursor: pointer; }
 }
 /* Item das Configurações que é link (Política e Termos) */
 .settings-item--link { text-decoration: none; }
+
+/* =========================================================
+   DESEMPENHO DA CÂMERA (Configurações, lib/cameraStats.ts)
+   Estado de cada sinal em selo escrito, nunca em faixa colorida
+   ========================================================= */
+
+.cam-stats-body {
+  padding: var(--lx-space-4) var(--lx-space-4) var(--lx-space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-4);
+  max-width: var(--lx-size-content-max);
+  width: 100%;
+  margin: 0 auto;
+}
+.cam-stats-intro { font: var(--lx-typography-body); color: var(--lx-text-secondary); }
+
+.cam-stats-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lx-space-3);
+  padding: var(--lx-space-8) var(--lx-space-4);
+  text-align: center;
+}
+.cam-stats-empty-icon { color: var(--lx-game-hand-fill); }
+.cam-stats-empty h2 { font: var(--lx-typography-title); color: var(--lx-text-primary); }
+.cam-stats-empty p { font: var(--lx-typography-body); color: var(--lx-text-secondary); }
+
+.cam-stats-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lx-space-2);
+  list-style: none;
+}
+.cam-stats-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: var(--lx-space-1) var(--lx-space-3);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-bg-sunken);
+  color: var(--lx-text-secondary);
+  font: var(--lx-typography-label-sm);
+  font-variant-numeric: tabular-nums;
+}
+.cam-stats-list-label { padding-bottom: 0; }
+
+.cam-stats-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-3);
+}
+.cam-stats-item {
+  background: var(--lx-bg-surface);
+  border: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+  border-radius: var(--lx-radius-lg);
+  box-shadow: var(--lx-elevation-1);
+  padding: var(--lx-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-3);
+}
+.cam-stats-head { display: flex; align-items: center; gap: var(--lx-space-3); }
+.cam-stats-gloss {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--lx-size-touch-min);
+  height: var(--lx-size-touch-min);
+  padding: 0 var(--lx-space-2);
+  border-radius: var(--lx-radius-sm);
+  background: var(--lx-game-hand-soft);
+  color: var(--lx-game-hand-text);
+  font: var(--lx-typography-title);
+  letter-spacing: 0.02em;
+}
+.cam-stats-gloss--word { font: var(--lx-typography-title-sm); max-width: 50%; overflow-wrap: anywhere; }
+.cam-stats-head-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--lx-space-0-5); }
+.cam-stats-kind { font: var(--lx-typography-label); font-weight: var(--lx-font-weight-semibold); color: var(--lx-text-primary); }
+.cam-stats-runs { font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); }
+
+.cam-stats-level {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lx-space-1);
+  padding: var(--lx-space-0-5) var(--lx-space-2);
+  border-radius: var(--lx-radius-full);
+  font: var(--lx-typography-caption);
+  font-weight: var(--lx-font-weight-semibold);
+  white-space: nowrap;
+}
+.cam-stats-level .icon { width: var(--lx-size-icon-sm); height: var(--lx-size-icon-sm); }
+.cam-stats-level--hard      { background: var(--lx-feedback-error-soft); color: var(--lx-feedback-error-on-soft); }
+.cam-stats-level--attention { background: var(--lx-feedback-warning-soft); color: var(--lx-feedback-warning-on-soft); }
+.cam-stats-level--ok        { background: var(--lx-feedback-success-soft); color: var(--lx-feedback-success-on-soft); }
+
+.cam-stats-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--lx-space-2) var(--lx-space-4);
+}
+.cam-stats-metric { display: flex; flex-direction: column; gap: var(--lx-space-0-5); min-width: 0; }
+.cam-stats-metric dt { font: var(--lx-typography-caption); color: var(--lx-text-secondary); }
+.cam-stats-metric dd { font: var(--lx-typography-body); font-weight: var(--lx-font-weight-semibold); color: var(--lx-text-primary); }
+
+.cam-stats-wrong { display: flex; flex-wrap: wrap; align-items: center; gap: var(--lx-space-2); }
+.cam-stats-wrong-label { font: var(--lx-typography-caption); color: var(--lx-text-secondary); }
+.cam-stats-wrong-list { display: flex; flex-wrap: wrap; gap: var(--lx-space-1); list-style: none; }
+.cam-stats-wrong-chip {
+  padding: var(--lx-space-0-5) var(--lx-space-2);
+  border-radius: var(--lx-radius-sm);
+  background: var(--lx-game-trace-soft);
+  color: var(--lx-game-trace-on-soft);
+  font: var(--lx-typography-label-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.cam-stats-actions { display: flex; flex-direction: column; gap: var(--lx-space-3); margin-top: var(--lx-space-2); }
+.cam-stats-clear { color: var(--lx-feedback-error-text); border-color: var(--lx-action-danger-bg); }
+
+.cam-stats-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lx-space-2);
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-secondary);
+}
+.cam-stats-note .icon { flex: none; width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); color: var(--lx-game-hand-text); }
 
 .legal-body {
   padding: var(--lx-space-5) var(--lx-space-4) var(--lx-space-10);

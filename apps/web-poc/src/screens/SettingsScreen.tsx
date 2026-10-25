@@ -14,6 +14,7 @@ import { InstallSheet, useInstallMode } from '../components/InstallSheet';
 import { OfflineSettingItem } from '../components/OfflineSettingItem';
 import { LegalLink } from '../components/LegalLinks';
 import { ROUTES } from '../lib/routes';
+import { listCameraStats } from '../lib/cameraStats';
 
 interface Props {
   userId: string;
@@ -23,6 +24,8 @@ interface Props {
   onOpenAccount?: (mode: 'login' | 'register') => void;
   /** Aviso discreto (toast do useSession.showNotice): chave de tradução. */
   onNotice?: (key: string) => void;
+  /** Desempenho da câmera: tentativas e pulos por sinal (lib/cameraStats.ts). */
+  onOpenCameraStats?: () => void;
 }
 
 const GOAL_OPTIONS = [
@@ -32,7 +35,7 @@ const GOAL_OPTIONS = [
   { value: 50, key: 'settings.goalIntensivo' },
 ];
 
-export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }: Props) {
+export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, onOpenCameraStats }: Props) {
   const { t, lang, setLang } = useT();
   const account = useAccount();
   const signedIn = account.status === 'signedIn';
@@ -52,7 +55,8 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }
   async function handleExport() {
     const profile = await repo.getProfile(userId);
     const srsItems = await repo.listSrsItems(userId);
-    const data = { profile, srsItems, exportedAt: new Date().toISOString() };
+    const cameraStats = await listCameraStats().catch(() => []);
+    const data = { profile, srsItems, cameraStats, exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -237,6 +241,16 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }
             </div>
             <Icon name="chevron_right" className="settings-item-arrow" />
           </div>
+          {onOpenCameraStats && (
+            <button className="settings-item settings-item--btn" onClick={onOpenCameraStats}>
+              <Icon name="query_stats" className="settings-item-icon" />
+              <div className="settings-item-text">
+                <span className="settings-item-label">{t('cameraStats.title')}</span>
+                <span className="settings-item-value">{t('cameraStats.settingsHint')}</span>
+              </div>
+              <Icon name="chevron_right" className="settings-item-arrow" />
+            </button>
+          )}
         </div>
 
         <div className="settings-group">
