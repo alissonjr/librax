@@ -6,6 +6,7 @@ import { resolve } from 'path';
 import { createReadStream, existsSync, mkdirSync, statSync, writeFileSync } from 'fs';
 import { networkInterfaces } from 'os';
 import { tokens } from './src/styles/tokens';
+import { decodeSignUrl, rejectHtmlPlugin } from './src/lib/vlibrasServing';
 
 // Cor do tema do PWA: token bg.canvas do modo claro. O index.html recebe o mesmo valor
 // (e o do modo escuro) pelo plugin abaixo, para não haver cor escrita à mão.
@@ -51,6 +52,22 @@ const mlHeaders = (): Plugin => {
   };
   return {
     name: 'librax-ml-headers',
+    configureServer: (server) => { server.middlewares.use(middleware); },
+    configurePreviewServer: (server) => { server.middlewares.use(middleware); },
+  };
+};
+
+// Animação de glosa com "&" (ACORDAR&DESPERTAR): o app pede com %26 e o Vite não decodifica
+// isso, então responderia o index.html. Troca pelo caractere antes de o Vite procurar o arquivo
+// (lib/vlibrasServing.ts). Vale no dev e no preview; em produção o S3 já resolve.
+const vlibrasSignPaths = (): Plugin => {
+  const middleware = (req: { url?: string }, _res: unknown, next: () => void) => {
+    const url = decodeSignUrl(req.url ?? '');
+    if (url) req.url = url;
+    next();
+  };
+  return {
+    name: 'librax-vlibras-sign-paths',
     configureServer: (server) => { server.middlewares.use(middleware); },
     configurePreviewServer: (server) => { server.middlewares.use(middleware); },
   };
@@ -184,6 +201,7 @@ export default defineConfig(({ mode }) => {
       react(),
       themeColorHtml(),
       mlHeaders(),
+      vlibrasSignPaths(),
       treinoVideo(),
       ...extraPlugins,
       VitePWA({
@@ -233,6 +251,7 @@ export default defineConfig(({ mode }) => {
             // precache: só guarda o que já foi usado. Animações: cerca de 23 KB cada (máx. 61 KB);
             // as 252 glosas do curso somam ~6 MB, então 400 entradas cabem com folga na cota do
             // Safari e do Chrome. A versão está na pasta, então o guardado vale para sempre.
+            // HTML com 200 (a página do app no lugar de um arquivo que não existe) não entra.
             {
               urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/vlibras/sinais/'),
               handler: 'CacheFirst',
@@ -240,6 +259,7 @@ export default defineConfig(({ mode }) => {
                 cacheName: 'librax-vlibras-sinais-v2',
                 expiration: { maxEntries: 400 },
                 cacheableResponse: { statuses: [200] },
+                plugins: [rejectHtmlPlugin],
               },
             },
             // Motor do player (~20 MB: dados do Unity 17 MB + wasm 3 MB), em /vlibras/v<versão>/.
@@ -251,6 +271,7 @@ export default defineConfig(({ mode }) => {
                 cacheName: 'librax-vlibras-player-v2',
                 expiration: { maxEntries: 12 },
                 cacheableResponse: { statuses: [200] },
+                plugins: [rejectHtmlPlugin],
               },
             },
           ],
