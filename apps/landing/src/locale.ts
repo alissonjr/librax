@@ -1,6 +1,8 @@
 /**
- * Idiomas da landing: português (padrão, na raiz), inglês em /en/ e espanhol em /es/.
+ * Idiomas da landing: português na raiz, inglês em /en/ e espanhol em /es/.
  * Cada idioma é uma página própria gerada no build (lang certo no <html>, sem esperar o JS).
+ * Quem chega na raiz vai para o idioma do navegador (rootRedirectScript); fora português e
+ * espanhol, o padrão é inglês.
  */
 export type Locale = 'pt-BR' | 'en' | 'es';
 
@@ -55,6 +57,36 @@ export function suggestLocale(
     if (match) return match === current ? null : match;
   }
   return null;
+}
+
+/**
+ * Idioma de quem chega na raiz: a escolha salva no seletor; senão o primeiro idioma do navegador
+ * que temos; qualquer outro idioma abre em inglês.
+ */
+export function initialLocale(browserLanguages: readonly string[], stored: string | null): Locale {
+  if (isLocale(stored)) return stored;
+  for (const tag of browserLanguages) {
+    const match = matchLocale(tag);
+    if (match) return match;
+  }
+  return 'en';
+}
+
+/**
+ * Script inline da página da raiz: a regra de initialLocale em JavaScript puro, para trocar de
+ * página antes de pintar. O teste confere que as duas dão o mesmo resultado.
+ */
+export function rootRedirectScript(): string {
+  const prefixes = JSON.stringify(PREFIX);
+  return (
+    `(function(){var p=${prefixes},s=null,l=null;` +
+    `try{s=localStorage.getItem(${JSON.stringify(LANDING_LANG_KEY)})}catch(e){}` +
+    `if(s&&Object.prototype.hasOwnProperty.call(p,s))l=s;` +
+    `if(!l){var t=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];` +
+    `for(var i=0;i<t.length&&!l;i++){var x=String(t[i]).toLowerCase();` +
+    `l=x.indexOf('pt')===0?'pt-BR':x.indexOf('en')===0?'en':x.indexOf('es')===0?'es':null}}` +
+    `l=l||'en';if(l!=='pt-BR')location.replace(p[l]+location.search+location.hash)})();`
+  );
 }
 
 /** Link de troca de idioma que mantém a seção aberta (#instalar continua #instalar). */

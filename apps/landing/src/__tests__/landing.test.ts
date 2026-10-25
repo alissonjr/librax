@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { detectPlatform } from '../install';
-import { localeFromPath, localePath, matchLocale, suggestLocale, switchHref, LOCALES } from '../locale';
+import { initialLocale, localeFromPath, localePath, matchLocale, rootRedirectScript, suggestLocale, switchHref, LOCALES } from '../locale';
 import { COPY, fill, formatNumber } from '../i18n';
 import { normalizeAppUrl, appLink } from '../config';
 import { renderPage } from '../render';
@@ -128,5 +128,45 @@ describe('mãos da abertura', () => {
     expect(bonesPath(p).match(/M/g)).toHaveLength(HAND_LINKS.length);
     expect(lerpPose([0, 0], [2, 4], 0.5)).toEqual([1, 2]);
     expect(handViewBox('L').split(' ')).toHaveLength(4);
+  });
+});
+
+describe('idioma de quem chega na raiz', () => {
+  const casos: [string[], string | null][] = [
+    [['pt-BR', 'en-US'], null],
+    [['es-MX'], null],
+    [['en-US'], null],
+    [['fr-FR', 'de-DE'], null],
+    [['fr-FR', 'es-AR'], null],
+    [[], null],
+    [['pt-BR'], 'en'],
+    [['en-US'], 'es'],
+    [['de-DE'], 'pt-BR'],
+    [['pt-BR'], 'constructor'],
+  ];
+
+  it('português e espanhol pelo navegador; outros idiomas em inglês; escolha salva vence', () => {
+    expect(initialLocale(['pt-BR', 'en-US'], null)).toBe('pt-BR');
+    expect(initialLocale(['es-MX'], null)).toBe('es');
+    expect(initialLocale(['fr-FR', 'de-DE'], null)).toBe('en');
+    expect(initialLocale(['pt-BR'], 'en')).toBe('en');
+  });
+
+  it('o script inline da raiz faz o mesmo que initialLocale', () => {
+    for (const [langs, stored] of casos) {
+      let destino: string | null = null;
+      const nav = { languages: langs, language: langs[0] ?? '' };
+      const storage = { getItem: () => stored };
+      const loc = { search: '?a=1', hash: '#instalar', replace: (u: string) => { destino = u; } };
+      new Function('navigator', 'localStorage', 'location', rootRedirectScript())(nav, storage, loc);
+      const esperado = initialLocale(langs, stored);
+      expect(destino).toBe(esperado === 'pt-BR' ? null : `${localePath(esperado)}?a=1#instalar`);
+    }
+  });
+
+  it('só a página da raiz troca de idioma sozinha', () => {
+    expect(renderPage('pt-BR')).toContain('location.replace');
+    expect(renderPage('en')).not.toContain('location.replace');
+    expect(renderPage('es')).not.toContain('location.replace');
   });
 });

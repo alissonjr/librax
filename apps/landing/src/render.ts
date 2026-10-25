@@ -10,7 +10,7 @@ import numeros from './numeros.json';
 import maos from './maos.json';
 import telas from './telas.json';
 import { COPY, fill, formatDate, formatNumber, type Copy } from './i18n';
-import { LOCALES, localePath, type Locale } from './locale';
+import { LOCALES, localePath, rootRedirectScript, type Locale } from './locale';
 import { APP_URL, appLink } from './config';
 import { PLATFORMS } from './install';
 import { HERO_LETTERS, bonesPath, handViewBox, type Pose } from './hands';
@@ -66,7 +66,7 @@ function shot(locale: Locale, name: ShotName, alt: string, eager = false): strin
  */
 export function headLinks(locale: Locale, origin = ''): string {
   const alternates = LOCALES.map((l) => `<link rel="alternate" hreflang="${l}" href="${origin}${localePath(l)}">`).join('');
-  return `<link rel="canonical" href="${origin}${localePath(locale)}">${alternates}<link rel="alternate" hreflang="x-default" href="${origin}/">`;
+  return `<link rel="canonical" href="${origin}${localePath(locale)}">${alternates}<link rel="alternate" hreflang="x-default" href="${origin}${localePath('en')}">`;
 }
 
 export function renderPage(locale: Locale): string {
@@ -181,7 +181,7 @@ export function renderPage(locale: Locale): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(c.meta.title)}</title>
+${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>${esc(c.meta.title)}</title>
 <meta name="description" content="${esc(c.meta.description)}">
 <meta name="theme-color" content="${tokens['theme.light.bg.canvas']}" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="${tokens['theme.dark.bg.canvas']}" media="(prefers-color-scheme: dark)">
