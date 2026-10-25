@@ -9,10 +9,14 @@ import { getDb, type LibraxDB } from './db';
  * - tentativas até acertar: cada leitura estável da câmera conta uma tentativa (a errada e a certa);
  * - leituras de outro sinal (a letra K lida como H soma 1 em `wrongReadings.H`).
  *
- * Só números e rótulos do próprio curso: nenhuma imagem, ponto da mão ou texto livre. Fica no
- * IndexedDB do app (store `camera_stats`, db.ts), funciona sem internet e não vai ao servidor:
- * o contrato de `POST /v1/lesson/complete` não tem campo para isso (docs/painel-admin.md).
- * Sai junto no "Excluir conta e dados" (IdbRepo.clearAllData).
+ * Só números e rótulos do próprio curso: nenhuma imagem, ponto da mão ou texto livre. O acumulado
+ * fica no IndexedDB do app (store `camera_stats`, db.ts), funciona sem internet e sai junto no
+ * "Excluir conta e dados" (IdbRepo.clearAllData).
+ *
+ * Para o painel de administração somar os números de todas as pessoas, a lição também junta o que
+ * foi produzido nela (`LessonCameraStats`, só a diferença da lição, nunca o acumulado) e manda com
+ * a conclusão (`cameraStats` em `POST /v1/lesson/complete`, pela fila offline de sync.ts). Sem conta
+ * a conclusão fica na fila e só vai na migração, quando a pessoa entra numa conta.
  */
 
 export const CAMERA_STATS_STORE = 'camera_stats';
@@ -215,11 +219,72 @@ export async function clearCameraStats(db?: LibraxDB): Promise<void> {
 
 /**
  * Grava sem esperar e sem quebrar o exercício: a medição nunca atrapalha a lição
- * (IndexedDB indisponível, modo privado, cota cheia).
+ * (IndexedDB indisponível, modo privado, cota cheia). Também avisa a lição aberta (onCameraRun).
  */
 export function saveCameraRun(run: CameraRunResult | null): void {
   if (!run) return;
+  for (const listener of [...runListeners]) {
+    try {
+      listener(run);
+    } catch {
+      // quem ouve nunca quebra o exercício
+    }
+  }
   void recordCameraRun(run).catch(() => {});
+}
+
+// --- Diferença da lição (vai com a conclusão) ---
+
+/** Uma letra ou sinal numa lição: o formato de `cameraStats` na conclusão (services/api, lessonCompletion.js). */
+export interface LessonCameraSign {
+  successes: number;
+  skips: number;
+  /** Tentativas das vezes que terminaram em acerto. */
+  attempts: number;
+  /** Leituras de outro sinal no lugar deste: rótulo lido -> vezes. */
+  wrong: Record<string, number>;
+}
+
+/** O que a câmera produziu numa lição, por sinal. */
+export type LessonCameraStats = Record<string, LessonCameraSign>;
+
+/** Teto de rótulos errados por sinal numa lição (o servidor descarta o sinal que passar disso). */
+export const LESSON_MAX_WRONG_LABELS = 8;
+
+/** Soma uma vez à diferença da lição. Função pura. */
+export function addRunToLesson(stats: LessonCameraStats, run: CameraRunResult): LessonCameraStats {
+  const prev = stats[run.signId] ?? { successes: 0, skips: 0, attempts: 0, wrong: {} };
+  const wrong = { ...prev.wrong };
+  for (const [label, n] of Object.entries(run.wrongReadings)) {
+    if (n > 0) wrong[label] = (wrong[label] ?? 0) + n;
+  }
+  const entries = Object.entries(wrong);
+  const trimmed = entries.length <= LESSON_MAX_WRONG_LABELS
+    ? wrong
+    : Object.fromEntries(entries.sort((a, b) => b[1] - a[1]).slice(0, LESSON_MAX_WRONG_LABELS));
+  return {
+    ...stats,
+    [run.signId]: {
+      successes: prev.successes + (run.outcome === 'success' ? 1 : 0),
+      skips: prev.skips + (run.outcome === 'skip' ? 1 : 0),
+      attempts: prev.attempts + (run.outcome === 'success' ? attemptsOf(run) : 0),
+      wrong: trimmed,
+    },
+  };
+}
+
+type RunListener = (run: CameraRunResult) => void;
+const runListeners = new Set<RunListener>();
+
+/**
+ * Ouve cada vez fechada na câmera (a lição aberta junta a sua diferença). Devolve a função que
+ * para de ouvir.
+ */
+export function onCameraRun(listener: RunListener): () => void {
+  runListeners.add(listener);
+  return () => {
+    runListeners.delete(listener);
+  };
 }
 
 /** Arquivo exportado: só os números por sinal, sem identificador da pessoa nem do aparelho. */

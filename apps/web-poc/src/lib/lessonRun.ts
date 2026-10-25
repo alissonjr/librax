@@ -1,6 +1,7 @@
 import type { Exercise } from './content';
 import type { ReviewedItem } from '../screens/LessonScreen';
 import type { ExerciseStats } from './sync';
+import type { LessonCameraStats } from './cameraStats';
 
 /**
  * Lição em andamento (retomada depois de recarregar a página).
@@ -34,6 +35,8 @@ export interface LessonProgress {
   seen: string[];
   /** Respostas e erros por tipo de exercício (painel de administração). Ausente em runs antigos. */
   exerciseStats?: ExerciseStats;
+  /** Desempenho da câmera nesta lição (painel de administração). Ausente em runs antigos. */
+  cameraStats?: LessonCameraStats;
 }
 
 export interface LessonRun extends LessonProgress {

@@ -372,6 +372,48 @@ describe('telemetria do painel de administração', () => {
     expect(calls[1].body).not.toHaveProperty('exerciseStats'); // vazio não vai
   });
 
+  it('a conclusão leva o desempenho da câmera da lição quando houver', async () => {
+    signedIn();
+    const calls = mockFetch(serverOk());
+    const cameraStats = { 'letra-K': { successes: 1, skips: 1, attempts: 3, wrong: { H: 2 } } };
+    await enqueueLessonCompletion(lesson({ cameraStats }));
+    await enqueueLessonCompletion(lesson({ lessonId: 'u1-l2', cameraStats: {} }));
+    await flushOutbox();
+    expect((calls[0].body as { cameraStats?: unknown }).cameraStats).toEqual(cameraStats);
+    expect(calls[1].body).not.toHaveProperty('cameraStats'); // vazio não vai
+  });
+
+  it('sem conta o desempenho da câmera fica na fila e só vai na migração, ao entrar', async () => {
+    guest();
+    const calls = mockFetch(serverOk());
+    const cameraStats = { 'letra-A': { successes: 1, skips: 0, attempts: 1, wrong: {} } };
+    await enqueueLessonCompletion(lesson({ cameraStats }));
+    expect((await flushOutbox()).skipped).toBe('signed_out');
+    expect(calls).toHaveLength(0);
+    expect((await pendingEntries())[0].cameraStats).toEqual(cameraStats);
+
+    signedIn();
+    await flushOutbox();
+    expect(calls.map((c) => c.url)).toEqual(['/api/v1/guest/migrate']);
+    const { entries } = calls[0].body as { entries: { cameraStats?: unknown }[] };
+    expect(entries[0].cameraStats).toEqual(cameraStats);
+  });
+
+  it('offline o desempenho da câmera espera na fila e vai quando a rede volta', async () => {
+    signedIn();
+    const calls = mockFetch(serverOk());
+    Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
+    const cameraStats = { 'letra-B': { successes: 0, skips: 1, attempts: 0, wrong: { A: 1 } } };
+    await enqueueLessonCompletion(lesson({ cameraStats }));
+    expect((await flushOutbox()).skipped).toBe('offline');
+    expect(calls).toHaveLength(0);
+
+    Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
+    await flushOutbox();
+    expect((calls[0].body as { cameraStats?: unknown }).cameraStats).toEqual(cameraStats);
+    expect(await pendingEntries()).toHaveLength(0);
+  });
+
   it('saída no meio da lição vai para /v1/lesson/abandon com o token', async () => {
     signedIn();
     const calls = mockFetch(() => reply(200, { recorded: true }));

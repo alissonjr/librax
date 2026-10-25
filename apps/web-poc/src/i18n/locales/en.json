@@ -123,7 +123,7 @@
     "clearTitle": "Clear camera performance?",
     "clearMessage": "The attempts and skips saved on this device will be removed. Your lesson progress stays.",
     "clearConfirm": "Clear",
-    "privacyNote": "Numbers only, no image or video. They stay on this device and are not sent."
+    "privacyNote": "Numbers only, no image or video. With an account, each lesson's numbers are sent along with it, only for the totals across all learners, without identifying you."
   },
   "common": {
     "back": "Back",

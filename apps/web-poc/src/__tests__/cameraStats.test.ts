@@ -4,14 +4,18 @@ import { upgradeLibraxDb, type LibraxDB } from '../lib/db';
 import { IdbRepo } from '../lib/idbRepo';
 import {
   CameraRun,
+  LESSON_MAX_WRONG_LABELS,
+  addRunToLesson,
   applyRun,
   attemptsOf,
   buildCameraStatsExport,
   clearCameraStats,
   difficultyOf,
   listCameraStats,
+  onCameraRun,
   rankByDifficulty,
   recordCameraRun,
+  saveCameraRun,
   summarize,
   type CameraRunResult,
   type CameraSignStats,
@@ -204,5 +208,39 @@ describe('exportação', () => {
     expect(Object.keys(data).sort()).toEqual(['exportedAt', 'format', 'signs']);
     expect(data.exportedAt).toBe(NOW.toISOString());
     expect(data.signs.map(s => s.signId)).toEqual(['letra-A', 'letra-K']);
+  });
+});
+
+describe('diferença da lição (vai com a conclusão)', () => {
+  it('soma só as vezes da lição, no formato que o servidor aceita', () => {
+    let lesson = addRunToLesson({}, result({ wrongReadings: { H: 2 } }));
+    lesson = addRunToLesson(lesson, result({ outcome: 'skip', wrongReadings: { H: 1, V: 1 } }));
+    lesson = addRunToLesson(lesson, result({ signId: 'letra-A', label: 'A' }));
+    expect(lesson).toEqual({
+      'letra-K': { successes: 1, skips: 1, attempts: 3, wrong: { H: 3, V: 1 } },
+      'letra-A': { successes: 1, skips: 0, attempts: 1, wrong: {} },
+    });
+  });
+
+  it('guarda no máximo os rótulos errados mais comuns por sinal', () => {
+    const many = Object.fromEntries(Array.from({ length: LESSON_MAX_WRONG_LABELS + 3 }, (_, i) => [`X${i}`, i + 1]));
+    const lesson = addRunToLesson({}, result({ wrongReadings: many }));
+    const kept = Object.keys(lesson['letra-K'].wrong);
+    expect(kept).toHaveLength(LESSON_MAX_WRONG_LABELS);
+    expect(kept).not.toContain('X0'); // o menos frequente sai
+  });
+
+  it('saveCameraRun avisa quem ouve (a lição aberta) e para de avisar ao sair', () => {
+    const heard: CameraRunResult[] = [];
+    const stop = onCameraRun((run) => heard.push(run));
+    const boom = onCameraRun(() => {
+      throw new Error('quem ouve não quebra o exercício');
+    });
+    saveCameraRun(result());
+    saveCameraRun(null);
+    stop();
+    boom();
+    saveCameraRun(result({ outcome: 'skip' }));
+    expect(heard).toEqual([result()]);
   });
 });

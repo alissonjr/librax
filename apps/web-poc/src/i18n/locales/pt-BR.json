@@ -179,7 +179,7 @@
     "clearTitle": "Apagar o desempenho da câmera?",
     "clearMessage": "As tentativas e os pulos guardados neste aparelho somem. Seu progresso nas lições continua.",
     "clearConfirm": "Apagar",
-    "privacyNote": "Só números, sem imagem nem vídeo. Ficam neste aparelho e não são enviados."
+    "privacyNote": "Só números, sem imagem nem vídeo. Com conta, os números de cada lição vão junto com ela para o servidor, só para os totais de todas as pessoas, sem identificar você."
   },
   "common": {
     "back": "Voltar",
