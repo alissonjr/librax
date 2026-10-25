@@ -312,6 +312,8 @@ export function numberExercises(lessonId, items) {
  *
  * Falha se uma palavra soletrada (fingerspell) usa letra que ainda não teve perform_sign até a
  * lição: a soletração só pede letras já ensinadas e que a câmera lê bem (as de `produce`).
+ * Falha também com letra de movimento (recognition dynamic: J, Z e Ç), que a soletração pela
+ * câmera não lê, mesmo quando ela tem perform_sign com o modelo das letras com movimento.
  */
 export function composeCourse(course, signsList) {
   const signsMap = Object.fromEntries(signsList.map((s) => [s.id, s]));
@@ -345,6 +347,14 @@ export function composeCourse(course, signsList) {
         if (missing.length) {
           throw new Error(
             `Lição ${lesson.id}: a palavra ${e.payload.word} usa letra sem exercício de câmera até aqui (${missing.join(', ')}).`,
+          );
+        }
+        // J e Ç têm câmera no perform_sign (modelo das letras com movimento), mas a soletração pela
+        // câmera lê só a forma parada da mão: palavra com letra de movimento viraria order_sequence
+        const moving = e.payload.letters.filter((l) => signsMap[`letra-${l}`]?.recognition === 'dynamic');
+        if (moving.length) {
+          throw new Error(
+            `Lição ${lesson.id}: a palavra ${e.payload.word} usa letra com movimento (${moving.join(', ')}), que a soletração pela câmera não lê.`,
           );
         }
       }

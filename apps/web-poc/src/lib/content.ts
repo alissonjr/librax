@@ -200,7 +200,7 @@ export { loadSignIndex };
  * Letra com movimento (H, J, K, X, Z, Ç) que a câmera avalia COM o movimento: está nos rótulos do
  * modelo das letras com movimento (/ml/letras-mov/model.json, lido pelo loadLetterMotionIndex antes
  * de resolver a lição). Vale antes do modelo das letras paradas, que só vê a forma da mão. Sem
- * modelo, nenhuma: H e K seguem com o modelo das letras paradas e J e Z com a prática livre.
+ * modelo, nenhuma: H e K seguem com o modelo das letras paradas e J, Z e Ç com a prática livre.
  */
 export function isLetterMotionEvaluable(sign: Sign | undefined): boolean {
   return !!sign && sign.category === 'alfabeto' && getMotionLetters().has(sign.gloss);

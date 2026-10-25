@@ -192,7 +192,7 @@
   },
   "course": {
     "u1": {
-      "desc": "As 26 configurações de mão da datilologia brasileira",
+      "desc": "As 27 letras da datilologia brasileira: de A a Z e o Ç",
       "title": "Alfabeto"
     },
     "u1-l1": "Letras A a E",
@@ -200,6 +200,7 @@
     "u1-l3": "Letras K a O",
     "u1-l4": "Letras P a T",
     "u1-l5": "Letras U a Z",
+    "u1-l6": "Letra Ç",
     "u2": {
       "desc": "Os números de 0 a 10",
       "title": "Números"
@@ -579,7 +580,7 @@
     "statNewSigns": "Sinais novos",
     "statStreak": "Dias seguidos",
     "statXp": "XP ganho",
-    "subAlphabet": "Parabéns! Você aprendeu todas as 26 letras da datilologia brasileira.",
+    "subAlphabet": "Parabéns! Você aprendeu todas as 27 letras da datilologia brasileira.",
     "subScore": "Você acertou {pct}% dos exercícios.",
     "titleAlphabet": "Você concluiu o Alfabeto!",
     "titleDone": "Lição concluída!",

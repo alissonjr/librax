@@ -106,7 +106,7 @@ só com as mãos (os vídeos do alfabeto não têm corpo e as letras não precis
   `teste_fixo.json` mais o INES, que nunca entram no treino. Resultado de 2026-10-25 (modelo `letras-mov`, 26
   canais no treino): canais separados + INES H 6/7, J 6/6, K 5/7, Ç 3/4, X 3/6, Z 4/7; validação por canal H 15/17,
   J 8/9, K 11/14, Ç 6/9, X 2/16, Z 3/13; parada de letra parada lida como letra com movimento 9/99 nos canais
-  separados (P, U e V como K; C e O como Ç; I como J). A câmera avalia H, J e K (e Ç, sem lição).
+  separados (P, U e V como K; C e O como Ç; I como J). A câmera avalia H, J, K e Ç (Ç na U1 L6).
 
 ## 4. Dados de treino (quantificado)
 

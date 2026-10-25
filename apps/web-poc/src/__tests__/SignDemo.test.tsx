@@ -42,6 +42,8 @@ vi.mock('../lib/vlibras', () => ({
 
 import { SignDemo, chooseDemoMode } from '../components/SignDemo';
 import { ExerciseWatchChooseWord } from '../components/ExerciseWatchChooseWord';
+import { ExerciseIntro } from '../components/ExerciseIntro';
+import { getSign } from '../lib/content';
 
 function makeSign(over: Partial<Sign> = {}): Sign {
   return {
@@ -180,5 +182,20 @@ describe('ExerciseWatchChooseWord com avatar', () => {
     const demo = container.querySelector('.sign-demo')!;
     expect(demo.textContent).not.toMatch(/banana/i);
     expect(screen.getByRole('img').getAttribute('aria-label')).not.toMatch(/banana/i);
+  });
+});
+
+describe('ExerciseIntro sem avatar (letra Ç)', () => {
+  it('mostra a forma em C e o movimento, sem carregar o player', async () => {
+    const sign = getSign('letra-Ç');
+    expect(chooseDemoMode(sign)).toBe('text');
+    const onNext = vi.fn();
+    render(<ExerciseIntro sign={sign} onNext={onNext} />);
+    expect(screen.getByText('Letra Ç')).toBeInTheDocument();
+    expect(screen.getByText(/forma de C/)).toBeInTheDocument();
+    expect(screen.getByText(/Movimento: a mao treme/)).toBeInTheDocument();
+    expect(mock.attach).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: /entendi/i }));
+    expect(onNext).toHaveBeenCalled();
   });
 });

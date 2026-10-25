@@ -17,8 +17,8 @@ Campos de cada sinal em `signs.json` que registram a origem e as dúvidas:
 | Campo | O que guarda |
 |---|---|
 | `status` / `validated` | `"rascunho"` / `false` em todos |
-| `source` | nome e link da fonte principal (ausente nas 26 letras do alfabeto) |
-| `notes` | conferência com outras fontes, variantes encontradas e por que uma forma foi escolhida (223 sinais) |
+| `source` | nome e link da fonte principal (ausente nas 27 letras do alfabeto) |
+| `notes` | conferência com outras fontes, variantes encontradas e por que uma forma foi escolhida (250 sinais) |
 | `avatar` | glosa do VLibras usada na demonstração e, quando há divergência, uma nota |
 
 ## Fontes usadas
@@ -52,8 +52,8 @@ O que já foi pesquisado:
 
 - **Cada sinal**: os 5 parâmetros (`params`), a descrição (`video_caption`) e a forma escolhida quando há
   variante. As `notes` registram as escolhas (cerca de 40 citam variação ou variante, 12 citam variação regional).
-- **As 26 letras do alfabeto**, que não têm `source`.
-- **O avatar**: se o movimento do VLibras confere com a descrição. Há 9 sinais com nota de divergência no
+- **As 27 letras do alfabeto** (A a Z e o Ç), que não têm `source`.
+- **O avatar**: se o movimento do VLibras confere com a descrição. Há 10 sinais com nota de divergência no
   `avatar`, por exemplo os números 1 a 4 (o VLibras mostra a forma de quantidade) e sequências montadas com duas
   glosas (BOA-TARDE como BOM + TARDE, ONZE como 1 + 1).
 - **As 60 frases**: ordem das glosas em Libras e tradução.

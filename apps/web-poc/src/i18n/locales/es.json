@@ -114,7 +114,7 @@
   },
   "course": {
     "u1": {
-      "desc": "Las 26 configuraciones de mano de la dactilología brasileña",
+      "desc": "Las 27 letras de la dactilología brasileña: de la A a la Z y la Ç",
       "title": "Alfabeto"
     },
     "u1-l1": "Letras A a E",
@@ -122,6 +122,7 @@
     "u1-l3": "Letras K a O",
     "u1-l4": "Letras P a T",
     "u1-l5": "Letras U a Z",
+    "u1-l6": "Letra Ç",
     "u2": {
       "desc": "Los números del 0 al 10",
       "title": "Números"
@@ -448,7 +449,7 @@
     "statNewSigns": "Señas nuevas",
     "statStreak": "Días seguidos",
     "statXp": "XP ganado",
-    "subAlphabet": "¡Felicidades! Aprendiste las 26 letras del alfabeto dactilológico brasileño.",
+    "subAlphabet": "¡Felicidades! Aprendiste las 27 letras del alfabeto dactilológico brasileño.",
     "subScore": "Acertaste el {pct}% de los ejercicios.",
     "titleAlphabet": "¡Completaste el Alfabeto!",
     "titleDone": "¡Lección completada!",

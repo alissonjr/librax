@@ -1,0 +1,109 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u1-l6",
+  "exercises": [
+    {
+      "id": "u1-l6-ex01",
+      "lesson_id": "u1-l6",
+      "type": "sign_intro",
+      "order": 1,
+      "payload": {
+        "sign_id": "letra-Ç"
+      }
+    },
+    {
+      "id": "u1-l6-ex02",
+      "lesson_id": "u1-l6",
+      "type": "watch_choose_word",
+      "order": 2,
+      "payload": {
+        "sign_id": "letra-Ç",
+        "correct": "Ç"
+      }
+    },
+    {
+      "id": "u1-l6-ex03",
+      "lesson_id": "u1-l6",
+      "type": "word_choose_video",
+      "order": 3,
+      "payload": {
+        "word": "C",
+        "video_options": [
+          "letra-C",
+          "letra-J",
+          "letra-Z",
+          "letra-Ç"
+        ],
+        "correct_sign_id": "letra-C"
+      }
+    },
+    {
+      "id": "u1-l6-ex04",
+      "lesson_id": "u1-l6",
+      "type": "watch_choose_word",
+      "order": 4,
+      "payload": {
+        "sign_id": "letra-J",
+        "correct": "J"
+      }
+    },
+    {
+      "id": "u1-l6-ex05",
+      "lesson_id": "u1-l6",
+      "type": "word_choose_video",
+      "order": 5,
+      "payload": {
+        "word": "Z",
+        "video_options": [
+          "letra-Z",
+          "letra-C",
+          "letra-J",
+          "letra-Ç"
+        ],
+        "correct_sign_id": "letra-Z"
+      }
+    },
+    {
+      "id": "u1-l6-ex06",
+      "lesson_id": "u1-l6",
+      "type": "perform_sign",
+      "order": 6,
+      "payload": {
+        "sign_id": "letra-C",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l6-ex07",
+      "lesson_id": "u1-l6",
+      "type": "perform_sign",
+      "order": 7,
+      "payload": {
+        "sign_id": "letra-Ç",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l6-ex08",
+      "lesson_id": "u1-l6",
+      "type": "fingerspell",
+      "order": 8,
+      "payload": {
+        "word": "CASA",
+        "letters": [
+          "C",
+          "A",
+          "S",
+          "A"
+        ],
+        "per_letter_confidence": null
+      }
+    }
+  ]
+}

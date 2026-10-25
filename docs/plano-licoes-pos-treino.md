@@ -28,8 +28,8 @@ Hoje só 10 letras têm exercício de câmera (A, B, F, G, K, L, P, Q, U, V), ma
 - J, Z e Ç têm movimento: ficam com prática livre até entrarem no modelo de sinais.
 
 Feito em 2026-10-25 (letras com movimento, spec-01 seção 3.3): modelo próprio, só com as mãos, para H, J, K, X, Z e
-Ç. Com ele publicado em `public/ml/letras-mov/`, H, K e J são avaliadas com o movimento (J entrou no `produce` da
-U1 L2). X (3/6) e Z (4/7) ficaram abaixo de 70% com pessoas nunca vistas e seguem como prática livre; o Y fica nas
+Ç. Com ele publicado em `public/ml/letras-mov/`, H, K, J e Ç são avaliadas com o movimento (J entrou no `produce` da
+U1 L2; o Ç ganhou a U1 L6, "Letra Ç", depois do Z, com o C, o J e o Z de revisão). X (3/6) e Z (4/7) ficaram abaixo de 70% com pessoas nunca vistas e seguem como prática livre; o Y fica nas
 letras paradas (nos vídeos a mão não se mexe).
 
 Feito: C, D, E, H, I, O, S, W e Y ganharam câmera (`produce` de cada lição da U1). M, N, R, T e X

@@ -28,6 +28,11 @@ export default {
       "xpReward": 15,
       "signCount": 6
     },
+    "u1-l6": {
+      "id": "u1-l6",
+      "xpReward": 10,
+      "signCount": 4
+    },
     "u2-l1": {
       "id": "u2-l1",
       "xpReward": 10,
@@ -332,6 +337,7 @@ export default {
     "letra-X",
     "letra-Y",
     "letra-Z",
+    "letra-Ç",
     "numero-0",
     "numero-1",
     "numero-2",
@@ -561,7 +567,7 @@ export default {
     "sinal-ASSOCIACAO",
     "sinal-APLAUSO"
   ],
-  "alphabetLessonId": "u1-l5",
+  "alphabetLessonId": "u1-l6",
   "signGlosses": {
     "letra-A": "A",
     "letra-B": "B",
@@ -589,6 +595,7 @@ export default {
     "letra-X": "X",
     "letra-Y": "Y",
     "letra-Z": "Z",
+    "letra-Ç": "Ç",
     "numero-0": "0",
     "numero-1": "1",
     "numero-2": "2",

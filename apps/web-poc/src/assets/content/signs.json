@@ -572,6 +572,29 @@
     "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/zSm_Prog001.mp4, configuracao de mao cg14) e no avatar VLibras: as duas fontes concordam com esta descricao. As duas mostram o indicador esticado tracando o Z no ar. O MOV dizia \"diagonal para baixo, diagonal para cima\", diferente da legenda e do que as fontes mostram; foi alinhado com a legenda."
   },
   {
+    "id": "letra-Ç",
+    "gloss": "Ç",
+    "category": "alfabeto",
+    "recognition": "dynamic",
+    "params": {
+      "CM": "mao semi-aberta curvada em forma de C (a mesma do C)",
+      "PA": "espaco neutro",
+      "MOV": "a mao treme: balanca rapido de um lado para o outro algumas vezes, sem sair do lugar",
+      "OR": "palma para o lado",
+      "ENM": "neutra"
+    },
+    "video_url": null,
+    "video_caption": "Mao curvada formando um C, palma voltada para o lado, que treme balancando rapido de um lado para o outro, sem sair do lugar.",
+    "avatar": {
+      "provider": "vlibras",
+      "gloss": null,
+      "notes": "Sem glosa do Ç no avatar. O dicionario do VLibras tem um arquivo \"Ç\", mas no player do app (sinais 2018.3.1) ele deixa o avatar com os bracos caidos no lugar da posicao de descanso e a legenda do player mostra \"C\"; ficou sem avatar ate conferir. Sem avatar, a apresentacao mostra a descricao da forma (C) e do movimento."
+    },
+    "status": "rascunho",
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/cedilhaSm_Prog001.mp4, configuracao de mao cg51a, a mesma do C): a mao em C, na mesma altura e com a palma para o mesmo lado do C (cSm_Prog001.mp4), treme de um lado para o outro por cerca de um segundo; no C a mao fica parada. O mesmo movimento aparece nas folhas de conferencia do modelo das letras com movimento (ml-training/data/letras_mov/conferir/letra-Ç.jpg). E o movimento que distingue o Ç do C; a camera avalia com o modelo das letras com movimento (public/ml/letras-mov/, camera_letters)."
+  },
+  {
     "id": "numero-0",
     "gloss": "0",
     "category": "numeros",

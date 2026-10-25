@@ -136,7 +136,7 @@
   },
   "course": {
     "u1": {
-      "desc": "The 26 handshapes of Brazilian fingerspelling",
+      "desc": "The 27 letters of Brazilian fingerspelling: A to Z plus Ç",
       "title": "Alphabet"
     },
     "u1-l1": "Letters A to E",
@@ -144,6 +144,7 @@
     "u1-l3": "Letters K to O",
     "u1-l4": "Letters P to T",
     "u1-l5": "Letters U to Z",
+    "u1-l6": "Letter Ç",
     "u2": {
       "desc": "Numbers from 0 to 10",
       "title": "Numbers"
@@ -470,7 +471,7 @@
     "statNewSigns": "New signs",
     "statStreak": "Days in a row",
     "statXp": "XP earned",
-    "subAlphabet": "Congratulations! You learned all 26 letters of the Brazilian fingerspelling alphabet.",
+    "subAlphabet": "Congratulations! You learned all 27 letters of the Brazilian fingerspelling alphabet.",
     "subScore": "You got {pct}% of the exercises right.",
     "titleAlphabet": "You completed the Alphabet!",
     "titleDone": "Lesson completed!",
