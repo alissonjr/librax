@@ -1,5 +1,6 @@
 import { openDB, type IDBPDatabase } from 'idb';
 import { getSession, onAuthEvent, type Session } from './auth';
+import type { LessonCameraStats } from './cameraStats';
 
 /**
  * Fila offline (outbox) das conclusões de lição: spec-02 seção 7 e plano mobile web, fase W3.
@@ -28,6 +29,13 @@ export interface ReviewedSign {
  */
 export type ExerciseStats = Record<string, { attempted: number; wrong: number }>;
 
+/**
+ * Desempenho da câmera produzido na lição (cameraStats.ts, `LessonCameraStats`): acertos, pulos,
+ * tentativas e leituras de outro sinal, por sinal. Só a diferença da lição, nunca o acumulado do
+ * aparelho; também só alimenta os contadores do painel e o servidor descarta o que vier fora do formato.
+ */
+export type { LessonCameraStats } from './cameraStats';
+
 export interface LessonCompletionInput {
   lessonId: string;
   /** Dia local da conclusão ('YYYY-MM-DD'), o mesmo passado ao completeLesson local. */
@@ -38,6 +46,7 @@ export interface LessonCompletionInput {
   lessonAttemptId?: string;
   completedAt?: string;
   exerciseStats?: ExerciseStats;
+  cameraStats?: LessonCameraStats;
 }
 
 export interface OutboxEntry {
@@ -49,6 +58,7 @@ export interface OutboxEntry {
   signsLearnedDelta: number;
   completedAt: string;
   exerciseStats?: ExerciseStats;
+  cameraStats?: LessonCameraStats;
   /** sub do Cognito de quem concluiu; null = convidado (vai pela migração). */
   owner: string | null;
   seq: number;
@@ -120,6 +130,7 @@ export async function enqueueLessonCompletion(input: LessonCompletionInput): Pro
     signsLearnedDelta: input.signsLearnedDelta ?? 0,
     completedAt: input.completedAt ?? deps.now().toISOString(),
     ...(input.exerciseStats && Object.keys(input.exerciseStats).length ? { exerciseStats: input.exerciseStats } : {}),
+    ...(input.cameraStats && Object.keys(input.cameraStats).length ? { cameraStats: input.cameraStats } : {}),
     owner: session?.userId ?? null,
     seq: Date.now() * 1000 + (seqCounter++ % 1000),
     attempts: 0,
@@ -147,6 +158,7 @@ const toPayload = (e: OutboxEntry) => ({
   reviewed: e.reviewed,
   signsLearnedDelta: e.signsLearnedDelta,
   ...(e.exerciseStats ? { exerciseStats: e.exerciseStats } : {}),
+  ...(e.cameraStats ? { cameraStats: e.cameraStats } : {}),
 });
 
 type Outcome = 'ok' | 'drop' | 'auth' | 'retry' | 'too_large';

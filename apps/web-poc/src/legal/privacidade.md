@@ -27,7 +27,7 @@ Enquanto você usa o Librax sem conta, os dados abaixo ficam guardados no navega
 - o nome ou apelido que você digita nas boas-vindas;
 - o seu progresso: XP, sequência de dias, lições concluídas, conquistas, as revisões programadas de cada sinal e a liga da semana;
 - a lição em andamento, para você continuar de onde parou se a página recarregar;
-- o desempenho da câmera: quantas tentativas e quantos pulos cada letra ou sinal teve nos exercícios com câmera e qual letra ou sinal a câmera leu no lugar. São só números, sem imagem, e você vê e apaga tudo em Configurações, "Desempenho da câmera";
+- o desempenho da câmera: quantas tentativas e quantos pulos cada letra ou sinal teve nos exercícios com câmera e qual letra ou sinal a câmera leu no lugar. São só números, sem imagem, e você vê e apaga tudo em Configurações, "Desempenho da câmera". Se você tiver conta, os números de cada lição também vão para o servidor junto com ela (item 5); apagar no aparelho não muda os totais já somados lá, que não identificam você;
 - suas preferências: idioma, tema, sons e avisos que você já viu;
 - um código aleatório criado pelo app para separar os dados deste aparelho, que não identifica você;
 - as lições concluídas que ainda vão ser enviadas, se você tiver ou criar uma conta;
@@ -41,7 +41,7 @@ Esses dados ficam no aparelho até você apagá-los, pelo botão "Excluir conta 
 
 - A câmera só é usada nos exercícios que pedem e só depois que você dá permissão no navegador. Você pode retirar essa permissão quando quiser, nas configurações do navegador.
 - A imagem é analisada no próprio aparelho por um modelo de reconhecimento de mãos (MediaPipe, do Google), que o Librax entrega dos próprios servidores. O modelo encontra 21 pontos da mão, e o app compara esses pontos com o sinal esperado.
-- Nenhuma foto, vídeo ou ponto da mão é gravado ou enviado, nem para nós nem para terceiros. Se você tiver conta, o servidor recebe só o resultado da lição, por exemplo quais sinais você acertou.
+- Nenhuma foto, vídeo ou ponto da mão é gravado ou enviado, nem para nós nem para terceiros. Se você tiver conta, o servidor recebe só o resultado da lição, por exemplo quais sinais você acertou e quantas tentativas e pulos cada letra ou sinal teve na câmera.
 
 Existe também uma página separada de coleta voluntária, usada para treinar o reconhecimento, com um termo próprio. Nela, os pontos da mão (números, nunca imagens) ficam guardados no aparelho e só chegam até nós se você mesmo exportar o arquivo e entregá-lo à equipe.
 
@@ -68,11 +68,11 @@ Ligados ao identificador da sua conta:
 
 O progresso vai para o servidor quando você conclui uma lição (ou assim que houver internet). Quando você entra na conta pela primeira vez, o progresso feito como convidado neste aparelho é levado para ela.
 
-Com conta, o app também envia quantas respostas e quantos erros você teve em cada tipo de exercício da lição e, se você sair no meio, em que exercício parou. Esses números só entram nos totais do item 6.
+Com conta, o app também envia quantas respostas e quantos erros você teve em cada tipo de exercício da lição e, se você sair no meio, em que exercício parou. Junto com a lição concluída vai também o desempenho da câmera só daquela lição: quantas vezes cada letra ou sinal foi acertado ou pulado, quantas tentativas precisou e qual letra ou sinal do curso a câmera leu no lugar. São só contagens, sem imagem, vídeo ou texto. As lições feitas como convidado levam esses números quando você entra na conta. Esses números só entram nos totais do item 6 e não ficam ligados à sua conta.
 
 ## 6. Números da operação
 
-Para saber se o app funciona e onde as pessoas têm mais dificuldade, o servidor soma totais por dia, por semana e por mês: pessoas ativas, contas novas, lições concluídas e abandonadas, e erros por lição, por tipo de exercício e por sinal. Esses totais não guardam quem fez o quê.
+Para saber se o app funciona e onde as pessoas têm mais dificuldade, o servidor soma totais por dia, por semana e por mês: pessoas ativas, contas novas, lições concluídas e abandonadas, erros por lição, por tipo de exercício e por sinal, e o desempenho da câmera por letra e sinal (acertos, pulos, tentativas e as letras ou sinais lidos no lugar), somando todas as pessoas. Esses totais não guardam quem fez o quê.
 
 Registros técnicos de funcionamento do servidor (por exemplo, erros) ficam 30 dias e podem conter o identificador da sua conta.
 

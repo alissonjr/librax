@@ -5,10 +5,11 @@
  * - Contas (config.mjs, ACCOUNTS): criadas uma vez, com o verificador SRP da senha e o grupo
  *   `admin` para a conta admin. Cada conta nova passa pelo gatilho PostConfirmation no dia em
  *   que "se cadastrou", para o painel mostrar contas novas espalhadas.
- * - Atividade das ultimas duas semanas: licoes (POST /v1/lesson/complete, com exerciseStats e
- *   sinais revisados), pratica (POST /v1/practice/review), saidas no meio da licao e squads, em
- *   ordem de tempo e com o relogio do servidor no dia de cada evento. Ao virar a semana roda o
- *   fechamento das ligas (job librax-close-league), como o Scheduler faria.
+ * - Atividade das ultimas duas semanas: licoes (POST /v1/lesson/complete, com exerciseStats,
+ *   desempenho da camera nas letras e sinais revisados), pratica (POST /v1/practice/review),
+ *   saidas no meio da licao e squads, em ordem de tempo e com o relogio do servidor no dia de cada
+ *   evento. Ao virar a semana roda o fechamento das ligas (job librax-close-league), como o
+ *   Scheduler faria.
  * - Job diario do painel (librax-ops-daily) nos 14 dias anteriores, com CloudWatch e Cost
  *   Explorer falsos (fakes.mjs).
  *
@@ -60,6 +61,8 @@ const SQUADS = [
 ];
 
 const EXERCISES = ['watch_choose_word', 'word_choose_video', 'match_pairs', 'perform_sign', 'build_phrase', 'fingerspell'];
+/** Letras que a camera costuma ler no lugar de outra (so para a semente ter confusoes). */
+const CONFUSED = ['H', 'U', 'V', 'N', 'M', 'S', 'E'];
 
 /** Evento do API Gateway minimo para chamar um handler pela fabrica. */
 const apiEvent = (routeKey, userId, body) => ({
@@ -207,6 +210,16 @@ async function seedActivity({ functions, users, catalog, now, log }) {
         const attempted = 2 + Math.floor(rand() * 3);
         exerciseStats[type] = { attempted, wrong: Math.floor(rand() * attempted * 0.5) };
       }
+      // Desempenho da camera nas letras da licao: acertos, pulos e a letra lida no lugar
+      const cameraStats = {};
+      for (const signId of signs.filter((id) => id.startsWith('letra-'))) {
+        const successes = rand() < 0.8 ? 1 : 0;
+        const skips = 1 - successes;
+        const wrongCount = Math.floor(rand() * 3);
+        const wrong = wrongCount > 0 ? { [CONFUSED[Math.floor(rand() * CONFUSED.length)]]: wrongCount } : {};
+        delete wrong[signId.slice('letra-'.length)];
+        cameraStats[signId] = { successes, skips, attempts: successes ? 1 + wrongCount : 0, wrong };
+      }
       await call(http.completeLessonHandler, apiEvent('POST /v1/lesson/complete', user.userId, {
         lessonAttemptId: `seed-${ev.key}-${ev.at.getTime()}`,
         lessonId,
@@ -216,6 +229,7 @@ async function seedActivity({ functions, users, catalog, now, log }) {
         reviewed,
         signsLearnedDelta: signs.length,
         exerciseStats,
+        cameraStats,
       }), `licao ${lessonId}`);
       totals.lesson += 1;
     } else if (ev.kind === 'practice') {

@@ -63,10 +63,10 @@ describe('acesso', () => {
     expect(s.completeLogin).toHaveBeenCalledWith('?code=abc&state=x');
   });
 
-  it('admin: barra com as cinco seções e selo de só leitura', async () => {
+  it('admin: barra com as seis seções e selo de só leitura', async () => {
     renderApp(mockApi(), session());
     const nav = await screen.findByRole('navigation', { name: 'Seções do painel' });
-    expect(within(nav).getAllByRole('link').map((a) => a.textContent?.trim())).toEqual(['Operação', 'Conteúdo', 'Contas', 'Squads', 'Custo']);
+    expect(within(nav).getAllByRole('link').map((a) => a.textContent?.trim())).toEqual(['Operação', 'Câmera', 'Conteúdo', 'Contas', 'Squads', 'Custo']);
     expect(screen.getByText('só leitura')).toBeInTheDocument();
     expect(screen.getByText('dono@exemplo.com')).toBeInTheDocument();
   });

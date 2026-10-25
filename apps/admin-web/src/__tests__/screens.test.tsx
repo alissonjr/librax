@@ -4,12 +4,14 @@ import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { ApiContext } from '../lib/context';
 import { mockApi } from '../dev/mock';
-import { sampleContent, sampleCost, sampleOverview } from '../dev/fixtures';
+import { sampleCamera, sampleContent, sampleCost, sampleOverview } from '../dev/fixtures';
 import { OperacaoView } from '../screens/OperacaoScreen';
 import { ConteudoView, PAGE_SIZE } from '../screens/ConteudoScreen';
 import { ContasScreen } from '../screens/ContasScreen';
 import { SquadsScreen } from '../screens/SquadsScreen';
 import { CustoView } from '../screens/CustoScreen';
+import { CameraScreen, CameraView, MIN_RUNS } from '../screens/CameraScreen';
+import { fmtInt } from '../lib/format';
 import { BarChart, niceMax } from '../components/Chart';
 import type { AdminApi } from '../lib/api';
 
@@ -51,6 +53,53 @@ describe('Operação', () => {
     render(<OperacaoView o={o} />);
     expect(screen.getByText('Ainda sem respostas por tipo de exercício.')).toBeInTheDocument();
     expect(screen.getByText('Job diário ainda não rodou')).toBeInTheDocument();
+  });
+});
+
+describe('Câmera', () => {
+  const range = { from: '2026-09-24', to: '2026-10-23' };
+  const glosses = (table: HTMLElement) =>
+    within(table).getAllByRole('row').slice(1).map((r) => r.querySelector('.gloss')?.textContent);
+
+  it('do mais difícil para o mais fácil, com o nível e as leituras trocadas', () => {
+    const camera = sampleCamera();
+    render(<CameraView camera={camera} range={range} />);
+    expect(screen.getByText('Vezes na câmera').nextSibling).toHaveTextContent(fmtInt(camera.totals.runs));
+    expect(screen.getByText('24 set a 23 out')).toBeInTheDocument();
+    const table = screen.getByRole('table');
+    const order = glosses(table);
+    expect(order[0]).toBe('K');
+    expect(order).not.toContain('B'); // menos de 5 vezes fica fora
+    const k = within(table).getAllByRole('row')[1];
+    expect(k).toHaveTextContent('Difícil');
+    expect(k).toHaveTextContent('H (61), V (22), U (8)');
+    expect(within(screen.getByRole('list', { name: 'Leituras trocadas mais comuns' })).getAllByRole('listitem')[0])
+      .toHaveTextContent('M lido como N');
+  });
+
+  it('filtra letras ou sinais e mostra os com poucas vezes quando pedido', async () => {
+    render(<CameraView camera={sampleCamera()} range={range} />);
+    await userEvent.click(screen.getByRole('radio', { name: 'Sinais' }));
+    expect(glosses(screen.getByRole('table'))).toEqual(['OBRIGADO', 'TCHAU']);
+    await userEvent.click(screen.getByRole('radio', { name: 'Letras' }));
+    expect(screen.getByRole('status')).toHaveTextContent(`1 com menos de ${MIN_RUNS} vezes fora da lista`);
+    await userEvent.click(screen.getByRole('checkbox', { name: /menos de 5 vezes/ }));
+    expect(glosses(screen.getByRole('table'))).toContain('B');
+  });
+
+  it('sem números ainda: estado vazio', () => {
+    const empty = { totals: { signs: 0, runs: 0, successes: 0, skips: 0, wrongReadings: 0 }, signs: [], confusions: [] };
+    render(<CameraView camera={empty} range={range} />);
+    expect(screen.getByText(/Ainda sem números da câmera/)).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
+  it('a tela usa a mesma rota da Operação (mesma janela de 30 dias)', async () => {
+    const api = mockApi();
+    const overview = vi.spyOn(api, 'overview');
+    withApi(api, <CameraScreen />);
+    expect(await screen.findByRole('table')).toBeInTheDocument();
+    expect(overview).toHaveBeenCalledTimes(1);
   });
 });
 

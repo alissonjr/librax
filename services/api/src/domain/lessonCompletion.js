@@ -6,7 +6,8 @@ import { parseIsoDate, daysBetween } from '../lib/dates.js';
  *
  * O cliente nao e confiavel: so passam campos conhecidos, com tipo e tamanho checados.
  * XP vem do catalogo (completeLesson), signsLearnedDelta e limitado pela licao e
- * alphabetComplete e derivado do catalogo, nunca do cliente.
+ * alphabetComplete e derivado do catalogo, nunca do cliente. A telemetria do painel de
+ * administracao (exerciseStats e cameraStats) fora do formato e descartada sem recusar a conclusao.
  */
 
 export const LIMITS = {
@@ -88,6 +89,61 @@ export function parseExerciseStats(raw) {
 }
 
 /**
+ * Tetos do desempenho da camera numa licao (`cameraStats`). Uma licao tem de 8 a 20 exercicios e a
+ * soletracao conta cada letra, entao 40 sinais e 50 vezes por sinal ja sobram. Os rotulos errados
+ * por sinal seguem o teto do app (cameraStats.ts guarda 20 no acumulado; numa licao sao poucos).
+ */
+export const CAMERA_LIMITS = {
+  maxSigns: 40,
+  maxRunsPerSign: 50,
+  maxCount: 500,
+  maxWrongLabels: 8,
+};
+const CAMERA_LABEL_RE = /^[\p{Lu}\p{N}_-]{1,40}$/u;
+
+/**
+ * Desempenho da camera numa licao (so a diferenca da licao, nao o acumulado do aparelho):
+ * `{ "<signId>": { successes, skips, attempts, wrong: { "<rotulo>": n } } }`.
+ * - `attempts`: tentativas das vezes que terminaram em acerto (a certa e as erradas antes dela);
+ * - `wrong`: quantas vezes a camera leu outra letra ou glosa no lugar (K lida como H).
+ *
+ * So entra sinal do curso, e rotulo errado so se for a glosa de outro sinal do curso: nada de
+ * texto livre. E telemetria para o painel de administracao: o sinal fora do formato some sozinho,
+ * o rotulo desconhecido some do `wrong`, e a conclusao segue valendo. Devolve null se nao sobrar
+ * nada ou se o envio inteiro estiver fora do formato.
+ *
+ * @param {unknown} raw
+ * @param {Record<string, string>} glosses  signId -> glosa (catalog.signGlosses)
+ */
+export function parseCameraStats(raw, glosses = {}) {
+  if (!isObject(raw)) return null;
+  const entries = Object.entries(raw);
+  if (entries.length > CAMERA_LIMITS.maxSigns) return null;
+  const known = new Set(Object.values(glosses));
+  const count = (n, max) => Number.isInteger(n) && n >= 0 && n <= max;
+  const out = {};
+  for (const [signId, value] of entries) {
+    if (!has(glosses, signId) || !isObject(value)) continue;
+    const { successes, skips, attempts } = value;
+    if (!count(successes, CAMERA_LIMITS.maxRunsPerSign) || !count(skips, CAMERA_LIMITS.maxRunsPerSign)) continue;
+    if (successes + skips === 0 || !count(attempts, CAMERA_LIMITS.maxCount)) continue;
+    // cada acerto e pelo menos uma tentativa; sem acerto, nenhuma tentativa conta
+    if (successes === 0 ? attempts !== 0 : attempts < successes) continue;
+    const rawWrong = value.wrong ?? {};
+    if (!isObject(rawWrong) || Object.keys(rawWrong).length > CAMERA_LIMITS.maxWrongLabels) continue;
+    const wrong = {};
+    let badCount = false;
+    for (const [label, n] of Object.entries(rawWrong)) {
+      if (!count(n, CAMERA_LIMITS.maxCount)) badCount = true;
+      else if (n > 0 && CAMERA_LABEL_RE.test(label) && known.has(label) && label !== glosses[signId]) wrong[label] = n;
+    }
+    if (badCount) continue;
+    out[signId] = { successes, skips, attempts, wrong };
+  }
+  return Object.keys(out).length > 0 ? out : null;
+}
+
+/**
  * Valida e normaliza uma conclusao.
  *
  * @param {object} raw     conclusao vinda do cliente
@@ -130,6 +186,7 @@ export function parseCompletionEntry(raw, ctx) {
   const signCount = lessons[lessonId].signCount ?? 0;
   const delta = Number.isInteger(raw.signsLearnedDelta) ? raw.signsLearnedDelta : 0;
   const exerciseStats = parseExerciseStats(raw.exerciseStats);
+  const cameraStats = parseCameraStats(raw.cameraStats, catalog.signGlosses);
 
   return {
     ok: true,
@@ -143,6 +200,7 @@ export function parseCompletionEntry(raw, ctx) {
       signsLearnedDelta: Math.min(Math.max(delta, 0), signCount),
       alphabetComplete: lessonId === catalog.alphabetLessonId,
       ...(exerciseStats ? { exerciseStats } : {}),
+      ...(cameraStats ? { cameraStats } : {}),
     },
   };
 }

@@ -11,6 +11,7 @@ import { ConteudoScreen } from './screens/ConteudoScreen';
 import { ContasScreen } from './screens/ContasScreen';
 import { SquadsScreen } from './screens/SquadsScreen';
 import { CustoScreen } from './screens/CustoScreen';
+import { CameraScreen } from './screens/CameraScreen';
 
 /** Sessão do painel (lib/auth.ts em produção; um falso nos testes e no modo de exemplo). */
 export interface Session {
@@ -23,6 +24,7 @@ export interface Session {
 
 const NAV: Array<[string, string, string]> = [
   ['/', 'Operação', 'trending_up'],
+  ['/camera', 'Câmera', 'videocam'],
   ['/conteudo', 'Conteúdo', 'sign_language'],
   ['/contas', 'Contas', 'person'],
   ['/squads', 'Squads', 'group'],
@@ -36,6 +38,7 @@ export function AdminApp({ api, session }: { api: AdminApi; session: Session }) 
         <Route path="/auth/callback" element={<Callback session={session} />} />
         <Route path="*" element={<Gate api={api} session={session} />}>
           <Route index element={<OperacaoScreen />} />
+          <Route path="camera" element={<CameraScreen />} />
           <Route path="conteudo" element={<ConteudoScreen />} />
           <Route path="contas" element={<ContasScreen />} />
           <Route path="squads" element={<SquadsScreen />} />

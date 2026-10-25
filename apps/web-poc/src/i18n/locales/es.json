@@ -101,7 +101,7 @@
     "clearTitle": "¿Borrar el rendimiento de la cámara?",
     "clearMessage": "Los intentos y saltos guardados en este dispositivo se borrarán. Tu progreso en las lecciones se mantiene.",
     "clearConfirm": "Borrar",
-    "privacyNote": "Solo números, sin imagen ni video. Se quedan en este dispositivo y no se envían."
+    "privacyNote": "Solo números, sin imagen ni video. Con cuenta, los números de cada lección se envían junto con ella, solo para los totales de todas las personas, sin identificarte."
   },
   "common": {
     "back": "Volver",

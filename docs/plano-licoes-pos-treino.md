@@ -109,14 +109,13 @@ Feito em 2026-10-25, só no aparelho:
 - Tela em Configurações, "Desempenho da câmera" (`/configuracoes/camera`): do mais difícil para o
   mais fácil (taxa de pulo, depois média de tentativas), com as leituras erradas mais comuns, exportar
   JSON e apagar. A Política de Privacidade (1.1) cita esses números entre os dados do aparelho.
-- Não vai ao servidor. Para somar os números de todas as pessoas, faltaria: aceitar um campo novo
-  na conclusão de lição (por exemplo `cameraStats: { "<signId>": { successes, skips, attempts,
-  wrong: { "<rótulo>": n } } }`) em `services/api/src/domain/lessonCompletion.js`, com sinais do
-  catálogo, rótulos do catálogo e tetos de contagem, descartado sem recusar a conclusão como o
-  `exerciseStats`; somar em `opsMetrics.js` no item `SIGN` do dia (`camSkip:<signId>`,
-  `camAttempts:<signId>`, `camWrong:<signId>:<rótulo>`); mostrar no painel; mandar do app a
-  diferença de cada lição (não o acumulado); e dizer no item 5 da Política que esses números vão
-  junto com a lição.
+- Também vai ao servidor (2026-10-25), para somar os números de todas as pessoas: a conclusão de
+  lição leva `cameraStats: { "<signId>": { successes, skips, attempts, wrong: { "<rótulo>": n } } }`
+  só com a diferença daquela lição (nunca o acumulado), pela fila offline e só com conta (o
+  convidado manda na migração). O servidor aceita só sinais e glosas do curso, com tetos, e
+  descarta o que vier fora do formato sem recusar a conclusão; soma no item `DAY#<dia>#CAMERA`
+  (`success:`, `skip:`, `attempts:` e `wrong:<signId>:<rótulo>`), sem id de pessoa. O painel tem
+  a tela "Câmera" (docs/painel-admin.md) e a Política (1.1) diz isso nos itens 3, 4, 5 e 6.
 
 ## Ordem sugerida
 

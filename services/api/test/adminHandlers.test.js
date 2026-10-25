@@ -111,6 +111,24 @@ test('GET /v1/admin/overview le os contadores agregados com os nomes das licoes'
   assert.deepEqual(body.signs, [{ signId: 'letra-A', gloss: 'A', failed: 1 }]);
 });
 
+test('GET /v1/admin/overview traz a camera de todas as pessoas com glosa e tipo do curso', async () => {
+  const repo = new InMemoryRepo();
+  await recordLessonCompleted(repo, {
+    userId: PERSON, lessonId: 'u1-l1', today: '2026-10-23',
+    cameraStats: { 'letra-K': { successes: 1, skips: 1, attempts: 4, wrong: { H: 3 } } },
+  });
+  const { adminRouter } = setup({ repo });
+  const body = parse(await adminRouter(event({ routeKey: 'GET /v1/admin/overview' })));
+  assert.equal(body.camera.signs.length, 1);
+  const { signId, gloss, kind, skipRate, avgAttempts, topWrong } = body.camera.signs[0];
+  assert.deepEqual(
+    { signId, gloss, kind, skipRate, avgAttempts, topWrong },
+    { signId: 'letra-K', gloss: 'K', kind: 'letter', skipRate: 0.5, avgAttempts: 4, topWrong: [{ label: 'H', count: 3 }] },
+  );
+  // so totais: nenhum id de pessoa na resposta
+  assert.equal(JSON.stringify(body.camera).includes(PERSON), false);
+});
+
 test('a tela de operacao nao faz Scan: so Querys na particao OPS', async () => {
   const repo = new InMemoryRepo();
   const used = [];

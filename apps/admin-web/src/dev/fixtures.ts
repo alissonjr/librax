@@ -1,7 +1,7 @@
 // Dados de exemplo do painel (npm run dev:mock e testes). Mesmo formato das rotas /v1/admin; o
 // conteúdo é o de verdade, gerado do bundle do app (services/api/src/content/contentStatus.js).
 import contentStatus from '../../../../services/api/src/content/contentStatus.js';
-import type { AccountSummary, ContentStatus, CostView, Overview, SquadRow } from '../lib/types';
+import type { AccountSummary, CameraSignRow, CameraView, ContentStatus, CostView, Overview, SquadRow } from '../lib/types';
 
 /** Números estáveis (sem Math.random), para os prints e os testes saírem sempre iguais. */
 function seeded(seed: number) {
@@ -14,6 +14,51 @@ function seeded(seed: number) {
 
 const DAY_MS = 86400000;
 const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+
+const glossOf = (signId: string) => (contentStatus as unknown as ContentStatus).signs.find((s) => s.id === signId)?.gloss ?? null;
+
+/** Desempenho da câmera de exemplo: letras que a câmera troca entre si e alguns sinais com movimento. */
+export function sampleCamera(): CameraView {
+  // [id, acertos, pulos, tentativas, leituras trocadas]
+  const raw: Array<[string, number, number, number, Record<string, number>]> = [
+    ['letra-K', 52, 41, 168, { H: 61, V: 22, U: 8 }],
+    ['letra-M', 70, 30, 190, { N: 74, S: 12 }],
+    ['letra-N', 81, 22, 175, { M: 58, U: 9 }],
+    ['sinal-OBRIGADO', 18, 9, 52, { 'BOM-DIA': 14, OI: 5 }],
+    ['letra-X', 40, 14, 96, { R: 20, D: 9 }],
+    ['letra-U', 95, 18, 160, { V: 41, R: 7 }],
+    ['sinal-TCHAU', 22, 5, 41, { OI: 12 }],
+    ['letra-E', 120, 14, 170, { S: 26, A: 9 }],
+    ['letra-A', 160, 6, 175, { S: 9 }],
+    ['letra-L', 150, 4, 158, { D: 3 }],
+    ['letra-B', 3, 1, 5, { C: 1 }],
+  ];
+  const rows: CameraSignRow[] = raw.map(([signId, successes, skips, attempts, wrong]) => {
+    const runs = successes + skips;
+    const skipRate = Math.round((skips / runs) * 1000) / 1000;
+    const avgAttempts = successes ? Math.round((attempts / successes) * 100) / 100 : null;
+    const sorted = Object.entries(wrong).sort((a, b) => b[1] - a[1]);
+    const level = skipRate >= 0.5 || (avgAttempts ?? 0) >= 3 ? 'hard' : skipRate >= 0.2 || (avgAttempts ?? 0) >= 2 ? 'attention' : 'ok';
+    return {
+      signId, gloss: glossOf(signId), kind: signId.startsWith('letra-') ? 'letter' : 'sign',
+      runs, successes, skips, skipRate, attempts, avgAttempts,
+      wrongReadings: sorted.reduce((a, [, n]) => a + n, 0),
+      topWrong: sorted.slice(0, 3).map(([label, count]) => ({ label, count })),
+      level,
+    };
+  });
+  rows.sort((a, b) => b.skipRate - a.skipRate || (b.avgAttempts ?? Infinity) - (a.avgAttempts ?? Infinity) || b.runs - a.runs);
+  const confusions = rows
+    .flatMap((r) => r.topWrong.map((w) => ({ signId: r.signId, gloss: r.gloss, label: w.label, count: w.count })))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 15);
+  const sum = (f: 'runs' | 'successes' | 'skips' | 'wrongReadings') => rows.reduce((a, r) => a + r[f], 0);
+  return {
+    totals: { signs: rows.length, runs: sum('runs'), successes: sum('successes'), skips: sum('skips'), wrongReadings: sum('wrongReadings') },
+    signs: rows,
+    confusions,
+  };
+}
 
 export function sampleOverview(today = '2026-10-23'): Overview {
   const rnd = seeded(43);
@@ -92,6 +137,7 @@ export function sampleOverview(today = '2026-10-23'): Overview {
       { signId: 'letra-Y', gloss: 'Y', failed: 52 },
       { signId: 'obrigado', gloss: 'OBRIGADO', failed: 31 },
     ],
+    camera: sampleCamera(),
     serverErrors: {
       collectedThrough: days[28].day,
       byFunction: [{ name: 'librax-complete-lesson', errors: 3 }, { name: 'librax-get-league', errors: 1 }],

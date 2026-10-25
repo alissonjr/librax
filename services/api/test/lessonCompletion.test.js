@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseCompletionEntry, parseGuestLog, LIMITS } from '../src/domain/lessonCompletion.js';
+import { parseCompletionEntry, parseGuestLog, parseCameraStats, LIMITS, CAMERA_LIMITS } from '../src/domain/lessonCompletion.js';
 
 // Validacao das conclusoes que chegam do cliente (POST /v1/lesson/complete e
 // POST /v1/guest/migrate). O cliente nao e confiavel: tudo e checado e limitado.
@@ -13,6 +13,7 @@ const catalog = {
   },
   signsOrder: ['letra-A', 'letra-B', 'letra-C'],
   alphabetLessonId: 'u1-l2',
+  signGlosses: { 'letra-A': 'A', 'letra-B': 'B', 'letra-C': 'C' },
 };
 const ctx = { catalog, today: '2026-10-23' };
 
@@ -158,4 +159,68 @@ test('exerciseStats valido passa e o invalido some sem recusar a conclusao', () 
     assert.equal(res.ok, true);
     assert.equal(res.value.exerciseStats, undefined);
   }
+});
+
+// --- cameraStats (desempenho da camera, telemetria do painel de administracao) ---
+
+test('cameraStats valido passa normalizado, com wrong vazio quando nao veio', () => {
+  const r = parseCompletionEntry(entry({
+    cameraStats: {
+      'letra-A': { successes: 2, skips: 1, attempts: 5, wrong: { B: 2, C: 1 } },
+      'letra-B': { successes: 0, skips: 1, attempts: 0 },
+    },
+  }), ctx);
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.value.cameraStats, {
+    'letra-A': { successes: 2, skips: 1, attempts: 5, wrong: { B: 2, C: 1 } },
+    'letra-B': { successes: 0, skips: 1, attempts: 0, wrong: {} },
+  });
+  // sem o campo, nada muda na conclusao
+  assert.equal(parseCompletionEntry(entry(), ctx).value.cameraStats, undefined);
+});
+
+test('cameraStats: sinal fora do formato some sozinho e a conclusao segue valendo', () => {
+  const good = { successes: 1, skips: 0, attempts: 1 };
+  for (const bad of [
+    { successes: 1.5, skips: 0, attempts: 2 },
+    { successes: -1, skips: 2, attempts: 0 },
+    { successes: 0, skips: 0, attempts: 0 }, // nenhuma vez
+    { successes: 2, skips: 0, attempts: 1 }, // menos tentativas que acertos
+    { successes: 0, skips: 1, attempts: 3 }, // tentativa sem acerto
+    { successes: CAMERA_LIMITS.maxRunsPerSign + 1, skips: 0, attempts: 60 },
+    { successes: 1, skips: 0, attempts: CAMERA_LIMITS.maxCount + 1 },
+    { successes: 1, skips: 0, attempts: 2, wrong: { B: 1.5 } },
+    { successes: 1, skips: 0, attempts: 2, wrong: ['B'] },
+    { successes: 1, skips: 0, attempts: 2, wrong: Object.fromEntries(Array.from({ length: CAMERA_LIMITS.maxWrongLabels + 1 }, (_, i) => [`X${i}`, 1])) },
+    'muitos',
+  ]) {
+    const r = parseCompletionEntry(entry({ cameraStats: { 'letra-A': bad, 'letra-B': good } }), ctx);
+    assert.equal(r.ok, true, JSON.stringify(bad));
+    assert.deepEqual(Object.keys(r.value.cameraStats), ['letra-B'], JSON.stringify(bad));
+  }
+});
+
+test('cameraStats: so sinais e rotulos do curso, sem texto livre', () => {
+  const glosses = catalog.signGlosses;
+  // sinal fora do catalogo some; rotulo desconhecido, minusculo ou o proprio sinal some do wrong
+  assert.deepEqual(
+    parseCameraStats({
+      'nao-existe': { successes: 1, skips: 0, attempts: 1 },
+      'letra-A': { successes: 1, skips: 0, attempts: 3, wrong: { B: 1, Z: 4, b: 1, A: 2, 'oi tudo bem': 1, C: 0 } },
+    }, glosses),
+    { 'letra-A': { successes: 1, skips: 0, attempts: 3, wrong: { B: 1 } } },
+  );
+  assert.equal(parseCameraStats({ 'nao-existe': { successes: 1, skips: 0, attempts: 1 } }, glosses), null);
+  for (const bad of [null, 'x', [], 3]) assert.equal(parseCameraStats(bad, glosses), null);
+  // envio com sinais demais e descartado inteiro
+  const many = Object.fromEntries(Array.from({ length: CAMERA_LIMITS.maxSigns + 1 }, (_, i) => [`s${i}`, {}]));
+  assert.equal(parseCameraStats({ ...many, 'letra-A': { successes: 1, skips: 0, attempts: 1 } }, glosses), null);
+});
+
+test('cameraStats chega pela migracao do convidado como pela conclusao', () => {
+  const { valid } = parseGuestLog(
+    { entries: [entry({ cameraStats: { 'letra-C': { successes: 1, skips: 0, attempts: 2, wrong: { A: 1 } } } })] },
+    ctx,
+  );
+  assert.deepEqual(valid[0].cameraStats, { 'letra-C': { successes: 1, skips: 0, attempts: 2, wrong: { A: 1 } } });
 });
