@@ -1,0 +1,4838 @@
+{
+ "_sobre": "Trechos das letras com movimento (video/rotular_letras_mov.py). ok=false fica fora do treino e do teste. 'videos' traz as paradas aceitas das letras paradas (classe \"_\") e o começo e o fim do alfabeto em cada vídeo. A revisão a olho das folhas fica em letras_mov_conferencia.json.",
+ "trechos": [
+  {
+   "id": "0CjU7Mz8rSU",
+   "canal": "Hand Talk",
+   "channel_id": "UCo23Sp0x21pezEBleh5-KYg",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 31.292,
+   "fim": 33.458,
+   "como": "vizinhas",
+   "parada": [
+    32.125,
+    32.5
+   ],
+   "energia": 19.84,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "0CjU7Mz8rSU",
+   "canal": "Hand Talk",
+   "channel_id": "UCo23Sp0x21pezEBleh5-KYg",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 34.125,
+   "fim": 35.917,
+   "como": "vizinhas",
+   "parada": null,
+   "energia": 10.26,
+   "ocr": "K",
+   "ok": false,
+   "motivo": "conferência: quadros pretos no meio (corte de cena), a letra não aparece"
+  },
+  {
+   "id": "0CjU7Mz8rSU",
+   "canal": "Hand Talk",
+   "channel_id": "UCo23Sp0x21pezEBleh5-KYg",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 35.117,
+   "fim": 37.167,
+   "como": "propria",
+   "parada": [
+    35.917,
+    36.625
+   ],
+   "energia": 9.69,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "0CjU7Mz8rSU",
+   "canal": "Hand Talk",
+   "channel_id": "UCo23Sp0x21pezEBleh5-KYg",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 51.325,
+   "fim": 52.333,
+   "como": "propria",
+   "parada": [
+    52.125,
+    52.333
+   ],
+   "energia": 3.75,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "0CjU7Mz8rSU",
+   "canal": "Hand Talk",
+   "channel_id": "UCo23Sp0x21pezEBleh5-KYg",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 64.325,
+   "fim": 65.333,
+   "como": "propria",
+   "parada": [
+    65.125,
+    65.333
+   ],
+   "energia": 4.86,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: o avatar não faz o Z no trecho"
+  },
+  {
+   "id": "23YCQl1L2yE",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra",
+   "letra": "X",
+   "ini": 8.3,
+   "fim": 10.3,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 18.04,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "3Qza239pcNM",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra",
+   "letra": "H",
+   "ini": 3.3,
+   "fim": 5.3,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 5.88,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "40xv-cQhevo",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra",
+   "letra": "X",
+   "ini": 12.9,
+   "fim": 14.9,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 10.89,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "6669YqT9uQA",
+   "canal": "Incluir Tecnologia",
+   "channel_id": "UCV7P7-0bVkeGHMq5YgcDm3A",
+   "fonte": "letra",
+   "letra": "Ç",
+   "ini": 0.918,
+   "fim": 2.7,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 11.97,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ARX0sl6apCw",
+   "canal": "Neto Libras",
+   "channel_id": "UC290Zn70HEN9p2nTfJvr8-w",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 43.125,
+   "fim": 46.125,
+   "como": "vizinhas",
+   "parada": [
+    43.542,
+    46
+   ],
+   "energia": 2.78,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "ARX0sl6apCw",
+   "canal": "Neto Libras",
+   "channel_id": "UC290Zn70HEN9p2nTfJvr8-w",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 51.7,
+   "fim": 54.7,
+   "como": "vizinhas",
+   "parada": [
+    52.5,
+    54.542
+   ],
+   "energia": 3.21,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ARX0sl6apCw",
+   "canal": "Neto Libras",
+   "channel_id": "UC290Zn70HEN9p2nTfJvr8-w",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 54.825,
+   "fim": 57.825,
+   "como": "vizinhas",
+   "parada": [
+    55.625,
+    59.167
+   ],
+   "energia": 3.59,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "ARX0sl6apCw",
+   "canal": "Neto Libras",
+   "channel_id": "UC290Zn70HEN9p2nTfJvr8-w",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 122.083,
+   "fim": 124.417,
+   "como": "vizinhas",
+   "parada": [
+    122.792,
+    124.417
+   ],
+   "energia": 3.74,
+   "ocr": "V",
+   "ok": true
+  },
+  {
+   "id": "B2U7c6OXgBg",
+   "canal": "Niead Ufac",
+   "channel_id": "UC2iRjtzq23GD_31knWEvAOQ",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 139.84,
+   "fim": 142.84,
+   "como": "vizinhas",
+   "parada": [
+    140.641,
+    142.943
+   ],
+   "energia": 5.95,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "B2U7c6OXgBg",
+   "canal": "Niead Ufac",
+   "channel_id": "UC2iRjtzq23GD_31knWEvAOQ",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 158.192,
+   "fim": 161.192,
+   "como": "vizinhas",
+   "parada": [
+    158.992,
+    160.794
+   ],
+   "energia": 8.28,
+   "ocr": "J",
+   "ok": true
+  },
+  {
+   "id": "B2U7c6OXgBg",
+   "canal": "Niead Ufac",
+   "channel_id": "UC2iRjtzq23GD_31knWEvAOQ",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 167.735,
+   "fim": 170.735,
+   "como": "vizinhas",
+   "parada": [
+    168.535,
+    170.137
+   ],
+   "energia": 8.64,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "B2U7c6OXgBg",
+   "canal": "Niead Ufac",
+   "channel_id": "UC2iRjtzq23GD_31knWEvAOQ",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 279.113,
+   "fim": 282.113,
+   "como": "vizinhas",
+   "parada": [
+    279.913,
+    283.116
+   ],
+   "energia": 4.46,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "B2U7c6OXgBg",
+   "canal": "Niead Ufac",
+   "channel_id": "UC2iRjtzq23GD_31knWEvAOQ",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 294.795,
+   "fim": 297.795,
+   "como": "vizinhas",
+   "parada": [
+    295.595,
+    298.131
+   ],
+   "energia": 6.54,
+   "ocr": "Z",
+   "ok": true
+  },
+  {
+   "id": "B2U7c6OXgBg",
+   "canal": "Niead Ufac",
+   "channel_id": "UC2iRjtzq23GD_31knWEvAOQ",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 104.972,
+   "fim": 107.972,
+   "como": "vizinhas",
+   "parada": [
+    105.772,
+    107.507
+   ],
+   "energia": 30.33,
+   "ocr": "D",
+   "ok": false,
+   "motivo": "conferência: mãos juntas em repouso, sem o Ç"
+  },
+  {
+   "id": "B2pyvZqWAFk",
+   "canal": "Chaves Libras",
+   "channel_id": "UC0x1hsu8TmuQBtPEnkOLkmg",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 44,
+   "fim": 46.6,
+   "como": "vizinhas",
+   "parada": [
+    45.133,
+    45.667
+   ],
+   "energia": 5.49,
+   "ocr": "GH",
+   "ok": true
+  },
+  {
+   "id": "B2pyvZqWAFk",
+   "canal": "Chaves Libras",
+   "channel_id": "UC0x1hsu8TmuQBtPEnkOLkmg",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 47.933,
+   "fim": 50.933,
+   "como": "vizinhas",
+   "parada": [
+    49.867,
+    50.6
+   ],
+   "energia": 11.12,
+   "ocr": "IJK",
+   "ok": true
+  },
+  {
+   "id": "B2pyvZqWAFk",
+   "canal": "Chaves Libras",
+   "channel_id": "UC0x1hsu8TmuQBtPEnkOLkmg",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 50.6,
+   "fim": 52.467,
+   "como": "vizinhas",
+   "parada": [
+    51.133,
+    51.8
+   ],
+   "energia": 3.71,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "B2pyvZqWAFk",
+   "canal": "Chaves Libras",
+   "channel_id": "UC0x1hsu8TmuQBtPEnkOLkmg",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 121.833,
+   "fim": 124.833,
+   "como": "vizinhas",
+   "parada": [
+    122.633,
+    125.967
+   ],
+   "energia": 4.11,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "B2pyvZqWAFk",
+   "canal": "Chaves Libras",
+   "channel_id": "UC0x1hsu8TmuQBtPEnkOLkmg",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 33.733,
+   "fim": 36.2,
+   "como": "vizinhas",
+   "parada": null,
+   "energia": 8.52,
+   "ocr": "C",
+   "ok": true
+  },
+  {
+   "id": "CD6hVWFXe10",
+   "canal": "Inclusão com Eduarda Bispo",
+   "channel_id": "UCRTk7QjX0mATL63wpP3KFdA",
+   "fonte": "letra",
+   "letra": "H",
+   "ini": 1.4,
+   "fim": 3.4,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 3.12,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "EZxkymw426U",
+   "canal": "Libras L2",
+   "channel_id": "UC0ZGOWQz1aVaKGH15sXVhug",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 46.748,
+   "fim": 49.748,
+   "como": "vizinhas",
+   "parada": [
+    47.548,
+    51.084
+   ],
+   "energia": 6.86,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "EZxkymw426U",
+   "canal": "Libras L2",
+   "channel_id": "UC0ZGOWQz1aVaKGH15sXVhug",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 57.625,
+   "fim": 60.625,
+   "como": "vizinhas",
+   "parada": [
+    58.425,
+    59.826
+   ],
+   "energia": 6.64,
+   "ocr": "JN",
+   "ok": true
+  },
+  {
+   "id": "EZxkymw426U",
+   "canal": "Libras L2",
+   "channel_id": "UC0ZGOWQz1aVaKGH15sXVhug",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 62.163,
+   "fim": 65.163,
+   "como": "propria",
+   "parada": [
+    62.963,
+    66.233
+   ],
+   "energia": 4.15,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "EZxkymw426U",
+   "canal": "Libras L2",
+   "channel_id": "UC0ZGOWQz1aVaKGH15sXVhug",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 141.709,
+   "fim": 144.444,
+   "como": "vizinhas",
+   "parada": [
+    142.509,
+    143.644
+   ],
+   "energia": 8.56,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "EZxkymw426U",
+   "canal": "Libras L2",
+   "channel_id": "UC0ZGOWQz1aVaKGH15sXVhug",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 167.001,
+   "fim": 170.001,
+   "como": "vizinhas",
+   "parada": [
+    167.801,
+    171.205
+   ],
+   "energia": 17.13,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: fim do vídeo com a vinheta por cima, sem o Z"
+  },
+  {
+   "id": "FA_T1DLU9f8",
+   "canal": "Andréa Peliccioni",
+   "channel_id": "UCAmErb1N57ZGd_Q_hIQwaCA",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 39.833,
+   "fim": 42.833,
+   "como": "vizinhas",
+   "parada": [
+    40.633,
+    43.167
+   ],
+   "energia": 2.59,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "FA_T1DLU9f8",
+   "canal": "Andréa Peliccioni",
+   "channel_id": "UCAmErb1N57ZGd_Q_hIQwaCA",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 47.9,
+   "fim": 50.9,
+   "como": "vizinhas",
+   "parada": [
+    48.7,
+    51.233
+   ],
+   "energia": 4.03,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "FA_T1DLU9f8",
+   "canal": "Andréa Peliccioni",
+   "channel_id": "UCAmErb1N57ZGd_Q_hIQwaCA",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 51.5,
+   "fim": 54.5,
+   "como": "vizinhas",
+   "parada": [
+    52.3,
+    54.9
+   ],
+   "energia": 5.22,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "FA_T1DLU9f8",
+   "canal": "Andréa Peliccioni",
+   "channel_id": "UCAmErb1N57ZGd_Q_hIQwaCA",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 109.567,
+   "fim": 112.567,
+   "como": "propria",
+   "parada": [
+    110.367,
+    113.3
+   ],
+   "energia": 5.17,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "FA_T1DLU9f8",
+   "canal": "Andréa Peliccioni",
+   "channel_id": "UCAmErb1N57ZGd_Q_hIQwaCA",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 114.133,
+   "fim": 117.133,
+   "como": "propria",
+   "parada": [
+    114.933,
+    119.967
+   ],
+   "energia": 4.98,
+   "ocr": "Y",
+   "ok": true
+  },
+  {
+   "id": "FA_T1DLU9f8",
+   "canal": "Andréa Peliccioni",
+   "channel_id": "UCAmErb1N57ZGd_Q_hIQwaCA",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 20.767,
+   "fim": 23.533,
+   "como": "vizinhas",
+   "parada": null,
+   "energia": 6.03,
+   "ocr": "CD",
+   "ok": true
+  },
+  {
+   "id": "GidjkBp2OWs",
+   "canal": "NAS",
+   "channel_id": "UCIglSPAQhNXEocCtwYgTJ3w",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 69.27,
+   "fim": 72.27,
+   "como": "vizinhas",
+   "parada": [
+    70.07,
+    71.939
+   ],
+   "energia": 6.99,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "GidjkBp2OWs",
+   "canal": "NAS",
+   "channel_id": "UCIglSPAQhNXEocCtwYgTJ3w",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 87.355,
+   "fim": 90.355,
+   "como": "vizinhas",
+   "parada": [
+    88.155,
+    91.959
+   ],
+   "energia": 11.59,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "GidjkBp2OWs",
+   "canal": "NAS",
+   "channel_id": "UCIglSPAQhNXEocCtwYgTJ3w",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 94.595,
+   "fim": 97.13,
+   "como": "propria",
+   "parada": [
+    95.395,
+    96.33
+   ],
+   "energia": 7.04,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "GidjkBp2OWs",
+   "canal": "NAS",
+   "channel_id": "UCIglSPAQhNXEocCtwYgTJ3w",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 202.27,
+   "fim": 205.27,
+   "como": "vizinhas",
+   "parada": [
+    203.07,
+    207.507
+   ],
+   "energia": 11.46,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "GidjkBp2OWs",
+   "canal": "NAS",
+   "channel_id": "UCIglSPAQhNXEocCtwYgTJ3w",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 217.785,
+   "fim": 219.586,
+   "como": "vizinhas",
+   "parada": [
+    218.585,
+    219.586
+   ],
+   "energia": 4.64,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "GidjkBp2OWs",
+   "canal": "NAS",
+   "channel_id": "UCIglSPAQhNXEocCtwYgTJ3w",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 31.866,
+   "fim": 34.866,
+   "como": "vizinhas",
+   "parada": [
+    32.666,
+    35.269
+   ],
+   "energia": 10.69,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "HcRRLGeYXUI",
+   "canal": "JMN - Libras",
+   "channel_id": "UCJSiKw7R2VePe-F7t6qq7yA",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 147.6,
+   "fim": 150.6,
+   "como": "vizinhas",
+   "parada": [
+    148.4,
+    151.333
+   ],
+   "energia": 15.65,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "HcRRLGeYXUI",
+   "canal": "JMN - Libras",
+   "channel_id": "UCJSiKw7R2VePe-F7t6qq7yA",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 201.033,
+   "fim": 203.167,
+   "como": "vizinhas",
+   "parada": [
+    201.833,
+    202.367
+   ],
+   "energia": 14.6,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "HcRRLGeYXUI",
+   "canal": "JMN - Libras",
+   "channel_id": "UCJSiKw7R2VePe-F7t6qq7yA",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 217.167,
+   "fim": 220.167,
+   "como": "vizinhas",
+   "parada": [
+    217.967,
+    219.567
+   ],
+   "energia": 8.92,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "HcRRLGeYXUI",
+   "canal": "JMN - Libras",
+   "channel_id": "UCJSiKw7R2VePe-F7t6qq7yA",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 428.533,
+   "fim": 431.533,
+   "como": "vizinhas",
+   "parada": [
+    429.333,
+    431.667
+   ],
+   "energia": 7.5,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "HcRRLGeYXUI",
+   "canal": "JMN - Libras",
+   "channel_id": "UCJSiKw7R2VePe-F7t6qq7yA",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 452.533,
+   "fim": 454.867,
+   "como": "vizinhas",
+   "parada": [
+    453.333,
+    454.867
+   ],
+   "energia": 9.96,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "HcRRLGeYXUI",
+   "canal": "JMN - Libras",
+   "channel_id": "UCJSiKw7R2VePe-F7t6qq7yA",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 50.2,
+   "fim": 53.2,
+   "como": "vizinhas",
+   "parada": [
+    51,
+    56.333
+   ],
+   "energia": 6.29,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "LyEP7kaVEoM",
+   "canal": "Inclusão com Eduarda Bispo",
+   "channel_id": "UCRTk7QjX0mATL63wpP3KFdA",
+   "fonte": "letra",
+   "letra": "Z",
+   "ini": 0.0,
+   "fim": 2.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 6.54,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "MfLI0-7OdnU",
+   "canal": "Inclusão com Eduarda Bispo",
+   "channel_id": "UCRTk7QjX0mATL63wpP3KFdA",
+   "fonte": "letra",
+   "letra": "X",
+   "ini": 0.0,
+   "fim": 2.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 8.37,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "QwfJJqTDPyc",
+   "canal": "Rafaella Castillo",
+   "channel_id": "UC8yPWLvgDN6vVO9xcORJZMA",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 169.971,
+   "fim": 172.971,
+   "como": "vizinhas",
+   "parada": [
+    170.771,
+    172.372
+   ],
+   "energia": 10.31,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "QwfJJqTDPyc",
+   "canal": "Rafaella Castillo",
+   "channel_id": "UC8yPWLvgDN6vVO9xcORJZMA",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 181.449,
+   "fim": 183.449,
+   "como": "vizinhas",
+   "parada": [
+    182.249,
+    182.649
+   ],
+   "energia": 13.14,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "QwfJJqTDPyc",
+   "canal": "Rafaella Castillo",
+   "channel_id": "UC8yPWLvgDN6vVO9xcORJZMA",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 186.621,
+   "fim": 189.621,
+   "como": "propria",
+   "parada": [
+    187.421,
+    194.461
+   ],
+   "energia": 6.7,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "QwfJJqTDPyc",
+   "canal": "Rafaella Castillo",
+   "channel_id": "UC8yPWLvgDN6vVO9xcORJZMA",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 329.163,
+   "fim": 332.163,
+   "como": "vizinhas",
+   "parada": [
+    329.963,
+    332.465
+   ],
+   "energia": 5.74,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "QwfJJqTDPyc",
+   "canal": "Rafaella Castillo",
+   "channel_id": "UC8yPWLvgDN6vVO9xcORJZMA",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 342.443,
+   "fim": 343.777,
+   "como": "vizinhas",
+   "parada": [
+    343.243,
+    343.777
+   ],
+   "energia": 44.15,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "QwfJJqTDPyc",
+   "canal": "Rafaella Castillo",
+   "channel_id": "UC8yPWLvgDN6vVO9xcORJZMA",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 92.092,
+   "fim": 94.895,
+   "como": "vizinhas",
+   "parada": [
+    94.094,
+    94.294
+   ],
+   "energia": 14.48,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: indicador para cima, sem o C"
+  },
+  {
+   "id": "SSYy2jh71ks",
+   "canal": "LIBRAS com Ataice Borges",
+   "channel_id": "UCru2F6-mstp5c7y_QcU__4w",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 66.367,
+   "fim": 69.367,
+   "como": "propria",
+   "parada": [
+    67.167,
+    69.77
+   ],
+   "energia": 5.23,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: exemplo de palavra (FEIJÃO), não a letra"
+  },
+  {
+   "id": "SSYy2jh71ks",
+   "canal": "LIBRAS com Ataice Borges",
+   "channel_id": "UCru2F6-mstp5c7y_QcU__4w",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 78.112,
+   "fim": 81.112,
+   "como": "vizinhas",
+   "parada": [
+    78.912,
+    81.515
+   ],
+   "energia": 6.1,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: indicador na testa, explicando, sem o K"
+  },
+  {
+   "id": "SSYy2jh71ks",
+   "canal": "LIBRAS com Ataice Borges",
+   "channel_id": "UCru2F6-mstp5c7y_QcU__4w",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 242.209,
+   "fim": 245.209,
+   "como": "propria",
+   "parada": [
+    243.009,
+    245.278
+   ],
+   "energia": 13.89,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "SSYy2jh71ks",
+   "canal": "LIBRAS com Ataice Borges",
+   "channel_id": "UCru2F6-mstp5c7y_QcU__4w",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 256.557,
+   "fim": 257.557,
+   "como": "propria",
+   "parada": [
+    257.357,
+    257.557
+   ],
+   "energia": 3.64,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "SSYy2jh71ks",
+   "canal": "LIBRAS com Ataice Borges",
+   "channel_id": "UCru2F6-mstp5c7y_QcU__4w",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 40.608,
+   "fim": 42.408,
+   "como": "vizinhas",
+   "parada": [
+    41.408,
+    41.608
+   ],
+   "energia": 11.24,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: exemplo de palavra (CORAÇÃO), não a letra"
+  },
+  {
+   "id": "THp3VUZKFxg",
+   "canal": " José Júnior Libras",
+   "channel_id": "UC-wm67Ka8qsS4N3QLaDKXig",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 193.657,
+   "fim": 196.657,
+   "como": "propria",
+   "parada": [
+    194.457,
+    196.461
+   ],
+   "energia": 5.06,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "THp3VUZKFxg",
+   "canal": " José Júnior Libras",
+   "channel_id": "UC-wm67Ka8qsS4N3QLaDKXig",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 214.559,
+   "fim": 217.559,
+   "como": "propria",
+   "parada": [
+    215.359,
+    219.967
+   ],
+   "energia": 13.66,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: duas mãos explicando, sem o K"
+  },
+  {
+   "id": "THp3VUZKFxg",
+   "canal": " José Júnior Libras",
+   "channel_id": "UC-wm67Ka8qsS4N3QLaDKXig",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 298.098,
+   "fim": 300.199,
+   "como": "vizinhas",
+   "parada": [
+    298.898,
+    299.399
+   ],
+   "energia": 26.26,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "THp3VUZKFxg",
+   "canal": " José Júnior Libras",
+   "channel_id": "UC-wm67Ka8qsS4N3QLaDKXig",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 357.998,
+   "fim": 360.998,
+   "como": "vizinhas",
+   "parada": [
+    358.798,
+    361.068
+   ],
+   "energia": 2.89,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: vinheta do fim do vídeo"
+  },
+  {
+   "id": "THp3VUZKFxg",
+   "canal": " José Júnior Libras",
+   "channel_id": "UC-wm67Ka8qsS4N3QLaDKXig",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 153.758,
+   "fim": 156.758,
+   "como": "vizinhas",
+   "parada": [
+    154.558,
+    163.205
+   ],
+   "energia": 8.46,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "U9K_AOylBrc",
+   "canal": "Paróquia São Pedro e São Paulo",
+   "channel_id": "UC6NY8RfaQfA9kIJMwTNs-qg",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 23.96,
+   "fim": 26.96,
+   "como": "vizinhas",
+   "parada": [
+    24.76,
+    26.48
+   ],
+   "energia": 5.3,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "U9K_AOylBrc",
+   "canal": "Paróquia São Pedro e São Paulo",
+   "channel_id": "UC6NY8RfaQfA9kIJMwTNs-qg",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 30.04,
+   "fim": 32.76,
+   "como": "vizinhas",
+   "parada": [
+    31.28,
+    31.88
+   ],
+   "energia": 11.83,
+   "ocr": "I",
+   "ok": true
+  },
+  {
+   "id": "U9K_AOylBrc",
+   "canal": "Paróquia São Pedro e São Paulo",
+   "channel_id": "UC6NY8RfaQfA9kIJMwTNs-qg",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 31.96,
+   "fim": 33.68,
+   "como": "propria",
+   "parada": [
+    32.76,
+    33.28
+   ],
+   "energia": 4.79,
+   "ocr": "IK",
+   "ok": true
+  },
+  {
+   "id": "U9K_AOylBrc",
+   "canal": "Paróquia São Pedro e São Paulo",
+   "channel_id": "UC6NY8RfaQfA9kIJMwTNs-qg",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 62.68,
+   "fim": 65.64,
+   "como": "vizinhas",
+   "parada": [
+    63.28,
+    64.84
+   ],
+   "energia": 5.12,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "U9K_AOylBrc",
+   "canal": "Paróquia São Pedro e São Paulo",
+   "channel_id": "UC6NY8RfaQfA9kIJMwTNs-qg",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 67.48,
+   "fim": 69.84,
+   "como": "vizinhas",
+   "parada": [
+    68.48,
+    69.84
+   ],
+   "energia": 10.37,
+   "ocr": "Z",
+   "ok": true
+  },
+  {
+   "id": "VLdMZv_q9jU",
+   "canal": "MINUTOS ESPECIAIS",
+   "channel_id": "UCg_phX9D3wwlbgfUstcECDg",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 102.933,
+   "fim": 105.933,
+   "como": "vizinhas",
+   "parada": [
+    103.733,
+    111.767
+   ],
+   "energia": 6.07,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "VLdMZv_q9jU",
+   "canal": "MINUTOS ESPECIAIS",
+   "channel_id": "UCg_phX9D3wwlbgfUstcECDg",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 127.533,
+   "fim": 130.133,
+   "como": "vizinhas",
+   "parada": [
+    128.333,
+    129.333
+   ],
+   "energia": 30.34,
+   "ocr": "J",
+   "ok": true
+  },
+  {
+   "id": "VLdMZv_q9jU",
+   "canal": "MINUTOS ESPECIAIS",
+   "channel_id": "UCg_phX9D3wwlbgfUstcECDg",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 134.4,
+   "fim": 137.4,
+   "como": "vizinhas",
+   "parada": [
+    135.2,
+    143.167
+   ],
+   "energia": 4.54,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "VLdMZv_q9jU",
+   "canal": "MINUTOS ESPECIAIS",
+   "channel_id": "UCg_phX9D3wwlbgfUstcECDg",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 315.267,
+   "fim": 318.267,
+   "como": "vizinhas",
+   "parada": [
+    316.067,
+    317.533
+   ],
+   "energia": 26.96,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "VLdMZv_q9jU",
+   "canal": "MINUTOS ESPECIAIS",
+   "channel_id": "UCg_phX9D3wwlbgfUstcECDg",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 337.1,
+   "fim": 338.7,
+   "como": "vizinhas",
+   "parada": [
+    337.9,
+    338.7
+   ],
+   "energia": 5.52,
+   "ocr": "Z",
+   "ok": true
+  },
+  {
+   "id": "XRwBI4q7Sys",
+   "canal": "Dicionário Libras",
+   "channel_id": "UCM_UpGBJGjP0I2WzZikKXnQ",
+   "fonte": "letra",
+   "letra": "Ç",
+   "ini": 0.1,
+   "fim": 2.1,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 22.14,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "Z4C9JvFib4A",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra",
+   "letra": "J",
+   "ini": 2.2,
+   "fim": 4.2,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 23.08,
+   "ocr": "P",
+   "ok": false,
+   "motivo": "tela mostra P"
+  },
+  {
+   "id": "ZHUqjtJewOY",
+   "canal": "Débora.Santos",
+   "channel_id": "UCujDLayvsvsNeXLi69d-ShQ",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 79.133,
+   "fim": 82.133,
+   "como": "vizinhas",
+   "parada": [
+    79.933,
+    81.333
+   ],
+   "energia": 6.07,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ZHUqjtJewOY",
+   "canal": "Débora.Santos",
+   "channel_id": "UCujDLayvsvsNeXLi69d-ShQ",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 101.1,
+   "fim": 103.7,
+   "como": "propria",
+   "parada": [
+    101.9,
+    102.9
+   ],
+   "energia": 12.81,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: apontando para o painel, sem o K"
+  },
+  {
+   "id": "ZHUqjtJewOY",
+   "canal": "Débora.Santos",
+   "channel_id": "UCujDLayvsvsNeXLi69d-ShQ",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 427.0,
+   "fim": 430.0,
+   "como": "propria",
+   "parada": [
+    427.8,
+    434.1
+   ],
+   "energia": 4.92,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ZHUqjtJewOY",
+   "canal": "Débora.Santos",
+   "channel_id": "UCujDLayvsvsNeXLi69d-ShQ",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 553.533,
+   "fim": 555.533,
+   "como": "propria",
+   "parada": [
+    554.333,
+    555.533
+   ],
+   "energia": 6.37,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ZHUqjtJewOY",
+   "canal": "Débora.Santos",
+   "channel_id": "UCujDLayvsvsNeXLi69d-ShQ",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 42.667,
+   "fim": 45.2,
+   "como": "vizinhas",
+   "parada": [
+    44.133,
+    44.667
+   ],
+   "energia": 9.11,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "_x8S3ST2z2I",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra",
+   "letra": "K",
+   "ini": 13.5,
+   "fim": 15.5,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 23.84,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "adQ_yKYQ3uU",
+   "canal": "Gilbervan Soares",
+   "channel_id": "UCMzxrJSHgWQmU0Y5tqJ1vnA",
+   "fonte": "letra",
+   "letra": "K",
+   "ini": 0.9,
+   "fim": 2.9,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 7.17,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "bse5fpvSh10",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra",
+   "letra": "H",
+   "ini": 13.0,
+   "fim": 15.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 11.1,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "cJbVHgmwxEQ",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra",
+   "letra": "Z",
+   "ini": 1.2,
+   "fim": 3.2,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 11.59,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "cT3l6iP7NXY",
+   "canal": "Fundação Cecierj",
+   "channel_id": "UCzeqFz-yv5RciPEUWSczwxA",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 66.309,
+   "fim": 69.285,
+   "como": "vizinhas",
+   "parada": [
+    67.109,
+    68.485
+   ],
+   "energia": 6.09,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "cT3l6iP7NXY",
+   "canal": "Fundação Cecierj",
+   "channel_id": "UCzeqFz-yv5RciPEUWSczwxA",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 74.984,
+   "fim": 77.786,
+   "como": "propria",
+   "parada": [
+    75.784,
+    77.16
+   ],
+   "energia": 7.22,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "cT3l6iP7NXY",
+   "canal": "Fundação Cecierj",
+   "channel_id": "UCzeqFz-yv5RciPEUWSczwxA",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 367.234,
+   "fim": 368.702,
+   "como": "propria",
+   "parada": [
+    368.034,
+    368.702
+   ],
+   "energia": 2.38,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "cT3l6iP7NXY",
+   "canal": "Fundação Cecierj",
+   "channel_id": "UCzeqFz-yv5RciPEUWSczwxA",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 376.243,
+   "fim": 377.419,
+   "como": "propria",
+   "parada": [
+    377.043,
+    377.419
+   ],
+   "energia": 13.02,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "cpg7dOzN70s",
+   "canal": "Rafael Emil",
+   "channel_id": "UCbVJMS5f84-5xmN_n2-p_Eg",
+   "fonte": "letra",
+   "letra": "Ç",
+   "ini": 3.5,
+   "fim": 5.5,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 6.42,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "cunMtTYomTo",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra",
+   "letra": "Z",
+   "ini": 13.3,
+   "fim": 13.714,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 5.98,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: trecho na logomarca do canal"
+  },
+  {
+   "id": "fRAketNteTA",
+   "canal": "Eu Acessível",
+   "channel_id": "UCXbZymXEZvKX8QCfE3uZADQ",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 23.167,
+   "fim": 25.233,
+   "como": "propria",
+   "parada": [
+    23.767,
+    24.433
+   ],
+   "energia": 4.51,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "fRAketNteTA",
+   "canal": "Eu Acessível",
+   "channel_id": "UCXbZymXEZvKX8QCfE3uZADQ",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 28.7,
+   "fim": 30.9,
+   "como": "vizinhas",
+   "parada": [
+    29.5,
+    30.1
+   ],
+   "energia": 10.39,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "fRAketNteTA",
+   "canal": "Eu Acessível",
+   "channel_id": "UCXbZymXEZvKX8QCfE3uZADQ",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 30.1,
+   "fim": 33.1,
+   "como": "vizinhas",
+   "parada": [
+    31.967,
+    32.7
+   ],
+   "energia": 15.26,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "fRAketNteTA",
+   "canal": "Eu Acessível",
+   "channel_id": "UCXbZymXEZvKX8QCfE3uZADQ",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 58.2,
+   "fim": 61.133,
+   "como": "propria",
+   "parada": [
+    58.867,
+    60.333
+   ],
+   "energia": 6.14,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "fRAketNteTA",
+   "canal": "Eu Acessível",
+   "channel_id": "UCXbZymXEZvKX8QCfE3uZADQ",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 61.0,
+   "fim": 64.0,
+   "como": "propria",
+   "parada": [
+    61.8,
+    64.667
+   ],
+   "energia": 6.16,
+   "ocr": "YZ",
+   "ok": true
+  },
+  {
+   "id": "fRAketNteTA",
+   "canal": "Eu Acessível",
+   "channel_id": "UCXbZymXEZvKX8QCfE3uZADQ",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 13.167,
+   "fim": 14.633,
+   "como": "vizinhas",
+   "parada": null,
+   "energia": 5.2,
+   "ocr": "C",
+   "ok": true
+  },
+  {
+   "id": "fiQ8tbHRKNk",
+   "canal": "Guilherme Ferezim | Intérprete de Libras 🤟",
+   "channel_id": "UCZV06YxgUyRBc4CteCbUQrw",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 137.933,
+   "fim": 140.0,
+   "como": "vizinhas",
+   "parada": [
+    138.733,
+    139.2
+   ],
+   "energia": 4.61,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "fiQ8tbHRKNk",
+   "canal": "Guilherme Ferezim | Intérprete de Libras 🤟",
+   "channel_id": "UCZV06YxgUyRBc4CteCbUQrw",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 151.133,
+   "fim": 153.2,
+   "como": "vizinhas",
+   "parada": [
+    151.933,
+    152.4
+   ],
+   "energia": 0.96,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "fiQ8tbHRKNk",
+   "canal": "Guilherme Ferezim | Intérprete de Libras 🤟",
+   "channel_id": "UCZV06YxgUyRBc4CteCbUQrw",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 165.2,
+   "fim": 167.4,
+   "como": "propria",
+   "parada": [
+    166,
+    166.6
+   ],
+   "energia": 2.52,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "fiQ8tbHRKNk",
+   "canal": "Guilherme Ferezim | Intérprete de Libras 🤟",
+   "channel_id": "UCZV06YxgUyRBc4CteCbUQrw",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 421.767,
+   "fim": 424.767,
+   "como": "propria",
+   "parada": [
+    422.567,
+    425.033
+   ],
+   "energia": 4.38,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "fiQ8tbHRKNk",
+   "canal": "Guilherme Ferezim | Intérprete de Libras 🤟",
+   "channel_id": "UCZV06YxgUyRBc4CteCbUQrw",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 440.367,
+   "fim": 443.367,
+   "como": "propria",
+   "parada": [
+    441.167,
+    445.467
+   ],
+   "energia": 4.16,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "fiQ8tbHRKNk",
+   "canal": "Guilherme Ferezim | Intérprete de Libras 🤟",
+   "channel_id": "UCZV06YxgUyRBc4CteCbUQrw",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 72.867,
+   "fim": 75.867,
+   "como": "propria",
+   "parada": [
+    73.6,
+    75.867
+   ],
+   "energia": 3.08,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "gbeuuXH7BlI",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra",
+   "letra": "J",
+   "ini": 9.1,
+   "fim": 11.1,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 27.12,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: mão borrada e letreiro, sem o J"
+  },
+  {
+   "id": "jml2fai1I5s",
+   "canal": "Planneta Educação",
+   "channel_id": "UCy3moIB7CVxaVPY3GepY6Pw",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 16.183,
+   "fim": 17.851,
+   "como": "vizinhas",
+   "parada": [
+    16.65,
+    17.184
+   ],
+   "energia": 5.73,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "jml2fai1I5s",
+   "canal": "Planneta Educação",
+   "channel_id": "UCy3moIB7CVxaVPY3GepY6Pw",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 19.253,
+   "fim": 20.854,
+   "como": "propria",
+   "parada": [
+    20.053,
+    20.387
+   ],
+   "energia": 12.73,
+   "ocr": "J",
+   "ok": true
+  },
+  {
+   "id": "jml2fai1I5s",
+   "canal": "Planneta Educação",
+   "channel_id": "UCy3moIB7CVxaVPY3GepY6Pw",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 9.443,
+   "fim": 10.777,
+   "como": "vizinhas",
+   "parada": [
+    9.91,
+    10.31
+   ],
+   "energia": 2.48,
+   "ocr": "C",
+   "ok": true
+  },
+  {
+   "id": "nmNBSTCl0lM",
+   "canal": "Aline libras",
+   "channel_id": "UCCKO-AW7nDgiAmo786byECg",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 50.25,
+   "fim": 53.25,
+   "como": "vizinhas",
+   "parada": [
+    50.851,
+    52.519
+   ],
+   "energia": 4.81,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "nmNBSTCl0lM",
+   "canal": "Aline libras",
+   "channel_id": "UCCKO-AW7nDgiAmo786byECg",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 57.492,
+   "fim": 60.492,
+   "como": "vizinhas",
+   "parada": [
+    58.292,
+    60.56
+   ],
+   "energia": 4.92,
+   "ocr": "V",
+   "ok": false,
+   "motivo": "tela mostra V"
+  },
+  {
+   "id": "nmNBSTCl0lM",
+   "canal": "Aline libras",
+   "channel_id": "UCCKO-AW7nDgiAmo786byECg",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 62.764,
+   "fim": 65.432,
+   "como": "vizinhas",
+   "parada": [
+    63.563,
+    64.898
+   ],
+   "energia": 7.56,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "nmNBSTCl0lM",
+   "canal": "Aline libras",
+   "channel_id": "UCCKO-AW7nDgiAmo786byECg",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 120.287,
+   "fim": 123.287,
+   "como": "propria",
+   "parada": [
+    120.954,
+    124.358
+   ],
+   "energia": 3.25,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "nmNBSTCl0lM",
+   "canal": "Aline libras",
+   "channel_id": "UCCKO-AW7nDgiAmo786byECg",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 129.096,
+   "fim": 132.096,
+   "como": "vizinhas",
+   "parada": [
+    131.999,
+    132.532
+   ],
+   "energia": 8.8,
+   "ocr": "YZ",
+   "ok": true
+  },
+  {
+   "id": "rJec0Q85vV4",
+   "canal": "TV CES",
+   "channel_id": "UCFVe2h55WhmVKe7eW5B-ztQ",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 27.094,
+   "fim": 29.296,
+   "como": "vizinhas",
+   "parada": [
+    28.095,
+    28.495
+   ],
+   "energia": 6.98,
+   "ocr": "HI",
+   "ok": true
+  },
+  {
+   "id": "rJec0Q85vV4",
+   "canal": "TV CES",
+   "channel_id": "UCFVe2h55WhmVKe7eW5B-ztQ",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 29.764,
+   "fim": 31.631,
+   "como": "propria",
+   "parada": [
+    30.564,
+    30.831
+   ],
+   "energia": 8.24,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "rJec0Q85vV4",
+   "canal": "TV CES",
+   "channel_id": "UCFVe2h55WhmVKe7eW5B-ztQ",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 31.532,
+   "fim": 33.133,
+   "como": "propria",
+   "parada": [
+    32.332,
+    32.666
+   ],
+   "energia": 3.72,
+   "ocr": "KV",
+   "ok": true
+  },
+  {
+   "id": "rJec0Q85vV4",
+   "canal": "TV CES",
+   "channel_id": "UCFVe2h55WhmVKe7eW5B-ztQ",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 49.016,
+   "fim": 50.417,
+   "como": "propria",
+   "parada": [
+    49.55,
+    50.417
+   ],
+   "energia": 2.94,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "rJec0Q85vV4",
+   "canal": "TV CES",
+   "channel_id": "UCFVe2h55WhmVKe7eW5B-ztQ",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 172.974,
+   "fim": 174.174,
+   "como": "propria",
+   "parada": [
+    173.774,
+    174.174
+   ],
+   "energia": 28.28,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "tjVLKt2vGdw",
+   "canal": "Gilbervan Soares",
+   "channel_id": "UCMzxrJSHgWQmU0Y5tqJ1vnA",
+   "fonte": "letra",
+   "letra": "Z",
+   "ini": 1.2,
+   "fim": 2.98,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 6.03,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: só o punho, sem o indicador do Z"
+  },
+  {
+   "id": "vRQDuZNKWKQ",
+   "canal": "Dicionário Libras",
+   "channel_id": "UCM_UpGBJGjP0I2WzZikKXnQ",
+   "fonte": "letra",
+   "letra": "K",
+   "ini": 0.0,
+   "fim": 1.969,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 34.19,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "yFPlVthRMSs",
+   "canal": "Carol Martins l Explora Libras - Um sinal por dia!",
+   "channel_id": "UCkXNfD_Ihql55E35s95PYrg",
+   "fonte": "alfabeto",
+   "letra": "H",
+   "ini": 55.7,
+   "fim": 58.7,
+   "como": "vizinhas",
+   "parada": [
+    56.3,
+    60.567
+   ],
+   "energia": 4.27,
+   "ocr": "H",
+   "ok": true
+  },
+  {
+   "id": "yFPlVthRMSs",
+   "canal": "Carol Martins l Explora Libras - Um sinal por dia!",
+   "channel_id": "UCkXNfD_Ihql55E35s95PYrg",
+   "fonte": "alfabeto",
+   "letra": "J",
+   "ini": 68.167,
+   "fim": 71.167,
+   "como": "vizinhas",
+   "parada": [
+    68.967,
+    75.267
+   ],
+   "energia": 7.9,
+   "ocr": "J",
+   "ok": false,
+   "motivo": "conferência: mão aberta no escuro, sem o J"
+  },
+  {
+   "id": "yFPlVthRMSs",
+   "canal": "Carol Martins l Explora Libras - Um sinal por dia!",
+   "channel_id": "UCkXNfD_Ihql55E35s95PYrg",
+   "fonte": "alfabeto",
+   "letra": "K",
+   "ini": 76.567,
+   "fim": 79.567,
+   "como": "vizinhas",
+   "parada": [
+    77.367,
+    84.733
+   ],
+   "energia": 6.42,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "yFPlVthRMSs",
+   "canal": "Carol Martins l Explora Libras - Um sinal por dia!",
+   "channel_id": "UCkXNfD_Ihql55E35s95PYrg",
+   "fonte": "alfabeto",
+   "letra": "X",
+   "ini": 162.7,
+   "fim": 165.7,
+   "como": "vizinhas",
+   "parada": [
+    163.5,
+    165.2
+   ],
+   "energia": 6.24,
+   "ocr": "X",
+   "ok": true
+  },
+  {
+   "id": "yFPlVthRMSs",
+   "canal": "Carol Martins l Explora Libras - Um sinal por dia!",
+   "channel_id": "UCkXNfD_Ihql55E35s95PYrg",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 172.933,
+   "fim": 175.933,
+   "como": "vizinhas",
+   "parada": [
+    173.467,
+    176.4
+   ],
+   "energia": 3.51,
+   "ocr": "Z",
+   "ok": true
+  },
+  {
+   "id": "yFPlVthRMSs",
+   "canal": "Carol Martins l Explora Libras - Um sinal por dia!",
+   "channel_id": "UCkXNfD_Ihql55E35s95PYrg",
+   "fonte": "alfabeto",
+   "letra": "Ç",
+   "ini": 25.533,
+   "fim": 26.4,
+   "como": "vizinhas",
+   "parada": null,
+   "energia": 1.45,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: mão aberta no escuro, sem o C"
+  }
+ ],
+ "ines": [
+  {
+   "id": "ines-H",
+   "canal": "INES",
+   "channel_id": "ines",
+   "fonte": "ines",
+   "letra": "H",
+   "ini": 0.667,
+   "fim": 2.083,
+   "energia": 9.15,
+   "ok": true
+  },
+  {
+   "id": "ines-J",
+   "canal": "INES",
+   "channel_id": "ines",
+   "fonte": "ines",
+   "letra": "J",
+   "ini": 1.0,
+   "fim": 2.667,
+   "energia": 17.68,
+   "ok": true
+  },
+  {
+   "id": "ines-K",
+   "canal": "INES",
+   "channel_id": "ines",
+   "fonte": "ines",
+   "letra": "K",
+   "ini": 0.833,
+   "fim": 2.0,
+   "energia": 7.23,
+   "ok": true
+  },
+  {
+   "id": "ines-X",
+   "canal": "INES",
+   "channel_id": "ines",
+   "fonte": "ines",
+   "letra": "X",
+   "ini": 0.667,
+   "fim": 1.833,
+   "energia": 9.7,
+   "ok": true
+  },
+  {
+   "id": "ines-Z",
+   "canal": "INES",
+   "channel_id": "ines",
+   "fonte": "ines",
+   "letra": "Z",
+   "ini": 0.5,
+   "fim": 1.833,
+   "energia": 15.07,
+   "ok": true
+  },
+  {
+   "id": "ines-Ç",
+   "canal": "INES",
+   "channel_id": "ines",
+   "fonte": "ines",
+   "letra": "Ç",
+   "ini": 0.75,
+   "fim": 2.583,
+   "energia": 13.5,
+   "ok": true
+  },
+  {
+   "id": "ines-P",
+   "canal": "INES",
+   "channel_id": "ines",
+   "fonte": "ines",
+   "letra": "P",
+   "ini": 0.833,
+   "fim": 2.5,
+   "energia": 10.11,
+   "ok": true
+  },
+  {
+   "id": "ines-I",
+   "canal": "INES",
+   "channel_id": "ines",
+   "fonte": "ines",
+   "letra": "I",
+   "ini": 0.667,
+   "fim": 2.083,
+   "energia": 6.96,
+   "ok": true
+  },
+  {
+   "id": "ines-D",
+   "canal": "INES",
+   "channel_id": "ines",
+   "fonte": "ines",
+   "letra": "D",
+   "ini": 1.667,
+   "fim": 3.333,
+   "energia": 5.78,
+   "ok": true
+  },
+  {
+   "id": "ines-C",
+   "canal": "INES",
+   "channel_id": "ines",
+   "fonte": "ines",
+   "letra": "C",
+   "ini": 1.0,
+   "fim": 2.833,
+   "energia": 4.9,
+   "ok": true
+  }
+ ],
+ "videos": [
+  {
+   "id": "-6JyKbnRlAk",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "F",
+   "regioes": [
+    [
+     8.176,
+     12.177
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "0CjU7Mz8rSU",
+   "canal": "Hand Talk",
+   "channel_id": "UCo23Sp0x21pezEBleh5-KYg",
+   "fonte": "alfabeto",
+   "inicio": 22.04167,
+   "fim": 51.125,
+   "paradas": [
+    {
+     "letra": "B",
+     "ini": 22.042,
+     "fim": 22.833
+    },
+    {
+     "letra": "E",
+     "ini": 28.25,
+     "fim": 28.75
+    },
+    {
+     "letra": "F",
+     "ini": 29.5,
+     "fim": 29.958
+    },
+    {
+     "letra": "G",
+     "ini": 30.583,
+     "fim": 31.292
+    },
+    {
+     "letra": "I",
+     "ini": 33.458,
+     "fim": 34.125
+    },
+    {
+     "letra": "L",
+     "ini": 37.167,
+     "fim": 37.792
+    },
+    {
+     "letra": "S",
+     "ini": 44.583,
+     "fim": 46.167
+    },
+    {
+     "letra": "U",
+     "ini": 48.042,
+     "fim": 48.458
+    },
+    {
+     "letra": "W",
+     "ini": 50.375,
+     "fim": 51.125
+    }
+   ]
+  },
+  {
+   "id": "1AmjrvioGfw",
+   "canal": "Dicionário Libras",
+   "channel_id": "UCM_UpGBJGjP0I2WzZikKXnQ",
+   "fonte": "letra-parada",
+   "letra": "F",
+   "regioes": [
+    [
+     0.035,
+     4.938
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "1TdE9bB8puM",
+   "canal": "Dicionário Libras",
+   "channel_id": "UCM_UpGBJGjP0I2WzZikKXnQ",
+   "fonte": "letra-parada",
+   "letra": "W",
+   "regioes": [
+    [
+     0.0,
+     2.669
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "23YCQl1L2yE",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "3Qza239pcNM",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "3W61IulmFmk",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra-parada",
+   "letra": "V",
+   "regioes": [
+    [
+     0.0,
+     6.8
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "3pIiulaDUvE",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra-parada",
+   "letra": "R",
+   "regioes": [
+    [
+     5.567,
+     12.467
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "3wIjPsiwxco",
+   "canal": "Gilbervan Soares",
+   "channel_id": "UCMzxrJSHgWQmU0Y5tqJ1vnA",
+   "fonte": "letra-parada",
+   "letra": "W",
+   "regioes": [
+    [
+     0.0,
+     5.42
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "40xv-cQhevo",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "6669YqT9uQA",
+   "canal": "Incluir Tecnologia",
+   "channel_id": "UCV7P7-0bVkeGHMq5YgcDm3A",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "6ZoZggXSwb0",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "R",
+   "regioes": [
+    [
+     8.844,
+     13.846
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "7RbuGrqxTC0",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "Y",
+   "regioes": [
+    [
+     9.511,
+     13.846
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "9SwnsoHqzMA",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "L",
+   "regioes": [
+    [
+     13.648,
+     21.655
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "9ockufMhOsk",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "W",
+   "regioes": [
+    [
+     7.576,
+     12.444
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "ARX0sl6apCw",
+   "canal": "Neto Libras",
+   "channel_id": "UC290Zn70HEN9p2nTfJvr8-w",
+   "fonte": "alfabeto",
+   "inicio": 5.125,
+   "fim": 124.41667,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 5.125,
+     "fim": 7.625
+    },
+    {
+     "letra": "B",
+     "ini": 8.458,
+     "fim": 17.167
+    },
+    {
+     "letra": "D",
+     "ini": 18.458,
+     "fim": 26.375
+    },
+    {
+     "letra": "F",
+     "ini": 26.917,
+     "fim": 36.667
+    },
+    {
+     "letra": "G",
+     "ini": 37.125,
+     "fim": 43.125
+    },
+    {
+     "letra": "I",
+     "ini": 46.542,
+     "fim": 51.417
+    },
+    {
+     "letra": "L",
+     "ini": 59.625,
+     "fim": 63.958
+    },
+    {
+     "letra": "M",
+     "ini": 64.417,
+     "fim": 67.375
+    },
+    {
+     "letra": "N",
+     "ini": 67.958,
+     "fim": 71.292
+    },
+    {
+     "letra": "O",
+     "ini": 72.375,
+     "fim": 76.417
+    },
+    {
+     "letra": "P",
+     "ini": 79.708,
+     "fim": 80.958
+    },
+    {
+     "letra": "Q",
+     "ini": 82.125,
+     "fim": 85.25
+    },
+    {
+     "letra": "R",
+     "ini": 86.375,
+     "fim": 94.125
+    },
+    {
+     "letra": "V",
+     "ini": 95.125,
+     "fim": 117.667
+    },
+    {
+     "letra": "Y",
+     "ini": 118.208,
+     "fim": 122.083
+    }
+   ]
+  },
+  {
+   "id": "AokfY_UUWa8",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "Q",
+   "regioes": [
+    [
+     11.58,
+     17.983
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "B2U7c6OXgBg",
+   "canal": "Niead Ufac",
+   "channel_id": "UC2iRjtzq23GD_31knWEvAOQ",
+   "fonte": "alfabeto",
+   "inicio": 86.95353,
+   "fim": 298.13117,
+   "paradas": [
+    {
+     "letra": "B",
+     "ini": 86.954,
+     "fim": 91.258
+    },
+    {
+     "letra": "C",
+     "ini": 93.393,
+     "fim": 96.997
+    },
+    {
+     "letra": "D",
+     "ini": 108.442,
+     "fim": 113.614
+    },
+    {
+     "letra": "E",
+     "ini": 115.882,
+     "fim": 121.621
+    },
+    {
+     "letra": "F",
+     "ini": 124.291,
+     "fim": 129.596
+    },
+    {
+     "letra": "G",
+     "ini": 132.933,
+     "fim": 137.304
+    },
+    {
+     "letra": "I",
+     "ini": 150.25,
+     "fim": 153.186
+    },
+    {
+     "letra": "L",
+     "ini": 172.673,
+     "fim": 178.145
+    },
+    {
+     "letra": "M",
+     "ini": 179.88,
+     "fim": 183.417
+    },
+    {
+     "letra": "N",
+     "ini": 188.088,
+     "fim": 191.758
+    },
+    {
+     "letra": "O",
+     "ini": 196.229,
+     "fim": 201.168
+    },
+    {
+     "letra": "P",
+     "ini": 203.57,
+     "fim": 211.778
+    },
+    {
+     "letra": "Q",
+     "ini": 214.981,
+     "fim": 219.986
+    },
+    {
+     "letra": "R",
+     "ini": 222.656,
+     "fim": 227.394
+    },
+    {
+     "letra": "S",
+     "ini": 231.865,
+     "fim": 238.004
+    },
+    {
+     "letra": "T",
+     "ini": 239.94,
+     "fim": 246.213
+    },
+    {
+     "letra": "U",
+     "ini": 251.351,
+     "fim": 254.354
+    },
+    {
+     "letra": "V",
+     "ini": 260.093,
+     "fim": 264.097
+    },
+    {
+     "letra": "W",
+     "ini": 268.435,
+     "fim": 272.305
+    },
+    {
+     "letra": "Y",
+     "ini": 288.855,
+     "fim": 290.724
+    }
+   ]
+  },
+  {
+   "id": "B2pyvZqWAFk",
+   "canal": "Chaves Libras",
+   "channel_id": "UC0x1hsu8TmuQBtPEnkOLkmg",
+   "fonte": "alfabeto",
+   "inicio": 27.6,
+   "fim": 77.96667,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 27.6,
+     "fim": 29.067
+    },
+    {
+     "letra": "B",
+     "ini": 29.733,
+     "fim": 31.6
+    },
+    {
+     "letra": "C",
+     "ini": 32.067,
+     "fim": 33.733
+    },
+    {
+     "letra": "D",
+     "ini": 36.2,
+     "fim": 38
+    },
+    {
+     "letra": "E",
+     "ini": 38.467,
+     "fim": 39.8
+    },
+    {
+     "letra": "F",
+     "ini": 40.2,
+     "fim": 41.8
+    },
+    {
+     "letra": "G",
+     "ini": 42.333,
+     "fim": 44
+    },
+    {
+     "letra": "I",
+     "ini": 46.6,
+     "fim": 47.933
+    },
+    {
+     "letra": "L",
+     "ini": 52.467,
+     "fim": 53.867
+    },
+    {
+     "letra": "M",
+     "ini": 54.8,
+     "fim": 56.2
+    },
+    {
+     "letra": "N",
+     "ini": 56.733,
+     "fim": 57.867
+    },
+    {
+     "letra": "O",
+     "ini": 58.533,
+     "fim": 59.667
+    },
+    {
+     "letra": "P",
+     "ini": 60.267,
+     "fim": 61.867
+    },
+    {
+     "letra": "Q",
+     "ini": 62.867,
+     "fim": 63.867
+    },
+    {
+     "letra": "R",
+     "ini": 64.667,
+     "fim": 65.8
+    },
+    {
+     "letra": "S",
+     "ini": 66.267,
+     "fim": 67.667
+    },
+    {
+     "letra": "V",
+     "ini": 70.067,
+     "fim": 74.667
+    },
+    {
+     "letra": "Y",
+     "ini": 76.867,
+     "fim": 77.967
+    }
+   ]
+  },
+  {
+   "id": "CD6hVWFXe10",
+   "canal": "Inclusão com Eduarda Bispo",
+   "channel_id": "UCRTk7QjX0mATL63wpP3KFdA",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "EZxkymw426U",
+   "canal": "Libras L2",
+   "channel_id": "UC0ZGOWQz1aVaKGH15sXVhug",
+   "fonte": "alfabeto",
+   "inicio": 6.50651,
+   "fim": 158.85886,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 6.507,
+     "fim": 8.775
+    },
+    {
+     "letra": "C",
+     "ini": 9.51,
+     "fim": 27.528
+    },
+    {
+     "letra": "E",
+     "ini": 27.995,
+     "fim": 32.666
+    },
+    {
+     "letra": "F",
+     "ini": 33.133,
+     "fim": 36.803
+    },
+    {
+     "letra": "G",
+     "ini": 39.006,
+     "fim": 43.877
+    },
+    {
+     "letra": "I",
+     "ini": 51.952,
+     "fim": 53.353
+    },
+    {
+     "letra": "M",
+     "ini": 74.508,
+     "fim": 75.843
+    },
+    {
+     "letra": "N",
+     "ini": 77.311,
+     "fim": 78.912
+    },
+    {
+     "letra": "O",
+     "ini": 86.587,
+     "fim": 90.791
+    },
+    {
+     "letra": "P",
+     "ini": 94.461,
+     "fim": 96.597
+    },
+    {
+     "letra": "Q",
+     "ini": 102.936,
+     "fim": 103.47
+    },
+    {
+     "letra": "R",
+     "ini": 107.074,
+     "fim": 109.276
+    },
+    {
+     "letra": "S",
+     "ini": 111.345,
+     "fim": 114.615
+    },
+    {
+     "letra": "T",
+     "ini": 115.282,
+     "fim": 119.887
+    },
+    {
+     "letra": "U",
+     "ini": 123.423,
+     "fim": 125.626
+    },
+    {
+     "letra": "V",
+     "ini": 126.026,
+     "fim": 130.163
+    },
+    {
+     "letra": "W",
+     "ini": 130.697,
+     "fim": 140.774
+    },
+    {
+     "letra": "Y",
+     "ini": 148.248,
+     "fim": 151.118
+    }
+   ]
+  },
+  {
+   "id": "FA_T1DLU9f8",
+   "canal": "Andréa Peliccioni",
+   "channel_id": "UCAmErb1N57ZGd_Q_hIQwaCA",
+   "fonte": "alfabeto",
+   "inicio": 8.46667,
+   "fim": 119.96667,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 8.467,
+     "fim": 10.8
+    },
+    {
+     "letra": "B",
+     "ini": 11.4,
+     "fim": 19.367
+    },
+    {
+     "letra": "C",
+     "ini": 19.833,
+     "fim": 20.767
+    },
+    {
+     "letra": "D",
+     "ini": 23.533,
+     "fim": 26.533
+    },
+    {
+     "letra": "E",
+     "ini": 27.167,
+     "fim": 31.4
+    },
+    {
+     "letra": "F",
+     "ini": 31.867,
+     "fim": 35.7
+    },
+    {
+     "letra": "G",
+     "ini": 36.233,
+     "fim": 38.967
+    },
+    {
+     "letra": "I",
+     "ini": 43.967,
+     "fim": 47.167
+    },
+    {
+     "letra": "L",
+     "ini": 55.433,
+     "fim": 59.5
+    },
+    {
+     "letra": "M",
+     "ini": 60.567,
+     "fim": 63.967
+    },
+    {
+     "letra": "N",
+     "ini": 64.833,
+     "fim": 68.2
+    },
+    {
+     "letra": "O",
+     "ini": 69.267,
+     "fim": 74.9
+    },
+    {
+     "letra": "P",
+     "ini": 75.567,
+     "fim": 81.267
+    },
+    {
+     "letra": "Q",
+     "ini": 82.867,
+     "fim": 86.267
+    },
+    {
+     "letra": "R",
+     "ini": 89.833,
+     "fim": 90.3
+    },
+    {
+     "letra": "S",
+     "ini": 91.1,
+     "fim": 93.5
+    },
+    {
+     "letra": "T",
+     "ini": 94.367,
+     "fim": 97.367
+    },
+    {
+     "letra": "V",
+     "ini": 97.833,
+     "fim": 105.467
+    },
+    {
+     "letra": "W",
+     "ini": 106,
+     "fim": 109.233
+    }
+   ]
+  },
+  {
+   "id": "GWSXhIRoCyM",
+   "canal": "Inclusão com Eduarda Bispo",
+   "channel_id": "UCRTk7QjX0mATL63wpP3KFdA",
+   "fonte": "letra-parada",
+   "letra": "L",
+   "regioes": [
+    [
+     0.0,
+     3.393
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "GidjkBp2OWs",
+   "canal": "NAS",
+   "channel_id": "UCIglSPAQhNXEocCtwYgTJ3w",
+   "fonte": "alfabeto",
+   "inicio": 7.47413,
+   "fim": 219.58603,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 7.474,
+     "fim": 9.409
+    },
+    {
+     "letra": "B",
+     "ini": 13.814,
+     "fim": 16.25
+    },
+    {
+     "letra": "C",
+     "ini": 21.121,
+     "fim": 23.257
+    },
+    {
+     "letra": "D",
+     "ini": 36.303,
+     "fim": 39.506
+    },
+    {
+     "letra": "E",
+     "ini": 44.611,
+     "fim": 48.148
+    },
+    {
+     "letra": "F",
+     "ini": 52.419,
+     "fim": 55.822
+    },
+    {
+     "letra": "G",
+     "ini": 61.395,
+     "fim": 64.531
+    },
+    {
+     "letra": "I",
+     "ini": 77.377,
+     "fim": 80.247
+    },
+    {
+     "letra": "L",
+     "ini": 102.069,
+     "fim": 104.671
+    },
+    {
+     "letra": "M",
+     "ini": 110.41,
+     "fim": 112.679
+    },
+    {
+     "letra": "N",
+     "ini": 118.418,
+     "fim": 120.32
+    },
+    {
+     "letra": "O",
+     "ini": 125.592,
+     "fim": 128.862
+    },
+    {
+     "letra": "Q",
+     "ini": 142.109,
+     "fim": 144.678
+    },
+    {
+     "letra": "R",
+     "ini": 149.75,
+     "fim": 152.886
+    },
+    {
+     "letra": "S",
+     "ini": 158.225,
+     "fim": 162.229
+    },
+    {
+     "letra": "T",
+     "ini": 166.199,
+     "fim": 169.936
+    },
+    {
+     "letra": "U",
+     "ini": 174.741,
+     "fim": 178.512
+    },
+    {
+     "letra": "V",
+     "ini": 182.949,
+     "fim": 186.353
+    },
+    {
+     "letra": "W",
+     "ini": 191.391,
+     "fim": 192.392
+    },
+    {
+     "letra": "Y",
+     "ini": 209.142,
+     "fim": 211.078
+    }
+   ]
+  },
+  {
+   "id": "HcRRLGeYXUI",
+   "canal": "JMN - Libras",
+   "channel_id": "UCJSiKw7R2VePe-F7t6qq7yA",
+   "fonte": "alfabeto",
+   "inicio": 20.06667,
+   "fim": 454.86667,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 20.067,
+     "fim": 24.533
+    },
+    {
+     "letra": "B",
+     "ini": 32.867,
+     "fim": 40.667
+    },
+    {
+     "letra": "C",
+     "ini": 46.467,
+     "fim": 47.933
+    },
+    {
+     "letra": "D",
+     "ini": 64.633,
+     "fim": 70.233
+    },
+    {
+     "letra": "E",
+     "ini": 90.767,
+     "fim": 91.9
+    },
+    {
+     "letra": "F",
+     "ini": 111.167,
+     "fim": 116.433
+    },
+    {
+     "letra": "G",
+     "ini": 137.333,
+     "fim": 143.267
+    },
+    {
+     "letra": "I",
+     "ini": 180.533,
+     "fim": 184.9
+    },
+    {
+     "letra": "L",
+     "ini": 231.967,
+     "fim": 243.4
+    },
+    {
+     "letra": "M",
+     "ini": 248.4,
+     "fim": 251.8
+    },
+    {
+     "letra": "N",
+     "ini": 265.867,
+     "fim": 274.3
+    },
+    {
+     "letra": "O",
+     "ini": 285.3,
+     "fim": 287.567
+    },
+    {
+     "letra": "P",
+     "ini": 300.7,
+     "fim": 301.333
+    },
+    {
+     "letra": "Q",
+     "ini": 312.233,
+     "fim": 315.633
+    },
+    {
+     "letra": "R",
+     "ini": 336.967,
+     "fim": 338.967
+    },
+    {
+     "letra": "S",
+     "ini": 355.333,
+     "fim": 358.933
+    },
+    {
+     "letra": "T",
+     "ini": 374.933,
+     "fim": 381.933
+    },
+    {
+     "letra": "V",
+     "ini": 403.233,
+     "fim": 409.833
+    },
+    {
+     "letra": "W",
+     "ini": 417.9,
+     "fim": 420.067
+    },
+    {
+     "letra": "Y",
+     "ini": 437,
+     "fim": 440.067
+    }
+   ]
+  },
+  {
+   "id": "HqTOn4y0aNA",
+   "canal": "Inclusão com Eduarda Bispo",
+   "channel_id": "UCRTk7QjX0mATL63wpP3KFdA",
+   "fonte": "letra-parada",
+   "letra": "G",
+   "regioes": [
+    [
+     0.0,
+     3.893
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "LyEP7kaVEoM",
+   "canal": "Inclusão com Eduarda Bispo",
+   "channel_id": "UCRTk7QjX0mATL63wpP3KFdA",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "MfLI0-7OdnU",
+   "canal": "Inclusão com Eduarda Bispo",
+   "channel_id": "UCRTk7QjX0mATL63wpP3KFdA",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "OaBnpWD_6WM",
+   "canal": "Dicionário Libras",
+   "channel_id": "UCM_UpGBJGjP0I2WzZikKXnQ",
+   "fonte": "letra-parada",
+   "letra": "Q",
+   "regioes": [
+    [
+     0.0,
+     4.004
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "Q1bkpNECf_c",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra-parada",
+   "letra": "W",
+   "regioes": [
+    [
+     0.0,
+     7.8
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "QwfJJqTDPyc",
+   "canal": "Rafaella Castillo",
+   "channel_id": "UC8yPWLvgDN6vVO9xcORJZMA",
+   "fonte": "alfabeto",
+   "inicio": 66.2662,
+   "fim": 338.10443,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 66.266,
+     "fim": 77.144
+    },
+    {
+     "letra": "B",
+     "ini": 77.878,
+     "fim": 82.282
+    },
+    {
+     "letra": "C",
+     "ini": 87.22,
+     "fim": 92.092
+    },
+    {
+     "letra": "D",
+     "ini": 94.895,
+     "fim": 99.166
+    },
+    {
+     "letra": "E",
+     "ini": 106.239,
+     "fim": 119.186
+    },
+    {
+     "letra": "F",
+     "ini": 137.137,
+     "fim": 142.809
+    },
+    {
+     "letra": "G",
+     "ini": 147.614,
+     "fim": 160.293
+    },
+    {
+     "letra": "I",
+     "ini": 175.509,
+     "fim": 178.512
+    },
+    {
+     "letra": "L",
+     "ini": 208.708,
+     "fim": 210.71
+    },
+    {
+     "letra": "M",
+     "ini": 212.179,
+     "fim": 216.116
+    },
+    {
+     "letra": "O",
+     "ini": 220.053,
+     "fim": 223.457
+    },
+    {
+     "letra": "R",
+     "ini": 250.55,
+     "fim": 257.023
+    },
+    {
+     "letra": "S",
+     "ini": 262.028,
+     "fim": 267.267
+    },
+    {
+     "letra": "T",
+     "ini": 297.998,
+     "fim": 311.077
+    },
+    {
+     "letra": "V",
+     "ini": 320.52,
+     "fim": 321.588
+    },
+    {
+     "letra": "W",
+     "ini": 321.988,
+     "fim": 324.591
+    },
+    {
+     "letra": "Y",
+     "ini": 334.868,
+     "fim": 338.104
+    }
+   ]
+  },
+  {
+   "id": "Ry7kOQXMzTU",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra-parada",
+   "letra": "F",
+   "regioes": [
+    [
+     7.167,
+     12.533
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "SSYy2jh71ks",
+   "canal": "LIBRAS com Ataice Borges",
+   "channel_id": "UCru2F6-mstp5c7y_QcU__4w",
+   "fonte": "alfabeto",
+   "inicio": 23.7237,
+   "fim": 253.5533,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 23.724,
+     "fim": 26.46
+    },
+    {
+     "letra": "B",
+     "ini": 34.001,
+     "fim": 34.668
+    },
+    {
+     "letra": "C",
+     "ini": 37.804,
+     "fim": 38.872
+    },
+    {
+     "letra": "D",
+     "ini": 46.013,
+     "fim": 47.281
+    },
+    {
+     "letra": "E",
+     "ini": 51.418,
+     "fim": 52.953
+    },
+    {
+     "letra": "F",
+     "ini": 62.496,
+     "fim": 63.297
+    },
+    {
+     "letra": "L",
+     "ini": 118.952,
+     "fim": 121.288
+    },
+    {
+     "letra": "N",
+     "ini": 143.176,
+     "fim": 145.379
+    },
+    {
+     "letra": "O",
+     "ini": 152.386,
+     "fim": 152.986
+    },
+    {
+     "letra": "P",
+     "ini": 156.59,
+     "fim": 158.792
+    },
+    {
+     "letra": "Q",
+     "ini": 166.133,
+     "fim": 167.667
+    },
+    {
+     "letra": "R",
+     "ini": 187.754,
+     "fim": 190.357
+    },
+    {
+     "letra": "S",
+     "ini": 197.831,
+     "fim": 199.366
+    },
+    {
+     "letra": "T",
+     "ini": 205.706,
+     "fim": 206.773
+    },
+    {
+     "letra": "U",
+     "ini": 210.844,
+     "fim": 212.045
+    },
+    {
+     "letra": "W",
+     "ini": 221.388,
+     "fim": 221.788
+    }
+   ]
+  },
+  {
+   "id": "SpdpACO27Ak",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "M",
+   "regioes": [
+    [
+     11.446,
+     14.646
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "THp3VUZKFxg",
+   "canal": " José Júnior Libras",
+   "channel_id": "UC-wm67Ka8qsS4N3QLaDKXig",
+   "fonte": "alfabeto",
+   "inicio": 145.67613,
+   "fim": 305.67613,
+   "paradas": [
+    {
+     "letra": "B",
+     "ini": 145.676,
+     "fim": 148.614
+    },
+    {
+     "letra": "C",
+     "ini": 149.015,
+     "fim": 151.619
+    },
+    {
+     "letra": "D",
+     "ini": 165.843,
+     "fim": 166.945
+    },
+    {
+     "letra": "E",
+     "ini": 167.412,
+     "fim": 170.284
+    },
+    {
+     "letra": "F",
+     "ini": 173.222,
+     "fim": 180.601
+    },
+    {
+     "letra": "G",
+     "ini": 190.851,
+     "fim": 191.92
+    },
+    {
+     "letra": "L",
+     "ini": 222.972,
+     "fim": 225.242
+    },
+    {
+     "letra": "M",
+     "ini": 226.311,
+     "fim": 228.314
+    },
+    {
+     "letra": "N",
+     "ini": 229.316,
+     "fim": 231.386
+    },
+    {
+     "letra": "O",
+     "ini": 232.254,
+     "fim": 234.992
+    },
+    {
+     "letra": "P",
+     "ini": 235.526,
+     "fim": 239.332
+    },
+    {
+     "letra": "S",
+     "ini": 261.302,
+     "fim": 267.513
+    },
+    {
+     "letra": "W",
+     "ini": 283.239,
+     "fim": 283.84
+    },
+    {
+     "letra": "Y",
+     "ini": 304.474,
+     "fim": 305.676
+    }
+   ]
+  },
+  {
+   "id": "U9K_AOylBrc",
+   "canal": "Paróquia São Pedro e São Paulo",
+   "channel_id": "UC6NY8RfaQfA9kIJMwTNs-qg",
+   "fonte": "alfabeto",
+   "inicio": 2.28,
+   "fim": 69.84,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 2.28,
+     "fim": 6.24
+    },
+    {
+     "letra": "C",
+     "ini": 6.88,
+     "fim": 13.16
+    },
+    {
+     "letra": "E",
+     "ini": 13.76,
+     "fim": 20.96
+    },
+    {
+     "letra": "G",
+     "ini": 21.64,
+     "fim": 23.36
+    },
+    {
+     "letra": "I",
+     "ini": 27.16,
+     "fim": 30.04
+    },
+    {
+     "letra": "L",
+     "ini": 33.68,
+     "fim": 36.76
+    },
+    {
+     "letra": "M",
+     "ini": 38.48,
+     "fim": 39.48
+    },
+    {
+     "letra": "O",
+     "ini": 41.76,
+     "fim": 43.24
+    },
+    {
+     "letra": "P",
+     "ini": 45.96,
+     "fim": 47.44
+    },
+    {
+     "letra": "Q",
+     "ini": 47.88,
+     "fim": 48.88
+    },
+    {
+     "letra": "R",
+     "ini": 50.16,
+     "fim": 55.24
+    },
+    {
+     "letra": "U",
+     "ini": 55.76,
+     "fim": 60.84
+    },
+    {
+     "letra": "W",
+     "ini": 61.36,
+     "fim": 62.68
+    },
+    {
+     "letra": "Y",
+     "ini": 67.08,
+     "fim": 67.48
+    }
+   ]
+  },
+  {
+   "id": "VJrY5eS6dPM",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "S",
+   "regioes": [
+    [
+     11.313,
+     16.582
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "VLdMZv_q9jU",
+   "canal": "MINUTOS ESPECIAIS",
+   "channel_id": "UCg_phX9D3wwlbgfUstcECDg",
+   "fonte": "alfabeto",
+   "inicio": 13.7,
+   "fim": 338.7,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 13.7,
+     "fim": 19.3
+    },
+    {
+     "letra": "B",
+     "ini": 26.567,
+     "fim": 28.5
+    },
+    {
+     "letra": "C",
+     "ini": 37.167,
+     "fim": 41.633
+    },
+    {
+     "letra": "D",
+     "ini": 48.433,
+     "fim": 57.767
+    },
+    {
+     "letra": "E",
+     "ini": 61.967,
+     "fim": 71.3
+    },
+    {
+     "letra": "F",
+     "ini": 75.4,
+     "fim": 84.3
+    },
+    {
+     "letra": "G",
+     "ini": 88.067,
+     "fim": 98.133
+    },
+    {
+     "letra": "I",
+     "ini": 115.433,
+     "fim": 123.533
+    },
+    {
+     "letra": "L",
+     "ini": 146.767,
+     "fim": 156.6
+    },
+    {
+     "letra": "M",
+     "ini": 166.9,
+     "fim": 169.5
+    },
+    {
+     "letra": "N",
+     "ini": 176.2,
+     "fim": 178.933
+    },
+    {
+     "letra": "O",
+     "ini": 187.1,
+     "fim": 195.667
+    },
+    {
+     "letra": "P",
+     "ini": 199.333,
+     "fim": 201.8
+    },
+    {
+     "letra": "Q",
+     "ini": 213.933,
+     "fim": 224.6
+    },
+    {
+     "letra": "R",
+     "ini": 228,
+     "fim": 235.333
+    },
+    {
+     "letra": "S",
+     "ini": 247.833,
+     "fim": 249.7
+    },
+    {
+     "letra": "T",
+     "ini": 255.367,
+     "fim": 261.233
+    },
+    {
+     "letra": "U",
+     "ini": 268.233,
+     "fim": 278.1
+    },
+    {
+     "letra": "V",
+     "ini": 281.5,
+     "fim": 292.7
+    },
+    {
+     "letra": "W",
+     "ini": 296.767,
+     "fim": 307.067
+    },
+    {
+     "letra": "Y",
+     "ini": 325.9,
+     "fim": 334.1
+    }
+   ]
+  },
+  {
+   "id": "XOF3LUUrFFU",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "V",
+   "regioes": [
+    [
+     7.509,
+     12.244
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "XRwBI4q7Sys",
+   "canal": "Dicionário Libras",
+   "channel_id": "UCM_UpGBJGjP0I2WzZikKXnQ",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "YYj1lkqPHy8",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "B",
+   "regioes": [
+    [
+     8.577,
+     13.712
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "Ysl279Ku-Uo",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "G",
+   "regioes": [
+    [
+     8.71,
+     13.712
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "Z4C9JvFib4A",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ZHUqjtJewOY",
+   "canal": "Débora.Santos",
+   "channel_id": "UCujDLayvsvsNeXLi69d-ShQ",
+   "fonte": "alfabeto",
+   "inicio": 35.06667,
+   "fim": 480.43333,
+   "paradas": [
+    {
+     "letra": "B",
+     "ini": 35.067,
+     "fim": 40.933
+    },
+    {
+     "letra": "C",
+     "ini": 41.867,
+     "fim": 42.667
+    },
+    {
+     "letra": "D",
+     "ini": 45.2,
+     "fim": 46.9
+    },
+    {
+     "letra": "E",
+     "ini": 54.367,
+     "fim": 58.5
+    },
+    {
+     "letra": "F",
+     "ini": 64.667,
+     "fim": 69.7
+    },
+    {
+     "letra": "G",
+     "ini": 72.467,
+     "fim": 75.4
+    },
+    {
+     "letra": "I",
+     "ini": 85.8,
+     "fim": 91.067
+    },
+    {
+     "letra": "L",
+     "ini": 108.733,
+     "fim": 111.133
+    },
+    {
+     "letra": "M",
+     "ini": 112.267,
+     "fim": 113.733
+    },
+    {
+     "letra": "N",
+     "ini": 118.4,
+     "fim": 122.233
+    },
+    {
+     "letra": "O",
+     "ini": 124.133,
+     "fim": 124.667
+    },
+    {
+     "letra": "R",
+     "ini": 141.933,
+     "fim": 157
+    },
+    {
+     "letra": "S",
+     "ini": 157.467,
+     "fim": 161.267
+    },
+    {
+     "letra": "U",
+     "ini": 290.167,
+     "fim": 292.233
+    },
+    {
+     "letra": "V",
+     "ini": 298.3,
+     "fim": 301.833
+    },
+    {
+     "letra": "W",
+     "ini": 302.5,
+     "fim": 303.833
+    }
+   ]
+  },
+  {
+   "id": "_6b1TPZMnj8",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra-parada",
+   "letra": "G",
+   "regioes": [
+    [
+     0.0,
+     6.167
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "_x8S3ST2z2I",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "adQ_yKYQ3uU",
+   "canal": "Gilbervan Soares",
+   "channel_id": "UCMzxrJSHgWQmU0Y5tqJ1vnA",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "at4neFjs72k",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra-parada",
+   "letra": "Q",
+   "regioes": [
+    [
+     8.433,
+     14.267
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "bUdKrtIW5Yw",
+   "canal": "Caetano Da silva",
+   "channel_id": "UCPlvAe9-tslnPRMrV5EHtFA",
+   "fonte": "letra-parada",
+   "letra": "F",
+   "regioes": [
+    [
+     0.0,
+     3.633
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "bse5fpvSh10",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "cCPZPKali9Q",
+   "canal": "Dicionário Libras",
+   "channel_id": "UCM_UpGBJGjP0I2WzZikKXnQ",
+   "fonte": "letra-parada",
+   "letra": "P",
+   "regioes": [
+    [
+     0.969,
+     4.204
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "cJbVHgmwxEQ",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "cT3l6iP7NXY",
+   "canal": "Fundação Cecierj",
+   "channel_id": "UCzeqFz-yv5RciPEUWSczwxA",
+   "fonte": "alfabeto",
+   "inicio": 41.66663,
+   "fim": 359.52583,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 41.667,
+     "fim": 43.669
+    },
+    {
+     "letra": "D",
+     "ini": 51.969,
+     "fim": 59.059
+    },
+    {
+     "letra": "F",
+     "ini": 59.893,
+     "fim": 61.228
+    },
+    {
+     "letra": "G",
+     "ini": 62.938,
+     "fim": 65.232
+    },
+    {
+     "letra": "I",
+     "ini": 69.319,
+     "fim": 71.488
+    },
+    {
+     "letra": "L",
+     "ini": 77.786,
+     "fim": 80.205
+    },
+    {
+     "letra": "M",
+     "ini": 81.54,
+     "fim": 82.708
+    },
+    {
+     "letra": "N",
+     "ini": 83.166,
+     "fim": 86.211
+    },
+    {
+     "letra": "O",
+     "ini": 87.379,
+     "fim": 89.548
+    },
+    {
+     "letra": "P",
+     "ini": 90.09,
+     "fim": 92.926
+    },
+    {
+     "letra": "Q",
+     "ini": 94.469,
+     "fim": 95.971
+    },
+    {
+     "letra": "R",
+     "ini": 97.597,
+     "fim": 100.225
+    },
+    {
+     "letra": "S",
+     "ini": 102.519,
+     "fim": 106.606
+    },
+    {
+     "letra": "V",
+     "ini": 357.691,
+     "fim": 359.526
+    }
+   ]
+  },
+  {
+   "id": "cpg7dOzN70s",
+   "canal": "Rafael Emil",
+   "channel_id": "UCbVJMS5f84-5xmN_n2-p_Eg",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "cunMtTYomTo",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "cvwqqhBCqk0",
+   "canal": "Dicionário Libras",
+   "channel_id": "UCM_UpGBJGjP0I2WzZikKXnQ",
+   "fonte": "letra-parada",
+   "letra": "G",
+   "regioes": [
+    [
+     0.0,
+     3.537
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "deovRZWuNI8",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "N",
+   "regioes": [
+    [
+     8.51,
+     13.178
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "fRAketNteTA",
+   "canal": "Eu Acessível",
+   "channel_id": "UCXbZymXEZvKX8QCfE3uZADQ",
+   "fonte": "alfabeto",
+   "inicio": 8.23333,
+   "fim": 64.66667,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 8.233,
+     "fim": 9.5
+    },
+    {
+     "letra": "C",
+     "ini": 9.967,
+     "fim": 13.167
+    },
+    {
+     "letra": "D",
+     "ini": 14.633,
+     "fim": 17.567
+    },
+    {
+     "letra": "E",
+     "ini": 18.233,
+     "fim": 19.5
+    },
+    {
+     "letra": "F",
+     "ini": 20.167,
+     "fim": 23.167
+    },
+    {
+     "letra": "I",
+     "ini": 26.833,
+     "fim": 28.033
+    },
+    {
+     "letra": "L",
+     "ini": 33.3,
+     "fim": 34.433
+    },
+    {
+     "letra": "N",
+     "ini": 35.767,
+     "fim": 38.567
+    },
+    {
+     "letra": "O",
+     "ini": 39.433,
+     "fim": 40.9
+    },
+    {
+     "letra": "P",
+     "ini": 41.533,
+     "fim": 43.067
+    },
+    {
+     "letra": "Q",
+     "ini": 44.133,
+     "fim": 44.967
+    },
+    {
+     "letra": "S",
+     "ini": 45.967,
+     "fim": 49.433
+    },
+    {
+     "letra": "T",
+     "ini": 50.167,
+     "fim": 51.767
+    },
+    {
+     "letra": "W",
+     "ini": 56.333,
+     "fim": 58.2
+    }
+   ]
+  },
+  {
+   "id": "fiQ8tbHRKNk",
+   "canal": "Guilherme Ferezim | Intérprete de Libras 🤟",
+   "channel_id": "UCZV06YxgUyRBc4CteCbUQrw",
+   "fonte": "alfabeto",
+   "inicio": 51.6,
+   "fim": 419.5,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 51.6,
+     "fim": 54
+    },
+    {
+     "letra": "B",
+     "ini": 62.667,
+     "fim": 63.867
+    },
+    {
+     "letra": "C",
+     "ini": 72.467,
+     "fim": 72.867
+    },
+    {
+     "letra": "F",
+     "ini": 108.667,
+     "fim": 110.6
+    },
+    {
+     "letra": "G",
+     "ini": 128.533,
+     "fim": 130.267
+    },
+    {
+     "letra": "I",
+     "ini": 147.667,
+     "fim": 149.4
+    },
+    {
+     "letra": "P",
+     "ini": 221.867,
+     "fim": 224
+    },
+    {
+     "letra": "Q",
+     "ini": 231.967,
+     "fim": 233.2
+    },
+    {
+     "letra": "R",
+     "ini": 237.233,
+     "fim": 243.433
+    },
+    {
+     "letra": "S",
+     "ini": 244.767,
+     "fim": 254.467
+    },
+    {
+     "letra": "T",
+     "ini": 376.733,
+     "fim": 377.4
+    },
+    {
+     "letra": "U",
+     "ini": 377.867,
+     "fim": 379.933
+    },
+    {
+     "letra": "V",
+     "ini": 419.067,
+     "fim": 419.5
+    }
+   ]
+  },
+  {
+   "id": "gbeuuXH7BlI",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "gyUeRU0EXTM",
+   "canal": "Expressao & Vida",
+   "channel_id": "UCv39FjQeMXF2dmdF8S9a8iA",
+   "fonte": "letra-parada",
+   "letra": "W",
+   "regioes": [
+    [
+     0.0,
+     1.333
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "is01pyE---4",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra-parada",
+   "letra": "L",
+   "regioes": [
+    [
+     0.033,
+     7.633
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "jaJhr7iTayQ",
+   "canal": "Pedagojando",
+   "channel_id": "UCI3zgEaj23fBiwg1SdWL9-w",
+   "fonte": "alfabeto",
+   "inicio": 0.66667,
+   "fim": 35.6,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 0.667,
+     "fim": 2.067
+    },
+    {
+     "letra": "E",
+     "ini": 11.4,
+     "fim": 12.333
+    },
+    {
+     "letra": "O",
+     "ini": 28.133,
+     "fim": 28.867
+    },
+    {
+     "letra": "U",
+     "ini": 34.467,
+     "fim": 35.6
+    }
+   ]
+  },
+  {
+   "id": "jml2fai1I5s",
+   "canal": "Planneta Educação",
+   "channel_id": "UCy3moIB7CVxaVPY3GepY6Pw",
+   "fonte": "alfabeto",
+   "inicio": 5.2052,
+   "fim": 40.80743,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 5.205,
+     "fim": 5.939
+    },
+    {
+     "letra": "B",
+     "ini": 6.473,
+     "fim": 7.107
+    },
+    {
+     "letra": "C",
+     "ini": 7.508,
+     "fim": 9.443
+    },
+    {
+     "letra": "D",
+     "ini": 10.777,
+     "fim": 11.578
+    },
+    {
+     "letra": "E",
+     "ini": 12.179,
+     "fim": 13.046
+    },
+    {
+     "letra": "F",
+     "ini": 13.58,
+     "fim": 14.448
+    },
+    {
+     "letra": "G",
+     "ini": 14.915,
+     "fim": 16.183
+    },
+    {
+     "letra": "I",
+     "ini": 17.851,
+     "fim": 18.785
+    },
+    {
+     "letra": "L",
+     "ini": 20.854,
+     "fim": 23.19
+    },
+    {
+     "letra": "O",
+     "ini": 26.627,
+     "fim": 27.561
+    },
+    {
+     "letra": "P",
+     "ini": 28.028,
+     "fim": 29.329
+    },
+    {
+     "letra": "Q",
+     "ini": 30.33,
+     "fim": 31.598
+    },
+    {
+     "letra": "S",
+     "ini": 33.6,
+     "fim": 34.668
+    },
+    {
+     "letra": "V",
+     "ini": 36.87,
+     "fim": 40.807
+    }
+   ]
+  },
+  {
+   "id": "kMUUw3ujOZw",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "T",
+   "regioes": [
+    [
+     8.443,
+     11.777
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "kg6jkF5o4SE",
+   "canal": "Caminho da Libras",
+   "channel_id": "UCBQkZfsBONc11fj1MkQmV3g",
+   "fonte": "letra-parada",
+   "letra": "D",
+   "regioes": [
+    [
+     8.31,
+     13.178
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "mra6cH0b3No",
+   "canal": "Inclusão com Eduarda Bispo",
+   "channel_id": "UCRTk7QjX0mATL63wpP3KFdA",
+   "fonte": "letra-parada",
+   "letra": "W",
+   "regioes": [
+    [
+     0.0,
+     2.096
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "nmNBSTCl0lM",
+   "canal": "Aline libras",
+   "channel_id": "UCCKO-AW7nDgiAmo786byECg",
+   "fonte": "alfabeto",
+   "inicio": 10.87753,
+   "fim": 132.5324,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 10.878,
+     "fim": 14.214
+    },
+    {
+     "letra": "B",
+     "ini": 14.748,
+     "fim": 19.453
+    },
+    {
+     "letra": "C",
+     "ini": 19.853,
+     "fim": 23.257
+    },
+    {
+     "letra": "E",
+     "ini": 26.059,
+     "fim": 43.11
+    },
+    {
+     "letra": "G",
+     "ini": 43.644,
+     "fim": 50.25
+    },
+    {
+     "letra": "I",
+     "ini": 53.887,
+     "fim": 57.157
+    },
+    {
+     "letra": "L",
+     "ini": 65.432,
+     "fim": 69.836
+    },
+    {
+     "letra": "O",
+     "ini": 78.445,
+     "fim": 84.451
+    },
+    {
+     "letra": "P",
+     "ini": 84.851,
+     "fim": 87.721
+    },
+    {
+     "letra": "Q",
+     "ini": 89.523,
+     "fim": 91.858
+    },
+    {
+     "letra": "R",
+     "ini": 93.46,
+     "fim": 100.334
+    },
+    {
+     "letra": "T",
+     "ini": 100.867,
+     "fim": 105.872
+    },
+    {
+     "letra": "V",
+     "ini": 106.54,
+     "fim": 120.287
+    },
+    {
+     "letra": "Y",
+     "ini": 126.76,
+     "fim": 129.096
+    }
+   ]
+  },
+  {
+   "id": "oNRvI3-AqjA",
+   "canal": "Elaine Pinatto Deaf",
+   "channel_id": "UCWerlsj94DRTAU60EW-IsFw",
+   "fonte": "letra-parada",
+   "letra": "B",
+   "regioes": [
+    [
+     0.0,
+     4.533
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "oNfxMboxE_0",
+   "canal": "Inclusão com Eduarda Bispo",
+   "channel_id": "UCRTk7QjX0mATL63wpP3KFdA",
+   "fonte": "letra-parada",
+   "letra": "T",
+   "regioes": [
+    [
+     0.0,
+     3.171
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "rJec0Q85vV4",
+   "canal": "TV CES",
+   "channel_id": "UCFVe2h55WhmVKe7eW5B-ztQ",
+   "fonte": "alfabeto",
+   "inicio": 16.44977,
+   "fim": 50.41703,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 16.45,
+     "fim": 17.317
+    },
+    {
+     "letra": "B",
+     "ini": 17.851,
+     "fim": 18.919
+    },
+    {
+     "letra": "C",
+     "ini": 19.386,
+     "fim": 24.324
+    },
+    {
+     "letra": "F",
+     "ini": 25.025,
+     "fim": 25.759
+    },
+    {
+     "letra": "G",
+     "ini": 26.493,
+     "fim": 27.094
+    },
+    {
+     "letra": "I",
+     "ini": 29.296,
+     "fim": 29.696
+    },
+    {
+     "letra": "L",
+     "ini": 33.133,
+     "fim": 33.934
+    },
+    {
+     "letra": "O",
+     "ini": 37.371,
+     "fim": 37.971
+    },
+    {
+     "letra": "P",
+     "ini": 38.772,
+     "fim": 39.373
+    },
+    {
+     "letra": "R",
+     "ini": 41.441,
+     "fim": 42.442
+    },
+    {
+     "letra": "S",
+     "ini": 42.776,
+     "fim": 43.644
+    },
+    {
+     "letra": "T",
+     "ini": 44.378,
+     "fim": 45.312
+    },
+    {
+     "letra": "U",
+     "ini": 45.979,
+     "fim": 47.714
+    },
+    {
+     "letra": "W",
+     "ini": 48.482,
+     "fim": 49.016
+    }
+   ]
+  },
+  {
+   "id": "s_TN8xNJv-I",
+   "canal": "Gilbervan Soares",
+   "channel_id": "UCMzxrJSHgWQmU0Y5tqJ1vnA",
+   "fonte": "letra-parada",
+   "letra": "T",
+   "regioes": [
+    [
+     0.0,
+     5.3
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "tjVLKt2vGdw",
+   "canal": "Gilbervan Soares",
+   "channel_id": "UCMzxrJSHgWQmU0Y5tqJ1vnA",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "vRQDuZNKWKQ",
+   "canal": "Dicionário Libras",
+   "channel_id": "UCM_UpGBJGjP0I2WzZikKXnQ",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "wlEzioY4bbU",
+   "canal": "librasfacil",
+   "channel_id": "UCOLw4AW4lLHPlpkWly9DzLw",
+   "fonte": "letra-parada",
+   "letra": "C",
+   "regioes": [
+    [
+     0.0,
+     3.1
+    ]
+   ],
+   "paradas": []
+  },
+  {
+   "id": "yFPlVthRMSs",
+   "canal": "Carol Martins l Explora Libras - Um sinal por dia!",
+   "channel_id": "UCkXNfD_Ihql55E35s95PYrg",
+   "fonte": "alfabeto",
+   "inicio": 5.4,
+   "fim": 178.86667,
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 5.4,
+     "fim": 11.333
+    },
+    {
+     "letra": "B",
+     "ini": 11.933,
+     "fim": 17.3
+    },
+    {
+     "letra": "C",
+     "ini": 24.767,
+     "fim": 25.533
+    },
+    {
+     "letra": "D",
+     "ini": 26.4,
+     "fim": 36.067
+    },
+    {
+     "letra": "E",
+     "ini": 37.067,
+     "fim": 41.767
+    },
+    {
+     "letra": "F",
+     "ini": 42.233,
+     "fim": 48.433
+    },
+    {
+     "letra": "G",
+     "ini": 48.9,
+     "fim": 55.7
+    },
+    {
+     "letra": "I",
+     "ini": 63.167,
+     "fim": 68.167
+    },
+    {
+     "letra": "L",
+     "ini": 85.6,
+     "fim": 89.3
+    },
+    {
+     "letra": "M",
+     "ini": 90.067,
+     "fim": 92.467
+    },
+    {
+     "letra": "N",
+     "ini": 97.333,
+     "fim": 100.233
+    },
+    {
+     "letra": "O",
+     "ini": 105,
+     "fim": 111.3
+    },
+    {
+     "letra": "P",
+     "ini": 113.833,
+     "fim": 116.833
+    },
+    {
+     "letra": "Q",
+     "ini": 121.133,
+     "fim": 122.267
+    },
+    {
+     "letra": "R",
+     "ini": 125.867,
+     "fim": 129.067
+    },
+    {
+     "letra": "S",
+     "ini": 131.733,
+     "fim": 135
+    },
+    {
+     "letra": "T",
+     "ini": 135.867,
+     "fim": 141.4
+    },
+    {
+     "letra": "U",
+     "ini": 142,
+     "fim": 148.767
+    },
+    {
+     "letra": "V",
+     "ini": 149.167,
+     "fim": 152.567
+    },
+    {
+     "letra": "W",
+     "ini": 153.167,
+     "fim": 159.767
+    },
+    {
+     "letra": "Y",
+     "ini": 171.733,
+     "fim": 172.933
+    }
+   ]
+  }
+ ]
+}

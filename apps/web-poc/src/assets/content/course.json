@@ -83,7 +83,7 @@
           "order": 2,
           "xpReward": 10,
           "signIds": ["letra-F","letra-G","letra-H","letra-I","letra-J"],
-          "produce": ["letra-F","letra-G","letra-H","letra-I"],
+          "produce": ["letra-F","letra-G","letra-H","letra-I","letra-J"],
           "spellWords": ["CHEGA"]
         },
         {

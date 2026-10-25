@@ -85,6 +85,29 @@ Saída: 63 valores. O `train_static.py` exporta `model.json` (formas, labels, `n
 - Modelo: GRU/1D-CNN leve ou Transformer pequeno; considerar DTW contra protótipo como sinal auxiliar.
 - **Meta de aceite: >= 85% top-1** em sinais do currículo, com pessoas não vistas. (Coerente com os ~88% da literatura em dados reais; abaixo disso, o sinal fica como exercício receptivo até melhorar.)
 
+### 3.3 Letras com movimento (H, J, K, X, Z, Ç)
+No INES e na VLibras, H, K e X têm movimento, além de J, Z e Ç; o Y fica parado (nas folhas de conferência todo mundo
+segura a mão parada). O modelo das letras paradas lê só a forma da mão; estas letras têm um modelo temporal próprio,
+só com as mãos (os vídeos do alfabeto não têm corpo e as letras não precisam dele):
+
+- Dados: landmarks a 15 quadros por segundo extraídos de novo em Python (`video/extrair_maos.py`, mesmo
+  `hand_landmarker.task` 1.1.1; a página `treino-video.html` gravava ~7,5 quadros por segundo). Trecho de cada letra
+  nos vídeos do alfabeto entre as paradas das letras vizinhas da sequência (`video/rotular_letras_mov.py`), com OCR
+  da letra na tela e revisão a olho das folhas (`letras_mov_conferencia.json`); trechos em `letras_mov_trechos.json`.
+- Entrada (`src/recognition/letterMotion.ts` = `janela` do `train_letras_mov.py`): a mão mais alta de cada quadro,
+  janela espelhada pelo rótulo mais visto; por passo, presença, pulso em relação à média da janela em palmos, log do
+  palmo (aproximação da câmera) e os 65 da `normalizeHand`; 24 passos, 8 entram no MLP (8 x 69 = 552).
+- Classe "_": paradas e transições das letras paradas, o miolo da parada da própria letra (a forma sem o movimento)
+  e vídeos de uma letra parada (a mão sobe, faz a letra e desce).
+- App: janelas de 0,8, 1,2 e 1,6 s a cada 250 ms (`createLetterMotionRecognizer`), limiar 0,6 e duas avaliações
+  seguidas com a mesma letra (`useLetterMotionCamera`, `ExerciseCameraMotionLetter`). Sem `public/ml/letras-mov/`
+  nada muda. Paridade TS x Python: `letrasMovParidade.test.ts` (fixture de `scripts/gerar-fixture-letras-mov.py`).
+- Avaliação como no app (`train_letras_mov.py avaliar`): validação por canal (GroupKFold) e os 6 canais do
+  `teste_fixo.json` mais o INES, que nunca entram no treino. Resultado de 2026-10-25 (modelo `letras-mov`, 26
+  canais no treino): canais separados + INES H 6/7, J 6/6, K 5/7, Ç 3/4, X 3/6, Z 4/7; validação por canal H 15/17,
+  J 8/9, K 11/14, Ç 6/9, X 2/16, Z 3/13; parada de letra parada lida como letra com movimento 9/99 nos canais
+  separados (P, U e V como K; C e O como Ç; I como J). A câmera avalia H, J e K (e Ç, sem lição).
+
 ## 4. Dados de treino (quantificado)
 
 Referência da literatura: dataset de Libras com **~27 mil amostras para 26 classes (~1.000/classe)** atingiu ~97% em tarefa estática controlada. Tradução para nosso plano:
