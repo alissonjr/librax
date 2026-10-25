@@ -7,7 +7,9 @@ import * as path from 'path';
  * para o apex. O app fica em app.<dominio>, no CloudFront dele, sem mudar caminho nem escopo do PWA.
  *
  * Paginas: / (portugues), /en/ e /es/. A pagina raiz tem um script inline pequeno que leva ao
- * idioma do navegador; a CSP libera esse script pelo hash (sha256), sem 'unsafe-inline'.
+ * idioma do navegador, e as tres tem outro, de uma linha, que marca o <html> com JS antes de
+ * desenhar (a abertura ja abre na moldura da mao em 3D); a CSP libera os dois pelo hash (sha256),
+ * sem 'unsafe-inline'.
  */
 
 /** Paginas geradas pelo build da landing (dist/), uma por idioma. */
@@ -18,7 +20,10 @@ export const LANDING_PAGES = ['index.html', 'en/index.html', 'es/index.html'];
  * build da landing (o synth avisa). Para atualizar: `npm run landing:build` e `npm run landing:hash`
  * (em infra) e copiar a saida aqui.
  */
-export const LANDING_INLINE_SCRIPT_HASHES = ['sha256-//4Ffw7TmvedHAP0d8Dat9CE8rP7od5JdbMBrCAMzUA='];
+export const LANDING_INLINE_SCRIPT_HASHES = [
+  'sha256-//4Ffw7TmvedHAP0d8Dat9CE8rP7od5JdbMBrCAMzUA=', // raiz: leva ao idioma do navegador
+  'sha256-FT9YbAYD8Khi+W86xSuf3yXfB5O7zEJfO3V//9he1B0=', // tres paginas: classe lx-js antes de desenhar
+];
 
 /** Cache-Control das paginas e dos arquivos sem hash no nome (icones, fontes, imagens). */
 export const LANDING_SHORT_CACHE = 'public, max-age=300';
@@ -64,13 +69,17 @@ export function landingScriptHashes(distDir: string): { hashes: string[]; fromBu
 /**
  * CSP da landing: tudo da propria origem, script inline so pelo hash. Estilo inline liberado
  * porque o HTML usa atributos style com variaveis CSS (--i, --w). Nao pode ser emoldurada.
+ *
+ * A mao em 3D da abertura (apps/landing/src/mao3d.ts) precisa de tres coisas a mais, todas da
+ * propria pagina: 'wasm-unsafe-eval' para o descompressor do modelo (WebAssembly embutido no JS,
+ * sem eval de texto), e blob: em img-src e connect-src para a textura que vem dentro do GLB.
  */
 export function landingCsp(scriptHashes: string[]): string {
   const directives: Array<[string, string[]]> = [
     ['default-src', ["'self'"]],
-    ['script-src', ["'self'", ...scriptHashes.map((h) => `'${h}'`)]],
-    ['connect-src', ["'self'"]],
-    ['img-src', ["'self'", 'data:']],
+    ['script-src', ["'self'", ...scriptHashes.map((h) => `'${h}'`), "'wasm-unsafe-eval'"]],
+    ['connect-src', ["'self'", 'blob:']],
+    ['img-src', ["'self'", 'data:', 'blob:']],
     ['style-src', ["'self'", "'unsafe-inline'"]],
     ['font-src', ["'self'"]],
     ['frame-ancestors', ["'none'"]],

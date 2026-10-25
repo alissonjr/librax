@@ -202,7 +202,12 @@ describe('cabecalhos e CSP da landing', () => {
       const p = policy(template, comment);
       const csp: string = p.SecurityHeadersConfig.ContentSecurityPolicy.ContentSecurityPolicy;
       const scriptSrc = csp.split('; ').find((d) => d.startsWith('script-src '))!;
-      expect(scriptSrc).not.toContain('unsafe');
+      // So o WebAssembly do descompressor da mao em 3D; nada de script inline ou eval de texto
+      expect(scriptSrc).not.toContain('unsafe-inline');
+      expect(scriptSrc).not.toContain("'unsafe-eval'");
+      expect(scriptSrc).toContain("'wasm-unsafe-eval'");
+      expect(csp).toContain("connect-src 'self' blob:");
+      expect(csp).toContain("img-src 'self' data: blob:");
       expect(scriptSrc).toContain(`'${LANDING_INLINE_SCRIPT_HASHES[0]}'`);
       expect(csp).toContain("default-src 'self'");
       expect(csp).toContain("frame-ancestors 'none'");
@@ -223,7 +228,7 @@ describe('cabecalhos e CSP da landing', () => {
     const { stack, template } = synth({ ...withDomain, 'librax:landingDistDir': fakeBuild(script) });
     const csp: string = policy(template, 'Librax - landing (cache curto)').SecurityHeadersConfig.ContentSecurityPolicy
       .ContentSecurityPolicy;
-    expect(csp).toContain(`script-src 'self' '${sha(script)}';`);
+    expect(csp).toContain(`script-src 'self' '${sha(script)}' 'wasm-unsafe-eval';`);
     expect(csp).not.toContain(LANDING_INLINE_SCRIPT_HASHES[0]);
     expect(template.toJSON().Outputs.LandingScriptHashes.Value).toBe(sha(script));
     const warnings = Annotations.fromStack(stack).findWarning('*', Match.anyValue()).map((w) => JSON.stringify(w.entry.data));

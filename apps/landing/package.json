@@ -1,0 +1,29 @@
+{
+  "name": "librax-landing",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-ds.mjs",
+    "maos": "vite-node scripts/extrair-maos.ts",
+    "numeros": "node scripts/atualizar-numeros.mjs",
+    "telas": "node scripts/capturar-telas.mjs",
+    "predev": "npm run sync && npm run paginas",
+    "dev": "vite",
+    "prebuild": "npm run sync && npm run paginas",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "paginas": "vite-node scripts/gerar-paginas.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/three": "0.186.0",
+    "playwright-core": "^1.56.1",
+    "three": "0.186.1",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.0",
+    "vite-node": "^2.1.0",
+    "vitest": "^2.1.0"
+  }
+}

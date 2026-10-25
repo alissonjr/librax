@@ -4,7 +4,7 @@ import 'animate.css';
 import './styles/tokens.css';
 import './style.css';
 import { App } from './App';
-import { I18nProvider, getInitialLang } from './i18n';
+import { I18nProvider, adoptLangFromUrl, getInitialLang } from './i18n';
 import { applyTheme, getThemePref } from './lib/theme';
 import { initInstall } from './lib/install';
 import { installSoundUnlock } from './lib/sound';
@@ -12,6 +12,8 @@ import { splashStep } from './lib/splash';
 
 // Tela de abertura (index.html): o código principal chegou e está rodando
 splashStep('app');
+// Idioma escolhido na landing (outro endereço): chega no link como ?lang= e vira a escolha do app
+adoptLangFromUrl();
 document.documentElement.lang = getInitialLang();
 applyTheme(getThemePref());
 installSoundUnlock();

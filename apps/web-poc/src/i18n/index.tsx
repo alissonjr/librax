@@ -44,6 +44,40 @@ function detectBrowserLang(): Lang {
   return FALLBACK;
 }
 
+/** Parâmetro com o idioma escolhido na landing, que fica em outro endereço (?lang=pt-BR|en|es). */
+export const LANG_PARAM = 'lang';
+
+/**
+ * Idioma vindo da landing no link (?lang=en): se for válido, vale como a escolha feita no app
+ * (fica guardado em librax_lang e no <html lang>). O parâmetro sai da URL em seguida, com
+ * history.replaceState, para não ficar grudado nos links nem no histórico. Roda uma vez, antes
+ * de o React montar (main.tsx). Devolve o idioma aplicado, ou null.
+ */
+export function adoptLangFromUrl(win: Window = window): Lang | null {
+  let url: URL;
+  try {
+    url = new URL(win.location.href);
+  } catch {
+    return null;
+  }
+  if (!url.searchParams.has(LANG_PARAM)) return null;
+  const value = url.searchParams.get(LANG_PARAM);
+  url.searchParams.delete(LANG_PARAM);
+  try {
+    win.history.replaceState(win.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+  } catch {
+    /* sem history: o parâmetro fica, sem efeito */
+  }
+  if (!isLang(value)) return null;
+  try {
+    win.localStorage.setItem(STORAGE_KEY, value);
+  } catch {
+    /* sem armazenamento: vale só nesta visita (getInitialLang não acha; segue o navegador) */
+  }
+  win.document.documentElement.lang = value;
+  return value;
+}
+
 export function getInitialLang(): Lang {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);

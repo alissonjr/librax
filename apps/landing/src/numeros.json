@@ -1,0 +1,38 @@
+{
+  "_sobre": "Números mostrados na landing. Medições reais do projeto. Os do curso e dos modelos vêm do app (apps/web-poc) e do ml-training; os do treino por vídeo vêm de ml-training/data e mudam enquanto a análise dos vídeos roda. Para conferir com os dados atuais: npm run numeros (só mostra a diferença) ou npm run numeros -- --gravar.",
+  "atualizado_em": "2026-10-25",
+  "fonte": "npm run numeros em 2026-10-25",
+  "curso": {
+    "unidades": 14,
+    "licoes": 53,
+    "sinais": 254
+  },
+  "letras": {
+    "_fonte": "ml-training/teste_fixo.py: teste fixo com pessoas que nunca entraram no treino",
+    "letras_estaticas": 24,
+    "acerto_pct": 83.5,
+    "repouso_lido_como_letra_pct": 2.7,
+    "repouso_modelo_anterior_pct": 29.5
+  },
+  "sinais_movimento": {
+    "_fonte": "Modelo piloto em treinamento (ml-training/train_sinais.py)",
+    "piloto_sinais": 20
+  },
+  "treino": {
+    "_fonte": "ml-training/data (fontes.json, fontes_sinais.json, videos/, landmarks/, landmarks_sinais/)",
+    "videos": 1029,
+    "horas_total": 6.4,
+    "horas_alfabeto": 2.7,
+    "horas_sinais": 3.7,
+    "pessoas_alfabeto": 58,
+    "pessoas_sinais": 177,
+    "quadros_mil": 205,
+    "sinais_dicionario": 223
+  },
+  "offline": {
+    "_fonte": "Configurações > Baixar para usar offline (src/lib/offlinePack.ts)",
+    "pacote_mb": 48,
+    "animacoes": 264
+  },
+  "testes_app": 549
+}

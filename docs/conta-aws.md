@@ -82,6 +82,11 @@ O certificado (`librax:certificateArn`, ACM em `us-east-1`) precisa cobrir os qu
 `*.<dominio>`). Na landing, `/app` e `/app/...` redirecionam para `app.<dominio>`, então link antigo para
 `/app/` continua funcionando.
 
+Idioma da landing para o app: as duas origens não dividem o armazenamento do navegador, então todo link da
+landing para o app leva `?lang=pt-BR|en|es`. O app aplica esse idioma como se fosse escolhido nele (guarda em
+`librax_lang`) e tira o parâmetro da URL (`apps/web-poc/src/i18n/index.tsx`, `adoptLangFromUrl`). O
+redirecionamento de `/app` mantém a query.
+
 Registros DNS. Com zona no Route 53 (`librax:hostedZoneId` e `librax:hostedZoneName`) a stack cria todos. Com
 DNS fora da AWS, depois do deploy:
 
@@ -113,6 +118,11 @@ npm run landing:publicar  # confere a conta, build com os outputs, sync e invali
   `/es/index.html`. Se o hash não bate, ele para antes do upload: rode `npm run deploy` e publique de novo.
 - Cache: `/assets/*` (nome com hash) é imutável por um ano; as páginas e o resto (ícones, fontes, imagens),
   5 minutos. Caminho que não existe devolve 404 com a página inicial.
-- CSP: tudo da própria origem e o script inline da raiz (o que leva ao idioma do navegador) liberado pelo hash,
-  sem `'unsafe-inline'`. Sem o build, o synth usa o hash gravado em `infra/lib/landing.ts` e avisa; quando o
+- CSP: tudo da própria origem e os scripts inline liberados pelo hash, sem `'unsafe-inline'`: o da raiz (leva
+  ao idioma do navegador) e o de uma linha das três páginas (marca o `<html>` com JS antes de desenhar, para a
+  abertura já abrir na moldura da mão em 3D, sem mostrar antes as mãos desenhadas). Sem o build, o synth usa o hash gravado em `infra/lib/landing.ts` e avisa; quando o
   script muda, o synth avisa para atualizar esse hash (`npm run landing:hash` mostra o valor novo).
+- A mão em 3D da abertura (carregada depois da página: cerca de 300 kB comprimidos, entre o motor 3D e o
+  modelo) pede três liberações, todas da própria origem: `'wasm-unsafe-eval'` em `script-src` (o
+  descompressor do modelo é WebAssembly embutido no JS) e `blob:` em `img-src` e `connect-src` (a textura
+  que vem dentro do GLB).
