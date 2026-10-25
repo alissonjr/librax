@@ -224,6 +224,8 @@ a:hover { text-decoration-thickness: 2px; }
 .filters, .search { display: flex; flex-wrap: wrap; gap: var(--lx-space-3); align-items: flex-end; }
 .field { display: flex; flex-direction: column; gap: var(--lx-space-1); min-width: 180px; }
 .field--grow { flex: 1 1 260px; }
+.check { display: inline-flex; align-items: center; gap: var(--lx-space-2); min-height: 40px; font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); cursor: pointer; }
+.check input { width: 18px; height: 18px; margin: 0; accent-color: var(--lx-border-focus); }
 .field-label { font: var(--lx-typography-label-sm); color: var(--lx-text-secondary); }
 .field input, .field select {
   min-height: var(--lx-size-button-sm);

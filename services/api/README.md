@@ -157,7 +157,7 @@ Uma Lambda só (`librax-admin`, `adminRouter`) atende todas, pelo `routeKey`, e 
 | Método | Rota | O que faz |
 |---|---|---|
 | GET | `/v1/admin/me` | quem está logado e os grupos (o site decide se abre) |
-| GET | `/v1/admin/overview` | 30 dias, 12 semanas e 12 meses de ativos, contas novas, lições, saídas e erros; rankings por lição, exercício e sinal |
+| GET | `/v1/admin/overview` | 30 dias, 12 semanas e 12 meses de ativos, contas novas, lições, saídas e erros; rankings por lição, exercício e sinal; desempenho da câmera (`camera`) |
 | GET | `/v1/admin/content` | unidades e sinais com `validated`, `source`, vídeo, avatar e `missing` |
 | GET | `/v1/admin/accounts?q=` | busca por começo do e-mail ou pelo sub (Cognito `ListUsers`), até 10 |
 | GET | `/v1/admin/accounts/{userId}` | resumo da conta: perfil, progresso, SRS, conquistas, liga, squads, atividade |
@@ -166,6 +166,20 @@ Uma Lambda só (`librax-admin`, `adminRouter`) atende todas, pelo `routeKey`, e 
 
 A conclusão de lição aceita também `exerciseStats` (`{ "<tipo>": { "attempted", "wrong" } }`, tipos do app):
 é telemetria do painel, e formato errado é descartado sem recusar a conclusão.
+
+E aceita `cameraStats`, o desempenho da câmera só daquela lição (nunca o acumulado do aparelho):
+
+```json
+"cameraStats": { "letra-K": { "successes": 1, "skips": 1, "attempts": 3, "wrong": { "H": 2 } } }
+```
+
+`attempts` soma as tentativas das vezes que terminaram em acerto (então `attempts >= successes`, e 0 sem
+acerto); `wrong` conta as leituras de outro sinal no lugar. Validação em `parseCameraStats`
+(`domain/lessonCompletion.js`): só sinais do curso e, em `wrong`, só glosas de outros sinais do curso
+(`catalog.signGlosses`, gerado do `signs.json` por `npm run catalog`); tetos de 40 sinais por lição, 50 vezes
+por sinal, 500 por contagem e 8 rótulos errados por sinal. Sinal fora do formato some sozinho, rótulo
+desconhecido some do `wrong` e a conclusão segue valendo. Vale também na migração do convidado. A soma vai
+para o item `OPS / DAY#<dia>#CAMERA`, sem id de pessoa (docs/painel-admin.md).
 
 Erros de squad saem com o código do domínio, o mesmo que a tela espera (SPEC 04 seção 4.4):
 `SQUAD_NOT_FOUND` e `TARGET_NOT_MEMBER` (404), `NOT_ADMIN` e `GUEST_NOT_ALLOWED` (403),

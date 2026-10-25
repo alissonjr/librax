@@ -2,10 +2,13 @@
 
 const int = new Intl.NumberFormat('pt-BR');
 const pct = new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 0 });
+const dec = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
 const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
 export const fmtInt = (n: number | null | undefined) => (n == null ? '-' : int.format(n));
 export const fmtPct = (r: number | null | undefined) => (r == null ? '-' : pct.format(r));
+/** Uma casa decimal: "3,2". */
+export const fmtDec = (n: number | null | undefined) => (n == null ? '-' : dec.format(n));
 
 /** Dólares com centavos: "US$ 1,23". */
 export function fmtUsd(n: number | null | undefined, currency = 'USD'): string {
