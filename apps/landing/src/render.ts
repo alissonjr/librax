@@ -77,7 +77,6 @@ export function renderPage(locale: Locale): string {
     unidades: N.curso.unidades,
     licoes: N.curso.licoes,
     sinais: N.curso.sinais,
-    mb: N.offline.pacote_mb,
     animacoes: N.offline.animacoes,
     letras: N.letras.letras_estaticas,
     testes: n(N.testes_app),
@@ -164,7 +163,6 @@ export function renderPage(locale: Locale): string {
 
   const T = N.treino;
   const pctAlfa = (T.horas_alfabeto / T.horas_total) * 100;
-  const restMax = Math.max(N.letras.repouso_modelo_anterior_pct, N.letras.repouso_lido_como_letra_pct);
 
   const installPanels = PLATFORMS.map(
     (p) => `<div class="install-panel" id="instalar-${p}" role="tabpanel" aria-labelledby="aba-${p}" data-platform="${p}">
@@ -317,7 +315,6 @@ export function renderPage(locale: Locale): string {
       <h3 id="offline-card-title">${esc(c.offline.cardTitle)}</h3>
       <ul class="checks" role="list">${c.offline.can.map((t) => `<li>${icon('check_circle', { filled: true })}${esc(t)}</li>`).join('')}</ul>
       <p class="note">${esc(c.offline.cardNote)}</p>
-      <p class="offline-size"><span class="big-num">${n(N.offline.pacote_mb)}<small>MB</small></span></p>
     </aside>
   </div>
 </section>
@@ -335,14 +332,6 @@ export function renderPage(locale: Locale): string {
         <p class="stat-value">${n(N.letras.acerto_pct, 1)}<small>%</small></p>
         <p class="stat-label">${esc(c.numbers.accuracy)}</p>
         <span class="chip chip-stage">${icon('check_circle', { filled: true })}${esc(c.numbers.fixedTest)}</span>
-      </div>
-      <div class="card stat">
-        <h4 class="stat-title">${esc(c.numbers.restTitle)}</h4>
-        <div class="bars" role="img" aria-label="${esc(c.numbers.restOld)}: ${n(N.letras.repouso_modelo_anterior_pct, 1)}%. ${esc(c.numbers.restNew)}: ${n(N.letras.repouso_lido_como_letra_pct, 1)}%.">
-          <div class="bar-row"><span class="bar-label">${esc(c.numbers.restOld)}</span><span class="bar-track"><span class="bar-fill bar-old" style="--w:${(N.letras.repouso_modelo_anterior_pct / restMax) * 100}%"></span></span><span class="bar-value">${n(N.letras.repouso_modelo_anterior_pct, 1)}%</span></div>
-          <div class="bar-row"><span class="bar-label">${esc(c.numbers.restNew)}</span><span class="bar-track"><span class="bar-fill bar-new" style="--w:${(N.letras.repouso_lido_como_letra_pct / restMax) * 100}%"></span></span><span class="bar-value bar-value-strong">${n(N.letras.repouso_lido_como_letra_pct, 1)}%</span></div>
-        </div>
-        <p class="stat-label">${esc(c.numbers.restText)}</p>
       </div>
       <div class="card stat">
         <p class="stat-value stat-value-md">${f(c.numbers.lettersCount, { n: N.letras.letras_estaticas })}</p>
