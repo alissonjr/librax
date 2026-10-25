@@ -1,4 +1,4 @@
-import { cameraFiles, simdSupported, type AssetFile } from './assetDownload';
+import { cameraFiles, signModelPublished, simdSupported, type AssetFile } from './assetDownload';
 import { VLIBRAS_BUNDLES_PATH, VLIBRAS_PLAYER_FILES, VLIBRAS_PLAYER_PATH } from './vlibras';
 
 /**
@@ -43,8 +43,11 @@ export function vlibrasFiles(glosses: readonly string[]): AssetFile[] {
   return files;
 }
 
-/** Tudo o que "usar offline" baixa: câmera (WASM certo para o aparelho) e avatar com as glosas do curso. */
+/**
+ * Tudo o que "usar offline" baixa: câmera (WASM certo para o aparelho; corpo e sinais com movimento
+ * só quando há modelo de sinais) e avatar com as glosas do curso.
+ */
 export async function offlineFiles(): Promise<AssetFile[]> {
-  const [{ signsMap }, simd] = await Promise.all([import('./content'), simdSupported()]);
-  return [...cameraFiles(simd), ...vlibrasFiles(courseGlosses(Object.values(signsMap)))];
+  const [{ signsMap }, simd, signs] = await Promise.all([import('./content'), simdSupported(), signModelPublished()]);
+  return [...cameraFiles(simd, signs), ...vlibrasFiles(courseGlosses(Object.values(signsMap)))];
 }

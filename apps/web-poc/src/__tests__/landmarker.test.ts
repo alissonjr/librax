@@ -1,21 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   detectHands, getHandLandmarker, peekHandLandmarker, recreateHandLandmarker, resetHandLandmarkerForTests,
+  warmUpHandLandmarker,
 } from '../recognition/landmarker';
 import { HAND_MODEL_URL, MEDIAPIPE_VERSION, MEDIAPIPE_WASM_DIR } from '../recognition/mlAssets';
 import pkg from '../../package.json';
 
 const close = vi.fn();
+const setOptions = vi.fn(async (_: { numHands: number }) => {});
 const detectForVideo = vi.fn(() => ({ landmarks: [], worldLandmarks: [], handedness: [], handednesses: [] }));
 
 vi.mock('@mediapipe/tasks-vision', () => ({
   FilesetResolver: { forVisionTasks: vi.fn(async () => ({ wasm: true })) },
-  HandLandmarker: { createFromOptions: vi.fn(async () => ({ close, detectForVideo })) },
+  HandLandmarker: { createFromOptions: vi.fn(async () => ({ close, detectForVideo, setOptions })) },
 }));
 
 beforeEach(async () => {
   resetHandLandmarkerForTests();
   close.mockClear();
+  setOptions.mockClear();
   detectForVideo.mockClear();
   const { HandLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
   vi.mocked(HandLandmarker.createFromOptions).mockClear();
@@ -71,6 +74,40 @@ describe('landmarker da sessão', () => {
     expect(close).toHaveBeenCalledTimes(1);
     expect(h.delegate).toBe('CPU');
     expect(h.load.kind).toBe('warm');
+  });
+
+  it('sinais pedem duas mãos e as letras voltam a uma, no mesmo landmarker', async () => {
+    const { HandLandmarker } = await import('@mediapipe/tasks-vision');
+    const one = await getHandLandmarker();
+    expect(one.numHands).toBe(1);
+    expect(setOptions).not.toHaveBeenCalled();
+    const two = await getHandLandmarker(2);
+    expect(two).toBe(one);
+    expect(two.numHands).toBe(2);
+    await getHandLandmarker(2);
+    expect(setOptions.mock.calls).toEqual([[{ numHands: 2 }]]);
+    await getHandLandmarker();
+    expect(setOptions.mock.calls).toEqual([[{ numHands: 2 }], [{ numHands: 1 }]]);
+    expect(one.numHands).toBe(1);
+    expect(HandLandmarker.createFromOptions).toHaveBeenCalledTimes(1);
+  });
+
+  it('pedidos seguidos de valores diferentes terminam no último', async () => {
+    const h = await getHandLandmarker();
+    const a = getHandLandmarker(2);
+    const b = getHandLandmarker(1);
+    await Promise.all([a, b]);
+    expect(h.numHands).toBe(1);
+    expect(setOptions.mock.calls).toEqual([[{ numHands: 2 }], [{ numHands: 1 }]]);
+  });
+
+  it('aquecer (ao abrir a lição) não volta para uma mão o que o exercício de sinal pediu', async () => {
+    const pedido = getHandLandmarker(2);
+    warmUpHandLandmarker();
+    const h = await pedido;
+    await getHandLandmarker(2);
+    expect(h.numHands).toBe(2);
+    expect(setOptions.mock.calls).toEqual([[{ numHands: 2 }]]);
   });
 
   it('timestamps do detectForVideo sempre crescentes', async () => {

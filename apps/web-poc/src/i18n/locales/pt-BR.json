@@ -349,6 +349,17 @@
     "successTitle": "Boa! Você fez a letra {letter}",
     "nextLetter": "Próxima letra"
   },
+  "exerciseCameraMotion": {
+    "bodyMissing": "Enquadre o rosto e os ombros na câmera",
+    "correct": "Correto!",
+    "detected": "Vimos {gesture}. Faça {gloss} de novo",
+    "makeSign": "Faça o sinal:",
+    "next": "Continuar",
+    "notAvailable": "O reconhecimento de \"{gloss}\" não carregou. Pratique o sinal pela descrição acima e continue quando estiver pronto.",
+    "raiseHands": "Levante as mãos e faça o sinal",
+    "successTitle": "Boa! Você fez o sinal {gloss}",
+    "watching": "Vendo o movimento: faça o sinal inteiro"
+  },
   "exerciseFingerspell": {
     "cameraFeed": "Feed da câmera",
     "cameraUnavailable": "Câmera indisponível",

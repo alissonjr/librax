@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { ExerciseIntro } from '../components/ExerciseIntro';
 import { ExerciseMatchPairs } from '../components/ExerciseMatchPairs';
 import { ExerciseCameraSign } from '../components/ExerciseCameraSign';
+import { ExerciseCameraMotionSign } from '../components/ExerciseCameraMotionSign';
 import { ExerciseWatchChooseWord } from '../components/ExerciseWatchChooseWord';
 import { ExerciseWordChooseVideo } from '../components/ExerciseWordChooseVideo';
 import { ExerciseFingerspell } from '../components/ExerciseFingerspell';
@@ -12,6 +13,7 @@ import { course, getSign, type Exercise } from '../lib/content';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 import { warmUpHandLandmarker } from '../recognition/landmarker';
+import { warmUpPoseLandmarker } from '../recognition/poseLandmarker';
 import type { LessonProgress } from '../lib/lessonRun';
 import type { ExerciseStats } from '../lib/sync';
 
@@ -106,12 +108,17 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
   const isLastLesson = alphabetLessons[alphabetLessons.length - 1]?.id === lessonId;
   const pct = Math.round((currentIdx / (exercises.length || 1)) * 100);
   const hasCamera = exercises.some(e => CAMERA_EXERCISES.has(e.type));
+  const hasMotionSign = exercises.some(e => e.recognizer === 'sinais');
 
   // Aquece o landmarker da sessão ao abrir a lição: quando o exercício de câmera chega, o
   // modelo já está pronto (ou quase). Ele é criado uma vez e serve a todos os exercícios.
   useEffect(() => {
     if (hasCamera) warmUpHandLandmarker();
   }, [hasCamera]);
+  // O modelo do corpo só serve aos sinais com movimento: só a lição que tem um carrega
+  useEffect(() => {
+    if (hasMotionSign) warmUpPoseLandmarker();
+  }, [hasMotionSign]);
 
   const finish = useCallback(() => {
     const score = attempted > 0 ? correct / attempted : 1;
@@ -196,7 +203,18 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
         <ExerciseIntro sign={getSign(ex.signId)} onNext={() => handleIntroNext(ex.signId)} />
       )}
 
-      {ex.type === 'perform_sign' && (
+      {ex.type === 'perform_sign' && ex.recognizer === 'sinais' && (
+        <ExerciseCameraMotionSign
+          key={ex.id}
+          sign={getSign(ex.signId)}
+          onComplete={(wasCorrect) => {
+            handleAnswer(ex.signId, wasCorrect);
+            advance();
+          }}
+        />
+      )}
+
+      {ex.type === 'perform_sign' && ex.recognizer !== 'sinais' && (
         <ExerciseCameraSign
           key={ex.id}
           sign={getSign(ex.signId)}

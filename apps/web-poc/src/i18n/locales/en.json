@@ -293,6 +293,17 @@
     "successTitle": "Nice! You signed the letter {letter}",
     "nextLetter": "Next letter"
   },
+  "exerciseCameraMotion": {
+    "bodyMissing": "Fit your face and shoulders in the camera",
+    "correct": "Correct!",
+    "detected": "We saw {gesture}. Sign {gloss} again",
+    "makeSign": "Make the sign:",
+    "next": "Continue",
+    "notAvailable": "Recognition for \"{gloss}\" did not load. Practice the sign with the description above and continue when you are ready.",
+    "raiseHands": "Raise your hands and make the sign",
+    "successTitle": "Nice! You made the sign {gloss}",
+    "watching": "Watching the movement: make the whole sign"
+  },
   "exerciseFingerspell": {
     "cameraFeed": "Camera feed",
     "cameraUnavailable": "Camera unavailable",

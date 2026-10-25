@@ -250,6 +250,18 @@ describe('listas de arquivos', () => {
     expect(cameraFiles(true).filter(f => f.optional).map(f => f.url)).toEqual(['/ml/classifier/model.json', '/ml/classifier/weights.bin']);
   });
 
+  it('câmera: corpo e modelo dos sinais com movimento só quando há modelo de sinais', () => {
+    const without = cameraFiles(true).map(f => f.url);
+    expect(without.some(u => u.includes('pose') || u.startsWith('/ml/sinais/'))).toBe(false);
+    const withSigns = cameraFiles(true, true);
+    expect(withSigns.slice(0, without.length).map(f => f.url)).toEqual(without);
+    expect(withSigns.slice(without.length).map(f => [f.url, !!f.optional])).toEqual([
+      ['/ml/1.1.1/pose_landmarker_lite.task', false],
+      ['/ml/sinais/model.json', true],
+      ['/ml/sinais/weights.bin', true],
+    ]);
+  });
+
   it('glosas do curso: as mesmas do scripts/vlibras-assets.mjs (compostas separadas, sem repetir)', () => {
     const glosses = courseGlosses([
       { avatar: { provider: 'vlibras', gloss: 'BOM DIA' } },
@@ -286,7 +298,7 @@ describe('listas de arquivos', () => {
     const publicFile = (url: string) => new URL(`../../public${url}`, here);
     if (!fs.existsSync(publicFile('/ml/1.1.1/'))) ctx.skip();
     const sized = [
-      ...cameraFiles(true), ...cameraFiles(false),
+      ...cameraFiles(true, true), ...cameraFiles(false),
       ...VLIBRAS_PLAYER_FILES.map(f => ({ url: VLIBRAS_PLAYER_PATH + f.name, bytes: f.bytes, optional: false })),
     ].filter(f => !f.optional);
     for (const f of sized) {
