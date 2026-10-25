@@ -2,17 +2,19 @@
 
 Status: projetado em 2026-10-25; scripts e rascunho prontos em 2026-10-25. Segundo desenho (mãos em
 quadrados coloridos, fileira LIBRAX) em 2026-10-25. Terceiro desenho (rascunho-v3: zoom no quadrado
-da letra, 10 mãos por letra, quadrados colados à mão sobre a palavra) em 2026-10-25, aguardando a
-revisão do dono.
+da letra, 10 mãos por letra, quadrados colados à mão sobre a palavra) em 2026-10-25. Quarto
+(rascunho-v4: troca mais lenta com fusão e a palavra escrita igual à do logotipo, em minúscula) em
+2026-10-25, aguardando a revisão do dono.
 
 ## Ideia
 
 Um vídeo curto que soletra o nome do app em Libras (L, I, B, R, A, X). Cada letra ganha um
 quadrado colorido que aparece grande no meio da tela; dentro dele, fotos de mãos de pessoas
 diferentes fazendo a mesma letra trocam muito rápido entre si e a última fica. Aí o quadrado
-encolhe e vai para o seu lugar, em cima da sua letra da palavra LIBRAX escrita embaixo. Os
-quadrados se juntam lado a lado, um pouco por cima do outro e levemente girados, como fotos
-coladas à mão, formando LIBRAX em Libras. No final, entra o logotipo do Librax.
+encolhe e vai para o seu lugar, em cima da sua letra da palavra "librax" escrita embaixo, igual à
+do logotipo. Os quadrados se juntam lado a lado, um pouco por cima do outro e levemente girados,
+como fotos coladas à mão, formando LIBRAX em Libras. No final, a própria palavra escrita encolhe e
+vira o logotipo do Librax.
 
 ## Decisões
 
@@ -61,7 +63,7 @@ e 6 de X (veja "Aprovação da folha").
 6. **Aprovação:** antes do vídeo final, uma folha com as fotos escolhidas de cada letra para o dono
    aprovar.
 
-## Roteiro (cerca de 9,8 s)
+## Roteiro (cerca de 12,4 s)
 
 Tela com o fundo escuro do app (`bg.canvas` do tema escuro, `#14110E`): as cores dos quadrados e a
 tangerina das letras se destacam nele, e é o mesmo fundo do logotipo no fim. O vídeo roda a 30
@@ -70,26 +72,32 @@ quadros por segundo.
 | Tempo | O que aparece |
 |---|---|
 | 0 a 0,3 s | Fundo do app, vazio |
-| Cada letra, cerca de 1 s | O quadrado da letra entra grande no alto da tela (0,13 s) já com a primeira mão; as outras 9 trocam a cada 67 ms (0,6 s); a décima fica 0,1 s e o quadrado encolhe, gira e vai para o seu lugar (0,3 s) |
+| Cada letra, 1,43 s | O quadrado da letra entra grande no alto da tela (0,13 s) já com a primeira mão; as mãos trocam a cada 125 ms (8 por segundo), cada troca com uma fusão de 67 ms (2 quadros), até a décima (1,13 s); ela fica 0,1 s e o quadrado encolhe, gira e vai para o seu lugar (0,3 s) |
 | Ao pousar | A letra escrita entra embaixo, em tangerina; quando a letra seguinte pousa, a anterior passa para a cor do texto. O quadrado seguinte já começa a entrar quando o anterior está a 65% do caminho |
-| 6,8 a 7,3 s | LIBRAX completo (o X fica em tangerina) sobe para o meio da tela |
-| 7,3 a 8,3 s | Parado: 6 quadrados com as mãos sobre a palavra escrita (é o `final-v3.png`) |
-| 8,3 a 9,8 s | Quadrados e letras somem e entra o logotipo (símbolo Traço e "librax"), parado por 1 s |
+| 9,2 a 9,7 s | "librax" completo sobe para o meio da tela; o x passa da tangerina para a cor do texto, como no logotipo |
+| 9,7 a 10,7 s | Parado: 6 quadrados com as mãos sobre a palavra escrita (é o `final-v4.png`) |
+| 10,7 a 11,4 s | Os quadrados somem e a palavra encolhe e desliza até o seu lugar no logotipo, enquanto o símbolo Traço aparece ao lado |
+| 11,4 a 12,4 s | Logotipo parado |
 
 Mãos de cada letra: as 10 de número menor na seleção (`selecao.json`), mostradas do maior para o
 menor; a de número menor é a que fica. Com menos de 10 na seleção, as fotos repetem em ciclo
 (X tem 6: X4 X3 X2 X1 X6 X5 X4 X3 X2 X1).
 
-A palavra escrita fica com o espaçamento do logotipo (Anybody 900 a 125%, sem espaço extra entre
-as letras), ocupando 86% da largura no vertical. Cada quadrado fica com o centro em cima da sua
-letra; o lado é 1,12 vez o passo médio entre as letras (173 px no vertical), então os quadrados se
-encostam e, em L, I e B (I é uma letra estreita), um fica por cima do outro: o de cada letra por
-cima do anterior. Cada quadrado tem um giro fixo de 2,5 a 6 graus, alternando o sentido, e um
-pequeno deslocamento, sorteados com semente fixa (`--semente`, igual em toda renderização), e uma
-sombra de papel que separa os quadrados sobrepostos. Para a mão continuar legível, a foto dentro
-do quadrado na fileira cabe na parte que o quadrado seguinte deixa à mostra: fica no meio quando
-cabe; senão encosta à esquerda e se afasta um pouco (é o caso do L, com o polegar aberto). No
-quadrado grande a mão fica sempre no meio; o enquadramento muda suave durante o encolhimento.
+A palavra escrita é a do logotipo: "librax" em minúscula, Anybody 900 a 125%, com o mesmo
+espaçamento (avanço da fonte menos 1% do corpo), só que maior, ocupando 86% da largura no
+vertical. Por isso, no fim, ela só encolhe e desliza até o texto do logotipo, sem troca de letra.
+Cada quadrado fica com o centro em cima da sua letra e o pé um pouco acima do topo do l e do b; o
+lado é 1,12 vez o passo médio entre as letras (178 px no vertical). Os quadrados se encostam e,
+onde as letras são estreitas (l e i), um fica por cima do outro. A ordem das camadas é fixa,
+também enquanto o quadrado voa, para ele não pular de camada ao pousar: L por cima de I, I por
+cima de B, e dali em diante cada um por cima do anterior. Assim a mão mais larga, a do L (polegar
+aberto), fica inteira à mostra. Cada quadrado tem um giro fixo de 2,5 a 6 graus, alternando o
+sentido, e um pequeno deslocamento, sorteados com semente fixa (`--semente`, igual em toda
+renderização), e uma sombra de papel que separa os quadrados sobrepostos. Na fileira só fica a
+última mão de cada letra, e a foto se ajusta à parte do quadrado que os vizinhos de cima deixam à
+mostra: fica no meio quando cabe; senão anda para o lado livre e se afasta um pouco (é o caso do I,
+coberto pelo L). No quadrado grande a mão fica sempre no meio; o enquadramento muda suave durante
+o encolhimento.
 
 Cores dos quadrados (paleta do design system, na ordem de LIBRAX):
 
@@ -116,8 +124,8 @@ Quadrado e horizontal seguem o mesmo desenho, com o quadrado grande em cima e a 
 - **Luz piscando:** trocas rápidas de imagem podem incomodar pessoas sensíveis. O fundo da tela e a
   cor de cada quadrado ficam fixos e o brilho das mãos é aproximado; só a forma da mão muda. Nada de
   clarão de tela inteira. Com o zoom, a troca acontece num quadrado grande (cerca de um quinto da
-  tela) a 15 trocas por segundo: vale passar o vídeo final num verificador de flashes antes de
-  publicar.
+  tela); por isso ela é de 8 mãos por segundo, com uma fusão curta entre uma foto e outra em vez de
+  corte seco. Mesmo assim, vale passar o vídeo final num verificador de flashes antes de publicar.
 - **Letras parecidas:** só entram fotos que o modelo lê como a letra certa, para não misturar,
   por exemplo, R com U.
 
@@ -143,17 +151,17 @@ cd ml-training
 PY=~/.venvs/librax-ml/bin/python
 $PY divulgacao/preparar.py                  # candidatas, filtros, mãos recortadas, folha.jpg e selecao.json
 $PY divulgacao/montar.py --previa L         # previa-L.mp4 e previa-L.gif (só a letra L: zoom, troca e pouso)
-$PY divulgacao/montar.py                    # rascunho-v3.mp4 e final-v3.png (1080 x 1920, H.264, sem som)
-$PY divulgacao/montar.py --formato todos    # também rascunho-v3-quadrado.mp4 e rascunho-v3-horizontal.mp4
+$PY divulgacao/montar.py                    # rascunho-v4.mp4 e final-v4.png (1080 x 1920, H.264, sem som)
+$PY divulgacao/montar.py --formato todos    # também rascunho-v4-quadrado.mp4 e rascunho-v4-horizontal.mp4
 $PY divulgacao/montar.py --por-letra 8      # outra quantidade de mãos por letra (padrão 10)
 $PY divulgacao/montar.py --semente 5        # outro sorteio de giro e deslocamento dos quadrados
 $PY divulgacao/montar.py --quadros 1 5.8 8  # quadros soltos em JPG para conferir
 ```
 
 `--formato` aceita `vertical` (padrão), `quadrado`, `horizontal` ou `todos`. Cada vídeo sai com um
-`final-v3*.png` ao lado: a composição final, com LIBRAX completo. `--nome` troca o nome do vídeo
-(padrão `rascunho-v3`); os rascunhos anteriores (`rascunho.mp4` e `rascunho-v2*.mp4`) ficam na
-pasta para comparar.
+`final-v4*.png` ao lado: a composição final, com "librax" completo. `--nome` troca o nome do vídeo
+(padrão `rascunho-v4`); os rascunhos anteriores (`rascunho.mp4`, `rascunho-v2*.mp4` e
+`rascunho-v3.mp4`) ficam na pasta para comparar.
 
 O `preparar.py` leva uns 12 minutos (mede três quadros de cada parada). Depois que ele rodou uma
 vez, `--reusar-analise` refaz só filtros, mãos e folha a partir de `analise.json`.
