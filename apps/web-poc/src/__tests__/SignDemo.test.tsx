@@ -193,7 +193,7 @@ describe('ExerciseIntro sem avatar (letra Ç)', () => {
     render(<ExerciseIntro sign={sign} onNext={onNext} />);
     expect(screen.getByText('Letra Ç')).toBeInTheDocument();
     expect(screen.getByText(/forma de C/)).toBeInTheDocument();
-    expect(screen.getByText(/Movimento: a mao treme/)).toBeInTheDocument();
+    expect(screen.getByText(/Movimento: a mão treme/)).toBeInTheDocument();
     expect(mock.attach).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('button', { name: /entendi/i }));
     expect(onNext).toHaveBeenCalled();

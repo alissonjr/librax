@@ -35,7 +35,7 @@ function makeSign(gloss: string): Sign {
     recognition: '',
     params: { CM: '', PA: '', MOV: '', OR: '', ENM: '' },
     video_url: null,
-    video_caption: `Mao direita fazendo sinal ${gloss}`,
+    video_caption: `Mão direita fazendo sinal ${gloss}`,
   };
 }
 
@@ -107,6 +107,6 @@ describe('ExerciseCameraSign', () => {
 
   it('mostra o caption do sinal', () => {
     render(<ExerciseCameraSign sign={makeSign('A')} onComplete={vi.fn()} />);
-    expect(screen.getByText(/Mao direita fazendo sinal A/i)).toBeInTheDocument();
+    expect(screen.getByText(/Mão direita fazendo sinal A/i)).toBeInTheDocument();
   });
 });

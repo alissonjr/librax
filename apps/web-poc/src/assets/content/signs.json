@@ -5,14 +5,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "punho fechado, polegar apoiado ao lado do indicador",
-      "PA": "espaco neutro",
+      "CM": "Punho fechado, polegar apoiado ao lado do indicador",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Mao direita em punho com polegar apoiado ao lado, palma voltada para frente, sem movimento.",
+    "video_caption": "Mão direita em punho com polegar apoiado ao lado, palma voltada para frente, sem movimento.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "A"
@@ -27,14 +27,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "dedos estendidos e juntos, polegar dobrado sobre a palma",
-      "PA": "espaco neutro",
+      "CM": "Dedos estendidos e juntos, polegar dobrado sobre a palma",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Mao aberta com dedos juntos e estendidos, polegar dobrado, palma para frente.",
+    "video_caption": "Mão aberta com dedos juntos e estendidos, polegar dobrado, palma para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "B"
@@ -49,14 +49,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "mao semi-aberta curvada em forma de C",
-      "PA": "espaco neutro",
+      "CM": "Mão semiaberta curvada em forma de C",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para o lado",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Mao curvada formando um C, palma voltada para o lado.",
+    "video_caption": "Mão curvada formando um C, palma voltada para o lado.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "C"
@@ -71,8 +71,8 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador estendido para cima, demais dedos curvados tocando o polegar",
-      "PA": "espaco neutro",
+      "CM": "Indicador estendido para cima, demais dedos curvados tocando o polegar",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
@@ -93,8 +93,8 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "todos os dedos curvados sobre a palma, polegar dobrado",
-      "PA": "espaco neutro",
+      "CM": "Todos os dedos curvados sobre a palma, polegar dobrado",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
@@ -115,14 +115,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador esticado na horizontal, apontando para o lado, polegar encostado embaixo dele, medio, anelar e minimo estendidos",
-      "PA": "espaco neutro",
+      "CM": "Indicador esticado na horizontal, apontando para o lado, polegar encostado embaixo dele; médio, anelar e mínimo estendidos",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador esticado na horizontal, apontando para o lado, com o polegar encostado embaixo dele; medio, anelar e minimo ficam estendidos para cima.",
+    "video_caption": "Indicador esticado na horizontal, apontando para o lado, com o polegar encostado embaixo dele; médio, anelar e mínimo ficam estendidos para cima.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "F"
@@ -137,14 +137,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador estendido para cima, polegar esticado e afastado do indicador, medio, anelar e minimo fechados",
-      "PA": "espaco neutro",
+      "CM": "Indicador estendido para cima, polegar esticado e afastado do indicador; médio, anelar e mínimo fechados",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador esticado para cima e polegar esticado, um pouco afastado dele; medio, anelar e minimo ficam fechados, palma para frente.",
+    "video_caption": "Indicador esticado para cima e polegar esticado, um pouco afastado dele; médio, anelar e mínimo ficam fechados, palma para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "G"
@@ -159,14 +159,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador esticado para cima, medio esticado para frente, polegar encostado no medio, anelar e minimo fechados",
-      "PA": "espaco neutro",
-      "MOV": "gira o pulso: o medio, que aponta para frente, passa a apontar para o lado (para o centro do corpo)",
+      "CM": "Indicador esticado para cima, médio esticado para frente, polegar encostado no médio; anelar e mínimo fechados",
+      "PA": "espaço neutro",
+      "MOV": "gira o pulso: o médio, que aponta para frente, passa a apontar para o lado (para o centro do corpo)",
       "OR": "palma para frente, girando para o lado",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador para cima e medio esticado para frente, com o polegar encostado nele; o pulso gira e o medio passa a apontar para o lado.",
+    "video_caption": "Indicador para cima e médio esticado para frente, com o polegar encostado nele; o pulso gira e o médio passa a apontar para o lado.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "H"
@@ -181,14 +181,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "so o minimo estendido para cima, demais dedos dobrados",
-      "PA": "espaco neutro",
+      "CM": "Só o mínimo estendido para cima, demais dedos dobrados",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Apenas o dedo minimo (dedinho) estendido para cima, demais dedos fechados.",
+    "video_caption": "Apenas o dedo mínimo (dedinho) estendido para cima, demais dedos fechados.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "I"
@@ -203,14 +203,14 @@
     "category": "alfabeto",
     "recognition": "dynamic",
     "params": {
-      "CM": "minimo estendido",
-      "PA": "espaco neutro",
-      "MOV": "traca a letra J no ar (curva para baixo e para dentro)",
+      "CM": "Mínimo estendido",
+      "PA": "espaço neutro",
+      "MOV": "traça a letra J no ar (curva para baixo e para dentro)",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Minimo estendido traca a forma da letra J no ar: curva para baixo e finaliza para dentro.",
+    "video_caption": "Mínimo estendido traça a forma da letra J no ar: curva para baixo e finaliza para dentro.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "J"
@@ -225,14 +225,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador esticado para cima, medio esticado para frente, polegar encostado no medio, anelar e minimo fechados",
-      "PA": "espaco neutro",
-      "MOV": "a mao sobe girando: comeca com os dedos apontando para frente e para baixo e termina com o indicador apontando para cima",
+      "CM": "Indicador esticado para cima, médio esticado para frente, polegar encostado no médio; anelar e mínimo fechados",
+      "PA": "espaço neutro",
+      "MOV": "a mão sobe girando: começa com os dedos apontando para frente e para baixo e termina com o indicador apontando para cima",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e medio esticados, com o polegar encostado no medio; a mao sobe girando, dos dedos apontando para frente e para baixo ate o indicador apontar para cima.",
+    "video_caption": "Indicador e médio esticados, com o polegar encostado no médio; a mão sobe girando, dos dedos apontando para frente e para baixo até o indicador apontar para cima.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "K"
@@ -247,8 +247,8 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador aponta para cima, polegar estendido para o lado em angulo de 90 graus",
-      "PA": "espaco neutro",
+      "CM": "Indicador aponta para cima, polegar estendido para o lado em ângulo de 90 graus",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
@@ -269,14 +269,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador, medio e anelar esticados e juntos, apontando para baixo, polegar segurando o minimo",
-      "PA": "espaco neutro",
+      "CM": "Indicador, médio e anelar esticados e juntos, apontando para baixo, polegar segurando o mínimo",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
-      "OR": "palma para tras (voltada para o corpo)",
+      "OR": "palma para trás (voltada para o corpo)",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador, medio e anelar esticados e juntos, apontando para baixo, com o dorso da mao virado para frente.",
+    "video_caption": "Indicador, médio e anelar esticados e juntos, apontando para baixo, com o dorso da mão virado para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "M"
@@ -291,14 +291,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador e medio esticados e juntos, apontando para baixo, polegar segurando anelar e minimo",
-      "PA": "espaco neutro",
+      "CM": "Indicador e médio esticados e juntos, apontando para baixo, polegar segurando anelar e mínimo",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
-      "OR": "palma para tras (voltada para o corpo)",
+      "OR": "palma para trás (voltada para o corpo)",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e medio esticados e juntos, apontando para baixo, com o dorso da mao virado para frente.",
+    "video_caption": "Indicador e médio esticados e juntos, apontando para baixo, com o dorso da mão virado para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "N"
@@ -313,14 +313,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "todos os dedos curvados formando O fechado com o polegar",
-      "PA": "espaco neutro",
+      "CM": "Todos os dedos curvados formando O fechado com o polegar",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para o lado",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Todos os dedos e o polegar curvados formando um circulo (letra O), com a palma voltada para o lado.",
+    "video_caption": "Todos os dedos e o polegar curvados formando um círculo (letra O), com a palma voltada para o lado.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "O"
@@ -335,14 +335,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador e medio esticados e separados, polegar encostado no medio, anelar e minimo fechados",
-      "PA": "espaco neutro",
+      "CM": "Indicador e médio esticados e separados, polegar encostado no médio; anelar e mínimo fechados",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
-      "OR": "mao deitada: indicador apontando para frente, na direcao do centro do corpo, e medio apontando para baixo",
+      "OR": "mão deitada: indicador apontando para frente, na direção do centro do corpo, e médio apontando para baixo",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e medio esticados e separados, com o polegar encostado no medio; a mao fica deitada, com o indicador apontando para frente e o medio para baixo.",
+    "video_caption": "Indicador e médio esticados e separados, com o polegar encostado no médio; a mão fica deitada, com o indicador apontando para frente e o médio para baixo.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "P"
@@ -357,14 +357,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador esticado apontando para baixo, medio, anelar e minimo fechados",
-      "PA": "espaco neutro",
+      "CM": "Indicador esticado apontando para baixo; médio, anelar e mínimo fechados",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
-      "OR": "palma para tras (voltada para o corpo)",
+      "OR": "palma para trás (voltada para o corpo)",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "So o indicador esticado, apontando para baixo; os outros dedos ficam fechados, com o dorso da mao virado para frente.",
+    "video_caption": "Só o indicador esticado, apontando para baixo; os outros dedos ficam fechados, com o dorso da mão virado para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "Q"
@@ -379,14 +379,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador e medio cruzados, apontando para cima",
-      "PA": "espaco neutro",
+      "CM": "Indicador e médio cruzados, apontando para cima",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e dedo medio cruzados entre si, ambos apontando para cima.",
+    "video_caption": "Indicador e dedo médio cruzados entre si, ambos apontando para cima.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "R"
@@ -401,8 +401,8 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "punho fechado, polegar cruzado sobre os dedos dobrados",
-      "PA": "espaco neutro",
+      "CM": "Punho fechado, polegar cruzado sobre os dedos dobrados",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
@@ -423,14 +423,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador curvado com a ponta tocando a ponta do polegar, medio, anelar e minimo estendidos",
-      "PA": "espaco neutro",
+      "CM": "Indicador curvado com a ponta tocando a ponta do polegar; médio, anelar e mínimo estendidos",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "A ponta do indicador curvado toca a ponta do polegar; medio, anelar e minimo ficam estendidos, palma para frente.",
+    "video_caption": "A ponta do indicador curvado toca a ponta do polegar; médio, anelar e mínimo ficam estendidos, palma para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "T"
@@ -445,14 +445,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador e medio estendidos juntos, apontando para cima",
-      "PA": "espaco neutro",
+      "CM": "Indicador e médio estendidos juntos, apontando para cima",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e medio estendidos juntos e paralelos, apontando para cima, palma para frente.",
+    "video_caption": "Indicador e médio estendidos juntos e paralelos, apontando para cima, palma para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "U"
@@ -467,14 +467,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador e medio estendidos em V aberto, demais dobrados",
-      "PA": "espaco neutro",
+      "CM": "Indicador e médio estendidos em V aberto, demais dobrados",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e medio em V (sinal de vitoria), demais dedos dobrados, palma para frente.",
+    "video_caption": "Indicador e médio em V (sinal de vitória), demais dedos dobrados, palma para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "V"
@@ -489,14 +489,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador, medio e anelar estendidos e separados",
-      "PA": "espaco neutro",
+      "CM": "Indicador, médio e anelar estendidos e separados",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Tres dedos (indicador, medio, anelar) estendidos e separados, palma para frente.",
+    "video_caption": "Três dedos (indicador, médio, anelar) estendidos e separados, palma para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "W"
@@ -511,14 +511,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador dobrado em gancho, demais dedos dobrados",
-      "PA": "espaco neutro",
+      "CM": "Indicador dobrado em gancho, demais dedos dobrados",
+      "PA": "espaço neutro",
       "MOV": "movimento curto na diagonal, para baixo e para o centro do corpo",
       "OR": "palma para o lado",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "So o indicador curvado em gancho, os outros dedos fechados; a mao faz um movimento curto na diagonal, para baixo e para o centro do corpo.",
+    "video_caption": "Só o indicador curvado em gancho, os outros dedos fechados; a mão faz um movimento curto na diagonal, para baixo e para o centro do corpo.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "X"
@@ -533,14 +533,14 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "polegar e minimo estendidos, demais dobrados",
-      "PA": "espaco neutro",
+      "CM": "Polegar e mínimo estendidos, demais dobrados",
+      "PA": "espaço neutro",
       "MOV": "nenhum",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Polegar e minimo (dedinho) estendidos, os outros tres dedos dobrados (como gesto de 'liga pra mim').",
+    "video_caption": "Polegar e mínimo (dedinho) estendidos, os outros três dedos dobrados (como gesto de 'liga pra mim').",
     "avatar": {
       "provider": "vlibras",
       "gloss": "Y"
@@ -555,14 +555,14 @@
     "category": "alfabeto",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido",
-      "PA": "espaco neutro",
-      "MOV": "traca a letra Z no ar (horizontal, diagonal para baixo, horizontal)",
+      "CM": "Indicador estendido",
+      "PA": "espaço neutro",
+      "MOV": "traça a letra Z no ar (horizontal, diagonal para baixo, horizontal)",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador estendido traca a forma da letra Z no ar: horizontal, diagonal, horizontal.",
+    "video_caption": "Indicador estendido traça a forma da letra Z no ar: horizontal, diagonal, horizontal.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "Z"
@@ -577,14 +577,14 @@
     "category": "alfabeto",
     "recognition": "dynamic",
     "params": {
-      "CM": "mao semi-aberta curvada em forma de C (a mesma do C)",
-      "PA": "espaco neutro",
-      "MOV": "a mao treme: balanca rapido de um lado para o outro algumas vezes, sem sair do lugar",
+      "CM": "Mão semiaberta curvada em forma de C (a mesma do C)",
+      "PA": "espaço neutro",
+      "MOV": "a mão treme: balança rápido de um lado para o outro algumas vezes, sem sair do lugar",
       "OR": "palma para o lado",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Mao curvada formando um C, palma voltada para o lado, que treme balancando rapido de um lado para o outro, sem sair do lugar.",
+    "video_caption": "Mão curvada formando um C, palma voltada para o lado, que treme balançando rápido de um lado para o outro, sem sair do lugar.",
     "avatar": {
       "provider": "vlibras",
       "gloss": null,
@@ -600,7 +600,7 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "mão em O: dedos curvados, pontas encostadas na ponta do polegar, formando um círculo",
+      "CM": "Mão em O: dedos curvados, pontas encostadas na ponta do polegar, formando um círculo",
       "PA": "espaço neutro ao lado do rosto, na altura do queixo, do lado da mão direita",
       "MOV": "sem movimento; a mão fica parada na posição",
       "OR": "palma para o lado, voltada para o centro do corpo (o furo do O fica visível para quem olha)",
@@ -626,7 +626,7 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "mão fechada com o polegar estendido para cima",
+      "CM": "Mão fechada com o polegar estendido para cima",
       "PA": "espaço neutro em frente ao ombro, na altura do queixo",
       "MOV": "sem movimento; a mão fica parada",
       "OR": "palma para o lado, voltada para o centro do corpo",
@@ -653,7 +653,7 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "polegar estendido para cima e indicador estendido na horizontal; médio, anelar e mínimo fechados",
+      "CM": "Polegar estendido para cima e indicador estendido na horizontal; médio, anelar e mínimo fechados",
       "PA": "espaço neutro em frente ao ombro, na altura do queixo",
       "MOV": "sem movimento; a mão fica parada",
       "OR": "palma voltada para o corpo, indicador apontando para o centro do corpo",
@@ -680,7 +680,7 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "indicador, médio e anelar estendidos na horizontal e separados; polegar segurando o mínimo",
+      "CM": "Indicador, médio e anelar estendidos na horizontal e separados; polegar segurando o mínimo",
       "PA": "espaço neutro em frente ao pescoço, um pouco ao lado, na altura do queixo",
       "MOV": "sem movimento; a mão fica parada",
       "OR": "palma voltada para o corpo, dedos apontando para o centro do corpo",
@@ -707,7 +707,7 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "indicador, médio, anelar e mínimo estendidos e separados; polegar dobrado sobre a palma",
+      "CM": "Indicador, médio, anelar e mínimo estendidos e separados; polegar dobrado sobre a palma",
       "PA": "espaço neutro ao lado do rosto, na altura do queixo",
       "MOV": "sem movimento; a mão fica parada",
       "OR": "palma voltada para o corpo, dedos na horizontal apontando para o centro do corpo",
@@ -734,7 +734,7 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "indicador e médio dobrados em gancho (curvados); polegar segurando anelar e mínimo",
+      "CM": "Indicador e médio dobrados em gancho (curvados); polegar segurando anelar e mínimo",
       "PA": "espaço neutro em frente ao ombro, na altura do queixo",
       "MOV": "sem movimento; a mão fica parada",
       "OR": "palma para frente",
@@ -760,7 +760,7 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "polegar estendido para cima; indicador, médio, anelar e mínimo dobrados e curvados (em gancho)",
+      "CM": "Polegar estendido para cima; indicador, médio, anelar e mínimo dobrados e curvados (em gancho)",
       "PA": "espaço neutro em frente ao ombro, na altura do queixo",
       "MOV": "sem movimento; a mão fica parada",
       "OR": "palma para o lado, voltada para o centro do corpo",
@@ -786,7 +786,7 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "indicador estendido; demais dedos fechados, com o polegar encostado neles",
+      "CM": "Indicador estendido; demais dedos fechados, com o polegar encostado neles",
       "PA": "espaço neutro em frente ao ombro, na altura do queixo",
       "MOV": "sem movimento; a mão fica parada",
       "OR": "palma voltada para o corpo, indicador na horizontal apontando para o centro do corpo",
@@ -812,7 +812,7 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "mão fechada, dedos dobrados, polegar por cima dos dedos",
+      "CM": "Mão fechada, dedos dobrados, polegar por cima dos dedos",
       "PA": "espaço neutro em frente ao ombro, na altura do queixo",
       "MOV": "sem movimento; a mão fica parada",
       "OR": "palma para frente",
@@ -838,7 +838,7 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "polegar estendido para baixo; indicador, médio, anelar e mínimo dobrados e curvados (em gancho)",
+      "CM": "Polegar estendido para baixo; indicador, médio, anelar e mínimo dobrados e curvados (em gancho)",
       "PA": "espaço neutro em frente ao ombro, na altura do pescoço, com o cotovelo levantado para o lado",
       "MOV": "sem movimento; a mão fica parada",
       "OR": "polegar apontando para baixo, palma voltada para o centro do corpo",
@@ -890,7 +890,7 @@
     "category": "saudacoes",
     "recognition": "dynamic",
     "params": {
-      "CM": "começa com a mão em O (dedos curvados com as pontas tocando o polegar) e termina em I (só o dedo mínimo estendido para cima, demais dedos fechados)",
+      "CM": "Começa com a mão em O (dedos curvados com as pontas tocando o polegar) e termina em I (só o dedo mínimo estendido para cima, demais dedos fechados)",
       "PA": "frente do peito, subindo até a altura do ombro direito",
       "MOV": "a mão sobe da frente do peito para o lado do ombro enquanto troca da letra O para a letra I, e para no alto",
       "OR": "palma para frente",
@@ -916,7 +916,7 @@
     "category": "saudacoes",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta, dedos estendidos e separados",
+      "CM": "Mão aberta, dedos estendidos e separados",
       "PA": "ao lado do ombro, à altura do ombro",
       "MOV": "a mão balança de um lado para o outro várias vezes, girando no punho (aceno)",
       "OR": "palma para frente",
@@ -1023,7 +1023,7 @@
     "category": "saudacoes",
     "recognition": "dynamic",
     "params": {
-      "CM": "começa com as pontas dos dedos unidas (mão fechada em bico) e abre em mão aberta com dedos separados e levemente curvados",
+      "CM": "Começa com as pontas dos dedos unidas (mão fechada em bico) e abre em mão aberta com dedos separados e levemente curvados",
       "PA": "começa na boca/queixo e termina na frente do peito",
       "MOV": "a mão sai da boca para frente e para baixo, abrindo os dedos, e para com a palma para cima",
       "OR": "pontas dos dedos para a boca -> palma para cima",
@@ -1049,7 +1049,7 @@
     "category": "cortesia",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta, dedos unidos e estendidos",
+      "CM": "Mão aberta, dedos unidos e estendidos",
       "PA": "peito, do lado esquerdo",
       "MOV": "a palma encosta no peito e faz pequenos círculos, esfregando",
       "OR": "palma para o próprio peito, dedos para a esquerda",
@@ -1075,7 +1075,7 @@
     "category": "cortesia",
     "recognition": "dynamic",
     "params": {
-      "CM": "começa com as pontas dos dedos unidas (mão em O), abre em mão aberta com dedos unidos",
+      "CM": "Começa com as pontas dos dedos unidas (mão em O), abre em mão aberta com dedos unidos",
       "PA": "começa na boca, vai para o lado direito à altura do ombro e termina na frente da cintura",
       "MOV": "a mão sai da boca abrindo para o lado direito e depois faz um arco para dentro, terminando na frente do corpo com a palma para cima, como quem convida a entrar",
       "OR": "pontas dos dedos para a boca -> palma para frente -> palma para cima, dedos apontando para a esquerda",
@@ -1101,7 +1101,7 @@
     "category": "cortesia",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta, dedos estendidos e separados",
+      "CM": "Mão aberta, dedos estendidos e separados",
       "PA": "ao lado da cabeça, à altura do rosto",
       "MOV": "a mão balança de um lado para o outro várias vezes, girando no punho (aceno)",
       "OR": "palma para frente",
@@ -1128,7 +1128,7 @@
     "category": "cortesia",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com os dedos dobrados, uma segurando a outra (mãos entrelaçadas/apertadas)",
+      "CM": "As duas mãos com os dedos dobrados, uma segurando a outra (mãos entrelaçadas/apertadas)",
       "PA": "ao lado do ombro, à altura do ombro",
       "MOV": "as mãos unidas balançam para frente e para trás algumas vezes, como num aperto de mão para si mesmo",
       "OR": "palmas uma contra a outra",
@@ -1154,7 +1154,7 @@
     "category": "cortesia",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta, dedos unidos e estendidos, polegar estendido ao lado",
+      "CM": "Mão aberta, dedos unidos e estendidos, polegar estendido ao lado",
       "PA": "lateral da testa, perto da têmpora direita",
       "MOV": "as pontas dos dedos tocam a lateral da testa e a mão se afasta para frente e para baixo",
       "OR": "palma para o lado/para frente, terminando com a palma para cima",
@@ -1181,7 +1181,7 @@
     "category": "cortesia",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos, polegar estendido",
+      "CM": "As duas mãos abertas, dedos unidos, polegar estendido",
       "PA": "frente do peito",
       "MOV": "as mãos se aproximam e as pontas dos dedos da mão direita encostam na palma/dedos da mão esquerda; ficam em contato com um leve balanço e depois se soltam",
       "OR": "mão direita na horizontal, dedos apontando para a esquerda; mão esquerda em pé, dedos para cima, palma voltada para a mão direita",
@@ -1207,7 +1207,7 @@
     "category": "cortesia",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em Y: polegar e dedo mínimo estendidos, demais dedos fechados",
+      "CM": "Mão em Y: polegar e dedo mínimo estendidos, demais dedos fechados",
       "PA": "queixo",
       "MOV": "a mão sobe até o queixo e encosta os dedos dobrados embaixo do queixo, ficando parada um instante",
       "OR": "palma voltada para o próprio rosto/para baixo, dedo mínimo apontando para o lado",
@@ -1233,7 +1233,7 @@
     "category": "cortesia",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos e estendidos",
+      "CM": "As duas mãos abertas, dedos unidos e estendidos",
       "PA": "frente do corpo, à altura da cintura/peito",
       "MOV": "a mão direita desliza por cima da palma da mão esquerda, das bases até as pontas dos dedos, como quem limpa a mão (uma ou duas vezes)",
       "OR": "palma direita para baixo; palma esquerda para cima",
@@ -1259,7 +1259,7 @@
     "category": "cortesia",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos, polegares estendidos para cima",
+      "CM": "As duas mãos abertas, dedos unidos, polegares estendidos para cima",
       "PA": "frente do peito",
       "MOV": "as duas mãos sobem juntas até a frente do peito, com as pontas dos dedos de uma mão encostando nas da outra, e ficam ali um instante",
       "OR": "palmas para baixo/para o corpo, pontas dos dedos de uma mão voltadas para a outra",
@@ -1285,7 +1285,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o indicador estendido",
+      "CM": "Mão fechada com o indicador estendido",
       "PA": "centro do peito",
       "MOV": "a mão vem até o peito e o indicador aponta para o próprio peito, quase encostando",
       "OR": "palma para o lado/para baixo, indicador apontando para o próprio peito",
@@ -1311,7 +1311,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o indicador estendido",
+      "CM": "Mão fechada com o indicador estendido",
       "PA": "espaço neutro na frente do peito, à altura do queixo/peito",
       "MOV": "o indicador aponta para frente, na direção da pessoa com quem se fala",
       "OR": "palma para baixo/para o lado, indicador apontando para frente",
@@ -1337,7 +1337,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o indicador estendido",
+      "CM": "Mão fechada com o indicador estendido",
       "PA": "espaço ao lado do corpo, à altura do ombro/cabeça",
       "MOV": "o indicador aponta para o lado (para um ponto fora da conversa), onde está ou foi colocada a pessoa de quem se fala",
       "OR": "palma para frente/para o lado, indicador apontando para o lado",
@@ -1363,7 +1363,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o indicador estendido",
+      "CM": "Mão fechada com o indicador estendido",
       "PA": "frente do peito",
       "MOV": "o indicador faz um movimento circular na horizontal na frente do peito, passando por quem sinaliza e pelas outras pessoas incluídas",
       "OR": "palma para baixo/para o lado, indicador apontando para frente e para os lados durante o círculo",
@@ -1389,7 +1389,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta, dedos unidos e estendidos, polegar estendido",
+      "CM": "Mão aberta, dedos unidos e estendidos, polegar estendido",
       "PA": "peito",
       "MOV": "a mão vem até o peito e a palma encosta nele",
       "OR": "palma para o próprio peito, dedos apontando para a esquerda",
@@ -1415,7 +1415,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador e médio estendidos e unidos, demais dedos fechados com o polegar",
+      "CM": "Indicador e médio estendidos e unidos, demais dedos fechados com o polegar",
       "PA": "espaço neutro na frente do ombro, à altura do ombro/rosto",
       "MOV": "a mão sobe e os dois dedos apontam para cima/frente, na direção da pessoa com quem se fala, ficando parados um instante",
       "OR": "palma para o lado/para frente, dedos para cima inclinados para frente",
@@ -1441,7 +1441,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador e médio estendidos e unidos, apontando para cima; anelar e mínimo fechados presos pelo polegar",
+      "CM": "Indicador e médio estendidos e unidos, apontando para cima; anelar e mínimo fechados presos pelo polegar",
       "PA": "ao lado do ombro direito, à altura do ombro",
       "MOV": "pequeno balanço repetido da mão, girando o punho de um lado para o outro",
       "OR": "palma para frente",
@@ -1467,7 +1467,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o polegar encostado na lateral do indicador dobrado",
+      "CM": "Mão fechada com o polegar encostado na lateral do indicador dobrado",
       "PA": "frente do peito/pescoço",
       "MOV": "a mão vem até a frente do peito e faz um pequeno giro do punho",
       "OR": "palma para o corpo/para cima",
@@ -1493,7 +1493,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o indicador estendido",
+      "CM": "Mão fechada com o indicador estendido",
       "PA": "começa na orelha e termina no queixo/boca",
       "MOV": "o indicador toca a orelha e depois desce e toca o queixo, perto da boca",
       "OR": "palma para o rosto/para o lado",
@@ -1519,7 +1519,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta com os dedos separados e curvados que fecha em mão fechada, repetidamente",
+      "CM": "Mão aberta com os dedos separados e curvados que fecha em mão fechada, repetidamente",
       "PA": "ao lado da orelha",
       "MOV": "ao lado da orelha, a mão abre e fecha algumas vezes",
       "OR": "palma para a orelha/para frente",
@@ -1545,7 +1545,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita aberta com dedos unidos; mão esquerda aberta com dedos separados",
+      "CM": "Mão direita aberta com dedos unidos; mão esquerda aberta com dedos separados",
       "PA": "frente do rosto descendo para a frente do peito",
       "MOV": "a mão esquerda fica parada na frente do peito; a mão direita desce da frente do rosto passando na frente da mão esquerda e termina abaixo dela",
       "OR": "palma esquerda para o corpo/para baixo, dedos para a direita; palma direita para o lado/para baixo",
@@ -1571,7 +1571,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em Y: polegar e dedo mínimo estendidos, demais dedos fechados",
+      "CM": "Mão em Y: polegar e dedo mínimo estendidos, demais dedos fechados",
       "PA": "frente do ombro/peito, do lado direito",
       "MOV": "o punho gira para um lado e para o outro algumas vezes, alternando a posição do polegar e do mínimo",
       "OR": "palma para o corpo/para o lado; polegar para cima e mínimo para baixo",
@@ -1597,7 +1597,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos e estendidos",
+      "CM": "As duas mãos abertas, dedos unidos e estendidos",
       "PA": "frente do peito",
       "MOV": "as mãos descem dos lados do rosto e se encontram na frente do peito, com as pontas dos dedos se tocando em forma de telhado, e ficam ali um instante",
       "OR": "palmas para baixo e um pouco uma para a outra, pontas dos dedos se tocando",
@@ -1623,7 +1623,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos e estendidos",
+      "CM": "As duas mãos abertas, dedos unidos e estendidos",
       "PA": "frente da barriga, subindo para a frente do peito",
       "MOV": "as mãos descem pela frente da barriga com os dedos para baixo e depois giram e sobem para frente, terminando com as palmas uma de frente para a outra",
       "OR": "começa com palmas para o corpo e dedos para baixo -> termina com palmas uma para a outra e dedos para cima/frente",
@@ -1649,7 +1649,7 @@
     "category": "apresentacao",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos estendidos e separados",
+      "CM": "As duas mãos abertas, dedos estendidos e separados",
       "PA": "frente do peito",
       "MOV": "as mãos se cruzam e se alternam uma por cima da outra várias vezes, como prédios empilhados",
       "OR": "palmas para baixo",
@@ -1675,7 +1675,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o indicador curvado para a frente e o polegar logo abaixo dele, quase se tocando (CM cg20 do INES)",
+      "CM": "Mão fechada com o indicador curvado para a frente e o polegar logo abaixo dele, quase se tocando (CM cg20 do INES)",
       "PA": "espaço ao lado do ombro direito, na altura do queixo",
       "MOV": "pequenos balanços curtos e repetidos da mão, sem sair do lugar",
       "OR": "palma voltada para a esquerda (para dentro), pontas dos dedos para cima",
@@ -1701,7 +1701,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o indicador curvado e o polegar logo abaixo dele, quase se tocando (CM cg20 do INES)",
+      "CM": "Mão fechada com o indicador curvado e o polegar logo abaixo dele, quase se tocando (CM cg20 do INES)",
       "PA": "espaço à frente do ombro direito, entre o queixo e o ombro",
       "MOV": "pequenos movimentos curtos e repetidos da mão, sem deslocamento",
       "OR": "palma para frente",
@@ -1727,7 +1727,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos em L: indicador e polegar estendidos, demais dedos fechados (CM cg18b do INES)",
+      "CM": "As duas mãos em L: indicador e polegar estendidos, demais dedos fechados (CM cg18b do INES)",
       "PA": "espaço neutro diante do peito",
       "MOV": "as mãos fazem pequenos balanços repetidos, um pouco alternados",
       "OR": "palmas para baixo, indicadores apontando um para o outro e polegares para cima",
@@ -1753,7 +1753,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com o indicador estendido para cima e os outros dedos fechados (CM cg14 do INES)",
+      "CM": "As duas mãos com o indicador estendido para cima e os outros dedos fechados (CM cg14 do INES)",
       "PA": "espaço neutro diante do peito, uma mão de cada lado",
       "MOV": "as mãos sobem e descem de forma alternada, algumas vezes",
       "OR": "palmas voltadas para o corpo, indicadores para cima",
@@ -1779,7 +1779,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com as pontas de todos os dedos unidas, apontando para cima (mão em bico, CM cg44 do INES)",
+      "CM": "As duas mãos com as pontas de todos os dedos unidas, apontando para cima (mão em bico, CM cg44 do INES)",
       "PA": "espaço neutro diante do peito, uma mão de cada lado",
       "MOV": "pequenos movimentos repetidos e alternados das mãos (pequenos círculos para frente)",
       "OR": "palmas voltadas para o próprio corpo, pontas dos dedos para cima",
@@ -1805,7 +1805,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "soletração D-I-A: D (indicador para cima, demais dedos tocando o polegar), I (só o mindinho para cima), A (mão fechada com o polegar ao lado)",
+      "CM": "Soletração D-I-A: D (indicador para cima, demais dedos tocando o polegar), I (só o mindinho para cima), A (mão fechada com o polegar ao lado)",
       "PA": "espaço ao lado do ombro direito, na altura do rosto",
       "MOV": "troca das três letras em sequência, sem deslocar a mão",
       "OR": "palma para frente",
@@ -1831,7 +1831,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com o indicador estendido e os outros dedos fechados (CM cg14 do INES)",
+      "CM": "As duas mãos com o indicador estendido e os outros dedos fechados (CM cg14 do INES)",
       "PA": "espaço neutro diante do peito",
       "MOV": "as pontas dos indicadores se encontram e as mãos dão batidas curtas e alternadas, uma contra a outra",
       "OR": "indicadores inclinados, apontando um para o outro e um pouco para cima; palmas para baixo",
@@ -1857,7 +1857,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada que se abre com os dedos bem separados (mão aberta, CM cg58 do INES)",
+      "CM": "Mão fechada que se abre com os dedos bem separados (mão aberta, CM cg58 do INES)",
       "PA": "perto do queixo, depois ao lado do rosto, do lado direito",
       "MOV": "a mão sai fechada perto do queixo, abre os dedos ao lado do rosto e os dedos mexem um pouco",
       "OR": "palma voltada para o rosto (para trás), dedos para cima",
@@ -1883,7 +1883,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o polegar sobre os dedos (mão em S)",
+      "CM": "Mão fechada com o polegar sobre os dedos (mão em S)",
       "PA": "espaço ao lado do ombro direito, na altura do queixo",
       "MOV": "o pulso dobra para baixo e volta, algumas vezes, como uma cabeça que diz sim",
       "OR": "palma para frente",
@@ -1909,7 +1909,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido para cima, demais dedos fechados (CM cg14 do INES)",
+      "CM": "Indicador estendido para cima, demais dedos fechados (CM cg14 do INES)",
       "PA": "espaço ao lado do ombro direito, na altura do rosto",
       "MOV": "a mão balança de um lado para o outro várias vezes, rápido",
       "OR": "palma para frente, indicador para cima",
@@ -1935,7 +1935,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta com os dedos unidos e estendidos e o polegar separado (CM cg63 do INES)",
+      "CM": "Mão aberta com os dedos unidos e estendidos e o polegar separado (CM cg63 do INES)",
       "PA": "lateral da testa, do lado direito (têmpora)",
       "MOV": "as pontas dos dedos tocam a lateral da testa e ficam ali com pequenos movimentos repetidos",
       "OR": "palma para baixo, pontas dos dedos apontando para a cabeça",
@@ -1961,7 +1961,7 @@
     "category": "perguntas",
     "recognition": "dynamic",
     "params": {
-      "CM": "começa com a mão aberta, dedos unidos e polegar separado (CM cg63 do INES); termina com a mão fechada e o polegar estendido",
+      "CM": "Começa com a mão aberta, dedos unidos e polegar separado (CM cg63 do INES); termina com a mão fechada e o polegar estendido",
       "PA": "lateral da testa, do lado direito; depois o espaço ao lado do rosto",
       "MOV": "a palma toca a lateral da testa e a mão se afasta para o lado, fechando-se com o polegar apontando para fora",
       "OR": "palma para a testa no início; no final, palma voltada para o rosto e polegar para o lado",
@@ -1987,7 +1987,7 @@
     "category": "familia",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com indicador, médio e anelar estendidos e separados, mindinho dobrado preso pelo polegar (CM cg54 do INES)",
+      "CM": "As duas mãos com indicador, médio e anelar estendidos e separados, mindinho dobrado preso pelo polegar (CM cg54 do INES)",
       "PA": "espaço neutro: começa à frente do queixo e termina diante do peito",
       "MOV": "as mãos começam juntas, se afastam para os lados e fazem um arco para frente e para baixo, voltando a se juntar diante do peito",
       "OR": "palmas para frente no início -> palmas voltadas para o corpo no final, dedos para cima",
@@ -2065,7 +2065,7 @@
     "category": "familia",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta com os dedos separados e levemente curvados (CM cg57 do INES) que se fecha",
+      "CM": "Mão aberta com os dedos separados e levemente curvados (CM cg57 do INES) que se fecha",
       "PA": "peito (no vídeo do INES, um pouco para o lado oposto ao da mão que sinaliza)",
       "MOV": "a mão aberta encosta no peito e fecha os dedos, como quem pega algo do próprio peito; fica fechada ali por um instante",
       "OR": "palma voltada para o peito",
@@ -2091,7 +2091,7 @@
     "category": "familia",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta com os dedos separados que se fecha",
+      "CM": "Mão aberta com os dedos separados que se fecha",
       "PA": "peito",
       "MOV": "a mão aberta encosta no peito, fecha os dedos e se afasta um pouco para frente, fechada",
       "OR": "palma voltada para o peito no início; no final, palma para cima/para o lado",
@@ -2117,7 +2117,7 @@
     "category": "familia",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos (CM cg63 do INES)",
+      "CM": "As duas mãos abertas, dedos unidos (CM cg63 do INES)",
       "PA": "diante da barriga, braços dobrados na horizontal, uma mão apoiada sobre o antebraço/mão da outra",
       "MOV": "os braços balançam para um lado e para o outro, como quem nina um bebê no colo",
       "OR": "palmas para cima",
@@ -2143,7 +2143,7 @@
     "category": "familia",
     "recognition": "dynamic",
     "params": {
-      "CM": "polegar e indicador abertos e curvados, demais dedos dobrados (CM cg51b do INES)",
+      "CM": "Polegar e indicador abertos e curvados, demais dedos dobrados (CM cg51b do INES)",
       "PA": "queixo",
       "MOV": "a mão segura o queixo entre o polegar e o indicador e desliza para baixo, fechando até o pescoço",
       "OR": "palma voltada para o pescoço, polegar de um lado do queixo e indicador do outro",
@@ -2169,7 +2169,7 @@
     "category": "familia",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o polegar estendido (CM cg07 do INES)",
+      "CM": "Mão fechada com o polegar estendido (CM cg07 do INES)",
       "PA": "bochecha direita",
       "MOV": "a lateral do polegar roça a bochecha de cima para baixo, duas ou três vezes",
       "OR": "palma voltada para o rosto, polegar para cima",
@@ -2195,7 +2195,7 @@
     "category": "familia",
     "recognition": "static",
     "params": {
-      "CM": "as duas mãos fechadas com o indicador dobrado em gancho",
+      "CM": "As duas mãos fechadas com o indicador dobrado em gancho",
       "PA": "espaço neutro diante do peito",
       "MOV": "as mãos se aproximam e os dois indicadores dobrados se encostam (como elos), ficando unidos por um instante",
       "OR": "palmas para baixo, indicadores voltados um para o outro",
@@ -2247,7 +2247,7 @@
     "category": "familia",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador e médio estendidos e separados (mão em V, CM cg32 do INES) que dobram e esticam",
+      "CM": "Indicador e médio estendidos e separados (mão em V, CM cg32 do INES) que dobram e esticam",
       "PA": "espaço ao lado do rosto, do lado direito, na altura do queixo",
       "MOV": "os dois dedos dobram e esticam algumas vezes, sem deslocar a mão",
       "OR": "palma para frente",
@@ -2273,7 +2273,7 @@
     "category": "familia",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador e médio estendidos e separados (mão em V, CM cg32 do INES) que dobram e esticam",
+      "CM": "Indicador e médio estendidos e separados (mão em V, CM cg32 do INES) que dobram e esticam",
       "PA": "espaço ao lado do rosto, do lado direito, na altura do queixo",
       "MOV": "os dois dedos dobram e esticam algumas vezes, sem deslocar a mão",
       "OR": "palma para frente",
@@ -2351,7 +2351,7 @@
     "category": "familia",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com o indicador estendido e os outros dedos fechados (CM cg14 do INES)",
+      "CM": "As duas mãos com o indicador estendido e os outros dedos fechados (CM cg14 do INES)",
       "PA": "espaço neutro na altura da cintura, uma mão de cada lado",
       "MOV": "as mãos sobem e descem de forma alternada, com movimentos curtos e repetidos",
       "OR": "palmas para baixo/para dentro, indicadores apontando para baixo e para frente",
@@ -2403,7 +2403,7 @@
     "category": "familia",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos unidas, uma segurando a outra, dedos dobrados envolvendo a outra mão (CM cg53a do INES)",
+      "CM": "As duas mãos unidas, uma segurando a outra, dedos dobrados envolvendo a outra mão (CM cg53a do INES)",
       "PA": "espaço neutro diante do peito",
       "MOV": "as mãos vêm dos lados e se juntam diante do peito, uma envolvendo a outra, com leve aperto",
       "OR": "palmas uma contra a outra, dedos para cima",
@@ -2429,7 +2429,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mãos abertas com os dedos separados; durante o movimento o dedo médio dobra em direção à palma, repetidamente",
+      "CM": "Mãos abertas com os dedos separados; durante o movimento o dedo médio dobra em direção à palma, repetidamente",
       "PA": "espaço neutro, começando dos dois lados da cabeça",
       "MOV": "as duas mãos descem juntas da altura da cabeça até a frente do peito, com os dedos se mexendo",
       "OR": "palmas para frente",
@@ -2455,7 +2455,7 @@
     "category": "sentimentos",
     "recognition": "static",
     "params": {
-      "CM": "mão em Y: polegar e dedo mínimo estendidos, demais dedos fechados",
+      "CM": "Mão em Y: polegar e dedo mínimo estendidos, demais dedos fechados",
       "PA": "queixo",
       "MOV": "a mão sobe até o queixo e para, com a ponta do dedo mínimo encostada no queixo",
       "OR": "palma voltada para o próprio rosto",
@@ -2481,7 +2481,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada (punho)",
+      "CM": "Mão fechada (punho)",
       "PA": "peito",
       "MOV": "o punho encosta no meio do peito e sobe, arrastando, até perto do ombro esquerdo",
       "OR": "palma para dentro (para o peito)",
@@ -2507,7 +2507,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador e médio estendidos e separados (em V), demais dedos fechados",
+      "CM": "Indicador e médio estendidos e separados (em V), demais dedos fechados",
       "PA": "frente do peito",
       "MOV": "os dois dedos dobram e esticam várias vezes, como se tremessem",
       "OR": "palma para dentro (para o corpo), pontas dos dedos para a esquerda",
@@ -2533,7 +2533,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mãos abertas com os dedos separados",
+      "CM": "Mãos abertas com os dedos separados",
       "PA": "peito, descendo até a frente da barriga",
       "MOV": "as duas mãos partem do alto do peito e descem devagar até a altura da barriga, afastando-se um pouco",
       "OR": "palmas para o corpo no início -> palmas para baixo no final",
@@ -2559,7 +2559,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mãos abertas com os dedos separados e levemente curvados",
+      "CM": "Mãos abertas com os dedos separados e levemente curvados",
       "PA": "frente do corpo, começando na altura dos ombros",
       "MOV": "as duas mãos descem até a cintura; ao descer, os pulsos dobram e os dedos se curvam, como se a força caísse",
       "OR": "palmas voltadas para o corpo no alto; ao descer, as palmas ficam para cima",
@@ -2585,7 +2585,7 @@
     "category": "sentimentos",
     "recognition": "static",
     "params": {
-      "CM": "mão direita aberta com dedos unidos e polegar separado; mão esquerda aberta",
+      "CM": "Mão direita aberta com dedos unidos e polegar separado; mão esquerda aberta",
       "PA": "frente do peito, sobre o dorso do pulso esquerdo",
       "MOV": "a mão direita pousa sobre o dorso do pulso/mão esquerda e fica ali",
       "OR": "mão esquerda parada como base, palma para baixo; mão direita com a palma para baixo, por cima dela",
@@ -2611,7 +2611,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão curvada: dedos unidos e dobrados, polegar separado",
+      "CM": "Mão curvada: dedos unidos e dobrados, polegar separado",
       "PA": "barriga (estômago)",
       "MOV": "a mão encosta na barriga e faz pequenos movimentos para um lado e para o outro",
       "OR": "palma voltada para o corpo/para cima, pontas dos dedos para a esquerda",
@@ -2637,7 +2637,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador e polegar abertos e curvados (como uma pinça aberta), demais dedos fechados",
+      "CM": "Indicador e polegar abertos e curvados (como uma pinça aberta), demais dedos fechados",
       "PA": "ao lado do olho",
       "MOV": "o indicador e o polegar se fecham junto ao olho (pinça abre -> fecha)",
       "OR": "palma para frente/para o lado, dedos junto ao canto do olho",
@@ -2663,7 +2663,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com o indicador curvado e os demais dedos fechados; mão esquerda fechada",
+      "CM": "Mão direita com o indicador curvado e os demais dedos fechados; mão esquerda fechada",
       "PA": "dobra interna do cotovelo esquerdo",
       "MOV": "o indicador direito arranha/belisca várias vezes a dobra do cotovelo esquerdo",
       "OR": "braço esquerdo dobrado e parado como base, palma para cima; mão direita com a palma para baixo",
@@ -2689,7 +2689,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com o indicador curvado e os demais dedos fechados",
+      "CM": "As duas mãos com o indicador curvado e os demais dedos fechados",
       "PA": "têmporas (lados da cabeça)",
       "MOV": "os indicadores tocam as têmporas de forma alternada, várias vezes",
       "OR": "palmas para frente/para o rosto, indicadores apontando para a cabeça",
@@ -2715,7 +2715,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada em A (punho com o polegar ao lado)",
+      "CM": "Mão fechada em A (punho com o polegar ao lado)",
       "PA": "peito, do lado do coração",
       "MOV": "o punho faz pequenos círculos sobre o peito",
       "OR": "palma para dentro (para o peito)",
@@ -2741,7 +2741,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta com os dedos unidos e o polegar separado",
+      "CM": "Mão aberta com os dedos unidos e o polegar separado",
       "PA": "peito, lado esquerdo",
       "MOV": "a palma encosta no peito e faz pequenos círculos discretos",
       "OR": "palma para dentro (para o peito), dedos para a esquerda",
@@ -2767,7 +2767,7 @@
     "category": "sentimentos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em C que se fecha em punho",
+      "CM": "Mão em C que se fecha em punho",
       "PA": "peito, lado do coração",
       "MOV": "a mão em C encosta no lado esquerdo do peito e se fecha, ficando em punho sobre o coração",
       "OR": "palma para dentro (para o peito)",
@@ -2793,7 +2793,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos e estendidos, polegar separado",
+      "CM": "As duas mãos abertas, dedos unidos e estendidos, polegar separado",
       "PA": "espaço neutro, dos lados do corpo, na altura da cintura",
       "MOV": "as duas mãos descem juntas com movimentos curtos e repetidos (duas vezes)",
       "OR": "palmas para cima",
@@ -2819,7 +2819,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em L (polegar e indicador estendidos, demais dedos fechados)",
+      "CM": "Mão em L (polegar e indicador estendidos, demais dedos fechados)",
       "PA": "bochecha direita, com a ponta do polegar encostada",
       "MOV": "a mão inclina para trás, levando o indicador em direção à orelha",
       "OR": "palma para frente/esquerda, indicador para cima",
@@ -2845,7 +2845,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador e mínimo estendidos, médio e anelar dobrados, polegar aberto (configuração cg35a do INES)",
+      "CM": "Indicador e mínimo estendidos, médio e anelar dobrados, polegar aberto (configuração cg35a do INES)",
       "PA": "lateral da testa (têmpora)",
       "MOV": "toca a lateral da testa e se afasta para o lado e um pouco para frente",
       "OR": "palma para frente",
@@ -2871,7 +2871,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos e estendidos, polegar separado",
+      "CM": "As duas mãos abertas, dedos unidos e estendidos, polegar separado",
       "PA": "espaço neutro, diante do corpo, na altura da cintura",
       "MOV": "as duas mãos descem juntas com movimentos curtos e repetidos",
       "OR": "palmas para cima",
@@ -2897,7 +2897,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido, demais dedos fechados",
+      "CM": "Indicador estendido, demais dedos fechados",
       "PA": "ao lado do ombro direito, subindo até a altura da cabeça",
       "MOV": "parte com o indicador para cima ao lado do ombro; o braço sobe para a lateral e o punho gira, deixando o indicador apontado para frente",
       "OR": "palma para frente -> para baixo",
@@ -2923,7 +2923,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta com os dedos unidos dobrados na base (ângulo reto), polegar separado",
+      "CM": "Mão aberta com os dedos unidos dobrados na base (ângulo reto), polegar separado",
       "PA": "ao lado da cabeça, acima do ombro direito",
       "MOV": "a mão, erguida ao lado da cabeça, dobra e leva os dedos para trás, por cima do ombro",
       "OR": "palma para frente -> dedos apontando para trás",
@@ -2949,7 +2949,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido, demais dedos fechados; mão esquerda aberta como base",
+      "CM": "Indicador estendido, demais dedos fechados; mão esquerda aberta como base",
       "PA": "começa ao lado da cabeça, à direita; termina diante do corpo, sobre o antebraço esquerdo",
       "MOV": "o indicador, apontado para cima, desce em arco para a esquerda até ficar horizontal sobre o antebraço esquerdo (como o caminho do sol)",
       "OR": "palma para frente -> para baixo; antebraço esquerdo horizontal diante do corpo",
@@ -2975,7 +2975,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido, demais dedos fechados",
+      "CM": "Indicador estendido, demais dedos fechados",
       "PA": "diante do peito",
       "MOV": "o indicador, apontado para a esquerda, desliza na horizontal para a direita e termina apontando para frente",
       "OR": "palma para baixo",
@@ -3001,7 +3001,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em A (fechada, polegar ao lado); mão esquerda com o indicador estendido para cima (base)",
+      "CM": "Mão direita em A (fechada, polegar ao lado); mão esquerda com o indicador estendido para cima (base)",
       "PA": "diante do peito, junto ao indicador esquerdo",
       "MOV": "a mão direita encosta no alto do indicador esquerdo e desliza para baixo ao longo dele",
       "OR": "palma direita voltada para o indicador esquerdo; indicador esquerdo na vertical",
@@ -3027,7 +3027,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos fechadas em S",
+      "CM": "As duas mãos fechadas em S",
       "PA": "diante do corpo, na altura do peito",
       "MOV": "a mão direita gira em círculo vertical ao redor do punho esquerdo e termina apoiada sobre ele",
       "OR": "mão esquerda parada, palma para a direita; mão direita palma para a esquerda",
@@ -3053,7 +3053,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em C que fecha em S",
+      "CM": "Mão em C que fecha em S",
       "PA": "diante da boca",
       "MOV": "a mão fecha de C para S diante da boca, repetidamente (como espremer uma laranja)",
       "OR": "palma para a esquerda",
@@ -3079,7 +3079,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido para cima, demais dedos fechados com o polegar sobre o médio",
+      "CM": "Indicador estendido para cima, demais dedos fechados com o polegar sobre o médio",
       "PA": "diante do rosto, terminando ao lado do queixo",
       "MOV": "o indicador faz um círculo diante do rosto e termina parado, para cima, ao lado do queixo",
       "OR": "palma para a esquerda",
@@ -3105,7 +3105,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em V (indicador e médio estendidos e separados)",
+      "CM": "Mão em V (indicador e médio estendidos e separados)",
       "PA": "têmpora direita",
       "MOV": "o lado do indicador encosta na têmpora com pequenos toques",
       "OR": "palma para frente",
@@ -3131,7 +3131,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em 3 (indicador, médio e anelar estendidos e separados, polegar segurando o mínimo)",
+      "CM": "Mão em 3 (indicador, médio e anelar estendidos e separados, polegar segurando o mínimo)",
       "PA": "têmpora direita",
       "MOV": "a mão vai até a têmpora e encosta nela, com pequeno movimento",
       "OR": "palma para frente",
@@ -3157,7 +3157,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em 4 (quatro dedos estendidos e separados, polegar dobrado na palma)",
+      "CM": "Mão em 4 (quatro dedos estendidos e separados, polegar dobrado na palma)",
       "PA": "têmpora direita",
       "MOV": "a mão encosta na têmpora com pequenos toques",
       "OR": "palma para frente",
@@ -3183,7 +3183,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador e médio dobrados em gancho, demais dedos fechados",
+      "CM": "Indicador e médio dobrados em gancho, demais dedos fechados",
       "PA": "lateral da testa, perto da sobrancelha direita",
       "MOV": "as pontas dos dedos dobrados dão pequenos toques repetidos na lateral da testa",
       "OR": "palma para frente",
@@ -3209,7 +3209,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador dobrado em gancho (letra X), demais dedos fechados",
+      "CM": "Indicador dobrado em gancho (letra X), demais dedos fechados",
       "PA": "queixo, lado direito",
       "MOV": "o indicador dobrado encosta no queixo com pequenos movimentos repetidos",
       "OR": "palma para a esquerda/para baixo",
@@ -3235,7 +3235,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com indicador e médio estendidos e levemente dobrados; mão esquerda aberta como base",
+      "CM": "Mão direita com indicador e médio estendidos e levemente dobrados; mão esquerda aberta como base",
       "PA": "palma da mão esquerda, diante do peito",
       "MOV": "as pontas dos dedos da direita tocam a palma esquerda com pequenos movimentos repetidos",
       "OR": "mão direita palma para baixo, dedos para a esquerda; mão esquerda palma para cima",
@@ -3261,7 +3261,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta, dedos unidos e estendidos, polegar separado; antebraço esquerdo como base",
+      "CM": "Mão aberta, dedos unidos e estendidos, polegar separado; antebraço esquerdo como base",
       "PA": "diante do corpo: cotovelo direito apoiado sobre o dorso da mão esquerda",
       "MOV": "o antebraço direito, em pé, desce para o lado até ficar quase na horizontal (como o sol se pondo)",
       "OR": "palma para frente -> para baixo; antebraço esquerdo horizontal, palma para baixo",
@@ -3287,7 +3287,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com os dedos unidos dobrados na base, polegar separado; mão esquerda aberta como base",
+      "CM": "Mão direita com os dedos unidos dobrados na base, polegar separado; mão esquerda aberta como base",
       "PA": "acima do dorso da mão esquerda, diante do corpo",
       "MOV": "a mão direita passa em arco por cima do dorso da mão esquerda, do punho para a ponta dos dedos, descendo",
       "OR": "as duas palmas para baixo",
@@ -3313,7 +3313,7 @@
     "category": "tempo",
     "recognition": "static",
     "params": {
-      "CM": "indicador e médio cruzados (letra R), demais dedos fechados",
+      "CM": "Indicador e médio cruzados (letra R), demais dedos fechados",
       "PA": "centro da testa",
       "MOV": "a mão encosta na testa e fica parada",
       "OR": "palma para a esquerda, dedos para cima",
@@ -3339,7 +3339,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em L (polegar e indicador estendidos); mão esquerda com antebraço na horizontal como base",
+      "CM": "Mão direita em L (polegar e indicador estendidos); mão esquerda com antebraço na horizontal como base",
       "PA": "dorso do pulso esquerdo (lugar do relógio)",
       "MOV": "o indicador direito vai até o pulso esquerdo e encosta nele",
       "OR": "palma direita para baixo/esquerda; palma esquerda para baixo",
@@ -3365,7 +3365,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em M (indicador, médio e anelar estendidos e unidos, apontando para baixo, polegar segurando o mínimo)",
+      "CM": "Mão em M (indicador, médio e anelar estendidos e unidos, apontando para baixo, polegar segurando o mínimo)",
       "PA": "na altura do ombro direito, diante do peito",
       "MOV": "o punho dobra para cima e para baixo, repetidamente",
       "OR": "palma para baixo/para trás, dedos para baixo",
@@ -3391,7 +3391,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido, demais dedos curvados tocando o polegar (letra D)",
+      "CM": "Indicador estendido, demais dedos curvados tocando o polegar (letra D)",
       "PA": "ao lado do ombro direito, na altura do peito",
       "MOV": "o punho gira para lá e para cá, alternando o indicador entre para cima e apontado para o lado",
       "OR": "palma para frente -> para baixo, alternando",
@@ -3417,7 +3417,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em F (indicador dobrado tocando o polegar, médio, anelar e mínimo estendidos)",
+      "CM": "Mão em F (indicador dobrado tocando o polegar, médio, anelar e mínimo estendidos)",
       "PA": "ao lado do olho direito",
       "MOV": "a mão se aproxima e encosta ao lado do olho",
       "OR": "palma voltada para o rosto",
@@ -3443,7 +3443,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "sequência das letras M, A, R, Ç, O (datilologia)",
+      "CM": "Sequência das letras M, A, R, Ç, O (datilologia)",
       "PA": "espaço neutro, ao lado do ombro direito",
       "MOV": "soletra letra por letra: M -> A -> R -> Ç -> O",
       "OR": "palma para frente",
@@ -3469,7 +3469,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada, com o polegar apoiado sobre o indicador dobrado",
+      "CM": "Mão fechada, com o polegar apoiado sobre o indicador dobrado",
       "PA": "começa junto à lateral do pescoço, abaixo da orelha; termina acima do ombro direito",
       "MOV": "a mão fechada toca a lateral do pescoço e sobe até ficar erguida ao lado da cabeça",
       "OR": "palma para frente",
@@ -3495,7 +3495,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "sequência das letras M, A, I, O (datilologia)",
+      "CM": "Sequência das letras M, A, I, O (datilologia)",
       "PA": "espaço neutro, ao lado do ombro direito",
       "MOV": "soletra letra por letra: M -> A -> I -> O",
       "OR": "palma para frente",
@@ -3521,7 +3521,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "sequência das letras J, U, N, H, O (datilologia)",
+      "CM": "Sequência das letras J, U, N, H, O (datilologia)",
       "PA": "espaço neutro, ao lado do ombro direito",
       "MOV": "soletra letra por letra: J -> U -> N -> H -> O",
       "OR": "palma para frente",
@@ -3547,7 +3547,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "sequência das letras J, U, L, H, O (datilologia)",
+      "CM": "Sequência das letras J, U, L, H, O (datilologia)",
       "PA": "espaço neutro, ao lado do ombro direito",
       "MOV": "soletra letra por letra: J -> U -> L -> H -> O",
       "OR": "palma para frente",
@@ -3573,7 +3573,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta, dedos unidos e estendidos, polegar estendido",
+      "CM": "Mão aberta, dedos unidos e estendidos, polegar estendido",
       "PA": "lado esquerdo do peito",
       "MOV": "a mão esfrega o peito para cima e para baixo",
       "OR": "palma para o peito, dedos para a esquerda",
@@ -3599,7 +3599,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "polegar e indicador em pinça, demais dedos fechados",
+      "CM": "Polegar e indicador em pinça, demais dedos fechados",
       "PA": "queixo",
       "MOV": "polegar e indicador seguram o queixo, com pequeno movimento",
       "OR": "palma para a esquerda/para trás",
@@ -3625,7 +3625,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em O (dedos curvados tocando o polegar)",
+      "CM": "Mão em O (dedos curvados tocando o polegar)",
       "PA": "ao lado do ombro direito, na altura do rosto",
       "MOV": "a mão balança o punho de um lado para o outro, repetidamente",
       "OR": "palma para frente/esquerda",
@@ -3651,7 +3651,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em N (indicador e médio estendidos e unidos, apontando para baixo)",
+      "CM": "Mão em N (indicador e médio estendidos e unidos, apontando para baixo)",
       "PA": "na altura do ombro direito, diante do peito",
       "MOV": "o punho dobra para cima e para baixo, repetidamente",
       "OR": "palma para baixo/para trás, dedos para baixo",
@@ -3677,7 +3677,7 @@
     "category": "tempo",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em garra aberta (dedos separados e curvados, polegar aberto)",
+      "CM": "Mão em garra aberta (dedos separados e curvados, polegar aberto)",
       "PA": "começa embaixo do queixo e desce até o peito",
       "MOV": "a mão desce do queixo até o peito, duas vezes (como uma barba longa)",
       "OR": "palma para cima/para o corpo",
@@ -3703,7 +3703,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "datilologia: C -> O -> R (no R, indicador e médio cruzados)",
+      "CM": "Datilologia: C -> O -> R (no R, indicador e médio cruzados)",
       "PA": "espaço neutro, ao lado do ombro direito, na altura do rosto",
       "MOV": "a mão forma as letras C, O e R em sequência e para no R",
       "OR": "palma para frente",
@@ -3729,7 +3729,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta com os dedos unidos e o polegar separado",
+      "CM": "Mão aberta com os dedos unidos e o polegar separado",
       "PA": "braço esquerdo, do ombro em direção ao antebraço",
       "MOV": "a palma direita desliza para baixo ao longo do braço esquerdo, do ombro até perto do pulso",
       "OR": "palma para dentro, encostada no braço",
@@ -3755,7 +3755,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o indicador dobrado em gancho",
+      "CM": "Mão fechada com o indicador dobrado em gancho",
       "PA": "lateral da testa, sobre a sobrancelha direita",
       "MOV": "o indicador dobrado encosta na lateral da testa e desliza ao longo da sobrancelha",
       "OR": "palma para baixo/para o rosto",
@@ -3781,7 +3781,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido, demais dedos fechados",
+      "CM": "Indicador estendido, demais dedos fechados",
       "PA": "lábio inferior e queixo",
       "MOV": "a ponta do indicador toca o lábio inferior e desce pelo queixo",
       "OR": "palma para dentro (para o rosto), indicador para cima",
@@ -3807,7 +3807,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada que se abre em L (indicador para cima e polegar para o lado)",
+      "CM": "Mão fechada que se abre em L (indicador para cima e polegar para o lado)",
       "PA": "espaço neutro, ao lado do ombro direito",
       "MOV": "a mão abre de fechada para L e fecha de novo, duas ou três vezes, descendo um pouco",
       "OR": "palma para frente",
@@ -3833,7 +3833,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido, polegar tocando o dedo médio, demais dedos fechados",
+      "CM": "Indicador estendido, polegar tocando o dedo médio, demais dedos fechados",
       "PA": "testa, descendo pelo meio do rosto",
       "MOV": "o indicador encosta na testa e desce pelo meio do rosto (nariz, boca) até o queixo",
       "OR": "palma para dentro (para o rosto)",
@@ -3859,7 +3859,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com indicador e médio estendidos (em V); mão esquerda aberta",
+      "CM": "Mão direita com indicador e médio estendidos (em V); mão esquerda aberta",
       "PA": "frente do peito, sobre o dorso da mão esquerda",
       "MOV": "os dedos da mão direita deslizam para frente e para trás sobre o dorso da mão esquerda",
       "OR": "mão esquerda parada como base, palma para baixo; mão direita com a palma para baixo, por cima",
@@ -3885,7 +3885,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em C que se fecha em punho, repetidamente",
+      "CM": "Mão em C que se fecha em punho, repetidamente",
       "PA": "frente da boca",
       "MOV": "a mão em C fecha e abre algumas vezes diante da boca, como quem espreme uma laranja",
       "OR": "palma para a esquerda (para o lado), mão de lado diante da boca",
@@ -3911,7 +3911,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão com os quatro dedos estendidos e unidos, polegar dobrado sobre a palma",
+      "CM": "Mão com os quatro dedos estendidos e unidos, polegar dobrado sobre a palma",
       "PA": "bochecha direita",
       "MOV": "as pontas dos dedos tocam a bochecha e descem, escovando, duas ou três vezes",
       "OR": "palma para dentro (para o rosto)",
@@ -3937,7 +3937,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com indicador e médio estendidos e polegar aberto; mão esquerda aberta",
+      "CM": "Mão direita com indicador e médio estendidos e polegar aberto; mão esquerda aberta",
       "PA": "frente do peito, sobre o dorso da mão esquerda",
       "MOV": "as pontas do indicador e do médio direitos esfregam o dorso da mão esquerda, em pequeno vaivém",
       "OR": "mão esquerda parada como base, palma para baixo; mão direita com a palma para baixo",
@@ -3963,7 +3963,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com indicador e médio estendidos e unidos; mão esquerda aberta",
+      "CM": "Mão direita com indicador e médio estendidos e unidos; mão esquerda aberta",
       "PA": "frente do peito, sobre o dorso da mão esquerda",
       "MOV": "os dedos direitos sobem e descem, escovando o dorso da mão esquerda, duas vezes",
       "OR": "mão esquerda parada como base, palma para baixo; mão direita com a palma para baixo",
@@ -3989,7 +3989,7 @@
     "category": "cores",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em C; braço esquerdo com a mão aberta",
+      "CM": "Mão direita em C; braço esquerdo com a mão aberta",
       "PA": "antebraço/pulso esquerdo, diante do peito",
       "MOV": "a mão em C apoiada sobre o antebraço esquerdo balança levemente para um lado e para o outro",
       "OR": "antebraço esquerdo parado na horizontal como base, palma para baixo; mão direita de lado, dedos para cima",
@@ -4015,7 +4015,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta com os dedos unidos e dobrados na base, polegar ao lado (CM cg53a do INES)",
+      "CM": "Mão aberta com os dedos unidos e dobrados na base, polegar ao lado (CM cg53a do INES)",
       "PA": "diante da boca",
       "MOV": "as pontas dos dedos vão em direção à boca repetidas vezes, com pequenos movimentos de dobrar a mão",
       "OR": "palma para dentro (para o rosto), pontas dos dedos para a boca",
@@ -4040,7 +4040,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em C, como se segurasse um copo (CM cg51a do INES)",
+      "CM": "Mão em C, como se segurasse um copo (CM cg51a do INES)",
       "PA": "diante da boca",
       "MOV": "a mão sobe até a boca e inclina para trás, como quem bebe de um copo",
       "OR": "palma para a esquerda (para o lado), depois inclinando para cima",
@@ -4066,7 +4066,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em L: polegar e indicador estendidos, demais dedos fechados (CM cg08a do INES)",
+      "CM": "Mão em L: polegar e indicador estendidos, demais dedos fechados (CM cg08a do INES)",
       "PA": "queixo: a ponta do polegar encosta no queixo",
       "MOV": "o indicador dobra e estica algumas vezes, com o polegar parado no queixo",
       "OR": "palma para a esquerda (para o lado)",
@@ -4092,7 +4092,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador curvado tocando a ponta do polegar (formando um círculo), demais dedos estendidos e separados (CM cg55 do INES)",
+      "CM": "Indicador curvado tocando a ponta do polegar (formando um círculo), demais dedos estendidos e separados (CM cg55 do INES)",
       "PA": "diante da boca, encostando no lábio/canto da boca",
       "MOV": "o círculo formado por indicador e polegar toca os lábios e se afasta um pouco, duas ou três vezes",
       "OR": "palma para a esquerda (para o lado)",
@@ -4118,7 +4118,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada (CM cg02 do INES)",
+      "CM": "Mão fechada (CM cg02 do INES)",
       "PA": "diante do peito, do lado direito",
       "MOV": "a mão fechada faz movimentos curtos para cima e para baixo, repetidos",
       "OR": "palma para a esquerda/para baixo",
@@ -4222,7 +4222,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "dedos fechados, com o indicador curvado sobre a ponta do polegar (CM cg05 do INES)",
+      "CM": "Dedos fechados, com o indicador curvado sobre a ponta do polegar (CM cg05 do INES)",
       "PA": "bochecha, ao lado da boca",
       "MOV": "a mão encosta na bochecha e faz um pequeno movimento de girar, mantendo o contato",
       "OR": "palma para trás/para o rosto",
@@ -4248,7 +4248,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta que se fecha em mão fechada (CM final cg02 do INES)",
+      "CM": "Mão aberta que se fecha em mão fechada (CM final cg02 do INES)",
       "PA": "ao lado do rosto, na altura do ombro/queixo",
       "MOV": "a mão começa aberta e curvada e se fecha, como quem espreme algo",
       "OR": "palma para a esquerda (para o rosto)",
@@ -4274,7 +4274,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos fechadas com o polegar estendido para cima (CM cg07 do INES)",
+      "CM": "As duas mãos fechadas com o polegar estendido para cima (CM cg07 do INES)",
       "PA": "diante do peito, mãos lado a lado e encostadas",
       "MOV": "as mãos se esfregam uma na outra em pequenos movimentos alternados para cima e para baixo",
       "OR": "palmas uma de frente para a outra, polegares para cima",
@@ -4299,7 +4299,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em O (indicador curvado tocando o polegar, CM cg42 do INES); mão esquerda com o indicador estendido",
+      "CM": "Mão direita em O (indicador curvado tocando o polegar, CM cg42 do INES); mão esquerda com o indicador estendido",
       "PA": "diante do peito, na linha do centro do corpo",
       "MOV": "a mão direita segura a ponta do indicador esquerdo e faz pequenos movimentos repetidos de esfregar/apertar",
       "OR": "indicador esquerdo apontando para a direita; mão direita de lado, segurando a ponta",
@@ -4325,7 +4325,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com o indicador estendido e o dedo médio dobrado encostando no polegar (CM cg34 do INES); mão esquerda aberta",
+      "CM": "Mão direita com o indicador estendido e o dedo médio dobrado encostando no polegar (CM cg34 do INES); mão esquerda aberta",
       "PA": "dorso da mão esquerda, diante do peito",
       "MOV": "o médio e o polegar da mão direita beliscam a pele do dorso da mão esquerda, com pequeno movimento repetido",
       "OR": "mão esquerda com a palma para baixo; mão direita por cima, indicador apontando para a frente/esquerda",
@@ -4377,7 +4377,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador dobrado em gancho, demais dedos fechados (CM cg15 do INES)",
+      "CM": "Indicador dobrado em gancho, demais dedos fechados (CM cg15 do INES)",
       "PA": "canto da boca/queixo, do lado direito",
       "MOV": "o indicador em gancho encosta no canto da boca e desce um pouco ao longo do queixo",
       "OR": "palma para dentro (para o rosto)",
@@ -4403,7 +4403,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com os dedos estendidos e levemente dobrados (CM cg45 do INES)",
+      "CM": "As duas mãos com os dedos estendidos e levemente dobrados (CM cg45 do INES)",
       "PA": "diante do peito/queixo, mãos juntas no centro",
       "MOV": "as mãos começam juntas, pelas pontas dos dedos, e se separam para os lados girando para baixo, como quem quebra um ovo",
       "OR": "palmas para baixo; no fim, dedos apontando para baixo",
@@ -4455,7 +4455,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em C, dedos curvados como se segurasse uma maçã",
+      "CM": "Mão em C, dedos curvados como se segurasse uma maçã",
       "PA": "diante da boca",
       "MOV": "a mão vai até a boca e desce para baixo do queixo, duas vezes, como quem dá mordidas",
       "OR": "palma para o rosto",
@@ -4481,7 +4481,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão esquerda com o indicador estendido para cima (CM cg14 do INES); mão direita com o indicador estendido",
+      "CM": "Mão esquerda com o indicador estendido para cima (CM cg14 do INES); mão direita com o indicador estendido",
       "PA": "diante do peito, à esquerda; a mão direita junto da ponta do indicador esquerdo",
       "MOV": "o indicador direito desliza para baixo ao longo do indicador esquerdo, da ponta para a base, algumas vezes, como quem descasca uma banana",
       "OR": "indicador esquerdo para cima, palma para a direita; indicador direito na horizontal, apontando para a esquerda",
@@ -4506,7 +4506,7 @@
     "category": "comida",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão com polegar, indicador e mínimo estendidos (CM cg35a do INES)",
+      "CM": "Mão com polegar, indicador e mínimo estendidos (CM cg35a do INES)",
       "PA": "queixo/boca",
       "MOV": "a mão vai e volta do lado do rosto até o queixo, tocando-o com o polegar algumas vezes",
       "OR": "palma para a esquerda (para o rosto)",
@@ -4532,7 +4532,7 @@
     "category": "lugares",
     "recognition": "static",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos (CM cg62 do INES)",
+      "CM": "As duas mãos abertas, dedos unidos (CM cg62 do INES)",
       "PA": "diante do peito",
       "MOV": "as mãos se aproximam até as pontas dos dedos se tocarem e ficam paradas, formando um telhado",
       "OR": "palmas inclinadas uma para a outra, pontas dos dedos para cima",
@@ -4558,7 +4558,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada (CM cg02 do INES)",
+      "CM": "Mão fechada (CM cg02 do INES)",
       "PA": "têmpora/lado da testa, do lado direito",
       "MOV": "a mão encosta na lateral da testa e a cabeça inclina para o lado da mão, como quem deita para dormir",
       "OR": "palma para o rosto",
@@ -4584,7 +4584,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com os dedos fechados e o indicador curvado sobre o polegar (CM cg05 do INES); mão esquerda aberta",
+      "CM": "Mão direita com os dedos fechados e o indicador curvado sobre o polegar (CM cg05 do INES); mão esquerda aberta",
       "PA": "diante do corpo, na altura da cintura/peito; antebraço direito na horizontal sobre a mão esquerda",
       "MOV": "a mão direita faz pequenos movimentos repetidos por cima da mão esquerda",
       "OR": "mão esquerda com a palma para cima; mão direita com a palma para baixo",
@@ -4610,7 +4610,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com indicador e mínimo estendidos, médio e anelar dobrados sob o polegar (CM cg37a do INES); braço esquerdo na horizontal",
+      "CM": "Mão direita com indicador e mínimo estendidos, médio e anelar dobrados sob o polegar (CM cg37a do INES); braço esquerdo na horizontal",
       "PA": "sobre o antebraço esquerdo, diante do corpo",
       "MOV": "a mão direita bate de leve, de cima para baixo, sobre o antebraço esquerdo, algumas vezes",
       "OR": "antebraço esquerdo com a palma para baixo; mão direita com os dedos para baixo",
@@ -4636,7 +4636,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "letras do alfabeto manual S, A, L, A",
+      "CM": "Letras do alfabeto manual S, A, L, A",
       "PA": "espaço neutro, à frente do ombro direito",
       "MOV": "soletra S-A-L-A com o alfabeto manual",
       "OR": "palma para a frente",
@@ -4662,7 +4662,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com indicador e mínimo estendidos para baixo, médio e anelar dobrados (CM cg37a do INES)",
+      "CM": "As duas mãos com indicador e mínimo estendidos para baixo, médio e anelar dobrados (CM cg37a do INES)",
       "PA": "diante do corpo, na altura da cintura; mãos afastadas na horizontal",
       "MOV": "as duas mãos, com os dedos apontando para baixo, fazem um pequeno movimento para baixo, como os pés de uma cama",
       "OR": "palmas para baixo/para trás, dedos para baixo",
@@ -4688,7 +4688,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos (CM cg62 do INES)",
+      "CM": "As duas mãos abertas, dedos unidos (CM cg62 do INES)",
       "PA": "diante do peito",
       "MOV": "as mãos começam juntas no centro e se afastam para os lados na horizontal, desenhando o tampo da mesa",
       "OR": "palmas para baixo",
@@ -4714,7 +4714,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido, demais dedos fechados (CM cg14 do INES)",
+      "CM": "Indicador estendido, demais dedos fechados (CM cg14 do INES)",
       "PA": "diante do peito, do lado direito",
       "MOV": "o indicador aponta para baixo e faz um pequeno movimento para baixo, uma ou duas vezes",
       "OR": "palma para trás, indicador para baixo",
@@ -4739,7 +4739,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos em O, dedos curvados tocando o polegar (CM cg42 do INES)",
+      "CM": "As duas mãos em O, dedos curvados tocando o polegar (CM cg42 do INES)",
       "PA": "diante do peito, no centro",
       "MOV": "as mãos ficam bem próximas, quase se tocando, com pequenos movimentos de aproximar",
       "OR": "palmas para dentro/para baixo, mãos uma de frente para a outra",
@@ -4765,7 +4765,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador estendido, demais dedos fechados (CM cg14 do INES)",
+      "CM": "Indicador estendido, demais dedos fechados (CM cg14 do INES)",
       "PA": "começa diante do ombro direito e termina no alto, à direita",
       "MOV": "o indicador sobe e se afasta para a direita e para cima em um arco longo, com o braço esticando",
       "OR": "palma para a frente, indicador para cima",
@@ -4817,7 +4817,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "indicador dobrado/estendido, demais dedos fechados (CM cg15 do INES)",
+      "CM": "Indicador dobrado/estendido, demais dedos fechados (CM cg15 do INES)",
       "PA": "centro da testa",
       "MOV": "o indicador desenha uma cruz na testa: um traço vertical e depois um traço horizontal",
       "OR": "palma para a esquerda/para o rosto",
@@ -4869,7 +4869,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos fechadas (CM cg02 do INES)",
+      "CM": "As duas mãos fechadas (CM cg02 do INES)",
       "PA": "diante do peito, mãos lado a lado",
       "MOV": "as mãos fechadas fazem pequenos movimentos alternados para a frente e para trás",
       "OR": "palmas para baixo",
@@ -4895,7 +4895,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta com os dedos unidos e dobrados na base (CM cg53a do INES)",
+      "CM": "Mão aberta com os dedos unidos e dobrados na base (CM cg53a do INES)",
       "PA": "lado direito do pescoço, abaixo do queixo",
       "MOV": "as pontas dos dedos encostam no lado do pescoço com pequenos toques repetidos",
       "OR": "palma para baixo, pontas dos dedos para o pescoço",
@@ -4921,7 +4921,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão em R: indicador e médio cruzados, demais dedos fechados (CM cg25 do INES)",
+      "CM": "Mão em R: indicador e médio cruzados, demais dedos fechados (CM cg25 do INES)",
       "PA": "bochecha, ao lado da boca",
       "MOV": "a mão encosta ao lado da boca com pequeno movimento para baixo",
       "OR": "palma para o rosto/para a esquerda, dedos para cima",
@@ -4947,7 +4947,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita fechada (CM cg02 do INES); mão esquerda aberta",
+      "CM": "Mão direita fechada (CM cg02 do INES); mão esquerda aberta",
       "PA": "diante do corpo, mão direita sobre a palma esquerda",
       "MOV": "a mão fechada gira em pequenos círculos sobre a palma esquerda, como um pilão",
       "OR": "palma esquerda para cima; mão direita com a palma para baixo",
@@ -4972,7 +4972,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos e polegar afastado (CM cg63 do INES)",
+      "CM": "As duas mãos abertas, dedos unidos e polegar afastado (CM cg63 do INES)",
       "PA": "diante do peito; antebraços na horizontal, um acima do outro (direito em cima)",
       "MOV": "os antebraços deslizam em sentidos opostos, para lá e para cá, algumas vezes",
       "OR": "palmas para baixo; mão direita apontando para a esquerda, mão esquerda para a direita",
@@ -4998,7 +4998,7 @@
     "category": "lugares",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos e polegar afastado (CM cg63 do INES)",
+      "CM": "As duas mãos abertas, dedos unidos e polegar afastado (CM cg63 do INES)",
       "PA": "diante do corpo; mão esquerda aberta ao lado, mão direita à frente do peito",
       "MOV": "a mão direita dobra o punho para baixo e para cima algumas vezes (ondas); a mão esquerda fica parada",
       "OR": "mão esquerda com a palma para cima; mão direita com a palma para baixo",
@@ -5024,7 +5024,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com o indicador estendido e os outros dedos fechados (configuração em 1)",
+      "CM": "Mão direita com o indicador estendido e os outros dedos fechados (configuração em 1)",
       "PA": "começa na frente do peito e termina ao lado do ombro direito",
       "MOV": "Forma base (INES): o indicador começa na frente do peito apontando para a esquerda e faz um arco para fora e para cima, terminando ao lado do ombro direito com o indicador para cima. No espaço: IR se orienta pelo lugar; o movimento sai de onde a pessoa está e vai em direção ao lugar de destino (EU-IR-LÁ: de quem sinaliza para o ponto do espaço que representa o lugar).",
       "OR": "indicador apontando para a esquerda -> para cima",
@@ -5050,7 +5050,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com o indicador estendido (configuração em 1)",
+      "CM": "Mão direita com o indicador estendido (configuração em 1)",
       "PA": "começa no alto, ao lado da cabeça, e termina na frente do corpo, na altura da barriga",
       "MOV": "Forma base (INES): a mão desce em arco, de longe e do alto para perto do corpo, terminando com o indicador apontando para baixo. No espaço: VIR vai do lugar de origem até onde a pessoa chega, em geral perto de quem sinaliza (ELE-VIR-AQUI: do ponto do espaço onde está a pessoa ou o lugar de origem até quem sinaliza).",
       "OR": "indicador para cima -> para baixo",
@@ -5076,7 +5076,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos começam com as pontas dos dedos unidas e se abrem, terminando com os dedos separados (mão aberta)",
+      "CM": "As duas mãos começam com as pontas dos dedos unidas e se abrem, terminando com os dedos separados (mão aberta)",
       "PA": "na frente do peito",
       "MOV": "Forma base (INES): as mãos saem da frente do peito e se afastam do corpo abrindo os dedos, terminando com as palmas para cima. Concordância: o movimento sai de quem dá e vai até quem recebe. EU-DAR-VOCÊ: do peito de quem sinaliza para o interlocutor; VOCÊ-DAR-EU: do interlocutor em direção a quem sinaliza; EU-DAR-ELES (1sDAR3p, exemplo do INES): de quem sinaliza para o ponto do espaço onde estão as outras pessoas.",
       "OR": "dedos unidos, palmas para dentro -> mãos abertas, palmas para cima",
@@ -5102,7 +5102,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão esquerda aberta, dedos unidos e estendidos para cima; mão direita apoiando por baixo do punho esquerdo",
+      "CM": "Mão esquerda aberta, dedos unidos e estendidos para cima; mão direita apoiando por baixo do punho esquerdo",
       "PA": "na frente do peito, um pouco à esquerda",
       "MOV": "Forma base (INES, AJUDAR2): a mão direita vem de cima e se encaixa por baixo do punho esquerdo, apoiando a mão esquerda, que fica em pé. Concordância: o conjunto se desloca de quem ajuda para quem é ajudado. EU-AJUDAR-VOCÊ (1sAJUDAR2s, exemplo do INES): da pessoa que sinaliza para o interlocutor; VOCÊ-AJUDAR-EU: do interlocutor para quem sinaliza.",
       "OR": "mão esquerda com a palma para a direita e os dedos para cima; mão direita por baixo, palma para cima",
@@ -5128,7 +5128,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em Y (polegar e mínimo estendidos, demais dedos fechados)",
+      "CM": "Mão direita em Y (polegar e mínimo estendidos, demais dedos fechados)",
       "PA": "começa junto da boca, com o polegar perto do canto da boca, e termina na frente do ombro direito",
       "MOV": "Forma base (INES): a mão sai da boca para frente, terminando com o mínimo para cima. Concordância: vai de quem avisa para quem é avisado. EU-AVISAR-VOCÊ: da boca de quem sinaliza em direção ao interlocutor; VOCÊ-AVISAR-EU: do interlocutor em direção a quem sinaliza; 1sAVISAR3s (exemplo do INES): de quem sinaliza para o ponto de outra pessoa.",
       "OR": "mínimo para cima, polegar para o lado",
@@ -5154,7 +5154,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em A (fechada, polegar ao lado); mão esquerda com a palma para baixo",
+      "CM": "Mão direita em A (fechada, polegar ao lado); mão esquerda com a palma para baixo",
       "PA": "antebraço direito em pé, com o cotovelo apoiado sobre o dorso da mão esquerda, na frente do corpo",
       "MOV": "o antebraço direito balança de um lado para o outro algumas vezes, girando a partir do cotovelo",
       "OR": "palma direita para a esquerda; palma esquerda para baixo",
@@ -5180,7 +5180,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com o indicador estendido (configuração em 1, segundo a ficha do INES)",
+      "CM": "As duas mãos com o indicador estendido (configuração em 1, segundo a ficha do INES)",
       "PA": "na frente do peito, um pouco à esquerda",
       "MOV": "Forma base: a mão esquerda fica com o indicador para cima e o indicador direito, na horizontal, cruza por cima dela; o conjunto se move um pouco para frente. Concordância: o movimento vai de quem pergunta para quem é perguntado. EU-PERGUNTAR-VOCÊ: de quem sinaliza para o interlocutor; VOCÊ-PERGUNTAR-EU: do interlocutor para quem sinaliza; 2sPERGUNTAR3s (exemplo do INES): do interlocutor para o ponto de outra pessoa.",
       "OR": "indicador direito apontando para a esquerda; indicador esquerdo para cima",
@@ -5206,7 +5206,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com o indicador e o médio estendidos e cruzados (letra R)",
+      "CM": "Mão direita com o indicador e o médio estendidos e cruzados (letra R)",
       "PA": "começa nos lábios e termina na frente do ombro",
       "MOV": "Forma base (INES): a mão sai da boca para frente e um pouco para baixo, com os dedos para cima. Concordância: vai de quem responde para quem recebe a resposta. EU-RESPONDER-VOCÊ: da boca de quem sinaliza em direção ao interlocutor; ELE-RESPONDER-EU (3sRESPONDER1s, exemplo do INES): o movimento vem do ponto da outra pessoa em direção a quem sinaliza.",
       "OR": "dedos para cima",
@@ -5232,7 +5232,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos e estendidos",
+      "CM": "As duas mãos abertas, dedos unidos e estendidos",
       "PA": "na frente do peito",
       "MOV": "a mão direita fica sobre o dorso da esquerda e faz um pequeno vaivém repetido",
       "OR": "palmas para baixo",
@@ -5258,7 +5258,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em V (indicador e médio estendidos e separados)",
+      "CM": "Mão direita em V (indicador e médio estendidos e separados)",
       "PA": "começa perto dos olhos e termina na frente do ombro direito",
       "MOV": "Forma base (INES, VER2): a mão sai dos olhos para frente. Com concordância, os dedos se movem na direção de quem ou do que é visto: EU-VER-ELE (1sVER3s, exemplo do verbete APLAUDIR2 do INES): dos olhos de quem sinaliza para o ponto da outra pessoa.",
       "OR": "dedos para cima e para frente",
@@ -5284,7 +5284,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em V (indicador e médio estendidos e separados)",
+      "CM": "Mão direita em V (indicador e médio estendidos e separados)",
       "PA": "começa junto aos olhos",
       "MOV": "Forma base (INES, OLHAR1): a mão sai dos olhos para frente, com os dedos apontando para o que é olhado. Concordância: EU-OLHAR-VOCÊ (1sOLHAR2s, exemplo do INES): os dedos saem dos olhos de quem sinaliza em direção ao interlocutor; VOCÊ-OLHAR-EU: o movimento vai do lugar do interlocutor em direção a quem sinaliza.",
       "OR": "dedos para cima e para frente",
@@ -5310,7 +5310,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos começam com as pontas dos dedos unidas e se abrem com os dedos separados e curvados",
+      "CM": "As duas mãos começam com as pontas dos dedos unidas e se abrem com os dedos separados e curvados",
       "PA": "na frente do peito, na altura dos ombros",
       "MOV": "Forma base (INES): as mãos se projetam para frente abrindo os dedos, duas vezes. Concordância: vai de quem ensina para quem aprende. EU-ENSINAR-VOCÊ: de quem sinaliza para o interlocutor; ELE-ENSINAR-EU (3sENSINAR1s, exemplo do INES): do ponto da outra pessoa em direção a quem sinaliza.",
       "OR": "palmas para frente e para baixo",
@@ -5336,7 +5336,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos em L (indicador e polegar estendidos)",
+      "CM": "As duas mãos em L (indicador e polegar estendidos)",
       "PA": "na frente do peito",
       "MOV": "as mãos fazem movimentos alternados para frente e para trás, repetidos",
       "OR": "palmas para baixo, indicadores apontando para frente",
@@ -5362,7 +5362,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos e polegar separado",
+      "CM": "As duas mãos abertas, dedos unidos e polegar separado",
       "PA": "na frente do peito; a mão esquerda serve de base",
       "MOV": "a mão direita bate de leve, algumas vezes, sobre a palma da mão esquerda",
       "OR": "palma esquerda para cima; mão direita com os dedos para frente, sobre a esquerda",
@@ -5388,7 +5388,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em C, que se fecha",
+      "CM": "Mão direita em C, que se fecha",
       "PA": "testa",
       "MOV": "a mão encosta na testa e se fecha (C -> mão fechada)",
       "OR": "palma voltada para a testa",
@@ -5414,7 +5414,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em V; mão esquerda aberta, como um livro (base)",
+      "CM": "Mão direita em V; mão esquerda aberta, como um livro (base)",
       "PA": "na frente do peito, sobre a palma esquerda",
       "MOV": "os dedos do V, apontados para a palma esquerda, passam por ela de cima para baixo, como olhos lendo as linhas",
       "OR": "V com as pontas dos dedos para baixo; palma esquerda para cima, voltada para quem sinaliza",
@@ -5440,7 +5440,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com indicador e polegar juntos, como quem segura um lápis; mão esquerda aberta (base)",
+      "CM": "Mão direita com indicador e polegar juntos, como quem segura um lápis; mão esquerda aberta (base)",
       "PA": "na frente do peito, sobre a palma esquerda",
       "MOV": "a mão direita faz pequenos movimentos de escrita sobre a palma esquerda",
       "OR": "palma esquerda voltada para a direita, dedos para frente",
@@ -5466,7 +5466,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos em I (só o dedo mínimo estendido)",
+      "CM": "As duas mãos em I (só o dedo mínimo estendido)",
       "PA": "na frente do peito, mãos próximas",
       "MOV": "pequenos movimentos alternados e repetidos das duas mãos",
       "OR": "palmas voltadas para o corpo, mínimos para cima",
@@ -5492,7 +5492,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta, dedos unidos e estendidos",
+      "CM": "Mão aberta, dedos unidos e estendidos",
       "PA": "bochecha (lado do rosto)",
       "MOV": "a mão encosta na bochecha e a cabeça inclina para o lado da mão, como quem deita no travesseiro",
       "OR": "palma voltada para o rosto",
@@ -5518,7 +5518,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com indicador e polegar: começam unidos e se abrem em L",
+      "CM": "Mão direita com indicador e polegar: começam unidos e se abrem em L",
       "PA": "ao lado do olho direito",
       "MOV": "indicador e polegar se separam, como um olho que se abre, e a mão se afasta um pouco do rosto",
       "OR": "palma para frente",
@@ -5544,7 +5544,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão com os dedos separados e curvados (garra)",
+      "CM": "Mão com os dedos separados e curvados (garra)",
       "PA": "na frente do corpo, na altura do peito",
       "MOV": "a mão puxa em direção ao corpo, curvando um pouco mais os dedos, duas vezes",
       "OR": "palma para cima",
@@ -5570,7 +5570,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos fechadas (punho com o polegar por cima dos dedos, letra S)",
+      "CM": "As duas mãos fechadas (punho com o polegar por cima dos dedos, letra S)",
       "PA": "na frente do peito, na altura dos ombros",
       "MOV": "as duas mãos descem juntas, com firmeza, duas vezes",
       "OR": "punhos voltados para frente",
@@ -5596,7 +5596,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com o indicador dobrado em gancho e os demais dedos fechados (configuração do INES)",
+      "CM": "As duas mãos com o indicador dobrado em gancho e os demais dedos fechados (configuração do INES)",
       "PA": "na frente do peito",
       "MOV": "as duas mãos descem juntas, dobrando o punho, duas ou três vezes",
       "OR": "palmas para baixo",
@@ -5622,7 +5622,7 @@
     "category": "verbos",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita com o indicador estendido (a ficha do INES indica indicador e médio, cg11); mão esquerda aberta, palma para cima (base)",
+      "CM": "Mão direita com o indicador estendido (a ficha do INES indica indicador e médio, cg11); mão esquerda aberta, palma para cima (base)",
       "PA": "a direita sai da altura do ombro direito e para sobre a palma esquerda, na frente do corpo",
       "MOV": "a mão direita desce em diagonal, da direita para a esquerda, até ficar sobre a palma esquerda",
       "OR": "indicador direito apontando para a esquerda e para cima; palma esquerda para cima",
@@ -5962,7 +5962,7 @@
     "category": "numeros",
     "recognition": "dynamic",
     "params": {
-      "CM": "polegar, indicador e médio estendidos (indicador e médio para cima e afastados) -> indicador e médio dobram até tocar a ponta do polegar, formando um círculo",
+      "CM": "Polegar, indicador e médio estendidos (indicador e médio para cima e afastados) -> indicador e médio dobram até tocar a ponta do polegar, formando um círculo",
       "PA": "espaço neutro em frente ao ombro, na altura do queixo",
       "MOV": "abre os três dedos e depois fecha indicador e médio sobre o polegar, no mesmo lugar",
       "OR": "palma para frente",
@@ -6118,7 +6118,7 @@
     "category": "dinheiro",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o indicador curvado e a ponta do polegar encostada na ponta do indicador",
+      "CM": "Mão fechada com o indicador curvado e a ponta do polegar encostada na ponta do indicador",
       "PA": "espaço neutro em frente ao ombro, na altura do peito",
       "MOV": "o polegar esfrega a ponta do indicador várias vezes",
       "OR": "pontas dos dedos para cima, palma voltada para o centro do corpo",
@@ -6144,7 +6144,7 @@
     "category": "dinheiro",
     "recognition": "dynamic",
     "params": {
-      "CM": "letras do alfabeto manual em sequência: R, E, A, L",
+      "CM": "Letras do alfabeto manual em sequência: R, E, A, L",
       "PA": "espaço neutro em frente ao ombro, na altura do peito/queixo",
       "MOV": "soletra R-E-A-L, trocando a configuração de mão no mesmo lugar",
       "OR": "palma para frente",
@@ -6170,7 +6170,7 @@
     "category": "dinheiro",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão fechada com o indicador curvado e a ponta do polegar encostada na ponta do indicador (igual a DINHEIRO)",
+      "CM": "Mão fechada com o indicador curvado e a ponta do polegar encostada na ponta do indicador (igual a DINHEIRO)",
       "PA": "espaço neutro em frente ao peito, do lado da mão direita",
       "MOV": "o polegar esfrega a ponta do indicador várias vezes",
       "OR": "pontas dos dedos para cima, palma voltada para o centro do corpo",
@@ -6196,7 +6196,7 @@
     "category": "dinheiro",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita: começa fechada e se abre, com os dedos estendidos e afastados; mão esquerda: aberta, dedos estendidos",
+      "CM": "Mão direita: começa fechada e se abre, com os dedos estendidos e afastados; mão esquerda: aberta, dedos estendidos",
       "PA": "mão direita sobe até a altura da cabeça e desce até a palma da mão esquerda, que fica parada em frente ao peito",
       "MOV": "a mão direita sobe fechada e desce abrindo, batendo os dedos na palma da mão esquerda, e fica ali um instante",
       "OR": "mão esquerda com a palma para cima; mão direita com a palma para baixo ao bater",
@@ -6222,7 +6222,7 @@
     "category": "dinheiro",
     "recognition": "dynamic",
     "params": {
-      "CM": "começa como DINHEIRO (polegar na ponta do indicador) e passa para mão aberta, dedos estendidos e afastados",
+      "CM": "Começa como DINHEIRO (polegar na ponta do indicador) e passa para mão aberta, dedos estendidos e afastados",
       "PA": "começa em frente ao ombro e sobe até a altura da cabeça, ao lado do rosto; depois desce até a frente do peito",
       "MOV": "a mão sobe até a cabeça e desce abrindo e sacudindo, com a palma para baixo; o movimento de descida se repete duas vezes",
       "OR": "no começo, pontas dos dedos para cima; na descida, palma para baixo",
@@ -6248,7 +6248,7 @@
     "category": "dinheiro",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão aberta, dedos estendidos e afastados",
+      "CM": "Mão aberta, dedos estendidos e afastados",
       "PA": "espaço neutro em frente ao peito, do lado da mão direita",
       "MOV": "o pulso gira várias vezes, alternando a mão com dedos para cima e palma para frente e a mão com dedos para frente e palma para baixo",
       "OR": "alterna palma para frente e palma para baixo",
@@ -6274,7 +6274,7 @@
     "category": "cultura",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita aberta, dedos unidos e polegar separado",
+      "CM": "Mão direita aberta, dedos unidos e polegar separado",
       "PA": "lado esquerdo do peito (altura do coração)",
       "MOV": "a mão encosta no lado esquerdo do peito e dá pequenas batidas repetidas",
       "OR": "palma voltada para o peito, dedos para a esquerda",
@@ -6300,7 +6300,7 @@
     "category": "cultura",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com o indicador estendido para cima (configuração em 1)",
+      "CM": "As duas mãos com o indicador estendido para cima (configuração em 1)",
       "PA": "na frente do peito",
       "MOV": "as mãos vêm de lados opostos e se juntam na frente do corpo, lado a lado",
       "OR": "indicadores para cima",
@@ -6326,7 +6326,7 @@
     "category": "cultura",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita aberta, dedos separados",
+      "CM": "Mão direita aberta, dedos separados",
       "PA": "na frente do corpo, à direita, na altura do peito",
       "MOV": "a mão desce lentamente, como quem pede calma, e repete o movimento (duas vezes no vídeo)",
       "OR": "palma para frente -> para baixo",
@@ -6352,7 +6352,7 @@
     "category": "cultura",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em L (indicador e polegar estendidos)",
+      "CM": "Mão direita em L (indicador e polegar estendidos)",
       "PA": "na frente do ombro e do peito, lado direito",
       "MOV": "começa com o indicador para cima e gira o punho para frente e para baixo, terminando com o indicador apontando para frente e para baixo",
       "OR": "indicador para cima -> para baixo",
@@ -6378,7 +6378,7 @@
     "category": "cultura",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos com os dedos separados e curvados",
+      "CM": "As duas mãos com os dedos separados e curvados",
       "PA": "na frente do peito",
       "MOV": "as mãos giram uma em volta da outra e terminam cruzadas na frente do peito",
       "OR": "palmas voltadas uma para a outra",
@@ -6404,7 +6404,7 @@
     "category": "cultura",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em C; braço esquerdo dobrado na horizontal na frente do corpo (base)",
+      "CM": "Mão direita em C; braço esquerdo dobrado na horizontal na frente do corpo (base)",
       "PA": "sobre o antebraço esquerdo",
       "MOV": "a mão direita em C desliza sobre o antebraço esquerdo, do cotovelo em direção ao punho",
       "OR": "C de lado, com a abertura voltada para o antebraço esquerdo",
@@ -6430,7 +6430,7 @@
     "category": "cultura",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos unidos e polegar separado",
+      "CM": "As duas mãos abertas, dedos unidos e polegar separado",
       "PA": "na frente do peito; a mão esquerda serve de base",
       "MOV": "a mão direita, sobre a palma esquerda, gira o punho alternando palma para baixo e palma para cima, duas vezes",
       "OR": "palma esquerda para cima; palma direita para baixo <-> para cima",
@@ -6456,7 +6456,7 @@
     "category": "cultura",
     "recognition": "dynamic",
     "params": {
-      "CM": "polegar, indicador e médio estendidos (configuração do INES); no vídeo, o indicador aponta para a boca",
+      "CM": "Polegar, indicador e médio estendidos (configuração do INES); no vídeo, o indicador aponta para a boca",
       "PA": "lábios",
       "MOV": "o indicador toca os lábios e se afasta um pouco, duas vezes",
       "OR": "dedos apontando para a boca",
@@ -6482,7 +6482,7 @@
     "category": "cultura",
     "recognition": "dynamic",
     "params": {
-      "CM": "mão direita em A (fechada, polegar ao lado)",
+      "CM": "Mão direita em A (fechada, polegar ao lado)",
       "PA": "ao lado do ombro direito, na altura do rosto",
       "MOV": "a mão faz pequenos círculos repetidos",
       "OR": "palma para frente",
@@ -6508,7 +6508,7 @@
     "category": "cultura",
     "recognition": "dynamic",
     "params": {
-      "CM": "as duas mãos abertas, dedos separados",
+      "CM": "As duas mãos abertas, dedos separados",
       "PA": "acima dos ombros, dos dois lados da cabeça",
       "MOV": "as mãos sobem e os punhos giram rapidamente para um lado e para o outro, tremulando",
       "OR": "palmas para frente",

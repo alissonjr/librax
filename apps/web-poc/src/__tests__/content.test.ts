@@ -641,6 +641,25 @@ describe('signsMap', () => {
     });
   });
 
+  it('textos mostrados do sinal estao em portugues com acento (sem "mao", "medio", "espaco"...)', () => {
+    // Formas sem acento que ja apareceram no conteudo; em maiusculas e glosa citada, fica de fora
+    const semAcento = new Set([
+      'mao', 'maos', 'medio', 'minimo', 'espaco', 'rapido', 'tres', 'angulo', 'ate', 'balanca', 'balancando',
+      'circulo', 'comeca', 'direcao', 'so', 'traca', 'tras', 'vitoria', 'voce', 'nao',
+    ]);
+    for (const s of Object.values(signsMap)) {
+      const texts = { ...s.params, video_caption: s.video_caption };
+      for (const [field, text] of Object.entries(texts)) {
+        const wrong = text.split(/[^\p{L}\p{N}]+/u).filter((w) => w !== w.toUpperCase() && semAcento.has(w.toLowerCase()));
+        expect(wrong, `${s.id}.${field}`).toEqual([]);
+        expect(text, `${s.id}.${field}`).not.toMatch(/[–—]/u);
+      }
+      // A CM aparece sozinha como descricao no sign_intro: comeca com maiuscula (ou numero, "1) ...")
+      expect(s.params.CM, s.id).toMatch(/^[\p{Lu}\p{N}]/u);
+      expect(s.video_caption, s.id).toMatch(/^[\p{Lu}\p{N}]/u);
+    }
+  });
+
   it('glosas sao unicas (as opcoes de multipla escolha dependem disso)', () => {
     const glosses = Object.values(signsMap).map((s) => s.gloss);
     expect(new Set(glosses).size).toBe(glosses.length);

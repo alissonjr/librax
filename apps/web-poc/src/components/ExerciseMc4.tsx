@@ -37,7 +37,9 @@ export function ExerciseMc4({ sign, choices, onAnswer, onNext }: Props) {
     return 'mc-choice mc-choice--dimmed';
   }
 
-  const movNote = sign.recognition === 'dynamic' ? ` ${t('exerciseMc4.movementNote', { mov: sign.params.MOV })}` : '';
+  // A nota já fecha com ponto: tira o do fim do MOV (os verbos direcionais trazem frases inteiras)
+  const mov = sign.params.MOV.replace(/\.+$/, '');
+  const movNote = sign.recognition === 'dynamic' ? ` ${t('exerciseMc4.movementNote', { mov })}` : '';
   // A nota de movimento também cita sinais (ex.: "sinal HOMEM" no de PAI): mascara junto
   const fullText = sign.video_caption + movNote;
   const description = state === 'waiting' ? maskChoiceCaption(fullText, sign.gloss, choices) : fullText;
