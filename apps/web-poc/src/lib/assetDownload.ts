@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { CLASSIFIER_DIR, HAND_MODEL_URL, MEDIAPIPE_WASM_DIR } from '../recognition/mlAssets';
+import { CLASSIFIER_DIR, HAND_MODEL_URL, MEDIAPIPE_WASM_DIR, POSE_MODEL_URL, SIGN_MODEL_DIR } from '../recognition/mlAssets';
 import { whenSplashDone } from './splash';
 
 /**
@@ -45,16 +45,33 @@ export async function simdSupported(): Promise<boolean> {
 /**
  * Arquivos da câmera, nos endereços que o landmarker.ts e o classifier.ts pedem. Tamanhos da versão
  * fixada em mlAssets.ts (o teste assetDownload.test.ts confere quando public/ml/ existe).
+ * Com `signs` (há modelo de sinais publicado, ver signModel.ts), também o modelo do corpo e o dos
+ * sinais com movimento; sem ele, nada disso é baixado.
  */
-export function cameraFiles(simd: boolean): AssetFile[] {
+export function cameraFiles(simd: boolean, signs = false): AssetFile[] {
   const wasm = simd ? 'vision_wasm_internal' : 'vision_wasm_nosimd_internal';
-  return [
+  const files: AssetFile[] = [
     { url: `${MEDIAPIPE_WASM_DIR}/${wasm}.js`, bytes: simd ? 334_128 : 333_931 },
     { url: `${MEDIAPIPE_WASM_DIR}/${wasm}.wasm`, bytes: simd ? 13_519_922 : 12_627_509 },
     { url: HAND_MODEL_URL, bytes: 7_819_105 },
     { url: `${CLASSIFIER_DIR}/model.json`, bytes: 1_000, optional: true },
     { url: `${CLASSIFIER_DIR}/weights.bin`, bytes: 75_000, optional: true },
   ];
+  if (signs) {
+    files.push(
+      { url: POSE_MODEL_URL, bytes: 5_777_746 },
+      // O tamanho dos pesos muda com o número de glosas: é só a estimativa até o Content-Length
+      { url: `${SIGN_MODEL_DIR}/model.json`, bytes: 1_000, optional: true },
+      { url: `${SIGN_MODEL_DIR}/weights.bin`, bytes: 1_300_000, optional: true },
+    );
+  }
+  return files;
+}
+
+/** Há modelo de sinais publicado? (lê o model.json uma vez por sessão; módulo carregado só aqui) */
+export async function signModelPublished(): Promise<boolean> {
+  const { loadSignIndex } = await import('../recognition/signModel');
+  return (await loadSignIndex()).size > 0;
 }
 
 /* ---------- conexão ---------- */
@@ -391,7 +408,8 @@ export function scheduleCameraPrefetch(): void {
     await idle();
     // A pessoa já pediu tudo nas Configurações: aquele download inclui a câmera
     if (!shouldPrefetch(connection()) || controllers.offline) return;
-    await runDownload('camera', cameraFiles(await simdSupported()));
+    const [simd, signs] = await Promise.all([simdSupported(), signModelPublished()]);
+    await runDownload('camera', cameraFiles(simd, signs));
   })();
 }
 

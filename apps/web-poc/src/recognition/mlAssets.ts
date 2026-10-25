@@ -15,3 +15,12 @@ export const MEDIAPIPE_WASM_URL = `${MEDIAPIPE_WASM_DIR}/vision_wasm_internal.wa
 
 /** Classificador treinado (model.json + weights.bin). Se não existir, vale o heurístico. */
 export const CLASSIFIER_DIR = '/ml/classifier';
+
+/**
+ * PoseLandmarker lite (o mesmo do treino dos sinais com movimento): só carrega nos exercícios de
+ * sinal com movimento, e só entra no download em segundo plano quando há modelo de sinais.
+ */
+export const POSE_MODEL_URL = `${ML_BASE}/pose_landmarker_lite.task`;
+
+/** Modelo dos sinais com movimento (ml-training/train_sinais.py). Se não existir, nada muda. */
+export const SIGN_MODEL_DIR = '/ml/sinais';

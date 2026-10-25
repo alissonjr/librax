@@ -242,6 +242,16 @@ export default defineConfig(({ mode }) => {
                 cacheableResponse: { statuses: [200] },
               },
             },
+            // Modelo dos sinais com movimento (/ml/sinais/): mesma regra do classificador das letras
+            {
+              urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/ml/sinais/'),
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'librax-sinais-v1',
+                expiration: { maxEntries: 4 },
+                cacheableResponse: { statuses: [200] },
+              },
+            },
             {
               urlPattern: /\.mp4$/,
               handler: 'CacheFirst',

@@ -17,7 +17,7 @@ npm run build          # build de produção em dist/
 `dev`, `dev:celular`, `dev:local` e `build` rodam antes o `npm run ml:assets`, que prepara `public/ml/<versão>/`:
 
 - copia o WASM do `@mediapipe/tasks-vision` (versão fixada sem `^` no `package.json`);
-- baixa o modelo `hand_landmarker.task` **uma única vez** para `.cache/ml/`, confere o SHA-256 e copia. Depois disso funciona sem internet.
+- baixa os modelos `hand_landmarker.task` e `pose_landmarker_lite.task` **uma única vez** para `.cache/ml/`, confere o SHA-256 e copia. Depois disso funciona sem internet. O de pose (corpo, 5,8 MB) só é pedido pelo app nos sinais com movimento, e só quando há modelo de sinais (abaixo).
 
 Nada de ML vem de CDN em tempo de execução. As duas pastas são geradas e ficam fora do git.
 
@@ -61,6 +61,7 @@ Atenção: o túnel deixa o servidor de desenvolvimento acessível pela internet
 
 ## Arquivos de ML em produção
 
-- Caminhos: `/ml/<versão>/wasm/` e `/ml/<versão>/hand_landmarker.task` (`src/recognition/mlAssets.ts`); classificador treinado em `/ml/classifier/model.json` + `weights.bin`.
+- Caminhos: `/ml/<versão>/wasm/`, `/ml/<versão>/hand_landmarker.task` e `/ml/<versão>/pose_landmarker_lite.task` (`src/recognition/mlAssets.ts`); classificador treinado em `/ml/classifier/model.json` + `weights.bin`.
+- Sinais com movimento: `python ml-training/train_sinais.py treinar --out out/sinais` e copie `model.json` e `weights.bin` (o `golden.json` não) para `public/ml/sinais/`. Com eles, o `perform_sign` de cada glosa do modelo passa a ser avaliado pela câmera (mãos e corpo, `src/recognition/signRecognizer.ts`) e o download em segundo plano inclui o modelo do corpo; sem eles, nada muda (prática livre). O teste `sinaisParidade.test.ts` confere o `golden.json` quando ele está junto ou em `LIBRAX_SINAIS_DIR`.
 - O `.wasm` precisa ir com `Content-Type: application/wasm` (no dev e no `vite preview` isso é garantido pelo `vite.config.ts`; no S3/CloudFront, definir no upload). Como a versão está na URL, `/ml/<versão>/` pode ter `Cache-Control: immutable` e ir pré-comprimido em brotli.
-- Service worker (Workbox): `/ml/<versão>/` fica em cache em tempo de execução (CacheFirst), sem precache, porque os arquivos passam do limite de 2 MB. `/ml/classifier/` usa StaleWhileRevalidate porque a URL não tem versão.
+- Service worker (Workbox): `/ml/<versão>/` fica em cache em tempo de execução (CacheFirst), sem precache, porque os arquivos passam do limite de 2 MB. `/ml/classifier/` e `/ml/sinais/` usam StaleWhileRevalidate porque a URL não tem versão.

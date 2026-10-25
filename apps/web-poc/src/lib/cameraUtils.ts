@@ -52,9 +52,11 @@ export function drawSkeleton(
   h: number,
   confidence = 0,
   state: SkeletonState = skeletonState(confidence),
+  /** false desenha por cima do que já está no canvas (a segunda mão dos sinais com movimento). */
+  clear = true,
 ): void {
   if (!w || !h || landmarks.length < 21) return;
-  ctx.clearRect(0, 0, w, h);
+  if (clear) ctx.clearRect(0, 0, w, h);
 
   // O canvas tem a resolução do vídeo; escala as medidas para px de tela
   const shown = ctx.canvas?.clientWidth ?? 0;

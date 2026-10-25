@@ -1,6 +1,7 @@
 import signsRaw from '../assets/content/signs.json';
 import { course, type Phrase, type SourceRef } from './course';
 import { getClassifier } from '../recognition/classifier';
+import { getSignGlosses, loadSignIndex } from '../recognition/signModel';
 
 export interface Sign {
   id: string;
@@ -106,6 +107,11 @@ export interface Exercise {
   phrase?: Phrase;
   /** build_phrase: blocos embaralhados (glosas da frase + distratores). */
   tiles?: string[];
+  /**
+   * perform_sign: 'sinais' quando quem avalia é o modelo dos sinais com movimento (mãos e corpo,
+   * ExerciseCameraMotionSign); ausente nas letras (ExerciseCameraSign).
+   */
+  recognizer?: 'sinais';
 }
 
 // Os tipos e o curso continuam saindo daqui para quem já importa de content.ts
@@ -168,6 +174,17 @@ export function isCameraEvaluable(sign: Sign | undefined): boolean {
 }
 
 /**
+ * Sinal com movimento que a câmera avalia: a glosa está nos rótulos do modelo de sinais
+ * (/ml/sinais/model.json, lido pelo loadSignIndex antes de resolver a lição). Sem modelo, nenhum.
+ */
+export function isMotionSignEvaluable(sign: Sign | undefined): boolean {
+  return !!sign && getSignGlosses().has(sign.gloss);
+}
+
+/** Lê o model.json dos sinais uma vez por sessão; a rota da lição espera antes de resolver. */
+export { loadSignIndex };
+
+/**
  * Escolhe 3 distratores para as questoes de multipla escolha. Prefere sinais da
  * mesma categoria (letras com letras, numeros com numeros) e completa com o
  * restante se a categoria tiver poucos sinais. Nunca repete glosa.
@@ -216,6 +233,8 @@ export interface ResolveOptions {
   signsMap?: Record<string, Sign>;
   /** Se a camera deste aparelho avalia o sinal (padrao: isCameraEvaluable). */
   canEvaluate?: (sign: Sign | undefined) => boolean;
+  /** Se o modelo dos sinais com movimento avalia o sinal (padrao: isMotionSignEvaluable). */
+  canEvaluateMotion?: (sign: Sign | undefined) => boolean;
 }
 
 /**
@@ -223,8 +242,10 @@ export interface ResolveOptions {
  * - watch_choose_word sem `options` ganha 3 distratores (mesma categoria primeiro) e ordem sorteada;
  * - build_phrase sorteia os distratores e a ordem dos blocos;
  * - word_choose_video sorteia a ordem das 4 demonstracoes;
- * - perform_sign de sinal que a camera nao avalia vira mirror_practice (pratica livre, sem nota,
- *   para nao contar erro que a pessoa nao cometeu) e a pratica livre repetida do mesmo sinal sai;
+ * - perform_sign de letra avaliada fica com o classificador das letras; de sinal que o modelo de
+ *   sinais com movimento conhece, com ele (recognizer 'sinais'); senao vira mirror_practice
+ *   (pratica livre, sem nota, para nao contar erro que a pessoa nao cometeu) e a pratica livre
+ *   repetida do mesmo sinal sai;
  * - fingerspell so usa a camera quando ela avalia todas as letras da palavra; senao vira
  *   order_sequence com as letras (a pessoa poe as letras na ordem).
  * `lessonSignIds[0]` e o sinal de referencia dos exercicios que nao tem um sinal so.
@@ -233,6 +254,7 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
   const map = opts.signsMap ?? signsMap;
   const pool = opts.allSignIds ?? course.signsOrder;
   const canEvaluate = opts.canEvaluate ?? isCameraEvaluable;
+  const canEvaluateMotion = opts.canEvaluateMotion ?? isMotionSignEvaluable;
   const firstSign = lessonSignIds[0] ?? '';
   const mirrored = new Set<string>();
   const out: Exercise[] = [];
@@ -247,6 +269,8 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
         const signId = item.payload.sign_id;
         if (canEvaluate(map[signId])) {
           out.push({ id, type: 'perform_sign', signId });
+        } else if (canEvaluateMotion(map[signId])) {
+          out.push({ id, type: 'perform_sign', signId, recognizer: 'sinais' });
         } else {
           mirrored.add(signId);
           out.push({ id, type: 'mirror_practice', signId });
@@ -324,7 +348,7 @@ export async function loadLessonBundle(lessonId: string): Promise<BundleExercise
 export async function loadLessonExercises(lessonId: string): Promise<Exercise[] | null> {
   const lesson = course.lessonsMap[lessonId];
   if (!lesson) return null;
-  const items = await loadLessonBundle(lessonId);
+  const [items] = await Promise.all([loadLessonBundle(lessonId), loadSignIndex()]);
   return items ? resolveExercises(items, lesson.signIds) : null;
 }
 

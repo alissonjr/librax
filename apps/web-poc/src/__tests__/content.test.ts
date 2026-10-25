@@ -1,9 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import {
-  course, drawChoices, getSign, isCameraEvaluable, maskChoiceCaption, maskGloss, phraseTiles, resolveExercises, signsMap,
+  course, drawChoices, getSign, isCameraEvaluable, isMotionSignEvaluable, maskChoiceCaption, maskGloss, phraseTiles, resolveExercises, signsMap,
   type BundleExercise, type Exercise, type Phrase, type Sign,
 } from '../lib/content';
 import { RECOGNIZABLE_LETTERS } from '../components/ExerciseCameraSign';
+import { setSignModelForTests } from '../recognition/signModel';
+import type { MlpModel } from '../recognition/mlp';
 import { evaluateAchievements } from '@domain/achievements.js';
 import {
   composeCourse, composeLessonExercises, knownGlossCount, lessonFile, normalizeGloss, numberExercises,
@@ -341,6 +343,52 @@ describe('licoes com sinais que a camera nao avalia', () => {
       expect(e.choices).toContain('OI');
       expect(e.choices).toContain('TCHAU');
     });
+  });
+});
+
+describe('sinais com movimento avaliados pelo modelo de sinais (/ml/sinais/)', () => {
+  const map: Record<string, Sign> = {
+    'sinal-OI': fakeSign('sinal-OI', 'OI', 'saudacoes', 'dynamic'),
+    'sinal-TCHAU': fakeSign('sinal-TCHAU', 'TCHAU', 'saudacoes', 'dynamic'),
+    'letra-A': fakeSign('letra-A', 'A', 'alfabeto', 'static'),
+  };
+  const ids = Object.keys(map);
+  const fakeModel = (labels: string[]) => ({ labels, normalizationVersion: 2, inputDim: 1120, layers: [] }) as MlpModel;
+
+  afterEach(() => setSignModelForTests(null));
+
+  it('sem modelo publicado nada muda: sinal com movimento continua prática livre', () => {
+    const ex = lessonFor(['sinal-OI', 'sinal-TCHAU'], map, ids);
+    expect(ex.filter((e) => e.type === 'perform_sign')).toHaveLength(0);
+    expect(ex.some((e) => e.recognizer)).toBe(false);
+    expect(isMotionSignEvaluable(map['sinal-OI'])).toBe(false);
+  });
+
+  it('glosa que o modelo conhece vira perform_sign com o reconhecedor de sinais', () => {
+    setSignModelForTests({ model: fakeModel(['OI', '_']) });
+    expect(isMotionSignEvaluable(map['sinal-OI'])).toBe(true);
+    expect(isMotionSignEvaluable(map['sinal-TCHAU'])).toBe(false);
+    expect(isMotionSignEvaluable(undefined)).toBe(false);
+    const ex = lessonFor(['sinal-OI', 'sinal-TCHAU'], map, ids);
+    const cams = ex.filter((e) => e.type === 'perform_sign');
+    expect(cams.map((e) => [e.signId, e.recognizer])).toEqual([['sinal-OI', 'sinais']]);
+    expect(ex.filter((e) => e.type === 'mirror_practice').map((e) => e.signId)).toEqual(['sinal-TCHAU']);
+  });
+
+  it('letra avaliada continua com o classificador das letras, mesmo se o modelo de sinais tiver a glosa', () => {
+    setSignModelForTests({ model: fakeModel(['A', 'OI', '_']) });
+    const ex = resolveExercises(bundleFor(['letra-A', 'sinal-OI'], map), ['letra-A', 'sinal-OI'], {
+      signsMap: map, allSignIds: ids, canEvaluate: (s) => s?.gloss === 'A',
+    });
+    const cams = ex.filter((e) => e.type === 'perform_sign');
+    expect(cams.find((e) => e.signId === 'letra-A')?.recognizer).toBeUndefined();
+  });
+
+  it('a opção canEvaluateMotion decide no lugar do modelo', () => {
+    const ex = resolveExercises(bundleFor(['sinal-OI'], map), ['sinal-OI'], {
+      signsMap: map, allSignIds: ids, canEvaluateMotion: () => true,
+    });
+    expect(ex.filter((e) => e.type === 'perform_sign').map((e) => e.recognizer)).toEqual(['sinais']);
   });
 });
 
