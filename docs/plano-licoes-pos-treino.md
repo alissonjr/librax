@@ -74,8 +74,9 @@ americano. O mesmo cruzamento vale para todo o alfabeto e os números:
   em cada entrada do `signs.json`). G, H, M, N, P e Q eram do alfabeto americano; H, K e X têm
   movimento nas duas fontes, mas seguem `static` porque o modelo da câmera lê a forma parada (com o modelo das
   letras com movimento publicado, H e K passam a ser avaliadas com o movimento; X ainda não).
-  Ficaram "A CONFERIR": Y (vídeo do INES não abre), 1, 5, 7, 11, 17, 40 e 70 (avatar diferente do
-  INES).
+  Ficaram "A CONFERIR": 1, 5, 7, 11, 17, 40 e 70 (avatar diferente do INES). O Y saiu da lista: o vídeo
+  do INES continua com 404, mas a configuração de mão do verbete (cg40), o VLibras e os vídeos do alfabeto
+  concordam com a descrição e mostram a mão parada.
 - Sinais com mais de uma forma (MESA apareceu com variantes diferentes entre canais): registrar a
   variante ensinada no `signs.json` e, se o modelo aprender as duas, aceitar as duas na câmera.
 

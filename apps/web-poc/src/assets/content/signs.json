@@ -547,7 +547,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "A CONFERIR (2026-10-25): o video do verbete Y do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/ySm_Prog001.mp4) nao abre (404), entao so deu para comparar com a VLibras e com a configuracao de mao do verbete (cg40, polegar e minimo esticados). As duas concordam com a forma descrita; a VLibras mostra a mao parada, mas falta o video do INES para confirmar que o Y nao tem movimento."
+    "notes": "Conferido em 2026-10-25. O video do verbete Y do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/ySm_Prog001.mp4) nao abre (404), entao a conferencia usou tres fontes: a configuracao de mao do verbete no INES (cg40, https://dicionario.ines.gov.br/public/media/mao/cg40.jpg: polegar e minimo esticados, os outros tres dobrados), o avatar VLibras (a mao sobe, fica parada com o polegar e o minimo esticados e a palma para frente, e desce) e os videos do alfabeto analisados para o modelo das letras com movimento (ml-training/data/letras_mov/conferir/letra-Y.jpg), em que todo mundo segura a mao parada. As tres concordam com esta descricao: o Y e uma forma parada, sem movimento, e continua com o modelo das letras paradas."
   },
   {
     "id": "letra-Z",
