@@ -583,6 +583,9 @@
     "subtitle": "Compete with other learners and form teams",
     "title": "Social"
   },
+  "splash": {
+    "label": "Opening Librax"
+  },
   "streakBrokenSheet": {
     "notNow": "Not now",
     "startNew": "Start a new streak",

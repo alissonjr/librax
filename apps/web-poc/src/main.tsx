@@ -8,7 +8,10 @@ import { I18nProvider, getInitialLang } from './i18n';
 import { applyTheme, getThemePref } from './lib/theme';
 import { initInstall } from './lib/install';
 import { installSoundUnlock } from './lib/sound';
+import { splashStep } from './lib/splash';
 
+// Tela de abertura (index.html): o código principal chegou e está rodando
+splashStep('app');
 document.documentElement.lang = getInitialLang();
 applyTheme(getThemePref());
 installSoundUnlock();

@@ -13,6 +13,7 @@ import { isLessonOpen, loadCourseProgress } from './lib/progress';
 import type { Exercise } from './lib/content';
 import { clearLessonRun, contentVersion, loadLessonRun, saveLessonRun, type LessonProgress, type LessonRun } from './lib/lessonRun';
 import { ROUTES, TAB_PATHS, sectionForPath } from './lib/routes';
+import { splashShellReady, splashStep } from './lib/splash';
 import { useSession } from './hooks/useSession';
 import { HistoryTracker, useAppNavigation } from './hooks/useAppNavigation';
 import { useLessonExit } from './hooks/useLessonExit';
@@ -43,7 +44,11 @@ function lazyScreen<K extends string, C extends ComponentType<any>>(load: () => 
   let pending: Promise<{ default: C }> | null = null;
   const preload = () => {
     pending ??= load().then(
-      m => ({ default: m[name] }),
+      m => {
+        // Tela de abertura: o código da primeira tela chegou (as próximas não mudam nada)
+        splashStep('screen');
+        return { default: m[name] };
+      },
       (err: unknown) => { pending = null; throw err; },
     );
     return pending;
@@ -123,6 +128,8 @@ function NoticeToast() {
  * Os diálogos (useDialog) ficam aqui dentro do roteador porque o voltar os fecha (useCloseOnBack).
  */
 function RootLayout() {
+  // Tela de abertura: a primeira rota montou; ela sai quando não houver skeleton na tela
+  useEffect(() => { splashShellReady(); }, []);
   return (
     <DialogProvider>
       <ScrollRestoration />

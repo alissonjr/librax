@@ -1010,6 +1010,10 @@ Nenhum desses estados depende de som. Mensagens de status entram por `aria-live=
 - **Carregamento**: skeleton com as formas do conteúdo real, cor `bg.sunken`, brilho passando em 1,5 s
   (desligado com reduzir movimento: fica estático). Spinner só dentro de botão. Nada de tela branca: o shell
   (top bar e abas) aparece de imediato.
+- **Abertura do app**: antes de o JS chegar, o `index.html` já pinta a palavra-marca e uma barra com ponta de
+  seta (`game.progress` sobre `border.subtle` no claro e `game.track` no escuro), com CSS inline que recebe os
+  tokens no build. A barra anda por etapas reais (página, código, banco local, tela, conteúdo) e a tela sai
+  com fade `page` (`fast` com reduzir movimento). Abriu em menos de `motion.duration.base`: nem aparece.
 - **Offline**: banner discreto no topo, `feedback.warning.soft`, "Você está offline. Seu progresso fica salvo
   e sincroniza depois." As lições baixadas continuam disponíveis.
 - **Erro de carregamento**: ícone, "Não foi possível carregar.", botão "Tentar de novo". Nunca código de erro

@@ -14,10 +14,25 @@ const THEME_COLOR_DARK = tokens['theme.dark.bg.canvas'];
 // Tela de abertura do app instalado (Android): o grafite do ícone, com a seta tangerina no centro
 const SPLASH_COLOR = tokens['brand.icon.bg'];
 
+// Valor de um token em CSS, para o HTML que pinta antes de o tokens.css chegar (tela de abertura).
+// Lista de fontes vira "A, B, C" e curva vira cubic-bezier(...); token que não existe quebra o build.
+function tokenCss(name: string): string {
+  const value = (tokens as Record<string, unknown>)[name];
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (Array.isArray(value) && value.every((v) => typeof v === 'number')) return `cubic-bezier(${value.join(', ')})`;
+  if (Array.isArray(value)) return value.join(', ');
+  throw new Error(`index.html: token desconhecido ou sem valor CSS: ${name}`);
+}
+
+// __LX_THEME_LIGHT__/__LX_THEME_DARK__ (theme-color) e __LX_TOKEN(nome.do.token)__ (CSS inline da
+// tela de abertura, que não pode esperar o JS) viram o valor do token.
 const themeColorHtml = (): Plugin => ({
   name: 'librax-theme-color',
   transformIndexHtml: (html) =>
-    html.replaceAll('__LX_THEME_LIGHT__', THEME_COLOR).replaceAll('__LX_THEME_DARK__', THEME_COLOR_DARK),
+    html
+      .replaceAll('__LX_THEME_LIGHT__', THEME_COLOR)
+      .replaceAll('__LX_THEME_DARK__', THEME_COLOR_DARK)
+      .replace(/__LX_TOKEN\(([^)]+)\)__/g, (_, name: string) => tokenCss(name)),
 });
 
 // Arquivos de ML em /ml/<versao>/ (scripts/ml-assets.mjs). O WASM precisa de

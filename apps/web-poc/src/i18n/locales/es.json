@@ -561,6 +561,9 @@
     "subtitle": "Compite con otros aprendices y forma equipos",
     "title": "Social"
   },
+  "splash": {
+    "label": "Abriendo Librax"
+  },
   "streakBrokenSheet": {
     "notNow": "Ahora no",
     "startNew": "Empezar una nueva racha",

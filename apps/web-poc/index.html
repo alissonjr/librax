@@ -20,8 +20,155 @@
     <link rel="preload" href="/fonts/Anybody-latin-wdth-wght.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/Figtree-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
     <title>Librax</title>
+    <!-- Tema escolhido no app (src/lib/theme.ts) antes da primeira pintura: a abertura já sai no modo certo -->
+    <script>
+      try {
+        var lxTheme = localStorage.getItem('librax_theme');
+        if (lxTheme === 'light' || lxTheme === 'dark') document.documentElement.setAttribute('data-theme', lxTheme);
+      } catch (e) { /* localStorage indisponível: segue o sistema */ }
+    </script>
+    <!--
+      Tela de abertura (src/lib/splash.ts): pinta antes de o JS chegar, então o CSS fica aqui e as
+      cores, espaços e durações vêm dos tokens pelos marcadores __LX_TOKEN do vite.config.ts. A marca e o
+      nome só aparecem depois de motion.duration.base, para não piscar quando o app abre rápido.
+    -->
+    <style>
+      @font-face {
+        font-family: "Anybody";
+        src: url("/fonts/Anybody-latin-wdth-wght.woff2") format("woff2-variations"),
+             url("/fonts/Anybody-latin-wdth-wght.woff2") format("woff2");
+        font-weight: 100 900;
+        font-stretch: 50% 150%;
+        font-style: normal;
+        /* o nome da marca não troca de fonte na frente da pessoa (o arquivo já vem no preload) */
+        font-display: block;
+      }
+      :root {
+        --lx-splash-bg: __LX_TOKEN(theme.light.bg.canvas)__;
+        --lx-splash-ink: __LX_TOKEN(theme.light.brand.ink)__;
+        --lx-splash-mark: __LX_TOKEN(theme.light.brand.mark)__;
+        --lx-splash-track: __LX_TOKEN(theme.light.border.subtle)__;
+        --lx-splash-fill: __LX_TOKEN(theme.light.game.progress)__;
+      }
+      :root[data-theme="dark"] {
+        --lx-splash-bg: __LX_TOKEN(theme.dark.bg.canvas)__;
+        --lx-splash-ink: __LX_TOKEN(theme.dark.brand.ink)__;
+        --lx-splash-mark: __LX_TOKEN(theme.dark.brand.mark)__;
+        --lx-splash-track: __LX_TOKEN(theme.dark.game.track)__;
+        --lx-splash-fill: __LX_TOKEN(theme.dark.game.progress)__;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --lx-splash-bg: __LX_TOKEN(theme.dark.bg.canvas)__;
+          --lx-splash-ink: __LX_TOKEN(theme.dark.brand.ink)__;
+          --lx-splash-mark: __LX_TOKEN(theme.dark.brand.mark)__;
+          --lx-splash-track: __LX_TOKEN(theme.dark.game.track)__;
+          --lx-splash-fill: __LX_TOKEN(theme.dark.game.progress)__;
+        }
+      }
+      html { background: var(--lx-splash-bg); }
+      .lx-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: __LX_TOKEN(space.8)__;
+        padding: __LX_TOKEN(space.6)__;
+        background: var(--lx-splash-bg);
+        transition: opacity __LX_TOKEN(motion.duration.page)__ __LX_TOKEN(motion.easing.accelerate)__;
+      }
+      .lx-splash--out { opacity: 0; pointer-events: none; }
+      .lx-splash-brand,
+      .lx-splash-bar {
+        animation: lx-splash-in __LX_TOKEN(motion.duration.base)__ __LX_TOKEN(motion.easing.decelerate)__ __LX_TOKEN(motion.duration.base)__ both;
+      }
+      @keyframes lx-splash-in {
+        from { opacity: 0; transform: translateY(__LX_TOKEN(space.2)__); }
+      }
+      @keyframes lx-splash-fade {
+        from { opacity: 0; }
+      }
+      /* Palavra-marca como o Wordmark de src/components/Brand.tsx com size 36 (símbolo de 47 px) */
+      .lx-splash-brand { display: flex; align-items: center; gap: __LX_TOKEN(space.3)__; }
+      .lx-splash-symbol { display: block; flex-shrink: 0; }
+      .lx-splash-trace { stroke: var(--lx-splash-mark); }
+      .lx-splash-tip { fill: var(--lx-splash-mark); stroke: var(--lx-splash-mark); }
+      .lx-splash-dot { fill: var(--lx-splash-ink); }
+      .lx-splash-name {
+        font-family: __LX_TOKEN(font.family.display)__;
+        font-weight: __LX_TOKEN(font.weight.black)__;
+        font-stretch: __LX_TOKEN(font.stretch.wide)__;
+        font-size: 36px;
+        letter-spacing: -0.01em;
+        line-height: 1;
+        color: var(--lx-splash-ink);
+      }
+      /* Barra como a da lição (style.css, .progress-bar-wrap--lesson): termina numa ponta de seta */
+      .lx-splash-bar {
+        position: relative;
+        width: calc(__LX_TOKEN(space.16)__ * 3);
+        height: __LX_TOKEN(size.progressLesson)__;
+        margin-right: __LX_TOKEN(space.3)__;
+        border-radius: __LX_TOKEN(radius.full)__;
+        background: var(--lx-splash-track);
+      }
+      .lx-splash-fill {
+        position: relative;
+        height: 100%;
+        border-radius: __LX_TOKEN(radius.full)__ 0 0 __LX_TOKEN(radius.full)__;
+        background: var(--lx-splash-fill);
+        transition: width __LX_TOKEN(motion.duration.slow)__ __LX_TOKEN(motion.easing.decelerate)__;
+      }
+      .lx-splash-fill::after {
+        content: '';
+        position: absolute;
+        right: calc(-1 * __LX_TOKEN(space.3)__);
+        top: -5px;
+        border-left: 14px solid var(--lx-splash-fill);
+        border-top: 11px solid transparent;
+        border-bottom: 11px solid transparent;
+      }
+      /* Reduzir movimento (design-system 9.3): só opacidade, em fast; a barra pula de etapa em etapa */
+      @media (prefers-reduced-motion: reduce) {
+        .lx-splash { transition-duration: __LX_TOKEN(motion.duration.fast)__; }
+        .lx-splash-brand, .lx-splash-bar { animation-name: lx-splash-fade; }
+        .lx-splash-fill { transition: none; }
+      }
+      :root[data-reduced-motion="true"] .lx-splash { transition-duration: __LX_TOKEN(motion.duration.fast)__; }
+      :root[data-reduced-motion="true"] .lx-splash-brand,
+      :root[data-reduced-motion="true"] .lx-splash-bar { animation-name: lx-splash-fade; }
+      :root[data-reduced-motion="true"] .lx-splash-fill { transition: none; }
+    </style>
+    <noscript><style>.lx-splash { display: none; }</style></noscript>
   </head>
   <body>
+    <!--
+      Etapas (src/lib/splash.ts): página pintada (já aqui, 20%), código do app rodando, banco local e
+      perfil lidos, código da tela carregado e tela com o conteúdo. O app tira a abertura no fim.
+    -->
+    <div id="lx-splash" class="lx-splash">
+      <div class="lx-splash-brand" role="img" aria-label="Librax">
+        <svg class="lx-splash-symbol" width="47" height="47" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <path class="lx-splash-trace" d="M20.0 21.0V33.0Q20.0 46.0 33.0 46.0H39.0" fill="none" stroke-width="6.5" stroke-linecap="round" />
+          <path class="lx-splash-tip" d="M37.0 36.5L52.0 46.0L37.0 55.5z" stroke-width="2" stroke-linejoin="round" />
+          <circle class="lx-splash-dot" cx="20" cy="12.5" r="5" />
+        </svg>
+        <span class="lx-splash-name" aria-hidden="true">librax</span>
+      </div>
+      <div
+        class="lx-splash-bar"
+        role="progressbar"
+        aria-label="Abrindo o Librax"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="20"
+      >
+        <div class="lx-splash-fill" style="width: 20%"></div>
+      </div>
+    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
