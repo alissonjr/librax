@@ -188,7 +188,7 @@ for (const locale of IDIOMAS) {
       }, null, { timeout: 90000 });
       await page.waitForTimeout(1500);
       await page.locator('button:has(.trace-arrow-icon)').first().click();
-      await page.waitForTimeout(Number(process.env.MEIO ?? 1400));
+      await page.waitForTimeout(Number(process.env.MEIO ?? 2000));
       await salvar(page, locale, 'intro');
     }
     if (quer('escolha')) {

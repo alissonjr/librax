@@ -404,6 +404,7 @@ export function renderPage(locale: Locale): string {
     <div class="homescreen" aria-hidden="true">
       <div class="phone phone-home">
         <div class="phone-screen home-grid">
+          <svg class="home-trace" viewBox="0 0 244 528" focusable="false"><circle class="trace-start" cx="44" cy="452" r="6"/><path class="trace-line" d="M44 452 C 40 330, 110 250, 166 214" fill="none" stroke-linecap="round" marker-end="url(#lx-tip)"/></svg>
           ${Array.from({ length: 11 }, (_, i) => `<span class="home-app${i === 5 ? ' is-librax' : ''}">${i === 5 ? `${brandMark(56, 'brand-mark--tile')}<small>Librax</small>` : ''}</span>`).join('')}
         </div>
       </div>

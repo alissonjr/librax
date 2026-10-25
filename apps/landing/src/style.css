@@ -57,6 +57,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 img, svg { display: block; max-width: 100%; }
+[hidden] { display: none !important; }
 ul, ol { list-style: none; }
 a { color: var(--lx-text-brand); text-underline-offset: 3px; }
 h1, h2, h3, h4 { font-family: var(--lx-font-family-display); font-stretch: var(--lx-font-stretch-semi); text-wrap: balance; }
@@ -288,7 +289,7 @@ main:focus { outline: none; }
 .lang-suggest { background: var(--lx-feedback-info-soft); color: var(--lx-feedback-info-on-soft); }
 .lang-suggest-row { display: flex; align-items: center; gap: var(--lx-space-2); min-height: 56px; }
 .lang-suggest-row p { font: var(--lx-typography-body-sm); }
-.lang-suggest-row .btn-text { margin-left: auto; color: var(--lx-feedback-info-on-soft); text-decoration: underline; }
+.lang-suggest-row .btn-text { margin-left: auto; white-space: nowrap; color: var(--lx-feedback-info-on-soft); text-decoration: underline; }
 
 /* ---------- seções ---------- */
 .section { padding-block: var(--section-y); }
@@ -327,9 +328,11 @@ main:focus { outline: none; }
   .hero { padding-top: var(--lx-space-16); }
   .hero-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: var(--lx-space-12); }
 }
+.hero-copy { container-type: inline-size; }
 .hero h1 {
   margin-top: var(--lx-space-5);
   font-size: var(--hero-size);
+  font-size: clamp(var(--lx-typography-display-xl-size), 11.5cqi, calc(var(--lx-typography-display-xl-size) * 1.85));
   line-height: 1.02;
   font-weight: var(--lx-font-weight-black);
   font-stretch: var(--lx-font-stretch-wide);
@@ -355,6 +358,7 @@ main:focus { outline: none; }
   background: var(--lx-stage-bg);
   color: var(--lx-stage-text);
   border-radius: var(--lx-radius-xl);
+  border: var(--lx-border-width-thin) solid var(--lx-stage-border);
   padding: var(--lx-space-4);
   box-shadow: var(--lx-elevation-3);
 }
@@ -726,6 +730,7 @@ main:focus { outline: none; }
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
+.stat-wide .stat-value { font-size: clamp(3.5rem, 2.4rem + 4.4vw, 6rem); }
 .stat-value-md { font-size: clamp(2rem, 1.6rem + 1.4vw, 2.75rem); font-stretch: var(--lx-font-stretch-semi); }
 .stat-label { font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); }
 .stat-title { font: var(--lx-typography-label); font-family: var(--lx-font-family-text); }
@@ -779,7 +784,7 @@ main:focus { outline: none; }
   line-height: 1.1;
 }
 .tab[aria-selected="true"] { background: var(--lx-bg-surface); color: var(--lx-text-primary); box-shadow: var(--lx-elevation-1); }
-.tab-detected { font: var(--lx-typography-caption); font-size: 11px; color: var(--lx-text-brand); }
+.tab-detected { font: var(--lx-typography-caption); color: var(--lx-text-brand); }
 .install-panel { margin-bottom: var(--lx-space-6); }
 .install[data-ready] .install-panel-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .install-panel-title { font-size: var(--lx-typography-title-sm-size); margin-bottom: var(--lx-space-3); }
@@ -832,6 +837,9 @@ main:focus { outline: none; }
 .home-app.is-librax { background: none; position: relative; display: grid; justify-items: center; gap: 4px; aspect-ratio: auto; }
 .home-app.is-librax .brand-mark { width: 100%; height: auto; box-shadow: var(--lx-elevation-2); }
 .home-app small { font: var(--lx-typography-caption); color: var(--lx-text-primary); }
+.home-trace { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.home-trace .trace-line { stroke: var(--lx-game-trace-fill); stroke-width: 3px; vector-effect: non-scaling-stroke; }
+.home-trace .trace-start { fill: var(--lx-text-primary); }
 
 /* ---------- projeto ---------- */
 .project { display: grid; gap: var(--lx-space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
@@ -869,6 +877,7 @@ main:focus { outline: none; }
   padding-block: var(--lx-space-16) calc(var(--lx-space-10) + env(safe-area-inset-bottom, 0px));
   background: var(--lx-stage-bg);
   color: var(--lx-stage-text-secondary);
+  border-top: var(--lx-border-width-thin) solid var(--lx-stage-border);
 }
 .site-footer .wordmark-text { color: var(--lx-stage-text); }
 .site-footer .brand-mark-dot { fill: var(--lx-stage-text); }
