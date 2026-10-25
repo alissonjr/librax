@@ -23,6 +23,7 @@ from train_static import mlp_forward, normalize_hand  # noqa: E402
 
 DATA_PADRAO = os.path.join(ML, "data")
 LETRAS = "LIBRAX"
+POR_LETRA = 10  # mãos de cada letra que entram no vídeo (montar.py --por-letra)
 
 # Quadro do vídeo e da mão (px). A mão fica de pé, com o pulso sempre no mesmo ponto e o palmo
 # (pulso até a base do dedo médio) sempre do mesmo tamanho: parece uma mão só trocando de pessoa.
@@ -112,6 +113,16 @@ class Classificador:
 
     def prob(self, P, letra):
         return float(P[self.labels.index(letra)])
+
+
+def numero(i):
+    """Número da foto na folha: L12 -> 12."""
+    return int(i[1:])
+
+
+def no_video(ids, por_letra=POR_LETRA):
+    """As fotos da seleção que entram no vídeo: as por_letra de número menor (ordem da folha)."""
+    return sorted((i.upper() for i in ids), key=numero)[:por_letra]
 
 
 def ler_json(caminho):

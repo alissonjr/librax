@@ -10,6 +10,9 @@ Filtros, em ordem (a contagem de canais antes e depois de cada um sai no fim e e
 2. tamanho: palmo (pulso até a base do dedo médio) com pelo menos MIN_PALMO px no vídeo;
    enquadramento: a mão, até o antebraço sumir, inteira dentro do quadro do vídeo;
 3. nitidez: variância do Laplaciano na mão, com a mão levada sempre ao mesmo tamanho;
+   (letra com menos de POR_LETRA canais aprovados ganha uma folga só em tamanho e nitidez,
+   MIN_PALMO_FOLGA e MIN_NITIDEZ_FOLGA, para os canais que ainda não têm foto; rosto, texto e
+   recorte nunca relaxam);
 4. mão de verdade: a segmentação vê pele nos ossos da mão (corta avatar desenhado e luva);
    recorte: o recorte cobre os ossos da mão (sem buraco nem dedo cortado) e a outra mão não
    encosta nela;
@@ -33,6 +36,8 @@ Uso:
     python divulgacao/preparar.py --nova-selecao                  idem, refazendo a pré-seleção
     python divulgacao/preparar.py --reusar-analise                sem medir de novo (mudou só filtro)
     python divulgacao/preparar.py --tirar L3 --por A14 [...]      só edita a seleção e redesenha a folha
+    python divulgacao/preparar.py --rejeitar I2 --motivo "buraco"  foto ruim: sai da seleção e, na
+                                                                  próxima rodada, da folha
     python divulgacao/preparar.py --folha                         só redesenha a folha
 """
 
@@ -44,12 +49,16 @@ import sys
 import cv2
 import numpy as np
 
-from comum import (FUNDO, LARGURA, LETRAS, MIN_P, PALMO, PULSO, TANGERINA, TINTA, Classificador, Pastas,
-                   argumentos, gravar_json, hex_bgr, hex_rgb, ler_json)
+from comum import (FUNDO, LARGURA, LETRAS, MIN_P, PALMO, POR_LETRA, PULSO, TANGERINA, TINTA, Classificador,
+                   Pastas, argumentos, gravar_json, hex_bgr, hex_rgb, ler_json, no_video)
 
 QUADROS_POR_PARADA = 3
 MIN_PALMO = 40  # px no vídeo original
 MIN_NITIDEZ = 40.0  # variância do Laplaciano com o palmo levado a PALMO_NITIDEZ px
+# Folga para letra com menos de POR_LETRA canais: conferida a olho em 2026-10-25 (as que entram
+# com ela estão nítidas o bastante no quadrado; abaixo disso a foto fica borrada)
+MIN_PALMO_FOLGA = 36
+MIN_NITIDEZ_FOLGA = 24.0
 PALMO_NITIDEZ = 60
 MIN_PELE = 0.6  # pele média nos ossos da mão
 MAX_PELE_ROSTO = 0.05  # fração da mão recortada, fora da mão, que a segmentação chama de pele de rosto
@@ -60,7 +69,6 @@ MAX_FORA = 0.01  # fração da mão (até o antebraço sumir) cortada pela borda
 MIN_COBERTURA = 0.9  # fração dos ossos da mão dentro do recorte
 MAX_OUTRA_MAO = 0.05  # fração da mão coberta pela outra mão (as duas encostadas viram um recorte só)
 PRE_SELECAO = 12
-MIN_SELECAO = 10
 
 # Altura útil do quadro da mão gravado em maos/ (o resto do vídeo é fundo e letras)
 ALTURA_MAO = 1460
@@ -395,17 +403,24 @@ def compor(bgra, fundo=FUNDO):
 # Filtros e ranking
 # ---------------------------------------------------------------------------
 
-FILTROS = [
-    ("classificador", lambda c: c["p"] >= MIN_P and c["lida"] == c["letra"]),
-    ("tamanho", lambda c: c["palmo"] >= MIN_PALMO),
-    ("enquadramento", lambda c: c["fora"] <= MAX_FORA),
-    ("nitidez", lambda c: c["nitidez"] >= MIN_NITIDEZ),
-    ("mao_de_verdade", lambda c: c["pele"] >= MIN_PELE),
-    ("recorte", lambda c: c["cobertura"] >= MIN_COBERTURA and c["outra_mao"] <= MAX_OUTRA_MAO),
-    ("rosto", lambda c: c["mao_no_rosto"] <= MAX_MAO_NO_ROSTO and c["vazamento"] <= MAX_VAZAMENTO
-     and c["pele_rosto"] <= MAX_PELE_ROSTO),
-    ("texto", lambda c: not c["texto"]),
-]
+def filtros(folga=False):
+    min_palmo = MIN_PALMO_FOLGA if folga else MIN_PALMO
+    min_nitidez = MIN_NITIDEZ_FOLGA if folga else MIN_NITIDEZ
+    return [
+        ("classificador", lambda c: c["p"] >= MIN_P and c["lida"] == c["letra"]),
+        ("tamanho", lambda c: c["palmo"] >= min_palmo),
+        ("enquadramento", lambda c: c["fora"] <= MAX_FORA),
+        ("nitidez", lambda c: c["nitidez"] >= min_nitidez),
+        ("mao_de_verdade", lambda c: c["pele"] >= MIN_PELE),
+        ("recorte", lambda c: c["cobertura"] >= MIN_COBERTURA and c["outra_mao"] <= MAX_OUTRA_MAO),
+        ("rosto", lambda c: c["mao_no_rosto"] <= MAX_MAO_NO_ROSTO and c["vazamento"] <= MAX_VAZAMENTO
+         and c["pele_rosto"] <= MAX_PELE_ROSTO),
+        ("texto", lambda c: not c["texto"]),
+    ]
+
+
+FILTROS = filtros()
+FILTROS_FOLGA = filtros(folga=True)
 
 
 def qualidade(c):
@@ -444,17 +459,37 @@ def coletar(pastas, modelos, clf):
     return cands
 
 
-def filtrar(cands):
-    """Aplica os filtros em ordem; devolve as que passam e a contagem de canais por etapa."""
+def filtrar(cands, rejeitadas=()):
+    """Aplica os filtros em ordem; devolve as que passam e a contagem de canais por etapa.
+
+    As rejeitadas a olho pelo dono (selecao.json, "rejeitadas": letra e vídeo) saem antes de tudo.
+    Letra com menos de POR_LETRA canais aprovados ganha a folga (FILTROS_FOLGA) só para os canais
+    que ainda não têm foto; essas saem marcadas com "folga"."""
     contagem = {L: {} for L in LETRAS}
-    vivos = list(cands)
+    fora = {(r["letra"], r["video"]) for r in rejeitadas}
     for L in LETRAS:
         contagem[L]["paradas"] = len({(c["video"], tuple(c["parada"])) for c in cands if c["letra"] == L})
         contagem[L]["canais"] = len({c["canal_id"] for c in cands if c["letra"] == L})
+        contagem[L]["rejeitadas"] = len({v for (l_, v) in fora if l_ == L})
+    cands = [c for c in cands if (c["letra"], c["video"]) not in fora]
+    vivos = list(cands)
     for nome, ok in FILTROS:
         vivos = [c for c in vivos if ok(c)]
         for L in LETRAS:
             contagem[L][nome] = len({c["canal_id"] for c in vivos if c["letra"] == L})
+    for c in cands:
+        c["folga"] = False
+    aprovados = {(c["letra"], c["canal_id"]) for c in vivos}
+    for L in LETRAS:
+        n = contagem[L][FILTROS[-1][0]]
+        extra = []
+        if n < POR_LETRA:
+            extra = [c for c in cands if c["letra"] == L and (L, c["canal_id"]) not in aprovados
+                     and all(ok(c) for _, ok in FILTROS_FOLGA)]
+            for c in extra:
+                c["folga"] = True
+            vivos += extra
+        contagem[L]["folga"] = len({c["canal_id"] for c in extra})
     return vivos, contagem
 
 
@@ -481,33 +516,45 @@ TILE_W, TILE_H = 200, 250
 POR_LINHA = 12
 
 
-def folha(pastas, candidatos, selecao):
-    """Uma faixa por letra, na ordem da nota; as pré-selecionadas com borda e selo tangerina."""
+def folha(pastas, candidatos, selecao, por_letra=POR_LETRA):
+    """Uma faixa por letra, na ordem da nota. Borda e selo tangerina: entra no vídeo (as por_letra
+    de número menor da seleção). Borda cinza: está na seleção, mas fica fora do vídeo."""
     import PIL.Image
     import PIL.ImageDraw
     import PIL.ImageFont
 
+    video = {L: no_video(selecao["letras"].get(L, []), por_letra) for L in LETRAS}
     escolhidas = {i for ids in selecao["letras"].values() for i in ids}
     fonte = PIL.ImageFont.truetype(pastas.fonte_display, 44)
     fonte.set_variation_by_axes([125, 900])
     fonte_n = PIL.ImageFont.truetype(pastas.fonte_display, 19)
     fonte_n.set_variation_by_axes([100, 800])
-    margem_esq, gap, topo = 90, 8, 20
+    fonte_t = PIL.ImageFont.truetype(pastas.fonte_display, 24)
+    fonte_t.set_variation_by_axes([100, 800])
+    margem_esq, gap, topo = 90, 8, 64
+    cinza = hex_rgb("#8A7F73")
     linhas = []
     for L in LETRAS:
         cs = [c for c in candidatos if c["letra"] == L]
         n_linhas = max(1, -(-len(cs) // POR_LINHA))
         linhas.append((L, cs, n_linhas))
-    altura = topo + sum(n * (TILE_H + gap) + 26 for _, _, n in linhas) + 10
+    altura = topo + sum(n * (TILE_H + gap) + 26 + 34 for _, _, n in linhas) + 10
     largura = margem_esq + POR_LINHA * (TILE_W + gap) + 10
     img = PIL.Image.new("RGB", (largura, altura), hex_rgb("#0E0B09"))
     d = PIL.ImageDraw.Draw(img)
+    d.text((24, 18), f"Borda tangerina e número de ordem: entra no vídeo ({por_letra} por letra; a de número 1 "
+                     "na ordem é a que fica parada). Borda cinza: na seleção, fora do vídeo. "
+                     "\"folga\": passou com a folga de tamanho e nitidez.", font=fonte_n, fill=hex_rgb(TINTA))
     y = topo
     # recorte do quadro da mão que vai para cada miniatura
     rx0, rx1 = 190, LARGURA - 190
     ry1 = PULSO[1] + int(PALMO * 0.75)
     ry0 = ry1 - int((rx1 - rx0) * TILE_H / TILE_W)
     for L, cs, n_linhas in linhas:
+        n_video = len(video[L])
+        resumo = f"{n_video} no vídeo" + (f", repetidas até {por_letra}" if n_video < por_letra else "")
+        d.text((margem_esq, y), resumo, font=fonte_t, fill=hex_rgb(TANGERINA))
+        y += 34
         d.text((24, y + 8), L, font=fonte, fill=hex_rgb(TINTA))
         for k, c in enumerate(cs):
             col, lin = k % POR_LINHA, k // POR_LINHA
@@ -517,15 +564,20 @@ def folha(pastas, candidatos, selecao):
             tile = compor(bgra)[ry0:ry1, rx0:rx1]
             tile = cv2.resize(tile, (TILE_W, TILE_H), interpolation=cv2.INTER_AREA)
             img.paste(PIL.Image.fromarray(cv2.cvtColor(tile, cv2.COLOR_BGR2RGB)), (x, yy))
-            sel = c["id"] in escolhidas
-            if sel:
-                d.rectangle([x, yy, x + TILE_W - 1, yy + TILE_H - 1], outline=hex_rgb(TANGERINA), width=5)
-                d.ellipse([x + TILE_W - 30, yy + 9, x + TILE_W - 11, yy + 28], fill=hex_rgb(TANGERINA))
-            rot = f"{c['id']}  {c['p']:.2f}"
+            no = c["id"] in video[L]
+            if no:
+                d.rectangle([x, yy, x + TILE_W - 1, yy + TILE_H - 1], outline=hex_rgb(TANGERINA), width=6)
+                # ordem no vídeo: o vídeo mostra do maior número para o menor, então a 1 é a última
+                ordem = str(video[L].index(c["id"]) + 1)
+                d.ellipse([x + TILE_W - 44, yy + 8, x + TILE_W - 10, yy + 42], fill=hex_rgb(TANGERINA))
+                d.text((x + TILE_W - 27, yy + 25), ordem, font=fonte_n, fill=(20, 17, 14), anchor="mm")
+            elif c["id"] in escolhidas:
+                d.rectangle([x, yy, x + TILE_W - 1, yy + TILE_H - 1], outline=cinza, width=3)
+            rot = f"{c['id']}  {c['p']:.2f}" + ("  folga" if c.get("folga") else "")
             d.rectangle([x + 5, yy + TILE_H - 31, x + 12 + d.textlength(rot, font=fonte_n), yy + TILE_H - 6],
                         fill=(14, 11, 9))
             d.text((x + 9, yy + TILE_H - 30), rot, font=fonte_n,
-                   fill=hex_rgb(TANGERINA) if sel else hex_rgb(TINTA))
+                   fill=hex_rgb(TANGERINA) if no else hex_rgb(TINTA))
         y += n_linhas * (TILE_H + gap) + 26
     out = os.path.join(pastas.saida, "folha.jpg")
     img.save(out, quality=88)
@@ -544,21 +596,39 @@ def pre_selecao(candidatos):
     return letras
 
 
-def gravar_selecao(pastas, letras, candidatos):
+def rejeitadas_salvas(pastas):
+    return ler_json(pastas.selecao).get("rejeitadas", []) if os.path.exists(pastas.selecao) else []
+
+
+def gravar_selecao(pastas, letras, candidatos, rejeitadas=None):
     por_id = {c["id"]: c for c in candidatos}
+    if rejeitadas is None:
+        rejeitadas = rejeitadas_salvas(pastas)
     sel = {"letras": letras,
            "chaves": {i: chave(por_id[i]) for ids in letras.values() for i in ids},
+           "rejeitadas": rejeitadas,
            "como_editar": "tire ou ponha IDs da folha (ex.: L3, A14) em 'letras'; a ordem não importa. "
-                          "Ou: python divulgacao/preparar.py --tirar L3 --por A14"}
+                          "Ou: python divulgacao/preparar.py --tirar L3 --por A14. Foto ruim (buraco, "
+                          "borrada, rosto): --rejeitar L3 --motivo '...' e depois --reusar-analise"}
     gravar_json(pastas.selecao, sel)
     return sel
 
 
-def editar_selecao(pastas, tirar, por):
+def editar_selecao(pastas, tirar, por, rejeitar=(), motivo=""):
     candidatos = ler_json(pastas.candidatos)["candidatos"]
-    ids = {c["id"] for c in candidatos}
+    por_id = {c["id"]: c for c in candidatos}
+    ids = set(por_id)
     sel = ler_json(pastas.selecao)
     letras = {L: list(v) for L, v in sel["letras"].items()}
+    rejeitadas = list(sel.get("rejeitadas", []))
+    for i in rejeitar:
+        i = i.upper()
+        if i not in ids:
+            sys.exit(f"{i}: não existe na folha (veja candidatos.json)")
+        r = {"letra": i[0], "video": por_id[i]["video"], "motivo": motivo or "rejeitada na folha"}
+        if not any(x["letra"] == r["letra"] and x["video"] == r["video"] for x in rejeitadas):
+            rejeitadas.append(r)
+        tirar = list(tirar) + [i]
     for i in tirar:
         L = i[0].upper()
         if i.upper() in letras.get(L, []):
@@ -572,9 +642,9 @@ def editar_selecao(pastas, tirar, por):
         if i not in letras[i[0]]:
             letras[i[0]].append(i)
     for L in LETRAS:
-        if len(letras[L]) < MIN_SELECAO:
-            print(f"aviso: {L} ficou com {len(letras[L])} mãos (o roteiro pede de 10 a 12)")
-    return gravar_selecao(pastas, letras, candidatos)
+        if len(letras[L]) < POR_LETRA:
+            print(f"aviso: {L} ficou com {len(letras[L])} mãos; o vídeo repete fotos para chegar a {POR_LETRA}")
+    return gravar_selecao(pastas, letras, candidatos, rejeitadas)
 
 
 # ---------------------------------------------------------------------------
@@ -584,14 +654,21 @@ def main():
     ap.add_argument("--nova-selecao", action="store_true", help="refaz selecao.json com as melhores de cada letra")
     ap.add_argument("--tirar", action="append", default=[], help="ID a tirar da seleção (ex.: L3)")
     ap.add_argument("--por", action="append", default=[], help="ID a pôr na seleção (ex.: A14)")
+    ap.add_argument("--rejeitar", action="append", default=[],
+                    help="ID ruim (buraco, borrada, rosto): sai da seleção e da folha na próxima rodada")
+    ap.add_argument("--motivo", default="", help="motivo da rejeição, guardado em selecao.json")
     ap.add_argument("--folha", action="store_true", help="só redesenha a folha")
     ap.add_argument("--reusar-analise", action="store_true",
                     help="usa as medidas de analise.json (só refaz filtros, mãos e folha)")
     args = ap.parse_args()
     pastas = Pastas(args.data)
 
-    if args.tirar or args.por or args.folha:
-        sel = editar_selecao(pastas, args.tirar, args.por) if (args.tirar or args.por) else ler_json(pastas.selecao)
+    if args.tirar or args.por or args.rejeitar or args.folha:
+        editar = args.tirar or args.por or args.rejeitar
+        sel = editar_selecao(pastas, args.tirar, args.por, args.rejeitar, args.motivo) if editar \
+            else ler_json(pastas.selecao)
+        if args.rejeitar:
+            print("rejeitadas guardadas; rode com --reusar-analise para a folga e a folha valerem sem elas")
         print(folha(pastas, ler_json(pastas.candidatos)["candidatos"], sel))
         for L in LETRAS:
             print(f"{L}: {' '.join(sel['letras'][L])}")
@@ -606,7 +683,7 @@ def main():
     else:
         cands = coletar(pastas, modelos, clf)
         gravar_json(analise, cands)
-    vivos, contagem = filtrar(cands)
+    vivos, contagem = filtrar(cands, rejeitadas_salvas(pastas))
     melhores = melhores_por_canal(vivos)
 
     # Foto pronta das mãos que ficaram
@@ -678,7 +755,7 @@ def main():
         sel = gravar_selecao(pastas, letras, finais)
 
     print("\ncanais por etapa (paradas = paradas aceitas; canais = um vídeo por canal):")
-    etapas = ["paradas", "canais"] + [n for n, _ in FILTROS]
+    etapas = ["paradas", "canais", "rejeitadas"] + [n for n, _ in FILTROS] + ["folga"]
     print("letra " + " ".join(f"{e:>14}" for e in etapas))
     for L in LETRAS:
         print(f"{L:5} " + " ".join(f"{contagem[L][e]:>14}" for e in etapas))

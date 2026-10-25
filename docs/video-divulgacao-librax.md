@@ -1,15 +1,18 @@
 # Vídeo de divulgação: LIBRAX soletrado por muitas mãos
 
 Status: projetado em 2026-10-25; scripts e rascunho prontos em 2026-10-25. Segundo desenho (mãos em
-quadrados coloridos, 5 mãos por letra, fileira LIBRAX) em 2026-10-25, aguardando a revisão do dono.
+quadrados coloridos, fileira LIBRAX) em 2026-10-25. Terceiro desenho (rascunho-v3: zoom no quadrado
+da letra, 10 mãos por letra, quadrados colados à mão sobre a palavra) em 2026-10-25, aguardando a
+revisão do dono.
 
 ## Ideia
 
 Um vídeo curto que soletra o nome do app em Libras (L, I, B, R, A, X). Cada letra ganha um
-quadrado colorido; dentro dele, fotos de mãos de pessoas diferentes fazendo a mesma letra trocam
-muito rápido entre si e a última fica. Os quadrados se acumulam lado a lado, da esquerda para a
-direita, formando LIBRAX em Libras, com a letra escrita entrando embaixo de cada um. No final,
-entra o logotipo do Librax.
+quadrado colorido que aparece grande no meio da tela; dentro dele, fotos de mãos de pessoas
+diferentes fazendo a mesma letra trocam muito rápido entre si e a última fica. Aí o quadrado
+encolhe e vai para o seu lugar, em cima da sua letra da palavra LIBRAX escrita embaixo. Os
+quadrados se juntam lado a lado, um pouco por cima do outro e levemente girados, como fotos
+coladas à mão, formando LIBRAX em Libras. No final, entra o logotipo do Librax.
 
 ## Decisões
 
@@ -17,9 +20,9 @@ entra o logotipo do Librax.
 |---|---|
 | Imagens | Fotos reais de mãos, recortadas dos vídeos do alfabeto já baixados para o treino |
 | Recorte | Só a mão e o pulso, sem rosto; uso de imagem assumido pelo dono do projeto |
-| Formato | Vertical 9:16, 1080 x 1920, MP4; também quadrado 1:1 (1080 x 1080) e horizontal 16:9 (1920 x 1080) |
-| Mãos por letra | 5 (parâmetro `--por-letra`) |
-| Quadrados | Cores do design system, fixas por quadrado, cantos de card (`radius.lg`) |
+| Formato | Vertical 9:16, 1080 x 1920, MP4 (principal); `--formato` também faz quadrado 1:1 (1080 x 1080) e horizontal 16:9 (1920 x 1080) |
+| Mãos por letra | 10 (parâmetro `--por-letra`); com menos fotos boas, repetem sem a mesma duas vezes seguidas |
+| Quadrados | Cores do design system, fixas por quadrado, sem canto arredondado, girados e com sombra de papel |
 | Som | Sem som |
 
 As 6 letras são estáticas no alfabeto manual (sem movimento), então todas cabem no formato de
@@ -39,7 +42,8 @@ contando um vídeo por canal ou pessoa:
 | A | 22 |
 | X | 16 |
 
-Dá para escolher de 10 a 12 mãos boas por letra.
+Na prática, depois dos filtros e da conferência a olho, ficaram 10 fotos boas de L, I, B, R e A
+e 6 de X (veja "Aprovação da folha").
 
 ## Preparação de cada foto
 
@@ -57,22 +61,35 @@ Dá para escolher de 10 a 12 mãos boas por letra.
 6. **Aprovação:** antes do vídeo final, uma folha com as fotos escolhidas de cada letra para o dono
    aprovar.
 
-## Roteiro (cerca de 7,7 s)
+## Roteiro (cerca de 9,8 s)
 
 Tela com o fundo escuro do app (`bg.canvas` do tema escuro, `#14110E`): as cores dos quadrados e a
-tangerina das letras se destacam nele, e é o mesmo fundo do logotipo no fim. Uma fileira de 6
-quadrados no meio da tela, com LIBRAX escrito embaixo, cada letra centrada sob o seu quadrado.
+tangerina das letras se destacam nele, e é o mesmo fundo do logotipo no fim. O vídeo roda a 30
+quadros por segundo.
 
 | Tempo | O que aparece |
 |---|---|
-| 0 a 0,4 s | Fundo do app, vazio |
-| Cada letra, 0,84 s | O quadrado entra no seu lugar da fileira (0,16 s, crescendo de 92% a 100%) já com a primeira mão; as outras 4 trocam a cada 80 ms |
-| Fim de cada letra, 0,36 s | A quinta mão para e a letra entra embaixo do quadrado em tangerina; quando o próximo quadrado entra, ela passa para a cor do texto |
-| 5,4 a 6,2 s | LIBRAX completo parado: 6 quadrados com as mãos e a palavra escrita |
-| 6,2 a 7,7 s | Quadrados e letras somem e entra o logotipo (símbolo Traço e "librax"), parado por 1 s |
+| 0 a 0,3 s | Fundo do app, vazio |
+| Cada letra, cerca de 1 s | O quadrado da letra entra grande no alto da tela (0,13 s) já com a primeira mão; as outras 9 trocam a cada 67 ms (0,6 s); a décima fica 0,1 s e o quadrado encolhe, gira e vai para o seu lugar (0,3 s) |
+| Ao pousar | A letra escrita entra embaixo, em tangerina; quando a letra seguinte pousa, a anterior passa para a cor do texto. O quadrado seguinte já começa a entrar quando o anterior está a 65% do caminho |
+| 6,8 a 7,3 s | LIBRAX completo (o X fica em tangerina) sobe para o meio da tela |
+| 7,3 a 8,3 s | Parado: 6 quadrados com as mãos sobre a palavra escrita (é o `final-v3.png`) |
+| 8,3 a 9,8 s | Quadrados e letras somem e entra o logotipo (símbolo Traço e "librax"), parado por 1 s |
 
-Mãos de cada letra: as 5 de número menor na seleção (`selecao.json`), mostradas do maior para o
-menor; a de número menor é a que fica.
+Mãos de cada letra: as 10 de número menor na seleção (`selecao.json`), mostradas do maior para o
+menor; a de número menor é a que fica. Com menos de 10 na seleção, as fotos repetem em ciclo
+(X tem 6: X4 X3 X2 X1 X6 X5 X4 X3 X2 X1).
+
+A palavra escrita fica com o espaçamento do logotipo (Anybody 900 a 125%, sem espaço extra entre
+as letras), ocupando 86% da largura no vertical. Cada quadrado fica com o centro em cima da sua
+letra; o lado é 1,12 vez o passo médio entre as letras (173 px no vertical), então os quadrados se
+encostam e, em L, I e B (I é uma letra estreita), um fica por cima do outro: o de cada letra por
+cima do anterior. Cada quadrado tem um giro fixo de 2,5 a 6 graus, alternando o sentido, e um
+pequeno deslocamento, sorteados com semente fixa (`--semente`, igual em toda renderização), e uma
+sombra de papel que separa os quadrados sobrepostos. Para a mão continuar legível, a foto dentro
+do quadrado na fileira cabe na parte que o quadrado seguinte deixa à mostra: fica no meio quando
+cabe; senão encosta à esquerda e se afasta um pouco (é o caso do L, com o polegar aberto). No
+quadrado grande a mão fica sempre no meio; o enquadramento muda suave durante o encolhimento.
 
 Cores dos quadrados (paleta do design system, na ordem de LIBRAX):
 
@@ -90,16 +107,17 @@ mão se destaca em qualquer tom de pele. Tangerina, âmbar e ouro ficam de fora 
 demais da cor da pele; a tangerina aparece nas letras e no símbolo. O petróleo, cor da mão e da
 Libras no app, abre e fecha a fileira.
 
-Formatos: com 6 quadrados lado a lado, o lado do quadrado depende só da largura do vídeo. No
-vertical e no quadrado (1080 de largura) cada quadrado tem 151 px; no horizontal (1920 de largura),
-254 px. O horizontal é o mais legível; o quadrado ocupa melhor a tela no feed do celular; o
-vertical deixa a fileira pequena no meio de muito fundo vazio.
+Formatos: o vertical é o principal. O zoom resolve o tamanho pequeno da fileira no celular: cada
+mão aparece grande (670 px) enquanto troca, e a fileira final vira a composição com a palavra.
+Quadrado e horizontal seguem o mesmo desenho, com o quadrado grande em cima e a fileira embaixo.
 
 ## Cuidados
 
 - **Luz piscando:** trocas rápidas de imagem podem incomodar pessoas sensíveis. O fundo da tela e a
-  cor de cada quadrado ficam fixos; só a mão muda, dentro de um quadrado pequeno. Nada de clarão de
-  tela inteira.
+  cor de cada quadrado ficam fixos e o brilho das mãos é aproximado; só a forma da mão muda. Nada de
+  clarão de tela inteira. Com o zoom, a troca acontece num quadrado grande (cerca de um quinto da
+  tela) a 15 trocas por segundo: vale passar o vídeo final num verificador de flashes antes de
+  publicar.
 - **Letras parecidas:** só entram fotos que o modelo lê como a letra certa, para não misturar,
   por exemplo, R com U.
 
@@ -124,16 +142,17 @@ oficiais do MediaPipe (detector de rosto e segmentação de pele, cerca de 16 MB
 cd ml-training
 PY=~/.venvs/librax-ml/bin/python
 $PY divulgacao/preparar.py                  # candidatas, filtros, mãos recortadas, folha.jpg e selecao.json
-$PY divulgacao/montar.py --previa L         # previa-L.mp4 e previa-L.gif (só uma letra, quadrado grande)
-$PY divulgacao/montar.py                    # rascunho-v2.mp4 e final-v2.png (1080 x 1920, H.264, sem som)
-$PY divulgacao/montar.py --formato todos    # também rascunho-v2-quadrado.mp4 e rascunho-v2-horizontal.mp4
-$PY divulgacao/montar.py --por-letra 4      # outra quantidade de mãos por letra (padrão 5)
-$PY divulgacao/montar.py --quadros 1 5.8 7  # quadros soltos em JPG para conferir
+$PY divulgacao/montar.py --previa L         # previa-L.mp4 e previa-L.gif (só a letra L: zoom, troca e pouso)
+$PY divulgacao/montar.py                    # rascunho-v3.mp4 e final-v3.png (1080 x 1920, H.264, sem som)
+$PY divulgacao/montar.py --formato todos    # também rascunho-v3-quadrado.mp4 e rascunho-v3-horizontal.mp4
+$PY divulgacao/montar.py --por-letra 8      # outra quantidade de mãos por letra (padrão 10)
+$PY divulgacao/montar.py --semente 5        # outro sorteio de giro e deslocamento dos quadrados
+$PY divulgacao/montar.py --quadros 1 5.8 8  # quadros soltos em JPG para conferir
 ```
 
 `--formato` aceita `vertical` (padrão), `quadrado`, `horizontal` ou `todos`. Cada vídeo sai com um
-`final-v2*.png` ao lado: a composição final, com LIBRAX completo. `--nome` troca o nome do vídeo
-(padrão `rascunho-v2`); o rascunho anterior (`rascunho.mp4`, mão grande e única no meio) fica na
+`final-v3*.png` ao lado: a composição final, com LIBRAX completo. `--nome` troca o nome do vídeo
+(padrão `rascunho-v3`); os rascunhos anteriores (`rascunho.mp4` e `rascunho-v2*.mp4`) ficam na
 pasta para comparar.
 
 O `preparar.py` leva uns 12 minutos (mede três quadros de cada parada). Depois que ele rodou uma
@@ -141,7 +160,11 @@ vez, `--reusar-analise` refaz só filtros, mãos e folha a partir de `analise.js
 
 Filtros, em ordem (a contagem de canais depois de cada um sai no terminal e em `candidatos.json`):
 classificador do app (p >= 0,6 na letra certa), tamanho do palmo no vídeo, mão inteira dentro do
-quadro, nitidez, pele de verdade, recorte sem buraco, rosto e texto. Na regra do rosto, a mão
+quadro, nitidez, pele de verdade, recorte sem buraco, rosto e texto. Letra com menos de 10 canais
+aprovados ganha uma folga só em tamanho (palmo de 36 px em vez de 40) e nitidez (24 em vez de 40),
+para os canais que ainda não têm foto; essas fotos saem marcadas com "folga" na folha. Rosto,
+texto e recorte nunca relaxam: as quase aprovadas nessas regras foram olhadas uma a uma e todas
+tinham pedaço de rosto, texto ou buraco. Na regra do rosto, a mão
 recortada não pode cair dentro da caixa de um rosto (mão na frente do rosto sai) e o recorte não
 pode levar pele de rosto; o fundo inteiro, rosto incluído, é removido e só fica a pele ligada à
 mão. O fundo sai pela segmentação de pele do MediaPipe (selfie multiclass), colada às bordas da
@@ -150,19 +173,26 @@ foto por um filtro guiado, e o antebraço some aos poucos abaixo do pulso.
 ### Aprovação da folha
 
 `folha.jpg` tem uma faixa por letra, na ordem da nota (confiança do modelo, tamanho e nitidez).
-Cada foto tem um número (L1, L2...) e a confiança do classificador; as pré-selecionadas têm borda e
-selo tangerina. A seleção fica em `selecao.json`:
+Cada foto tem um número (L1, L2...) e a confiança do classificador. As que entram no vídeo (as 10
+de número menor da seleção) têm borda tangerina e um selo com a ordem (1 é a que fica parada no
+fim da troca); as que estão na seleção mas ficam fora do vídeo têm borda cinza. Em cima de cada
+faixa, quantas entram (e se repetem, quando são menos de 10). A seleção fica em `selecao.json`:
 
 ```bash
-$PY divulgacao/preparar.py --tirar L3 --por A14   # edita a seleção e redesenha a folha
-$PY divulgacao/montar.py --formato todos          # refaz os rascunhos com a seleção nova
+$PY divulgacao/preparar.py --tirar L3 --por A14             # edita a seleção e redesenha a folha
+$PY divulgacao/preparar.py --rejeitar I2 --motivo "buraco"  # foto ruim: sai da seleção
+$PY divulgacao/preparar.py --reusar-analise                 # refaz folga, mãos e folha sem as rejeitadas
+$PY divulgacao/montar.py                                    # refaz o rascunho com a seleção nova
 ```
 
 Também dá para editar `selecao.json` à mão: vale a lista `letras` de cada letra, com os números
 da folha (o campo `chaves` só guarda o vídeo e o instante de cada número). Uma nova rodada do
 `preparar.py` mantém a seleção do dono mesmo que a numeração mude; só `--nova-selecao` volta para
-a pré-seleção automática. O vídeo usa as 5 fotos de número menor de cada letra (`--por-letra`),
-na ordem da folha, com a de número menor por último: é ela que fica parada enquanto a letra entra.
-Para trocar uma foto do vídeo, basta tirar o número da seleção (por exemplo, `--tirar I2`): a próxima
-da seleção, na ordem da folha, entra no lugar.
+a pré-seleção automática. A lista `rejeitadas` guarda letra, vídeo e motivo das fotos recusadas a
+olho: elas não voltam para a folha nem contam para a folga, mesmo que a numeração mude.
 
+Rejeitadas na revisão de 2026-10-25: buraco no recorte (o esmalte escuro vira fundo na
+segmentação) nas fotos do vídeo `cT3l6iP7NXY` de L, I e R; borradas: uma de I (`jml2fai1I5s`) e
+duas de B que entraram pela folga (`YYj1lkqPHy8`, `GidjkBp2OWs`); X amarelado (`23YCQl1L2yE`) e X
+com o dedo cortado (`ZHUqjtJewOY`). Com isso e com a folga: L, I, B, R e A com 10 fotos diferentes
+no vídeo e X com 6 (repetidas até 10).
