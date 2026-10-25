@@ -437,6 +437,20 @@
     "profile": "Profile",
     "social": "Social"
   },
+  "offline": {
+    "cameraChip": "Getting the camera ready: {pct}%",
+    "checking": "Checking what is already on this device...",
+    "done": "Ready to use offline",
+    "doneHint": "Camera and sign avatar saved on this device",
+    "downloading": "{pct}% ({done} of {total} MB). You can keep using the app.",
+    "downloadingLabel": "Downloading for offline use",
+    "error": "Could not download. Tap to try again.",
+    "errorOffline": "No internet right now. Tap to try again once you are connected.",
+    "hint": "Camera and sign avatar, about {mb} MB",
+    "label": "Download for offline use",
+    "remaining": "Camera and sign avatar: about {mb} MB left",
+    "unsupported": "This browser does not keep files for offline use."
+  },
   "onboarding": {
     "cameraDisclaimer": "You can turn the camera on or off at any time in Settings.",
     "cameraSub": "Librax evaluates your signs through the camera - only the hand points, never the image.",
@@ -524,6 +538,7 @@
     "about": "About",
     "account": "Account",
     "activated": "Enabled",
+    "app": "App",
     "avatarCredit": "Sign avatar",
     "cameraForExercises": "Camera for exercises",
     "dailyGoal": "Daily goal",

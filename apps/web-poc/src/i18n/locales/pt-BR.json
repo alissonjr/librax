@@ -546,6 +546,20 @@
     "profile": "Perfil",
     "social": "Social"
   },
+  "offline": {
+    "cameraChip": "Preparando a câmera: {pct}%",
+    "checking": "Conferindo o que já está no aparelho...",
+    "done": "Pronto para usar offline",
+    "doneHint": "Câmera e avatar dos sinais guardados neste aparelho",
+    "downloading": "{pct}% ({done} de {total} MB). Pode continuar usando o app.",
+    "downloadingLabel": "Baixando para usar offline",
+    "error": "Não foi possível baixar. Toque para tentar de novo.",
+    "errorOffline": "Sem internet agora. Toque para tentar de novo quando conectar.",
+    "hint": "Câmera e avatar dos sinais, cerca de {mb} MB",
+    "label": "Baixar para usar offline",
+    "remaining": "Câmera e avatar dos sinais: faltam cerca de {mb} MB",
+    "unsupported": "Este navegador não guarda os arquivos para usar offline."
+  },
   "onboarding": {
     "cameraDisclaimer": "Você pode ativar ou desativar a câmera a qualquer momento nas Configurações.",
     "cameraSub": "O Librax avalia seus sinais pela câmera - apenas os pontos da mão, nunca a imagem.",

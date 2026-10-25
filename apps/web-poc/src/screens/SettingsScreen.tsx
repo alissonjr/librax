@@ -11,6 +11,7 @@ import { Icon } from '../components/Icon';
 import { VlibrasCredit } from '../components/SignDemo';
 import { SoundSettingItem } from '../components/SoundPreference';
 import { InstallSheet, useInstallMode } from '../components/InstallSheet';
+import { OfflineSettingItem } from '../components/OfflineSettingItem';
 import { LegalLink } from '../components/LegalLinks';
 import { ROUTES } from '../lib/routes';
 
@@ -258,9 +259,9 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }
           </LegalLink>
         </div>
 
-        {installMode && (
-          <div className="settings-group">
-            <p className="settings-group-label">{t('settings.app')}</p>
+        <div className="settings-group">
+          <p className="settings-group-label">{t('settings.app')}</p>
+          {installMode && (
             <button className="settings-item settings-item--btn" onClick={() => setShowInstall(true)}>
               <Icon name="mobile_arrow_down" className="settings-item-icon" />
               <div className="settings-item-text">
@@ -269,8 +270,10 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice }
               </div>
               <Icon name="chevron_right" className="settings-item-arrow" />
             </button>
-          </div>
-        )}
+          )}
+          {/* Câmera e avatar no aparelho (lib/assetDownload.ts), com o tamanho antes de baixar */}
+          <OfflineSettingItem />
+        </div>
 
         <div className="settings-group">
           <p className="settings-group-label">{t('settings.about')}</p>

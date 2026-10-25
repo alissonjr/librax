@@ -1044,6 +1044,23 @@ h1[tabindex="-1"]:focus { outline: none; }
   margin: 0 auto;
 }
 
+/* Câmera baixando em segundo plano (CameraPrepChip): selo pequeno, sem bloquear nada */
+.prep-chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lx-space-1);
+  padding: var(--lx-space-1) var(--lx-space-3);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-game-hand-soft);
+  color: var(--lx-game-hand-text);
+  font: var(--lx-typography-label-sm);
+  letter-spacing: var(--lx-typography-label-sm-tracking);
+  font-variant-numeric: tabular-nums;
+  animation: lx-fade-in var(--lx-motion-duration-base) var(--lx-motion-easing-decelerate);
+}
+.prep-chip-icon { width: var(--lx-size-icon-sm); height: var(--lx-size-icon-sm); }
+
 .coursemap-footnote {
   font: var(--lx-typography-caption);
   color: var(--lx-text-tertiary);
@@ -4241,6 +4258,8 @@ button.profile-stat-card { cursor: pointer; }
 /* Configurações: e-mail longo quebra */
 .settings-item-value--wrap { overflow-wrap: anywhere; }
 .settings-item--btn:disabled { cursor: progress; }
+/* Baixar para usar offline: barra da meta (10 px) embaixo do texto enquanto baixa */
+.offline-progress { flex: none; width: 100%; margin-top: var(--lx-space-1); }
 
 /* =========================================================
    POLÍTICA DE PRIVACIDADE E TERMOS DE USO (/privacidade, /termos)

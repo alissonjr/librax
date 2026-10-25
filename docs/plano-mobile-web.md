@@ -160,6 +160,10 @@ Princípio que guia todas: **o produto roda no navegador do celular e a experiê
 ### 3.5 PWA, offline e armazenamento
 - Workbox: shell em precache; conteúdo CacheFirst versionado; vídeos CacheFirst com `RangeRequestsPlugin`; `/ml/` em runtime CacheFirst.
 - Prefetch do ML quando a pessoa aceita usar a câmera no onboarding, com progresso e respeitando `Save-Data`.
+  Como ficou (`src/lib/assetDownload.ts`): ao chegar ao mapa, depois da abertura e com o app ocioso, os
+  arquivos da câmera baixam em segundo plano (selo "Preparando a câmera" no mapa), só com service worker
+  para guardar e sem economia de dados nem 2g; o que já está no cache não baixa de novo. Nas Configurações,
+  "Baixar para usar offline" baixa câmera e avatar VLibras (motor e animações do curso, cerca de 48 MB).
 - `navigator.storage.persist()`.
 - Android: `beforeinstallprompt` como sugestão. iPhone: instruções de "Adicionar à Tela de Início".
 

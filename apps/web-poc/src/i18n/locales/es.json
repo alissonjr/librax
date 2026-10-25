@@ -415,6 +415,20 @@
     "profile": "Perfil",
     "social": "Social"
   },
+  "offline": {
+    "cameraChip": "Preparando la cámara: {pct}%",
+    "checking": "Revisando lo que ya está en el dispositivo...",
+    "done": "Listo para usar sin conexión",
+    "doneHint": "Cámara y avatar de las señas guardados en este dispositivo",
+    "downloading": "{pct}% ({done} de {total} MB). Puedes seguir usando la app.",
+    "downloadingLabel": "Descargando para usar sin conexión",
+    "error": "No se pudo descargar. Toca para intentar de nuevo.",
+    "errorOffline": "Sin internet ahora. Toca para intentar de nuevo cuando te conectes.",
+    "hint": "Cámara y avatar de las señas, unos {mb} MB",
+    "label": "Descargar para usar sin conexión",
+    "remaining": "Cámara y avatar de las señas: faltan unos {mb} MB",
+    "unsupported": "Este navegador no guarda los archivos para usar sin conexión."
+  },
   "onboarding": {
     "cameraDisclaimer": "Puedes activar o desactivar la cámara en cualquier momento en Configuración.",
     "cameraSub": "Librax evalúa tus señas con la cámara - solo los puntos de la mano, nunca la imagen.",
@@ -502,6 +516,7 @@
     "about": "Acerca de",
     "account": "Cuenta",
     "activated": "Activada",
+    "app": "Aplicación",
     "avatarCredit": "Avatar de señas",
     "cameraForExercises": "Cámara para ejercicios",
     "dailyGoal": "Meta diaria",
