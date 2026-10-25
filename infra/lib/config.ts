@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { Node } from 'constructs';
 
 /**
@@ -10,9 +11,13 @@ import { Node } from 'constructs';
  * | chave                          | padrao                          | uso |
  * |--------------------------------|---------------------------------|-----|
  * | librax:accountId               | (vazio)                         | conta AWS do Librax; deploy, diff e bootstrap recusam outra conta |
- * | librax:domainName              | librax.example                  | dominio do app (CloudFront) |
+ * | librax:domainName              | librax.example                  | dominio raiz; os nomes abaixo partem dele |
+ * | librax:appDomainName           | app.<domainName>                | dominio do app (CloudFront do app, /api e /admin) |
+ * | librax:landingDomainName       | <domainName>                    | dominio da landing (CloudFront proprio) |
+ * | librax:wwwDomainName           | www.<landingDomainName>         | redireciona para a landing; `none` desliga |
+ * | librax:landingDistDir          | ../apps/landing/dist            | build da landing; o synth tira dele o hash do script inline da CSP |
  * | librax:authDomainName          | auth.<domainName>               | dominio proprio do Cognito |
- * | librax:certificateArn          | (vazio)                         | ACM em us-east-1 cobrindo os dois dominios; sem ele, sem dominio proprio |
+ * | librax:certificateArn          | (vazio)                         | ACM em us-east-1 cobrindo todos os nomes acima; sem ele, sem dominio proprio |
  * | librax:cognitoDomainPrefix     | librax-example                  | prefixo amazoncognito.com usado so sem certificado |
  * | librax:hostedZoneId/Name       | (vazio)                         | Route 53: cria os registros A/AAAA se informado |
  * | librax:extraCallbackUrls       | (vazio)                         | callbacks extras separados por virgula (ex.: dev local) |
@@ -40,6 +45,8 @@ import { Node } from 'constructs';
  */
 export interface LibraxConfig {
   domainName: string;
+  appDomainName: string;
+  landing: { domainName: string; redirectDomainNames: string[]; distDir: string };
   authDomainName: string;
   certificateArn?: string;
   cognitoDomainPrefix: string;
@@ -85,9 +92,22 @@ export function readConfig(node: Node): LibraxConfig {
   const domainName = str('domainName', PLACEHOLDER_DOMAIN);
   const hostedZoneId = str('hostedZoneId');
   const hostedZoneName = str('hostedZoneName');
+  const appDomainName = str('appDomainName', `app.${domainName}`);
+  const landingDomainName = str('landingDomainName', domainName);
+  const www = str('wwwDomainName', `www.${landingDomainName}`);
+  // Dois CloudFront nao podem ter o mesmo nome
+  if (appDomainName === landingDomainName) {
+    throw new Error(`librax:appDomainName e librax:landingDomainName precisam ser diferentes (os dois vieram "${appDomainName}")`);
+  }
 
   return {
     domainName,
+    appDomainName,
+    landing: {
+      domainName: landingDomainName,
+      redirectDomainNames: www === 'none' ? [] : [www],
+      distDir: path.resolve(str('landingDistDir', path.join(__dirname, '..', '..', 'apps', 'landing', 'dist'))),
+    },
     authDomainName: str('authDomainName', `auth.${domainName}`),
     certificateArn: str('certificateArn') || undefined,
     cognitoDomainPrefix: str('cognitoDomainPrefix', 'librax-example'),

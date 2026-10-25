@@ -44,22 +44,25 @@ function headerPolicies(template: Template) {
   );
 }
 
+/** Configuracao do CloudFront do app (o outro e o da landing). */
 function behaviors(template: Template) {
-  const [dist] = Object.values(template.findResources('AWS::CloudFront::Distribution'));
-  return dist.Properties.DistributionConfig;
+  const dist = Object.values(template.findResources('AWS::CloudFront::Distribution')).find((d) =>
+    d.Properties.DistributionConfig.Comment.startsWith('Librax - app'),
+  );
+  return dist!.Properties.DistributionConfig;
 }
 
-describe('CloudFront unico na mesma origem', () => {
-  test('um CloudFront so, com /, /assets, /content, /ml, /api, /vlibras e /admin', () => {
+describe('CloudFront do app na mesma origem', () => {
+  test('CloudFront do app em app.<dominio>, com /, /assets, /content, /ml, /api, /vlibras e /admin', () => {
     const { template } = synth(withDomain);
-    template.resourceCountIs('AWS::CloudFront::Distribution', 1);
+    template.resourceCountIs('AWS::CloudFront::Distribution', 2); // app e landing
     const config = behaviors(template);
     const paths = config.CacheBehaviors.map((b: { PathPattern: string }) => b.PathPattern);
     expect(paths).toEqual([
       '/assets/*.wasm', '/assets/*', '/vlibras/v*', '/vlibras/sinais/*', '/vlibras/*', '/content/*', '/ml/*.wasm', '/ml/*', '/api/*',
       '/admin/assets/*', '/admin', '/admin/*',
     ]);
-    expect(config.Aliases).toEqual(['librax.example']);
+    expect(config.Aliases).toEqual(['app.librax.example']);
     expect(config.DefaultRootObject).toBe('index.html');
   });
 
@@ -180,8 +183,8 @@ describe('Cognito', () => {
       AllowedOAuthFlows: ['code'],
       AllowedOAuthFlowsUserPoolClient: true,
       ExplicitAuthFlows: Match.arrayWith(['ALLOW_USER_SRP_AUTH']),
-      CallbackURLs: ['https://librax.example/auth/callback', 'http://localhost:5173/auth/callback'],
-      LogoutURLs: ['https://librax.example/'],
+      CallbackURLs: ['https://app.librax.example/auth/callback', 'http://localhost:5173/auth/callback'],
+      LogoutURLs: ['https://app.librax.example/'],
       SupportedIdentityProviders: ['COGNITO', 'Google'],
     });
   });
@@ -253,7 +256,7 @@ describe('API', () => {
   test('CORS restrito ao dominio do app (nunca *)', () => {
     const { template } = synth({ ...withDomain, 'librax:extraCorsOrigins': 'http://localhost:5173' });
     template.hasResourceProperties('AWS::ApiGatewayV2::Api', {
-      CorsConfiguration: Match.objectLike({ AllowOrigins: ['https://librax.example', 'http://localhost:5173'] }),
+      CorsConfiguration: Match.objectLike({ AllowOrigins: ['https://app.librax.example', 'http://localhost:5173'] }),
     });
   });
 
@@ -358,14 +361,27 @@ describe('Web Push, lembretes e e-mail', () => {
 });
 
 describe('DNS opcional', () => {
-  test('com zona do Route 53 cria A/AAAA do app e A do Cognito', () => {
+  test('com zona do Route 53 cria A/AAAA da landing (apex e www), do app e A do Cognito', () => {
     const { template } = synth({
       ...withDomain,
       'librax:hostedZoneId': 'Z0000000000000000000',
       'librax:hostedZoneName': 'librax.example',
     });
-    template.resourcePropertiesCountIs('AWS::Route53::RecordSet', { Name: 'librax.example.' }, 2);
+    for (const name of ['librax.example.', 'www.librax.example.', 'app.librax.example.']) {
+      template.resourcePropertiesCountIs('AWS::Route53::RecordSet', { Name: name }, 2);
+    }
     template.hasResourceProperties('AWS::Route53::RecordSet', { Name: 'auth.librax.example.', Type: 'A' });
+    template.resourceCountIs('AWS::Route53::RecordSet', 7);
+    // apex e app apontam para CloudFronts diferentes
+    const records = Object.values(template.findResources('AWS::Route53::RecordSet')).map((r) => r.Properties);
+    const target = (name: string) => JSON.stringify(records.find((r) => r.Name === name && r.Type === 'A').AliasTarget);
+    expect(target('librax.example.')).toContain('LibraxLandingCDN');
+    expect(target('www.librax.example.')).toContain('LibraxLandingCDN');
+    expect(target('app.librax.example.')).not.toContain('LibraxLandingCDN');
+    // o dominio do Cognito espera o apex resolver
+    const [domainId, domain] = Object.entries(template.findResources('AWS::Cognito::UserPoolDomain'))[0];
+    expect(domainId).toBeDefined();
+    expect(JSON.stringify(domain.DependsOn)).toMatch(/LandingAlias/);
   });
 });
 
@@ -451,8 +467,8 @@ describe('Painel de administracao', () => {
       GenerateSecret: false,
       AllowedOAuthFlows: ['code'],
       ExplicitAuthFlows: ['ALLOW_REFRESH_TOKEN_AUTH'],
-      CallbackURLs: ['https://librax.example/admin/auth/callback', 'http://localhost:5310/admin/auth/callback'],
-      LogoutURLs: ['https://librax.example/admin/'],
+      CallbackURLs: ['https://app.librax.example/admin/auth/callback', 'http://localhost:5310/admin/auth/callback'],
+      LogoutURLs: ['https://app.librax.example/admin/'],
     });
   });
 

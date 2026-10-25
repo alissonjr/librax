@@ -37,6 +37,14 @@ import {
   SPA_REWRITE_FUNCTION,
   WASM_CONTENT_TYPE_FUNCTION,
 } from './web-headers';
+import {
+  landingCsp,
+  landingRequestFunction,
+  landingScriptHashes,
+  LANDING_INLINE_SCRIPT_HASHES,
+  LANDING_PERMISSIONS_POLICY,
+  LANDING_SHORT_CACHE,
+} from './landing';
 
 /** Raiz do backend (services/api): codigo das Lambdas, package-lock e node_modules. */
 const API_DIR = path.join(__dirname, '..', '..', 'services', 'api');
@@ -49,7 +57,8 @@ const API_DIR = path.join(__dirname, '..', '..', 'services', 'api');
  * - Cognito User Pool com dominio proprio, OAuth code + PKCE, Google (e Apple opcional)
  * - Lambda functions (Node 22, empacotadas com esbuild) para cada endpoint
  * - API Gateway HTTP API (autorizador JWT Cognito) no estagio `api`
- * - CloudFront unico na mesma origem: `/` app, `/content/*`, `/ml/*`, `/api/*`
+ * - CloudFront do app em app.<dominio>, tudo na mesma origem: `/` app, `/content/*`, `/ml/*`, `/api/*`
+ * - Landing publica (apps/landing) no dominio raiz, com bucket e CloudFront proprios; www -> apex
  * - EventBridge Scheduler: fechar liga semanal, lembretes (Web Push e e-mail opcional) e o job
  *   diario do painel de administracao (CloudWatch e Cost Explorer)
  * - Painel de administracao em /admin (bucket proprio), so para o grupo `admin` do Cognito
@@ -169,6 +178,15 @@ export class LibraxStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
+    // Landing publica (apps/landing, dist/). Bucket proprio: o sync de um site nao apaga o outro.
+    const landingBucket = new s3.Bucket(this, 'LibraxLandingBucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      enforceSSL: true,
+      versioned: true,
+      removalPolicy: RemovalPolicy.RETAIN,
+    });
+
     // -----------------------------------------------------------------------
     // 3. Cognito User Pool (dominio proprio, OAuth code + PKCE, Google, Apple opcional)
     // -----------------------------------------------------------------------
@@ -194,7 +212,8 @@ export class LibraxStack extends cdk.Stack {
     });
 
     // Dominio do login social. Com certificado: auth.<dominio> (o Cognito exige que o dominio
-    // pai ja resolva; o registro A do app e criado antes, ver secao 8). Sem certificado: prefixo.
+    // pai ja resolva; os registros A da landing e do app sao criados antes, ver secao 8). Sem
+    // certificado: prefixo.
     const userPoolDomain = certificate
       ? userPool.addDomain('LibraxAuthDomain', {
           customDomain: { domainName: config.authDomainName, certificate },
@@ -361,7 +380,7 @@ export class LibraxStack extends cdk.Stack {
       description: 'Fecha liga semanal (SPEC 02 sec 5.5) e zera o XP semanal das squads (SPEC 04 sec 0.3)',
     });
 
-    const appUrl = `https://${config.domainName}`;
+    const appUrl = `https://${config.appDomainName}`;
     const reminderFn = makeFn('ReminderFn', 'reminders.js', 'handler', {
       functionName: 'librax-reminders',
       timeout: Duration.minutes(5),
@@ -491,19 +510,31 @@ export class LibraxStack extends cdk.Stack {
     );
 
     const cspValue = appCsp(`https://${authHost}`, `https://cognito-idp.${this.region}.amazonaws.com`);
-    const securityHeaders = (csp: string): cloudfront.ResponseSecurityHeadersBehavior => ({
+    const securityHeaders = (
+      csp: string,
+      frameOption = cloudfront.HeadersFrameOption.SAMEORIGIN,
+    ): cloudfront.ResponseSecurityHeadersBehavior => ({
       contentSecurityPolicy: config.cspReportOnly ? undefined : { contentSecurityPolicy: csp, override: true },
       contentTypeOptions: { override: true },
-      frameOptions: { frameOption: cloudfront.HeadersFrameOption.SAMEORIGIN, override: true },
+      frameOptions: { frameOption, override: true },
       referrerPolicy: { referrerPolicy: cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN, override: true },
       strictTransportSecurity: { accessControlMaxAge: Duration.days(365), includeSubdomains: true, override: true },
     });
-    const headerPolicy = (id: string, comment: string, opts: { csp?: string; extra?: Record<string, string> }) => {
-      const custom: Record<string, string> = { 'Permissions-Policy': PERMISSIONS_POLICY, ...opts.extra };
+    const headerPolicy = (
+      id: string,
+      comment: string,
+      opts: {
+        csp?: string;
+        extra?: Record<string, string>;
+        permissions?: string;
+        frameOption?: cloudfront.HeadersFrameOption;
+      },
+    ) => {
+      const custom: Record<string, string> = { 'Permissions-Policy': opts.permissions ?? PERMISSIONS_POLICY, ...opts.extra };
       if (config.cspReportOnly && opts.csp) custom['Content-Security-Policy-Report-Only'] = opts.csp;
       return new cloudfront.ResponseHeadersPolicy(this, id, {
         comment,
-        securityHeadersBehavior: securityHeaders(opts.csp ?? cspValue),
+        securityHeadersBehavior: securityHeaders(opts.csp ?? cspValue, opts.frameOption),
         customHeadersBehavior: {
           customHeaders: Object.entries(custom).map(([header, value]) => ({ header, value, override: true })),
         },
@@ -594,7 +625,7 @@ export class LibraxStack extends cdk.Stack {
 
     const distribution = new cloudfront.Distribution(this, 'LibraxCDN', {
       comment: 'Librax - app, conteudo, ML e API na mesma origem',
-      domainNames: certificate ? [config.domainName] : undefined,
+      domainNames: certificate ? [config.appDomainName] : undefined,
       certificate,
       minimumProtocolVersion: certificate ? cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021 : undefined,
       httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
@@ -627,6 +658,83 @@ export class LibraxStack extends cdk.Stack {
         '/admin': adminShellBehavior,
         '/admin/*': adminShellBehavior,
       },
+    });
+    const appOrigin = certificate ? appUrl : `https://${distribution.distributionDomainName}`;
+
+    // -----------------------------------------------------------------------
+    // 6b. Landing publica no dominio raiz (apex e www)
+    // -----------------------------------------------------------------------
+
+    // CloudFront proprio, e nao mais comportamentos no do app: o CloudFront escolhe o
+    // comportamento pelo caminho, nunca pelo nome, e os dois sites tem conteudo diferente na raiz.
+    // Separados, cada um tem cache, CSP e publicacao proprios e a landing nao mexe no app.
+    const landingHashes = landingScriptHashes(config.landing.distDir);
+    if (!landingHashes.fromBuild) {
+      Annotations.of(this).addWarningV2(
+        'librax:no-landing-build',
+        `Sem o build da landing em ${config.landing.distDir}: a CSP usa o hash gravado em lib/landing.ts. ` +
+          'Antes do deploy, rode npm run landing:build (em infra).',
+      );
+    } else if (landingHashes.hashes.join(' ') !== [...LANDING_INLINE_SCRIPT_HASHES].sort().join(' ')) {
+      Annotations.of(this).addWarningV2(
+        'librax:landing-hash-changed',
+        'O script inline da landing mudou: o deploy usa o hash do build, mas atualize ' +
+          'LANDING_INLINE_SCRIPT_HASHES em lib/landing.ts (npm run landing:hash).',
+      );
+    }
+    const landingCspValue = landingCsp(landingHashes.hashes);
+    const landingHtmlHeaders = headerPolicy('LandingHtmlHeaders', 'Librax - landing (cache curto)', {
+      csp: landingCspValue,
+      permissions: LANDING_PERMISSIONS_POLICY,
+      frameOption: cloudfront.HeadersFrameOption.DENY,
+      extra: { 'Cache-Control': LANDING_SHORT_CACHE },
+    });
+    const landingAssetHeaders = headerPolicy('LandingAssetHeaders', 'Librax - landing, arquivos com hash (immutable)', {
+      csp: landingCspValue,
+      permissions: LANDING_PERMISSIONS_POLICY,
+      frameOption: cloudfront.HeadersFrameOption.DENY,
+      extra: { 'Cache-Control': IMMUTABLE },
+    });
+    // Paginas e arquivos sem hash: 5 min na borda (o mesmo do Cache-Control)
+    const landingShortCache = new cloudfront.CachePolicy(this, 'LandingShortCache', {
+      comment: 'Librax - landing, paginas com cache curto',
+      defaultTtl: Duration.minutes(5),
+      minTtl: Duration.seconds(0),
+      maxTtl: Duration.days(1),
+      enableAcceptEncodingGzip: true,
+      enableAcceptEncodingBrotli: true,
+    });
+    const landingRequest = new cloudfront.Function(this, 'LandingRequest', {
+      comment: 'Landing: www -> apex, /app -> app, pasta -> index.html',
+      runtime: cloudfront.FunctionRuntime.JS_2_0,
+      code: cloudfront.FunctionCode.fromInline(
+        landingRequestFunction(config.landing.domainName, config.landing.redirectDomainNames, appOrigin),
+      ),
+    });
+    const landingOrigin = cloudfrontOrigins.S3BucketOrigin.withOriginAccessControl(landingBucket);
+
+    const landingDistribution = new cloudfront.Distribution(this, 'LibraxLandingCDN', {
+      comment: 'Librax - landing publica (apex e www)',
+      domainNames: certificate ? [config.landing.domainName, ...config.landing.redirectDomainNames] : undefined,
+      certificate,
+      minimumProtocolVersion: certificate ? cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021 : undefined,
+      httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
+      priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
+      defaultRootObject: 'index.html',
+      defaultBehavior: {
+        ...staticBehavior(landingOrigin, landingHtmlHeaders, landingShortCache),
+        functionAssociations: [{ function: landingRequest, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
+      },
+      additionalBehaviors: {
+        '/assets/*': staticBehavior(landingOrigin, landingAssetHeaders),
+      },
+      // Sem ListBucket, caminho que nao existe volta 403 do S3: vira 404 com a pagina inicial
+      errorResponses: [403, 404].map((httpStatus) => ({
+        httpStatus,
+        responseHttpStatus: 404,
+        responsePagePath: '/index.html',
+        ttl: Duration.minutes(1),
+      })),
     });
 
     // -----------------------------------------------------------------------
@@ -743,7 +851,7 @@ export class LibraxStack extends cdk.Stack {
     }
 
     // -----------------------------------------------------------------------
-    // 8. DNS (opcional): A/AAAA do app e do dominio do Cognito
+    // 8. DNS (opcional): A/AAAA da landing (apex e www), do app e do dominio do Cognito
     // -----------------------------------------------------------------------
 
     if (certificate && config.hostedZone) {
@@ -752,10 +860,18 @@ export class LibraxStack extends cdk.Stack {
         zoneName: config.hostedZone.name,
       });
       const appTarget = route53.RecordTarget.fromAlias(new route53Targets.CloudFrontTarget(distribution));
-      const appA = new route53.ARecord(this, 'AppAlias', { zone, recordName: config.domainName, target: appTarget });
-      new route53.AaaaRecord(this, 'AppAliasV6', { zone, recordName: config.domainName, target: appTarget });
-      // O Cognito so aceita dominio proprio se o dominio pai ja resolve
-      userPoolDomain.node.addDependency(appA);
+      const appA = new route53.ARecord(this, 'AppAlias', { zone, recordName: config.appDomainName, target: appTarget });
+      new route53.AaaaRecord(this, 'AppAliasV6', { zone, recordName: config.appDomainName, target: appTarget });
+      const landingTarget = route53.RecordTarget.fromAlias(new route53Targets.CloudFrontTarget(landingDistribution));
+      const landingA = new route53.ARecord(this, 'LandingAlias', { zone, recordName: config.landing.domainName, target: landingTarget });
+      new route53.AaaaRecord(this, 'LandingAliasV6', { zone, recordName: config.landing.domainName, target: landingTarget });
+      config.landing.redirectDomainNames.forEach((recordName, i) => {
+        const id = i === 0 ? 'Www' : `Www${i + 1}`;
+        new route53.ARecord(this, `${id}Alias`, { zone, recordName, target: landingTarget });
+        new route53.AaaaRecord(this, `${id}AliasV6`, { zone, recordName, target: landingTarget });
+      });
+      // O Cognito so aceita dominio proprio se o dominio pai ja resolve (auth.<dominio> -> apex)
+      userPoolDomain.node.addDependency(appA, landingA);
       new route53.ARecord(this, 'AuthAlias', {
         zone,
         recordName: config.authDomainName,
@@ -950,8 +1066,8 @@ export class LibraxStack extends cdk.Stack {
     // -----------------------------------------------------------------------
 
     new cdk.CfnOutput(this, 'AppUrl', {
-      value: certificate ? appUrl : `https://${distribution.distributionDomainName}`,
-      description: 'URL do app (CloudFront)',
+      value: appOrigin,
+      description: 'URL do app (CloudFront do app; VITE_APP_URL da landing)',
     });
     new cdk.CfnOutput(this, 'ApiUrl', {
       value: `${appUrl}/api`,
@@ -994,7 +1110,7 @@ export class LibraxStack extends cdk.Stack {
       description: 'Bucket de conteudo (content/...) e modelos (ml/<versao>/...)',
     });
     new cdk.CfnOutput(this, 'AdminUrl', {
-      value: `${certificate ? appUrl : `https://${distribution.distributionDomainName}`}/admin/`,
+      value: `${appOrigin}/admin/`,
       description: 'Painel de administracao (so o grupo admin do Cognito)',
     });
     new cdk.CfnOutput(this, 'AdminClientId', {
@@ -1004,6 +1120,26 @@ export class LibraxStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'AdminBucketName', {
       value: adminBucket.bucketName,
       description: 'Bucket do painel (dist/ do apps/admin-web vai para admin/)',
+    });
+    new cdk.CfnOutput(this, 'LandingUrl', {
+      value: certificate ? `https://${config.landing.domainName}` : `https://${landingDistribution.distributionDomainName}`,
+      description: 'URL da landing (SITE_ORIGIN do build da landing)',
+    });
+    new cdk.CfnOutput(this, 'LandingBucketName', {
+      value: landingBucket.bucketName,
+      description: 'Bucket da landing (dist/ do apps/landing)',
+    });
+    new cdk.CfnOutput(this, 'LandingDistributionId', {
+      value: landingDistribution.distributionId,
+      description: 'Para invalidar as paginas da landing depois do upload',
+    });
+    new cdk.CfnOutput(this, 'LandingDistributionDomain', {
+      value: landingDistribution.distributionDomainName,
+      description: 'Destino do alias/CNAME do apex e do www',
+    });
+    new cdk.CfnOutput(this, 'LandingScriptHashes', {
+      value: landingHashes.hashes.join(' ') || '(nenhum)',
+      description: 'Hashes do script inline na CSP da landing (o landing:publicar confere com o build)',
     });
     new cdk.CfnOutput(this, 'AlarmTopicArn', {
       value: alarmTopic.topicArn,
