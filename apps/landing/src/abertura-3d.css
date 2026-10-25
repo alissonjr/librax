@@ -13,6 +13,10 @@
 .stage3d { position: relative; display: none; flex-direction: column; gap: var(--lx-space-3); }
 .lx-js .stage:not([data-view="2d"]) .stage3d { display: flex; }
 .lx-js .stage:not([data-view="2d"]) .tiles { display: none; }
+/* Enquanto nem o 3D nem as mãos desenhadas assumiram o palco, a etiqueta diz que está lendo */
+.stage-word-loading { display: none; }
+.lx-js .stage:not([data-view]) .stage-word-loading { display: inline; }
+.lx-js .stage:not([data-view]) [data-stage-word] { display: none; }
 .stage3d-canvas { opacity: 0; transition: opacity var(--lx-motion-duration-emphasis) var(--lx-motion-easing-standard); }
 .stage[data-view="3d"] .stage3d-canvas { opacity: 1; }
 .stage3d-view[data-loading] .tile-letter,

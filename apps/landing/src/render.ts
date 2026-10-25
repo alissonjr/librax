@@ -269,7 +269,7 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
     <figure class="stage" data-stage aria-label="${esc(c.hero.stageLabel)}">
       <div class="stage-bar">
         <span class="stage-pill"><span class="rec-dot" aria-hidden="true"></span>${esc(c.hero.stageStatus)}</span>
-        <span class="stage-pill stage-status" aria-hidden="true" data-stage-status data-reading="${esc(c.hero.stageReading)}" data-done="${esc(c.hero.stageDone)}">${icon('check_circle', { filled: true })}<span data-stage-word>${esc(c.hero.stageDone)}: LIBRAX</span></span>
+        <span class="stage-pill stage-status" aria-hidden="true" data-stage-status data-reading="${esc(c.hero.stageReading)}" data-done="${esc(c.hero.stageDone)}">${icon('check_circle', { filled: true })}<span class="stage-word-loading">${esc(c.hero.stageReading)}...</span><span data-stage-word>${esc(c.hero.stageDone)}: LIBRAX</span></span>
       </div>
       <ol class="tiles" role="list">${tiles}</ol>${stage3d()}
       <figcaption class="stage-caption">
