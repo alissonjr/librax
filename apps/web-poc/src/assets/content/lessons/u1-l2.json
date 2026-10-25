@@ -14,11 +14,10 @@
     {
       "id": "u1-l2-ex02",
       "lesson_id": "u1-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 2,
       "payload": {
-        "sign_id": "letra-F",
-        "correct": "F"
+        "sign_id": "letra-G"
       }
     },
     {
@@ -27,16 +26,29 @@
       "type": "sign_intro",
       "order": 3,
       "payload": {
-        "sign_id": "letra-G"
+        "sign_id": "letra-H"
       }
     },
     {
       "id": "u1-l2-ex04",
       "lesson_id": "u1-l2",
-      "type": "sign_intro",
+      "type": "match_pairs",
       "order": 4,
       "payload": {
-        "sign_id": "letra-H"
+        "pairs": [
+          {
+            "sign_id": "letra-F",
+            "gloss": "F"
+          },
+          {
+            "sign_id": "letra-G",
+            "gloss": "G"
+          },
+          {
+            "sign_id": "letra-H",
+            "gloss": "H"
+          }
+        ]
       }
     },
     {
@@ -64,14 +76,6 @@
       "order": 7,
       "payload": {
         "pairs": [
-          {
-            "sign_id": "letra-G",
-            "gloss": "G"
-          },
-          {
-            "sign_id": "letra-H",
-            "gloss": "H"
-          },
           {
             "sign_id": "letra-I",
             "gloss": "I"
@@ -138,8 +142,21 @@
     {
       "id": "u1-l2-ex12",
       "lesson_id": "u1-l2",
-      "type": "fingerspell",
+      "type": "perform_sign",
       "order": 12,
+      "payload": {
+        "sign_id": "letra-J",
+        "recognition": "dynamic",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l2-ex13",
+      "lesson_id": "u1-l2",
+      "type": "fingerspell",
+      "order": 13,
       "payload": {
         "word": "CHEGA",
         "letters": [

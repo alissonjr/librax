@@ -2,6 +2,7 @@ import signsRaw from '../assets/content/signs.json';
 import { course, type Phrase, type SourceRef } from './course';
 import { getClassifier } from '../recognition/classifier';
 import { getSignGlosses, loadSignIndex } from '../recognition/signModel';
+import { getMotionLetters, loadLetterMotionIndex } from '../recognition/letterMotionModel';
 import { getDisplayName } from './auth';
 import { ownNameLetters } from './fingerspell';
 
@@ -119,9 +120,10 @@ export interface Exercise {
   tiles?: string[];
   /**
    * perform_sign: 'sinais' quando quem avalia é o modelo dos sinais com movimento (mãos e corpo,
-   * ExerciseCameraMotionSign); ausente nas letras (ExerciseCameraSign).
+   * ExerciseCameraMotionSign); 'letras-mov' quando é o das letras com movimento (só as mãos,
+   * ExerciseCameraMotionLetter); ausente nas letras paradas (ExerciseCameraSign).
    */
-  recognizer?: 'sinais';
+  recognizer?: 'sinais' | 'letras-mov';
 }
 
 // Os tipos e o curso continuam saindo daqui para quem já importa de content.ts
@@ -195,6 +197,19 @@ export function isMotionSignEvaluable(sign: Sign | undefined): boolean {
 export { loadSignIndex };
 
 /**
+ * Letra com movimento (H, J, K, X, Z, Ç) que a câmera avalia COM o movimento: está nos rótulos do
+ * modelo das letras com movimento (/ml/letras-mov/model.json, lido pelo loadLetterMotionIndex antes
+ * de resolver a lição). Vale antes do modelo das letras paradas, que só vê a forma da mão. Sem
+ * modelo, nenhuma: H e K seguem com o modelo das letras paradas e J e Z com a prática livre.
+ */
+export function isLetterMotionEvaluable(sign: Sign | undefined): boolean {
+  return !!sign && sign.category === 'alfabeto' && getMotionLetters().has(sign.gloss);
+}
+
+/** Lê o model.json das letras com movimento uma vez por sessão; a rota da lição espera antes de resolver. */
+export { loadLetterMotionIndex };
+
+/**
  * Escolhe 3 distratores para as questoes de multipla escolha. Prefere sinais da
  * mesma categoria (letras com letras, numeros com numeros) e completa com o
  * restante se a categoria tiver poucos sinais. Nunca repete glosa.
@@ -245,6 +260,8 @@ export interface ResolveOptions {
   canEvaluate?: (sign: Sign | undefined) => boolean;
   /** Se o modelo dos sinais com movimento avalia o sinal (padrao: isMotionSignEvaluable). */
   canEvaluateMotion?: (sign: Sign | undefined) => boolean;
+  /** Se o modelo das letras com movimento avalia a letra (padrao: isLetterMotionEvaluable). */
+  canEvaluateLetterMotion?: (sign: Sign | undefined) => boolean;
   /** Nome do perfil para o "soletre seu nome" (padrao: o salvo no aparelho pelo onboarding). */
   displayName?: string | null;
 }
@@ -254,8 +271,9 @@ export interface ResolveOptions {
  * - watch_choose_word sem `options` ganha 3 distratores (mesma categoria primeiro) e ordem sorteada;
  * - build_phrase sorteia os distratores e a ordem dos blocos;
  * - word_choose_video sorteia a ordem das 4 demonstracoes;
- * - perform_sign de letra avaliada fica com o classificador das letras; de sinal que o modelo de
- *   sinais com movimento conhece, com ele (recognizer 'sinais'); senao vira mirror_practice
+ * - perform_sign de letra com movimento que o modelo das letras com movimento conhece fica com ele
+ *   (recognizer 'letras-mov'); de letra avaliada, com o classificador das letras paradas; de sinal
+ *   que o modelo de sinais com movimento conhece, com ele (recognizer 'sinais'); senao vira mirror_practice
  *   (pratica livre, sem nota, para nao contar erro que a pessoa nao cometeu) e a pratica livre
  *   repetida do mesmo sinal sai;
  * - fingerspell so usa a camera quando ela avalia todas as letras da palavra; senao vira
@@ -269,6 +287,7 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
   const pool = opts.allSignIds ?? course.signsOrder;
   const canEvaluate = opts.canEvaluate ?? isCameraEvaluable;
   const canEvaluateMotion = opts.canEvaluateMotion ?? isMotionSignEvaluable;
+  const canEvaluateLetterMotion = opts.canEvaluateLetterMotion ?? isLetterMotionEvaluable;
   const firstSign = lessonSignIds[0] ?? '';
   const mirrored = new Set<string>();
   const out: Exercise[] = [];
@@ -281,7 +300,9 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
         break;
       case 'perform_sign': {
         const signId = item.payload.sign_id;
-        if (canEvaluate(map[signId])) {
+        if (canEvaluateLetterMotion(map[signId])) {
+          out.push({ id, type: 'perform_sign', signId, recognizer: 'letras-mov' });
+        } else if (canEvaluate(map[signId])) {
           out.push({ id, type: 'perform_sign', signId });
         } else if (canEvaluateMotion(map[signId])) {
           out.push({ id, type: 'perform_sign', signId, recognizer: 'sinais' });
@@ -368,7 +389,7 @@ export async function loadLessonBundle(lessonId: string): Promise<BundleExercise
 export async function loadLessonExercises(lessonId: string): Promise<Exercise[] | null> {
   const lesson = course.lessonsMap[lessonId];
   if (!lesson) return null;
-  const [items] = await Promise.all([loadLessonBundle(lessonId), loadSignIndex()]);
+  const [items] = await Promise.all([loadLessonBundle(lessonId), loadSignIndex(), loadLetterMotionIndex()]);
   return items ? resolveExercises(items, lesson.signIds) : null;
 }
 

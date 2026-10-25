@@ -27,6 +27,11 @@ Hoje só 10 letras têm exercício de câmera (A, B, F, G, K, L, P, Q, U, V), ma
   Letra fraca entra só quando o teste fixo dela passar de 80%.
 - J, Z e Ç têm movimento: ficam com prática livre até entrarem no modelo de sinais.
 
+Feito em 2026-10-25 (letras com movimento, spec-01 seção 3.3): modelo próprio, só com as mãos, para H, J, K, X, Z e
+Ç. Com ele publicado em `public/ml/letras-mov/`, H, K e J são avaliadas com o movimento (J entrou no `produce` da
+U1 L2). X (3/6) e Z (4/7) ficaram abaixo de 70% com pessoas nunca vistas e seguem como prática livre; o Y fica nas
+letras paradas (nos vídeos a mão não se mexe).
+
 Feito: C, D, E, H, I, O, S, W e Y ganharam câmera (`produce` de cada lição da U1). M, N, R, T e X
 esperam passar de 80%. F (3/4), Q (4/6) e U (1/3) já tinham câmera e continuam, mas estão abaixo de
 80%: decidir se saem do `produce` até o próximo treino.
@@ -67,7 +72,8 @@ americano. O mesmo cruzamento vale para todo o alfabeto e os números:
 - Revisar F e T no dicionário do INES (nota já gravada nas duas).
 - Feito em 2026-10-25: alfabeto e números conferidos no vídeo do INES e no avatar VLibras (notas
   em cada entrada do `signs.json`). G, H, M, N, P e Q eram do alfabeto americano; H, K e X têm
-  movimento nas duas fontes, mas seguem `static` porque o modelo da câmera lê a forma parada.
+  movimento nas duas fontes, mas seguem `static` porque o modelo da câmera lê a forma parada (com o modelo das
+  letras com movimento publicado, H e K passam a ser avaliadas com o movimento; X ainda não).
   Ficaram "A CONFERIR": Y (vídeo do INES não abre), 1, 5, 7, 11, 17, 40 e 70 (avatar diferente do
   INES).
 - Sinais com mais de uma forma (MESA apareceu com variantes diferentes entre canais): registrar a

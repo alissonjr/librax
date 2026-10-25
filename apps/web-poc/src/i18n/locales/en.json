@@ -337,6 +337,13 @@
     "successTitle": "Nice! You made the sign {gloss}",
     "watching": "Watching the movement: make the whole sign"
   },
+  "exerciseCameraMotionLetter": {
+    "detected": "We saw {gesture}. Make the letter {letter} with its movement",
+    "makeLetter": "Make the letter with its movement:",
+    "notAvailable": "Movement recognition for the letter \"{letter}\" did not load. Practice it with the description above and continue when you are ready.",
+    "raiseHand": "Show your hand and make the letter with its movement",
+    "watching": "Watching the movement: make the whole letter, with its movement"
+  },
   "exerciseFingerspell": {
     "cameraFeed": "Camera feed",
     "cameraUnavailable": "Camera unavailable",

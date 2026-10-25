@@ -3,6 +3,7 @@ import { ExerciseIntro } from '../components/ExerciseIntro';
 import { ExerciseMatchPairs } from '../components/ExerciseMatchPairs';
 import { ExerciseCameraSign } from '../components/ExerciseCameraSign';
 import { ExerciseCameraMotionSign } from '../components/ExerciseCameraMotionSign';
+import { ExerciseCameraMotionLetter } from '../components/ExerciseCameraMotionLetter';
 import { ExerciseWatchChooseWord } from '../components/ExerciseWatchChooseWord';
 import { ExerciseWordChooseVideo } from '../components/ExerciseWordChooseVideo';
 import { ExerciseFingerspell } from '../components/ExerciseFingerspell';
@@ -227,7 +228,18 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
         />
       )}
 
-      {ex.type === 'perform_sign' && ex.recognizer !== 'sinais' && (
+      {ex.type === 'perform_sign' && ex.recognizer === 'letras-mov' && (
+        <ExerciseCameraMotionLetter
+          key={ex.id}
+          sign={getSign(ex.signId)}
+          onComplete={(wasCorrect) => {
+            handleAnswer(ex.signId, wasCorrect);
+            advance();
+          }}
+        />
+      )}
+
+      {ex.type === 'perform_sign' && !ex.recognizer && (
         <ExerciseCameraSign
           key={ex.id}
           sign={getSign(ex.signId)}

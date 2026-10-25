@@ -315,6 +315,13 @@
     "successTitle": "¡Bien! Hiciste la seña {gloss}",
     "watching": "Viendo el movimiento: haz la seña completa"
   },
+  "exerciseCameraMotionLetter": {
+    "detected": "Vimos {gesture}. Haz la letra {letter} con el movimiento",
+    "makeLetter": "Haz la letra con el movimiento:",
+    "notAvailable": "El reconocimiento del movimiento de la letra \"{letter}\" no cargó. Practícala con la descripción de arriba y continúa cuando estés listo.",
+    "raiseHand": "Muestra la mano y haz la letra con el movimiento",
+    "watching": "Viendo el movimiento: haz la letra completa, con el movimiento"
+  },
   "exerciseFingerspell": {
     "cameraFeed": "Imagen de la cámara",
     "cameraUnavailable": "Cámara no disponible",

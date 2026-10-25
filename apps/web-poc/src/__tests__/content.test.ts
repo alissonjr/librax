@@ -1,10 +1,11 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import {
-  course, drawChoices, getSign, isCameraEvaluable, isMotionSignEvaluable, maskChoiceCaption, maskGloss, phraseTiles, resolveExercises, signsMap,
+  course, drawChoices, getSign, isCameraEvaluable, isLetterMotionEvaluable, isMotionSignEvaluable, maskChoiceCaption, maskGloss, phraseTiles, resolveExercises, signsMap,
   type BundleExercise, type Exercise, type Phrase, type Sign,
 } from '../lib/content';
 import { RECOGNIZABLE_LETTERS } from '../components/ExerciseCameraSign';
 import { setSignModelForTests } from '../recognition/signModel';
+import { setLetterMotionModelForTests } from '../recognition/letterMotionModel';
 import type { MlpModel } from '../recognition/mlp';
 import { evaluateAchievements } from '@domain/achievements.js';
 import {
@@ -505,6 +506,52 @@ describe('sinais com movimento avaliados pelo modelo de sinais (/ml/sinais/)', (
   });
 });
 
+describe('letras com movimento avaliadas pelo modelo das letras com movimento (/ml/letras-mov/)', () => {
+  const map: Record<string, Sign> = {
+    'letra-H': fakeSign('letra-H', 'H', 'alfabeto', 'static'),
+    'letra-J': fakeSign('letra-J', 'J', 'alfabeto', 'dynamic'),
+    'letra-A': fakeSign('letra-A', 'A', 'alfabeto', 'static'),
+    'sinal-OI': fakeSign('sinal-OI', 'OI', 'saudacoes', 'dynamic'),
+  };
+  const ids = Object.keys(map);
+  const fakeModel = (labels: string[]) => ({ labels, normalizationVersion: 2, inputDim: 552, layers: [] }) as MlpModel;
+  const staticAH = (s: Sign | undefined) => s?.gloss === 'A' || s?.gloss === 'H';
+  // As lições do alfabeto listam as letras com câmera (produce)
+  const produced = (signIds: string[]) =>
+    numberExercises('t-l1', composeLessonExercises({ signIds, produce: signIds }, map)) as BundleExercise[];
+
+  afterEach(() => setLetterMotionModelForTests(null));
+
+  it('sem modelo publicado nada muda: H com o modelo das letras paradas, J prática livre', () => {
+    expect(isLetterMotionEvaluable(map['letra-H'])).toBe(false);
+    const ex = resolveExercises(produced(['letra-H', 'letra-J']), ['letra-H', 'letra-J'], {
+      signsMap: map, allSignIds: ids, canEvaluate: staticAH,
+    });
+    expect(ex.filter((e) => e.type === 'perform_sign').map((e) => [e.signId, e.recognizer])).toEqual([['letra-H', undefined]]);
+    expect(ex.filter((e) => e.type === 'mirror_practice').map((e) => e.signId)).toEqual(['letra-J']);
+  });
+
+  it('letra que o modelo conhece vira perform_sign com o movimento, antes do modelo das letras paradas', () => {
+    setLetterMotionModelForTests({ model: fakeModel(['H', 'J', '_']) });
+    expect(isLetterMotionEvaluable(map['letra-H'])).toBe(true);
+    expect(isLetterMotionEvaluable(map['letra-A'])).toBe(false);
+    // só letras do alfabeto: um sinal com a mesma glosa não entra
+    expect(isLetterMotionEvaluable(fakeSign('sinal-H', 'H', 'saudacoes', 'dynamic'))).toBe(false);
+    const ex = resolveExercises(produced(['letra-H', 'letra-J', 'letra-A']), ['letra-H', 'letra-J', 'letra-A'], {
+      signsMap: map, allSignIds: ids, canEvaluate: staticAH,
+    });
+    expect(ex.filter((e) => e.type === 'perform_sign').map((e) => [e.signId, e.recognizer]))
+      .toEqual([['letra-H', 'letras-mov'], ['letra-J', 'letras-mov'], ['letra-A', undefined]]);
+  });
+
+  it('a opção canEvaluateLetterMotion decide no lugar do modelo', () => {
+    const ex = resolveExercises(produced(['letra-J']), ['letra-J'], {
+      signsMap: map, allSignIds: ids, canEvaluateLetterMotion: (s) => s?.gloss === 'J',
+    });
+    expect(ex.filter((e) => e.type === 'perform_sign').map((e) => e.recognizer)).toEqual(['letras-mov']);
+  });
+});
+
 describe('isCameraEvaluable', () => {
   it('aceita so letras estaticas da lista do reconhecedor', () => {
     for (const id of LETTER_IDS) {
@@ -800,13 +847,15 @@ describe('course', () => {
   it('camera nas letras do alfabeto que o modelo le bem, cada uma na licao em que e ensinada', () => {
     const perform = (id: string) => BUNDLE[id].filter((e) => e.type === 'perform_sign').map((e) => signsMap[(e.payload as { sign_id: string }).sign_id].gloss);
     expect(perform('u1-l1')).toEqual(['A', 'B', 'C', 'D', 'E']);
-    expect(perform('u1-l2')).toEqual(['F', 'G', 'H', 'I']);
+    // J: letra com movimento, avaliada pelo modelo das letras com movimento (sem ele, prática livre)
+    expect(perform('u1-l2')).toEqual(['F', 'G', 'H', 'I', 'J']);
     expect(perform('u1-l3')).toEqual(['K', 'L', 'O']);
     expect(perform('u1-l4')).toEqual(['P', 'Q', 'S']);
     expect(perform('u1-l5')).toEqual(['U', 'V', 'W', 'Y']);
-    // Fracas no teste fixo (abaixo de 80%) e letras com movimento ficam sem camera por enquanto
+    // Fracas no teste fixo (abaixo de 80%) e X e Z, abaixo de 70% no modelo das letras com
+    // movimento, ficam sem camera por enquanto
     const all = course.units[0].lessons.flatMap((l) => perform(l.id));
-    for (const letter of ['M', 'N', 'R', 'T', 'X', 'J', 'Z']) expect(all).not.toContain(letter);
+    for (const letter of ['M', 'N', 'R', 'T', 'X', 'Z']) expect(all).not.toContain(letter);
   });
 
   it('"soletre seu nome" fica na licao de nomes da U4, depois dos nomes fixos', () => {
