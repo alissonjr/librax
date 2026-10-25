@@ -1,0 +1,58 @@
+{
+  "format": "librax-mlp",
+  "format_version": 1,
+  "normalization_version": 2,
+  "input_dim": 65,
+  "labels": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "_"
+  ],
+  "layers": [
+    {
+      "in": 65,
+      "out": 128,
+      "activation": "relu"
+    },
+    {
+      "in": 128,
+      "out": 64,
+      "activation": "relu"
+    },
+    {
+      "in": 64,
+      "out": 25,
+      "activation": "softmax"
+    }
+  ],
+  "weights": {
+    "file": "weights.bin",
+    "dtype": "float32",
+    "byte_length": 73316
+  },
+  "source": "keras",
+  "test_accuracy": 0.8973544836044312,
+  "persons": 38
+}

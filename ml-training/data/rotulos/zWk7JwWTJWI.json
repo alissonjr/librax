@@ -1,0 +1,17 @@
+{
+ "id": "zWk7JwWTJWI",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 11.86667,
+   "fim": 12.06667,
+   "letra": "V",
+   "conf": 0.997,
+   "meio": 12.06667,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

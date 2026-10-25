@@ -1,0 +1,26 @@
+{
+ "id": "CD6hVWFXe10",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 0.53156,
+   "fim": 0.99667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 0.86378,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 3.92022,
+   "fim": 4.45178,
+   "letra": "H",
+   "conf": 0.919,
+   "meio": 4.38533,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

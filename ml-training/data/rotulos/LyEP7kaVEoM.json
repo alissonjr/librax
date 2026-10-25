@@ -1,0 +1,17 @@
+{
+ "id": "LyEP7kaVEoM",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 0.20357,
+   "fim": 0.475,
+   "letra": "Z",
+   "conf": 0.759,
+   "meio": 0.40714,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

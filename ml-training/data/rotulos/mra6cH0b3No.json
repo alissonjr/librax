@@ -1,0 +1,17 @@
+{
+ "id": "mra6cH0b3No",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 0.27043,
+   "fim": 1.28457,
+   "letra": "W",
+   "conf": 0.997,
+   "meio": 0.87891,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

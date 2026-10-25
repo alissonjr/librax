@@ -1,0 +1,71 @@
+{
+ "id": "xAHeqMXaiXo",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 9.65719,
+   "fim": 10.32609,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 10.11706,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 16.76421,
+   "fim": 17.60033,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 17.18227,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 18.39465,
+   "fim": 18.85452,
+   "letra": null,
+   "conf": 0.001,
+   "meio": 18.64549,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 23.74582,
+   "fim": 24.54013,
+   "letra": "P",
+   "conf": 0.758,
+   "meio": 24.3311,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 27.34114,
+   "fim": 27.55017,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 27.55017,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 32.19064,
+   "fim": 32.39967,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 32.39967,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 34.7408,
+   "fim": 35.78595,
+   "letra": "P",
+   "conf": 0.976,
+   "meio": 35.20067,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

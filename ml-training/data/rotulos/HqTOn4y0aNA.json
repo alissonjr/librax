@@ -1,0 +1,17 @@
+{
+ "id": "HqTOn4y0aNA",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 0.53695,
+   "fim": 2.28203,
+   "letra": null,
+   "conf": 0.001,
+   "meio": 1.61085,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

@@ -1,0 +1,224 @@
+{
+ "id": "ClklGSB1nN8",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 2.63333,
+   "fim": 3.5,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 3.03333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 15.66667,
+   "fim": 16.93333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 16.26667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 20.8,
+   "fim": 21.73333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 21.26667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 23.93333,
+   "fim": 25.83333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 24.8,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 26.23333,
+   "fim": 26.7,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 26.5,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 27.83333,
+   "fim": 28.56667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 28.16667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 30.9,
+   "fim": 31.1,
+   "letra": null,
+   "conf": 0.112,
+   "meio": 31.1,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 33.63333,
+   "fim": 34.03333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 33.9,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 37.5,
+   "fim": 37.7,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 37.7,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 40.13333,
+   "fim": 40.4,
+   "letra": null,
+   "conf": 0.006,
+   "meio": 40.26667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 41.46667,
+   "fim": 46.66667,
+   "letra": null,
+   "conf": 0.001,
+   "meio": 44,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 47.13333,
+   "fim": 48.9,
+   "letra": null,
+   "conf": 0.003,
+   "meio": 48.06667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 49.7,
+   "fim": 50.1,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 49.96667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 51.1,
+   "fim": 51.36667,
+   "letra": null,
+   "conf": 0.244,
+   "meio": 51.23333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 53.23333,
+   "fim": 57.03333,
+   "letra": null,
+   "conf": 0.003,
+   "meio": 55.16667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 57.43333,
+   "fim": 57.76667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 57.63333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 58.3,
+   "fim": 61.16667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 59.9,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 64.36667,
+   "fim": 64.83333,
+   "letra": "C",
+   "conf": 0.975,
+   "meio": 64.7,
+   "ocr": "C",
+   "aceita": true
+  },
+  {
+   "ini": 65.23333,
+   "fim": 65.96667,
+   "letra": null,
+   "conf": 0.125,
+   "meio": 65.7,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 66.8,
+   "fim": 67.26667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 67.13333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 68.8,
+   "fim": 69.2,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 69.06667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 70.43333,
+   "fim": 70.96667,
+   "letra": null,
+   "conf": 0.056,
+   "meio": 70.7,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 72.23333,
+   "fim": 75.63333,
+   "letra": "C",
+   "conf": 0.973,
+   "meio": 74.1,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 77.13333,
+   "fim": 77.6,
+   "letra": null,
+   "conf": 0.012,
+   "meio": 77.46667,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

@@ -1,0 +1,107 @@
+{
+ "id": "D-VsNv-YhCM",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 3.83333,
+   "fim": 6.23333,
+   "letra": "C",
+   "conf": 0.996,
+   "meio": 4.96667,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 6.9,
+   "fim": 7.5,
+   "letra": "C",
+   "conf": 0.99,
+   "meio": 7.16667,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 8.1,
+   "fim": 11.1,
+   "letra": null,
+   "conf": 0.101,
+   "meio": 9.5,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 11.56667,
+   "fim": 12.5,
+   "letra": "C",
+   "conf": 0.85,
+   "meio": 12.1,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 13.76667,
+   "fim": 13.96667,
+   "letra": "C",
+   "conf": 0.999,
+   "meio": 13.96667,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 14.9,
+   "fim": 15.23333,
+   "letra": "C",
+   "conf": 0.989,
+   "meio": 15.03333,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 16.16667,
+   "fim": 16.56667,
+   "letra": "C",
+   "conf": 0.985,
+   "meio": 16.43333,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 17.76667,
+   "fim": 18.3,
+   "letra": "C",
+   "conf": 0.993,
+   "meio": 18.1,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 21.1,
+   "fim": 23.9,
+   "letra": "C",
+   "conf": 0.997,
+   "meio": 22.5,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 25.9,
+   "fim": 26.76667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 26.5,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 27.36667,
+   "fim": 28.63333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 27.96667,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

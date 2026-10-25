@@ -1,0 +1,26 @@
+{
+ "id": "VJrY5eS6dPM",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 2.93627,
+   "fim": 3.47013,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 3.26993,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 20.68733,
+   "fim": 21.08773,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 20.88753,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

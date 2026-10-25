@@ -1,0 +1,35 @@
+{
+ "id": "cJbVHgmwxEQ",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 0.3,
+   "fim": 1.76667,
+   "letra": null,
+   "conf": 0.206,
+   "meio": 1.03333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 4.23333,
+   "fim": 6.03333,
+   "letra": null,
+   "conf": 0.08,
+   "meio": 5.23333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 7.16667,
+   "fim": 7.5,
+   "letra": "Z",
+   "conf": 0.589,
+   "meio": 7.3,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "id": "23YCQl1L2yE",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 5.1,
+   "fim": 5.3,
+   "letra": "X",
+   "conf": 0.64,
+   "meio": 5.3,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "id": "_x8S3ST2z2I",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 13.2132,
+   "fim": 13.4134,
+   "letra": "K",
+   "conf": 0.758,
+   "meio": 13.4134,
+   "ocr": "KS",
+   "aceita": true
+  }
+ ]
+}

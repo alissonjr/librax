@@ -1,0 +1,17 @@
+{
+ "id": "MfLI0-7OdnU",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 1.94487,
+   "fim": 3.62149,
+   "letra": "X",
+   "conf": 0.993,
+   "meio": 2.81671,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

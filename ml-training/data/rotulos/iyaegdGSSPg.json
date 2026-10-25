@@ -1,0 +1,17 @@
+{
+ "id": "iyaegdGSSPg",
+ "tipo": "alfabeto",
+ "cobertura": 0.0,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 23.95727,
+   "fim": 24.4244,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 24.29093,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

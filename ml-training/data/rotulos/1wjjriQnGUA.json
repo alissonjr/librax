@@ -1,0 +1,26 @@
+{
+ "id": "1wjjriQnGUA",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 14.93333,
+   "fim": 15.13333,
+   "letra": "G",
+   "conf": 0.943,
+   "meio": 15.13333,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 16,
+   "fim": 16.4,
+   "letra": "G",
+   "conf": 0.93,
+   "meio": 16.2,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

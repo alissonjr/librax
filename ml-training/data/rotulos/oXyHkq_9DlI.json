@@ -1,0 +1,17 @@
+{
+ "id": "oXyHkq_9DlI",
+ "tipo": "alfabeto",
+ "cobertura": 0.037037037037037035,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 12.16,
+   "fim": 13.2,
+   "letra": "G",
+   "conf": 0.933,
+   "meio": 12.68,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

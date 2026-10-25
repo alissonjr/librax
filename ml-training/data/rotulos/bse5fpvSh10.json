@@ -1,0 +1,17 @@
+{
+ "id": "bse5fpvSh10",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 16.016,
+   "fim": 17.017,
+   "letra": "H",
+   "conf": 0.9,
+   "meio": 16.54987,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

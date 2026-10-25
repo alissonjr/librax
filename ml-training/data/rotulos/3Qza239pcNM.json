@@ -1,0 +1,17 @@
+{
+ "id": "3Qza239pcNM",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 1.13333,
+   "fim": 1.66667,
+   "letra": null,
+   "conf": 0.001,
+   "meio": 1.46667,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

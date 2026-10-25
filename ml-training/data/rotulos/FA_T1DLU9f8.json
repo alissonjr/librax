@@ -1,0 +1,260 @@
+{
+ "id": "FA_T1DLU9f8",
+ "tipo": "alfabeto",
+ "cobertura": 0.8888888888888888,
+ "qualidade": 1.0,
+ "paradas": [
+  {
+   "ini": 8.46667,
+   "fim": 10.8,
+   "letra": "A",
+   "conf": 0.891,
+   "meio": 9.66667,
+   "ocr": "A",
+   "aceita": true
+  },
+  {
+   "ini": 11.4,
+   "fim": 19.36667,
+   "letra": "B",
+   "conf": 0.982,
+   "meio": 15.4,
+   "ocr": "B",
+   "aceita": true
+  },
+  {
+   "ini": 19.83333,
+   "fim": 20.76667,
+   "letra": "C",
+   "conf": 0.935,
+   "meio": 20.3,
+   "ocr": "C",
+   "aceita": true
+  },
+  {
+   "ini": 21.23333,
+   "fim": 21.83333,
+   "letra": "C",
+   "conf": 0.927,
+   "meio": 21.63333,
+   "ocr": "C",
+   "aceita": false
+  },
+  {
+   "ini": 22.3,
+   "fim": 22.63333,
+   "letra": "C",
+   "conf": 0.934,
+   "meio": 22.43333,
+   "ocr": "C",
+   "aceita": false
+  },
+  {
+   "ini": 23.53333,
+   "fim": 26.53333,
+   "letra": "D",
+   "conf": 0.989,
+   "meio": 25.06667,
+   "ocr": "D",
+   "aceita": true
+  },
+  {
+   "ini": 27.16667,
+   "fim": 31.4,
+   "letra": "E",
+   "conf": 0.835,
+   "meio": 29.3,
+   "ocr": "E",
+   "aceita": true
+  },
+  {
+   "ini": 31.86667,
+   "fim": 35.7,
+   "letra": "F",
+   "conf": 0.992,
+   "meio": 33.8,
+   "ocr": "F",
+   "aceita": true
+  },
+  {
+   "ini": 36.23333,
+   "fim": 38.96667,
+   "letra": "G",
+   "conf": 0.972,
+   "meio": 37.63333,
+   "ocr": "G",
+   "aceita": true
+  },
+  {
+   "ini": 40.63333,
+   "fim": 43.16667,
+   "letra": "H",
+   "conf": 0.889,
+   "meio": 41.96667,
+   "ocr": "H",
+   "aceita": true
+  },
+  {
+   "ini": 43.96667,
+   "fim": 47.16667,
+   "letra": "I",
+   "conf": 0.965,
+   "meio": 45.63333,
+   "ocr": "T",
+   "aceita": true
+  },
+  {
+   "ini": 48.7,
+   "fim": 51.23333,
+   "letra": "J",
+   "conf": 0.998,
+   "meio": 49.9,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 52.3,
+   "fim": 54.9,
+   "letra": "K",
+   "conf": 0.987,
+   "meio": 53.56667,
+   "ocr": "K",
+   "aceita": true
+  },
+  {
+   "ini": 55.43333,
+   "fim": 59.5,
+   "letra": "L",
+   "conf": 0.896,
+   "meio": 57.43333,
+   "ocr": "L",
+   "aceita": true
+  },
+  {
+   "ini": 60.56667,
+   "fim": 63.96667,
+   "letra": "M",
+   "conf": 0.978,
+   "meio": 62.43333,
+   "ocr": "M",
+   "aceita": true
+  },
+  {
+   "ini": 64.83333,
+   "fim": 68.2,
+   "letra": "N",
+   "conf": 0.997,
+   "meio": 66.66667,
+   "ocr": "N",
+   "aceita": true
+  },
+  {
+   "ini": 69.26667,
+   "fim": 74.9,
+   "letra": "O",
+   "conf": 0.956,
+   "meio": 72.5,
+   "ocr": "O",
+   "aceita": true
+  },
+  {
+   "ini": 75.56667,
+   "fim": 81.26667,
+   "letra": "P",
+   "conf": 0.998,
+   "meio": 78.6,
+   "ocr": "P",
+   "aceita": true
+  },
+  {
+   "ini": 82.86667,
+   "fim": 86.26667,
+   "letra": "Q",
+   "conf": 0.974,
+   "meio": 84.66667,
+   "ocr": "Q",
+   "aceita": true
+  },
+  {
+   "ini": 87.23333,
+   "fim": 89.23333,
+   "letra": "R",
+   "conf": 0.945,
+   "meio": 88.16667,
+   "ocr": "R",
+   "aceita": false
+  },
+  {
+   "ini": 89.83333,
+   "fim": 90.3,
+   "letra": "R",
+   "conf": 0.965,
+   "meio": 90.16667,
+   "ocr": "R",
+   "aceita": true
+  },
+  {
+   "ini": 91.1,
+   "fim": 93.5,
+   "letra": "S",
+   "conf": 0.983,
+   "meio": 92.43333,
+   "ocr": "S",
+   "aceita": true
+  },
+  {
+   "ini": 94.36667,
+   "fim": 97.36667,
+   "letra": "T",
+   "conf": 0.831,
+   "meio": 95.9,
+   "ocr": "T",
+   "aceita": true
+  },
+  {
+   "ini": 97.83333,
+   "fim": 105.46667,
+   "letra": "V",
+   "conf": 0.978,
+   "meio": 101.66667,
+   "ocr": "V",
+   "aceita": true
+  },
+  {
+   "ini": 106,
+   "fim": 109.23333,
+   "letra": "W",
+   "conf": 0.954,
+   "meio": 107.83333,
+   "ocr": "W",
+   "aceita": true
+  },
+  {
+   "ini": 110.36667,
+   "fim": 113.3,
+   "letra": "X",
+   "conf": 0.985,
+   "meio": 111.9,
+   "ocr": "X",
+   "aceita": true
+  },
+  {
+   "ini": 114.93333,
+   "fim": 119.96667,
+   "letra": "Z",
+   "conf": 0.884,
+   "meio": 117.5,
+   "ocr": "Z",
+   "aceita": true
+  },
+  {
+   "ini": 120.7,
+   "fim": 120.96667,
+   "letra": "Z",
+   "conf": 0.956,
+   "meio": 120.83333,
+   "ocr": "Z",
+   "aceita": false
+  }
+ ]
+}

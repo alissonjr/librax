@@ -1,0 +1,71 @@
+{
+ "id": "uol24Hi5zkY",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 14.1,
+   "fim": 15.36667,
+   "letra": null,
+   "conf": 0.177,
+   "meio": 14.76667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 16.36667,
+   "fim": 17.1,
+   "letra": "F",
+   "conf": 0.983,
+   "meio": 16.9,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 20.03333,
+   "fim": 20.43333,
+   "letra": "F",
+   "conf": 0.994,
+   "meio": 20.23333,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 53.63333,
+   "fim": 54.56667,
+   "letra": null,
+   "conf": 0.128,
+   "meio": 54.1,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 64.43333,
+   "fim": 65.1,
+   "letra": "F",
+   "conf": 0.999,
+   "meio": 64.9,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 65.83333,
+   "fim": 68.3,
+   "letra": "F",
+   "conf": 0.999,
+   "meio": 67.16667,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 71.5,
+   "fim": 72.36667,
+   "letra": "F",
+   "conf": 0.579,
+   "meio": 71.96667,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

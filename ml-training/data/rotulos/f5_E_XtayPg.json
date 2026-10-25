@@ -1,0 +1,44 @@
+{
+ "id": "f5_E_XtayPg",
+ "tipo": "alfabeto",
+ "cobertura": 0.8,
+ "qualidade": 0.75,
+ "paradas": [
+  {
+   "ini": 0.25,
+   "fim": 1.70833,
+   "letra": "A",
+   "conf": 0.76,
+   "meio": 0.91667,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 2.29167,
+   "fim": 4.375,
+   "letra": "I",
+   "conf": 0.773,
+   "meio": 3.5,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 5.375,
+   "fim": 6.04167,
+   "letra": "O",
+   "conf": 0.987,
+   "meio": 5.83333,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 7.41667,
+   "fim": 7.625,
+   "letra": "U",
+   "conf": 0.807,
+   "meio": 7.625,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

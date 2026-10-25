@@ -1,0 +1,70 @@
+/* Página de treino por vídeo (só dev). Reaproveita a coleta; aqui só o que muda. */
+
+.tr-page { max-width: 960px; }
+.tr-stage { aspect-ratio: 16 / 9; max-height: 62vh; }
+@media (orientation: landscape) {
+  .tr-stage { aspect-ratio: 16 / 9; }
+}
+/* Vídeo do YouTube não é espelhado: o esqueleto também não */
+.tr-stage .cl-video,
+.tr-stage .cl-canvas { transform: none; object-fit: contain; }
+
+.tr-label {
+  position: absolute;
+  right: var(--lx-space-4);
+  bottom: var(--lx-space-4);
+  min-width: 72px;
+  padding: var(--lx-space-2) var(--lx-space-4);
+  border-radius: var(--lx-radius-lg);
+  background: var(--lx-stage-pill);
+  color: var(--lx-stage-text);
+  font: var(--lx-typography-numeric-xl);
+  text-align: center;
+  pointer-events: none;
+}
+
+.tr-bar {
+  height: 6px;
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-bg-sunken);
+  overflow: hidden;
+}
+.tr-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--lx-action-primary-bg);
+}
+
+.tr-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lx-space-3);
+}
+
+.tr-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-1);
+  max-height: 32vh;
+  overflow: auto;
+  font: var(--lx-typography-body-sm);
+}
+.tr-item {
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-2);
+  color: var(--lx-text-secondary);
+}
+.tr-item--now { color: var(--lx-text-primary); font-weight: 600; }
+.tr-chip {
+  flex: none;
+  min-width: 2.5em;
+  padding: 0 var(--lx-space-2);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-game-hand-soft);
+  color: var(--lx-game-hand-text);
+  text-align: center;
+  font: var(--lx-typography-label-sm);
+}
+.tr-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
