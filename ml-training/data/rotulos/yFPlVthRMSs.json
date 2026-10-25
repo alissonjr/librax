@@ -1,0 +1,413 @@
+{
+ "id": "yFPlVthRMSs",
+ "tipo": "alfabeto",
+ "cobertura": 0.9629629629629629,
+ "qualidade": 1.0,
+ "paradas": [
+  {
+   "ini": 5.4,
+   "fim": 11.33333,
+   "letra": "A",
+   "conf": 0.73,
+   "meio": 8.53333,
+   "ocr": "A",
+   "aceita": true
+  },
+  {
+   "ini": 11.93333,
+   "fim": 17.3,
+   "letra": "B",
+   "conf": 0.943,
+   "meio": 14.73333,
+   "ocr": "B",
+   "aceita": true
+  },
+  {
+   "ini": 17.7,
+   "fim": 20,
+   "letra": "B",
+   "conf": 0.42,
+   "meio": 18.93333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 20.63333,
+   "fim": 21.76667,
+   "letra": "C",
+   "conf": 0.792,
+   "meio": 21.16667,
+   "ocr": "C",
+   "aceita": false
+  },
+  {
+   "ini": 22.63333,
+   "fim": 24.36667,
+   "letra": "C",
+   "conf": 0.311,
+   "meio": 23.5,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 24.76667,
+   "fim": 25.53333,
+   "letra": "C",
+   "conf": 0.959,
+   "meio": 25.26667,
+   "ocr": "C",
+   "aceita": true
+  },
+  {
+   "ini": 26.4,
+   "fim": 36.06667,
+   "letra": "D",
+   "conf": 0.95,
+   "meio": 31.2,
+   "ocr": "D",
+   "aceita": true
+  },
+  {
+   "ini": 37.06667,
+   "fim": 41.76667,
+   "letra": "E",
+   "conf": 0.947,
+   "meio": 39.46667,
+   "ocr": "E",
+   "aceita": true
+  },
+  {
+   "ini": 42.23333,
+   "fim": 48.43333,
+   "letra": "F",
+   "conf": 0.982,
+   "meio": 45.4,
+   "ocr": "F",
+   "aceita": true
+  },
+  {
+   "ini": 48.9,
+   "fim": 55.7,
+   "letra": "G",
+   "conf": 0.873,
+   "meio": 52.36667,
+   "ocr": "G",
+   "aceita": true
+  },
+  {
+   "ini": 56.3,
+   "fim": 60.56667,
+   "letra": "H",
+   "conf": 0.938,
+   "meio": 58.4,
+   "ocr": "H",
+   "aceita": true
+  },
+  {
+   "ini": 61.03333,
+   "fim": 62.16667,
+   "letra": "H",
+   "conf": 0.996,
+   "meio": 61.63333,
+   "ocr": "H",
+   "aceita": false
+  },
+  {
+   "ini": 63.16667,
+   "fim": 68.16667,
+   "letra": "I",
+   "conf": 0.746,
+   "meio": 65.83333,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 68.96667,
+   "fim": 75.26667,
+   "letra": "J",
+   "conf": 0.177,
+   "meio": 72.23333,
+   "ocr": "J",
+   "aceita": false
+  },
+  {
+   "ini": 75.93333,
+   "fim": 76.56667,
+   "letra": "J",
+   "conf": 0.893,
+   "meio": 76.2,
+   "ocr": "J",
+   "aceita": true
+  },
+  {
+   "ini": 77.36667,
+   "fim": 84.73333,
+   "letra": "K",
+   "conf": 0.975,
+   "meio": 81.03333,
+   "ocr": "K",
+   "aceita": true
+  },
+  {
+   "ini": 85.6,
+   "fim": 89.3,
+   "letra": "L",
+   "conf": 0.995,
+   "meio": 87.56667,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 90.06667,
+   "fim": 92.46667,
+   "letra": "M",
+   "conf": 0.25,
+   "meio": 91.33333,
+   "ocr": "M",
+   "aceita": true
+  },
+  {
+   "ini": 95.13333,
+   "fim": 96.33333,
+   "letra": "M",
+   "conf": 0.926,
+   "meio": 95.8,
+   "ocr": "M",
+   "aceita": false
+  },
+  {
+   "ini": 97.33333,
+   "fim": 100.23333,
+   "letra": "N",
+   "conf": 0.398,
+   "meio": 98.66667,
+   "ocr": "N",
+   "aceita": true
+  },
+  {
+   "ini": 102.1,
+   "fim": 104.2,
+   "letra": "N",
+   "conf": 0.899,
+   "meio": 103.2,
+   "ocr": "N",
+   "aceita": false
+  },
+  {
+   "ini": 105,
+   "fim": 111.3,
+   "letra": "O",
+   "conf": 0.774,
+   "meio": 108.1,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 111.96667,
+   "fim": 113.03333,
+   "letra": "O",
+   "conf": 0.348,
+   "meio": 112.63333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 113.83333,
+   "fim": 116.83333,
+   "letra": "P",
+   "conf": 0.974,
+   "meio": 115.43333,
+   "ocr": "P",
+   "aceita": true
+  },
+  {
+   "ini": 117.63333,
+   "fim": 117.83333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 117.76667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 119.96667,
+   "fim": 120.73333,
+   "letra": "Q",
+   "conf": 0.972,
+   "meio": 120.46667,
+   "ocr": "Q",
+   "aceita": false
+  },
+  {
+   "ini": 121.13333,
+   "fim": 122.26667,
+   "letra": "Q",
+   "conf": 1.0,
+   "meio": 121.66667,
+   "ocr": "Q",
+   "aceita": true
+  },
+  {
+   "ini": 122.66667,
+   "fim": 123.3,
+   "letra": "Q",
+   "conf": 0.999,
+   "meio": 123.03333,
+   "ocr": "Q",
+   "aceita": false
+  },
+  {
+   "ini": 124.1,
+   "fim": 125.33333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 124.76667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 125.86667,
+   "fim": 129.06667,
+   "letra": "R",
+   "conf": 0.656,
+   "meio": 127.33333,
+   "ocr": "R",
+   "aceita": true
+  },
+  {
+   "ini": 129.6,
+   "fim": 131.06667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 130.4,
+   "ocr": "S",
+   "aceita": false
+  },
+  {
+   "ini": 131.73333,
+   "fim": 135,
+   "letra": "S",
+   "conf": 0.991,
+   "meio": 133.53333,
+   "ocr": "S",
+   "aceita": true
+  },
+  {
+   "ini": 135.86667,
+   "fim": 141.4,
+   "letra": "T",
+   "conf": 0.643,
+   "meio": 138.56667,
+   "ocr": "T",
+   "aceita": true
+  },
+  {
+   "ini": 142,
+   "fim": 148.76667,
+   "letra": "U",
+   "conf": 0.791,
+   "meio": 145.46667,
+   "ocr": "U",
+   "aceita": true
+  },
+  {
+   "ini": 149.16667,
+   "fim": 152.56667,
+   "letra": "V",
+   "conf": 0.628,
+   "meio": 151.03333,
+   "ocr": "V",
+   "aceita": true
+  },
+  {
+   "ini": 153.16667,
+   "fim": 159.76667,
+   "letra": "W",
+   "conf": 0.946,
+   "meio": 156.63333,
+   "ocr": "W",
+   "aceita": true
+  },
+  {
+   "ini": 160.36667,
+   "fim": 161.16667,
+   "letra": "W",
+   "conf": 0.53,
+   "meio": 160.76667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 161.7,
+   "fim": 163.1,
+   "letra": "X",
+   "conf": 0.978,
+   "meio": 162.5,
+   "ocr": "X",
+   "aceita": true
+  },
+  {
+   "ini": 163.5,
+   "fim": 165.2,
+   "letra": "X",
+   "conf": 0.948,
+   "meio": 164.53333,
+   "ocr": "X",
+   "aceita": false
+  },
+  {
+   "ini": 165.6,
+   "fim": 166.66667,
+   "letra": "X",
+   "conf": 0.99,
+   "meio": 166.26667,
+   "ocr": "X",
+   "aceita": false
+  },
+  {
+   "ini": 169.46667,
+   "fim": 171.13333,
+   "letra": "Y",
+   "conf": 0.956,
+   "meio": 170.46667,
+   "ocr": "Y",
+   "aceita": false
+  },
+  {
+   "ini": 171.73333,
+   "fim": 172.93333,
+   "letra": "Y",
+   "conf": 0.951,
+   "meio": 172.4,
+   "ocr": "Y",
+   "aceita": true
+  },
+  {
+   "ini": 173.46667,
+   "fim": 176.4,
+   "letra": "Z",
+   "conf": 0.601,
+   "meio": 174.93333,
+   "ocr": "Z",
+   "aceita": false
+  },
+  {
+   "ini": 178.2,
+   "fim": 178.86667,
+   "letra": "Z",
+   "conf": 0.933,
+   "meio": 178.6,
+   "ocr": "Z",
+   "aceita": true
+  },
+  {
+   "ini": 179.5,
+   "fim": 180.96667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 180.3,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

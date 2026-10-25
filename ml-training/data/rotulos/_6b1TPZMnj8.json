@@ -1,0 +1,17 @@
+{
+ "id": "_6b1TPZMnj8",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 9.76667,
+   "fim": 10.23333,
+   "letra": "G",
+   "conf": 0.754,
+   "meio": 10.03333,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

@@ -30,10 +30,15 @@ function sentMethods(spy: { mock: { calls: unknown[][] } }) {
   });
 }
 
+/** Resposta do fetch da animação: o app confere o status e o Content-Type. */
+function bundleResponse(ok: boolean, type = 'application/octet-stream') {
+  return { ok, headers: { get: (name: string) => (name.toLowerCase() === 'content-type' ? type : null) } };
+}
+
 describe('player VLibras (instância única)', () => {
   beforeEach(() => {
     __resetVlibrasForTests();
-    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true })));
+    vi.stubGlobal('fetch', vi.fn(async () => bundleResponse(true)));
   });
   afterEach(() => {
     __resetVlibrasForTests();
@@ -78,13 +83,33 @@ describe('player VLibras (instância única)', () => {
   });
 
   it('não toca se a animação não vier (evita a soletração que entregaria a resposta)', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false })));
+    vi.stubGlobal('fetch', vi.fn(async () => bundleResponse(false)));
     attachVlibras(document.createElement('div'));
     const post = vi.spyOn(frame()!.contentWindow!, 'postMessage');
     fromBridge('on_load_player');
     post.mockClear();
     await expect(play('BANANA')).resolves.toBe(false);
     expect(sentMethods(post).some((m) => m.startsWith('playNow'))).toBe(false);
+  });
+
+  it('animação que não existe no servidor de desenvolvimento (index.html com 200) não toca', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => bundleResponse(true, 'text/html')));
+    attachVlibras(document.createElement('div'));
+    const post = vi.spyOn(frame()!.contentWindow!, 'postMessage');
+    fromBridge('on_load_player');
+    post.mockClear();
+    await expect(play('NAO-EXISTE')).resolves.toBe(false);
+    expect(sentMethods(post).some((m) => m.startsWith('playNow'))).toBe(false);
+  });
+
+  it('a animação é pedida ao próprio app, não ao servidor do governo', async () => {
+    attachVlibras(document.createElement('div'));
+    const post = vi.spyOn(frame()!.contentWindow!, 'postMessage');
+    fromBridge('on_load_player');
+    expect(sentMethods(post)).toContain(`setBaseUrl:${window.location.origin}/vlibras/sinais/2018.3.1/`);
+    void play('MÃE');
+    await vi.waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith(`${window.location.origin}/vlibras/sinais/2018.3.1/M%C3%83E`, expect.anything()));
   });
 
   it('pausa o laço do Unity ao desencaixar (GPU livre para a câmera)', () => {

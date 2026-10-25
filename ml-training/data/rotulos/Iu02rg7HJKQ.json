@@ -1,0 +1,26 @@
+{
+ "id": "Iu02rg7HJKQ",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 5.46667,
+   "fim": 6.93333,
+   "letra": "L",
+   "conf": 0.685,
+   "meio": 6.33333,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 29.56667,
+   "fim": 30.03333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 29.83333,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

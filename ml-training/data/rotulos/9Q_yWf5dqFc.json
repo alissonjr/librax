@@ -1,0 +1,26 @@
+{
+ "id": "9Q_yWf5dqFc",
+ "tipo": "alfabeto",
+ "cobertura": 0.07407407407407407,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 1.5015,
+   "fim": 1.76843,
+   "letra": "M",
+   "conf": 0.514,
+   "meio": 1.63497,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 2.23557,
+   "fim": 59.52613,
+   "letra": "P",
+   "conf": 0.363,
+   "meio": 31.59823,
+   "ocr": "P",
+   "aceita": false
+  }
+ ]
+}

@@ -201,7 +201,8 @@ Princípio que guia todas: **o produto roda no navegador do celular e a experiê
 - GO: push entregue no Chrome Android e no iPhone instalado; convite abre o JoinByCode preenchido; eventos com `platform`, `browser`, `display_mode`.
 
 **W5 - Conteúdo e piloto**
-- Vídeos de U1 gravados com a comunidade surda (H.264 faststart); piloto com 20 a 50 adultos.
+- ~~Vídeos de U1 gravados com a comunidade surda (H.264 faststart)~~: **engavetado em 2026-10-25** (gravar com pessoas reais é inviável agora). A demonstração segue com o avatar VLibras e, para letras, números e sinais parados, a mão 3D.
+- Piloto com 20 a 50 adultos.
 - GO: U1 até 10 MB sem o ML; 60% ou mais de permissão de câmera concedida; `no_capture` abaixo de 20% das tentativas; D1 medido.
 
 ## 5. Riscos

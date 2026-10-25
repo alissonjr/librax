@@ -1,0 +1,17 @@
+{
+ "id": "Z4C9JvFib4A",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 4.46667,
+   "fim": 5.73333,
+   "letra": "J",
+   "conf": 0.586,
+   "meio": 5.13333,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

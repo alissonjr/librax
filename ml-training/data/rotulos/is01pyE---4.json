@@ -1,0 +1,17 @@
+{
+ "id": "is01pyE---4",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 11.13333,
+   "fim": 11.6,
+   "letra": null,
+   "conf": 0.003,
+   "meio": 11.4,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

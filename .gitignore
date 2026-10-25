@@ -14,7 +14,16 @@ cdk.out/
 __pycache__/
 .venv/
 *.pyc
-ml-training/data/
+# Dados do treino por vídeo (ml-training/video): versiona o que refaz o treino sem o navegador
+# (listas de vídeos, rótulos, cache do OCR e dataset). Vídeos, landmarks e folhas de conferência
+# ficam fora (grandes; refeitos pelo baixar.py e pela página treino-video.html).
+ml-training/data/*
+!ml-training/data/fontes.json
+!ml-training/data/fontes_sinais.json
+!ml-training/data/rotulos/
+!ml-training/data/ocr/
+!ml-training/data/dataset_video.jsonl
+!ml-training/data/dataset_limpo.jsonl
 ml-training/out/
 
 # Ambiente e segredos

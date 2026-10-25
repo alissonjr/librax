@@ -1,0 +1,17 @@
+{
+ "id": "at4neFjs72k",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 11.33333,
+   "fim": 12.53333,
+   "letra": "Q",
+   "conf": 0.838,
+   "meio": 12.06667,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

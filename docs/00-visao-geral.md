@@ -86,7 +86,7 @@ As fases vêm do [`plano-mobile-web.md`](./plano-mobile-web.md) (seção 4), cad
 3. **W2 - App de produção** (2 semanas): roteador e voltar, safe areas, ícones e manifest, exercícios vindos do bundle, permissão e calibração da câmera, níveis de aparelho, som e háptica.
 4. **W3 - AWS para web** (1 a 2 semanas): CloudFront único, Cognito com domínio próprio e PKCE, migração do convidado, fila offline de sync.
 5. **W4 - Engajamento** (1 a 2 semanas): Web Push, e-mail opcional, convites por HTTPS, Web Share, certificado em Canvas, PostHog via proxy.
-6. **W5 - Conteúdo e piloto**: vídeos da U1 gravados com a comunidade surda (H.264 faststart) e piloto com 20 a 50 adultos.
+6. **W5 - Conteúdo e piloto**: piloto com 20 a 50 adultos. Os vídeos da U1 gravados com a comunidade surda estão engavetados desde 2026-10-25 (gravar com pessoas reais é inviável agora).
 
 Depois do piloto: sinais dinâmicos (modelo temporal, duas mãos e pose) e expansão do currículo.
 

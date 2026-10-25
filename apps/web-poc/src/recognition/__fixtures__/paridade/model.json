@@ -1,8 +1,8 @@
 {
   "format": "librax-mlp",
   "format_version": 1,
-  "normalization_version": 1,
-  "input_dim": 63,
+  "normalization_version": 2,
+  "input_dim": 65,
   "labels": [
     "A",
     "B",
@@ -10,7 +10,7 @@
   ],
   "layers": [
     {
-      "in": 63,
+      "in": 65,
       "out": 16,
       "activation": "relu"
     },
@@ -28,7 +28,7 @@
   "weights": {
     "file": "weights.bin",
     "dtype": "float32",
-    "byte_length": 4748
+    "byte_length": 4876
   },
   "source": "numpy-sintetico (fixture de teste, nao reconhece Libras)",
   "test_accuracy": 1.0,

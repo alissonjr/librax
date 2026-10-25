@@ -1,0 +1,17 @@
+{
+ "id": "GWSXhIRoCyM",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 1.72964,
+   "fim": 2.26184,
+   "letra": "L",
+   "conf": 0.999,
+   "meio": 2.06227,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

@@ -3,7 +3,7 @@ import golden from '../recognition/__fixtures__/paridade/golden.json';
 import { buildSample, toJsonl, type CaptureMeta } from '../recognition/capture/sample';
 import { addSamples, allSamples, clearSamples, closeCaptureDbForTests, countByLabel, deleteSession } from '../recognition/capture/store';
 import { exportFileName } from '../recognition/capture/export';
-import { NORMALIZATION_VERSION, normalizeHand } from '../recognition/normalize';
+import { FEATURE_DIM, NORMALIZATION_VERSION, normalizeHand } from '../recognition/normalize';
 
 const meta: CaptureMeta = {
   personId: 'p07',
@@ -39,7 +39,7 @@ describe('amostra da coleta', () => {
       session_id: 's1',
       consent: 'coleta-v1',
     });
-    expect(s.v).toHaveLength(63);
+    expect(s.v).toHaveLength(FEATURE_DIM);
     expect(s.raw).toHaveLength(63);
     expect(Object.keys(s).sort()).toEqual([
       'aspect', 'browser', 'consent', 'device_model', 'handedness', 'label', 'normalization_version',

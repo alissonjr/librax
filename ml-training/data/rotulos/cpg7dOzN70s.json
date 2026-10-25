@@ -1,0 +1,35 @@
+{
+ "id": "cpg7dOzN70s",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 0.7007,
+   "fim": 3.37003,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 2.03537,
+   "ocr": "C",
+   "aceita": false
+  },
+  {
+   "ini": 4.37103,
+   "fim": 4.83817,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 4.63797,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 5.43877,
+   "fim": 6.5065,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 5.97263,
+   "ocr": "C",
+   "aceita": false
+  }
+ ]
+}

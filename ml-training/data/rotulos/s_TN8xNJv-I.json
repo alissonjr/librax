@@ -1,0 +1,17 @@
+{
+ "id": "s_TN8xNJv-I",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 2.48,
+   "fim": 3.8,
+   "letra": "T",
+   "conf": 0.985,
+   "meio": 3.28,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

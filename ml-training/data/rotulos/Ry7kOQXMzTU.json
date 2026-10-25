@@ -1,0 +1,35 @@
+{
+ "id": "Ry7kOQXMzTU",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 0.8,
+   "fim": 1.66667,
+   "letra": "F",
+   "conf": 0.983,
+   "meio": 1.26667,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 3.93333,
+   "fim": 4.33333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 4.13333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 11.33333,
+   "fim": 11.8,
+   "letra": "F",
+   "conf": 0.995,
+   "meio": 11.6,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

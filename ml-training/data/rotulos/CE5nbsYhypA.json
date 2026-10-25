@@ -1,0 +1,269 @@
+{
+ "id": "CE5nbsYhypA",
+ "tipo": "alfabeto",
+ "cobertura": 1.0,
+ "qualidade": 0.8,
+ "paradas": [
+  {
+   "ini": 0.8,
+   "fim": 4.86667,
+   "letra": "A",
+   "conf": 0.36,
+   "meio": 2.8,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 6.13333,
+   "fim": 8.13333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 7.2,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 8.73333,
+   "fim": 9,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 8.86667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 11.6,
+   "fim": 15.06667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 13.33333,
+   "ocr": "T",
+   "aceita": false
+  },
+  {
+   "ini": 16.06667,
+   "fim": 16.33333,
+   "letra": "A",
+   "conf": 0.789,
+   "meio": 16.2,
+   "ocr": "A",
+   "aceita": false
+  },
+  {
+   "ini": 17.2,
+   "fim": 18.46667,
+   "letra": "A",
+   "conf": 0.151,
+   "meio": 17.86667,
+   "ocr": "A",
+   "aceita": true
+  },
+  {
+   "ini": 22.66667,
+   "fim": 24.8,
+   "letra": "A",
+   "conf": 0.725,
+   "meio": 23.8,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 25.8,
+   "fim": 26.13333,
+   "letra": "A",
+   "conf": 0.573,
+   "meio": 26,
+   "ocr": "AD",
+   "aceita": false
+  },
+  {
+   "ini": 31.73333,
+   "fim": 33.26667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 32.53333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 34.06667,
+   "fim": 34.8,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 34.53333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 37.6,
+   "fim": 38.46667,
+   "letra": "E",
+   "conf": 0.478,
+   "meio": 38.06667,
+   "ocr": "E",
+   "aceita": false
+  },
+  {
+   "ini": 41.66667,
+   "fim": 41.93333,
+   "letra": "E",
+   "conf": 0.841,
+   "meio": 41.8,
+   "ocr": "E",
+   "aceita": false
+  },
+  {
+   "ini": 42.46667,
+   "fim": 44.66667,
+   "letra": "E",
+   "conf": 0.937,
+   "meio": 43.66667,
+   "ocr": "E",
+   "aceita": true
+  },
+  {
+   "ini": 51.46667,
+   "fim": 54.53333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 53,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 57.03333,
+   "fim": 58.3,
+   "letra": "E",
+   "conf": 0.516,
+   "meio": 57.63333,
+   "ocr": "Y",
+   "aceita": false
+  },
+  {
+   "ini": 60.83333,
+   "fim": 61.16667,
+   "letra": "E",
+   "conf": 0.667,
+   "meio": 61.03333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 62.66667,
+   "fim": 64.73333,
+   "letra": "I",
+   "conf": 0.937,
+   "meio": 63.73333,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 66.93333,
+   "fim": 67.4,
+   "letra": "O",
+   "conf": 0.362,
+   "meio": 67.2,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 68.73333,
+   "fim": 68.96667,
+   "letra": "O",
+   "conf": 0.988,
+   "meio": 68.96667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 71.5,
+   "fim": 74.93333,
+   "letra": "U",
+   "conf": 0.703,
+   "meio": 73.13333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 75.8,
+   "fim": 76.53333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 76.26667,
+   "ocr": "Q",
+   "aceita": false
+  },
+  {
+   "ini": 77.73333,
+   "fim": 78.6,
+   "letra": "U",
+   "conf": 0.37,
+   "meio": 78.13333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 80.93333,
+   "fim": 81.93333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 81.46667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 82.73333,
+   "fim": 84.86667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 83.93333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 92.33333,
+   "fim": 94.73333,
+   "letra": "U",
+   "conf": 0.666,
+   "meio": 93.6,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 96.93333,
+   "fim": 97.2,
+   "letra": "U",
+   "conf": 0.4,
+   "meio": 97.06667,
+   "ocr": "U",
+   "aceita": false
+  },
+  {
+   "ini": 103.43333,
+   "fim": 104.9,
+   "letra": "U",
+   "conf": 0.769,
+   "meio": 104.03333,
+   "ocr": "U",
+   "aceita": true
+  },
+  {
+   "ini": 105.9,
+   "fim": 106.43333,
+   "letra": "U",
+   "conf": 0.929,
+   "meio": 106.16667,
+   "ocr": "U",
+   "aceita": false
+  },
+  {
+   "ini": 108.43333,
+   "fim": 110.63333,
+   "letra": "U",
+   "conf": 0.951,
+   "meio": 109.5,
+   "ocr": "U",
+   "aceita": false
+  }
+ ]
+}

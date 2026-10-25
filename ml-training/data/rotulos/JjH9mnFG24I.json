@@ -1,0 +1,170 @@
+{
+ "id": "JjH9mnFG24I",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 5.06667,
+   "fim": 5.26667,
+   "letra": null,
+   "conf": 0.003,
+   "meio": 5.26667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 5.86667,
+   "fim": 6.73333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 6.26667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 9.33333,
+   "fim": 9.66667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 9.46667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 12.06667,
+   "fim": 12.4,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 12.26667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 25.63333,
+   "fim": 25.9,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 25.76667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 27.76667,
+   "fim": 28.23333,
+   "letra": null,
+   "conf": 0.001,
+   "meio": 28.03333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 34.3,
+   "fim": 36.16667,
+   "letra": null,
+   "conf": 0.001,
+   "meio": 35.23333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 38.63333,
+   "fim": 40.03333,
+   "letra": null,
+   "conf": 0.001,
+   "meio": 39.36667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 43.4,
+   "fim": 43.8,
+   "letra": null,
+   "conf": 0.01,
+   "meio": 43.66667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 44.66667,
+   "fim": 46.53333,
+   "letra": null,
+   "conf": 0.006,
+   "meio": 45.66667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 48.93333,
+   "fim": 49.33333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 49.2,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 49.8,
+   "fim": 50.06667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 49.93333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 51.4,
+   "fim": 51.73333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 51.53333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 54.86667,
+   "fim": 55.33333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 55.2,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 57.06667,
+   "fim": 57.73333,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 57.4,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 58.2,
+   "fim": 58.93333,
+   "letra": null,
+   "conf": 0.003,
+   "meio": 58.6,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 59.33333,
+   "fim": 60.86667,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 60.13333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 63.53333,
+   "fim": 64.2,
+   "letra": null,
+   "conf": 0.056,
+   "meio": 64,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

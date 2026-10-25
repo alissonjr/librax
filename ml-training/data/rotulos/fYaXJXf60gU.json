@@ -1,0 +1,161 @@
+{
+ "id": "fYaXJXf60gU",
+ "tipo": "alfabeto",
+ "cobertura": 0.5925925925925926,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 5.8,
+   "fim": 9,
+   "letra": "A",
+   "conf": 0.993,
+   "meio": 7.48,
+   "ocr": "A",
+   "aceita": false
+  },
+  {
+   "ini": 9.48,
+   "fim": 29.28,
+   "letra": "C",
+   "conf": 0.532,
+   "meio": 19.08,
+   "ocr": "C",
+   "aceita": false
+  },
+  {
+   "ini": 29.68,
+   "fim": 40.4,
+   "letra": "G",
+   "conf": 0.903,
+   "meio": 35.2,
+   "ocr": "G",
+   "aceita": false
+  },
+  {
+   "ini": 41.32,
+   "fim": 44.88,
+   "letra": "H",
+   "conf": 0.929,
+   "meio": 43.08,
+   "ocr": "H",
+   "aceita": false
+  },
+  {
+   "ini": 45.8,
+   "fim": 49.92,
+   "letra": "I",
+   "conf": 0.243,
+   "meio": 47.92,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 51.12,
+   "fim": 54.68,
+   "letra": "J",
+   "conf": 0.026,
+   "meio": 53,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 55.68,
+   "fim": 59.52,
+   "letra": "K",
+   "conf": 0.042,
+   "meio": 57.6,
+   "ocr": "K",
+   "aceita": false
+  },
+  {
+   "ini": 60.12,
+   "fim": 63.92,
+   "letra": "L",
+   "conf": 0.967,
+   "meio": 62,
+   "ocr": "L",
+   "aceita": false
+  },
+  {
+   "ini": 64.88,
+   "fim": 74.48,
+   "letra": "M",
+   "conf": 0.294,
+   "meio": 69.6,
+   "ocr": "M",
+   "aceita": false
+  },
+  {
+   "ini": 75.48,
+   "fim": 79.2,
+   "letra": "O",
+   "conf": 0.552,
+   "meio": 77.52,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 80.08,
+   "fim": 84.52,
+   "letra": "P",
+   "conf": 1.0,
+   "meio": 82.32,
+   "ocr": "P",
+   "aceita": false
+  },
+  {
+   "ini": 86.28,
+   "fim": 89.32,
+   "letra": "Q",
+   "conf": 0.228,
+   "meio": 87.8,
+   "ocr": "Q",
+   "aceita": false
+  },
+  {
+   "ini": 90.4,
+   "fim": 119.32,
+   "letra": "U",
+   "conf": 0.085,
+   "meio": 105.12,
+   "ocr": "U",
+   "aceita": false
+  },
+  {
+   "ini": 119.88,
+   "fim": 124.12,
+   "letra": "X",
+   "conf": 0.873,
+   "meio": 122,
+   "ocr": "X",
+   "aceita": false
+  },
+  {
+   "ini": 124.68,
+   "fim": 125.92,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 125.4,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 126.48,
+   "fim": 132.08,
+   "letra": "Y",
+   "conf": 0.08,
+   "meio": 129.12,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 132.48,
+   "fim": 133.88,
+   "letra": "Z",
+   "conf": 0.026,
+   "meio": 133.12,
+   "ocr": "Z",
+   "aceita": false
+  }
+ ]
+}

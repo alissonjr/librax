@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'path';
-import { existsSync } from 'fs';
+import { createReadStream, existsSync, mkdirSync, statSync, writeFileSync } from 'fs';
 import { networkInterfaces } from 'os';
 import { tokens } from './src/styles/tokens';
 
@@ -40,6 +40,54 @@ const mlHeaders = (): Plugin => {
     configurePreviewServer: (server) => { server.middlewares.use(middleware); },
   };
 };
+
+// Página treino-video.html (só no servidor de desenvolvimento): serve os vídeos baixados por
+// ml-training/video/baixar.py e grava os landmarks que a página extrai. Nada disso vai para o build.
+const TREINO_DATA = resolve(__dirname, '../../ml-training/data');
+const treinoVideo = (): Plugin => ({
+  name: 'librax-treino-video',
+  configureServer(server) {
+    server.middlewares.use('/treino-dados', (req, res, next) => {
+      const path = decodeURIComponent((req.url ?? '').split('?')[0]);
+      const m = /^\/(fontes\.json|videos\/[\w.-]+|landmarks\/[\w.-]+\.json|rotulos\/[\w.-]+\.json)$/.exec(path);
+      if (!m) return next();
+      const file = resolve(TREINO_DATA, m[1]);
+      if (req.method === 'PUT' && m[1].startsWith('landmarks/')) {
+        const chunks: Buffer[] = [];
+        req.on('data', (c: Buffer) => chunks.push(c));
+        req.on('end', () => {
+          mkdirSync(resolve(TREINO_DATA, 'landmarks'), { recursive: true });
+          writeFileSync(file, Buffer.concat(chunks));
+          res.statusCode = 204;
+          res.end();
+        });
+        return;
+      }
+      if (!existsSync(file)) {
+        res.statusCode = 404;
+        return res.end();
+      }
+      const size = statSync(file).size;
+      const type = file.endsWith('.json') ? 'application/json' : file.endsWith('.webm') ? 'video/webm' : 'video/mp4';
+      res.setHeader('Content-Type', type);
+      res.setHeader('Accept-Ranges', 'bytes');
+      res.setHeader('Cache-Control', 'no-store');
+      // O <video> pede pedaços (Range): sem isso o Chrome não deixa buscar posição no vídeo
+      const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? '');
+      if (range) {
+        const start = range[1] ? Number(range[1]) : 0;
+        const end = range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
+        res.statusCode = 206;
+        res.setHeader('Content-Range', `bytes ${start}-${end}/${size}`);
+        res.setHeader('Content-Length', String(end - start + 1));
+        createReadStream(file, { start, end }).pipe(res);
+        return;
+      }
+      res.setHeader('Content-Length', String(size));
+      createReadStream(file).pipe(res);
+    });
+  },
+});
 
 // npm run dev:celular: imprime os endereços da página de teste e da coleta na rede local
 const printPhoneUrl = (): Plugin => ({
@@ -118,6 +166,7 @@ export default defineConfig(({ mode }) => {
       react(),
       themeColorHtml(),
       mlHeaders(),
+      treinoVideo(),
       ...extraPlugins,
       VitePWA({
         registerType: 'autoUpdate',
@@ -125,7 +174,7 @@ export default defineConfig(({ mode }) => {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2,m4a}'],
           // ML fora do precache: o WASM (13 MB) e o modelo (7,8 MB) estouram o limite de 2 MB
           // e só quem usa a câmera precisa deles. Entram no cache em runtime (abaixo).
-          globIgnores: ['ml/**'],
+          globIgnores: ['ml/**', 'vlibras/v*/**', 'vlibras/sinais/**'],
           // Navegação para qualquer rota do app abre o index.html do precache (funciona offline e ao
           // recarregar). Ficam de fora a página do avatar (iframe próprio), o que não é tela do app e
           // as páginas avulsas da câmera (teste da câmera W0 e coleta), que têm HTML próprio.
@@ -162,36 +211,27 @@ export default defineConfig(({ mode }) => {
               handler: 'CacheFirst',
               options: { cacheName: 'librax-videos-v1' },
             },
-            // Avatar VLibras (src/lib/vlibras.ts). Nada entra no precache: só guarda o que já foi
-            // usado. Animações: cerca de 23 KB cada (máx. 61 KB); as 252 glosas do curso somam
-            // ~5,7 MB, então 400 entradas cabem com folga na cota do Safari e do Chrome.
+            // Avatar VLibras servido pelo próprio app (scripts/vlibras-assets.mjs). Nada entra no
+            // precache: só guarda o que já foi usado. Animações: cerca de 23 KB cada (máx. 61 KB);
+            // as 252 glosas do curso somam ~6 MB, então 400 entradas cabem com folga na cota do
+            // Safari e do Chrome. A versão está na pasta, então o guardado vale para sempre.
             {
-              urlPattern: /^https:\/\/dicionario2\.vlibras\.gov\.br\/static\/BUNDLES\//,
+              urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/vlibras/sinais/'),
               handler: 'CacheFirst',
               options: {
-                cacheName: 'librax-vlibras-sinais-v1',
+                cacheName: 'librax-vlibras-sinais-v2',
                 expiration: { maxEntries: 400 },
                 cacheableResponse: { statuses: [200] },
               },
             },
-            // Motor do player (~20 MB: dados do Unity 17 MB + wasm 3 MB). Os arquivos têm a versão
-            // na URL (?v=7.12.2); ao sair versão nova as antigas saem pela expiração.
+            // Motor do player (~20 MB: dados do Unity 17 MB + wasm 3 MB), em /vlibras/v<versão>/.
+            // Versões antigas saem pela expiração.
             {
-              urlPattern: /^https:\/\/vlibras\.gov\.br\/app\/unity\/.+\.unityweb/,
+              urlPattern: ({ url, sameOrigin }) => sameOrigin && /^\/vlibras\/v\d/.test(url.pathname),
               handler: 'CacheFirst',
               options: {
-                cacheName: 'librax-vlibras-player-v1',
-                expiration: { maxEntries: 6 },
-                cacheableResponse: { statuses: [200] },
-              },
-            },
-            // Carregador e manifesto não têm versão na URL: usa o guardado e atualiza por trás.
-            {
-              urlPattern: /^https:\/\/vlibras\.gov\.br\/app\/unity\/(unity-loader\.js|playerweb\.json)/,
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'librax-vlibras-loader-v1',
-                expiration: { maxEntries: 4 },
+                cacheName: 'librax-vlibras-player-v2',
+                expiration: { maxEntries: 12 },
                 cacheableResponse: { statuses: [200] },
               },
             },

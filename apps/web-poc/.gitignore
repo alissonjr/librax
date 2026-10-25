@@ -4,4 +4,7 @@ dist
 # Arquivos de ML gerados por scripts/ml-assets.mjs (WASM do pacote e modelo baixado uma vez).
 # public/ml/classifier/ (classificador treinado) continua versionado.
 public/ml/[0-9]*/
+# Avatar VLibras gerado por scripts/vlibras-assets.mjs (player e animações; player.html é versionado)
+public/vlibras/v[0-9]*/
+public/vlibras/sinais/
 .cache/

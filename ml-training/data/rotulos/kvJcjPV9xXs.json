@@ -1,0 +1,116 @@
+{
+ "id": "kvJcjPV9xXs",
+ "tipo": "alfabeto",
+ "cobertura": 0.3333333333333333,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 26.1,
+   "fim": 26.43333,
+   "letra": "A",
+   "conf": 0.006,
+   "meio": 26.3,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 33.5,
+   "fim": 33.76667,
+   "letra": "B",
+   "conf": 0.994,
+   "meio": 33.63333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 37.03333,
+   "fim": 38.3,
+   "letra": "B",
+   "conf": 0.551,
+   "meio": 37.7,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 39.63333,
+   "fim": 40.16667,
+   "letra": "B",
+   "conf": 0.985,
+   "meio": 39.9,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 63.03333,
+   "fim": 63.3,
+   "letra": "E",
+   "conf": 0.206,
+   "meio": 63.16667,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 66.63333,
+   "fim": 67.36667,
+   "letra": "K",
+   "conf": 0.321,
+   "meio": 67.1,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 71.83333,
+   "fim": 72.16667,
+   "letra": "S",
+   "conf": 0.997,
+   "meio": 72.03333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 73.36667,
+   "fim": 74.63333,
+   "letra": "T",
+   "conf": 0.63,
+   "meio": 74.03333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 77.3,
+   "fim": 77.63333,
+   "letra": "U",
+   "conf": 0.683,
+   "meio": 77.43333,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 78.56667,
+   "fim": 79.1,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 78.9,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 79.63333,
+   "fim": 80.03333,
+   "letra": "V",
+   "conf": 0.78,
+   "meio": 79.9,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 80.43333,
+   "fim": 81.23333,
+   "letra": "X",
+   "conf": 0.097,
+   "meio": 80.83333,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

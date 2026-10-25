@@ -1,0 +1,17 @@
+{
+ "id": "adQ_yKYQ3uU",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 2.76,
+   "fim": 2.96,
+   "letra": "K",
+   "conf": 0.993,
+   "meio": 2.96,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

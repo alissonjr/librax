@@ -607,6 +607,9 @@ export class LibraxStack extends cdk.Stack {
       additionalBehaviors: {
         '/assets/*.wasm': wasmBehavior(webOrigin),
         '/assets/*': staticBehavior(webOrigin, immutableHeaders),
+        // Player e animações do VLibras (scripts/vlibras-assets.mjs): a versão está na pasta
+        '/vlibras/v*': staticBehavior(webOrigin, immutableHeaders),
+        '/vlibras/sinais/*': staticBehavior(webOrigin, immutableHeaders),
         '/vlibras/*': staticBehavior(webOrigin, vlibrasHeaders, appShellCache),
         '/content/*': staticBehavior(contentOrigin, contentHeaders),
         '/ml/*.wasm': wasmBehavior(contentOrigin),

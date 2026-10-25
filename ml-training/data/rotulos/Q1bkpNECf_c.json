@@ -1,0 +1,17 @@
+{
+ "id": "Q1bkpNECf_c",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 0.33333,
+   "fim": 1.1,
+   "letra": "W",
+   "conf": 0.327,
+   "meio": 0.9,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

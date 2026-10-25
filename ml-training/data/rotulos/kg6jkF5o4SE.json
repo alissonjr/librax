@@ -1,0 +1,44 @@
+{
+ "id": "kg6jkF5o4SE",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 1.73507,
+   "fim": 4.33767,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 3.003,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 10.2102,
+   "fim": 11.4114,
+   "letra": "D",
+   "conf": 0.991,
+   "meio": 10.74407,
+   "ocr": "D",
+   "aceita": true
+  },
+  {
+   "ini": 14.38103,
+   "fim": 14.98163,
+   "letra": "D",
+   "conf": 0.984,
+   "meio": 14.78143,
+   "ocr": "D",
+   "aceita": true
+  },
+  {
+   "ini": 16.44977,
+   "fim": 19.78643,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 18.18483,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

@@ -56,7 +56,7 @@ describe('CloudFront unico na mesma origem', () => {
     const config = behaviors(template);
     const paths = config.CacheBehaviors.map((b: { PathPattern: string }) => b.PathPattern);
     expect(paths).toEqual([
-      '/assets/*.wasm', '/assets/*', '/vlibras/*', '/content/*', '/ml/*.wasm', '/ml/*', '/api/*',
+      '/assets/*.wasm', '/assets/*', '/vlibras/v*', '/vlibras/sinais/*', '/vlibras/*', '/content/*', '/ml/*.wasm', '/ml/*', '/api/*',
       '/admin/assets/*', '/admin', '/admin/*',
     ]);
     expect(config.Aliases).toEqual(['librax.example']);
@@ -132,7 +132,11 @@ describe('cache e cabecalhos', () => {
   test('player do VLibras tem CSP propria (Unity) so em /vlibras/*', () => {
     const { template } = synth(withDomain);
     const vlibras = headerPolicies(template).find((p) => p.Comment.includes('VLibras'));
-    expect(flat(vlibras.SecurityHeadersConfig.ContentSecurityPolicy.ContentSecurityPolicy)).toContain('https://vlibras.gov.br');
+    const csp = flat(vlibras.SecurityHeadersConfig.ContentSecurityPolicy.ContentSecurityPolicy);
+    expect(csp).toContain("'unsafe-eval'");
+    // Player e animacoes servidos pelo proprio app (scripts/vlibras-assets.mjs): nada de host externo
+    expect(csp).not.toContain('vlibras.gov.br');
+    expect(csp).not.toContain('jsdelivr');
   });
 
   test('.wasm sai com Content-Type application/wasm', () => {

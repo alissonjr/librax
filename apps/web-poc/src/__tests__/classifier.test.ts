@@ -2,7 +2,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import modelJson from '../recognition/__fixtures__/paridade/model.json';
 import golden from '../recognition/__fixtures__/paridade/golden.json';
-import { getClassifier, HEURISTIC_LETTERS, loadClassifier, setClassifierForTests } from '../recognition/classifier';
+import { createMlpClassifier, getClassifier, HEURISTIC_LETTERS, loadClassifier, setClassifierForTests } from '../recognition/classifier';
+import { parseMlp } from '../recognition/mlp';
 
 async function readWeights(): Promise<ArrayBuffer> {
   const fs = (await import(/* @vite-ignore */ 'node:fs' as string)) as { readFileSync(path: URL): Uint8Array };
@@ -60,6 +61,15 @@ describe('escolha do classificador', () => {
     const best = Math.max(...g.probs);
     expect(out.letter).toBe(golden.labels[g.probs.indexOf(best)]);
     expect(out.confidence).toBeCloseTo(best, 6);
+  });
+
+  it('a classe "_" do modelo é "nenhuma letra": não vira letra nem entra nas avaliáveis', async () => {
+    const model = parseMlp({ ...modelJson, labels: ['A', '_', 'L'] }, await readWeights());
+    const c = createMlpClassifier(model);
+    expect([...c.letters]).toEqual(['A', 'L']);
+    const g = golden.cases.find(cs => cs.probs.indexOf(Math.max(...cs.probs)) === 1)!;
+    const lms = Array.from({ length: 21 }, (_, i) => ({ x: g.raw[i * 3], y: g.raw[i * 3 + 1], z: g.raw[i * 3 + 2] }));
+    expect(c.classify(lms, { handedness: g.handedness, aspect: g.aspect }).letter).toBeNull();
   });
 
   it('modelo de outra normalization_version é recusado', async () => {

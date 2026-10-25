@@ -1,0 +1,17 @@
+{
+ "id": "oNfxMboxE_0",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 0.20239,
+   "fim": 3.17075,
+   "letra": "T",
+   "conf": 0.987,
+   "meio": 1.82149,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

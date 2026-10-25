@@ -1,0 +1,188 @@
+{
+ "id": "jml2fai1I5s",
+ "tipo": "alfabeto",
+ "cobertura": 0.7407407407407407,
+ "qualidade": 0.75,
+ "paradas": [
+  {
+   "ini": 5.2052,
+   "fim": 5.93927,
+   "letra": "A",
+   "conf": 0.965,
+   "meio": 5.6056,
+   "ocr": "A",
+   "aceita": true
+  },
+  {
+   "ini": 6.47313,
+   "fim": 7.1071,
+   "letra": "B",
+   "conf": 0.964,
+   "meio": 6.74007,
+   "ocr": "B",
+   "aceita": true
+  },
+  {
+   "ini": 7.5075,
+   "fim": 9.44277,
+   "letra": "C",
+   "conf": 0.641,
+   "meio": 8.57523,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 9.9099,
+   "fim": 10.3103,
+   "letra": "Ç",
+   "conf": 0.256,
+   "meio": 10.17683,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 10.77743,
+   "fim": 11.57823,
+   "letra": "D",
+   "conf": 0.748,
+   "meio": 11.24457,
+   "ocr": "D",
+   "aceita": true
+  },
+  {
+   "ini": 12.17883,
+   "fim": 13.04637,
+   "letra": "E",
+   "conf": 0.927,
+   "meio": 12.7127,
+   "ocr": "E",
+   "aceita": true
+  },
+  {
+   "ini": 13.58023,
+   "fim": 14.44777,
+   "letra": "F",
+   "conf": 0.936,
+   "meio": 13.98063,
+   "ocr": "F",
+   "aceita": true
+  },
+  {
+   "ini": 14.9149,
+   "fim": 16.18283,
+   "letra": "G",
+   "conf": 0.978,
+   "meio": 15.58223,
+   "ocr": "G",
+   "aceita": true
+  },
+  {
+   "ini": 16.64997,
+   "fim": 17.18383,
+   "letra": "H",
+   "conf": 0.926,
+   "meio": 16.85017,
+   "ocr": "H",
+   "aceita": true
+  },
+  {
+   "ini": 17.85117,
+   "fim": 18.78543,
+   "letra": "I",
+   "conf": 0.782,
+   "meio": 18.3183,
+   "ocr": "T",
+   "aceita": true
+  },
+  {
+   "ini": 20.05337,
+   "fim": 20.38703,
+   "letra": "J",
+   "conf": 0.998,
+   "meio": 20.18683,
+   "ocr": "J",
+   "aceita": false
+  },
+  {
+   "ini": 20.85417,
+   "fim": 23.18983,
+   "letra": "L",
+   "conf": 0.999,
+   "meio": 22.1221,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 25.4254,
+   "fim": 25.6256,
+   "letra": "N",
+   "conf": 0.873,
+   "meio": 25.6256,
+   "ocr": "N",
+   "aceita": false
+  },
+  {
+   "ini": 26.6266,
+   "fim": 27.56087,
+   "letra": "O",
+   "conf": 0.67,
+   "meio": 27.09373,
+   "ocr": "",
+   "aceita": true
+  },
+  {
+   "ini": 28.028,
+   "fim": 29.3293,
+   "letra": "P",
+   "conf": 0.804,
+   "meio": 28.7287,
+   "ocr": "P",
+   "aceita": true
+  },
+  {
+   "ini": 30.3303,
+   "fim": 31.59823,
+   "letra": "Q",
+   "conf": 0.941,
+   "meio": 30.9309,
+   "ocr": "Q",
+   "aceita": true
+  },
+  {
+   "ini": 32.46577,
+   "fim": 32.7327,
+   "letra": "R",
+   "conf": 0.922,
+   "meio": 32.59923,
+   "ocr": "R",
+   "aceita": false
+  },
+  {
+   "ini": 33.60023,
+   "fim": 34.66797,
+   "letra": "S",
+   "conf": 0.976,
+   "meio": 34.1341,
+   "ocr": "S",
+   "aceita": true
+  },
+  {
+   "ini": 35.26857,
+   "fim": 36.40303,
+   "letra": "U",
+   "conf": 0.452,
+   "meio": 35.9359,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 36.87017,
+   "fim": 40.80743,
+   "letra": "V",
+   "conf": 0.946,
+   "meio": 38.9389,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}

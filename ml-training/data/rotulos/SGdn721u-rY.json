@@ -1,0 +1,26 @@
+{
+ "id": "SGdn721u-rY",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 21.63333,
+   "fim": 22.1,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 21.9,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 27.23333,
+   "fim": 27.76667,
+   "letra": null,
+   "conf": 0.184,
+   "meio": 27.56667,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

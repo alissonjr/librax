@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import modelJson from '../recognition/__fixtures__/paridade/model.json';
 import golden from '../recognition/__fixtures__/paridade/golden.json';
-import { normalizeHand, NORMALIZATION_VERSION, FEATURE_DIM } from '../recognition/normalize';
+import { normalizeHand, NORMALIZATION_VERSION, FEATURE_DIM, RAW_DIM } from '../recognition/normalize';
 import { classify, parseMlp, predict, MlpFormatError, type MlpModel } from '../recognition/mlp';
 import type { Lm } from '../lib/recognizer';
 
@@ -96,7 +96,7 @@ describe('normalizeHand: propriedades do contrato', () => {
     expect(v[28]).toBeLessThan(0);
   });
 
-  it('não depende de posição, tamanho nem rotação no plano', () => {
+  it('a forma não depende de posição, tamanho nem rotação no plano; a direção gira junto', () => {
     const base = normalizeHand(hand, { aspect: 1 });
     const ang = 0.6;
     const moved = hand.map(p => ({
@@ -104,7 +104,13 @@ describe('normalizeHand: propriedades do contrato', () => {
       y: 0.3 + 0.5 * ((p.x - hand[0].x) * Math.sin(ang) + (p.y - hand[0].y) * Math.cos(ang)),
       z: 0.5 * p.z,
     }));
-    expect(maxDiff(normalizeHand(moved, { aspect: 1 }), base)).toBeLessThan(1e-9);
+    const out = normalizeHand(moved, { aspect: 1 });
+    expect(maxDiff(out.slice(0, RAW_DIM), base.slice(0, RAW_DIM))).toBeLessThan(1e-9);
+    // Direção (versão 2): o vetor unitário do pulso ao dedo médio, girado pelo mesmo ângulo
+    const [dx, dy] = base.slice(RAW_DIM);
+    const expected = [dx * Math.cos(ang) - dy * Math.sin(ang), dx * Math.sin(ang) + dy * Math.cos(ang)];
+    expect(maxDiff(out.slice(RAW_DIM), expected)).toBeLessThan(1e-9);
+    expect(Math.hypot(dx, dy)).toBeCloseTo(1, 9);
   });
 
   it('mão esquerda espelhada vira a mesma mão direita (rótulo do MediaPipe invertido)', () => {
@@ -124,7 +130,9 @@ describe('normalizeHand: propriedades do contrato', () => {
 
   it('escala zero usa o fator 1e6 como a normalizeHand de referência', () => {
     const flat = hand.map(() => ({ ...hand[0] }));
-    expect(normalizeHand(flat).every(v => Math.abs(v) === 0)).toBe(true);
+    const out = normalizeHand(flat);
+    expect(out.slice(0, RAW_DIM).every(v => Math.abs(v) === 0)).toBe(true);
+    expect(out.slice(RAW_DIM)).toEqual([0, -1]);
     expect(normalizeHand(hand.slice(0, 10))).toEqual([]);
   });
 });

@@ -1,0 +1,26 @@
+{
+ "id": "7RbuGrqxTC0",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 19.48613,
+   "fim": 19.95327,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 19.75307,
+   "ocr": "",
+   "aceita": false
+  },
+  {
+   "ini": 20.75407,
+   "fim": 21.2212,
+   "letra": null,
+   "conf": 0.0,
+   "meio": 21.021,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

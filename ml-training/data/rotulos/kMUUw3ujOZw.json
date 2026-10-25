@@ -1,0 +1,17 @@
+{
+ "id": "kMUUw3ujOZw",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 20.2202,
+   "fim": 20.4204,
+   "letra": null,
+   "conf": 0.005,
+   "meio": 20.4204,
+   "ocr": "",
+   "aceita": false
+  }
+ ]
+}

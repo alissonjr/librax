@@ -65,7 +65,7 @@
     "loadingModel": "Cargando modelo de reconocimiento... (la primera vez puede tardar)",
     "match": "{count}% de coincidencia",
     "positionHand": "Coloca tu mano frente a la cámara",
-    "recognizableLetters": "Letras reconocibles en este PoC:",
+    "recognizableLetters": "Letras que la cámara reconoce:",
     "retry": "Intentar de nuevo",
     "subtitle": "Coloca tu mano frente a la cámara e intenta las señas del alfabeto",
     "title": "Reconocimiento de manos"

@@ -20,11 +20,17 @@ import type { Lm } from '../lib/recognizer';
  *    rótulo vem invertido: "Right" do MediaPipe é a mão esquerda da pessoa.
  * 5. Rotação no plano da imagem: gira em torno do eixo z até o vetor pulso -> dedo médio apontar
  *    para cima (0, -1). Se esse vetor não tiver componente no plano, não gira.
+ * 6. Direção (versão 2): a rotação do passo 5 apaga para onde a mão aponta, e há letras que só
+ *    mudam nisso (U para cima e H para o lado; K e P; G e Q). Os dois últimos números são o
+ *    vetor unitário pulso -> dedo médio no plano antes de girar, já espelhado: (0, -1) é para
+ *    cima. Sem componente no plano, vale (0, -1).
  *
- * Saída: 63 números [x0, y0, z0, x1, y1, z1, ...].
+ * Saída: 65 números [x0, y0, z0, x1, y1, z1, ..., x20, y20, z20, dirX, dirY].
  */
-export const NORMALIZATION_VERSION = 1;
-export const FEATURE_DIM = 63;
+export const NORMALIZATION_VERSION = 2;
+/** Landmarks brutos: 21 pontos x 3. */
+export const RAW_DIM = 63;
+export const FEATURE_DIM = RAW_DIM + 2;
 
 /** O MediaPipe rotula a mão supondo quadro espelhado; o nosso quadro não é. */
 const HANDEDNESS_INVERTED = true;
@@ -75,5 +81,7 @@ export function normalizeHand(landmarks: readonly Lm[], options: NormalizeOption
     out[i * 3 + 1] = x * sin + y * cos;
     out[i * 3 + 2] = z;
   });
+  out[RAW_DIM] = n > 1e-9 ? a / n : 0;
+  out[RAW_DIM + 1] = n > 1e-9 ? b / n : -1;
   return out;
 }

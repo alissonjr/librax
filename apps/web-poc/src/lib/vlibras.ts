@@ -3,7 +3,9 @@
  *
  * Como funciona:
  * - O Unity roda num iframe da mesma origem (public/vlibras/player.html), que carrega o
- *   player oficial sem alteração a partir de vlibras.gov.br/app/unity.
+ *   player oficial sem alteração. Player e animações são servidos pelo próprio app
+ *   (scripts/vlibras-assets.mjs copia para public/vlibras/), sem depender dos servidores do
+ *   governo, que são lentos e às vezes ficam fora do ar.
  * - O iframe é criado só quando um exercício pede o avatar (carregamento preguiçoso) e fica
  *   num contêiner fixo no <body>. Mover um iframe no DOM recarrega o Unity, então ele nunca
  *   sai do lugar: cada exercício registra um "encaixe" (slot) e o contêiner se posiciona por
@@ -20,8 +22,16 @@
 
 export const VLIBRAS_SITE_URL = 'https://www.vlibras.gov.br/';
 export const VLIBRAS_LICENSE_URL = 'https://www.gnu.org/licenses/lgpl-3.0.html';
-/** Animações estáticas (sem contagem de uso), as mesmas que o widget usa em playStatic. */
-export const VLIBRAS_BUNDLES_URL = 'https://dicionario2.vlibras.gov.br/static/BUNDLES/2018.3.1/WEBGL/BR/';
+/**
+ * Animações estáticas (as mesmas que o widget usa em playStatic), copiadas do dicionário do
+ * VLibras por scripts/vlibras-assets.mjs. A pasta tem a BUNDLES_VERSION do script.
+ */
+export const VLIBRAS_BUNDLES_PATH = '/vlibras/sinais/2018.3.1/';
+
+/** URL absoluta das animações: o Unity recebe pelo setBaseUrl e monta baseUrl + glosa. */
+function bundlesUrl(): string {
+  return new URL(VLIBRAS_BUNDLES_PATH, window.location.origin).href;
+}
 
 /** Velocidades oferecidas: normal e as duas lentas da seção 12.1 do design system. */
 export const VLIBRAS_SPEEDS = [1, 0.75, 0.5] as const;
@@ -151,7 +161,7 @@ function onMessage(e: MessageEvent) {
     case 'on_load_player': {
       clearTimeout(loadTimer);
       loopPaused = false;
-      send('setBaseUrl', VLIBRAS_BUNDLES_URL);
+      send('setBaseUrl', bundlesUrl());
       send('setSubtitlesState', 0);
       send('setSlider', state.speed);
       setState({ status: 'ready', progress: 1, error: null });
@@ -229,8 +239,9 @@ export function retryVlibras() {
 /** Confere se a animação existe e responde, antes de pedir ao Unity. */
 async function bundleAvailable(gloss: string): Promise<boolean> {
   try {
-    const res = await fetch(VLIBRAS_BUNDLES_URL + encodeURIComponent(gloss), { method: 'GET', mode: 'cors', credentials: 'omit' });
-    return res.ok;
+    const res = await fetch(bundlesUrl() + encodeURIComponent(gloss), { method: 'GET', credentials: 'omit' });
+    // O servidor de desenvolvimento responde o index.html (200) para arquivo que não existe
+    return res.ok && !(res.headers.get('content-type') ?? '').includes('text/html');
   } catch {
     return false;
   }

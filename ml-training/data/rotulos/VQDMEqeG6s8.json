@@ -1,0 +1,17 @@
+{
+ "id": "VQDMEqeG6s8",
+ "tipo": "letra",
+ "cobertura": null,
+ "qualidade": null,
+ "paradas": [
+  {
+   "ini": 3.1968,
+   "fim": 3.663,
+   "letra": "Q",
+   "conf": 0.98,
+   "meio": 3.5964,
+   "ocr": "",
+   "aceita": true
+  }
+ ]
+}
