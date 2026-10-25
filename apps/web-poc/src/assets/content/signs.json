@@ -18,7 +18,8 @@
       "gloss": "A"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/aSm_Prog001.mp4, configuracao de mao cg01) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-B",
@@ -39,7 +40,8 @@
       "gloss": "B"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/bSm_Prog001.mp4, configuracao de mao cg61) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-C",
@@ -60,7 +62,8 @@
       "gloss": "C"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/cSm_Prog001.mp4, configuracao de mao cg51a) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-D",
@@ -81,7 +84,8 @@
       "gloss": "D"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/dSm_Prog001.mp4, configuracao de mao cg12) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-E",
@@ -102,7 +106,8 @@
       "gloss": "E"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/eSm_Prog001.mp4, configuracao de mao cg06) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-F",
@@ -132,20 +137,21 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador e polegar estendidos em paralelo, apontando para o lado",
+      "CM": "indicador estendido para cima, polegar esticado e afastado do indicador, medio, anelar e minimo fechados",
       "PA": "espaco neutro",
       "MOV": "nenhum",
-      "OR": "palma para baixo",
+      "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e polegar estendidos e paralelos, apontando horizontalmente para o lado.",
+    "video_caption": "Indicador esticado para cima e polegar esticado, um pouco afastado dele; medio, anelar e minimo ficam fechados, palma para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "G"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/gSm_Prog001.mp4, configuracao de mao cg09) e no avatar VLibras: as duas fontes mostram o indicador para cima, os outros tres dedos fechados e a palma para frente. A descricao anterior (indicador e polegar paralelos apontando para o lado, palma para baixo) era a do G do alfabeto americano. A CONFERIR o polegar: no video e na configuracao de mao do INES ele fica esticado e afastado do indicador; na VLibras fica escondido atras do indicador e nao da para ver se esta esticado."
   },
   {
     "id": "letra-H",
@@ -153,20 +159,21 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador e medio estendidos juntos, apontando para o lado",
+      "CM": "indicador esticado para cima, medio esticado para frente, polegar encostado no medio, anelar e minimo fechados",
       "PA": "espaco neutro",
-      "MOV": "nenhum",
-      "OR": "palma para baixo",
+      "MOV": "gira o pulso: o medio, que aponta para frente, passa a apontar para o lado (para o centro do corpo)",
+      "OR": "palma para frente, girando para o lado",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e dedo medio estendidos juntos e paralelos, apontando horizontalmente.",
+    "video_caption": "Indicador para cima e medio esticado para frente, com o polegar encostado nele; o pulso gira e o medio passa a apontar para o lado.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "H"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/hSm_Prog001.mp4, configuracao de mao cg11) e no avatar VLibras: as duas fontes concordam. A descricao anterior (indicador e medio juntos apontando para o lado, palma para baixo, sem movimento) era a do H do alfabeto americano. O H do INES e da VLibras tem movimento (giro do pulso, com a mao no mesmo lugar); recognition continua static porque o modelo da camera avalia a forma parada da mao."
   },
   {
     "id": "letra-I",
@@ -187,7 +194,8 @@
       "gloss": "I"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/iSm_Prog001.mp4, configuracao de mao cg38) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-J",
@@ -208,7 +216,8 @@
       "gloss": "J"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/jSm_Prog001.mp4, configuracao de mao cg38) e no avatar VLibras: as duas fontes concordam com esta descricao. As duas mostram o minimo esticado descendo em curva e terminando apontando para cima, na direcao do centro do corpo."
   },
   {
     "id": "letra-K",
@@ -216,20 +225,21 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador e medio estendidos em V, polegar apoiado entre eles",
+      "CM": "indicador esticado para cima, medio esticado para frente, polegar encostado no medio, anelar e minimo fechados",
       "PA": "espaco neutro",
-      "MOV": "nenhum",
+      "MOV": "a mao sobe girando: comeca com os dedos apontando para frente e para baixo e termina com o indicador apontando para cima",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e medio em V aberto com polegar encostado entre eles, palma para frente.",
+    "video_caption": "Indicador e medio esticados, com o polegar encostado no medio; a mao sobe girando, dos dedos apontando para frente e para baixo ate o indicador apontar para cima.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "K"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/kSm_Prog001.mp4, configuracao de mao cg11) e no avatar VLibras: as duas fontes concordam. A forma da mao e a mesma do H e do P; o que muda e o movimento. A descricao anterior nao tinha movimento; no INES e na VLibras a mao sobe girando. recognition continua static porque o modelo da camera avalia a forma parada da mao."
   },
   {
     "id": "letra-L",
@@ -250,7 +260,8 @@
       "gloss": "L"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/lSm_Prog001.mp4, configuracao de mao cg08a) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-M",
@@ -258,20 +269,21 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "tres dedos (indicador, medio, anelar) dobrados sobre o polegar",
+      "CM": "indicador, medio e anelar esticados e juntos, apontando para baixo, polegar segurando o minimo",
       "PA": "espaco neutro",
       "MOV": "nenhum",
-      "OR": "palma para baixo",
+      "OR": "palma para tras (voltada para o corpo)",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador, medio e anelar dobrados para baixo sobre o polegar, palma virada para baixo.",
+    "video_caption": "Indicador, medio e anelar esticados e juntos, apontando para baixo, com o dorso da mao virado para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "M"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/mSm_Prog001.mp4, configuracao de mao cg60) e no avatar VLibras: as duas fontes concordam. A descricao anterior (tres dedos dobrados sobre o polegar, palma para baixo) era a do M do alfabeto americano."
   },
   {
     "id": "letra-N",
@@ -279,20 +291,21 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador e medio dobrados sobre o polegar",
+      "CM": "indicador e medio esticados e juntos, apontando para baixo, polegar segurando anelar e minimo",
       "PA": "espaco neutro",
       "MOV": "nenhum",
-      "OR": "palma para baixo",
+      "OR": "palma para tras (voltada para o corpo)",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e medio dobrados sobre o polegar, palma para baixo.",
+    "video_caption": "Indicador e medio esticados e juntos, apontando para baixo, com o dorso da mao virado para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "N"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/nSm_Prog001.mp4, configuracao de mao cg24) e no avatar VLibras: as duas fontes concordam. A descricao anterior (indicador e medio dobrados sobre o polegar, palma para baixo) era a do N do alfabeto americano."
   },
   {
     "id": "letra-O",
@@ -303,17 +316,18 @@
       "CM": "todos os dedos curvados formando O fechado com o polegar",
       "PA": "espaco neutro",
       "MOV": "nenhum",
-      "OR": "palma para frente",
+      "OR": "palma para o lado",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Todos os dedos e o polegar curvados formando um circulo (letra O).",
+    "video_caption": "Todos os dedos e o polegar curvados formando um circulo (letra O), com a palma voltada para o lado.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "O"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/oSm_Prog001.mp4, configuracao de mao cg42) e no avatar VLibras: as duas fontes concordam com a forma. A orientacao foi corrigida de palma para frente para palma para o lado: nas duas o circulo aparece de lado para quem olha."
   },
   {
     "id": "letra-P",
@@ -321,20 +335,21 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador aponta para baixo, polegar estendido para o lado",
+      "CM": "indicador e medio esticados e separados, polegar encostado no medio, anelar e minimo fechados",
       "PA": "espaco neutro",
       "MOV": "nenhum",
-      "OR": "palma para baixo",
+      "OR": "mao deitada: indicador apontando para frente, na direcao do centro do corpo, e medio apontando para baixo",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador aponta para baixo e polegar para o lado, formando um angulo, palma para baixo.",
+    "video_caption": "Indicador e medio esticados e separados, com o polegar encostado no medio; a mao fica deitada, com o indicador apontando para frente e o medio para baixo.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "P"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/pSm_Prog001.mp4, configuracao de mao cg11) e no avatar VLibras: as duas fontes concordam. E a mesma forma de mao do K, virada com os dedos para frente e para baixo. A descricao anterior (indicador para baixo e polegar para o lado, sem o medio) nao batia com nenhuma das fontes."
   },
   {
     "id": "letra-Q",
@@ -342,20 +357,21 @@
     "category": "alfabeto",
     "recognition": "static",
     "params": {
-      "CM": "indicador e polegar formam O, apontando para baixo",
+      "CM": "indicador esticado apontando para baixo, medio, anelar e minimo fechados",
       "PA": "espaco neutro",
       "MOV": "nenhum",
-      "OR": "palma para baixo",
+      "OR": "palma para tras (voltada para o corpo)",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Indicador e polegar curvados formando circulo, com a mao virada para baixo.",
+    "video_caption": "So o indicador esticado, apontando para baixo; os outros dedos ficam fechados, com o dorso da mao virado para frente.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "Q"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/qSm_Prog001.mp4, configuracao de mao cg09) e no avatar VLibras: as duas fontes concordam. O INES classifica o Q com a mesma configuracao de mao do G, virada para baixo. A descricao anterior (indicador e polegar formando um circulo) nao batia com nenhuma das fontes."
   },
   {
     "id": "letra-R",
@@ -376,7 +392,8 @@
       "gloss": "R"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/rSm_Prog001.mp4, configuracao de mao cg25) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-S",
@@ -397,7 +414,8 @@
       "gloss": "S"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/sSm_Prog001.mp4, configuracao de mao cg02) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-T",
@@ -440,7 +458,8 @@
       "gloss": "U"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/uSm_Prog001.mp4, configuracao de mao cg24) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-V",
@@ -461,7 +480,8 @@
       "gloss": "V"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/vSm_Prog001.mp4, configuracao de mao cg32) e no avatar VLibras: as duas fontes concordam com esta descricao."
   },
   {
     "id": "letra-W",
@@ -482,7 +502,8 @@
       "gloss": "W"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/wSm_Prog001.mp4, configuracao de mao cg59a) e no avatar VLibras: as duas fontes concordam com esta descricao. O video do INES comeca com a mao ja no sinal (falta o inicio), mas a forma aparece inteira."
   },
   {
     "id": "letra-X",
@@ -492,18 +513,19 @@
     "params": {
       "CM": "indicador dobrado em gancho, demais dedos dobrados",
       "PA": "espaco neutro",
-      "MOV": "nenhum",
-      "OR": "palma para frente",
+      "MOV": "movimento curto na diagonal, para baixo e para o centro do corpo",
+      "OR": "palma para o lado",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "So o indicador curvado em forma de gancho (como um dedo indicando), demais fechados.",
+    "video_caption": "So o indicador curvado em gancho, os outros dedos fechados; a mao faz um movimento curto na diagonal, para baixo e para o centro do corpo.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "X"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/xSm_Prog001.mp4, configuracao de mao cg15) e no avatar VLibras: as duas fontes concordam com a forma e com o movimento (a mao para, desce na diagonal para o centro do corpo e para de novo). A descricao anterior nao tinha movimento e punha a palma para frente; nas duas fontes ela fica de lado. recognition continua static porque o modelo da camera avalia a forma parada da mao."
   },
   {
     "id": "letra-Y",
@@ -524,7 +546,8 @@
       "gloss": "Y"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "A CONFERIR (2026-10-25): o video do verbete Y do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/ySm_Prog001.mp4) nao abre (404), entao so deu para comparar com a VLibras e com a configuracao de mao do verbete (cg40, polegar e minimo esticados). As duas concordam com a forma descrita; a VLibras mostra a mao parada, mas falta o video do INES para confirmar que o Y nao tem movimento."
   },
   {
     "id": "letra-Z",
@@ -534,7 +557,7 @@
     "params": {
       "CM": "indicador estendido",
       "PA": "espaco neutro",
-      "MOV": "traca a letra Z no ar (diagonal para baixo, diagonal para cima)",
+      "MOV": "traca a letra Z no ar (horizontal, diagonal para baixo, horizontal)",
       "OR": "palma para frente",
       "ENM": "neutra"
     },
@@ -545,7 +568,8 @@
       "gloss": "Z"
     },
     "status": "rascunho",
-    "validated": false
+    "validated": false,
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/zSm_Prog001.mp4, configuracao de mao cg14) e no avatar VLibras: as duas fontes concordam com esta descricao. As duas mostram o indicador esticado tracando o Z no ar. O MOV dizia \"diagonal para baixo, diagonal para cima\", diferente da legenda e do que as fontes mostram; foi alinhado com a legenda."
   },
   {
     "id": "numero-0",
@@ -571,7 +595,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "O arquivo listado no verbete ZERO1 (zeroSm_Prog001.mp4) retorna 404; o vídeo usado foi zero1Sm_Prog001.mp4, no mesmo servidor. Configuração de mão do verbete: cg42 (forma de O). A apostila Fiocruz (Felipe 2007, figura 5) mostra o 0 com a mesma forma de O: https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf"
+    "notes": "O arquivo listado no verbete ZERO1 (zeroSm_Prog001.mp4) retorna 404; o vídeo usado foi zero1Sm_Prog001.mp4, no mesmo servidor. Configuração de mão do verbete: cg42 (forma de O). A apostila Fiocruz (Felipe 2007, figura 5) mostra o 0 com a mesma forma de O: https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa 0): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-1",
@@ -598,7 +622,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Forma escolhida: numeral cardinal (código), a que as apostilas de ensino básico apresentam como 'números cardinais' (Felipe 2007, figura 5 da apostila Fiocruz, https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf; aula 'Numerais' do eduCAPES, https://educapes.capes.gov.br/bitstream/capes/1001298/2/SSRIO%20-%20AULA%204%20-%20NUMERAIS.pdf, que indica o uso para telefone, endereço, roupa, calçado e idade). É também a forma usada como dígito nos números de 11 a 100 do INES. Forma de QUANTIDADE (ex.: 'só um filho'): verbete UM2 do INES, indicador estendido para cima e demais dedos fechados, palma para dentro/frente, em frente ao ombro (https://dicionario.ines.gov.br/public/media/palavras/videos/um2Sm_Prog001.mp4). No vídeo do INES a mão aparece do lado direito de quem olha (lado esquerdo da sinalizante), diferente da maioria dos verbetes; pode ser vídeo espelhado ou uso da mão esquerda. Aqui a descrição usa a mão direita como dominante."
+    "notes": "Forma escolhida: numeral cardinal (código), a que as apostilas de ensino básico apresentam como 'números cardinais' (Felipe 2007, figura 5 da apostila Fiocruz, https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf; aula 'Numerais' do eduCAPES, https://educapes.capes.gov.br/bitstream/capes/1001298/2/SSRIO%20-%20AULA%204%20-%20NUMERAIS.pdf, que indica o uso para telefone, endereço, roupa, calçado e idade). É também a forma usada como dígito nos números de 11 a 100 do INES. Forma de QUANTIDADE (ex.: 'só um filho'): verbete UM2 do INES, indicador estendido para cima e demais dedos fechados, palma para dentro/frente, em frente ao ombro (https://dicionario.ines.gov.br/public/media/palavras/videos/um2Sm_Prog001.mp4). No vídeo do INES a mão aparece do lado direito de quem olha (lado esquerdo da sinalizante), diferente da maioria dos verbetes; pode ser vídeo espelhado ou uso da mão esquerda. Aqui a descrição usa a mão direita como dominante. A CONFERIR (2026-10-25): o avatar VLibras (glosa 1) faz a forma de quantidade (indicador para cima), não a forma descrita aqui. Nos números compostos (DEZ, DOZE, CEM) a VLibras usa o polegar para cima, como o INES; a descrição continua com a forma do INES, mas o avatar desta entrada mostra a outra."
   },
   {
     "id": "numero-2",
@@ -625,7 +649,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Forma escolhida: numeral cardinal (código), a que as apostilas de ensino básico apresentam como 'números cardinais' (Felipe 2007, figura 5 da apostila Fiocruz, https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf; aula 'Numerais' do eduCAPES, https://educapes.capes.gov.br/bitstream/capes/1001298/2/SSRIO%20-%20AULA%204%20-%20NUMERAIS.pdf, que indica o uso para telefone, endereço, roupa, calçado e idade). É também a forma usada como dígito nos números de 11 a 100 do INES. Forma de QUANTIDADE (ex.: 'ela tem dois filhos'): verbete DOIS2 do INES, indicador e médio estendidos para cima e afastados (V), palma para frente, em frente ao ombro (https://dicionario.ines.gov.br/public/media/palavras/videos/dois2Sm_Prog001.mp4). O verbete DOIS2 aparece duplicado na cópia local, com um segundo arquivo doar2Sm_Prog001.mp4 que não foi usado."
+    "notes": "Forma escolhida: numeral cardinal (código), a que as apostilas de ensino básico apresentam como 'números cardinais' (Felipe 2007, figura 5 da apostila Fiocruz, https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf; aula 'Numerais' do eduCAPES, https://educapes.capes.gov.br/bitstream/capes/1001298/2/SSRIO%20-%20AULA%204%20-%20NUMERAIS.pdf, que indica o uso para telefone, endereço, roupa, calçado e idade). É também a forma usada como dígito nos números de 11 a 100 do INES. Forma de QUANTIDADE (ex.: 'ela tem dois filhos'): verbete DOIS2 do INES, indicador e médio estendidos para cima e afastados (V), palma para frente, em frente ao ombro (https://dicionario.ines.gov.br/public/media/palavras/videos/dois2Sm_Prog001.mp4). O verbete DOIS2 aparece duplicado na cópia local, com um segundo arquivo doar2Sm_Prog001.mp4 que não foi usado. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa DOIS): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-3",
@@ -633,14 +657,14 @@
     "category": "numeros",
     "recognition": "static",
     "params": {
-      "CM": "polegar, indicador e médio estendidos na horizontal e separados; anelar e mínimo fechados",
+      "CM": "indicador, médio e anelar estendidos na horizontal e separados; polegar segurando o mínimo",
       "PA": "espaço neutro em frente ao pescoço, um pouco ao lado, na altura do queixo",
       "MOV": "sem movimento; a mão fica parada",
       "OR": "palma voltada para o corpo, dedos apontando para o centro do corpo",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Mão direita com polegar, indicador e médio estendidos na horizontal, apontando para o centro do corpo, parada em frente ao pescoço.",
+    "video_caption": "Mão direita com indicador, médio e anelar estendidos na horizontal, apontando para o centro do corpo, parada em frente ao pescoço.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "TRÊS",
@@ -652,7 +676,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Forma escolhida: numeral cardinal (código), a que as apostilas de ensino básico apresentam como 'números cardinais' (Felipe 2007, figura 5 da apostila Fiocruz, https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf; aula 'Numerais' do eduCAPES, https://educapes.capes.gov.br/bitstream/capes/1001298/2/SSRIO%20-%20AULA%204%20-%20NUMERAIS.pdf, que indica o uso para telefone, endereço, roupa, calçado e idade). É também a forma usada como dígito nos números de 11 a 100 do INES. Forma de QUANTIDADE (ex.: 'comi três barras de chocolate'): verbete TRÊS1 do INES, polegar, indicador e médio estendidos para cima, palma para frente, ao lado do rosto (https://dicionario.ines.gov.br/public/media/palavras/videos/tres1Sm_Prog001.mp4). No vídeo do INES a mão aparece do lado direito de quem olha (lado esquerdo da sinalizante), diferente da maioria dos verbetes; pode ser vídeo espelhado ou uso da mão esquerda. Aqui a descrição usa a mão direita como dominante."
+    "notes": "Forma escolhida: numeral cardinal (código), a que as apostilas de ensino básico apresentam como 'números cardinais' (Felipe 2007, figura 5 da apostila Fiocruz, https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf; aula 'Numerais' do eduCAPES, https://educapes.capes.gov.br/bitstream/capes/1001298/2/SSRIO%20-%20AULA%204%20-%20NUMERAIS.pdf, que indica o uso para telefone, endereço, roupa, calçado e idade). É também a forma usada como dígito nos números de 11 a 100 do INES. Forma de QUANTIDADE (ex.: 'comi três barras de chocolate'): verbete TRÊS1 do INES, polegar, indicador e médio estendidos para cima, palma para frente, ao lado do rosto (https://dicionario.ines.gov.br/public/media/palavras/videos/tres1Sm_Prog001.mp4). No vídeo do INES a mão aparece do lado direito de quem olha (lado esquerdo da sinalizante), diferente da maioria dos verbetes; pode ser vídeo espelhado ou uso da mão esquerda. Aqui a descrição usa a mão direita como dominante. Corrigido em 2026-10-25: a configuração de mão do verbete TRÊS2 no INES é a cg59a (indicador, médio e anelar estendidos, polegar segurando o mínimo, a mesma do W), os três dedos do vídeo têm o mesmo comprimento e o avatar VLibras (glosa TRÊS) faz a mesma forma. A descrição anterior (polegar, indicador e médio) era a forma de quantidade do TRÊS1."
   },
   {
     "id": "numero-4",
@@ -679,7 +703,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "O INES tem só um verbete QUATRO, com esta forma horizontal, e o exemplo é de quantidade ('estudei quatro anos'). A apostila Fiocruz (Felipe 2007, figura 5) mostra a mesma forma horizontal como cardinal: https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf. Não encontrei, em fonte consultada, um vídeo separado da forma de quantidade do 4; no sinal QUARENTA do INES a mão em 4 aparece com os dedos para cima e palma para frente (https://dicionario.ines.gov.br/public/media/palavras/videos/quarentaSm_Prog001.mp4)."
+    "notes": "O INES tem só um verbete QUATRO, com esta forma horizontal, e o exemplo é de quantidade ('estudei quatro anos'). A apostila Fiocruz (Felipe 2007, figura 5) mostra a mesma forma horizontal como cardinal: https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf. Não encontrei, em fonte consultada, um vídeo separado da forma de quantidade do 4; no sinal QUARENTA do INES a mão em 4 aparece com os dedos para cima e palma para frente (https://dicionario.ines.gov.br/public/media/palavras/videos/quarentaSm_Prog001.mp4). Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa QUATRO): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-5",
@@ -705,7 +729,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Configuração de mão do verbete: cg31. A apostila Fiocruz (Felipe 2007, figura 5) mostra o 5 com os dois dedos em gancho: https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf. O INES usa esta mesma forma no exemplo de quantidade ('comprou cinco vestidos'). Na imagem pequena do vídeo os dedos parecem só levemente curvados; a imagem de configuração do INES mostra o gancho com clareza."
+    "notes": "Configuração de mão do verbete: cg31. A apostila Fiocruz (Felipe 2007, figura 5) mostra o 5 com os dois dedos em gancho: https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf. O INES usa esta mesma forma no exemplo de quantidade ('comprou cinco vestidos'). Na imagem pequena do vídeo os dedos parecem só levemente curvados; a imagem de configuração do INES mostra o gancho com clareza. A CONFERIR (2026-10-25): no avatar VLibras (glosa 5) indicador e médio ficam quase esticados, só com as pontas curvadas; no QUINZE e no CINQUENTA da VLibras eles aparecem em gancho, como na imagem de configuração do INES."
   },
   {
     "id": "numero-6",
@@ -731,7 +755,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Configuração de mão do verbete: cg43 (a mesma do 9, que muda só a orientação: polegar para baixo). Conferido com a figura 5 da apostila Fiocruz (Felipe 2007): https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf. No vídeo do INES a mão aparece do lado direito de quem olha (lado esquerdo da sinalizante), diferente da maioria dos verbetes; pode ser vídeo espelhado ou uso da mão esquerda. Aqui a descrição usa a mão direita como dominante."
+    "notes": "Configuração de mão do verbete: cg43 (a mesma do 9, que muda só a orientação: polegar para baixo). Conferido com a figura 5 da apostila Fiocruz (Felipe 2007): https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf. No vídeo do INES a mão aparece do lado direito de quem olha (lado esquerdo da sinalizante), diferente da maioria dos verbetes; pode ser vídeo espelhado ou uso da mão esquerda. Aqui a descrição usa a mão direita como dominante. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa 6): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-7",
@@ -757,7 +781,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Configuração de mão do verbete: cg10. Diferença para o 2: no 7 o polegar fica fechado junto aos dedos; no 2 ele fica estendido para cima. A posição exata do polegar é difícil de ver no vídeo pequeno; a imagem de configuração do INES mostra o polegar encostado no médio."
+    "notes": "Configuração de mão do verbete: cg10. Diferença para o 2: no 7 o polegar fica fechado junto aos dedos; no 2 ele fica estendido para cima. A posição exata do polegar é difícil de ver no vídeo pequeno; a imagem de configuração do INES mostra o polegar encostado no médio. A CONFERIR (2026-10-25): o avatar VLibras (glosa 7) faz o 7 com o indicador apontando para baixo e a palma voltada para o corpo; no vídeo do INES o indicador fica na horizontal, apontando para o centro do corpo. A descrição segue o INES."
   },
   {
     "id": "numero-8",
@@ -783,7 +807,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Configuração de mão do verbete: cg02. A apostila Fiocruz (Felipe 2007, figura 5) mostra o 8 como mão fechada: https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf. A orientação da palma (frente ou lado) não é totalmente nítida no vídeo pequeno."
+    "notes": "Configuração de mão do verbete: cg02. A apostila Fiocruz (Felipe 2007, figura 5) mostra o 8 como mão fechada: https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf. A orientação da palma (frente ou lado) não é totalmente nítida no vídeo pequeno. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa 8): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-9",
@@ -809,7 +833,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Configuração de mão do verbete: cg43, a mesma do 6, girada com o polegar para baixo. Conferido com a figura 5 da apostila Fiocruz (Felipe 2007): https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf. O Spread the Sign (português BR) também faz o 9 com o polegar para baixo dentro de DEZENOVE e NOVENTA: https://www.spreadthesign.com/pt.br/word/9573/dezenove/0/"
+    "notes": "Configuração de mão do verbete: cg43, a mesma do 6, girada com o polegar para baixo. Conferido com a figura 5 da apostila Fiocruz (Felipe 2007): https://mooc.campusvirtual.fiocruz.br/rea/acessibilidade-sus/downloads/modulo_6/Apostila-acessivel_mod6_parte3.pdf. O Spread the Sign (português BR) também faz o 9 com o polegar para baixo dentro de DEZENOVE e NOVENTA: https://www.spreadthesign.com/pt.br/word/9573/dezenove/0/ Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa 9): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-10",
@@ -835,7 +859,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "O INES mostra o 10 como os dígitos 1 e 0 em sequência; o exemplo do verbete é de numeral ('casa de número dez'). Não achei, em fonte consultada, outra forma de 10 para quantidade."
+    "notes": "O INES mostra o 10 como os dígitos 1 e 0 em sequência; o exemplo do verbete é de numeral ('casa de número dez'). Não achei, em fonte consultada, outra forma de 10 para quantidade. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa DEZ): a VLibras faz a mesma forma."
   },
   {
     "id": "sinal-OI",
@@ -5621,7 +5645,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Descrição incerta: no vídeo pequeno do INES o polegar aparece borrado, como um balanço repetido, sem duas posições bem separadas. No Spread the Sign (português BR) o 11 aparece como 1 em frente ao queixo e depois 1 de novo, deslocado para o lado: https://www.spreadthesign.com/pt.br/word/9051/onze/0/ (vídeo https://media.spreadthesign.com/video/mp4/14/555287.mp4). Nas duas fontes a ideia é o 1 repetido."
+    "notes": "Descrição incerta: no vídeo pequeno do INES o polegar aparece borrado, como um balanço repetido, sem duas posições bem separadas. No Spread the Sign (português BR) o 11 aparece como 1 em frente ao queixo e depois 1 de novo, deslocado para o lado: https://www.spreadthesign.com/pt.br/word/9051/onze/0/ (vídeo https://media.spreadthesign.com/video/mp4/14/555287.mp4). Nas duas fontes a ideia é o 1 repetido. A CONFERIR (2026-10-25): o avatar toca a glosa 1 duas vezes, e a glosa 1 da VLibras é a forma de quantidade (indicador para cima), diferente do 1 descrito aqui (polegar para cima)."
   },
   {
     "id": "numero-12",
@@ -5647,7 +5671,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número."
+    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa DOZE): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-13",
@@ -5655,14 +5679,14 @@
     "category": "numeros",
     "recognition": "dynamic",
     "params": {
-      "CM": "1 (polegar para cima) -> 3 (três dedos estendidos na horizontal)",
+      "CM": "1 (polegar para cima) -> 3 (indicador, médio e anelar estendidos na horizontal)",
       "PA": "espaço neutro em frente ao queixo e depois ao lado do rosto, na altura do queixo",
       "MOV": "faz o 1 em frente ao queixo e depois o 3 ao lado do rosto",
       "OR": "no 1, palma para o lado; no 3, palma para o corpo, dedos apontando para o centro do corpo",
       "ENM": "neutra"
     },
     "video_url": null,
-    "video_caption": "Mão direita faz o 1 (polegar para cima) em frente ao queixo e depois o 3 com três dedos na horizontal ao lado do rosto.",
+    "video_caption": "Mão direita faz o 1 (polegar para cima) em frente ao queixo e depois o 3, com indicador, médio e anelar na horizontal, ao lado do rosto.",
     "avatar": {
       "provider": "vlibras",
       "gloss": "TREZE"
@@ -5673,7 +5697,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Não há verbete TREZE no INES. Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. No vídeo não dá para ver com certeza se o 3 inclui o polegar (como no TRÊS2 do INES) ou só indicador, médio e anelar. Página do verbete: https://www.spreadthesign.com/pt.br/word/7235/treze/0/"
+    "notes": "Não há verbete TREZE no INES. Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. No vídeo não dá para ver com certeza se o 3 inclui o polegar (como no TRÊS2 do INES) ou só indicador, médio e anelar. Página do verbete: https://www.spreadthesign.com/pt.br/word/7235/treze/0/ Conferido em 2026-10-25 com o avatar VLibras (glosa TREZE): o 3 é feito com indicador, médio e anelar, a mesma forma do TRÊS2 do INES (configuração cg59a); a dúvida sobre o polegar fica resolvida."
   },
   {
     "id": "numero-14",
@@ -5699,7 +5723,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. O verbete CATORZE do INES mostra a mesma sequência 1 + 4: https://dicionario.ines.gov.br/public/media/palavras/videos/catorzeSm_Prog001.mp4"
+    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. O verbete CATORZE do INES mostra a mesma sequência 1 + 4: https://dicionario.ines.gov.br/public/media/palavras/videos/catorzeSm_Prog001.mp4 Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa QUATORZE): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-15",
@@ -5725,7 +5749,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número."
+    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa QUINZE): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-16",
@@ -5751,7 +5775,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. O 1 é muito rápido e aparece borrado no vídeo; o 6 é mantido. No vídeo do INES a mão aparece do lado direito de quem olha (lado esquerdo da sinalizante), diferente da maioria dos verbetes; pode ser vídeo espelhado ou uso da mão esquerda. Aqui a descrição usa a mão direita como dominante."
+    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. O 1 é muito rápido e aparece borrado no vídeo; o 6 é mantido. No vídeo do INES a mão aparece do lado direito de quem olha (lado esquerdo da sinalizante), diferente da maioria dos verbetes; pode ser vídeo espelhado ou uso da mão esquerda. Aqui a descrição usa a mão direita como dominante. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa DEZESSEIS): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-17",
@@ -5777,7 +5801,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. No vídeo do INES a mão aparece do lado direito de quem olha (lado esquerdo da sinalizante), diferente da maioria dos verbetes; pode ser vídeo espelhado ou uso da mão esquerda. Aqui a descrição usa a mão direita como dominante."
+    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. No vídeo do INES a mão aparece do lado direito de quem olha (lado esquerdo da sinalizante), diferente da maioria dos verbetes; pode ser vídeo espelhado ou uso da mão esquerda. Aqui a descrição usa a mão direita como dominante. A CONFERIR (2026-10-25): no avatar VLibras (glosa DEZESSETE) o 7 é feito com o indicador apontando para baixo, diferente do vídeo do INES (indicador na horizontal). A descrição segue o INES."
   },
   {
     "id": "numero-18",
@@ -5803,7 +5827,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Não há verbete DEZOITO no INES. Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. Página do verbete: https://www.spreadthesign.com/pt.br/word/9038/dezoito/0/"
+    "notes": "Não há verbete DEZOITO no INES. Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. Página do verbete: https://www.spreadthesign.com/pt.br/word/9038/dezoito/0/ Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa DEZOITO): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-19",
@@ -5829,7 +5853,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Não há verbete DEZENOVE no INES. Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. Página do verbete: https://www.spreadthesign.com/pt.br/word/9573/dezenove/0/"
+    "notes": "Não há verbete DEZENOVE no INES. Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. Página do verbete: https://www.spreadthesign.com/pt.br/word/9573/dezenove/0/ Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa DEZENOVE): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-20",
@@ -5855,7 +5879,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. O 2 é rápido e aparece borrado; o 0 é mantido e a mão parece abrir e fechar o O uma vez a mais (dúvida de observação)."
+    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. O 2 é rápido e aparece borrado; o 0 é mantido e a mão parece abrir e fechar o O uma vez a mais (dúvida de observação). Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa VINTE): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-30",
@@ -5863,7 +5887,7 @@
     "category": "numeros",
     "recognition": "dynamic",
     "params": {
-      "CM": "3 (polegar, indicador e médio estendidos) -> 0 (mão em O)",
+      "CM": "3 (indicador, médio e anelar estendidos) -> 0 (mão em O)",
       "PA": "espaço neutro em frente ao ombro, na altura do queixo",
       "MOV": "faz o 3 e fecha a mão em O para o 0, no mesmo lugar",
       "OR": "no 3, palma para o corpo, dedos para o centro do corpo; no 0, palma para o lado",
@@ -5881,7 +5905,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número."
+    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. Corrigido em 2026-10-25: no vídeo do INES e no avatar VLibras (glosa TRINTA) o 3 tem três dedos do mesmo comprimento (indicador, médio e anelar), como no TRÊS2 do INES; a descrição anterior dizia polegar, indicador e médio."
   },
   {
     "id": "numero-40",
@@ -5907,7 +5931,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Aqui o 4 é feito com os dedos para cima e palma para frente (não na horizontal como no QUATRO e no QUATORZE do INES), e o 0 aparece fundido no 4. Interpretação como 4 + 0 é minha, a partir do vídeo; a fonte não explica a composição."
+    "notes": "Aqui o 4 é feito com os dedos para cima e palma para frente (não na horizontal como no QUATRO e no QUATORZE do INES), e o 0 aparece fundido no 4. Interpretação como 4 + 0 é minha, a partir do vídeo; a fonte não explica a composição. A CONFERIR (2026-10-25): no avatar VLibras (glosa QUARENTA) o 4 fecha a mão inteira em O; no vídeo do INES só o indicador encosta no polegar e médio, anelar e mínimo continuam para cima. A descrição segue o INES."
   },
   {
     "id": "numero-50",
@@ -5933,7 +5957,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Parece a fusão do 5 (indicador e médio) com o 0 (círculo com o polegar), mas isso é interpretação minha a partir do vídeo; a fonte não explica a composição."
+    "notes": "Parece a fusão do 5 (indicador e médio) com o 0 (círculo com o polegar), mas isso é interpretação minha a partir do vídeo; a fonte não explica a composição. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa CINQUENTA): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-60",
@@ -5959,7 +5983,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número."
+    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa SESSENTA): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-70",
@@ -5985,7 +6009,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número."
+    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. A CONFERIR (2026-10-25): no avatar VLibras (glosa SETENTA) o 7 aparece com o indicador inclinado para baixo, diferente do vídeo do INES (indicador na horizontal). A descrição segue o INES."
   },
   {
     "id": "numero-80",
@@ -6011,7 +6035,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. A diferença entre o 8 (mão fechada) e o 0 (O) é pequena no vídeo; o 0 se reconhece pelo furo do O."
+    "notes": "Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. A diferença entre o 8 (mão fechada) e o 0 (O) é pequena no vídeo; o 0 se reconhece pelo furo do O. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa OITENTA): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-90",
@@ -6037,7 +6061,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Não há verbete NOVENTA no INES. Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. A subida do 0 para perto do rosto foi observada no vídeo; não sei se é parte do sinal ou estilo da sinalizante. Página do verbete: https://www.spreadthesign.com/pt.br/word/9574/noventa/0/"
+    "notes": "Não há verbete NOVENTA no INES. Composição observada: dígitos do número feitos em sequência pela mesma mão, com as formas de numeral cardinal da U2. Nenhuma das fontes consultadas traz a regra geral escrita; a composição foi descrita a partir do vídeo deste número. A subida do 0 para perto do rosto foi observada no vídeo; não sei se é parte do sinal ou estilo da sinalizante. Página do verbete: https://www.spreadthesign.com/pt.br/word/9574/noventa/0/ Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa NOVENTA): a VLibras faz a mesma forma."
   },
   {
     "id": "numero-100",
@@ -6063,7 +6087,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Descrição com dúvida: não dá para ver dois zeros separados; o O se desloca para o lado e para. No Spread the Sign (português BR) o 100 começa com o indicador estendido perto da boca e depois vai para o lado em O: https://www.spreadthesign.com/pt.br/word/441/cem/0/ (vídeo https://media.spreadthesign.com/video/mp4/14/550446.mp4). Escolhida a forma do INES."
+    "notes": "Descrição com dúvida: não dá para ver dois zeros separados; o O se desloca para o lado e para. No Spread the Sign (português BR) o 100 começa com o indicador estendido perto da boca e depois vai para o lado em O: https://www.spreadthesign.com/pt.br/word/441/cem/0/ (vídeo https://media.spreadthesign.com/video/mp4/14/550446.mp4). Escolhida a forma do INES. Conferido de novo em 2026-10-25 com o vídeo da fonte e com o avatar VLibras (glosa CEM): a VLibras faz a mesma forma."
   },
   {
     "id": "sinal-DINHEIRO",

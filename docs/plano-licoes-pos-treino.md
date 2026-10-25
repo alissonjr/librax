@@ -65,6 +65,11 @@ americano. O mesmo cruzamento vale para todo o alfabeto e os números:
 - Script que mede, para cada letra, quais dedos ficam esticados e qual dedo toca o polegar nas
   paradas aceitas, e compara com o `CM` do `signs.json`. Divergência vira nota "A CONFERIR".
 - Revisar F e T no dicionário do INES (nota já gravada nas duas).
+- Feito em 2026-10-25: alfabeto e números conferidos no vídeo do INES e no avatar VLibras (notas
+  em cada entrada do `signs.json`). G, H, M, N, P e Q eram do alfabeto americano; H, K e X têm
+  movimento nas duas fontes, mas seguem `static` porque o modelo da câmera lê a forma parada.
+  Ficaram "A CONFERIR": Y (vídeo do INES não abre), 1, 5, 7, 11, 17, 40 e 70 (avatar diferente do
+  INES).
 - Sinais com mais de uma forma (MESA apareceu com variantes diferentes entre canais): registrar a
   variante ensinada no `signs.json` e, se o modelo aprender as duas, aceitar as duas na câmera.
 
