@@ -9,7 +9,8 @@ para ver se todo mundo fez a mesma forma (rótulo errado aparece destoando).
 Uso:
     python video/conferir.py [id ...]     (sem id: todos os vídeos rotulados)
     python video/conferir.py --letra U [--letra V ...]
-Saída: ml-training/data/conferir/<id>.jpg e ml-training/data/conferir/letra-<L>.jpg
+    python video/conferir.py --sinal ARROZ     (início, meio e fim do trecho escolhido em cada vídeo)
+Saída: ml-training/data/conferir/<id>.jpg, letra-<L>.jpg e sinal-<GLOSA>.jpg
 """
 
 import glob
@@ -113,7 +114,49 @@ def galeria(letra):
     return out
 
 
+def galeria_sinal(glosa):
+    fontes = {f["id"]: f for f in json.load(open(os.path.join(DATA, "fontes_sinais.json")))}
+    linhas = []
+    for rot_path in sorted(glob.glob(os.path.join(DATA, "rotulos_sinais", "*.json"))):
+        rot = json.load(open(rot_path))
+        if rot["glosa"] != glosa or not rot["sinal"]:
+            continue
+        cap = cv2.VideoCapture(os.path.join(DATA, "videos", fontes[rot["id"]]["arquivo"]))
+        t0, t1 = rot["sinal"][0]
+        tiles = []
+        for t in (t0, (t0 + t1) / 2, t1):
+            cap.set(cv2.CAP_PROP_POS_MSEC, t * 1000)
+            ok, frame = cap.read()
+            if not ok:
+                frame = np.zeros((LADO, LADO, 3), np.uint8)
+            h, w = frame.shape[:2]
+            tile = cv2.resize(frame, (int(LADO * w / h), LADO))
+            cv2.putText(tile, f"{t:.1f}s", (4, 16), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1)
+            tiles.append(tile)
+        cap.release()
+        linha = np.hstack(tiles)
+        cv2.putText(linha, rot["id"][:9], (4, LADO - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (80, 220, 80), 1)
+        linhas.append(linha)
+    if not linhas:
+        return None
+    larg = max(l.shape[1] for l in linhas)
+    linhas = [np.pad(l, ((0, 0), (0, larg - l.shape[1]), (0, 0))) for l in linhas]
+    # duas colunas de vídeos para a folha não ficar comprida demais
+    if len(linhas) % 2:
+        linhas.append(np.zeros_like(linhas[0]))
+    meio = len(linhas) // 2
+    img = np.hstack([np.vstack(linhas[:meio]), np.vstack(linhas[meio:])])
+    out = os.path.join(DATA, "conferir", f"sinal-{glosa}.jpg")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    cv2.imwrite(out, img, [cv2.IMWRITE_JPEG_QUALITY, 70])
+    return out
+
+
 def main():
+    if "--sinal" in sys.argv:
+        for g in [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--sinal"]:
+            print(galeria_sinal(g) or f"{g}: nenhum vídeo aceito")
+        return
     if "--letra" in sys.argv:
         letras = [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--letra"]
         for L in letras:

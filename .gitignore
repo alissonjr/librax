@@ -24,6 +24,8 @@ ml-training/data/*
 !ml-training/data/ocr/
 !ml-training/data/dataset_video.jsonl
 !ml-training/data/dataset_limpo.jsonl
+!ml-training/data/teste_fixo.json
+!ml-training/data/teste_negativas.json
 ml-training/out/
 
 # Ambiente e segredos

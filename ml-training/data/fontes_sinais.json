@@ -4719,7 +4719,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-MESA",
   "glosa": "MESA",
-  "erro": "ERROR: \r[download] Got error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+  "arquivo": "dx-AN-vMWSk.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 29
  },
  {
   "id": "SsiEppjNCSQ",
@@ -5222,7 +5225,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-OBRIGADO",
   "glosa": "OBRIGADO",
-  "erro": "ERROR: \r[download] Got error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+  "arquivo": "1OUgjL9FXlE.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "RxmFds8_81Q",
@@ -6792,7 +6798,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-RESTAURANTE",
   "glosa": "RESTAURANTE",
-  "erro": "ERROR: [youtube] ZW7pEm0Ap28: This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sleep` to add a delay "
+  "arquivo": "ZW7pEm0Ap28.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 25
  },
  {
   "id": "K6ibDLFeawU",
@@ -6803,7 +6812,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEGUNDA-FEIRA",
   "glosa": "SEGUNDA-FEIRA",
-  "erro": "ERROR: [youtube] K6ibDLFeawU: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "K6ibDLFeawU.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "tWPl14ap-wE",
@@ -6814,7 +6826,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEGUNDA-FEIRA",
   "glosa": "SEGUNDA-FEIRA",
-  "erro": "ERROR: [youtube] tWPl14ap-wE: This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sleep` to add a delay "
+  "arquivo": "tWPl14ap-wE.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "NsTcebxwfDw",
@@ -6825,7 +6840,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEGUNDA-FEIRA",
   "glosa": "SEGUNDA-FEIRA",
-  "erro": "ERROR: [youtube] NsTcebxwfDw: This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sleep` to add a delay "
+  "arquivo": "NsTcebxwfDw.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "S4IcqjbWiXI",
@@ -6850,7 +6868,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEGUNDA-FEIRA",
   "glosa": "SEGUNDA-FEIRA",
-  "erro": "ERROR: [youtube] GFME4Z4TE28: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] GFME4Z4TE28: This video is not available"
  },
  {
   "id": "47Evf18P9vM",
@@ -6875,7 +6893,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEGUNDA-FEIRA",
   "glosa": "SEGUNDA-FEIRA",
-  "erro": "ERROR: [youtube] Qj-kRNe8wZc: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "Qj-kRNe8wZc.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "0Z1yymWnzZ0",
@@ -6925,7 +6946,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEGUNDA-FEIRA",
   "glosa": "SEGUNDA-FEIRA",
-  "erro": "ERROR: [youtube] SGfk9MEsATg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "SGfk9MEsATg.mp4",
+  "width": 640,
+  "height": 352,
+  "fps": 30
  },
  {
   "id": "3je8tzeMEhw",
@@ -6936,7 +6960,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEGUNDA-FEIRA",
   "glosa": "SEGUNDA-FEIRA",
-  "erro": "ERROR: [youtube] 3je8tzeMEhw: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] 3je8tzeMEhw: This video is not available"
  },
  {
   "id": "TG0w-xZfVc4",
@@ -6947,7 +6971,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] TG0w-xZfVc4: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "TG0w-xZfVc4.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "WF82EnlrNok",
@@ -6958,7 +6985,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] WF82EnlrNok: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "WF82EnlrNok.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "84sZ6VaBlGA",
@@ -6969,7 +6999,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] 84sZ6VaBlGA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: \r[download] Got error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
  },
  {
   "id": "87bMjtpnwZ4",
@@ -6980,7 +7010,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] 87bMjtpnwZ4: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "87bMjtpnwZ4.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "l_-Svmy2e94",
@@ -6991,7 +7024,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] l_-Svmy2e94: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "l_-Svmy2e94.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "CBhtJ7y5ANM",
@@ -7002,7 +7038,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] CBhtJ7y5ANM: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "CBhtJ7y5ANM.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "z3gTi3Bssvg",
@@ -7013,7 +7052,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] z3gTi3Bssvg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "z3gTi3Bssvg.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 25
  },
  {
   "id": "V5GCUNvnW5A",
@@ -7024,7 +7066,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] V5GCUNvnW5A: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "V5GCUNvnW5A.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "jCHdhoSVfT4",
@@ -7035,7 +7080,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] jCHdhoSVfT4: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "jCHdhoSVfT4.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "pXGx7zHncwk",
@@ -7046,7 +7094,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] pXGx7zHncwk: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: \r[download] Got error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
  },
  {
   "id": "NSpUsN5S8Is",
@@ -7057,7 +7105,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] NSpUsN5S8Is: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "NSpUsN5S8Is.mp4",
+  "width": 640,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "_BIjQ0Cimp8",
@@ -7068,7 +7119,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] _BIjQ0Cimp8: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] _BIjQ0Cimp8: This video is not available"
  },
  {
   "id": "R6tyl7b07uI",
@@ -7079,7 +7130,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SEMANA",
   "glosa": "SEMANA",
-  "erro": "ERROR: [youtube] R6tyl7b07uI: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "R6tyl7b07uI.mp4",
+  "width": 638,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "Nb4wpK7X7xA",
@@ -7090,7 +7144,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SETEMBRO",
   "glosa": "SETEMBRO",
-  "erro": "ERROR: [youtube] Nb4wpK7X7xA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "Nb4wpK7X7xA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "gADjII4VGpw",
@@ -7101,7 +7158,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SETEMBRO",
   "glosa": "SETEMBRO",
-  "erro": "ERROR: [youtube] gADjII4VGpw: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "gADjII4VGpw.mp4",
+  "width": 640,
+  "height": 352,
+  "fps": 30
  },
  {
   "id": "f3DnO77wZAE",
@@ -7112,7 +7172,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SETEMBRO",
   "glosa": "SETEMBRO",
-  "erro": "ERROR: [youtube] f3DnO77wZAE: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "f3DnO77wZAE.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "TFoboqqzA6w",
@@ -7123,7 +7186,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SETEMBRO",
   "glosa": "SETEMBRO",
-  "erro": "ERROR: [youtube] TFoboqqzA6w: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "TFoboqqzA6w.mp4",
+  "width": 794,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "A47qvx78LeY",
@@ -7134,7 +7200,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SETEMBRO",
   "glosa": "SETEMBRO",
-  "erro": "ERROR: [youtube] A47qvx78LeY: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "A47qvx78LeY.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "t5RlaV6FRJY",
@@ -7145,7 +7214,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SETEMBRO",
   "glosa": "SETEMBRO",
-  "erro": "ERROR: [youtube] t5RlaV6FRJY: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "t5RlaV6FRJY.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "0Jraw2lAQrM",
@@ -7156,7 +7228,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SETEMBRO",
   "glosa": "SETEMBRO",
-  "erro": "ERROR: [youtube] 0Jraw2lAQrM: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "0Jraw2lAQrM.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "uRfMm6Kb--I",
@@ -7167,7 +7242,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SETEMBRO",
   "glosa": "SETEMBRO",
-  "erro": "ERROR: [youtube] uRfMm6Kb--I: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "uRfMm6Kb--I.mp4",
+  "width": 638,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "33-8iTqRWiw",
@@ -7178,7 +7256,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SETEMBRO",
   "glosa": "SETEMBRO",
-  "erro": "ERROR: [youtube] 33-8iTqRWiw: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "33-8iTqRWiw.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 25
  },
  {
   "id": "keDa32pJqUI",
@@ -7189,7 +7270,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SIM",
   "glosa": "SIM",
-  "erro": "ERROR: [youtube] keDa32pJqUI: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "keDa32pJqUI.mp4",
+  "width": 640,
+  "height": 312,
+  "fps": 30
  },
  {
   "id": "Fj3ti0Vn0d8",
@@ -7200,7 +7284,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SIM",
   "glosa": "SIM",
-  "erro": "ERROR: [youtube] Fj3ti0Vn0d8: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "Fj3ti0Vn0d8.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "mvhBYhPJzjg",
@@ -7211,7 +7298,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SIM",
   "glosa": "SIM",
-  "erro": "ERROR: [youtube] mvhBYhPJzjg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "mvhBYhPJzjg.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "P5DB8fdoTF0",
@@ -7222,7 +7312,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SIM",
   "glosa": "SIM",
-  "erro": "ERROR: [youtube] P5DB8fdoTF0: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "P5DB8fdoTF0.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 25
  },
  {
   "id": "hoOKQx2NgY4",
@@ -7233,7 +7326,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SIM",
   "glosa": "SIM",
-  "erro": "ERROR: [youtube] hoOKQx2NgY4: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "hoOKQx2NgY4.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "SRcNejhjH_U",
@@ -7244,7 +7340,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SIM",
   "glosa": "SIM",
-  "erro": "ERROR: [youtube] SRcNejhjH_U: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "SRcNejhjH_U.mp4",
+  "width": 854,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "wOzlfReCy1Y",
@@ -7255,7 +7354,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SIM",
   "glosa": "SIM",
-  "erro": "ERROR: [youtube] wOzlfReCy1Y: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "wOzlfReCy1Y.mp4",
+  "width": 854,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "qPvxkt1R4oQ",
@@ -7266,7 +7368,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SIM",
   "glosa": "SIM",
-  "erro": "ERROR: [youtube] qPvxkt1R4oQ: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "qPvxkt1R4oQ.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "BVaVAUxD3So",
@@ -7277,7 +7382,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SINAL",
   "glosa": "SINAL",
-  "erro": "ERROR: [youtube] BVaVAUxD3So: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "BVaVAUxD3So.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "y6LWxu2CbzI",
@@ -7288,7 +7396,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-SINAL",
   "glosa": "SINAL",
-  "erro": "ERROR: [youtube] y6LWxu2CbzI: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "y6LWxu2CbzI.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "rlpJi_RQYDY",
@@ -7299,7 +7410,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TCHAU",
   "glosa": "TCHAU",
-  "erro": "ERROR: [youtube] rlpJi_RQYDY: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "rlpJi_RQYDY.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "asNB5BoZVA4",
@@ -7310,7 +7424,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TCHAU",
   "glosa": "TCHAU",
-  "erro": "ERROR: [youtube] asNB5BoZVA4: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "asNB5BoZVA4.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 25
  },
  {
   "id": "ZOsVI5vtA_I",
@@ -7321,7 +7438,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TCHAU",
   "glosa": "TCHAU",
-  "erro": "ERROR: [youtube] ZOsVI5vtA_I: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "ZOsVI5vtA_I.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "XH9p1e9UuMM",
@@ -7332,7 +7452,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TCHAU",
   "glosa": "TCHAU",
-  "erro": "ERROR: [youtube] XH9p1e9UuMM: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "XH9p1e9UuMM.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "AWxC7ZOU0WA",
@@ -7343,7 +7466,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TCHAU",
   "glosa": "TCHAU",
-  "erro": "ERROR: [youtube] AWxC7ZOU0WA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "AWxC7ZOU0WA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "HjP_AJHAOFI",
@@ -7354,7 +7480,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-TCHAU",
   "glosa": "TCHAU",
-  "erro": "ERROR: [youtube] HjP_AJHAOFI: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] HjP_AJHAOFI: This video is not available"
  },
  {
   "id": "ptmNFVJrVuA",
@@ -7365,7 +7491,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TCHAU",
   "glosa": "TCHAU",
-  "erro": "ERROR: [youtube] ptmNFVJrVuA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "ptmNFVJrVuA.mp4",
+  "width": 610,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "gqR4ryKwlzE",
@@ -7376,7 +7505,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-TCHAU",
   "glosa": "TCHAU",
-  "erro": "ERROR: [youtube] gqR4ryKwlzE: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] gqR4ryKwlzE: This video is not available"
  },
  {
   "id": "FnWXgGLPBrg",
@@ -7387,7 +7516,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] FnWXgGLPBrg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "FnWXgGLPBrg.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "NCuTWGZriZo",
@@ -7398,7 +7530,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] NCuTWGZriZo: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "NCuTWGZriZo.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "8Kydcm_MEEA",
@@ -7409,7 +7544,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] 8Kydcm_MEEA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "8Kydcm_MEEA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "rTxYma2qiko",
@@ -7420,7 +7558,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] rTxYma2qiko: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] rTxYma2qiko: This video is not available"
  },
  {
   "id": "5aX_ad38X9w",
@@ -7431,7 +7569,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] 5aX_ad38X9w: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "5aX_ad38X9w.mp4",
+  "width": 854,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "CwWBbBQSmuM",
@@ -7442,7 +7583,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] CwWBbBQSmuM: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "CwWBbBQSmuM.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "NKy2dZUJ8Ss",
@@ -7453,7 +7597,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] NKy2dZUJ8Ss: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "NKy2dZUJ8Ss.mp4",
+  "width": 640,
+  "height": 352,
+  "fps": 30
  },
  {
   "id": "TqPFsGu1E0E",
@@ -7464,7 +7611,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] TqPFsGu1E0E: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "TqPFsGu1E0E.mp4",
+  "width": 854,
+  "height": 480,
+  "fps": 30.0
  },
  {
   "id": "YN2LTds1BpA",
@@ -7475,7 +7625,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] YN2LTds1BpA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "YN2LTds1BpA.mp4",
+  "width": 854,
+  "height": 480,
+  "fps": 30.0
  },
  {
   "id": "X2bxv8VGAmA",
@@ -7486,7 +7639,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] X2bxv8VGAmA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "X2bxv8VGAmA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "oJTcU6fh-IU",
@@ -7497,7 +7653,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] oJTcU6fh-IU: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "oJTcU6fh-IU.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "wyjiy5H1g9A",
@@ -7508,7 +7667,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] wyjiy5H1g9A: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "wyjiy5H1g9A.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "wTVIb3aLvmg",
@@ -7519,7 +7681,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] wTVIb3aLvmg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] wTVIb3aLvmg: This video is not available"
  },
  {
   "id": "mlFiHZi5Eqc",
@@ -7530,7 +7692,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TERCA-FEIRA",
   "glosa": "TERÇA-FEIRA",
-  "erro": "ERROR: [youtube] mlFiHZi5Eqc: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "mlFiHZi5Eqc.mp4",
+  "width": 854,
+  "height": 480,
+  "fps": 30.0
  },
  {
   "id": "5kcr7S8jcwg",
@@ -7541,7 +7706,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] 5kcr7S8jcwg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "5kcr7S8jcwg.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "zRAKGtscac0",
@@ -7552,7 +7720,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] zRAKGtscac0: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "zRAKGtscac0.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "JIOoVKcQkC4",
@@ -7563,7 +7734,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] JIOoVKcQkC4: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "JIOoVKcQkC4.mp4",
+  "width": 446,
+  "height": 360,
+  "fps": 25
  },
  {
   "id": "cmSQQlXo2SM",
@@ -7574,7 +7748,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] cmSQQlXo2SM: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "cmSQQlXo2SM.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "YvThKAd_nf4",
@@ -7585,7 +7762,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] YvThKAd_nf4: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "YvThKAd_nf4.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "ZH7kSowMFjE",
@@ -7596,7 +7776,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] ZH7kSowMFjE: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "ZH7kSowMFjE.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "luvOwY-1b5A",
@@ -7607,7 +7790,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] luvOwY-1b5A: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "luvOwY-1b5A.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "QQyDBSF8V3I",
@@ -7618,7 +7804,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] QQyDBSF8V3I: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "QQyDBSF8V3I.mp4",
+  "width": 854,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "Svp9jceiL3I",
@@ -7629,7 +7818,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] Svp9jceiL3I: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "Svp9jceiL3I.mp4",
+  "width": 854,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "C4H2QbVg9b0",
@@ -7640,7 +7832,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] C4H2QbVg9b0: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "C4H2QbVg9b0.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "Va8LTsFiz1I",
@@ -7651,7 +7846,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] Va8LTsFiz1I: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] Va8LTsFiz1I: This video is not available"
  },
  {
   "id": "JTM3KsMk6Qo",
@@ -7662,7 +7857,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] JTM3KsMk6Qo: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: \r[download] Got error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
  },
  {
   "id": "O4v8DC38gYY",
@@ -7673,7 +7868,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIA",
   "glosa": "TIA",
-  "erro": "ERROR: [youtube] O4v8DC38gYY: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "O4v8DC38gYY.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "sG_oxukBsHQ",
@@ -7684,7 +7882,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] sG_oxukBsHQ: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "sG_oxukBsHQ.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 24
  },
  {
   "id": "A-BFrRy9qiw",
@@ -7695,7 +7896,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] A-BFrRy9qiw: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "A-BFrRy9qiw.mp4",
+  "width": 854,
+  "height": 480,
+  "fps": 30.0
  },
  {
   "id": "FHP-BMfA5OY",
@@ -7706,7 +7910,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] FHP-BMfA5OY: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "FHP-BMfA5OY.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "fRsKPg5mtCk",
@@ -7717,7 +7924,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] fRsKPg5mtCk: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] fRsKPg5mtCk: This video is not available"
  },
  {
   "id": "R3BBupR6f8E",
@@ -7728,7 +7935,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] R3BBupR6f8E: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "R3BBupR6f8E.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "dNUw1Df-qXo",
@@ -7739,7 +7949,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] dNUw1Df-qXo: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "dNUw1Df-qXo.mp4",
+  "width": 640,
+  "height": 358,
+  "fps": 30
  },
  {
   "id": "xTlBGupdK1Q",
@@ -7750,7 +7963,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] xTlBGupdK1Q: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "xTlBGupdK1Q.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "jQRGhzYc-EI",
@@ -7761,7 +7977,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] jQRGhzYc-EI: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "jQRGhzYc-EI.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "Or2H2JqdxuQ",
@@ -7772,7 +7991,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] Or2H2JqdxuQ: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "Or2H2JqdxuQ.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "kC_194u6Rms",
@@ -7783,7 +8005,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] kC_194u6Rms: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "kC_194u6Rms.mp4",
+  "width": 854,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "om_CvcY1lFM",
@@ -7794,7 +8019,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] om_CvcY1lFM: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "om_CvcY1lFM.mp4",
+  "width": 854,
+  "height": 414,
+  "fps": 30
  },
  {
   "id": "y3doSlTQFmw",
@@ -7805,7 +8033,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TIO",
   "glosa": "TIO",
-  "erro": "ERROR: [youtube] y3doSlTQFmw: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "y3doSlTQFmw.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 25
  },
  {
   "id": "gBPdaHlnZrU",
@@ -7816,7 +8047,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRABALHAR",
   "glosa": "TRABALHAR",
-  "erro": "ERROR: [youtube] gBPdaHlnZrU: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "gBPdaHlnZrU.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "gVqpvGHqiRU",
@@ -7827,7 +8061,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRABALHAR",
   "glosa": "TRABALHAR",
-  "erro": "ERROR: [youtube] gVqpvGHqiRU: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "gVqpvGHqiRU.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "WKuLMdkm-D4",
@@ -7838,7 +8075,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRABALHAR",
   "glosa": "TRABALHAR",
-  "erro": "ERROR: [youtube] WKuLMdkm-D4: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "WKuLMdkm-D4.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "J6h2E8qywnw",
@@ -7849,7 +8089,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRABALHAR",
   "glosa": "TRABALHAR",
-  "erro": "ERROR: [youtube] J6h2E8qywnw: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "J6h2E8qywnw.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "bgKETwhx1xg",
@@ -7860,7 +8103,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRABALHAR",
   "glosa": "TRABALHAR",
-  "erro": "ERROR: [youtube] bgKETwhx1xg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "bgKETwhx1xg.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "G1AQdaMXbCQ",
@@ -7871,7 +8117,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRISTE",
   "glosa": "TRISTE",
-  "erro": "ERROR: [youtube] G1AQdaMXbCQ: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "G1AQdaMXbCQ.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "NF7Qjz9J2QA",
@@ -7882,7 +8131,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRISTE",
   "glosa": "TRISTE",
-  "erro": "ERROR: [youtube] NF7Qjz9J2QA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "NF7Qjz9J2QA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "IeNICU0EY4Y",
@@ -7893,7 +8145,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRISTE",
   "glosa": "TRISTE",
-  "erro": "ERROR: [youtube] IeNICU0EY4Y: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "IeNICU0EY4Y.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "W5aKp-moW28",
@@ -7904,7 +8159,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRISTE",
   "glosa": "TRISTE",
-  "erro": "ERROR: [youtube] W5aKp-moW28: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] W5aKp-moW28: This video is not available"
  },
  {
   "id": "CCzDJFXGTsg",
@@ -7915,7 +8170,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRISTE",
   "glosa": "TRISTE",
-  "erro": "ERROR: [youtube] CCzDJFXGTsg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "CCzDJFXGTsg.mp4",
+  "width": 640,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "Av-A-H4MdNc",
@@ -7926,7 +8184,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRISTE",
   "glosa": "TRISTE",
-  "erro": "ERROR: [youtube] Av-A-H4MdNc: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "Av-A-H4MdNc.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "U1KmFnVICcA",
@@ -7937,7 +8198,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRISTE",
   "glosa": "TRISTE",
-  "erro": "ERROR: [youtube] U1KmFnVICcA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "U1KmFnVICcA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "u-iOPEPVLDA",
@@ -7948,7 +8212,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRISTE",
   "glosa": "TRISTE",
-  "erro": "ERROR: [youtube] u-iOPEPVLDA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "u-iOPEPVLDA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "spjAnoKbNXg",
@@ -7959,7 +8226,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRISTE",
   "glosa": "TRISTE",
-  "erro": "ERROR: [youtube] spjAnoKbNXg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "spjAnoKbNXg.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "h7CSlXAfeJE",
@@ -7970,7 +8240,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TRISTE",
   "glosa": "TRISTE",
-  "erro": "ERROR: [youtube] h7CSlXAfeJE: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "h7CSlXAfeJE.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "8f_hrn6EHhE",
@@ -7981,7 +8254,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-TUDO-BEM",
   "glosa": "TUDO-BEM",
-  "erro": "ERROR: [youtube] 8f_hrn6EHhE: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: \r[download] Got error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
  },
  {
   "id": "dZLuyWhQJRw",
@@ -7992,7 +8265,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-TUDO-BEM",
   "glosa": "TUDO-BEM",
-  "erro": "ERROR: [youtube] dZLuyWhQJRw: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] dZLuyWhQJRw: This video is not available"
  },
  {
   "id": "uDYi7iedSco",
@@ -8003,7 +8276,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TUDO-BEM",
   "glosa": "TUDO-BEM",
-  "erro": "ERROR: [youtube] uDYi7iedSco: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "uDYi7iedSco.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "3yI_aA64Hic",
@@ -8014,7 +8290,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TUDO-BEM",
   "glosa": "TUDO-BEM",
-  "erro": "ERROR: [youtube] 3yI_aA64Hic: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "3yI_aA64Hic.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 25
  },
  {
   "id": "JXS_1FmZ0_E",
@@ -8025,7 +8304,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-TUDO-BEM",
   "glosa": "TUDO-BEM",
-  "erro": "ERROR: [youtube] JXS_1FmZ0_E: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "JXS_1FmZ0_E.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "TwdUvAC438Y",
@@ -8036,7 +8318,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] TwdUvAC438Y: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "TwdUvAC438Y.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "BeTGa9Sq2CI",
@@ -8047,7 +8332,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] BeTGa9Sq2CI: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "BeTGa9Sq2CI.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 24
  },
  {
   "id": "QIEEb-RLFf0",
@@ -8058,7 +8346,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] QIEEb-RLFf0: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: [youtube] QIEEb-RLFf0: This video is not available"
  },
  {
   "id": "5nneXAVP3N8",
@@ -8069,7 +8357,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] 5nneXAVP3N8: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "5nneXAVP3N8.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "nHc6J1lKpsA",
@@ -8080,7 +8371,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] nHc6J1lKpsA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "nHc6J1lKpsA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 25
  },
  {
   "id": "86vO7o41Xt0",
@@ -8091,7 +8385,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] 86vO7o41Xt0: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "86vO7o41Xt0.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "PK-29kRn_8U",
@@ -8102,7 +8399,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] PK-29kRn_8U: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "PK-29kRn_8U.mp4",
+  "width": 852,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "vX58tws5Ux8",
@@ -8113,7 +8413,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] vX58tws5Ux8: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "vX58tws5Ux8.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "qxzrAzhcFvA",
@@ -8124,7 +8427,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] qxzrAzhcFvA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "qxzrAzhcFvA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 24
  },
  {
   "id": "2M9TKJeuHKE",
@@ -8135,7 +8441,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] 2M9TKJeuHKE: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "2M9TKJeuHKE.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "-jl-xwY5C3k",
@@ -8146,7 +8455,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] -jl-xwY5C3k: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "-jl-xwY5C3k.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "tNpxhA4hwm8",
@@ -8157,7 +8469,7 @@
   "tipo": "sinal",
   "rotulo": "sinal-VERDE",
   "glosa": "VERDE",
-  "erro": "ERROR: [youtube] tNpxhA4hwm8: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "erro": "ERROR: \r[download] Got error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
  },
  {
   "id": "7QSt29BLI3M",
@@ -8168,7 +8480,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VIR",
   "glosa": "VIR",
-  "erro": "ERROR: [youtube] 7QSt29BLI3M: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "7QSt29BLI3M.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "hNKbIywVEXw",
@@ -8179,7 +8494,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VIR",
   "glosa": "VIR",
-  "erro": "ERROR: [youtube] hNKbIywVEXw: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "hNKbIywVEXw.mp4",
+  "width": 640,
+  "height": 480,
+  "fps": 25.0
  },
  {
   "id": "xjD6T4ML9jg",
@@ -8190,7 +8508,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VIR",
   "glosa": "VIR",
-  "erro": "ERROR: [youtube] xjD6T4ML9jg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "xjD6T4ML9jg.mp4",
+  "width": 852,
+  "height": 480,
+  "fps": 30
  },
  {
   "id": "EoljSnY54hg",
@@ -8201,7 +8522,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VIR",
   "glosa": "VIR",
-  "erro": "ERROR: [youtube] EoljSnY54hg: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "EoljSnY54hg.mp4",
+  "width": 320,
+  "height": 240,
+  "fps": 12
  },
  {
   "id": "qhZ4of_RZIA",
@@ -8212,7 +8536,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VIR",
   "glosa": "VIR",
-  "erro": "ERROR: [youtube] qhZ4of_RZIA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "qhZ4of_RZIA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
  },
  {
   "id": "Q--mnOB_EaA",
@@ -8223,7 +8550,10 @@
   "tipo": "sinal",
   "rotulo": "sinal-VOCE",
   "glosa": "VOCÊ",
-  "erro": "ERROR: [youtube] Q--mnOB_EaA: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "Q--mnOB_EaA.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 25
  },
  {
   "id": "4L-g4Pixktk",
@@ -8234,6 +8564,4785 @@
   "tipo": "sinal",
   "rotulo": "sinal-VOCE",
   "glosa": "VOCÊ",
-  "erro": "ERROR: [youtube] 4L-g4Pixktk: Video unavailable. This content isn't available, try again later. The current session has been rate-limited by YouTube for up to an hour. It is recommended to use `-t sle"
+  "arquivo": "4L-g4Pixktk.mp4",
+  "width": 640,
+  "height": 360,
+  "fps": 30
+ },
+ {
+  "id": "dic-ines-abd830f2fd",
+  "title": "ines: 0",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-0",
+  "glosa": "0",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/zero1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-abd830f2fd.mp4"
+ },
+ {
+  "id": "dic-ines-688bd2cf83",
+  "title": "ines: 1",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-1",
+  "glosa": "1",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/um1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-688bd2cf83.mp4"
+ },
+ {
+  "id": "dic-ines-20c5abda01",
+  "title": "ines: 1",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-1",
+  "glosa": "1",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/um2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-20c5abda01.mp4"
+ },
+ {
+  "id": "dic-ines-8ad2e211f3",
+  "title": "ines: 2",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-2",
+  "glosa": "2",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dois1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-8ad2e211f3.mp4"
+ },
+ {
+  "id": "dic-ines-1944e973bc",
+  "title": "ines: 2",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-2",
+  "glosa": "2",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dois2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-1944e973bc.mp4"
+ },
+ {
+  "id": "dic-ines-3e82182fec",
+  "title": "ines: 3",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-3",
+  "glosa": "3",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/tres1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-3e82182fec.mp4"
+ },
+ {
+  "id": "dic-ines-32c29b52f1",
+  "title": "ines: 3",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-3",
+  "glosa": "3",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/tres2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-32c29b52f1.mp4"
+ },
+ {
+  "id": "dic-ines-db452aca79",
+  "title": "ines: 4",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-4",
+  "glosa": "4",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quarentaSm_Prog001.mp4",
+  "arquivo": "dic-ines-db452aca79.mp4"
+ },
+ {
+  "id": "dic-ines-4cfcbb4699",
+  "title": "ines: 4",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-4",
+  "glosa": "4",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quatroSm_Prog001.mp4",
+  "arquivo": "dic-ines-4cfcbb4699.mp4"
+ },
+ {
+  "id": "dic-ines-07e85ba891",
+  "title": "ines: 5",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-5",
+  "glosa": "5",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cincoSm_Prog001.mp4",
+  "arquivo": "dic-ines-07e85ba891.mp4"
+ },
+ {
+  "id": "dic-ines-4a7f1f614f",
+  "title": "ines: 6",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-6",
+  "glosa": "6",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/seisSm_Prog001.mp4",
+  "arquivo": "dic-ines-4a7f1f614f.mp4"
+ },
+ {
+  "id": "dic-ines-d119434f8e",
+  "title": "ines: 7",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-7",
+  "glosa": "7",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/seteSm_Prog001.mp4",
+  "arquivo": "dic-ines-d119434f8e.mp4"
+ },
+ {
+  "id": "dic-ines-93e3254fb0",
+  "title": "ines: 8",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-8",
+  "glosa": "8",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/oitoSm_Prog001.mp4",
+  "arquivo": "dic-ines-93e3254fb0.mp4"
+ },
+ {
+  "id": "dic-ines-a04aba7e5f",
+  "title": "ines: 9",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-9",
+  "glosa": "9",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/noveSm_Prog001.mp4",
+  "arquivo": "dic-ines-a04aba7e5f.mp4"
+ },
+ {
+  "id": "dic-ines-7148d6b4cd",
+  "title": "ines: 10",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-10",
+  "glosa": "10",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dezSm_Prog001.mp4",
+  "arquivo": "dic-ines-7148d6b4cd.mp4"
+ },
+ {
+  "id": "dic-ines-fb46b78791",
+  "title": "ines: OI",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OI",
+  "glosa": "OI",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/oiSm_Prog001.mp4",
+  "arquivo": "dic-ines-fb46b78791.mp4"
+ },
+ {
+  "id": "dic-ines-4de51072ab",
+  "title": "ines: TCHAU",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TCHAU",
+  "glosa": "TCHAU",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/tchauSm_Prog001.mp4",
+  "arquivo": "dic-ines-4de51072ab.mp4"
+ },
+ {
+  "id": "dic-ines-c866b198ce",
+  "title": "ines: BOM-DIA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOM-DIA",
+  "glosa": "BOM-DIA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/bom1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-c866b198ce.mp4"
+ },
+ {
+  "id": "dic-ines-f264e426b4",
+  "title": "ines: BOM-DIA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOM-DIA",
+  "glosa": "BOM-DIA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dia1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-f264e426b4.mp4"
+ },
+ {
+  "id": "dic-ines-75eaea72a6",
+  "title": "ines: BOM-DIA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOM-DIA",
+  "glosa": "BOM-DIA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dia2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-75eaea72a6.mp4"
+ },
+ {
+  "id": "dic-signbank-129895cc98",
+  "title": "signbank: BOM-DIA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOM-DIA",
+  "glosa": "BOM-DIA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/BOM.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-signbank-ce4bbfe441",
+  "title": "signbank: BOM-DIA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOM-DIA",
+  "glosa": "BOM-DIA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/DIA.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-signbank-2569aea42a",
+  "title": "signbank: BOM-DIA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOM-DIA",
+  "glosa": "BOM-DIA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/DIA2.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-5d7dc6fc6e",
+  "title": "ines: BOA-TARDE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOA-TARDE",
+  "glosa": "BOA-TARDE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/tardeSm_Prog001.mp4",
+  "arquivo": "dic-ines-5d7dc6fc6e.mp4"
+ },
+ {
+  "id": "dic-signbank-68d1685eb3",
+  "title": "signbank: BOA-TARDE",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOA-TARDE",
+  "glosa": "BOA-TARDE",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/TARDE.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-8c3f9bab57",
+  "title": "ines: BOA-NOITE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOA-NOITE",
+  "glosa": "BOA-NOITE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/noite1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-8c3f9bab57.mp4"
+ },
+ {
+  "id": "dic-ines-3f4ffb26bd",
+  "title": "ines: BOA-NOITE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOA-NOITE",
+  "glosa": "BOA-NOITE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/noite2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-3f4ffb26bd.mp4"
+ },
+ {
+  "id": "dic-signbank-3ef946b7bd",
+  "title": "signbank: BOA-NOITE",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BOA-NOITE",
+  "glosa": "BOA-NOITE",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/NOITE.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-f2f270a138",
+  "title": "ines: TUDO-BEM",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TUDO-BEM",
+  "glosa": "TUDO-BEM",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/tudo_bemSm_Prog001.mp4",
+  "arquivo": "dic-ines-f2f270a138.mp4"
+ },
+ {
+  "id": "dic-ines-10b6d2e668",
+  "title": "ines: PRAZER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PRAZER",
+  "glosa": "PRAZER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/prazer1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-10b6d2e668.mp4"
+ },
+ {
+  "id": "dic-ines-3e7bef6c2b",
+  "title": "ines: PRAZER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PRAZER",
+  "glosa": "PRAZER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/prazer2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-3e7bef6c2b.mp4"
+ },
+ {
+  "id": "dic-ines-bdfc818262",
+  "title": "ines: BEM-VINDO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BEM-VINDO",
+  "glosa": "BEM-VINDO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/bem_vindoSm_Prog001.mp4",
+  "arquivo": "dic-ines-bdfc818262.mp4"
+ },
+ {
+  "id": "dic-ines-02072892f7",
+  "title": "ines: ATÉ-LOGO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ATE-LOGO",
+  "glosa": "ATÉ-LOGO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ate%20logoSm_Prog001.mp4",
+  "arquivo": "dic-ines-02072892f7.mp4"
+ },
+ {
+  "id": "dic-ines-653f69c4d3",
+  "title": "ines: PARABÉNS",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PARABENS",
+  "glosa": "PARABÉNS",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/parabensSm_Prog001.mp4",
+  "arquivo": "dic-ines-653f69c4d3.mp4"
+ },
+ {
+  "id": "dic-signbank-a964fb0320",
+  "title": "signbank: PARABÉNS",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PARABENS",
+  "glosa": "PARABÉNS",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/PARABENIZAR.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-dc096296cd",
+  "title": "ines: OBRIGADO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OBRIGADO",
+  "glosa": "OBRIGADO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/obrigado1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-dc096296cd.mp4"
+ },
+ {
+  "id": "dic-signbank-0a1307bcfd",
+  "title": "signbank: OBRIGADO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OBRIGADO",
+  "glosa": "OBRIGADO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/AGRADECER.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-b08d95a58f",
+  "title": "ines: POR-FAVOR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-POR-FAVOR",
+  "glosa": "POR-FAVOR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/por_favorSm_Prog001.mp4",
+  "arquivo": "dic-ines-b08d95a58f.mp4"
+ },
+ {
+  "id": "dic-signbank-0a9924fc47",
+  "title": "signbank: POR-FAVOR",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-POR-FAVOR",
+  "glosa": "POR-FAVOR",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/POR-FAVOR.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-33a350b803",
+  "title": "ines: DESCULPA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DESCULPA",
+  "glosa": "DESCULPA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/desculparSm_Prog001.mp4",
+  "arquivo": "dic-ines-33a350b803.mp4"
+ },
+ {
+  "id": "dic-signbank-f219fd57d2",
+  "title": "signbank: DESCULPA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DESCULPA",
+  "glosa": "DESCULPA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/DESCULPAR.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-ee2d27bf31",
+  "title": "ines: DE-NADA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DE-NADA",
+  "glosa": "DE-NADA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/nadaSm_Prog001.mp4",
+  "arquivo": "dic-ines-ee2d27bf31.mp4"
+ },
+ {
+  "id": "dic-signbank-270a088f8e",
+  "title": "signbank: DE-NADA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DE-NADA",
+  "glosa": "DE-NADA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/NADA.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-4cd952a594",
+  "title": "ines: COM-LICENÇA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COM-LICENCA",
+  "glosa": "COM-LICENÇA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/com-licencaSm_Prog001.mp4",
+  "arquivo": "dic-ines-4cd952a594.mp4"
+ },
+ {
+  "id": "dic-ines-0b51dea944",
+  "title": "ines: COM-LICENÇA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COM-LICENCA",
+  "glosa": "COM-LICENÇA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/licencaSm_Prog001.mp4",
+  "arquivo": "dic-ines-0b51dea944.mp4"
+ },
+ {
+  "id": "dic-signbank-9b6bf66cae",
+  "title": "signbank: COM-LICENÇA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COM-LICENCA",
+  "glosa": "COM-LICENÇA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/COM-LICEN%C3%87A.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-d3ab9dc01b",
+  "title": "ines: EU",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-EU",
+  "glosa": "EU",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/euSm_Prog001.mp4",
+  "arquivo": "dic-ines-d3ab9dc01b.mp4"
+ },
+ {
+  "id": "dic-ines-0d720a3345",
+  "title": "ines: VOCÊ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-VOCE",
+  "glosa": "VOCÊ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/voceSm_Prog001.mp4",
+  "arquivo": "dic-ines-0d720a3345.mp4"
+ },
+ {
+  "id": "dic-ines-520b7812c8",
+  "title": "ines: ELE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ELE",
+  "glosa": "ELE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/deleSm_Prog001.mp4",
+  "arquivo": "dic-ines-520b7812c8.mp4"
+ },
+ {
+  "id": "dic-ines-8f4ddc024f",
+  "title": "ines: ELE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ELE",
+  "glosa": "ELE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/eleSm_Prog001.mp4",
+  "arquivo": "dic-ines-8f4ddc024f.mp4"
+ },
+ {
+  "id": "dic-ines-7c1c21552b",
+  "title": "ines: NÓS",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NOS",
+  "glosa": "NÓS",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/nosSm_Prog001.mp4",
+  "arquivo": "dic-ines-7c1c21552b.mp4"
+ },
+ {
+  "id": "dic-ines-bae2c437dd",
+  "title": "ines: MEU",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MEU",
+  "glosa": "MEU",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/meu1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-bae2c437dd.mp4"
+ },
+ {
+  "id": "dic-ines-1284578eb7",
+  "title": "ines: MEU",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MEU",
+  "glosa": "MEU",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/meu2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-1284578eb7.mp4"
+ },
+ {
+  "id": "dic-ines-3d86ea6e7f",
+  "title": "ines: SEU",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SEU",
+  "glosa": "SEU",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/seuSm_Prog001.mp4",
+  "arquivo": "dic-ines-3d86ea6e7f.mp4"
+ },
+ {
+  "id": "dic-ines-a66ba87b48",
+  "title": "ines: NOME",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NOME",
+  "glosa": "NOME",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/nomeSm_Prog001.mp4",
+  "arquivo": "dic-ines-a66ba87b48.mp4"
+ },
+ {
+  "id": "dic-signbank-fbdb742149",
+  "title": "signbank: NOME",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NOME",
+  "glosa": "NOME",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/NOME.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-12d7cdfd2d",
+  "title": "ines: SINAL",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SINAL",
+  "glosa": "SINAL",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/sinal3Sm_Prog001.mp4",
+  "arquivo": "dic-ines-12d7cdfd2d.mp4"
+ },
+ {
+  "id": "dic-signbank-5ae1534bf3",
+  "title": "signbank: SINAL",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SINAL",
+  "glosa": "SINAL",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/SINAL.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-dee91a1f0a",
+  "title": "ines: SURDO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SURDO",
+  "glosa": "SURDO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/surdo2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-dee91a1f0a.mp4"
+ },
+ {
+  "id": "dic-ines-b77f5c629f",
+  "title": "ines: SURDO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SURDO",
+  "glosa": "SURDO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/surdoSm_Prog001.mp4",
+  "arquivo": "dic-ines-b77f5c629f.mp4"
+ },
+ {
+  "id": "dic-signbank-0fd4d3e6db",
+  "title": "signbank: SURDO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SURDO",
+  "glosa": "SURDO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/SURDO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-887da67cf3",
+  "title": "ines: OUVINTE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OUVINTE",
+  "glosa": "OUVINTE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ouvinteSm_Prog001.mp4",
+  "arquivo": "dic-ines-887da67cf3.mp4"
+ },
+ {
+  "id": "dic-signbank-b44e389f30",
+  "title": "signbank: OUVINTE",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OUVINTE",
+  "glosa": "OUVINTE",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/OUVINTE.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-928aba9af0",
+  "title": "ines: LIBRAS",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-LIBRAS",
+  "glosa": "LIBRAS",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/lingua-de-sinaisSm_Prog001.mp4",
+  "arquivo": "dic-ines-928aba9af0.mp4"
+ },
+ {
+  "id": "dic-signbank-6018c3685b",
+  "title": "signbank: LIBRAS",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-LIBRAS",
+  "glosa": "LIBRAS",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/LIBRAS.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-9a30233009",
+  "title": "ines: IDADE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-IDADE",
+  "glosa": "IDADE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/idade1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-9a30233009.mp4"
+ },
+ {
+  "id": "dic-ines-d6ac6349ec",
+  "title": "ines: IDADE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-IDADE",
+  "glosa": "IDADE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/idade2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-d6ac6349ec.mp4"
+ },
+ {
+  "id": "dic-ines-0a383f1ac2",
+  "title": "ines: MORAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MORAR",
+  "glosa": "MORAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/morarSm_Prog001.mp4",
+  "arquivo": "dic-ines-0a383f1ac2.mp4"
+ },
+ {
+  "id": "dic-ines-115ad5145a",
+  "title": "ines: NASCER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NASCER",
+  "glosa": "NASCER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/nascerSm_Prog001.mp4",
+  "arquivo": "dic-ines-115ad5145a.mp4"
+ },
+ {
+  "id": "dic-signbank-535a283b46",
+  "title": "signbank: NASCER",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NASCER",
+  "glosa": "NASCER",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/NASCER.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-13313160a0",
+  "title": "ines: CIDADE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CIDADE",
+  "glosa": "CIDADE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cidadeSm_Prog001.mp4",
+  "arquivo": "dic-ines-13313160a0.mp4"
+ },
+ {
+  "id": "dic-signbank-841cb00261",
+  "title": "signbank: CIDADE",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CIDADE",
+  "glosa": "CIDADE",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/CIDADE.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-cde3b36d9d",
+  "title": "ines: O-QUE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-O-QUE",
+  "glosa": "O-QUE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/que2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-cde3b36d9d.mp4"
+ },
+ {
+  "id": "dic-signbank-4aa3c6465d",
+  "title": "signbank: O-QUE",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-O-QUE",
+  "glosa": "O-QUE",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/O-QUE.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-e3677ed743",
+  "title": "ines: QUEM",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUEM",
+  "glosa": "QUEM",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quem3Sm_Prog001.mp4",
+  "arquivo": "dic-ines-e3677ed743.mp4"
+ },
+ {
+  "id": "dic-ines-2bf412ae93",
+  "title": "ines: ONDE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ONDE",
+  "glosa": "ONDE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ondeSm_Prog001.mp4",
+  "arquivo": "dic-ines-2bf412ae93.mp4"
+ },
+ {
+  "id": "dic-signbank-8ae559e77d",
+  "title": "signbank: ONDE",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ONDE",
+  "glosa": "ONDE",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/ONDE.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-0019c95aba",
+  "title": "ines: QUAL",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUAL",
+  "glosa": "QUAL",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/qual2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-0019c95aba.mp4"
+ },
+ {
+  "id": "dic-ines-81235a9685",
+  "title": "ines: COMO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COMO",
+  "glosa": "COMO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/como2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-81235a9685.mp4"
+ },
+ {
+  "id": "dic-signbank-3fc6c54d6b",
+  "title": "signbank: COMO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COMO",
+  "glosa": "COMO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/COMO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-932438c2ff",
+  "title": "ines: QUANDO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUANDO",
+  "glosa": "QUANDO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quando1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-932438c2ff.mp4"
+ },
+ {
+  "id": "dic-ines-f679123391",
+  "title": "ines: QUANDO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUANDO",
+  "glosa": "QUANDO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quando2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-f679123391.mp4"
+ },
+ {
+  "id": "dic-ines-e8efeb3ffc",
+  "title": "ines: POR-QUE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-POR-QUE",
+  "glosa": "POR-QUE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/porqueSm_Prog001.mp4",
+  "arquivo": "dic-ines-e8efeb3ffc.mp4"
+ },
+ {
+  "id": "dic-signbank-64a55fc82a",
+  "title": "signbank: POR-QUE",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-POR-QUE",
+  "glosa": "POR-QUE",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/PORQUE.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-25c430982f",
+  "title": "ines: QUANTO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUANTO",
+  "glosa": "QUANTO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quanto1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-25c430982f.mp4"
+ },
+ {
+  "id": "dic-ines-50b26388b5",
+  "title": "ines: QUANTO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUANTO",
+  "glosa": "QUANTO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quantosSm_Prog001.mp4",
+  "arquivo": "dic-ines-50b26388b5.mp4"
+ },
+ {
+  "id": "dic-signbank-d30d67c4e7",
+  "title": "signbank: QUANTO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUANTO",
+  "glosa": "QUANTO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/QUANTO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-e6548637b0",
+  "title": "ines: SIM",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SIM",
+  "glosa": "SIM",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/simSm_Prog001.mp4",
+  "arquivo": "dic-ines-e6548637b0.mp4"
+ },
+ {
+  "id": "dic-signbank-a8e00b7303",
+  "title": "signbank: SIM",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SIM",
+  "glosa": "SIM",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/SIM.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-d938899d29",
+  "title": "ines: NÃO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NAO",
+  "glosa": "NÃO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/nao1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-d938899d29.mp4"
+ },
+ {
+  "id": "dic-ines-7821434d64",
+  "title": "ines: NÃO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NAO",
+  "glosa": "NÃO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/nao2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-7821434d64.mp4"
+ },
+ {
+  "id": "dic-signbank-f77197df83",
+  "title": "signbank: NÃO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NAO",
+  "glosa": "NÃO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/N%C3%83O.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-ef7897f7ce",
+  "title": "ines: ENTENDER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ENTENDER",
+  "glosa": "ENTENDER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/entenderSm_Prog001.mp4",
+  "arquivo": "dic-ines-ef7897f7ce.mp4"
+ },
+ {
+  "id": "dic-signbank-17f3faf7c8",
+  "title": "signbank: ENTENDER",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ENTENDER",
+  "glosa": "ENTENDER",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/ENTENDER.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-4fd143ce40",
+  "title": "ines: SABER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SABER",
+  "glosa": "SABER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/saberSm_Prog001.mp4",
+  "arquivo": "dic-ines-4fd143ce40.mp4"
+ },
+ {
+  "id": "dic-signbank-0954137b8f",
+  "title": "signbank: SABER",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SABER",
+  "glosa": "SABER",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/SABER-N%C3%83O.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-signbank-ab170d34cf",
+  "title": "signbank: SABER",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SABER",
+  "glosa": "SABER",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/SABER-N%C3%83O2.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-signbank-3a78502186",
+  "title": "signbank: SABER",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SABER",
+  "glosa": "SABER",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/SABER.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-signbank-39787675be",
+  "title": "signbank: SABER",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SABER",
+  "glosa": "SABER",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/SABER2.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-0f1d871986",
+  "title": "ines: FAMÍLIA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FAMILIA",
+  "glosa": "FAMÍLIA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/familiaSm_Prog001.mp4",
+  "arquivo": "dic-ines-0f1d871986.mp4"
+ },
+ {
+  "id": "dic-ines-6847ed0716",
+  "title": "ines: MÃE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MAE",
+  "glosa": "MÃE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/mamae1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-6847ed0716.mp4"
+ },
+ {
+  "id": "dic-ines-a4b806bb99",
+  "title": "ines: MÃE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MAE",
+  "glosa": "MÃE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/mamae2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-a4b806bb99.mp4"
+ },
+ {
+  "id": "dic-signbank-61f856f14a",
+  "title": "signbank: MÃE",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MAE",
+  "glosa": "MÃE",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/M%C3%83E.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-23a7111b42",
+  "title": "ines: PAI",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PAI",
+  "glosa": "PAI",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/pai1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-23a7111b42.mp4"
+ },
+ {
+  "id": "dic-ines-f08e26c7c9",
+  "title": "ines: PAI",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PAI",
+  "glosa": "PAI",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/pai2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-f08e26c7c9.mp4"
+ },
+ {
+  "id": "dic-signbank-901448c230",
+  "title": "signbank: PAI",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PAI",
+  "glosa": "PAI",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/PAI.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-2d8f64393e",
+  "title": "ines: FILHO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FILHO",
+  "glosa": "FILHO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/filhoSm_Prog001.mp4",
+  "arquivo": "dic-ines-2d8f64393e.mp4"
+ },
+ {
+  "id": "dic-signbank-7ba919ef93",
+  "title": "signbank: FILHO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FILHO",
+  "glosa": "FILHO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/FILHO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-spreadthesign-7ae4404df9",
+  "title": "spreadthesign: FILHA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FILHA",
+  "glosa": "FILHA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/223756.mp4",
+  "arquivo": "dic-spreadthesign-7ae4404df9.mp4"
+ },
+ {
+  "id": "dic-ines-73ce9005da",
+  "title": "ines: BEBÊ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BEBE",
+  "glosa": "BEBÊ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/bebeSm_Prog001.mp4",
+  "arquivo": "dic-ines-73ce9005da.mp4"
+ },
+ {
+  "id": "dic-signbank-b0a4b02874",
+  "title": "signbank: BEBÊ",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BEBE",
+  "glosa": "BEBÊ",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/BEB%C3%8A.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-0bde017907",
+  "title": "ines: HOMEM",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HOMEM",
+  "glosa": "HOMEM",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/homemSm_Prog001.mp4",
+  "arquivo": "dic-ines-0bde017907.mp4"
+ },
+ {
+  "id": "dic-signbank-71d518a1b1",
+  "title": "signbank: HOMEM",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HOMEM",
+  "glosa": "HOMEM",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/HOMEM.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-bb29911d8c",
+  "title": "ines: MULHER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MULHER",
+  "glosa": "MULHER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/mulherSm_Prog001.mp4",
+  "arquivo": "dic-ines-bb29911d8c.mp4"
+ },
+ {
+  "id": "dic-signbank-8c3c71cf51",
+  "title": "signbank: MULHER",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MULHER",
+  "glosa": "MULHER",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/MULHER.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-6a5399555c",
+  "title": "ines: IRMÃO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-IRMAO",
+  "glosa": "IRMÃO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/irmaoSm_Prog001.mp4",
+  "arquivo": "dic-ines-6a5399555c.mp4"
+ },
+ {
+  "id": "dic-signbank-40ddf7913f",
+  "title": "signbank: IRMÃO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-IRMAO",
+  "glosa": "IRMÃO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/IRM%C3%83O.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-signbank-5ab3703d5b",
+  "title": "signbank: IRMÃO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-IRMAO",
+  "glosa": "IRMÃO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/IRM%C3%83O2.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-spreadthesign-0e289ad5e1",
+  "title": "spreadthesign: IRMÃ",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-IRMA",
+  "glosa": "IRMÃ",
+  "url": "https://media.spreadthesign.com/video/mp4/14/225022.mp4",
+  "arquivo": "dic-spreadthesign-0e289ad5e1.mp4"
+ },
+ {
+  "id": "dic-ines-5fbf3644b8",
+  "title": "ines: AVÔ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AVO",
+  "glosa": "AVÔ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/vovo-vovo1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-5fbf3644b8.mp4"
+ },
+ {
+  "id": "dic-ines-706ea65bb6",
+  "title": "ines: AVÔ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AVO",
+  "glosa": "AVÔ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/vovo-vovo2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-706ea65bb6.mp4"
+ },
+ {
+  "id": "dic-signbank-52e34cc277",
+  "title": "signbank: AVÔ",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AVO",
+  "glosa": "AVÔ",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/VOV%C3%93.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-spreadthesign-c99915af3c",
+  "title": "spreadthesign: TIO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TIO",
+  "glosa": "TIO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/236998.mp4",
+  "arquivo": "dic-spreadthesign-c99915af3c.mp4"
+ },
+ {
+  "id": "dic-signbank-0fdca1dfb8",
+  "title": "signbank: TIO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TIO",
+  "glosa": "TIO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/TIO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-spreadthesign-b3154ea5a0",
+  "title": "spreadthesign: TIA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TIA",
+  "glosa": "TIA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/236997.mp4",
+  "arquivo": "dic-spreadthesign-b3154ea5a0.mp4"
+ },
+ {
+  "id": "dic-ines-332dd5c8c7",
+  "title": "ines: PRIMO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PRIMO",
+  "glosa": "PRIMO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/primoSm_Prog001.mp4",
+  "arquivo": "dic-ines-332dd5c8c7.mp4"
+ },
+ {
+  "id": "dic-signbank-5e6d6f1d5e",
+  "title": "signbank: PRIMO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PRIMO",
+  "glosa": "PRIMO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/PRIMO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-e9f7918705",
+  "title": "ines: MARIDO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MARIDO",
+  "glosa": "MARIDO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/marido1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-e9f7918705.mp4"
+ },
+ {
+  "id": "dic-ines-b47579b6ff",
+  "title": "ines: MARIDO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MARIDO",
+  "glosa": "MARIDO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/marido2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-b47579b6ff.mp4"
+ },
+ {
+  "id": "dic-signbank-91f6bbab80",
+  "title": "signbank: MARIDO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MARIDO",
+  "glosa": "MARIDO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/CASAR.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-dac43b6ab0",
+  "title": "ines: ESPOSA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ESPOSA",
+  "glosa": "ESPOSA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/esposaSm_Prog001.mp4",
+  "arquivo": "dic-ines-dac43b6ab0.mp4"
+ },
+ {
+  "id": "dic-ines-80cc4004a6",
+  "title": "ines: FELIZ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FELIZ",
+  "glosa": "FELIZ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/alegreSm_Prog001.mp4",
+  "arquivo": "dic-ines-80cc4004a6.mp4"
+ },
+ {
+  "id": "dic-ines-77fff2163b",
+  "title": "ines: FELIZ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FELIZ",
+  "glosa": "FELIZ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/feliz1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-77fff2163b.mp4"
+ },
+ {
+  "id": "dic-ines-4dd3744abe",
+  "title": "ines: FELIZ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FELIZ",
+  "glosa": "FELIZ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/feliz2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-4dd3744abe.mp4"
+ },
+ {
+  "id": "dic-ines-c3bca7be7a",
+  "title": "ines: TRISTE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TRISTE",
+  "glosa": "TRISTE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/entristecerSm_Prog001.mp4",
+  "arquivo": "dic-ines-c3bca7be7a.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-4db50e15c9",
+  "title": "spreadthesign: TRISTE",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TRISTE",
+  "glosa": "TRISTE",
+  "url": "https://media.spreadthesign.com/video/mp4/14/401239.mp4",
+  "arquivo": "dic-spreadthesign-4db50e15c9.mp4"
+ },
+ {
+  "id": "dic-ines-df231b820a",
+  "title": "ines: RAIVA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-RAIVA",
+  "glosa": "RAIVA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/raiva2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-df231b820a.mp4"
+ },
+ {
+  "id": "dic-ines-c4a464f324",
+  "title": "ines: MEDO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MEDO",
+  "glosa": "MEDO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/medoSm_Prog001.mp4",
+  "arquivo": "dic-ines-c4a464f324.mp4"
+ },
+ {
+  "id": "dic-ines-ab19c37f73",
+  "title": "ines: CALMO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CALMO",
+  "glosa": "CALMO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/calmo1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-ab19c37f73.mp4"
+ },
+ {
+  "id": "dic-ines-d497938be1",
+  "title": "ines: CANSADO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CANSADO",
+  "glosa": "CANSADO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cansadoSm_Prog001.mp4",
+  "arquivo": "dic-ines-d497938be1.mp4"
+ },
+ {
+  "id": "dic-ines-17424477ba",
+  "title": "ines: DOENTE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DOENTE",
+  "glosa": "DOENTE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/doente1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-17424477ba.mp4"
+ },
+ {
+  "id": "dic-ines-3c75daa402",
+  "title": "ines: FOME",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FOME",
+  "glosa": "FOME",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/fomeSm_Prog001.mp4",
+  "arquivo": "dic-ines-3c75daa402.mp4"
+ },
+ {
+  "id": "dic-ines-efbfae9621",
+  "title": "ines: SONO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SONO",
+  "glosa": "SONO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/sonoSm_Prog001.mp4",
+  "arquivo": "dic-ines-efbfae9621.mp4"
+ },
+ {
+  "id": "dic-ines-4bfe778f06",
+  "title": "ines: NERVOSO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NERVOSO",
+  "glosa": "NERVOSO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/nervosoSm_Prog001.mp4",
+  "arquivo": "dic-ines-4bfe778f06.mp4"
+ },
+ {
+  "id": "dic-ines-660fc05f3e",
+  "title": "ines: PREOCUPADO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PREOCUPADO",
+  "glosa": "PREOCUPADO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/preocuparSm_Prog001.mp4",
+  "arquivo": "dic-ines-660fc05f3e.mp4"
+ },
+ {
+  "id": "dic-ines-2735d6c655",
+  "title": "ines: SAUDADE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SAUDADE",
+  "glosa": "SAUDADE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/saudadeSm_Prog001.mp4",
+  "arquivo": "dic-ines-2735d6c655.mp4"
+ },
+ {
+  "id": "dic-ines-5180160d81",
+  "title": "ines: GOSTAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-GOSTAR",
+  "glosa": "GOSTAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/gostarSm_Prog001.mp4",
+  "arquivo": "dic-ines-5180160d81.mp4"
+ },
+ {
+  "id": "dic-ines-457e5c55f2",
+  "title": "ines: AMAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AMAR",
+  "glosa": "AMAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/amarSm_Prog001.mp4",
+  "arquivo": "dic-ines-457e5c55f2.mp4"
+ },
+ {
+  "id": "dic-ines-99ef1ce454",
+  "title": "ines: HOJE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HOJE",
+  "glosa": "HOJE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/hoje2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-99ef1ce454.mp4"
+ },
+ {
+  "id": "dic-ines-bd71ef8c32",
+  "title": "ines: HOJE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HOJE",
+  "glosa": "HOJE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/hojeSm_Prog001.mp4",
+  "arquivo": "dic-ines-bd71ef8c32.mp4"
+ },
+ {
+  "id": "dic-signbank-7295e29f64",
+  "title": "signbank: HOJE",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HOJE",
+  "glosa": "HOJE",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/HOJE.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-21395ebcc9",
+  "title": "ines: ONTEM",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ONTEM",
+  "glosa": "ONTEM",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ontemSm_Prog001.mp4",
+  "arquivo": "dic-ines-21395ebcc9.mp4"
+ },
+ {
+  "id": "dic-signbank-6cb864b298",
+  "title": "signbank: ONTEM",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ONTEM",
+  "glosa": "ONTEM",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/ONTEM.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-359473ba13",
+  "title": "ines: AMANHÃ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AMANHA",
+  "glosa": "AMANHÃ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/amanhaSm_Prog001.mp4",
+  "arquivo": "dic-ines-359473ba13.mp4"
+ },
+ {
+  "id": "dic-signbank-22afd10982",
+  "title": "signbank: AMANHÃ",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AMANHA",
+  "glosa": "AMANHÃ",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/AMANH%C3%83.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-a95d92b973",
+  "title": "ines: AGORA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AGORA",
+  "glosa": "AGORA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/agoraSm_Prog001.mp4",
+  "arquivo": "dic-ines-a95d92b973.mp4"
+ },
+ {
+  "id": "dic-signbank-35ad123e2c",
+  "title": "signbank: AGORA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AGORA",
+  "glosa": "AGORA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/AGORA.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-836e113a44",
+  "title": "ines: DEPOIS",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DEPOIS",
+  "glosa": "DEPOIS",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/depoisSm_Prog001.mp4",
+  "arquivo": "dic-ines-836e113a44.mp4"
+ },
+ {
+  "id": "dic-signbank-d22a8e330e",
+  "title": "signbank: DEPOIS",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DEPOIS",
+  "glosa": "DEPOIS",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/DEPOIS.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-b690667c9f",
+  "title": "ines: ANTES",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ANTES",
+  "glosa": "ANTES",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/antes1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-b690667c9f.mp4"
+ },
+ {
+  "id": "dic-ines-55fa5c105f",
+  "title": "ines: ANTES",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ANTES",
+  "glosa": "ANTES",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/antes2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-55fa5c105f.mp4"
+ },
+ {
+  "id": "dic-signbank-5c434cbcb0",
+  "title": "signbank: ANTES",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ANTES",
+  "glosa": "ANTES",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/ANTES.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-e2f8384c60",
+  "title": "ines: DIA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DIA",
+  "glosa": "DIA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dia3Sm_Prog001.mp4",
+  "arquivo": "dic-ines-e2f8384c60.mp4"
+ },
+ {
+  "id": "dic-ines-2253906860",
+  "title": "ines: SEMANA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SEMANA",
+  "glosa": "SEMANA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/semanaSm_Prog001.mp4",
+  "arquivo": "dic-ines-2253906860.mp4"
+ },
+ {
+  "id": "dic-signbank-158d523993",
+  "title": "signbank: SEMANA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SEMANA",
+  "glosa": "SEMANA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/SEMANA.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-b3db08f593",
+  "title": "ines: MÊS",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MES",
+  "glosa": "MÊS",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/mesSm_Prog001.mp4",
+  "arquivo": "dic-ines-b3db08f593.mp4"
+ },
+ {
+  "id": "dic-signbank-f0ad859f7c",
+  "title": "signbank: MÊS",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MES",
+  "glosa": "MÊS",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/M%C3%8AS.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-facc76705e",
+  "title": "ines: ANO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ANO",
+  "glosa": "ANO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/anoSm_Prog001.mp4",
+  "arquivo": "dic-ines-facc76705e.mp4"
+ },
+ {
+  "id": "dic-signbank-09d7f6b55f",
+  "title": "signbank: ANO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ANO",
+  "glosa": "ANO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/ANO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-709b19b567",
+  "title": "ines: SÁBADO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SABADO",
+  "glosa": "SÁBADO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/sabadoSm_Prog001.mp4",
+  "arquivo": "dic-ines-709b19b567.mp4"
+ },
+ {
+  "id": "dic-signbank-610f6c72d8",
+  "title": "signbank: SÁBADO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SABADO",
+  "glosa": "SÁBADO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/S%C3%81BADO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-a4bcf31c82",
+  "title": "ines: DOMINGO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DOMINGO",
+  "glosa": "DOMINGO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/domingoSm_Prog001.mp4",
+  "arquivo": "dic-ines-a4bcf31c82.mp4"
+ },
+ {
+  "id": "dic-signbank-e88feda1e8",
+  "title": "signbank: DOMINGO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DOMINGO",
+  "glosa": "DOMINGO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/DOMINGO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-bea6740064",
+  "title": "ines: SEGUNDA-FEIRA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SEGUNDA-FEIRA",
+  "glosa": "SEGUNDA-FEIRA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/segunda-feiraSm_Prog001.mp4",
+  "arquivo": "dic-ines-bea6740064.mp4"
+ },
+ {
+  "id": "dic-signbank-13041f71da",
+  "title": "signbank: SEGUNDA-FEIRA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SEGUNDA-FEIRA",
+  "glosa": "SEGUNDA-FEIRA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/SEGUNDA-FEIRA.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-signbank-3e7979e263",
+  "title": "signbank: TERÇA-FEIRA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TERCA-FEIRA",
+  "glosa": "TERÇA-FEIRA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/TER%C3%87A-FEIRA.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-55abbbae27",
+  "title": "ines: QUARTA-FEIRA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUARTA-FEIRA",
+  "glosa": "QUARTA-FEIRA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quarta-feiraSm_Prog001.mp4",
+  "arquivo": "dic-ines-55abbbae27.mp4"
+ },
+ {
+  "id": "dic-signbank-faf257684e",
+  "title": "signbank: QUARTA-FEIRA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUARTA-FEIRA",
+  "glosa": "QUARTA-FEIRA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/QUARTA-FEIRA.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-5c9ec94e3d",
+  "title": "ines: QUINTA-FEIRA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUINTA-FEIRA",
+  "glosa": "QUINTA-FEIRA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quinta-feiraSm_Prog001.mp4",
+  "arquivo": "dic-ines-5c9ec94e3d.mp4"
+ },
+ {
+  "id": "dic-ines-d2774e1bae",
+  "title": "ines: SEXTA-FEIRA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SEXTA-FEIRA",
+  "glosa": "SEXTA-FEIRA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/sexta-feiraSm_Prog001.mp4",
+  "arquivo": "dic-ines-d2774e1bae.mp4"
+ },
+ {
+  "id": "dic-signbank-ccd050b9a1",
+  "title": "signbank: SEXTA-FEIRA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SEXTA-FEIRA",
+  "glosa": "SEXTA-FEIRA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/SEXTA-FEIRA.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-f96f62c967",
+  "title": "ines: MANHÃ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MANHA",
+  "glosa": "MANHÃ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/manhaSm_Prog001.mp4",
+  "arquivo": "dic-ines-f96f62c967.mp4"
+ },
+ {
+  "id": "dic-signbank-513c89bb05",
+  "title": "signbank: MANHÃ",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MANHA",
+  "glosa": "MANHÃ",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/MANH%C3%83.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-signbank-1fd0c05737",
+  "title": "signbank: MANHÃ",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MANHA",
+  "glosa": "MANHÃ",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/MANH%C3%832.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-spreadthesign-fbe7971ff5",
+  "title": "spreadthesign: MEIO-DIA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MEIO-DIA",
+  "glosa": "MEIO-DIA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/555164.mp4",
+  "arquivo": "dic-spreadthesign-fbe7971ff5.mp4"
+ },
+ {
+  "id": "dic-signbank-e42d16daa9",
+  "title": "signbank: MEIO-DIA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MEIO-DIA",
+  "glosa": "MEIO-DIA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/MEIO-DIA.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-57527fc61f",
+  "title": "ines: HORA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HORA",
+  "glosa": "HORA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/hora1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-57527fc61f.mp4"
+ },
+ {
+  "id": "dic-signbank-361cc149a8",
+  "title": "signbank: HORA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HORA",
+  "glosa": "HORA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/HORA.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-signbank-cb752f4ff4",
+  "title": "signbank: HORA",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HORA",
+  "glosa": "HORA",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/HORA2.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-9737a4a4fb",
+  "title": "ines: MINUTO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MINUTO",
+  "glosa": "MINUTO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/minutoSm_Prog001.mp4",
+  "arquivo": "dic-ines-9737a4a4fb.mp4"
+ },
+ {
+  "id": "dic-signbank-b555bb58dd",
+  "title": "signbank: MINUTO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MINUTO",
+  "glosa": "MINUTO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/MINUTO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-001586002a",
+  "title": "ines: JANEIRO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-JANEIRO",
+  "glosa": "JANEIRO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/janeiroSm_Prog001.mp4",
+  "arquivo": "dic-ines-001586002a.mp4"
+ },
+ {
+  "id": "dic-ines-1a3af2afb3",
+  "title": "ines: FEVEREIRO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FEVEREIRO",
+  "glosa": "FEVEREIRO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/fevereiroSm_Prog001.mp4",
+  "arquivo": "dic-ines-1a3af2afb3.mp4"
+ },
+ {
+  "id": "dic-ines-0d128ac7b9",
+  "title": "ines: MARÇO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MARCO",
+  "glosa": "MARÇO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/marcoSm_Prog001.mp4",
+  "arquivo": "dic-ines-0d128ac7b9.mp4"
+ },
+ {
+  "id": "dic-ines-862fdc0b4c",
+  "title": "ines: ABRIL",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ABRIL",
+  "glosa": "ABRIL",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/abrilSm_Prog001.mp4",
+  "arquivo": "dic-ines-862fdc0b4c.mp4"
+ },
+ {
+  "id": "dic-ines-ad44b3ad66",
+  "title": "ines: MAIO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MAIO",
+  "glosa": "MAIO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/maioSm_Prog001.mp4",
+  "arquivo": "dic-ines-ad44b3ad66.mp4"
+ },
+ {
+  "id": "dic-ines-496d7f073d",
+  "title": "ines: JUNHO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-JUNHO",
+  "glosa": "JUNHO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/junhoSm_Prog001.mp4",
+  "arquivo": "dic-ines-496d7f073d.mp4"
+ },
+ {
+  "id": "dic-ines-e07cffcc48",
+  "title": "ines: JULHO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-JULHO",
+  "glosa": "JULHO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/julhoSm_Prog001.mp4",
+  "arquivo": "dic-ines-e07cffcc48.mp4"
+ },
+ {
+  "id": "dic-signbank-1ee29ead00",
+  "title": "signbank: AGOSTO",
+  "channel": "signbank",
+  "channel_id": "dic-signbank",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AGOSTO",
+  "glosa": "AGOSTO",
+  "url": "https://videos.nals.cce.ufsc.br/SignBank/V%C3%ADdeos/AGOSTO.mp4",
+  "erro": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+ },
+ {
+  "id": "dic-ines-31669872e9",
+  "title": "ines: SETEMBRO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SETEMBRO",
+  "glosa": "SETEMBRO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/setembroSm_Prog001.mp4",
+  "arquivo": "dic-ines-31669872e9.mp4"
+ },
+ {
+  "id": "dic-ines-5d0508a6fc",
+  "title": "ines: OUTUBRO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OUTUBRO",
+  "glosa": "OUTUBRO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/outubroSm_Prog001.mp4",
+  "arquivo": "dic-ines-5d0508a6fc.mp4"
+ },
+ {
+  "id": "dic-ines-36d6abb837",
+  "title": "ines: NOVEMBRO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NOVEMBRO",
+  "glosa": "NOVEMBRO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/novembroSm_Prog001.mp4",
+  "arquivo": "dic-ines-36d6abb837.mp4"
+ },
+ {
+  "id": "dic-ines-1f14427ecd",
+  "title": "ines: DEZEMBRO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DEZEMBRO",
+  "glosa": "DEZEMBRO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dezembroSm_Prog001.mp4",
+  "arquivo": "dic-ines-1f14427ecd.mp4"
+ },
+ {
+  "id": "dic-ines-0622104206",
+  "title": "ines: COR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COR",
+  "glosa": "COR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/corSm_Prog001.mp4",
+  "arquivo": "dic-ines-0622104206.mp4"
+ },
+ {
+  "id": "dic-ines-f8393efde9",
+  "title": "ines: BRANCO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BRANCO",
+  "glosa": "BRANCO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/branco1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-f8393efde9.mp4"
+ },
+ {
+  "id": "dic-ines-3dae906122",
+  "title": "ines: PRETO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PRETO",
+  "glosa": "PRETO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/preto1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-3dae906122.mp4"
+ },
+ {
+  "id": "dic-ines-986ba41e47",
+  "title": "ines: PRETO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PRETO",
+  "glosa": "PRETO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/preto2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-986ba41e47.mp4"
+ },
+ {
+  "id": "dic-ines-cb8e9043b6",
+  "title": "ines: VERMELHO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-VERMELHO",
+  "glosa": "VERMELHO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/vermelhoSm_Prog001.mp4",
+  "arquivo": "dic-ines-cb8e9043b6.mp4"
+ },
+ {
+  "id": "dic-ines-26800b25eb",
+  "title": "ines: AZUL",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AZUL",
+  "glosa": "AZUL",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/azulSm_Prog001.mp4",
+  "arquivo": "dic-ines-26800b25eb.mp4"
+ },
+ {
+  "id": "dic-ines-39de566fe9",
+  "title": "ines: AMARELO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AMARELO",
+  "glosa": "AMARELO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/amareloSm_Prog001.mp4",
+  "arquivo": "dic-ines-39de566fe9.mp4"
+ },
+ {
+  "id": "dic-ines-7112370b20",
+  "title": "ines: VERDE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-VERDE",
+  "glosa": "VERDE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/verdeSm_Prog001.mp4",
+  "arquivo": "dic-ines-7112370b20.mp4"
+ },
+ {
+  "id": "dic-ines-dbddc74c20",
+  "title": "ines: LARANJA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-LARANJA",
+  "glosa": "LARANJA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/alaranjadoSm_Prog001.mp4",
+  "arquivo": "dic-ines-dbddc74c20.mp4"
+ },
+ {
+  "id": "dic-ines-b0ed9d14d3",
+  "title": "ines: LARANJA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-LARANJA",
+  "glosa": "LARANJA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/laranjaSm_Prog001.mp4",
+  "arquivo": "dic-ines-b0ed9d14d3.mp4"
+ },
+ {
+  "id": "dic-ines-211235bec6",
+  "title": "ines: ROSA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ROSA",
+  "glosa": "ROSA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/rosaSm_Prog001.mp4",
+  "arquivo": "dic-ines-211235bec6.mp4"
+ },
+ {
+  "id": "dic-ines-4261b2312b",
+  "title": "ines: ROXO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ROXO",
+  "glosa": "ROXO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/roxo1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-4261b2312b.mp4"
+ },
+ {
+  "id": "dic-ines-4fbc569aac",
+  "title": "ines: ROXO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ROXO",
+  "glosa": "ROXO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/roxo2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-4fbc569aac.mp4"
+ },
+ {
+  "id": "dic-ines-3327e87a41",
+  "title": "ines: MARROM",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MARROM",
+  "glosa": "MARROM",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/marromSm_Prog001.mp4",
+  "arquivo": "dic-ines-3327e87a41.mp4"
+ },
+ {
+  "id": "dic-ines-8758cb5e3e",
+  "title": "ines: CINZA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CINZA",
+  "glosa": "CINZA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cinza1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-8758cb5e3e.mp4"
+ },
+ {
+  "id": "dic-ines-ec80b23212",
+  "title": "ines: COMER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COMER",
+  "glosa": "COMER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/comerSm_Prog001.mp4",
+  "arquivo": "dic-ines-ec80b23212.mp4"
+ },
+ {
+  "id": "dic-ines-ed74c5c077",
+  "title": "ines: BEBER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BEBER",
+  "glosa": "BEBER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/beber2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-ed74c5c077.mp4"
+ },
+ {
+  "id": "dic-ines-e8616f1903",
+  "title": "ines: ÁGUA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AGUA",
+  "glosa": "ÁGUA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/aguaSm_Prog001.mp4",
+  "arquivo": "dic-ines-e8616f1903.mp4"
+ },
+ {
+  "id": "dic-ines-d031c7bf3e",
+  "title": "ines: CAFÉ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CAFE",
+  "glosa": "CAFÉ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cafeSm_Prog001.mp4",
+  "arquivo": "dic-ines-d031c7bf3e.mp4"
+ },
+ {
+  "id": "dic-ines-3c3c5eead8",
+  "title": "ines: LEITE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-LEITE",
+  "glosa": "LEITE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/leiteSm_Prog001.mp4",
+  "arquivo": "dic-ines-3c3c5eead8.mp4"
+ },
+ {
+  "id": "dic-ines-ba74ce7d32",
+  "title": "ines: CAFÉ-DA-MANHÃ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CAFE-DA-MANHA",
+  "glosa": "CAFÉ-DA-MANHÃ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cafe-da-manhaSm_Prog001.mp4",
+  "arquivo": "dic-ines-ba74ce7d32.mp4"
+ },
+ {
+  "id": "dic-ines-ce00888c41",
+  "title": "ines: ALMOÇO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ALMOCO",
+  "glosa": "ALMOÇO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/almoco2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-ce00888c41.mp4"
+ },
+ {
+  "id": "dic-ines-70bae58de7",
+  "title": "ines: JANTAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-JANTAR",
+  "glosa": "JANTAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/jantarSm_Prog001.mp4",
+  "arquivo": "dic-ines-70bae58de7.mp4"
+ },
+ {
+  "id": "dic-ines-318e251cb3",
+  "title": "ines: PÃO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PAO",
+  "glosa": "PÃO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/paoSm_Prog001.mp4",
+  "arquivo": "dic-ines-318e251cb3.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-027fe0ccf3",
+  "title": "spreadthesign: PÃO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PAO",
+  "glosa": "PÃO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/146768.mp4",
+  "arquivo": "dic-spreadthesign-027fe0ccf3.mp4"
+ },
+ {
+  "id": "dic-ines-1c0bd2d421",
+  "title": "ines: SUCO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SUCO",
+  "glosa": "SUCO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/sucoSm_Prog001.mp4",
+  "arquivo": "dic-ines-1c0bd2d421.mp4"
+ },
+ {
+  "id": "dic-ines-c86878383b",
+  "title": "ines: ARROZ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ARROZ",
+  "glosa": "ARROZ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/arrozSm_Prog001.mp4",
+  "arquivo": "dic-ines-c86878383b.mp4"
+ },
+ {
+  "id": "dic-ines-71c8976fa5",
+  "title": "ines: FEIJÃO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FEIJAO",
+  "glosa": "FEIJÃO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/feijaoSm_Prog001.mp4",
+  "arquivo": "dic-ines-71c8976fa5.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-40232df2d9",
+  "title": "spreadthesign: FEIJÃO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FEIJAO",
+  "glosa": "FEIJÃO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/392749.mp4",
+  "arquivo": "dic-spreadthesign-40232df2d9.mp4"
+ },
+ {
+  "id": "dic-ines-2a0aaa7474",
+  "title": "ines: CARNE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CARNE",
+  "glosa": "CARNE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/carneSm_Prog001.mp4",
+  "arquivo": "dic-ines-2a0aaa7474.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-da159b54e6",
+  "title": "spreadthesign: CARNE",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CARNE",
+  "glosa": "CARNE",
+  "url": "https://media.spreadthesign.com/video/mp4/14/392811.mp4",
+  "arquivo": "dic-spreadthesign-da159b54e6.mp4"
+ },
+ {
+  "id": "dic-ines-5a7c2ccee9",
+  "title": "ines: FRANGO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FRANGO",
+  "glosa": "FRANGO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/frangoSm_Prog001.mp4",
+  "arquivo": "dic-ines-5a7c2ccee9.mp4"
+ },
+ {
+  "id": "dic-ines-e36b7461e8",
+  "title": "ines: PEIXE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PEIXE",
+  "glosa": "PEIXE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/peixe1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-e36b7461e8.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-130c2bf46a",
+  "title": "spreadthesign: PEIXE",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PEIXE",
+  "glosa": "PEIXE",
+  "url": "https://media.spreadthesign.com/video/mp4/14/460401.mp4",
+  "arquivo": "dic-spreadthesign-130c2bf46a.mp4"
+ },
+ {
+  "id": "dic-ines-e75bd95308",
+  "title": "ines: OVO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OVO",
+  "glosa": "OVO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ovo1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-e75bd95308.mp4"
+ },
+ {
+  "id": "dic-ines-4c39e9d0bc",
+  "title": "ines: FRUTA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FRUTA",
+  "glosa": "FRUTA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/frutaSm_Prog001.mp4",
+  "arquivo": "dic-ines-4c39e9d0bc.mp4"
+ },
+ {
+  "id": "dic-ines-a5c3053552",
+  "title": "ines: MAÇÃ",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MACA",
+  "glosa": "MAÇÃ",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/macaSm_Prog001.mp4",
+  "erro": "HTTP Error 404: Not Found"
+ },
+ {
+  "id": "dic-ines-93467aa3f1",
+  "title": "ines: BANANA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BANANA",
+  "glosa": "BANANA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/bananaSm_Prog001.mp4",
+  "arquivo": "dic-ines-93467aa3f1.mp4"
+ },
+ {
+  "id": "dic-ines-8958ef2b57",
+  "title": "ines: GOSTOSO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-GOSTOSO",
+  "glosa": "GOSTOSO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/gostosoSm_Prog001.mp4",
+  "arquivo": "dic-ines-8958ef2b57.mp4"
+ },
+ {
+  "id": "dic-ines-1dac7d4a0a",
+  "title": "ines: CASA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CASA",
+  "glosa": "CASA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/casaSm_Prog001.mp4",
+  "arquivo": "dic-ines-1dac7d4a0a.mp4"
+ },
+ {
+  "id": "dic-ines-3503bb4085",
+  "title": "ines: QUARTO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUARTO",
+  "glosa": "QUARTO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quarto2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-3503bb4085.mp4"
+ },
+ {
+  "id": "dic-ines-bc2590f5f0",
+  "title": "ines: COZINHA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COZINHA",
+  "glosa": "COZINHA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cozinhaSm_Prog001.mp4",
+  "arquivo": "dic-ines-bc2590f5f0.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-83c891a65e",
+  "title": "spreadthesign: COZINHA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COZINHA",
+  "glosa": "COZINHA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/685130.mp4",
+  "arquivo": "dic-spreadthesign-83c891a65e.mp4"
+ },
+ {
+  "id": "dic-ines-3f55e8bb16",
+  "title": "ines: BANHEIRO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BANHEIRO",
+  "glosa": "BANHEIRO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/banheiroSm_Prog001.mp4",
+  "arquivo": "dic-ines-3f55e8bb16.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-a4e2c509ce",
+  "title": "spreadthesign: BANHEIRO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BANHEIRO",
+  "glosa": "BANHEIRO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/550151.mp4",
+  "arquivo": "dic-spreadthesign-a4e2c509ce.mp4"
+ },
+ {
+  "id": "dic-ines-0d97b0d47a",
+  "title": "ines: SALA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SALA",
+  "glosa": "SALA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/salaSm_Prog001.mp4",
+  "arquivo": "dic-ines-0d97b0d47a.mp4"
+ },
+ {
+  "id": "dic-ines-f769c6db5a",
+  "title": "ines: CAMA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CAMA",
+  "glosa": "CAMA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/camaSm_Prog001.mp4",
+  "arquivo": "dic-ines-f769c6db5a.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-61ed5e95cd",
+  "title": "spreadthesign: CAMA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CAMA",
+  "glosa": "CAMA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/223411.mp4",
+  "arquivo": "dic-spreadthesign-61ed5e95cd.mp4"
+ },
+ {
+  "id": "dic-ines-1cdf5dbdd3",
+  "title": "ines: MESA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MESA",
+  "glosa": "MESA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/mesa2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-1cdf5dbdd3.mp4"
+ },
+ {
+  "id": "dic-ines-b6a5c34594",
+  "title": "ines: AQUI",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AQUI",
+  "glosa": "AQUI",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/aquiSm_Prog001.mp4",
+  "arquivo": "dic-ines-b6a5c34594.mp4"
+ },
+ {
+  "id": "dic-ines-a5cb2a10b4",
+  "title": "ines: PERTO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PERTO",
+  "glosa": "PERTO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/perto1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-a5cb2a10b4.mp4"
+ },
+ {
+  "id": "dic-ines-e8b4a169c5",
+  "title": "ines: LONGE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-LONGE",
+  "glosa": "LONGE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/longeSm_Prog001.mp4",
+  "arquivo": "dic-ines-e8b4a169c5.mp4"
+ },
+ {
+  "id": "dic-ines-3c41470657",
+  "title": "ines: ESCOLA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ESCOLA",
+  "glosa": "ESCOLA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/escolaSm_Prog001.mp4",
+  "arquivo": "dic-ines-3c41470657.mp4"
+ },
+ {
+  "id": "dic-ines-6c2325f495",
+  "title": "ines: HOSPITAL",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HOSPITAL",
+  "glosa": "HOSPITAL",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/hospitalSm_Prog001.mp4",
+  "arquivo": "dic-ines-6c2325f495.mp4"
+ },
+ {
+  "id": "dic-ines-ddfbb271da",
+  "title": "ines: IGREJA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-IGREJA",
+  "glosa": "IGREJA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/igrejaSm_Prog001.mp4",
+  "arquivo": "dic-ines-ddfbb271da.mp4"
+ },
+ {
+  "id": "dic-ines-36f661b9f8",
+  "title": "ines: MERCADO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MERCADO",
+  "glosa": "MERCADO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/mercadoSm_Prog001.mp4",
+  "arquivo": "dic-ines-36f661b9f8.mp4"
+ },
+ {
+  "id": "dic-ines-824e16d92a",
+  "title": "ines: BANCO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BANCO",
+  "glosa": "BANCO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/banco2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-824e16d92a.mp4"
+ },
+ {
+  "id": "dic-ines-19cec08605",
+  "title": "ines: RESTAURANTE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-RESTAURANTE",
+  "glosa": "RESTAURANTE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/restauranteSm_Prog001.mp4",
+  "arquivo": "dic-ines-19cec08605.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-49ddffce0f",
+  "title": "spreadthesign: RESTAURANTE",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-RESTAURANTE",
+  "glosa": "RESTAURANTE",
+  "url": "https://media.spreadthesign.com/video/mp4/14/236984.mp4",
+  "arquivo": "dic-spreadthesign-49ddffce0f.mp4"
+ },
+ {
+  "id": "dic-ines-caaaa5a350",
+  "title": "ines: FARMÁCIA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FARMACIA",
+  "glosa": "FARMÁCIA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/farmaciaSm_Prog001.mp4",
+  "arquivo": "dic-ines-caaaa5a350.mp4"
+ },
+ {
+  "id": "dic-ines-c8f73c2dd3",
+  "title": "ines: RUA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-RUA",
+  "glosa": "RUA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/rua2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-c8f73c2dd3.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-6313e7906a",
+  "title": "spreadthesign: RUA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-RUA",
+  "glosa": "RUA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/560166.mp4",
+  "arquivo": "dic-spreadthesign-6313e7906a.mp4"
+ },
+ {
+  "id": "dic-ines-0476c70861",
+  "title": "ines: PRAIA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PRAIA",
+  "glosa": "PRAIA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/praiaSm_Prog001.mp4",
+  "arquivo": "dic-ines-0476c70861.mp4"
+ },
+ {
+  "id": "dic-ines-1cfc7bd4e5",
+  "title": "ines: IR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-IR",
+  "glosa": "IR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ir1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-1cfc7bd4e5.mp4"
+ },
+ {
+  "id": "dic-ines-fc326934c0",
+  "title": "ines: VIR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-VIR",
+  "glosa": "VIR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/virSm_Prog001.mp4",
+  "arquivo": "dic-ines-fc326934c0.mp4"
+ },
+ {
+  "id": "dic-ines-e224d4e0b3",
+  "title": "ines: DAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DAR",
+  "glosa": "DAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/darSm_Prog001.mp4",
+  "arquivo": "dic-ines-e224d4e0b3.mp4"
+ },
+ {
+  "id": "dic-ines-5dfef047c6",
+  "title": "ines: AJUDAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AJUDAR",
+  "glosa": "AJUDAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ajudar1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-5dfef047c6.mp4"
+ },
+ {
+  "id": "dic-ines-6ac4039182",
+  "title": "ines: AJUDAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AJUDAR",
+  "glosa": "AJUDAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ajudar2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-6ac4039182.mp4"
+ },
+ {
+  "id": "dic-ines-a2ee32446a",
+  "title": "ines: AVISAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AVISAR",
+  "glosa": "AVISAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/avisarSm_Prog001.mp4",
+  "arquivo": "dic-ines-a2ee32446a.mp4"
+ },
+ {
+  "id": "dic-ines-bf2097ec54",
+  "title": "ines: ESPERAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ESPERAR",
+  "glosa": "ESPERAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/esperar1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-bf2097ec54.mp4"
+ },
+ {
+  "id": "dic-ines-fba5541468",
+  "title": "ines: ESPERAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ESPERAR",
+  "glosa": "ESPERAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/esperar2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-fba5541468.mp4"
+ },
+ {
+  "id": "dic-ines-42fdabef09",
+  "title": "ines: PERGUNTAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PERGUNTAR",
+  "glosa": "PERGUNTAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/perguntarSm_Prog001.mp4",
+  "arquivo": "dic-ines-42fdabef09.mp4"
+ },
+ {
+  "id": "dic-ines-264b18e9e7",
+  "title": "ines: RESPONDER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-RESPONDER",
+  "glosa": "RESPONDER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/responderSm_Prog001.mp4",
+  "arquivo": "dic-ines-264b18e9e7.mp4"
+ },
+ {
+  "id": "dic-ines-93ec877ac0",
+  "title": "ines: CONVERSAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CONVERSAR",
+  "glosa": "CONVERSAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/conversarSm_Prog001.mp4",
+  "arquivo": "dic-ines-93ec877ac0.mp4"
+ },
+ {
+  "id": "dic-ines-317ed23207",
+  "title": "ines: VER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-VER",
+  "glosa": "VER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/enxergarSm_Prog001.mp4",
+  "arquivo": "dic-ines-317ed23207.mp4"
+ },
+ {
+  "id": "dic-ines-a43f1217d0",
+  "title": "ines: VER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-VER",
+  "glosa": "VER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ver2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-a43f1217d0.mp4"
+ },
+ {
+  "id": "dic-ines-05454fecf4",
+  "title": "ines: OLHAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OLHAR",
+  "glosa": "OLHAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/olharSm_Prog001.mp4",
+  "arquivo": "dic-ines-05454fecf4.mp4"
+ },
+ {
+  "id": "dic-ines-a9423bef5c",
+  "title": "ines: ENSINAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ENSINAR",
+  "glosa": "ENSINAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ensinarSm_Prog001.mp4",
+  "arquivo": "dic-ines-a9423bef5c.mp4"
+ },
+ {
+  "id": "dic-ines-6479fbd987",
+  "title": "ines: TRABALHAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TRABALHAR",
+  "glosa": "TRABALHAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/trabalharSm_Prog001.mp4",
+  "arquivo": "dic-ines-6479fbd987.mp4"
+ },
+ {
+  "id": "dic-ines-52200b13c3",
+  "title": "ines: ESTUDAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ESTUDAR",
+  "glosa": "ESTUDAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/estudarSm_Prog001.mp4",
+  "arquivo": "dic-ines-52200b13c3.mp4"
+ },
+ {
+  "id": "dic-ines-95cc1b7d54",
+  "title": "ines: APRENDER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-APRENDER",
+  "glosa": "APRENDER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/aprenderSm_Prog001.mp4",
+  "arquivo": "dic-ines-95cc1b7d54.mp4"
+ },
+ {
+  "id": "dic-ines-149513ff45",
+  "title": "ines: LER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-LER",
+  "glosa": "LER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/ler1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-149513ff45.mp4"
+ },
+ {
+  "id": "dic-ines-64bf7a986e",
+  "title": "ines: ESCREVER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ESCREVER",
+  "glosa": "ESCREVER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/escrever1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-64bf7a986e.mp4"
+ },
+ {
+  "id": "dic-ines-7cdf7829ea",
+  "title": "ines: FAZER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FAZER",
+  "glosa": "FAZER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/fazerSm_Prog001.mp4",
+  "arquivo": "dic-ines-7cdf7829ea.mp4"
+ },
+ {
+  "id": "dic-ines-dee05e3464",
+  "title": "ines: DORMIR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DORMIR",
+  "glosa": "DORMIR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dormirSm_Prog001.mp4",
+  "arquivo": "dic-ines-dee05e3464.mp4"
+ },
+ {
+  "id": "dic-ines-b2598520d4",
+  "title": "ines: ACORDAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ACORDAR",
+  "glosa": "ACORDAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/acordar1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-b2598520d4.mp4"
+ },
+ {
+  "id": "dic-ines-ee6d09224b",
+  "title": "ines: QUERER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-QUERER",
+  "glosa": "QUERER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quererSm_Prog001.mp4",
+  "arquivo": "dic-ines-ee6d09224b.mp4"
+ },
+ {
+  "id": "dic-ines-bfd84eac79",
+  "title": "ines: PODER",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PODER",
+  "glosa": "PODER",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/poder2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-bfd84eac79.mp4"
+ },
+ {
+  "id": "dic-ines-590cb8a8ab",
+  "title": "ines: PRECISAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PRECISAR",
+  "glosa": "PRECISAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/precisarSm_Prog001.mp4",
+  "arquivo": "dic-ines-590cb8a8ab.mp4"
+ },
+ {
+  "id": "dic-ines-da969a0241",
+  "title": "ines: COMPRAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COMPRAR",
+  "glosa": "COMPRAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/comprar1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-da969a0241.mp4"
+ },
+ {
+  "id": "dic-ines-6b9116b4e6",
+  "title": "ines: 11",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-11",
+  "glosa": "11",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/onzeSm_Prog001.mp4",
+  "arquivo": "dic-ines-6b9116b4e6.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-e30bd9c97a",
+  "title": "spreadthesign: 11",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-11",
+  "glosa": "11",
+  "url": "https://media.spreadthesign.com/video/mp4/14/555287.mp4",
+  "arquivo": "dic-spreadthesign-e30bd9c97a.mp4"
+ },
+ {
+  "id": "dic-ines-cca447b32d",
+  "title": "ines: 12",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-12",
+  "glosa": "12",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dozeSm_Prog001.mp4",
+  "arquivo": "dic-ines-cca447b32d.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-44a5a3db76",
+  "title": "spreadthesign: 13",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-13",
+  "glosa": "13",
+  "url": "https://media.spreadthesign.com/video/mp4/14/552782.mp4",
+  "arquivo": "dic-spreadthesign-44a5a3db76.mp4"
+ },
+ {
+  "id": "dic-ines-96bf5b5c9b",
+  "title": "ines: 14",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-14",
+  "glosa": "14",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/catorzeSm_Prog001.mp4",
+  "arquivo": "dic-ines-96bf5b5c9b.mp4"
+ },
+ {
+  "id": "dic-ines-d685da485f",
+  "title": "ines: 14",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-14",
+  "glosa": "14",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quatorzeSm_Prog001.mp4",
+  "arquivo": "dic-ines-d685da485f.mp4"
+ },
+ {
+  "id": "dic-ines-3be77e48e3",
+  "title": "ines: 15",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-15",
+  "glosa": "15",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/quinzeSm_Prog001.mp4",
+  "arquivo": "dic-ines-3be77e48e3.mp4"
+ },
+ {
+  "id": "dic-ines-0e81757de8",
+  "title": "ines: 16",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-16",
+  "glosa": "16",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dezesseisSm_Prog001.mp4",
+  "arquivo": "dic-ines-0e81757de8.mp4"
+ },
+ {
+  "id": "dic-ines-348daa05de",
+  "title": "ines: 17",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-17",
+  "glosa": "17",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dezesseteSm_Prog001.mp4",
+  "arquivo": "dic-ines-348daa05de.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-ab2a68768d",
+  "title": "spreadthesign: 18",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-18",
+  "glosa": "18",
+  "url": "https://media.spreadthesign.com/video/mp4/14/553978.mp4",
+  "arquivo": "dic-spreadthesign-ab2a68768d.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-08debfb534",
+  "title": "spreadthesign: 19",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-19",
+  "glosa": "19",
+  "url": "https://media.spreadthesign.com/video/mp4/14/553975.mp4",
+  "arquivo": "dic-spreadthesign-08debfb534.mp4"
+ },
+ {
+  "id": "dic-ines-beed1b36df",
+  "title": "ines: 20",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-20",
+  "glosa": "20",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/vinteSm_Prog001.mp4",
+  "arquivo": "dic-ines-beed1b36df.mp4"
+ },
+ {
+  "id": "dic-ines-369d8be4e1",
+  "title": "ines: 30",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-30",
+  "glosa": "30",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/trintaSm_Prog001.mp4",
+  "arquivo": "dic-ines-369d8be4e1.mp4"
+ },
+ {
+  "id": "dic-ines-bac96405ab",
+  "title": "ines: 50",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-50",
+  "glosa": "50",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cinquentaSm_Prog001.mp4",
+  "arquivo": "dic-ines-bac96405ab.mp4"
+ },
+ {
+  "id": "dic-ines-b130309290",
+  "title": "ines: 60",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-60",
+  "glosa": "60",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/sessentaSm_Prog001.mp4",
+  "arquivo": "dic-ines-b130309290.mp4"
+ },
+ {
+  "id": "dic-ines-ac2a00b0ff",
+  "title": "ines: 70",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-70",
+  "glosa": "70",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/setentaSm_Prog001.mp4",
+  "arquivo": "dic-ines-ac2a00b0ff.mp4"
+ },
+ {
+  "id": "dic-ines-f8aaccdf8d",
+  "title": "ines: 80",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-80",
+  "glosa": "80",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/oitentaSm_Prog001.mp4",
+  "arquivo": "dic-ines-f8aaccdf8d.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-43fcdd6b3a",
+  "title": "spreadthesign: 90",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-90",
+  "glosa": "90",
+  "url": "https://media.spreadthesign.com/video/mp4/14/552416.mp4",
+  "arquivo": "dic-spreadthesign-43fcdd6b3a.mp4"
+ },
+ {
+  "id": "dic-ines-5f8896b17e",
+  "title": "ines: 100",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-100",
+  "glosa": "100",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/cemSm_Prog001.mp4",
+  "arquivo": "dic-ines-5f8896b17e.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-ba46bd0ab6",
+  "title": "spreadthesign: 100",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-100",
+  "glosa": "100",
+  "url": "https://media.spreadthesign.com/video/mp4/14/550446.mp4",
+  "arquivo": "dic-spreadthesign-ba46bd0ab6.mp4"
+ },
+ {
+  "id": "dic-ines-42651fec94",
+  "title": "ines: DINHEIRO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DINHEIRO",
+  "glosa": "DINHEIRO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/dinheiroSm_Prog001.mp4",
+  "arquivo": "dic-ines-42651fec94.mp4"
+ },
+ {
+  "id": "dic-ines-f1a98f43f1",
+  "title": "ines: REAL",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-REAL",
+  "glosa": "REAL",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/real1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-f1a98f43f1.mp4"
+ },
+ {
+  "id": "dic-ines-23f998bbe4",
+  "title": "ines: CUSTAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CUSTAR",
+  "glosa": "CUSTAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/custarSm_Prog001.mp4",
+  "arquivo": "dic-ines-23f998bbe4.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-941844bcb4",
+  "title": "spreadthesign: CUSTAR",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CUSTAR",
+  "glosa": "CUSTAR",
+  "url": "https://media.spreadthesign.com/video/mp4/14/437530.mp4",
+  "arquivo": "dic-spreadthesign-941844bcb4.mp4"
+ },
+ {
+  "id": "dic-ines-bc93920b6f",
+  "title": "ines: PAGAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PAGAR",
+  "glosa": "PAGAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/pagar1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-bc93920b6f.mp4"
+ },
+ {
+  "id": "dic-ines-d0894ef2f9",
+  "title": "ines: PAGAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PAGAR",
+  "glosa": "PAGAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/pagar2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-d0894ef2f9.mp4"
+ },
+ {
+  "id": "dic-ines-e851d5c276",
+  "title": "ines: CARO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CARO",
+  "glosa": "CARO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/caro2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-e851d5c276.mp4"
+ },
+ {
+  "id": "dic-ines-383e47a673",
+  "title": "ines: BARATO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BARATO",
+  "glosa": "BARATO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/barato1Sm_Prog001.mp4",
+  "arquivo": "dic-ines-383e47a673.mp4"
+ },
+ {
+  "id": "dic-ines-4a0660b150",
+  "title": "ines: BARATO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BARATO",
+  "glosa": "BARATO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/barato2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-4a0660b150.mp4"
+ },
+ {
+  "id": "dic-ines-d9076a015b",
+  "title": "ines: BARATO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BARATO",
+  "glosa": "BARATO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/barato3Sm_Prog001.mp4",
+  "arquivo": "dic-ines-d9076a015b.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-3d1c24df95",
+  "title": "spreadthesign: BARATO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BARATO",
+  "glosa": "BARATO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/575829.mp4",
+  "arquivo": "dic-spreadthesign-3d1c24df95.mp4"
+ },
+ {
+  "id": "dic-ines-ba40c3c723",
+  "title": "ines: AMIGO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AMIGO",
+  "glosa": "AMIGO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/amigoSm_Prog001.mp4",
+  "arquivo": "dic-ines-ba40c3c723.mp4"
+ },
+ {
+  "id": "dic-ines-076cf07947",
+  "title": "ines: ENCONTRAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ENCONTRAR",
+  "glosa": "ENCONTRAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/encontrarSm_Prog001.mp4",
+  "arquivo": "dic-ines-076cf07947.mp4"
+ },
+ {
+  "id": "dic-ines-829b0ad0fc",
+  "title": "ines: DEVAGAR",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DEVAGAR",
+  "glosa": "DEVAGAR",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/devagarSm_Prog001.mp4",
+  "arquivo": "dic-ines-829b0ad0fc.mp4"
+ },
+ {
+  "id": "dic-ines-ea7fae3db5",
+  "title": "ines: DE-NOVO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DE-NOVO",
+  "glosa": "DE-NOVO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/repetirSm_Prog001.mp4",
+  "arquivo": "dic-ines-ea7fae3db5.mp4"
+ },
+ {
+  "id": "dic-ines-a8e052df73",
+  "title": "ines: COMUNIDADE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COMUNIDADE",
+  "glosa": "COMUNIDADE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/comunidadeSm_Prog001.mp4",
+  "arquivo": "dic-ines-a8e052df73.mp4"
+ },
+ {
+  "id": "dic-ines-3c4add2bf5",
+  "title": "ines: CULTURA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CULTURA",
+  "glosa": "CULTURA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/culturaSm_Prog001.mp4",
+  "arquivo": "dic-ines-3c4add2bf5.mp4"
+ },
+ {
+  "id": "dic-ines-fd6204b5aa",
+  "title": "ines: INTÉRPRETE",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-INTERPRETE",
+  "glosa": "INTÉRPRETE",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/interpreteSm_Prog001.mp4",
+  "arquivo": "dic-ines-fd6204b5aa.mp4"
+ },
+ {
+  "id": "dic-ines-0e50eb54af",
+  "title": "ines: LÍNGUA",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-LINGUA",
+  "glosa": "LÍNGUA",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/idiomaSm_Prog001.mp4",
+  "arquivo": "dic-ines-0e50eb54af.mp4"
+ },
+ {
+  "id": "dic-ines-28388cfa37",
+  "title": "ines: ASSOCIAÇÃO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ASSOCIACAO",
+  "glosa": "ASSOCIAÇÃO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/associacaoSm_Prog001.mp4",
+  "arquivo": "dic-ines-28388cfa37.mp4"
+ },
+ {
+  "id": "dic-ines-fd8244fbb9",
+  "title": "ines: APLAUSO",
+  "channel": "ines",
+  "channel_id": "dic-ines",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-APLAUSO",
+  "glosa": "APLAUSO",
+  "url": "https://dicionario.ines.gov.br/public/media/palavras/videos/aplaudir2Sm_Prog001.mp4",
+  "arquivo": "dic-ines-fd8244fbb9.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-6638a4beba",
+  "title": "spreadthesign: 0",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-0",
+  "glosa": "0",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549292.mp4",
+  "arquivo": "dic-spreadthesign-6638a4beba.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-0c2fbf5229",
+  "title": "spreadthesign: 1",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-1",
+  "glosa": "1",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549296.mp4",
+  "arquivo": "dic-spreadthesign-0c2fbf5229.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-1eae912cba",
+  "title": "spreadthesign: 11",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-11",
+  "glosa": "11",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549310.mp4",
+  "arquivo": "dic-spreadthesign-1eae912cba.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-846e950a3e",
+  "title": "spreadthesign: 12",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-12",
+  "glosa": "12",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549311.mp4",
+  "arquivo": "dic-spreadthesign-846e950a3e.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-51e0470bc0",
+  "title": "spreadthesign: 16",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-16",
+  "glosa": "16",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549316.mp4",
+  "arquivo": "dic-spreadthesign-51e0470bc0.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-1625353a84",
+  "title": "spreadthesign: 17",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-17",
+  "glosa": "17",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549317.mp4",
+  "arquivo": "dic-spreadthesign-1625353a84.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-69716c7a6b",
+  "title": "spreadthesign: 30",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-30",
+  "glosa": "30",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549337.mp4",
+  "arquivo": "dic-spreadthesign-69716c7a6b.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-ea53feade7",
+  "title": "spreadthesign: 40",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-40",
+  "glosa": "40",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549357.mp4",
+  "arquivo": "dic-spreadthesign-ea53feade7.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-4d6517d2c7",
+  "title": "spreadthesign: 6",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-6",
+  "glosa": "6",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549386.mp4",
+  "arquivo": "dic-spreadthesign-4d6517d2c7.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-1fe2bf2a36",
+  "title": "spreadthesign: 7",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-7",
+  "glosa": "7",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549401.mp4",
+  "arquivo": "dic-spreadthesign-1fe2bf2a36.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-4c22501932",
+  "title": "spreadthesign: 80",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-80",
+  "glosa": "80",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549417.mp4",
+  "arquivo": "dic-spreadthesign-4c22501932.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-2f8f08a2d2",
+  "title": "spreadthesign: 90",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "numero-90",
+  "glosa": "90",
+  "url": "https://media.spreadthesign.com/video/mp4/14/549432.mp4",
+  "arquivo": "dic-spreadthesign-2f8f08a2d2.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-94e884c757",
+  "title": "spreadthesign: ACORDAR",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ACORDAR",
+  "glosa": "ACORDAR",
+  "url": "https://media.spreadthesign.com/video/mp4/14/481154.mp4",
+  "arquivo": "dic-spreadthesign-94e884c757.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-c03c4a3e69",
+  "title": "spreadthesign: ALMOÇO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ALMOCO",
+  "glosa": "ALMOÇO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/571625.mp4",
+  "arquivo": "dic-spreadthesign-c03c4a3e69.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-79671913a3",
+  "title": "spreadthesign: AMIGO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-AMIGO",
+  "glosa": "AMIGO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/175583.mp4",
+  "arquivo": "dic-spreadthesign-79671913a3.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-3dfb5bc92b",
+  "title": "spreadthesign: ARROZ",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ARROZ",
+  "glosa": "ARROZ",
+  "url": "https://media.spreadthesign.com/video/mp4/14/571629.mp4",
+  "arquivo": "dic-spreadthesign-3dfb5bc92b.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-1084eeac8e",
+  "title": "spreadthesign: BEBER",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BEBER",
+  "glosa": "BEBER",
+  "url": "https://media.spreadthesign.com/video/mp4/14/223482.mp4",
+  "arquivo": "dic-spreadthesign-1084eeac8e.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-3be2e11efe",
+  "title": "spreadthesign: BRANCO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-BRANCO",
+  "glosa": "BRANCO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/335981.mp4",
+  "arquivo": "dic-spreadthesign-3be2e11efe.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-ae2c3cceed",
+  "title": "spreadthesign: CAFÉ-DA-MANHÃ",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CAFE-DA-MANHA",
+  "glosa": "CAFÉ-DA-MANHÃ",
+  "url": "https://media.spreadthesign.com/video/mp4/14/234769.mp4",
+  "arquivo": "dic-spreadthesign-ae2c3cceed.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-836a8f0caf",
+  "title": "spreadthesign: CANSADO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CANSADO",
+  "glosa": "CANSADO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/250434.mp4",
+  "arquivo": "dic-spreadthesign-836a8f0caf.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-9c76030df5",
+  "title": "spreadthesign: CASA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-CASA",
+  "glosa": "CASA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/550420.mp4",
+  "arquivo": "dic-spreadthesign-9c76030df5.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-2bf7b98305",
+  "title": "spreadthesign: COMER",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COMER",
+  "glosa": "COMER",
+  "url": "https://media.spreadthesign.com/video/mp4/14/450251.mp4",
+  "arquivo": "dic-spreadthesign-2bf7b98305.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-d87b883f53",
+  "title": "spreadthesign: COMO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COMO",
+  "glosa": "COMO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/403231.mp4",
+  "arquivo": "dic-spreadthesign-d87b883f53.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-cbaf663520",
+  "title": "spreadthesign: COR",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-COR",
+  "glosa": "COR",
+  "url": "https://media.spreadthesign.com/video/mp4/14/335963.mp4",
+  "arquivo": "dic-spreadthesign-cbaf663520.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-8cdd512903",
+  "title": "spreadthesign: DOENTE",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DOENTE",
+  "glosa": "DOENTE",
+  "url": "https://media.spreadthesign.com/video/mp4/14/271897.mp4",
+  "arquivo": "dic-spreadthesign-8cdd512903.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-9dbd23d4d2",
+  "title": "spreadthesign: DORMIR",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-DORMIR",
+  "glosa": "DORMIR",
+  "url": "https://media.spreadthesign.com/video/mp4/14/560754.mp4",
+  "arquivo": "dic-spreadthesign-9dbd23d4d2.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-14423391e9",
+  "title": "spreadthesign: ENCONTRAR",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ENCONTRAR",
+  "glosa": "ENCONTRAR",
+  "url": "https://media.spreadthesign.com/video/mp4/14/486987.mp4",
+  "arquivo": "dic-spreadthesign-14423391e9.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-2704f62b2b",
+  "title": "spreadthesign: ESCOLA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ESCOLA",
+  "glosa": "ESCOLA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/551374.mp4",
+  "arquivo": "dic-spreadthesign-2704f62b2b.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-41dfe2f190",
+  "title": "spreadthesign: ESTUDAR",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ESTUDAR",
+  "glosa": "ESTUDAR",
+  "url": "https://media.spreadthesign.com/video/mp4/14/551545.mp4",
+  "arquivo": "dic-spreadthesign-41dfe2f190.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-86721f8d75",
+  "title": "spreadthesign: FAMÍLIA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FAMILIA",
+  "glosa": "FAMÍLIA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/211439.mp4",
+  "arquivo": "dic-spreadthesign-86721f8d75.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-2a62711658",
+  "title": "spreadthesign: FELIZ",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FELIZ",
+  "glosa": "FELIZ",
+  "url": "https://media.spreadthesign.com/video/mp4/14/572216.mp4",
+  "arquivo": "dic-spreadthesign-2a62711658.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-292ad1fca9",
+  "title": "spreadthesign: FEVEREIRO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FEVEREIRO",
+  "glosa": "FEVEREIRO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/386823.mp4",
+  "arquivo": "dic-spreadthesign-292ad1fca9.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-073a30f97e",
+  "title": "spreadthesign: FRUTA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-FRUTA",
+  "glosa": "FRUTA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/392717.mp4",
+  "arquivo": "dic-spreadthesign-073a30f97e.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-60a473ee6e",
+  "title": "spreadthesign: HOJE",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HOJE",
+  "glosa": "HOJE",
+  "url": "https://media.spreadthesign.com/video/mp4/14/386865.mp4",
+  "arquivo": "dic-spreadthesign-60a473ee6e.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-46f35b7534",
+  "title": "spreadthesign: HOMEM",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HOMEM",
+  "glosa": "HOMEM",
+  "url": "https://media.spreadthesign.com/video/mp4/14/551940.mp4",
+  "arquivo": "dic-spreadthesign-46f35b7534.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-e612c5a960",
+  "title": "spreadthesign: HOSPITAL",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-HOSPITAL",
+  "glosa": "HOSPITAL",
+  "url": "https://media.spreadthesign.com/video/mp4/14/175568.mp4",
+  "arquivo": "dic-spreadthesign-e612c5a960.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-a9fbbecd00",
+  "title": "spreadthesign: IRMÃO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-IRMAO",
+  "glosa": "IRMÃO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/225023.mp4",
+  "arquivo": "dic-spreadthesign-a9fbbecd00.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-052de2d816",
+  "title": "spreadthesign: JANEIRO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-JANEIRO",
+  "glosa": "JANEIRO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/386829.mp4",
+  "arquivo": "dic-spreadthesign-052de2d816.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-f9532170c3",
+  "title": "spreadthesign: JUNHO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-JUNHO",
+  "glosa": "JUNHO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/386831.mp4",
+  "arquivo": "dic-spreadthesign-f9532170c3.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-e13411313e",
+  "title": "spreadthesign: LARANJA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-LARANJA",
+  "glosa": "LARANJA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/392729.mp4",
+  "arquivo": "dic-spreadthesign-e13411313e.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-0bee25a5fc",
+  "title": "spreadthesign: MAIO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MAIO",
+  "glosa": "MAIO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/386836.mp4",
+  "arquivo": "dic-spreadthesign-0bee25a5fc.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-8804fd14f9",
+  "title": "spreadthesign: MANHÃ",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MANHA",
+  "glosa": "MANHÃ",
+  "url": "https://media.spreadthesign.com/video/mp4/14/555101.mp4",
+  "arquivo": "dic-spreadthesign-8804fd14f9.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-8b951f064b",
+  "title": "spreadthesign: MESA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-MESA",
+  "glosa": "MESA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/258305.mp4",
+  "arquivo": "dic-spreadthesign-8b951f064b.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-bd520d642f",
+  "title": "spreadthesign: NÃO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NAO",
+  "glosa": "NÃO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/417934.mp4",
+  "arquivo": "dic-spreadthesign-bd520d642f.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-cded008ce0",
+  "title": "spreadthesign: NERVOSO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-NERVOSO",
+  "glosa": "NERVOSO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/401214.mp4",
+  "arquivo": "dic-spreadthesign-cded008ce0.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-9450136331",
+  "title": "spreadthesign: OBRIGADO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OBRIGADO",
+  "glosa": "OBRIGADO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/560823.mp4",
+  "arquivo": "dic-spreadthesign-9450136331.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-ed7e7eb3d6",
+  "title": "spreadthesign: ONTEM",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-ONTEM",
+  "glosa": "ONTEM",
+  "url": "https://media.spreadthesign.com/video/mp4/14/386842.mp4",
+  "arquivo": "dic-spreadthesign-ed7e7eb3d6.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-377833b2bc",
+  "title": "spreadthesign: OUTUBRO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OUTUBRO",
+  "glosa": "OUTUBRO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/386843.mp4",
+  "arquivo": "dic-spreadthesign-377833b2bc.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-d2a84b784a",
+  "title": "spreadthesign: OVO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-OVO",
+  "glosa": "OVO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/227309.mp4",
+  "arquivo": "dic-spreadthesign-d2a84b784a.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-4b0b70d8b6",
+  "title": "spreadthesign: PERGUNTAR",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PERGUNTAR",
+  "glosa": "PERGUNTAR",
+  "url": "https://media.spreadthesign.com/video/mp4/14/437431.mp4",
+  "arquivo": "dic-spreadthesign-4b0b70d8b6.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-02e0837b57",
+  "title": "spreadthesign: POR-FAVOR",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-POR-FAVOR",
+  "glosa": "POR-FAVOR",
+  "url": "https://media.spreadthesign.com/video/mp4/14/417949.mp4",
+  "arquivo": "dic-spreadthesign-02e0837b57.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-cb36bd74a2",
+  "title": "spreadthesign: PRAZER",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PRAZER",
+  "glosa": "PRAZER",
+  "url": "https://media.spreadthesign.com/video/mp4/14/401220.mp4",
+  "arquivo": "dic-spreadthesign-cb36bd74a2.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-4fa68537d0",
+  "title": "spreadthesign: PREOCUPADO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-PREOCUPADO",
+  "glosa": "PREOCUPADO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/359622.mp4",
+  "arquivo": "dic-spreadthesign-4fa68537d0.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-cccf321f6c",
+  "title": "spreadthesign: RESPONDER",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-RESPONDER",
+  "glosa": "RESPONDER",
+  "url": "https://media.spreadthesign.com/video/mp4/14/556776.mp4",
+  "arquivo": "dic-spreadthesign-cccf321f6c.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-df2bae509b",
+  "title": "spreadthesign: SEGUNDA-FEIRA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SEGUNDA-FEIRA",
+  "glosa": "SEGUNDA-FEIRA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/386838.mp4",
+  "arquivo": "dic-spreadthesign-df2bae509b.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-84064ed51a",
+  "title": "spreadthesign: SEMANA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SEMANA",
+  "glosa": "SEMANA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/556890.mp4",
+  "arquivo": "dic-spreadthesign-84064ed51a.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-09a8f889ba",
+  "title": "spreadthesign: SETEMBRO",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SETEMBRO",
+  "glosa": "SETEMBRO",
+  "url": "https://media.spreadthesign.com/video/mp4/14/386853.mp4",
+  "arquivo": "dic-spreadthesign-09a8f889ba.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-0126adcbb0",
+  "title": "spreadthesign: SINAL",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-SINAL",
+  "glosa": "SINAL",
+  "url": "https://media.spreadthesign.com/video/mp4/14/679081.mp4",
+  "arquivo": "dic-spreadthesign-0126adcbb0.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-2e7febc548",
+  "title": "spreadthesign: TCHAU",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TCHAU",
+  "glosa": "TCHAU",
+  "url": "https://media.spreadthesign.com/video/mp4/14/552511.mp4",
+  "arquivo": "dic-spreadthesign-2e7febc548.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-fc565f4ba6",
+  "title": "spreadthesign: TERÇA-FEIRA",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TERCA-FEIRA",
+  "glosa": "TERÇA-FEIRA",
+  "url": "https://media.spreadthesign.com/video/mp4/14/386855.mp4",
+  "arquivo": "dic-spreadthesign-fc565f4ba6.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-3d7e9a472e",
+  "title": "spreadthesign: TRABALHAR",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TRABALHAR",
+  "glosa": "TRABALHAR",
+  "url": "https://media.spreadthesign.com/video/mp4/14/481173.mp4",
+  "arquivo": "dic-spreadthesign-3d7e9a472e.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-d04d39909a",
+  "title": "spreadthesign: TUDO-BEM",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-TUDO-BEM",
+  "glosa": "TUDO-BEM",
+  "url": "https://media.spreadthesign.com/video/mp4/14/403179.mp4",
+  "arquivo": "dic-spreadthesign-d04d39909a.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-b3d934abd4",
+  "title": "spreadthesign: VERDE",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-VERDE",
+  "glosa": "VERDE",
+  "url": "https://media.spreadthesign.com/video/mp4/14/335974.mp4",
+  "arquivo": "dic-spreadthesign-b3d934abd4.mp4"
+ },
+ {
+  "id": "dic-spreadthesign-1d59e7c819",
+  "title": "spreadthesign: VIR",
+  "channel": "spreadthesign",
+  "channel_id": "dic-spreadthesign",
+  "duration": 0,
+  "tipo": "sinal",
+  "rotulo": "sinal-VIR",
+  "glosa": "VIR",
+  "url": "https://media.spreadthesign.com/video/mp4/14/437498.mp4",
+  "arquivo": "dic-spreadthesign-1d59e7c819.mp4"
  }
 ]

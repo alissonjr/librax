@@ -15,7 +15,7 @@ Duas buscas:
 Uso:
     python video/baixar.py buscar [--por-letra 12] [--alfabeto 40]
     python video/baixar.py buscar-sinais [--por-sinal 15]
-    python video/baixar.py [--lista sinais] baixar [--max 400]
+    python video/baixar.py [--lista sinais] baixar [--max 400] [--refazer-erros] [--pausa 8]
 """
 
 import argparse
@@ -187,6 +187,12 @@ def cmd_baixar(args):
 
     os.makedirs(VIDEOS, exist_ok=True)
     fontes = carregar_fontes()
+    if args.refazer_erros:
+        # Só os erros passageiros (limite de uso do YouTube, conexão caída); vídeo removido fica
+        for f in fontes:
+            erro = f.get("erro") or ""
+            if not f.get("arquivo") and ("try again later" in erro or "Connection" in erro):
+                del f["erro"]
     pendentes = [f for f in fontes if not f.get("arquivo") and not f.get("erro")][: args.max]
     opts = {
         "quiet": True,
@@ -195,6 +201,9 @@ def cmd_baixar(args):
         "format": "bv*[height<=480][vcodec^=avc1][ext=mp4]/b[height<=480][ext=mp4]/bv*[height<=480]",
         "outtmpl": os.path.join(VIDEOS, "%(id)s.%(ext)s"),
     }
+    if args.pausa:
+        # Pausa aleatória entre vídeos para não estourar o limite de uso do YouTube
+        opts.update({"sleep_interval": args.pausa, "max_sleep_interval": args.pausa * 2})
     with yt_dlp.YoutubeDL(opts) as ydl:
         for i, f in enumerate(pendentes, 1):
             try:
@@ -236,6 +245,8 @@ def main():
     bs.add_argument("--por-sinal", type=int, default=15)
     d = sub.add_parser("baixar")
     d.add_argument("--max", type=int, default=1000)
+    d.add_argument("--refazer-erros", action="store_true", help="tenta de novo os erros passageiros")
+    d.add_argument("--pausa", type=int, default=0, help="segundos de pausa entre vídeos (mínimo)")
     args = p.parse_args()
     if args.cmd == "buscar-sinais" or args.lista == "sinais":
         FONTES = os.path.join(DATA, "fontes_sinais.json")

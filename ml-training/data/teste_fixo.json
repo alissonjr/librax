@@ -1,0 +1,693 @@
+{
+ "min_p": 0.6,
+ "videos": [
+  {
+   "id": "FA_T1DLU9f8",
+   "channel_id": "UCAmErb1N57ZGd_Q_hIQwaCA",
+   "channel": "Andréa Peliccioni",
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 8.46667,
+     "fim": 10.8
+    },
+    {
+     "letra": "B",
+     "ini": 11.4,
+     "fim": 19.36667
+    },
+    {
+     "letra": "C",
+     "ini": 19.83333,
+     "fim": 20.76667
+    },
+    {
+     "letra": "D",
+     "ini": 23.53333,
+     "fim": 26.53333
+    },
+    {
+     "letra": "E",
+     "ini": 27.16667,
+     "fim": 31.4
+    },
+    {
+     "letra": "F",
+     "ini": 31.86667,
+     "fim": 35.7
+    },
+    {
+     "letra": "G",
+     "ini": 36.23333,
+     "fim": 38.96667
+    },
+    {
+     "letra": "H",
+     "ini": 40.63333,
+     "fim": 43.16667
+    },
+    {
+     "letra": "I",
+     "ini": 43.96667,
+     "fim": 47.16667
+    },
+    {
+     "letra": "K",
+     "ini": 52.3,
+     "fim": 54.9
+    },
+    {
+     "letra": "L",
+     "ini": 55.43333,
+     "fim": 59.5
+    },
+    {
+     "letra": "M",
+     "ini": 60.56667,
+     "fim": 63.96667
+    },
+    {
+     "letra": "N",
+     "ini": 64.83333,
+     "fim": 68.2
+    },
+    {
+     "letra": "O",
+     "ini": 69.26667,
+     "fim": 74.9
+    },
+    {
+     "letra": "P",
+     "ini": 75.56667,
+     "fim": 81.26667
+    },
+    {
+     "letra": "Q",
+     "ini": 82.86667,
+     "fim": 86.26667
+    },
+    {
+     "letra": "R",
+     "ini": 89.83333,
+     "fim": 90.3
+    },
+    {
+     "letra": "S",
+     "ini": 91.1,
+     "fim": 93.5
+    },
+    {
+     "letra": "T",
+     "ini": 94.36667,
+     "fim": 97.36667
+    },
+    {
+     "letra": "V",
+     "ini": 97.83333,
+     "fim": 105.46667
+    },
+    {
+     "letra": "W",
+     "ini": 106,
+     "fim": 109.23333
+    },
+    {
+     "letra": "X",
+     "ini": 110.36667,
+     "fim": 113.3
+    }
+   ]
+  },
+  {
+   "id": "GidjkBp2OWs",
+   "channel_id": "UCIglSPAQhNXEocCtwYgTJ3w",
+   "channel": "NAS",
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 7.47413,
+     "fim": 9.4094
+    },
+    {
+     "letra": "B",
+     "ini": 13.8138,
+     "fim": 16.24957
+    },
+    {
+     "letra": "C",
+     "ini": 21.1211,
+     "fim": 23.25657
+    },
+    {
+     "letra": "D",
+     "ini": 36.30293,
+     "fim": 39.50613
+    },
+    {
+     "letra": "E",
+     "ini": 44.61123,
+     "fim": 48.1481
+    },
+    {
+     "letra": "F",
+     "ini": 52.41903,
+     "fim": 55.82243
+    },
+    {
+     "letra": "G",
+     "ini": 61.39467,
+     "fim": 64.53113
+    },
+    {
+     "letra": "H",
+     "ini": 70.07,
+     "fim": 71.93853
+    },
+    {
+     "letra": "I",
+     "ini": 77.3773,
+     "fim": 80.24683
+    },
+    {
+     "letra": "K",
+     "ini": 95.3953,
+     "fim": 96.32957
+    },
+    {
+     "letra": "L",
+     "ini": 102.06863,
+     "fim": 104.67123
+    },
+    {
+     "letra": "M",
+     "ini": 110.4103,
+     "fim": 112.67923
+    },
+    {
+     "letra": "N",
+     "ini": 118.4183,
+     "fim": 120.3202
+    },
+    {
+     "letra": "O",
+     "ini": 125.59213,
+     "fim": 128.86207
+    },
+    {
+     "letra": "Q",
+     "ini": 142.10863,
+     "fim": 144.67787
+    },
+    {
+     "letra": "R",
+     "ini": 149.7496,
+     "fim": 152.88607
+    },
+    {
+     "letra": "S",
+     "ini": 158.22473,
+     "fim": 162.22873
+    },
+    {
+     "letra": "T",
+     "ini": 166.19937,
+     "fim": 169.93643
+    },
+    {
+     "letra": "U",
+     "ini": 174.74123,
+     "fim": 178.51167
+    },
+    {
+     "letra": "V",
+     "ini": 182.94943,
+     "fim": 186.35283
+    },
+    {
+     "letra": "W",
+     "ini": 191.3912,
+     "fim": 192.3922
+    },
+    {
+     "letra": "X",
+     "ini": 200.6004,
+     "fim": 202.4022
+    },
+    {
+     "letra": "Y",
+     "ini": 209.14227,
+     "fim": 211.07753
+    },
+    {
+     "letra": "_",
+     "ini": 17.38403,
+     "fim": 19.85317
+    },
+    {
+     "letra": "_",
+     "ini": 24.25757,
+     "fim": 27.76107
+    },
+    {
+     "letra": "_",
+     "ini": 56.42303,
+     "fim": 59.92653
+    },
+    {
+     "letra": "_",
+     "ini": 73.6736,
+     "fim": 76.24283
+    },
+    {
+     "letra": "_",
+     "ini": 98.13137,
+     "fim": 100.93417
+    },
+    {
+     "letra": "_",
+     "ini": 105.73897,
+     "fim": 109.07563
+    },
+    {
+     "letra": "_",
+     "ini": 113.6135,
+     "fim": 116.88343
+    },
+    {
+     "letra": "_",
+     "ini": 121.45467,
+     "fim": 124.9248
+    }
+   ]
+  },
+  {
+   "id": "B2U7c6OXgBg",
+   "channel_id": "UC2iRjtzq23GD_31knWEvAOQ",
+   "channel": "Niead Ufac",
+   "paradas": [
+    {
+     "letra": "B",
+     "ini": 86.95353,
+     "fim": 91.25783
+    },
+    {
+     "letra": "C",
+     "ini": 93.3933,
+     "fim": 96.9969
+    },
+    {
+     "letra": "D",
+     "ini": 108.44167,
+     "fim": 113.6135
+    },
+    {
+     "letra": "E",
+     "ini": 115.88243,
+     "fim": 121.6215
+    },
+    {
+     "letra": "F",
+     "ini": 124.29083,
+     "fim": 129.59613
+    },
+    {
+     "letra": "G",
+     "ini": 132.9328,
+     "fim": 137.30383
+    },
+    {
+     "letra": "H",
+     "ini": 143.40993,
+     "fim": 145.51203
+    },
+    {
+     "letra": "I",
+     "ini": 150.2501,
+     "fim": 153.18637
+    },
+    {
+     "letra": "K",
+     "ini": 168.53503,
+     "fim": 170.13663
+    },
+    {
+     "letra": "L",
+     "ini": 172.6725,
+     "fim": 178.14463
+    },
+    {
+     "letra": "M",
+     "ini": 179.8797,
+     "fim": 183.41657
+    },
+    {
+     "letra": "N",
+     "ini": 188.0879,
+     "fim": 191.75823
+    },
+    {
+     "letra": "O",
+     "ini": 196.22937,
+     "fim": 201.16763
+    },
+    {
+     "letra": "P",
+     "ini": 203.57003,
+     "fim": 211.77823
+    },
+    {
+     "letra": "Q",
+     "ini": 214.98143,
+     "fim": 219.98643
+    },
+    {
+     "letra": "R",
+     "ini": 222.65577,
+     "fim": 227.39383
+    },
+    {
+     "letra": "S",
+     "ini": 231.86497,
+     "fim": 238.00443
+    },
+    {
+     "letra": "T",
+     "ini": 239.9397,
+     "fim": 246.21263
+    },
+    {
+     "letra": "U",
+     "ini": 251.3511,
+     "fim": 254.3541
+    },
+    {
+     "letra": "V",
+     "ini": 260.09317,
+     "fim": 264.09717
+    },
+    {
+     "letra": "W",
+     "ini": 268.43483,
+     "fim": 272.30537
+    },
+    {
+     "letra": "X",
+     "ini": 279.91297,
+     "fim": 283.11617
+    },
+    {
+     "letra": "Y",
+     "ini": 288.85523,
+     "fim": 290.72377
+    }
+   ]
+  },
+  {
+   "id": "nmNBSTCl0lM",
+   "channel_id": "UCCKO-AW7nDgiAmo786byECg",
+   "channel": "Aline libras",
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 10.87753,
+     "fim": 14.2142
+    },
+    {
+     "letra": "B",
+     "ini": 14.74807,
+     "fim": 19.45277
+    },
+    {
+     "letra": "C",
+     "ini": 19.85317,
+     "fim": 23.25657
+    },
+    {
+     "letra": "E",
+     "ini": 26.05937,
+     "fim": 43.10973
+    },
+    {
+     "letra": "G",
+     "ini": 43.6436,
+     "fim": 50.2502
+    },
+    {
+     "letra": "H",
+     "ini": 50.8508,
+     "fim": 52.51913
+    },
+    {
+     "letra": "I",
+     "ini": 53.88717,
+     "fim": 57.1571
+    },
+    {
+     "letra": "K",
+     "ini": 63.5635,
+     "fim": 64.89817
+    },
+    {
+     "letra": "L",
+     "ini": 65.43203,
+     "fim": 69.83643
+    },
+    {
+     "letra": "O",
+     "ini": 78.44503,
+     "fim": 84.45103
+    },
+    {
+     "letra": "P",
+     "ini": 84.85143,
+     "fim": 87.72097
+    },
+    {
+     "letra": "Q",
+     "ini": 89.52277,
+     "fim": 91.85843
+    },
+    {
+     "letra": "R",
+     "ini": 93.46003,
+     "fim": 100.33357
+    },
+    {
+     "letra": "V",
+     "ini": 106.53977,
+     "fim": 120.28683
+    },
+    {
+     "letra": "X",
+     "ini": 120.95417,
+     "fim": 124.35757
+    },
+    {
+     "letra": "Y",
+     "ini": 126.75997,
+     "fim": 129.09563
+    }
+   ]
+  },
+  {
+   "id": "B2pyvZqWAFk",
+   "channel_id": "UC0x1hsu8TmuQBtPEnkOLkmg",
+   "channel": "Chaves Libras",
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 27.6,
+     "fim": 29.06667
+    },
+    {
+     "letra": "B",
+     "ini": 29.73333,
+     "fim": 31.6
+    },
+    {
+     "letra": "C",
+     "ini": 32.06667,
+     "fim": 33.73333
+    },
+    {
+     "letra": "D",
+     "ini": 36.2,
+     "fim": 38
+    },
+    {
+     "letra": "E",
+     "ini": 38.46667,
+     "fim": 39.8
+    },
+    {
+     "letra": "F",
+     "ini": 40.2,
+     "fim": 41.8
+    },
+    {
+     "letra": "G",
+     "ini": 42.33333,
+     "fim": 44
+    },
+    {
+     "letra": "H",
+     "ini": 45.13333,
+     "fim": 45.66667
+    },
+    {
+     "letra": "I",
+     "ini": 46.6,
+     "fim": 47.93333
+    },
+    {
+     "letra": "K",
+     "ini": 51.13333,
+     "fim": 51.8
+    },
+    {
+     "letra": "L",
+     "ini": 52.46667,
+     "fim": 53.86667
+    },
+    {
+     "letra": "M",
+     "ini": 54.8,
+     "fim": 56.2
+    },
+    {
+     "letra": "N",
+     "ini": 56.73333,
+     "fim": 57.86667
+    },
+    {
+     "letra": "O",
+     "ini": 58.53333,
+     "fim": 59.66667
+    },
+    {
+     "letra": "P",
+     "ini": 60.26667,
+     "fim": 61.86667
+    },
+    {
+     "letra": "Q",
+     "ini": 62.86667,
+     "fim": 63.86667
+    },
+    {
+     "letra": "R",
+     "ini": 64.66667,
+     "fim": 65.8
+    },
+    {
+     "letra": "S",
+     "ini": 66.26667,
+     "fim": 67.66667
+    },
+    {
+     "letra": "V",
+     "ini": 70.06667,
+     "fim": 74.66667
+    },
+    {
+     "letra": "Y",
+     "ini": 76.86667,
+     "fim": 77.96667
+    }
+   ]
+  },
+  {
+   "id": "U9K_AOylBrc",
+   "channel_id": "UC6NY8RfaQfA9kIJMwTNs-qg",
+   "channel": "Paróquia São Pedro e São Paulo",
+   "paradas": [
+    {
+     "letra": "A",
+     "ini": 2.28,
+     "fim": 6.24
+    },
+    {
+     "letra": "C",
+     "ini": 6.88,
+     "fim": 13.16
+    },
+    {
+     "letra": "E",
+     "ini": 13.76,
+     "fim": 20.96
+    },
+    {
+     "letra": "G",
+     "ini": 21.64,
+     "fim": 23.36
+    },
+    {
+     "letra": "H",
+     "ini": 24.76,
+     "fim": 26.48
+    },
+    {
+     "letra": "I",
+     "ini": 27.16,
+     "fim": 30.04
+    },
+    {
+     "letra": "K",
+     "ini": 32.76,
+     "fim": 33.28
+    },
+    {
+     "letra": "L",
+     "ini": 33.68,
+     "fim": 36.76
+    },
+    {
+     "letra": "M",
+     "ini": 38.48,
+     "fim": 39.48
+    },
+    {
+     "letra": "O",
+     "ini": 41.76,
+     "fim": 43.24
+    },
+    {
+     "letra": "P",
+     "ini": 45.96,
+     "fim": 47.44
+    },
+    {
+     "letra": "Q",
+     "ini": 47.88,
+     "fim": 48.88
+    },
+    {
+     "letra": "R",
+     "ini": 50.16,
+     "fim": 55.24
+    },
+    {
+     "letra": "U",
+     "ini": 55.76,
+     "fim": 60.84
+    },
+    {
+     "letra": "W",
+     "ini": 61.36,
+     "fim": 62.68
+    },
+    {
+     "letra": "X",
+     "ini": 63.28,
+     "fim": 64.84
+    },
+    {
+     "letra": "Y",
+     "ini": 67.08,
+     "fim": 67.48
+    }
+   ]
+  }
+ ],
+ "conferido": "2026-10-25: rótulos conferidos a olho nas folhas (teste_fixo.py conferir). Removidas as paradas '_' de B2U7c6OXgBg e B2pyvZqWAFk (mãos fazendo formas de letra na introdução) e o T de nmNBSTCl0lM (dois dedos em V, diferente do T dos outros canais)."
+}

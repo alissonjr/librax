@@ -18,8 +18,8 @@ Como sai o rótulo:
 5. Vídeo de uma letra só: entra com o rótulo do título quando o classificador final concorda.
 
 Saídas em ml-training/data/:
-- dataset_video.jsonl: uma linha por quadro, no formato da coleta (person_id = canal). Inclui a
-  classe "_" (nenhuma letra), tirada das paradas que ficaram fora do alinhamento nos vídeos bons.
+- dataset_video.jsonl: uma linha por quadro, no formato da coleta (person_id = canal). A classe
+  "_" (nenhuma letra) vem de video/negativas.py (mãos em repouso).
 - rotulos/<id>.json: as paradas de cada vídeo com a letra, para conferir.
 
 Uso:
@@ -37,6 +37,7 @@ import numpy as np
 AQUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(AQUI, ".."))
 from train_static import NORMALIZATION_VERSION, normalize_hand  # noqa: E402
+from teste_fixo import canais_do_teste  # noqa: E402
 
 DATA = os.path.join(AQUI, "..", "data")
 LANDMARKS = os.path.join(DATA, "landmarks")
@@ -64,7 +65,9 @@ CHECAGEM_MIN_P = 0.2
 CHECAGEM_MIN_VIDEO = 0.5
 # Classe "nenhuma letra" (o app trata como nada reconhecido; ver classifier.ts NO_LETTER_LABEL)
 NENHUMA = "_"
-NEGATIVAS_POR_VIDEO = 12
+# As paradas fora do alinhamento muitas vezes eram letras (introdução em Libras); a classe "_"
+# agora vem de mãos em repouso (video/negativas.py). Mantido em 0 para não misturar.
+NEGATIVAS_POR_VIDEO = 0
 
 # Parada mais curta que isto, em vídeo de sequência, costuma ser transição entre letras
 MIN_PARADA_ACEITA_S = 0.4
@@ -527,6 +530,8 @@ def main():
         v["_aceita"] = [bool(L) for L in v["_al"]]
         v["_conf"] = p.tolist()
 
+    # Canais do teste fixo (teste_fixo.py) nunca entram no dataset
+    fora = canais_do_teste()
     os.makedirs(ROTULOS, exist_ok=True)
     linhas = 0
     por_letra = {}
@@ -544,6 +549,8 @@ def main():
                 # "Nenhuma letra": parada que o alinhamento deixou de fora num vídeo bom (introdução,
                 # mão em repouso, mão descendo) e sem letra escrita na tela
                 negativa = v.get("_bom") and not L and not ocr and negativas_video < NEGATIVAS_POR_VIDEO
+                if v.get("channel_id") in fora:
+                    continue
                 if negativa:
                     negativas_video += 1
                     L = NENHUMA

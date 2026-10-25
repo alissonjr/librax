@@ -42,21 +42,22 @@ const mlHeaders = (): Plugin => {
 };
 
 // Página treino-video.html (só no servidor de desenvolvimento): serve os vídeos baixados por
-// ml-training/video/baixar.py e grava os landmarks que a página extrai. Nada disso vai para o build.
+// ml-training/video/baixar.py (e o modelo de pose do modo sinais) e grava os landmarks que a página
+// extrai. Nada disso vai para o build.
 const TREINO_DATA = resolve(__dirname, '../../ml-training/data');
 const treinoVideo = (): Plugin => ({
   name: 'librax-treino-video',
   configureServer(server) {
     server.middlewares.use('/treino-dados', (req, res, next) => {
       const path = decodeURIComponent((req.url ?? '').split('?')[0]);
-      const m = /^\/(fontes\.json|videos\/[\w.-]+|landmarks\/[\w.-]+\.json|rotulos\/[\w.-]+\.json)$/.exec(path);
+      const m = /^\/(fontes(?:_sinais)?\.json|videos\/[\w.-]+|modelos\/[\w.-]+\.task|(?:landmarks|landmarks_sinais)\/[\w.-]+\.json|rotulos\/[\w.-]+\.json)$/.exec(path);
       if (!m) return next();
       const file = resolve(TREINO_DATA, m[1]);
-      if (req.method === 'PUT' && m[1].startsWith('landmarks/')) {
+      if (req.method === 'PUT' && m[1].startsWith('landmarks')) {
         const chunks: Buffer[] = [];
         req.on('data', (c: Buffer) => chunks.push(c));
         req.on('end', () => {
-          mkdirSync(resolve(TREINO_DATA, 'landmarks'), { recursive: true });
+          mkdirSync(resolve(file, '..'), { recursive: true });
           writeFileSync(file, Buffer.concat(chunks));
           res.statusCode = 204;
           res.end();
@@ -68,7 +69,9 @@ const treinoVideo = (): Plugin => ({
         return res.end();
       }
       const size = statSync(file).size;
-      const type = file.endsWith('.json') ? 'application/json' : file.endsWith('.webm') ? 'video/webm' : 'video/mp4';
+      const type = file.endsWith('.json') ? 'application/json'
+        : file.endsWith('.task') ? 'application/octet-stream'
+        : file.endsWith('.webm') ? 'video/webm' : 'video/mp4';
       res.setHeader('Content-Type', type);
       res.setHeader('Accept-Ranges', 'bytes');
       res.setHeader('Cache-Control', 'no-store');

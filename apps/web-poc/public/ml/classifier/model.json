@@ -53,6 +53,6 @@
     "byte_length": 73316
   },
   "source": "keras",
-  "test_accuracy": 0.8973544836044312,
-  "persons": 38
+  "test_accuracy": 0.9709543585777283,
+  "persons": 86
 }
