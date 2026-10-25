@@ -489,6 +489,15 @@ describe('sinais com movimento avaliados pelo modelo de sinais (/ml/sinais/)', (
     expect(ex.filter((e) => e.type === 'mirror_practice').map((e) => e.signId)).toEqual(['sinal-TCHAU']);
   });
 
+  it('com camera_signs: só as glosas da lista viram perform_sign; as outras do modelo seguem prática livre', () => {
+    setSignModelForTests({ model: fakeModel(['OI', 'TCHAU', '_']), cameraSigns: ['TCHAU'] });
+    expect(isMotionSignEvaluable(map['sinal-OI'])).toBe(false);
+    expect(isMotionSignEvaluable(map['sinal-TCHAU'])).toBe(true);
+    const ex = lessonFor(['sinal-OI', 'sinal-TCHAU'], map, ids);
+    expect(ex.filter((e) => e.type === 'perform_sign').map((e) => e.signId)).toEqual(['sinal-TCHAU']);
+    expect(ex.filter((e) => e.type === 'mirror_practice').map((e) => e.signId)).toEqual(['sinal-OI']);
+  });
+
   it('letra avaliada continua com o classificador das letras, mesmo se o modelo de sinais tiver a glosa', () => {
     setSignModelForTests({ model: fakeModel(['A', 'OI', '_']) });
     const ex = resolveExercises(bundleFor(['letra-A', 'sinal-OI'], map), ['letra-A', 'sinal-OI'], {
