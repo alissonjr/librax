@@ -9,9 +9,9 @@
 
   O player (UnityLoader e o build WebGL do avatar) é software livre sob LGPL-3.0:
   https://github.com/spbgovbr-vlibras/vlibras-web-browsers
-  Ele é carregado aqui sem alteração, direto do endereço oficial (vlibras.gov.br/app/unity),
-  que redireciona para a versão publicada no jsDelivr. Nenhum arquivo do player é copiado
-  para o projeto. Este arquivo é código do Librax: só repete o protocolo de mensagens do
+  Ele é servido pelo próprio app, sem alteração: scripts/vlibras-assets.mjs copia os arquivos
+  da versão publicada pelo repositório oficial (o mesmo que vlibras.gov.br/app/unity entrega)
+  para /vlibras/v<versão>/, e as animações para /vlibras/sinais/. Este arquivo é código do Librax: só repete o protocolo de mensagens do
   src/player/unity/index.js oficial (SendMessage para o objeto PlayerManager e os callbacks
   globais que o Unity chama) e acrescenta pausa do laço de renderização.
 
@@ -30,7 +30,8 @@
 <script>
   (function () {
     'use strict';
-    var BASE = 'https://vlibras.gov.br/app/unity/';
+    // Mesma versão de PLAYER_VERSION em scripts/vlibras-assets.mjs
+    var BASE = '/vlibras/v7.12.2/';
     var origin = location.origin;
     var game = null;
 

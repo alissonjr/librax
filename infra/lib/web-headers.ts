@@ -7,12 +7,10 @@
  * - MediaPipe: WASM e loader no jsDelivr e modelo no storage.googleapis.com (plano 1.2 item 3;
  *   destino: /ml/<versao>/);
  * - videos de referencia de sinais em dicionarios publicos (destino: /content/);
- * - VLibras: o player oficial vem de vlibras.gov.br (redireciona para o jsDelivr) e as
- *   animacoes de dicionario2.vlibras.gov.br. O service worker do app guarda essas respostas,
- *   por isso tambem entram no connect-src da pagina principal.
  *
- * A pagina /vlibras/player.html roda o Unity (blob:, eval e script inline) e recebe uma CSP
- * propria, mais aberta, so para aquele caminho.
+ * O VLibras (player e animacoes) e servido pelo proprio app em /vlibras/ (scripts/vlibras-assets.mjs
+ * do apps/web-poc), sem host externo. A pagina /vlibras/player.html roda o Unity (blob:, eval e
+ * script inline) e recebe uma CSP propria, mais aberta, so para aquele caminho.
  */
 
 /** Hosts de midia externos usados hoje pelo conteudo (videos de referencia). */
@@ -24,9 +22,6 @@ export const EXTERNAL_MEDIA_HOSTS = [
 
 /** Arquivos do MediaPipe ainda em CDN de terceiros (useCameraRecognizer.ts). */
 export const EXTERNAL_ML_HOSTS = ['https://cdn.jsdelivr.net', 'https://storage.googleapis.com'];
-
-/** Player e animacoes do VLibras (src/lib/vlibras.ts e public/vlibras/player.html). */
-export const VLIBRAS_HOSTS = ['https://vlibras.gov.br', 'https://www.vlibras.gov.br', 'https://dicionario2.vlibras.gov.br'];
 
 /** Recursos do navegador: so a camera, e so na propria origem (reconhecimento de sinais). */
 export const PERMISSIONS_POLICY =
@@ -59,7 +54,6 @@ export function appCsp(authOrigin: string, cognitoIdpOrigin: string): string {
       cognitoIdpOrigin,
       authOrigin,
       ...EXTERNAL_ML_HOSTS,
-      ...VLIBRAS_HOSTS,
       ...EXTERNAL_MEDIA_HOSTS,
     ],
     'img-src': ["'self'", 'data:', 'blob:'],
@@ -102,9 +96,9 @@ export function adminCsp(authOrigin: string, cognitoIdpOrigin: string): string {
 export function vlibrasCsp(): string {
   return join({
     'default-src': ["'self'"],
-    'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", "'wasm-unsafe-eval'", 'blob:', 'https://cdn.jsdelivr.net', ...VLIBRAS_HOSTS],
+    'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", "'wasm-unsafe-eval'", 'blob:'],
     'worker-src': ["'self'", 'blob:'],
-    'connect-src': ["'self'", 'blob:', 'data:', 'https://cdn.jsdelivr.net', ...VLIBRAS_HOSTS],
+    'connect-src': ["'self'", 'blob:', 'data:'],
     'img-src': ["'self'", 'data:', 'blob:'],
     'media-src': ["'self'", 'blob:'],
     'style-src': ["'self'", "'unsafe-inline'"],

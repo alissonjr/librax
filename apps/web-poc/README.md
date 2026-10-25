@@ -21,6 +21,8 @@ npm run build          # build de produção em dist/
 
 Nada de ML vem de CDN em tempo de execução. As duas pastas são geradas e ficam fora do git.
 
+Depois roda o `scripts/vlibras-assets.mjs`, que faz o mesmo com o avatar VLibras: baixa **uma única vez** para `.cache/vlibras/` o player oficial (sem alteração, LGPL-3.0) e a animação de cada glosa do curso (`signs.json`, `avatar.gloss`), confere o SHA-256 em `scripts/vlibras-manifest.json` e copia para `public/vlibras/v<versão>/` e `public/vlibras/sinais/<versão>/` (fora do git). O app não depende mais dos servidores do governo. Glosa nova no curso entra no manifesto na primeira vez: versione o arquivo. No `dev` a falha de rede vira aviso (`--opcional`); no `build` é erro.
+
 ## Página de teste da câmera (fase W0)
 
 `/teste-camera.html` é uma página isolada que abre a câmera frontal, roda o HandLandmarker a até 15 fps e desenha o esqueleto da mão. Mostra ao vivo: fps de detecção, ms por detecção (p50 e p95), delegate (GPU ou CPU, com botão para alternar), resolução da câmera, tempo de carga a frio e a quente (WASM, modelo, init e primeira detecção), memória (quando o navegador expõe), navegador resumido e se o Wake Lock foi obtido. Tem um teste de 10 minutos com o fps de cada minuto e a queda em relação ao primeiro. O botão **Copiar resultado** copia um resumo em texto para colar na conversa.
