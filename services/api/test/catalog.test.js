@@ -36,15 +36,30 @@ test('catalogFromCourse mapeia licoes com xpReward e quantidade de sinais', () =
   assert.deepEqual(c.achievementRules, course.achievementRules);
 });
 
+test('glosas so dos sinais do curso: rotulos aceitos no desempenho da camera', () => {
+  const signs = [
+    { id: 'letra-A', gloss: 'A' },
+    { id: 'oi', gloss: 'OI' },
+    { id: 'fora-do-curso', gloss: 'FORA' },
+  ];
+  assert.deepEqual(catalogFromCourse(course, signs).signGlosses, { 'letra-A': 'A', oi: 'OI' });
+  assert.deepEqual(catalogFromCourse(course).signGlosses, {});
+});
+
 test('alfabeto completo = ultima licao da primeira unidade (mesma regra do app)', () => {
   assert.equal(catalogFromCourse(course).alphabetLessonId, 'u1-l2');
 });
 
-test('catalogo empacotado esta em dia com o course.json do app (rode npm run catalog)', () => {
-  const raw = JSON.parse(
-    readFileSync(new URL('../../../apps/web-poc/src/assets/content/course.json', import.meta.url), 'utf8'),
-  );
-  assert.deepEqual(catalog, catalogFromCourse(raw));
+test('catalogo empacotado esta em dia com o course.json e o signs.json do app (rode npm run catalog)', () => {
+  const dir = new URL('../../../apps/web-poc/src/assets/content/', import.meta.url);
+  const read = (name) => JSON.parse(readFileSync(new URL(name, dir), 'utf8'));
+  assert.deepEqual(catalog, catalogFromCourse(read('course.json'), read('signs.json')));
+  // todo sinal do curso tem glosa, e id e glosa servem de nome de contador (`wrong:<id>:<glosa>`)
+  assert.equal(Object.keys(catalog.signGlosses).length, catalog.signsOrder.length);
+  for (const [id, gloss] of Object.entries(catalog.signGlosses)) {
+    assert.doesNotMatch(id, /[:\s]/, id);
+    assert.match(gloss, /^[\p{Lu}\p{N}_-]{1,40}$/u, id);
+  }
 });
 
 // --- situacao do conteudo (painel de administracao) ---

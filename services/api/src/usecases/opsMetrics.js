@@ -30,9 +30,9 @@ export async function quietly(label, fn) {
 }
 
 /** Licao concluida (completeLessonOnce, migracao do convidado e o endpoint legado). */
-export async function recordLessonCompleted(repo, { userId, lessonId, today, reviewed = [], exerciseStats = null }) {
+export async function recordLessonCompleted(repo, { userId, lessonId, today, reviewed = [], exerciseStats = null, cameraStats = null }) {
   const fresh = await repo.markActivity(userId, periodsOf(today));
-  await apply(repo, lessonCompletedWrites({ lessonId, today, reviewed, exerciseStats, fresh }));
+  await apply(repo, lessonCompletedWrites({ lessonId, today, reviewed, exerciseStats, cameraStats, fresh }));
 }
 
 /** Rodada da pratica diaria (reviewSignsOnce). */

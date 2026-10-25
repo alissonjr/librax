@@ -96,5 +96,7 @@ export function labelsFromReport(report) {
     for (const l of unit.lessons) lessons[l.id] = { title: l.title, unitId: unit.id, unitTitle: unit.title };
   }
   const signs = Object.fromEntries((report.signs ?? []).map((s) => [s.id, s.gloss]));
-  return { lessons, signs };
+  // letra (alfabeto) ou sinal, para a tela de camera do painel
+  const signKinds = Object.fromEntries((report.signs ?? []).map((s) => [s.id, s.category === 'alfabeto' ? 'letter' : 'sign']));
+  return { lessons, signs, signKinds };
 }

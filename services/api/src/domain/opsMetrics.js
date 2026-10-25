@@ -12,6 +12,8 @@ import { localClock } from './reminders.js';
 //   OPS / DAY#<dia>#LESSON     por licao: done, abandon, attempted, wrong, failedSigns, reviewedSigns
 //   OPS / DAY#<dia>#EXERCISE   por tipo de exercicio: attempted, wrong, abandon
 //   OPS / DAY#<dia>#SIGN       por sinal: failed
+//   OPS / DAY#<dia>#CAMERA     desempenho da camera por sinal: success, skip, attempts e
+//                              wrong:<signId>:<rotulo> (a camera leu outra letra ou glosa no lugar)
 //   OPS / WEEK#<AAAA-wSS>      ativos, contas novas e licoes da semana (ISO, segunda a domingo)
 //   OPS / MONTH#<AAAA-MM>      ativos, contas novas e licoes do mes
 //   OPS / COST#<AAAA-MM>       custo do mes (Cost Explorer, uma vez por dia)
@@ -79,6 +81,31 @@ const add = (target, name, n) => {
   if (n > 0) target[name] = (target[name] ?? 0) + n;
 };
 
+/**
+ * Contadores por escrita no item CAMERA. O UpdateExpression do DynamoDB tem teto de 4 KB, e cada
+ * `#cN :cN, ` ocupa uns 13 caracteres: uma licao com muitos sinais vira mais de um ADD no mesmo item.
+ */
+export const CAMERA_WRITE_CHUNK = 100;
+
+function chunked(counters, size) {
+  const entries = Object.entries(counters);
+  const out = [];
+  for (let i = 0; i < entries.length; i += size) out.push(Object.fromEntries(entries.slice(i, i + size)));
+  return out;
+}
+
+/** Desempenho da camera da licao (`cameraStats` ja validado) em contadores planos do item CAMERA. */
+export function cameraCounters(cameraStats) {
+  const counters = {};
+  for (const [signId, s] of Object.entries(cameraStats ?? {})) {
+    add(counters, `success:${signId}`, s.successes);
+    add(counters, `skip:${signId}`, s.skips);
+    add(counters, `attempts:${signId}`, s.attempts);
+    for (const [label, n] of Object.entries(s.wrong ?? {})) add(counters, `wrong:${signId}:${label}`, n);
+  }
+  return counters;
+}
+
 /** Escritas de um dia: totais e, se `fresh`, a pessoa conta como ativa no dia, semana e mes. */
 function periodWrites(periods, totals, fresh, periodTotals = totals) {
   const writes = [{ key: opsKey.day(periods.day), counters: { ...totals }, expiresAt: opsExpiry(periods.day, DAY_RETENTION_DAYS) }];
@@ -96,10 +123,10 @@ function periodWrites(periods, totals, fresh, periodTotals = totals) {
 
 /**
  * Escritas de uma licao concluida.
- * @param {object} input { lessonId, today, reviewed?, exerciseStats?, fresh }
+ * @param {object} input { lessonId, today, reviewed?, exerciseStats?, cameraStats?, fresh }
  * @returns {Array<{key: string, counters: object, expiresAt: number|null}>}
  */
-export function lessonCompletedWrites({ lessonId, today, reviewed = [], exerciseStats = null, fresh }) {
+export function lessonCompletedWrites({ lessonId, today, reviewed = [], exerciseStats = null, cameraStats = null, fresh }) {
   const periods = periodsOf(today);
   const expiresAt = opsExpiry(today, DAY_RETENTION_DAYS);
   const writes = periodWrites(periods, { lessonsCompleted: 1 }, fresh);
@@ -125,6 +152,9 @@ export function lessonCompletedWrites({ lessonId, today, reviewed = [], exercise
   writes.push({ key: opsKey.dayPart(today, 'LESSON'), counters: lesson, expiresAt });
   if (Object.keys(exercises).length) writes.push({ key: opsKey.dayPart(today, 'EXERCISE'), counters: exercises, expiresAt });
   if (Object.keys(signs).length) writes.push({ key: opsKey.dayPart(today, 'SIGN'), counters: signs, expiresAt });
+  for (const counters of chunked(cameraCounters(cameraStats), CAMERA_WRITE_CHUNK)) {
+    writes.push({ key: opsKey.dayPart(today, 'CAMERA'), counters, expiresAt });
+  }
   return writes;
 }
 
@@ -158,7 +188,7 @@ export function newAccountWrites({ day }) {
 // Leitura: monta a tela de operacao a partir dos itens
 // ---------------------------------------------------------------------------
 
-const DAY_KEY_RE = /^DAY#(\d{4}-\d{2}-\d{2})(?:#(LESSON|EXERCISE|SIGN))?$/;
+const DAY_KEY_RE = /^DAY#(\d{4}-\d{2}-\d{2})(?:#(LESSON|EXERCISE|SIGN|CAMERA))?$/;
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
 const ratio = (a, b) => (b > 0 ? Math.round((a / b) * 1000) / 1000 : null);
 
@@ -174,6 +204,81 @@ function unflatten(item, into) {
   }
 }
 
+/** Item CAMERA do dia -> `{ [signId]: { success, skip, attempts, wrong: { [rotulo]: n } } }`. */
+function addCamera(item, into) {
+  for (const [name, value] of Object.entries(item)) {
+    if (typeof value !== 'number') continue;
+    const [metric, signId, label, ...rest] = name.split(':');
+    if (!signId || rest.length > 0) continue;
+    const sign = (into[signId] ??= { success: 0, skip: 0, attempts: 0, wrong: {} });
+    if (metric === 'wrong' && label) sign.wrong[label] = (sign.wrong[label] ?? 0) + value;
+    else if (!label && (metric === 'success' || metric === 'skip' || metric === 'attempts')) sign[metric] += value;
+  }
+}
+
+/** Leituras erradas mais comuns de cada sinal na tela, e as confusoes mais comuns no geral. */
+export const CAMERA_TOP_WRONG = 3;
+export const CAMERA_TOP_CONFUSIONS = 15;
+
+/**
+ * Mesma regra da tela "Desempenho da camera" do app (apps/web-poc/src/lib/cameraStats.ts,
+ * difficultyOf): muitos pulos ou muitas tentativas indicam modelo fraco ou descricao confusa.
+ */
+export function cameraDifficulty(skipRate, avgAttempts) {
+  if (skipRate >= 0.5 || (avgAttempts ?? 0) >= 3) return 'hard';
+  if (skipRate >= 0.2 || (avgAttempts ?? 0) >= 2) return 'attention';
+  return 'ok';
+}
+
+/**
+ * Letras e sinais do mais dificil para o mais facil (a mesma ordem do app): taxa de pulo, depois
+ * media de tentativas ate acertar (sem acerto conta como o pior caso), depois quantas vezes
+ * apareceu (mais dados primeiro) e o id.
+ */
+function buildCamera(camera, labels) {
+  const confusions = [];
+  const rows = Object.entries(camera)
+    .map(([signId, c]) => {
+      const runs = c.success + c.skip;
+      const skipRate = ratio(c.skip, runs) ?? 0;
+      const avgAttempts = c.success > 0 ? Math.round((c.attempts / c.success) * 100) / 100 : null;
+      const gloss = labels.signs?.[signId] ?? null;
+      const wrong = Object.entries(c.wrong)
+        .filter(([, n]) => n > 0)
+        .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
+      for (const [label, count] of wrong) confusions.push({ signId, gloss, label, count });
+      return {
+        signId,
+        gloss,
+        kind: labels.signKinds?.[signId] ?? null,
+        runs,
+        successes: c.success,
+        skips: c.skip,
+        skipRate,
+        attempts: c.attempts,
+        avgAttempts,
+        wrongReadings: wrong.reduce((acc, [, n]) => acc + n, 0),
+        topWrong: wrong.slice(0, CAMERA_TOP_WRONG).map(([label, count]) => ({ label, count })),
+        level: cameraDifficulty(skipRate, avgAttempts),
+      };
+    })
+    .filter((r) => r.runs > 0)
+    .sort((a, b) =>
+      b.skipRate - a.skipRate
+      || (b.avgAttempts ?? Infinity) - (a.avgAttempts ?? Infinity)
+      || b.runs - a.runs
+      || (a.signId < b.signId ? -1 : 1));
+
+  const total = (field) => rows.reduce((acc, r) => acc + r[field], 0);
+  return {
+    totals: { signs: rows.length, runs: total('runs'), successes: total('successes'), skips: total('skips'), wrongReadings: total('wrongReadings') },
+    signs: rows,
+    confusions: confusions
+      .sort((a, b) => b.count - a.count || a.signId.localeCompare(b.signId) || a.label.localeCompare(b.label))
+      .slice(0, CAMERA_TOP_CONFUSIONS),
+  };
+}
+
 /**
  * Tela de operacao (GET /v1/admin/overview).
  *
@@ -183,7 +288,11 @@ function unflatten(item, into) {
  *   monthItems: MONTH#... (com `key`), qualquer ordem
  *   today:      'YYYY-MM-DD' (fuso do painel)
  *   days:       tamanho da janela
- *   labels:     { lessons: { [id]: { title, unitId, unitTitle } }, signs: { [id]: gloss } }
+ *   labels:     { lessons: { [id]: { title, unitId, unitTitle } }, signs: { [id]: gloss },
+ *                 signKinds: { [id]: 'letter' | 'sign' } }
+ *
+ * Tambem traz `camera`, o desempenho da camera somado de todas as pessoas na mesma janela (a tela
+ * "Camera" do painel usa a mesma rota, sem uma Query a mais).
  */
 export function buildOverview({ dayItems = [], weekItems = [], monthItems = [], today, days = OVERVIEW_DAYS, labels = {} }) {
   const from = addDays(today, -(days - 1));
@@ -191,6 +300,7 @@ export function buildOverview({ dayItems = [], weekItems = [], monthItems = [], 
   const lessons = {};
   const exercises = {};
   const signs = {};
+  const camera = {};
   const errorsByFunction = {};
 
   for (const item of dayItems) {
@@ -200,6 +310,7 @@ export function buildOverview({ dayItems = [], weekItems = [], monthItems = [], 
     if (!part) totalsByDay.set(day, item);
     else if (part === 'LESSON') unflatten(item, lessons);
     else if (part === 'EXERCISE') unflatten(item, exercises);
+    else if (part === 'CAMERA') addCamera(item, camera);
     else unflatten(item, signs);
   }
 
@@ -302,6 +413,7 @@ export function buildOverview({ dayItems = [], weekItems = [], monthItems = [], 
     lessons: lessonRows,
     exercises: exerciseRows,
     signs: signRows,
+    camera: buildCamera(camera, labels),
     serverErrors: {
       collectedThrough,
       byFunction: Object.entries(errorsByFunction)
