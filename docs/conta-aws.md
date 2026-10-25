@@ -64,3 +64,55 @@ infra/scripts/aws.sh aws s3 ls   # qualquer outro comando com o login do Librax
 
 Não use `aws sso logout`: ele apaga os tokens de todas as sessões do Identity Center da máquina,
 inclusive as de outros projetos. Para sair, basta deixar o acesso vencer.
+
+## Domínio: landing e app
+
+Um domínio só (`librax:domainName`) e quatro nomes. A landing (`apps/landing`) fica na raiz, com bucket e
+CloudFront próprios; o app continua como é hoje, só que em `app.`: mesmo CloudFront, mesmos caminhos, mesmo
+escopo do PWA. Os nomes partem do domínio e podem ser trocados por contexto (`infra/lib/config.ts`).
+
+| Nome | O que serve | Chave | Padrão |
+|---|---|---|---|
+| `<dominio>` | landing (`/`, `/en/`, `/es/`) | `librax:landingDomainName` | `<domainName>` |
+| `www.<dominio>` | redireciona (301) para `<dominio>`, com caminho e query | `librax:wwwDomainName` (`none` desliga) | `www.<landingDomainName>` |
+| `app.<dominio>` | app, `/api` e `/admin` | `librax:appDomainName` | `app.<domainName>` |
+| `auth.<dominio>` | login do Cognito | `librax:authDomainName` | `auth.<domainName>` |
+
+O certificado (`librax:certificateArn`, ACM em `us-east-1`) precisa cobrir os quatro nomes (ou `<dominio>` e
+`*.<dominio>`). Na landing, `/app` e `/app/...` redirecionam para `app.<dominio>`, então link antigo para
+`/app/` continua funcionando.
+
+Registros DNS. Com zona no Route 53 (`librax:hostedZoneId` e `librax:hostedZoneName`) a stack cria todos. Com
+DNS fora da AWS, depois do deploy:
+
+| Registro | Tipo | Valor (output do CDK) |
+|---|---|---|
+| `<dominio>` | ALIAS/ANAME (ou CNAME na raiz, se o provedor achata) | `LandingDistributionDomain` |
+| `www.<dominio>` | CNAME | `LandingDistributionDomain` |
+| `app.<dominio>` | CNAME | `DistributionDomain` |
+| `auth.<dominio>` | CNAME | `AuthDomainCloudFront` |
+
+Além deles, os CNAME de validação que o ACM pede. O Cognito só aceita `auth.<dominio>` se `<dominio>` já
+resolver: com DNS fora da AWS, crie um registro A provisório para `<dominio>` antes do primeiro deploy.
+
+## Publicar a landing
+
+```bash
+cd infra
+npm run landing:build     # build local, sem AWS (o synth tira dele o hash da CSP)
+npm run deploy            # stack: bucket, CloudFront e CSP da landing
+npm run landing:publicar  # confere a conta, build com os outputs, sync e invalidação
+```
+
+- `landing:build` roda o build do `apps/landing` com `VITE_APP_URL=https://app.<dominio>/` e
+  `SITE_ORIGIN=https://<dominio>`, tirados do contexto (`cdk.context.json` e `cdk.json`).
+- `landing:publicar` lê os outputs da stack (`AppUrl`, `LandingUrl`, `LandingBucketName`,
+  `LandingDistributionId`, `LandingScriptHashes`), faz o build de novo com essas URLs, confere se a CSP
+  publicada libera o script inline do build e então roda
+  `aws s3 sync apps/landing/dist s3://<LandingBucketName> --delete` e invalida `/index.html`, `/en/index.html` e
+  `/es/index.html`. Se o hash não bate, ele para antes do upload: rode `npm run deploy` e publique de novo.
+- Cache: `/assets/*` (nome com hash) é imutável por um ano; as páginas e o resto (ícones, fontes, imagens),
+  5 minutos. Caminho que não existe devolve 404 com a página inicial.
+- CSP: tudo da própria origem e o script inline da raiz (o que leva ao idioma do navegador) liberado pelo hash,
+  sem `'unsafe-inline'`. Sem o build, o synth usa o hash gravado em `infra/lib/landing.ts` e avisa; quando o
+  script muda, o synth avisa para atualizar esse hash (`npm run landing:hash` mostra o valor novo).
