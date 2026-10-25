@@ -91,7 +91,8 @@ function initStage() {
   const reading = status?.dataset.reading ?? '';
   const done = status?.dataset.done ?? '';
 
-  const canRun = () => !paused && visible && !document.hidden;
+  // No protótipo em 3D (prototipo-3d.ts), a vista em 3D assume o palco e as seis mãos param
+  const canRun = () => !paused && visible && !document.hidden && stage.dataset.view !== '3d';
   const until = async () => {
     while (!canRun()) await wait(250);
   };

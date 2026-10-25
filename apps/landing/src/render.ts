@@ -47,6 +47,21 @@ function handSvg(pose: Pose, letter: string, state: string | null, cls = ''): st
   return `<svg class="hand ${cls}"${st} viewBox="${handViewBox(letter)}" aria-hidden="true" focusable="false"><path class="hand-halo" d="${d}"/><path class="hand-bones" d="${d}"/><g class="hand-joints">${joints}</g></svg>`;
 }
 
+/** Vista em 3D do protótipo: escondida até a mão carregar (o main das seis mãos segue valendo). */
+function stage3d(): string {
+  const letters = HERO_LETTERS.map((L) => `<li data-letter="${L}" data-state="idle">${L}</li>`).join('');
+  return `
+      <div class="stage3d" data-stage3d hidden>
+        <div class="tile stage3d-view" data-state="tracking" data-stage3d-view>
+          <span class="tile-guide" aria-hidden="true"></span>
+          <canvas class="stage3d-canvas" data-stage3d-canvas aria-hidden="true"></canvas>
+          <span class="tile-letter" aria-hidden="true" data-stage3d-letter>${HERO_LETTERS[0]}</span>
+          <span class="tile-ok" aria-hidden="true">${icon('check')}</span>
+        </div>
+        <ol class="stage3d-letters" role="list" aria-hidden="true">${letters}</ol>
+      </div>`;
+}
+
 interface Shot { w: number; h: number }
 type ShotName = 'mapa' | 'intro' | 'escolha' | 'frase' | 'camera';
 
@@ -69,7 +84,23 @@ export function headLinks(locale: Locale, origin = ''): string {
   return `<link rel="canonical" href="${origin}${localePath(locale)}">${alternates}<link rel="alternate" hreflang="x-default" href="${origin}${localePath('en')}">`;
 }
 
-export function renderPage(locale: Locale): string {
+/**
+ * Protótipo da abertura com uma mão em 3D (prototipo-3d.html), para comparar com a abertura
+ * atual antes de decidir. Mesma página, só em português, fora dos buscadores; o palco ganha a
+ * vista em 3D por cima das seis mãos desenhadas, que ficam como reserva enquanto carrega ou
+ * quando o navegador não desenha em 3D. Textos do protótipo ficam aqui (não entram no i18n).
+ */
+export interface PageOptions { prototipo3d?: boolean }
+const PROTO = {
+  banner: 'Protótipo da abertura com a mão em 3D, para comparar com a versão atual.',
+  bannerLink: 'Ver a versão atual',
+  caption:
+    'Cada letra é a mão de uma pessoa diferente, na posição em que o app a enxergou e reconheceu. Os tons de pele variam para lembrar que são pessoas diferentes.',
+  credit: 'Modelo da mão: WebXR Input Profiles (generic-hand), da Amazon, licença MIT.',
+};
+
+export function renderPage(locale: Locale, opts: PageOptions = {}): string {
+  const proto = Boolean(opts.prototipo3d);
   const c: Copy = COPY[locale];
   const n = (v: number, d = 0) => formatNumber(locale, v, d);
   const N = numeros;
@@ -181,12 +212,12 @@ export function renderPage(locale: Locale): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>${esc(c.meta.title)}</title>
+${locale === 'pt-BR' && !proto ? `<script>${rootRedirectScript()}</script>\n` : ''}${proto ? '<meta name="robots" content="noindex">\n' : ''}<title>${esc(c.meta.title)}</title>
 <meta name="description" content="${esc(c.meta.description)}">
 <meta name="theme-color" content="${tokens['theme.light.bg.canvas']}" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="${tokens['theme.dark.bg.canvas']}" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
-<!--lx:links:${locale}-->
+${proto ? '' : `<!--lx:links:${locale}-->`}
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(c.meta.title)}">
 <meta property="og:description" content="${esc(c.meta.description)}">
@@ -197,7 +228,7 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
 <link rel="preload" href="/fonts/Anybody-latin-wdth-wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/Figtree-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/src/style.css">
-<script type="module" src="/src/main.ts"></script>
+<script type="module" src="/src/${proto ? 'prototipo-3d' : 'main'}.ts"></script>
 </head>
 <body>
 <svg width="0" height="0" class="sr-defs" aria-hidden="true" focusable="false"><defs><marker id="lx-tip" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="trace-tip"/></marker></defs></svg>
@@ -225,7 +256,7 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
   </div>
 </div>
 
-<main id="conteudo" tabindex="-1">
+${proto ? `<div class="proto-banner"><div class="wrap proto-banner-row">${icon('sign_language', { filled: true })}<p>${esc(PROTO.banner)}</p><a class="btn-text" href="/">${esc(PROTO.bannerLink)}</a></div></div>\n` : ''}<main id="conteudo" tabindex="-1">
 
 <section class="hero" aria-labelledby="hero-title">
   <div class="wrap hero-grid">
@@ -244,9 +275,9 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
         <span class="stage-pill"><span class="rec-dot" aria-hidden="true"></span>${esc(c.hero.stageStatus)}</span>
         <span class="stage-pill stage-status" aria-hidden="true" data-stage-status data-reading="${esc(c.hero.stageReading)}" data-done="${esc(c.hero.stageDone)}">${icon('check_circle', { filled: true })}<span data-stage-word>${esc(c.hero.stageDone)}: LIBRAX</span></span>
       </div>
-      <ol class="tiles" role="list">${tiles}</ol>
+      <ol class="tiles" role="list">${tiles}</ol>${proto ? stage3d() : ''}
       <figcaption class="stage-caption">
-        <span>${esc(c.hero.stageCaption)}</span>
+        <span>${esc(proto ? PROTO.caption : c.hero.stageCaption)}</span>
         <button class="stage-toggle" type="button" data-stage-toggle hidden data-pause="${esc(c.hero.pause)}" data-play="${esc(c.hero.play)}" aria-label="${esc(c.hero.pause)}">${icon('pause', { filled: true, cls: 'when-playing' })}${icon('play_arrow', { filled: true, cls: 'when-paused' })}</button>
       </figcaption>
     </figure>
@@ -451,7 +482,7 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
     </nav>
     <div class="footer-credits">
       <h2 class="footer-title">${esc(c.footer.credits)}</h2>
-      <p>${esc(c.footer.creditsText)}</p>
+      <p>${esc(c.footer.creditsText)}</p>${proto ? `\n      <p>${esc(PROTO.credit)}</p>` : ''}
       <p class="footer-rights">${esc(c.footer.rights)}</p>
     </div>
   </div>

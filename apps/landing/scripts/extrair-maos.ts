@@ -14,6 +14,10 @@
  *
  * Saem só os 21 pontos (x, y) de cada mão, arredondados. Nenhuma imagem, nenhum nome de canal.
  * Os landmarks ficam fora do git (são grandes); o JSON gerado entra no git.
+ *
+ * Também grava src/maos-z.json com a profundidade (z) dos mesmos pontos, na mesma ordem das
+ * poses do maos.json. Só o protótipo da abertura com a mão em 3D usa esse arquivo (carregado
+ * sob demanda), então a abertura atual não fica maior.
  */
 import { readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -28,6 +32,7 @@ const ARG_DADOS = process.argv.find((a) => a.startsWith('--dados='))?.slice(8);
 const DADOS = resolve(ARG_DADOS ?? resolve(RAIZ, 'ml-training/data'));
 const CLASSIFICADOR = resolve(RAIZ, 'apps/web-poc/public/ml/classifier');
 const SAIDA = resolve(AQUI, '../src/maos.json');
+const SAIDA_Z = resolve(AQUI, '../src/maos-z.json');
 
 const LETRAS = ['L', 'I', 'B', 'R', 'A', 'X'] as const;
 const POR_LETRA = 8;
@@ -50,7 +55,7 @@ const modelJson = JSON.parse(readFileSync(resolve(CLASSIFICADOR, 'model.json'), 
 const pesos = readFileSync(resolve(CLASSIFICADOR, 'weights.bin'));
 const modelo = parseMlp(modelJson, pesos.buffer.slice(pesos.byteOffset, pesos.byteOffset + pesos.byteLength));
 
-interface Candidata { canal: string; prob: number; pts: number[] }
+interface Candidata { canal: string; prob: number; pts: number[]; z: number[] }
 const candidatas: Record<string, Candidata[]> = Object.fromEntries(LETRAS.map((l) => [l, []]));
 const cache = new Map<string, Landmarks | null>();
 
@@ -84,7 +89,9 @@ for (const arquivo of readdirSync(resolve(DADOS, 'rotulos')).sort()) {
           // dicionários e na ilustração de boas-vindas do app): no L, o polegar fica à direita.
           const pts: number[] = [];
           for (let i = 0; i < 21; i++) pts.push(-vetor[i * 3], vetor[i * 3 + 1]);
-          melhor = { canal: dados.channel_id ?? rotulo.id, prob: r.probability, pts };
+          // z do MediaPipe na mesma escala de x e y: maior é mais longe da câmera
+          const z = Array.from({ length: 21 }, (_, i) => vetor[i * 3 + 2]);
+          melhor = { canal: dados.channel_id ?? rotulo.id, prob: r.probability, pts, z };
         }
       }
     }
@@ -94,6 +101,7 @@ for (const arquivo of readdirSync(resolve(DADOS, 'rotulos')).sort()) {
 
 const r3 = (n: number) => Math.round(n * 1000) / 1000;
 const saida: Record<string, { pessoas: number; centro: number[]; poses: number[][]; prob: number[] }> = {};
+const saidaZ: Record<string, number[][]> = {};
 let lado = 0;
 
 for (const letra of LETRAS) {
@@ -118,6 +126,7 @@ for (const letra of LETRAS) {
     poses: escolhidas.map((c) => c.pts.map(r3)),
     prob: escolhidas.map((c) => Math.round(c.prob * 1000) / 1000),
   };
+  saidaZ[letra] = escolhidas.map((c) => c.z.map(r3));
   console.log(`${letra}: ${escolhidas.length} mãos (de ${porCanal.size} pessoas lidas pelo modelo)`);
 }
 
@@ -133,3 +142,12 @@ const json = {
 };
 writeFileSync(SAIDA, `${JSON.stringify(json)}\n`);
 console.log(`Gravado ${SAIDA}`);
+const jsonZ = {
+  _sobre:
+    'Gerado por apps/landing/scripts/extrair-maos.ts junto com o maos.json. Profundidade (z) dos 21 landmarks de cada pose, ' +
+    'na mesma ordem e escala do maos.json (maior é mais longe da câmera). Usado só pelo protótipo da abertura em 3D.',
+  gerado_em: json.gerado_em,
+  letras: saidaZ,
+};
+writeFileSync(SAIDA_Z, `${JSON.stringify(jsonZ)}\n`);
+console.log(`Gravado ${SAIDA_Z}`);

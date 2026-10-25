@@ -1,0 +1,57 @@
+/*
+ * Protótipo da abertura com a mão em 3D (prototipo-3d.html). Só tokens do design system; o palco
+ * continua escuro nos dois modos (seção 4.3). Sem faixa colorida lateral: o estado aparece nos
+ * cantos da moldura, na letra e no selo de acerto, como nas seis mãos da abertura atual.
+ */
+.proto-banner { background: var(--lx-game-hand-soft); color: var(--lx-game-hand-text); }
+.proto-banner-row { display: flex; align-items: center; gap: var(--lx-space-2) var(--lx-space-3); min-height: 48px; padding-block: var(--lx-space-2); }
+.proto-banner-row > .icon { flex-shrink: 0; }
+.proto-banner-row p { flex: 1; font: var(--lx-typography-body-sm); }
+.proto-banner-row .btn-text { margin-left: auto; white-space: nowrap; color: var(--lx-game-hand-text); text-decoration: underline; }
+
+.stage[data-view="3d"] .tiles { display: none; }
+.stage3d { position: relative; display: flex; flex-direction: column; gap: var(--lx-space-3); }
+.stage3d[hidden] { display: none; }
+
+.stage3d-view.tile { aspect-ratio: 4 / 3; }
+@media (max-width: 599px) { .stage3d-view.tile { aspect-ratio: 1 / 1; } }
+.stage3d-view .tile-guide { inset: 6% 6% 20% 6%; }
+/* O modelo termina no pulso: o pé da vista esmaece para o fundo do cartão */
+.stage3d-view::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 22%;
+  background: linear-gradient(to bottom, transparent, var(--lx-stage-surface) 85%);
+  pointer-events: none;
+}
+.stage3d-view[data-state="correct"] .tile-guide { --c: var(--lx-stage-guide-ok); opacity: .9; }
+.stage3d-view[data-state="tracking"] .tile-guide,
+.stage3d-view[data-state="ready"] .tile-guide { --c: var(--lx-stage-landmark-tracking); opacity: .7; }
+.stage3d-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage3d-view .tile-letter { left: var(--lx-space-4); bottom: var(--lx-space-3); font-size: clamp(2rem, 1.4rem + 2.6vw, 3.25rem); z-index: 1; }
+.stage3d-view .tile-ok { right: var(--lx-space-3); bottom: var(--lx-space-3); width: 32px; height: 32px; z-index: 1; }
+.stage3d-view .tile-ok .icon { width: 20px; height: 20px; }
+.stage3d-view:not([data-state="correct"]) .tile-ok { opacity: 0; transform: scale(calc(1 - .4 * var(--lx-motion-scale))); }
+.stage3d-view[data-state="tracking"] .tile-letter,
+.stage3d-view[data-state="ready"] .tile-letter { opacity: .6; }
+
+/* As seis letras de LIBRAX: a atual em leitura, as lidas com a cor de acerto */
+.stage3d-letters { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--lx-space-2); }
+.stage3d-letters li {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-stage-surface);
+  border: var(--lx-border-width-thin) solid var(--lx-stage-border);
+  font-family: var(--lx-font-family-display);
+  font-weight: var(--lx-font-weight-black);
+  font-stretch: var(--lx-font-stretch-wide);
+  font-size: 1.125rem;
+  color: var(--lx-stage-text);
+  transition: color var(--lx-motion-duration-base), border-color var(--lx-motion-duration-base), opacity var(--lx-motion-duration-base);
+}
+.stage3d-letters li[data-state="idle"] { opacity: .35; }
+.stage3d-letters li[data-state="tracking"] { border-color: var(--lx-stage-landmark-tracking); color: var(--lx-stage-landmark-tracking); }
+.stage3d-letters li[data-state="correct"] { border-color: color-mix(in srgb, var(--lx-stage-landmark-correct) 55%, var(--lx-stage-border)); color: var(--lx-stage-landmark-correct); }
