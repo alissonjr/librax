@@ -1,0 +1,12 @@
+# Gerados por scripts/gerar-paginas.ts a partir de src/render.ts
+/index.html
+/en/
+/es/
+dist/
+node_modules/
+# Copiados do web-poc por scripts/sync-ds.mjs (a fonte da verdade fica no web-poc)
+/public/fonts/
+/public/favicon.svg
+/public/apple-touch-icon.png
+/public/icon-192.png
+/public/icon-512.png
