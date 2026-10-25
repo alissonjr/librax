@@ -68,6 +68,7 @@ const ProfileScreen = lazyScreen(() => import('./screens/ProfileScreen'), 'Profi
 const StreakScreen = lazyScreen(() => import('./screens/StreakScreen'), 'StreakScreen');
 const AchievementsScreen = lazyScreen(() => import('./screens/AchievementsScreen'), 'AchievementsScreen');
 const SettingsScreen = lazyScreen(() => import('./screens/SettingsScreen'), 'SettingsScreen');
+const CameraStatsScreen = lazyScreen(() => import('./screens/CameraStatsScreen'), 'CameraStatsScreen');
 const CameraScreen = lazyScreen(() => import('./screens/CameraScreen'), 'CameraScreen');
 const LeagueScreen = lazyScreen(() => import('./screens/LeagueScreen'), 'LeagueScreen');
 const AuthScreen = lazyScreen(() => import('./screens/AuthScreen'), 'AuthScreen');
@@ -346,8 +347,15 @@ function SettingsRoute() {
       onBack={() => nav.back(ROUTES.profile)}
       onNotice={showNotice}
       onOpenAccount={mode => navigate(mode === 'login' ? ROUTES.login : ROUTES.register)}
+      onOpenCameraStats={() => navigate(ROUTES.cameraStats)}
     />
   );
+}
+
+/** /configuracoes/camera: tentativas e pulos por sinal nos exercícios de câmera (lib/cameraStats.ts). */
+function CameraStatsRoute() {
+  const nav = useAppNavigation();
+  return <CameraStatsScreen onBack={() => nav.back(ROUTES.settings)} />;
 }
 
 /**
@@ -602,6 +610,7 @@ export const routes: RouteObject[] = [
           { path: 'sequencia', element: <StreakRoute /> },
           { path: 'conquistas', element: <AchievementsRoute /> },
           { path: 'configuracoes', element: <SettingsRoute /> },
+          { path: 'configuracoes/camera', element: <CameraStatsRoute /> },
           { path: 'licao/:id', element: <LessonRoute /> },
           { path: 'licao/:id/concluida', element: <LessonDoneRoute /> },
           { path: 'unidade/:id/concluida', element: <UnitDoneRoute /> },

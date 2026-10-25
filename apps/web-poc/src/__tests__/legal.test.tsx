@@ -105,7 +105,7 @@ describe('LegalScreen', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Política de Privacidade' })).toBeInTheDocument();
     const meta = screen.getByRole('list', { name: 'Sobre este documento' });
     expect(meta).toHaveTextContent(`Versão ${LEGAL_DOCS.privacy.version}`);
-    expect(meta).toHaveTextContent('Em vigor desde 24 de outubro de 2026');
+    expect(meta).toHaveTextContent('Em vigor desde 25 de outubro de 2026');
     expect(meta).toHaveTextContent('Rascunho: dados do responsável a preencher');
 
     const toc = screen.getByRole('navigation', { name: 'Nesta página' });

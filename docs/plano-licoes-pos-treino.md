@@ -94,6 +94,25 @@ parada, conferência por OCR do número na tela) e ligar a câmera na unidade 2.
   pulou. Letra ou sinal com muitos pulos indica modelo fraco ou descrição confusa.
 - Usar esses números para decidir a ordem dos próximos treinos.
 
+Feito em 2026-10-25, só no aparelho:
+
+- `src/lib/cameraStats.ts` guarda no IndexedDB do app (store `camera_stats`, banco na versão 3), por
+  sinal: acertos, pulos, tentativas até acertar e quantas vezes a câmera leu outra letra ou glosa no
+  lugar (K lida como H). Uma tentativa é cada leitura estável diferente da anterior. Grava nas letras
+  paradas, em cada letra da soletração (pulo conta só para a letra da vez) e nos sinais com
+  movimento. Pulo com a câmera que nunca ligou (permissão negada, modelo ausente) não conta.
+- Tela em Configurações, "Desempenho da câmera" (`/configuracoes/camera`): do mais difícil para o
+  mais fácil (taxa de pulo, depois média de tentativas), com as leituras erradas mais comuns, exportar
+  JSON e apagar. A Política de Privacidade (1.1) cita esses números entre os dados do aparelho.
+- Não vai ao servidor. Para somar os números de todas as pessoas, faltaria: aceitar um campo novo
+  na conclusão de lição (por exemplo `cameraStats: { "<signId>": { successes, skips, attempts,
+  wrong: { "<rótulo>": n } } }`) em `services/api/src/domain/lessonCompletion.js`, com sinais do
+  catálogo, rótulos do catálogo e tetos de contagem, descartado sem recusar a conclusão como o
+  `exerciseStats`; somar em `opsMetrics.js` no item `SIGN` do dia (`camSkip:<signId>`,
+  `camAttempts:<signId>`, `camWrong:<signId>:<rótulo>`); mostrar no painel; mandar do app a
+  diferença de cada lição (não o acumulado); e dizer no item 5 da Política que esses números vão
+  junto com a lição.
+
 ## Ordem sugerida
 
 1. Câmera em mais letras (começando pelas fortes) e soletração do nome.

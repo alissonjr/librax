@@ -24,7 +24,7 @@
       "network": "Sem conexão. Confira a internet e tente de novo.",
       "notConfirmed": "Confirme seu e-mail com o código que enviamos.",
       "signOut": "Não foi possível sair da conta agora. Tente de novo.",
-    "tooManyAttempts": "Muitas tentativas seguidas. Espere alguns minutos e tente de novo.",
+      "tooManyAttempts": "Muitas tentativas seguidas. Espere alguns minutos e tente de novo.",
       "unknown": "Não foi possível concluir agora. Tente de novo.",
       "weakPassword": "Senha muito curta. Use pelo menos 8 caracteres."
     },
@@ -147,6 +147,39 @@
     "retry": "Tentar novamente",
     "subtitle": "Posicione sua mão em frente à câmera e tente os sinais do alfabeto",
     "title": "Reconhecimento de mãos"
+  },
+  "cameraStats": {
+    "title": "Desempenho da câmera",
+    "settingsHint": "Tentativas e pulos por letra e sinal",
+    "intro": "Quantas tentativas cada letra e sinal precisou nos exercícios com câmera e quantas vezes houve pulo. Mostra onde o reconhecimento ou a descrição do sinal falham.",
+    "emptyTitle": "Ainda sem números",
+    "emptyBody": "Faça um exercício com a câmera numa lição e os números aparecem aqui.",
+    "summaryLabel": "Resumo",
+    "summarySigns": "Letras e sinais: {n}",
+    "summarySuccesses": "Acertos: {n}",
+    "summarySkips": "Pulos: {n}",
+    "listLabel": "Do mais difícil para o mais fácil",
+    "kindLetter": "Letra",
+    "kindSign": "Sinal",
+    "runs": "Vezes na câmera: {n}",
+    "level": {
+      "hard": "Difícil",
+      "attention": "Atenção",
+      "ok": "Vai bem"
+    },
+    "skips": "Pulos",
+    "skipsValue": "{skips} de {runs} ({pct})",
+    "attempts": "Tentativas até acertar",
+    "attemptsValue": "{avg} em média",
+    "attemptsNone": "Ainda sem acerto",
+    "readAs": "A câmera leu no lugar:",
+    "readAsItem": "{label} ({count})",
+    "export": "Exportar JSON",
+    "clear": "Apagar estes números",
+    "clearTitle": "Apagar o desempenho da câmera?",
+    "clearMessage": "As tentativas e os pulos guardados neste aparelho somem. Seu progresso nas lições continua.",
+    "clearConfirm": "Apagar",
+    "privacyNote": "Só números, sem imagem nem vídeo. Ficam neste aparelho e não são enviados."
   },
   "common": {
     "back": "Voltar",

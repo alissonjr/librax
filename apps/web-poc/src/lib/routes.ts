@@ -16,6 +16,7 @@ export const ROUTES = {
   streak: '/sequencia',
   achievements: '/conquistas',
   settings: '/configuracoes',
+  cameraStats: '/configuracoes/camera',
   login: '/entrar',
   register: '/criar-conta',
   authCallback: '/auth/callback',

@@ -11,6 +11,7 @@ import { FeedbackPanel } from './FeedbackPanel';
 import { DemoToggle } from './DemoToggle';
 import { SignDemo, chooseDemoMode } from './SignDemo';
 import { ExerciseOrderSequence } from './ExerciseOrderSequence';
+import { CameraRun, saveCameraRun } from '../lib/cameraStats';
 
 interface Props {
   word: string;
@@ -67,6 +68,9 @@ function FingerspellCamera({ word, letters, perLetterConfidence = null, ownName,
   const [showDemo, setShowDemo] = useState(false);
   const demoShownRef = useRef(false);
   const answeredRef = useRef(false);
+  // Desempenho da câmera (lib/cameraStats.ts): cada letra da palavra é uma vez da letra
+  const cameraStartedRef = useRef(false);
+  const runRef = useRef<CameraRun>(new CameraRun(`letra-${letters[0]}`, letters[0], 'letter'));
 
   const done = spell.index >= letters.length;
   const current = letters[Math.min(spell.index, letters.length - 1)];
@@ -79,14 +83,29 @@ function FingerspellCamera({ word, letters, perLetterConfidence = null, ownName,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (status !== 'active') return;
+    cameraStartedRef.current = true;
+    runRef.current.started = true;
+  }, [status]);
+
   // Cada leitura estável passa pela regra da soletração (src/lib/fingerspell.ts)
   useEffect(() => {
     if (showDemo) return;
+    // A letra anterior da palavra (ainda na mão ou repetida na troca de forma) não é leitura errada
+    runRef.current.observe(stableGesture, spell.index > 0 ? letters[spell.index - 1] : null);
     const next = spellStep(letters, spell, stableGesture, confidence, perLetterConfidence);
     if (next === spell) return;
     if (next.index > spell.index) {
       Haptics.correctCamera();
       Sfx.correct();
+      saveCameraRun(runRef.current.finish('success'));
+      if (next.index < letters.length) {
+        const letter = letters[next.index];
+        const run = new CameraRun(`letra-${letter}`, letter, 'letter', stableGesture);
+        run.started = cameraStartedRef.current;
+        runRef.current = run;
+      }
     }
     setSpell(next);
   }, [spell, stableGesture, confidence, perLetterConfidence, letters, showDemo]);
@@ -113,6 +132,8 @@ function FingerspellCamera({ word, letters, perLetterConfidence = null, ownName,
   function skip() {
     if (answeredRef.current) return;
     answeredRef.current = true;
+    // Só a letra da vez conta o pulo: as seguintes nem chegaram à câmera
+    saveCameraRun(runRef.current.finish('skip'));
     stop();
     onAnswer(false);
     onNext();

@@ -39,6 +39,8 @@ const ICONS = [
   'login', 'logout', 'mail', 'cloud_done', 'visibility', 'visibility_off', 'history',
   // Termos de Uso (Configurações); a Política de Privacidade usa o shield
   'description',
+  // Desempenho da câmera (Configurações)
+  'query_stats',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).
