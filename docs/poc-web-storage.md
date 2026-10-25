@@ -756,7 +756,8 @@ unica implementacao, usada no navegador e nas Lambdas.
 - [x] Decidir entre Caminho A (Flutter web) ou B (TS web app). Caminho B.
 - [x] Definir se camera entra na PoC ou so exercicios receptivos. Entra, com modo sem camera.
 - [ ] Definir como os videos serao servidos (placeholders / CDN / bundlados). Hoje os sinais
-      sem video usam o avatar VLibras ou a descricao em texto; os videos gravados entram na fase W5.
+      sem video usam o avatar VLibras ou a descricao em texto; a gravacao de videos proprios (fase W5)
+      foi engavetada em 2026-10-25.
 - [x] O dominio JS nao tem dependencias de modulos Node.js. `src/domain/*.js` e
       `src/lib/dates.js` usam somente `Date`, `Math` e `RegExp` - rodara no browser
       sem nenhuma alteracao. (Verificado em 2026-06-28.)

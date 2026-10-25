@@ -1146,7 +1146,8 @@ Regras:
 - Não usar orelha como símbolo, nem imagens de "consertar" a audição.
 - Libras é uma língua, não "português com as mãos": usar glosa em caixa alta para sinais e nunca traduzir
   palavra por palavra em exemplos de frase.
-- Vídeos gravados por pessoas surdas sinalizantes, com crédito visível no detalhe do sinal.
+- Vídeos gravados por pessoas surdas sinalizantes, com crédito visível no detalhe do sinal. (Gravação própria
+  engavetada em 2026-10-25; a regra vale se o tema voltar.)
 - Variantes regionais: quando houver, mostrar "Variante" em vez de "certo e errado".
 - Não usar sinais ou alfabeto de outra língua de sinais (ASL) em ilustração, ícone ou marca.
 - Validar paleta (tangerina, petróleo e framboesa), o símbolo do Traço, ícones e ilustrações de mão com

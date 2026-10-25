@@ -75,5 +75,5 @@ O que já foi pesquisado:
 4. Validar a U1 primeiro (é o MVP mínimo da SPEC 03) e depois as demais unidades; resolver SEDE, CENTAVO,
    SINALIZAR e ATÉ-LOGO nessa rodada.
 5. Só depois da validação trocar `status` e `validated` de cada sinal.
-6. Gravar os vídeos próprios com pessoas surdas sinalizantes (fase W5 do `plano-mobile-web.md`), que substituem
-   o avatar como demonstração.
+6. ~~Gravar os vídeos próprios com pessoas surdas sinalizantes (fase W5 do `plano-mobile-web.md`), que substituem
+   o avatar como demonstração.~~ **Engavetado em 2026-10-25**: gravar com pessoas reais é inviável agora.
