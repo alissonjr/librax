@@ -4,22 +4,18 @@ import { warmUpHandLandmarker } from '../recognition/landmarker';
 import { RecognizedLetterBadge } from '../components/RecognizedLetterBadge';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
+import { signsMap } from '../lib/content';
+import { useRecognizableLetters } from '../recognition/classifier';
 
-const LETTER_HINTS: Record<string, string> = {
-  A: 'A - punho fechado, polegar ao lado',
-  B: 'B - quatro dedos juntos, polegar dobrado',
-  D: 'D - so o indicador estendido',
-  F: 'F - polegar + indicador se tocam, tres dedos em pe',
-  I: 'I - so o minimo estendido',
-  L: 'L - polegar + indicador formando L',
-  U: 'U - indicador + medio juntos, em pe',
-  V: 'V - indicador + medio (paz)',
-  W: 'W - tres dedos abertos',
-  Y: 'Y - polegar + minimo (shaka)',
-};
+/** Como fazer a letra: a descrição do sinal no conteúdo do curso (signs.json). */
+function letterHint(letter: string): string {
+  return signsMap[`letra-${letter}`]?.video_caption ?? letter;
+}
 
 export function CameraScreen() {
   const { t } = useT();
+  // Letras do classificador em uso: as do modelo treinado ou, sem ele, as do heurístico
+  const recognizable = useRecognizableLetters();
   // Esqueleto 2D sobre o vídeo (o avatar 3D saiu do MVP; o código dele fica, desligado)
   const { videoRef, canvasRef, status, rawGesture, stableGesture, handPresent, confidence, start } =
     useCameraRecognizer();
@@ -84,7 +80,7 @@ export function CameraScreen() {
             stableGesture ? (
               <div className="gesture-result gesture-result--found animate__animated animate__bounceIn animate__faster">
                 <div key={stableGesture} className="gesture-letter animate__animated animate__bounceIn">{stableGesture}</div>
-                <div className="gesture-hint">{LETTER_HINTS[stableGesture] ?? stableGesture}</div>
+                <div className="gesture-hint">{letterHint(stableGesture)}</div>
                 <div className="gesture-bar">
                   <div className="gesture-bar-fill" style={{ width: `${Math.round(confidence * 100)}%` }} />
                 </div>
@@ -109,7 +105,7 @@ export function CameraScreen() {
           <div className="gesture-help">
             <p className="gesture-help-title">{t('cameraScreen.recognizableLetters')}</p>
             <div className="gesture-help-letters">
-              {Object.keys(LETTER_HINTS).map(l => (
+              {[...recognizable].sort().map(l => (
                 <span key={l} className={`gesture-chip${stableGesture === l ? ' gesture-chip--active' : ''}`}>
                   {l}
                 </span>

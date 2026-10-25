@@ -52,15 +52,22 @@ const heuristic: Classifier = {
   },
 };
 
+/**
+ * Classe do modelo que quer dizer "não é letra nenhuma" (mão em repouso, em transição, descendo).
+ * Sem ela, qualquer mão vira alguma letra com confiança alta. Nunca aparece como letra avaliável.
+ */
+export const NO_LETTER_LABEL = '_';
+
 export function createMlpClassifier(model: MlpModel): Classifier {
   return {
     kind: 'mlp',
-    letters: new Set(model.labels),
+    letters: new Set(model.labels.filter(l => l !== NO_LETTER_LABEL)),
     classify(landmarks, ctx) {
       const input = normalizeHand(landmarks, ctx);
       const extensions = getFingerExtensions(landmarks);
       if (input.length === 0) return { letter: null, confidence: 0, extensions };
       const { label, probability } = classifyMlp(model, input);
+      if (label === NO_LETTER_LABEL) return { letter: null, confidence: 0, extensions };
       return { letter: probability >= MLP_MIN_PROBABILITY ? label : null, confidence: probability, extensions };
     },
   };

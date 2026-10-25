@@ -6,7 +6,7 @@ dataset real ainda nao foi coletado e este ambiente nao tem TensorFlow. Entao:
 - cria maos sinteticas de 3 formas (A = punho, B = mao aberta, L = indicador e polegar),
   com rotacao, escala, posicao, ruido, mao esquerda e direita e quadro em pe ou deitado;
 - normaliza com normalize_hand (a mesma do train_static.py);
-- treina um MLP pequeno (63 -> 16 -> 8 -> 3, ReLU e softmax) em numpy puro;
+- treina um MLP pequeno (65 -> 16 -> 8 -> 3, ReLU e softmax) em numpy puro;
 - exporta com export_web (o mesmo caminho do modelo real) e grava os vetores dourados com o
   softmax calculado por mlp_forward (numpy, float64).
 

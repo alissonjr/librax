@@ -87,7 +87,7 @@
     "loadingModel": "Loading recognition model... (the first time may take a while)",
     "match": "{count}% match",
     "positionHand": "Position your hand in front of the camera",
-    "recognizableLetters": "Letters recognizable in this PoC:",
+    "recognizableLetters": "Letters the camera recognizes:",
     "retry": "Try again",
     "subtitle": "Position your hand in front of the camera and try the alphabet signs",
     "title": "Hand recognition"
