@@ -1,0 +1,33 @@
+{
+ "_sobre": "Revisão a olho das folhas de conferência dos vídeos de video/baixar_xz.py (data/letras_mov/conferir_xz/letra-<L>.jpg, video/rotular_xz.py --folhas) em 2026-10-25: trechos que não mostram a letra ficam de fora do treino.",
+ "fora": [
+  {"id": "uga1rw8S4Vo", "letra": "X", "motivo": "indicador reto para cima, sem o gancho do X"},
+  {"id": "xDJp5ERKqUI", "letra": "X", "motivo": "vídeo de sinais com X, não a letra (mãos fechadas e mão no rosto)"},
+  {"id": "hPDUCagsesU", "letra": "Z", "motivo": "mão aberta na frente do rosto, sem o Z"},
+  {"id": "hPDUCagsesU", "letra": "H", "motivo": "mão na frente do rosto, o H não fica claro"},
+  {"id": "fYaXJXf60gU", "letra": "Z", "motivo": "Y e depois o punho fechado, sem o indicador do Z"},
+  {"id": "sLb_KqBUSLw", "letra": "Z", "motivo": "punho fechado, sem o indicador do Z"},
+  {"id": "tA_Oa0xmffU", "letra": "Z", "motivo": "mão borrada, o indicador não aparece"},
+  {"id": "fYaXJXf60gU", "letra": "Ç", "motivo": "só a parada do C, o tremor do Ç não aparece"},
+  {"id": "kotJhbGElWk", "letra": "Ç", "motivo": "só a parada do C e o D, o tremor do Ç não aparece"},
+  {"id": "3Kz5AJavjXA", "letra": "X", "motivo": "animação (mão desenhada), não uma pessoa"},
+  {"id": "CfVPhuJGNxk", "letra": "X", "motivo": "punho fechado, sem o gancho do X"},
+  {"id": "iYM08KXnC7w", "letra": "X", "motivo": "mão do Y, sem o gancho do X"},
+  {"id": "sLb_KqBUSLw", "letra": "X", "motivo": "quase só a mão do Y, sem o gancho do X"},
+  {"id": "yjqeOZRoMOY", "letra": "X", "motivo": "duas mãos e quadros pretos, o X não fica claro"},
+  {"id": "-4ybfwIl-J0", "letra": "Z", "motivo": "mão no rosto, sem o Z claro"},
+  {"id": "3Kz5AJavjXA", "letra": "Z", "motivo": "animação (mão desenhada), não uma pessoa"},
+  {"id": "CLN28PnarPw", "letra": "Z", "motivo": "mão no rosto e depois o punho, sem o indicador do Z"},
+  {"id": "iYM08KXnC7w", "letra": "Z", "motivo": "mão borrada, sem o indicador do Z"},
+  {"id": "jPPbOBFXI2M", "letra": "Z", "motivo": "punho fechado, sem o indicador do Z"},
+  {"id": "vcIr3LfShrI", "letra": "Z", "motivo": "mão borrada, sem o indicador do Z"},
+  {"id": "ySaG_1n5NE8", "letra": "Z", "motivo": "mão do W, sem o Z"},
+  {"id": "yjqeOZRoMOY", "letra": "Z", "motivo": "duas mãos e quadros pretos, o Z não fica claro"},
+  {"id": "3Kz5AJavjXA", "letra": "H", "motivo": "animação (mão desenhada), não uma pessoa"},
+  {"id": "3Kz5AJavjXA", "letra": "J", "motivo": "animação (mão desenhada), não uma pessoa"},
+  {"id": "3Kz5AJavjXA", "letra": "K", "motivo": "animação (mão desenhada), não uma pessoa"},
+  {"id": "3Kz5AJavjXA", "letra": "Ç", "motivo": "animação (mão desenhada), não uma pessoa"},
+  {"id": "yjqeOZRoMOY", "letra": "Ç", "motivo": "mão no rosto, sem o C"},
+  {"id": "hPDUCagsesU", "letra": "Ç", "motivo": "mãos na frente do rosto, o Ç não fica claro"}
+ ]
+}

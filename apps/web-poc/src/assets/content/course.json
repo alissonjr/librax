@@ -118,8 +118,8 @@
           "title": "Letra Ç",
           "order": 6,
           "xpReward": 10,
-          "signIds": ["letra-C","letra-Ç","letra-J","letra-Z"],
-          "produce": ["letra-C","letra-Ç"],
+          "signIds": ["letra-C","letra-Ç","letra-J","letra-X","letra-Z"],
+          "produce": ["letra-C","letra-Ç","letra-X"],
           "spellWords": ["CASA"]
         }
       ]

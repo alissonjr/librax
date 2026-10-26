@@ -583,7 +583,7 @@ describe('letras com movimento avaliadas pelo modelo das letras com movimento (/
     const lesson = course.lessonsMap['u1-l6'];
     const ex = resolveExercises(BUNDLE['u1-l6'], lesson.signIds, { canEvaluate: (s) => ['C', 'A', 'S'].includes(s?.gloss ?? '') });
     expect(ex.filter((e) => e.type === 'perform_sign').map((e) => [e.signId, e.recognizer]))
-      .toEqual([['letra-C', undefined], ['letra-Ç', 'letras-mov']]);
+      .toEqual([['letra-C', undefined], ['letra-Ç', 'letras-mov'], ['letra-X', 'letras-mov']]);
     // CASA só tem letras paradas: a soletração usa a câmera
     expect(ex.find((e) => e.word === 'CASA')?.type).toBe('fingerspell');
     // sem o modelo das letras com movimento, o Ç vira prática livre
@@ -912,13 +912,14 @@ describe('course', () => {
     expect(perform('u1-l3')).toEqual(['K', 'L', 'O']);
     expect(perform('u1-l4')).toEqual(['P', 'Q', 'S']);
     expect(perform('u1-l5')).toEqual(['U', 'V', 'W', 'Y']);
-    // Ç: depois do Z, com o C de revisão antes (mesma forma, o Ç treme); avaliado pelo modelo das
-    // letras com movimento (sem ele, prática livre)
-    expect(perform('u1-l6')).toEqual(['C', 'Ç']);
-    // Fracas no teste fixo (abaixo de 80%) e X e Z, abaixo de 70% no modelo das letras com
+    // Ç: depois do Z, com o C de revisão antes (mesma forma, o Ç treme); X: a U1 L5 já tem 4 letras com
+    // camera, então ele entra na revisão da U1 L6. Os dois são avaliados pelo modelo das letras com
+    // movimento (sem ele, prática livre)
+    expect(perform('u1-l6')).toEqual(['C', 'Ç', 'X']);
+    // Fracas no teste fixo (abaixo de 80%) e o Z, abaixo de 70% no modelo das letras com
     // movimento, ficam sem camera por enquanto
     const all = course.units[0].lessons.flatMap((l) => perform(l.id));
-    for (const letter of ['M', 'N', 'R', 'T', 'X', 'Z']) expect(all).not.toContain(letter);
+    for (const letter of ['M', 'N', 'R', 'T', 'Z']) expect(all).not.toContain(letter);
   });
 
   it('"soletre seu nome" fica na licao de nomes da U4, depois dos nomes fixos', () => {

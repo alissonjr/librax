@@ -29,8 +29,11 @@ Hoje só 10 letras têm exercício de câmera (A, B, F, G, K, L, P, Q, U, V), ma
 
 Feito em 2026-10-25 (letras com movimento, spec-01 seção 3.3): modelo próprio, só com as mãos, para H, J, K, X, Z e
 Ç. Com ele publicado em `public/ml/letras-mov/`, H, K, J e Ç são avaliadas com o movimento (J entrou no `produce` da
-U1 L2; o Ç ganhou a U1 L6, "Letra Ç", depois do Z, com o C, o J e o Z de revisão). X (3/6) e Z (4/7) ficaram abaixo de 70% com pessoas nunca vistas e seguem como prática livre; o Y fica nas
-letras paradas (nos vídeos a mão não se mexe).
+U1 L2; o Ç ganhou a U1 L6, "Letra Ç", depois do Z, com o C, o J, o X e o Z de revisão). O Y fica nas letras paradas
+(nos vídeos a mão não se mexe). Depois, com 54 vídeos novos do YouTube (alfabetos curtos e vídeos de uma letra), o alfabeto do
+Spread the Sign e alfabetos antigos que o rotular.py tinha deixado de fora (`video/baixar_xz.py` e
+`video/rotular_xz.py`), o X passou (38/48, soma de 8 sementes) e ganhou câmera na U1 L6 (a U1 L5 mantém U, V, W e Y
+com câmera); o Z ficou em 38/56 (68%) e segue como prática livre.
 
 Feito: C, D, E, H, I, O, S, W e Y ganharam câmera (`produce` de cada lição da U1). M, N, R, T e X
 esperam passar de 80%. F (3/4), Q (4/6) e U (1/3) já tinham câmera e continuam, mas estão abaixo de
@@ -73,7 +76,7 @@ americano. O mesmo cruzamento vale para todo o alfabeto e os números:
 - Feito em 2026-10-25: alfabeto e números conferidos no vídeo do INES e no avatar VLibras (notas
   em cada entrada do `signs.json`). G, H, M, N, P e Q eram do alfabeto americano; H, K e X têm
   movimento nas duas fontes, mas seguem `static` porque o modelo da câmera lê a forma parada (com o modelo das
-  letras com movimento publicado, H e K passam a ser avaliadas com o movimento; X ainda não).
+  letras com movimento publicado, H, K e X passam a ser avaliadas com o movimento).
   Ficaram "A CONFERIR": 1, 5, 7, 11, 17, 40 e 70 (avatar diferente do INES). O Y saiu da lista: o vídeo
   do INES continua com 404, mas a configuração de mão do verbete (cg40), o VLibras e os vídeos do alfabeto
   concordam com a descrição e mostram a mão parada.

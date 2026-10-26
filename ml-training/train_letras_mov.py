@@ -25,18 +25,24 @@ Janela com mão em menos de MIN_PRESENCA dos quadros entre t0 e t1 não é avali
 
 Classes: as letras com movimento e "_" (nenhuma letra com movimento: letras paradas, transições,
 mão parada). O model.json traz em camera_letters só as que acertam pelo menos MIN_ACERTO_CAMERA
-nos canais separados mais o INES: o app avalia pela câmera só essas.
+nos canais separados mais o INES, somando SEMENTES_CAMERA treinos com sementes diferentes (o
+exportado é o da semente 0): o app avalia pela câmera só essas.
 
 Uso:
     python train_letras_mov.py avaliar [--grupos 5]   validação por canal (GroupKFold) no treino
                                                        e teste nos canais separados e no INES
     python train_letras_mov.py treinar --out out/letras-mov-v1    MLP do scikit-learn (o mesmo do
                                                        avaliar) no formato librax-mlp
+    python train_letras_mov.py medir --modelo PASTA    mede um modelo exportado nos canais separados
+                                                       e no INES (para comparar com o anterior)
+    (LM_SEM_XZ=1 deixa de fora os vídeos de video/baixar_xz.py, letras_mov_trechos_xz.json)
     (LIBRAX_DATA=/caminho/data aponta para a pasta de dados)
 """
 
 import argparse
 import collections
+import contextlib
+import io
 import json
 import os
 import sys
@@ -49,7 +55,15 @@ from train_static import NORMALIZATION_VERSION, is_left_hand, normalize_hand  # 
 
 DATA = os.environ.get("LIBRAX_DATA") or os.path.join(AQUI, "data")
 LANDMARKS = os.path.join(DATA, "letras_mov", "landmarks15")
+# Vídeos de video/baixar_xz.py (mais X e Z com o movimento à vista): landmarks e trechos à parte
+LANDMARKS_XZ = os.path.join(DATA, "letras_mov", "landmarks15_xz")
 TRECHOS = os.path.join(AQUI, "letras_mov_trechos.json")
+TRECHOS_XZ = os.path.join(AQUI, "letras_mov_trechos_xz.json")
+# LM_SEM_XZ=1 treina e avalia só com os trechos antigos (para comparar com o modelo anterior)
+SEM_XZ = os.environ.get("LM_SEM_XZ") == "1"
+# Letras dos trechos dos vídeos novos que entram no treino (as outras ficam marcadas ok=false: nem
+# letra nem "_")
+LETRAS_XZ = os.environ.get("LM_XZ_LETRAS", "HJKXZÇ")
 
 # Contrato da janela (letterMotion.ts)
 T = 24
@@ -187,12 +201,29 @@ INES_CANAL = "ines"
 
 
 def carregar_trechos(caminho=TRECHOS):
+    """Trechos do letras_mov_trechos.json somados aos de letras_mov_trechos_xz.json (sem LM_SEM_XZ=1)."""
     with open(caminho) as f:
-        return json.load(f)
+        out = json.load(f)
+    if caminho == TRECHOS and not SEM_XZ and os.path.exists(TRECHOS_XZ):
+        with open(TRECHOS_XZ) as f:
+            extra = json.load(f)
+        out["trechos"] = out["trechos"] + [t if t["letra"] in LETRAS_XZ else {**t, "ok": False}
+                                           for t in extra["trechos"]]
+        out["videos"] = out["videos"] + extra["videos"]
+    return out
+
+
+def landmarks_de(vid):
+    """Arquivo de landmarks a 15 quadros por segundo do vídeo (landmarks15 ou landmarks15_xz), ou None."""
+    for pasta in (LANDMARKS, LANDMARKS_XZ):
+        path = os.path.join(pasta, f"{vid}.json")
+        if os.path.exists(path):
+            return path
+    return None
 
 
 def carregar_video(vid):
-    with open(os.path.join(LANDMARKS, f"{vid}.json")) as f:
+    with open(landmarks_de(vid)) as f:
         return json.load(f)
 
 
@@ -360,7 +391,7 @@ def montar(trechos, ids=None, treino=True, variacoes=2, seed=0, processos=6):
     for i, v in enumerate(trechos["videos"]):
         if ids is not None and v["id"] not in ids:
             continue
-        if not os.path.exists(os.path.join(LANDMARKS, f"{v['id']}.json")):
+        if not landmarks_de(v["id"]):
             continue
         # semente por vídeo: o resultado não depende da ordem nem de quantos processos
         jobs.append(({**v, "_todos_trechos": todos[v["id"]]}, por_video[v["id"]], variacoes, treino, seed * 1000 + i))
@@ -563,6 +594,10 @@ MAX_NENHUMA = 2.0
 # letra) mas fora de camera_letters
 MIN_ACERTO_CAMERA = 0.7
 MIN_TESTE = 3
+# A decisão da câmera soma os acertos de SEMENTES_CAMERA treinos iguais com sementes diferentes (o
+# exportado é o da semente 0): com 6 ou 7 trechos por letra no teste, um trecho a mais ou a menos
+# muda 15 pontos, e só a semente já fazia o X ir de 4/6 a 6/6 e o Z de 4/7 a 6/7 (2026-10-25)
+SEMENTES_CAMERA = 8
 
 
 def equilibrar(X, y, rng, max_nenhuma=MAX_NENHUMA):
@@ -625,7 +660,7 @@ def prever_camadas(layers, labels):
 def videos_por_canal(trechos):
     out = collections.defaultdict(list)
     for v in trechos["videos"]:
-        if os.path.exists(os.path.join(LANDMARKS, f"{v['id']}.json")):
+        if landmarks_de(v["id"]):
             out[v["channel_id"]].append(v["id"])
     return out
 
@@ -695,7 +730,7 @@ def avaliar(grupos, variacoes, **modelo):
     medir_ines(trechos, prever)
 
 
-def treinar(out, variacoes):
+def treinar(out, variacoes, sementes=SEMENTES_CAMERA):
     from train_static import export_web
 
     trechos = carregar_trechos()
@@ -716,16 +751,40 @@ def treinar(out, variacoes):
     prever = prever_camadas(layers, labels)
     por_letra, (alarmes, paradas) = resumo(medir_videos(trechos, teste_ids, prever), "canais separados (modelo exportado)")
     ines = medir_ines(trechos, prever)
-    teste = {L: [a, b] for L, (a, b) in por_letra.items()}
-    for L, r, _ in ines:
-        if L in LETRAS_MOV:
-            teste.setdefault(L, [0, 0])
-            teste[L][0] += r == "certa"
-            teste[L][1] += 1
-    camera = [L for L in labels if L in teste and teste[L][1] >= MIN_TESTE
-              and teste[L][0] / teste[L][1] >= MIN_ACERTO_CAMERA]
-    print("canais separados + INES:", " ".join(f"{L}:{a}/{b}" for L, (a, b) in sorted(teste.items())),
-          f"| câmera: {' '.join(camera) or 'nenhuma'}")
+
+    def com_ines(por, linhas):
+        out = {L: [a, b] for L, (a, b) in por.items()}
+        for L, r, _ in linhas:
+            if L in LETRAS_MOV:
+                out.setdefault(L, [0, 0])
+                out[L][0] += r == "certa"
+                out[L][1] += 1
+        return out
+
+    teste = com_ines(por_letra, ines)
+    print("canais separados + INES (modelo exportado):", " ".join(f"{L}:{a}/{b}" for L, (a, b) in sorted(teste.items())))
+    # Soma de SEMENTES_CAMERA treinos (a semente 0 é o exportado)
+    soma = {L: list(v) for L, v in teste.items()}
+    soma_alarmes = [alarmes, paradas]
+    for semente in range(1, sementes):
+        outro = ajustar_sklearn(X, y, seed=semente)
+        with contextlib.redirect_stdout(io.StringIO()):
+            por_s, (al_s, par_s) = resumo(medir_videos(trechos, teste_ids, outro), "")
+            ines_s = medir_ines(trechos, outro)
+        t_s = com_ines(por_s, ines_s)
+        print(f"semente {semente}:", " ".join(f"{L}:{a}/{b}" for L, (a, b) in sorted(t_s.items())), f"alarmes {al_s}/{par_s}",
+              flush=True)
+        for L, (a, b) in t_s.items():
+            soma.setdefault(L, [0, 0])
+            soma[L][0] += a
+            soma[L][1] += b
+        soma_alarmes[0] += al_s
+        soma_alarmes[1] += par_s
+    camera = [L for L in labels if L in soma and soma[L][1] >= MIN_TESTE * sementes
+              and soma[L][0] / soma[L][1] >= MIN_ACERTO_CAMERA]
+    print(f"canais separados + INES, soma de {sementes} sementes:",
+          " ".join(f"{L}:{a}/{b} ({a / b:.0%})" for L, (a, b) in sorted(soma.items())),
+          f"alarmes {soma_alarmes[0]}/{soma_alarmes[1]} | câmera: {' '.join(camera) or 'nenhuma'}")
     export_web(out, layers, labels, [], extra={
         "kind": "letras-mov", "frames": PASSOS, "features_per_frame": F, "window_frames": T,
         "windows_s": list(JANELAS_S), "min_presence": MIN_PRESENCA, "channels": int(len(set(canal))),
@@ -735,6 +794,9 @@ def treinar(out, variacoes):
         "source": "scikit-learn",
         "camera_letters": camera,
         "camera_min_heldout": MIN_ACERTO_CAMERA,
+        "camera_seeds": sementes,
+        "heldout_ines_seeds": {L: {"certas": a, "total": b} for L, (a, b) in sorted(soma.items())},
+        "heldout_false_alarms_seeds": {"alarmes": soma_alarmes[0], "paradas": soma_alarmes[1]},
     })
     # vetores dourados: janelas de verdade (entrada compactada) e o softmax do scikit-learn
     picks = np.linspace(0, len(Xc) - 1, min(12, len(Xc))).round().astype(int)
@@ -746,9 +808,24 @@ def treinar(out, variacoes):
     print(f"modelo em {out} ({', '.join(labels)})")
 
 
+def medir(pasta):
+    """Mede um modelo exportado (model.json + weights.bin) nos canais separados e no INES."""
+    from teste_fixo import carregar_modelo
+
+    labels, layers = carregar_modelo(pasta)
+    prever = prever_camadas(layers, labels)
+    trechos = carregar_trechos()
+    _, teste_ids = separar(trechos)
+    preparar_ao_vivo(teste_ids | {x["id"] for x in trechos.get("ines", [])})
+    resumo(medir_videos(trechos, teste_ids, prever), f"canais separados ({pasta})")
+    medir_ines(trechos, prever)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
+    md = sub.add_parser("medir")
+    md.add_argument("--modelo", required=True, help="pasta com model.json e weights.bin")
     a = sub.add_parser("avaliar")
     a.add_argument("--grupos", type=int, default=5)
     a.add_argument("--variacoes", type=int, default=2)
@@ -758,12 +835,16 @@ def main():
     t = sub.add_parser("treinar")
     t.add_argument("--out", required=True)
     t.add_argument("--variacoes", type=int, default=2)
+    t.add_argument("--sementes", type=int, default=SEMENTES_CAMERA,
+                   help="treinos com sementes diferentes somados para decidir camera_letters")
     args = ap.parse_args()
-    if args.cmd == "avaliar":
+    if args.cmd == "medir":
+        medir(args.modelo)
+    elif args.cmd == "avaliar":
         avaliar(args.grupos, args.variacoes, ocultas=tuple(int(x) for x in args.ocultas.split(",")),
                 alpha=args.alpha, max_nenhuma=args.max_nenhuma)
     else:
-        treinar(args.out, args.variacoes)
+        treinar(args.out, args.variacoes, args.sementes)
 
 
 if __name__ == "__main__":

@@ -31,8 +31,8 @@
         "video_options": [
           "letra-C",
           "letra-J",
-          "letra-Z",
-          "letra-Ç"
+          "letra-X",
+          "letra-Z"
         ],
         "correct_sign_id": "letra-C"
       }
@@ -53,21 +53,31 @@
       "type": "word_choose_video",
       "order": 5,
       "payload": {
-        "word": "Z",
+        "word": "X",
         "video_options": [
-          "letra-Z",
+          "letra-X",
           "letra-C",
           "letra-J",
-          "letra-Ç"
+          "letra-Z"
         ],
-        "correct_sign_id": "letra-Z"
+        "correct_sign_id": "letra-X"
       }
     },
     {
       "id": "u1-l6-ex06",
       "lesson_id": "u1-l6",
-      "type": "perform_sign",
+      "type": "watch_choose_word",
       "order": 6,
+      "payload": {
+        "sign_id": "letra-Z",
+        "correct": "Z"
+      }
+    },
+    {
+      "id": "u1-l6-ex07",
+      "lesson_id": "u1-l6",
+      "type": "perform_sign",
+      "order": 7,
       "payload": {
         "sign_id": "letra-C",
         "recognition": "static",
@@ -77,10 +87,10 @@
       }
     },
     {
-      "id": "u1-l6-ex07",
+      "id": "u1-l6-ex08",
       "lesson_id": "u1-l6",
       "type": "perform_sign",
-      "order": 7,
+      "order": 8,
       "payload": {
         "sign_id": "letra-Ç",
         "recognition": "dynamic",
@@ -90,10 +100,23 @@
       }
     },
     {
-      "id": "u1-l6-ex08",
+      "id": "u1-l6-ex09",
+      "lesson_id": "u1-l6",
+      "type": "perform_sign",
+      "order": 9,
+      "payload": {
+        "sign_id": "letra-X",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
+      }
+    },
+    {
+      "id": "u1-l6-ex10",
       "lesson_id": "u1-l6",
       "type": "fingerspell",
-      "order": 8,
+      "order": 10,
       "payload": {
         "word": "CASA",
         "letters": [

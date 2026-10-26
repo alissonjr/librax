@@ -525,7 +525,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/xSm_Prog001.mp4, configuracao de mao cg15) e no avatar VLibras: as duas fontes concordam com a forma e com o movimento (a mao para, desce na diagonal para o centro do corpo e para de novo). A descricao anterior nao tinha movimento e punha a palma para frente; nas duas fontes ela fica de lado. recognition continua static porque o modelo da camera avalia a forma parada da mao."
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/xSm_Prog001.mp4, configuracao de mao cg15) e no avatar VLibras: as duas fontes concordam com a forma e com o movimento (a mao para, desce na diagonal para o centro do corpo e para de novo). A descricao anterior nao tinha movimento e punha a palma para frente; nas duas fontes ela fica de lado. recognition continua static; com o modelo das letras com movimento publicado (public/ml/letras-mov, X em camera_letters desde 2026-10-25), a camera avalia o X com o movimento."
   },
   {
     "id": "letra-Y",

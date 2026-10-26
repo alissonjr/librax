@@ -44,7 +44,7 @@
     1.6
   ],
   "min_presence": 0.6,
-  "channels": 26,
+  "channels": 68,
   "heldout": {
     "H": {
       "certas": 6,
@@ -59,32 +59,32 @@
       "total": 6
     },
     "X": {
-      "certas": 3,
+      "certas": 5,
       "total": 5
     },
     "Z": {
-      "certas": 3,
+      "certas": 5,
       "total": 6
     },
     "Ç": {
-      "certas": 2,
+      "certas": 3,
       "total": 3
     }
   },
   "heldout_false_alarms": {
-    "alarmes": 9,
+    "alarmes": 17,
     "paradas": 99
   },
   "ines": {
-    "H": "leu nada",
+    "H": "certa",
     "J": "certa",
     "K": "certa",
-    "X": "leu nada",
+    "X": "certa",
     "Z": "certa",
     "Ç": "certa",
-    "P": "sem alarme",
+    "P": "alarme K",
     "I": "alarme J",
-    "D": "sem alarme",
+    "D": "alarme Z",
     "C": "alarme Ç"
   },
   "source": "scikit-learn",
@@ -92,7 +92,39 @@
     "H",
     "J",
     "K",
+    "X",
     "Ç"
   ],
-  "camera_min_heldout": 0.7
+  "camera_min_heldout": 0.7,
+  "camera_seeds": 8,
+  "heldout_ines_seeds": {
+    "H": {
+      "certas": 55,
+      "total": 56
+    },
+    "J": {
+      "certas": 48,
+      "total": 48
+    },
+    "K": {
+      "certas": 43,
+      "total": 56
+    },
+    "X": {
+      "certas": 38,
+      "total": 48
+    },
+    "Z": {
+      "certas": 38,
+      "total": 56
+    },
+    "Ç": {
+      "certas": 32,
+      "total": 32
+    }
+  },
+  "heldout_false_alarms_seeds": {
+    "alarmes": 139,
+    "paradas": 792
+  }
 }
