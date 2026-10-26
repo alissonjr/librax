@@ -1,0 +1,285 @@
+{
+ "canais_por_numero": {
+  "0": 12,
+  "1": 13,
+  "2": 16,
+  "3": 15,
+  "4": 14,
+  "5": 14,
+  "6": 13,
+  "7": 14,
+  "8": 16,
+  "9": 16
+ },
+ "negs": "repouso,repouso_geral,quantidade,transicao",
+ "cv": {
+  "0": {
+   "acertos": 17,
+   "paradas": 19,
+   "canais": 9,
+   "trocas": {}
+  },
+  "1": {
+   "acertos": 10,
+   "paradas": 15,
+   "canais": 10,
+   "trocas": {
+    "2": 1
+   }
+  },
+  "2": {
+   "acertos": 14,
+   "paradas": 16,
+   "canais": 12,
+   "trocas": {
+    "1": 1,
+    "3": 1,
+    "4": 1
+   }
+  },
+  "3": {
+   "acertos": 12,
+   "paradas": 15,
+   "canais": 11,
+   "trocas": {
+    "2": 1
+   }
+  },
+  "4": {
+   "acertos": 11,
+   "paradas": 12,
+   "canais": 10,
+   "trocas": {}
+  },
+  "5": {
+   "acertos": 8,
+   "paradas": 17,
+   "canais": 11,
+   "trocas": {}
+  },
+  "6": {
+   "acertos": 9,
+   "paradas": 19,
+   "canais": 11,
+   "trocas": {
+    "8": 1
+   }
+  },
+  "7": {
+   "acertos": 7,
+   "paradas": 21,
+   "canais": 10,
+   "trocas": {}
+  },
+  "8": {
+   "acertos": 14,
+   "paradas": 18,
+   "canais": 12,
+   "trocas": {}
+  },
+  "9": {
+   "acertos": 15,
+   "paradas": 20,
+   "canais": 13,
+   "trocas": {}
+  }
+ },
+ "cv_alarmes": {
+  "letra": [
+   41,
+   1714
+  ],
+  "transicao": [
+   148,
+   488
+  ],
+  "repouso": [
+   80,
+   262
+  ],
+  "repouso_geral": [
+   98,
+   1271
+  ],
+  "quantidade": [
+   23,
+   81
+  ]
+ },
+ "teste_canais": [
+  "UCxHcoC08d2zqpamKAkgNrPw",
+  "UCVSliGAkIIxdwJUf9g-Ru_A",
+  "UCSTTahcJE-oWuDk3P7XAxdg",
+  "UCzeqFz-yv5RciPEUWSczwxA"
+ ],
+ "teste": {
+  "0": {
+   "acertos": 4,
+   "paradas": 4,
+   "canais": 3,
+   "trocas": {}
+  },
+  "1": {
+   "acertos": 1,
+   "paradas": 3,
+   "canais": 3,
+   "trocas": {}
+  },
+  "2": {
+   "acertos": 3,
+   "paradas": 4,
+   "canais": 4,
+   "trocas": {}
+  },
+  "3": {
+   "acertos": 4,
+   "paradas": 4,
+   "canais": 4,
+   "trocas": {}
+  },
+  "4": {
+   "acertos": 2,
+   "paradas": 4,
+   "canais": 4,
+   "trocas": {
+    "2": 1
+   }
+  },
+  "5": {
+   "acertos": 4,
+   "paradas": 4,
+   "canais": 3,
+   "trocas": {}
+  },
+  "6": {
+   "acertos": 2,
+   "paradas": 3,
+   "canais": 2,
+   "trocas": {}
+  },
+  "7": {
+   "acertos": 4,
+   "paradas": 5,
+   "canais": 4,
+   "trocas": {}
+  },
+  "8": {
+   "acertos": 5,
+   "paradas": 5,
+   "canais": 4,
+   "trocas": {}
+  },
+  "9": {
+   "acertos": 3,
+   "paradas": 3,
+   "canais": 3,
+   "trocas": {}
+  }
+ },
+ "teste_alarmes": {
+  "transicao": [
+   57,
+   153
+  ],
+  "repouso": [
+   1,
+   24
+  ],
+  "quantidade": [
+   0,
+   109
+  ],
+  "repouso_geral": [
+   3,
+   16
+  ]
+ },
+ "alarme_repouso": [
+  17,
+  142
+ ],
+ "letras": {
+  "A": {
+   "-": 43
+  },
+  "B": {
+   "-": 19
+  },
+  "C": {
+   "-": 53,
+   "0": 4
+  },
+  "D": {
+   "-": 27
+  },
+  "E": {
+   "-": 40
+  },
+  "F": {
+   "-": 47
+  },
+  "G": {
+   "-": 39
+  },
+  "H": {
+   "-": 26
+  },
+  "I": {
+   "-": 26,
+   "0": 5
+  },
+  "K": {
+   "-": 38
+  },
+  "L": {
+   "-": 51
+  },
+  "M": {
+   "-": 23
+  },
+  "N": {
+   "-": 42
+  },
+  "O": {
+   "0": 43
+  },
+  "P": {
+   "-": 58
+  },
+  "Q": {
+   "-": 27
+  },
+  "R": {
+   "-": 43
+  },
+  "S": {
+   "8": 48,
+   "-": 2
+  },
+  "T": {
+   "-": 18
+  },
+  "U": {
+   "-": 19
+  },
+  "V": {
+   "-": 35
+  },
+  "W": {
+   "-": 23
+  },
+  "X": {
+   "-": 15
+  },
+  "Y": {
+   "-": 19
+  }
+ },
+ "camera_numbers": [
+  "0",
+  "2",
+  "3",
+  "8",
+  "9"
+ ]
+}

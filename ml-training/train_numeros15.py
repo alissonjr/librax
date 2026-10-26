@@ -21,24 +21,34 @@ Medidas:
    data/dataset_video.jsonl (o número lido em cada letra).
 
 Saída (--out): model.json (librax-mlp, kind "numeros", camera_numbers com os números que passaram
-em --meta nos canais separados), weights.bin, golden.json e relatorio.json.
+em --meta nos canais separados e na validação cruzada), weights.bin e golden.json; as medidas
+completas em numeros15_relatorio.json (--relatorio).
 
 Uso:
     python train_numeros15.py --so-validacao        (só a validação cruzada)
-    python train_numeros15.py --out out/numeros15
+    python train_numeros15.py --out ../apps/web-poc/public/ml/numeros \
+        --negs repouso,repouso_geral,quantidade,transicao --max-nenhum 500 --quadros-por-parada 40 \
+        --letras-neg ABDEFGIKLMNPQRTUVWXY       (o modelo publicado; O, S e C ficam fora das
+                                                  letras: são a mesma mão do 0 e do 8)
     (LIBRAX_DATA=/caminho/data aponta para outra pasta de dados)
 """
 
-import argparse
-import collections
-import hashlib
-import json
 import os
-import warnings
 
-import numpy as np
+# Poucas linhas por processo (antes de importar o numpy): a máquina roda outros treinos junto
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
+    os.environ.setdefault(_v, "2")
 
-from train_static import FEATURE_DIM, augment, export_web, keras_dense_layers, mlp_forward, normalize_hand, sample_vector
+import argparse  # noqa: E402
+import collections  # noqa: E402
+import hashlib  # noqa: E402
+import json  # noqa: E402
+import warnings  # noqa: E402
+
+import numpy as np  # noqa: E402
+
+from train_static import (FEATURE_DIM, augment, export_web, keras_dense_layers, mlp_forward,  # noqa: E402
+                          normalize_hand, sample_vector)
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 DATA = os.environ.get("LIBRAX_DATA") or os.path.join(AQUI, "data")
@@ -56,10 +66,34 @@ TESTE_PADRAO = [
 ]
 
 
-def carregar(path, negs, quadros_parada, max_nenhum, seed=0):
-    """Linhas do dataset: números (todos os quadros) e as "_" das origens pedidas."""
+LETRAS = os.path.join(DATA, "dataset_video.jsonl")
+# Canais das letras guardados só para medir o alarme falso (nunca no treino), 1 em LETRAS_TESTE_A_CADA
+LETRAS_TESTE_A_CADA = 4
+
+
+def letra_de_teste(canal):
+    return dobra(canal, LETRAS_TESTE_A_CADA) == 0
+
+
+def carregar(path, negs, quadros_parada, max_nenhum, letras_neg=(), max_letras=0, seed=0):
+    """
+    Linhas do dataset: números (todos os quadros) e as "_" das origens pedidas. letras_neg: letras
+    paradas (dataset_video.jsonl) que entram como "_" (neg "letra"), menos as dos canais de teste
+    das letras.
+    """
     rng = np.random.default_rng(seed)
     rows = []
+    if letras_neg and os.path.exists(LETRAS):
+        for k, line in enumerate(open(LETRAS)):
+            r = json.loads(line)
+            if r["label"] not in letras_neg or letra_de_teste(r["person_id"]):
+                continue
+            v = sample_vector(r)
+            raw = r.get("raw")
+            if v is not None:
+                rows.append({"x": v, "y": NENHUM, "canal": r["person_id"], "parada": f"letra:{k}", "t": 0.0,
+                             "neg": "letra", "raw": (raw, r.get("handedness"), r.get("aspect", 1.0))
+                             if raw and len(raw) == 63 else None})
     with open(path) as f:
         for line in f:
             if not line.strip():
@@ -75,16 +109,21 @@ def carregar(path, negs, quadros_parada, max_nenhum, seed=0):
                          "parada": r.get("parada") or f"{r.get('session_id')}:{r.get('t')}", "t": r.get("t", 0.0),
                          "neg": r.get("neg"), "raw": (raw, r.get("handedness"), r.get("aspect", 1.0))
                          if raw and len(raw) == 63 else None})
-    neg = [i for i, r in enumerate(rows) if r["y"] == NENHUM]
-    if max_nenhum and len(neg) > max_nenhum:
-        fora = set(rng.choice(neg, len(neg) - max_nenhum, replace=False).tolist())
-        rows = [r for i, r in enumerate(rows) if i not in fora]
-    # treino: até quadros_parada quadros por parada de número
+    # treino: até quadros_parada quadros por parada de número e, com max_nenhum, uma amostra das
+    # "_" (a classe engole as formas fechadas); a medida usa todos os quadros
     por = collections.defaultdict(list)
     for i, r in enumerate(rows):
         if r["y"] != NENHUM:
             por[r["parada"]].append(i)
     treino = np.ones(len(rows), dtype=bool)
+    neg = [i for i, r in enumerate(rows) if r["y"] == NENHUM and r["neg"] != "letra"]
+    if max_nenhum and len(neg) > max_nenhum:
+        for i in rng.choice(neg, len(neg) - max_nenhum, replace=False):
+            treino[i] = False
+    letras = [i for i, r in enumerate(rows) if r["neg"] == "letra"]
+    if max_letras and len(letras) > max_letras:
+        for i in rng.choice(letras, len(letras) - max_letras, replace=False):
+            treino[i] = False
     for idx in por.values():
         if len(idx) > quadros_parada:
             fica = set(rng.choice(idx, quadros_parada, replace=False).tolist())
@@ -133,7 +172,8 @@ def avaliar_paradas(prever, labels, rows, idx):
             ii.sort(key=lambda i: rows[i]["t"])
             est = estaveis([lidas[i] for i in ii], min(ESTAVEL_QUADROS, len(ii)))
             alvo = rows[ii[0]]["y"]
-            pares.append((alvo, alvo in est, sorted(est - {alvo}), rows[ii[0]]["canal"]))
+            mais = collections.Counter(lidas[i] or "nada" for i in ii).most_common(1)[0][0]
+            pares.append((alvo, alvo in est, sorted(est - {alvo}), rows[ii[0]]["canal"], mais))
     alarmes = collections.Counter()
     total = collections.Counter()
     if negs:
@@ -146,16 +186,19 @@ def avaliar_paradas(prever, labels, rows, idx):
 
 
 def resumo(pares, titulo):
-    certos = collections.Counter(a for a, ok, _, _ in pares if ok)
-    total = collections.Counter(a for a, _, _, _ in pares)
-    trocas = collections.Counter((a, b) for a, _, tr, _ in pares for b in tr)
+    certos = collections.Counter(a for a, ok, *_ in pares if ok)
+    total = collections.Counter(a for a, *_ in pares)
+    trocas = collections.Counter((a, b) for a, _, tr, *_ in pares for b in tr)
+    erros = collections.Counter((a, m) for a, ok, _, _, m in pares if not ok)
     canais = collections.defaultdict(set)
-    for a, _, _, c in pares:
+    for a, _, _, c, _ in pares:
         canais[a].add(c)
     n = sum(total.values())
     print(f"{titulo}: {sum(certos.values())}/{n} paradas ({sum(certos.values()) / max(n, 1):.0%})")
     print("  por número:", " ".join(f"{d}:{certos[d]}/{total[d]}({certos[d] / total[d]:.0%})" for d in DIGITOS if total[d]))
     print("  trocas (certo->lido):", " ".join(f"{a}->{b}:{c}" for (a, b), c in trocas.most_common(12)) or "nenhuma")
+    print("  paradas erradas, leitura mais comum dos quadros:",
+          " ".join(f"{a}->{b}:{c}" for (a, b), c in sorted(erros.items())) or "nenhuma")
     return {d: {"acertos": certos[d], "paradas": total[d], "canais": len(canais[d]),
                 "trocas": {b: c for (a, b), c in trocas.items() if a == d}} for d in DIGITOS if total[d]}
 
@@ -214,16 +257,16 @@ def alarme_repouso(prever, labels, fora_canais):
     return a, len(casos)
 
 
-def alarme_letras(prever, labels):
-    """Quadro a quadro: o número lido em cada letra parada (dataset_video.jsonl)."""
-    path = os.path.join(DATA, "dataset_video.jsonl")
-    if not os.path.exists(path):
+def alarme_letras(prever, labels, so_teste):
+    """Quadro a quadro: o número lido em cada letra parada (dataset_video.jsonl); com so_teste, só
+    nos canais de letras que nunca entram no treino."""
+    if not os.path.exists(LETRAS):
         return None
     X, ys = [], []
-    for line in open(path):
+    for line in open(LETRAS):
         r = json.loads(line)
         v = sample_vector(r)
-        if v is not None and r["label"] != NENHUM:
+        if v is not None and r["label"] != NENHUM and (not so_teste or letra_de_teste(r["person_id"])):
             X.append(v)
             ys.append(r["label"])
     lidas = leituras(prever(np.array(X, dtype=np.float32)), labels)
@@ -253,17 +296,22 @@ def main():
     ap.add_argument("--teste", nargs="*", default=TESTE_PADRAO)
     ap.add_argument("--negs", default="repouso,transicao,quantidade,repouso_geral",
                     help="origens das '_' no treino (repouso, transicao, quantidade, repouso_geral)")
-    ap.add_argument("--max-nenhum", type=int, default=0)
+    ap.add_argument("--letras-neg", default="", help="letras paradas que entram como '_' (ex.: ABDV)")
+    ap.add_argument("--max-letras", type=int, default=400, help="limite de quadros de letras no treino")
+    ap.add_argument("--max-nenhum", type=int, default=0, help="limite de quadros '_' no treino (0: todos)")
     ap.add_argument("--quadros-por-parada", type=int, default=12)
     ap.add_argument("--dobras", type=int, default=5)
     ap.add_argument("--epochs", type=int, default=60)
+    ap.add_argument("--relatorio", default=os.path.join(AQUI, "numeros15_relatorio.json"))
     ap.add_argument("--meta", type=float, default=0.7, help="acerto mínimo por número nos canais separados")
     ap.add_argument("--so-validacao", action="store_true")
     ap.add_argument("--sem-validacao", action="store_true")
     args = ap.parse_args()
     warnings.filterwarnings("ignore", message=".*(converge|Maximum iterations).*")
 
-    rows, treino = carregar(args.dataset, set(args.negs.split(",")), args.quadros_por_parada, args.max_nenhum)
+    letras_neg = set(args.letras_neg)
+    rows, treino = carregar(args.dataset, set(args.negs.split(",")), args.quadros_por_parada, args.max_nenhum,
+                            letras_neg, args.max_letras)
     num = [r for r in rows if r["y"] != NENHUM]
     print(f"quadros: {len(num)} de números ({len({r['parada'] for r in num})} paradas, "
           f"{len({r['canal'] for r in num})} canais) + {len(rows) - len(num)} de '_' "
@@ -289,6 +337,8 @@ def main():
     X, y, raws = arrays(rows, tr)
     le = LabelEncoder().fit(y)
     Xtr, ytr = augment(X, le.transform(y), raws)
+    tf.config.threading.set_intra_op_parallelism_threads(2)
+    tf.config.threading.set_inter_op_parallelism_threads(1)
     tf.keras.utils.set_random_seed(0)
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(FEATURE_DIM,)),
@@ -311,12 +361,18 @@ def main():
     rep = alarme_repouso(prever, labels, {rows[i]["canal"] for i in tr})
     if rep:
         print(f"  alarme falso em repouso (teste_negativas.json): {rep[0]}/{rep[1]} quadros ({rep[0] / max(rep[1], 1):.1%})")
-    letras = alarme_letras(prever, labels)
+    letras = alarme_letras(prever, labels, bool(letras_neg))
     if letras:
-        mostrar_letras(letras, "  letras paradas (dataset_video.jsonl)")
+        mostrar_letras(letras, "  letras paradas (dataset_video.jsonl" + (", canais fora do treino)" if letras_neg else ")"))
 
-    passam = [d for d in DIGITOS if d in teste and teste[d]["acertos"] / teste[d]["paradas"] >= args.meta]
-    print(f"\nnúmeros com acerto >= {args.meta:.0%} nos canais de teste: {', '.join(passam) or 'nenhum'}")
+    # passa o número que acerta >= meta nos canais separados E na validação cruzada (quando rodou):
+    # os canais separados têm de 3 a 5 paradas por número, pouco para decidir sozinhos
+    def acerto(rel, d):
+        return rel[d]["acertos"] / rel[d]["paradas"] if d in rel else 0.0
+    cv = relatorio.get("cv")
+    passam = [d for d in DIGITOS if acerto(teste, d) >= args.meta and (cv is None or acerto(cv, d) >= args.meta)]
+    print(f"\nnúmeros com acerto >= {args.meta:.0%} nos canais de teste"
+          f"{' e na validação cruzada' if cv else ''}: {', '.join(passam) or 'nenhum'}")
     relatorio.update({"teste_canais": args.teste, "teste": teste,
                       "teste_alarmes": {k: [alarmes[k], total[k]] for k in total},
                       "alarme_repouso": list(rep) if rep else None, "letras": letras, "camera_numbers": passam})
@@ -347,7 +403,7 @@ def main():
         "false_alarm_rest": (rep[0] / max(rep[1], 1)) if rep else None,
         "persons": len({rows[i]["canal"] for i in tr if rows[i]["y"] != NENHUM}),
     })
-    with open(os.path.join(args.out, "relatorio.json"), "w") as f:
+    with open(args.relatorio, "w") as f:
         json.dump(relatorio, f, indent=1, ensure_ascii=False)
     print(f"gerado em {args.out}/ (diferença numpy x Keras {diff:.1e})")
 

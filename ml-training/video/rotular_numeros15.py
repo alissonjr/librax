@@ -38,15 +38,20 @@ Uso:
     (LIBRAX_DATA=/caminho/data aponta para outra pasta de dados)
 """
 
-import argparse
-import collections
-import glob
-import json
 import os
-import sys
-import warnings
 
-import numpy as np
+# Uma linha por processo no numpy e no BLAS (antes de importar o numpy)
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
+    os.environ.setdefault(_v, "1")
+
+import argparse  # noqa: E402
+import collections  # noqa: E402
+import glob  # noqa: E402
+import json  # noqa: E402
+import sys  # noqa: E402
+import warnings  # noqa: E402
+
+import numpy as np  # noqa: E402
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, AQUI)
@@ -136,7 +141,7 @@ def itens():
                 continue
         path, pasta = achar_landmarks(f["id"])
         if path:
-            out.append((f["id"], f["id"], f, pasta, rn.SEQUENCIAS[g], None, "glosa", None))
+            out.append((f["id"], f["id"], f, pasta, rn.SEQUENCIAS[g], None, "glosa", None, False))
     vezes = collections.Counter()
     for t in cfg["trechos"]:
         if t["id"] in excluir:
@@ -149,19 +154,28 @@ def itens():
         f = por_id.get(t["id"]) or letras.get(t["id"]) or {"id": t["id"]}
         modo = t.get("modo", "sequencia")
         out.append((f"{t['id']}@{vezes[t['id']]}", t["id"], f, pasta, t.get("sequencia"), (t["ini"], t["fim"]),
-                    modo, t.get("digitos")))
+                    modo, t.get("digitos"), t.get("sem_ocr", False)))
+    return out
+
+
+def recusadas():
+    """{item: [instantes]} das paradas recusadas a olho (numeros15_fontes.json, "recusar")."""
+    out = collections.defaultdict(list)
+    for r in json.load(open(FONTES)).get("recusar", []):
+        out[r["item"]].append(r["t"])
     return out
 
 
 def carregar():
     rotular.VEL_FORMA = rn.VEL_FORMA
     videos, cache = [], {}
-    for item, vid, f, pasta, seq, janela, modo, digs in itens():
+    recusar = recusadas()
+    for item, vid, f, pasta, seq, janela, modo, digs, sem_ocr in itens():
         if vid not in cache:
             cache = {vid: json.load(open(os.path.join(DATA, pasta, f"{vid}.json")))}
         bruto = cache[vid]
         v = {"id": item, "video": vid, "aspect": bruto["aspect"], "pasta": pasta, "janela": janela, "modo": modo,
-             "digitos": digs, "sequencia": seq, "glosa": f.get("glosa"), "arquivo": f.get("arquivo"),
+             "digitos": digs, "sequencia": seq, "sem_ocr": sem_ocr, "glosa": f.get("glosa"), "arquivo": f.get("arquivo"),
              "channel_id": f.get("channel_id") or bruto.get("channel_id") or vid, "channel": f.get("channel", "")}
         frames = [fr for fr in bruto["frames"] if not janela or janela[0] <= fr["t"] <= janela[1]]
         v["frames"] = frames
@@ -188,6 +202,7 @@ def carregar():
             v["_feat"] = np.zeros((0, 65))
             v["_regras"] = np.zeros((0, 10))
         v["_dur"] = [qs[p[-1]]["t"] - qs[p[0]]["t"] for p in ps]
+        v["_recusada"] = [any(qs[p[0]]["t"] - 0.05 <= t <= qs[p[-1]]["t"] + 0.05 for t in recusar[item]) for p in ps]
         videos.append(v)
     return videos
 
@@ -195,6 +210,20 @@ def carregar():
 # ---------------------------------------------------------------------------
 # Número escrito na tela
 # ---------------------------------------------------------------------------
+
+OCR_PROCESSOS = 2
+
+
+def _ocr_init_um_nucleo():
+    """Cada processo do OCR num núcleo só: o onnxruntime abre uma linha por núcleo e, com outros
+    trabalhos na máquina, os processos juntos travavam o computador."""
+    try:
+        livres = sorted(os.sched_getaffinity(0))
+        os.sched_setaffinity(0, {livres[os.getpid() % len(livres)]})
+    except (AttributeError, OSError):
+        pass
+    rotular._ocr_init()
+
 
 def ocr(videos):
     from multiprocessing import Pool
@@ -213,7 +242,7 @@ def ocr(videos):
     jobs = [(vid, (os.path.join(DATA, "videos", arquivos[vid]), sorted(ts))) for vid, ts in falta.items() if ts]
     if jobs:
         print(f"OCR em {sum(len(j[1][1]) for j in jobs)} parada(s) de {len(jobs)} vídeo(s)...", flush=True)
-        with Pool(4, initializer=rotular._ocr_init) as pool:
+        with Pool(OCR_PROCESSOS, initializer=_ocr_init_um_nucleo) as pool:
             for (vid, _), res in zip(jobs, pool.imap(rotular._ocr_job, [j[1] for j in jobs])):
                 caches[vid].update(res)
                 with open(os.path.join(OCR_DIR, f"{vid}.json"), "w") as f:
@@ -226,7 +255,7 @@ def ocr(videos):
                 txt = "".join(rn.OCR_TROCAS.get(c, c) for c in txt)
                 if conf >= rn.OCR_MIN_CONF and txt.isdigit():
                     digs |= set(txt)
-            lidas.append(digs if len(digs) <= 2 else set())
+            lidas.append(digs if len(digs) <= 2 and not v["sem_ocr"] else set())
         v["_ocr"] = lidas
 
 
@@ -246,6 +275,7 @@ def alinhar(v, P):
         for digs in v["_ocr"]:
             ok = [d for d in digs if d in v["digitos"]]
             out.append(DIGITOS.index(ok[0]) if len(digs) == 1 and ok else -1)
+        out = [-1 if rec else j for j, rec in zip(out, v["_recusada"])]
         return out
     seq = v["sequencia"]
     s = np.zeros((len(v["_ps"]), len(seq)))
@@ -257,6 +287,7 @@ def alinhar(v, P):
         if digs:
             for j, x in enumerate(seq):
                 s[i, j] += rotular.OCR_BONUS if digito(x) in digs else -rotular.OCR_MULTA
+    s[np.array(v["_recusada"], dtype=bool)] = -1e3  # recusada a olho: vira lixo e libera a posição
     return rotular.alinhar(s)
 
 
@@ -287,7 +318,7 @@ def main():
         rotulos = {}
         for v in videos:
             v["_pos"] = alinhar(v, P[v["id"]]) if v["_ps"] else []
-            rotulos[v["id"]] = [rotulo(v, j) for j in v["_pos"]]
+            rotulos[v["id"]] = [None if rec else rotulo(v, j) for j, rec in zip(v["_pos"], v["_recusada"])]
         print(f"rodada {rodada}: {sum(1 for r in rotulos.values() for L in r if L)} paradas rotuladas", flush=True)
         if rodada < args.rodadas:
             P, conhecidos = rn.probs_outros_canais(com, rotulos)
@@ -302,7 +333,7 @@ def main():
         melhor = {}
         for i, j in enumerate(v["_pos"]):
             d = rotulo(v, j)
-            if d is None or v["_dur"][i] < rn.MIN_PARADA_ACEITA_S:
+            if d is None or v["_dur"][i] < rn.MIN_PARADA_ACEITA_S or v["_recusada"][i]:
                 continue
             k = DIGITOS.index(d)
             if d in conhecidos[v["id"]]:
