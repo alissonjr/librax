@@ -1026,6 +1026,11 @@ Nenhum desses estados depende de som. Mensagens de status entram por `aria-live=
 - **Diálogo de confirmação**: `bg.raised`, raio `lg`, título `title`, botões "Cancelar" (secundário) e a ação
   (primário ou perigo). Textos da seção 2.5.
 - **Bottom sheet**: topo `radius.xl`, alça de 4 x 32 px, fundo `bg.raised`, `bg.scrim` atrás.
+- **Faixa de instalar** (`InstallBanner`, regra na spec-02 12.1): card inteiro no topo do mapa, sem faixa
+  lateral: `bg.surface`, borda `border.subtle` fina, raio `md`, ícone 24 em `text.brand`, título `body-sm` em
+  negrito, uma linha `caption` em `text.secondary`, botão secundário pequeno e fechar (48 x 48, `aria-label`).
+  Em telas menores que 560 px, o botão ocupa uma segunda linha para preservar a leitura e os alvos de toque.
+  Entra junto com o conteúdo do mapa, sem animação própria e sem empurrar a tela depois.
 - **+XP da lição concluída**: dentro da explosão de setas (seção 11.8).
 - **Cartão cultural** (spec 05 seção 8): fundo `game.hand.soft`, ícone 64, título `title`, texto `body`,
   "Continuar". O `bg_color` livre do schema da spec 05 passa a ser um nome de token, para manter o contraste.

@@ -490,6 +490,12 @@
     "rightAnswer": "Resposta certa"
   },
   "install": {
+    "bannerClose": "Fechar sugestão de instalar",
+    "bannerHowTo": "Como instalar",
+    "bannerInstall": "Instalar o app",
+    "bannerSub": "Abre com um toque, em tela cheia.",
+    "bannerSubIos": "Pelo Safari, em dois toques.",
+    "bannerTitle": "Use o Librax como app",
     "install": "Instalar",
     "iosStep1": "Toque em Compartilhar, na barra do Safari.",
     "iosStep2": "Escolha \"Adicionar à Tela de Início\".",

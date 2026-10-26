@@ -17,7 +17,8 @@ const LeagueResultSheet = lazy(() => import('./LeagueResultSheet').then(m => ({ 
  *   1. resultado da liga não visto (LeagueResultSheet);
  *   2. sequência quebrada (StreakBrokenSheet);
  *   3. depois deles, a sugestão de instalar, só no mapa (shouldSuggestInstall, decisão 13).
- * As flags de "já visto" são gravadas quando o sheet aparece, não quando fecha.
+ * Liga e sequência gravam "já visto" ao aparecer. O convite de instalação registra a dispensa
+ * ao fechar, para contar os dias até a próxima oferta.
  */
 export function AppOpenFlow() {
   const { pathname } = useLocation();

@@ -195,7 +195,7 @@ function TabsLayout() {
 /* ---------- abas ---------- */
 
 function LearnRoute() {
-  const { repo, userId } = useSession();
+  const { repo, userId, suggestInstall } = useSession();
   const navigate = useNavigate();
   const nav = useAppNavigation();
   return (
@@ -205,6 +205,7 @@ function LearnRoute() {
       onStartLesson={lessonId => navigate(ROUTES.lesson(lessonId))}
       onOpenStreak={() => navigate(ROUTES.streak)}
       onOpenProfile={() => nav.goTab(ROUTES.profile)}
+      installInvitePending={suggestInstall}
     />
   );
 }

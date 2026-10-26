@@ -23,9 +23,9 @@ export const Flags = {
   courseA1Completed:   () => Flags.has('courseA1Completed'),
   setCourseA1Completed: () => Flags.set('courseA1Completed'),
 
-  // Sugestão de instalar na tela inicial: aparece uma vez só (decisão 13 do plano mobile web)
+  // Regra antiga do convite de instalar (uma vez só). Hoje o estado fica em installInvite e
+  // installBanner (lib/install.ts); a flag antiga só é lida, para contar como um convite já visto.
   installSuggested:   () => Flags.has('installSuggested'),
-  setInstallSuggested: () => Flags.set('installSuggested'),
 
   // "Continuar sem conta" no convite do fim da lição (spec-02 12.2): dia em que foi dispensado
   accountOfferDismissedDate: () => Flags.get('accountOfferDismissedDate'),

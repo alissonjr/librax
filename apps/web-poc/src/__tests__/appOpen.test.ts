@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   APP_REOPEN_HOURS, brokenStreakOnOpen, evaluateAppOpen, onAppReopen, STREAK_BROKEN_MIN,
 } from '../lib/appOpen';
-import { shouldSuggestInstall, INSTALL_WITHOUT_ACCOUNT_AFTER } from '../lib/install';
 import { markLeagueResultSeen, periodStartOf, type LeagueState } from '../lib/leagueLocal';
 import { getToday } from '../lib/today';
 
@@ -126,22 +125,5 @@ describe('voltar ao app (visibilitychange)', () => {
     clock += 10 * HOUR;
     setVisibility('visible');
     expect(cb).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe('sugestão de instalar (decisão 13)', () => {
-  it('com conta: depois da primeira lição', () => {
-    expect(shouldSuggestInstall({ alreadySuggested: false, lessonsCompleted: 0, hasAccount: true })).toBe(false);
-    expect(shouldSuggestInstall({ alreadySuggested: false, lessonsCompleted: 1, hasAccount: true })).toBe(true);
-  });
-
-  it(`sem conta: só depois da lição ${INSTALL_WITHOUT_ACCOUNT_AFTER}`, () => {
-    expect(shouldSuggestInstall({ alreadySuggested: false, lessonsCompleted: 1, hasAccount: false })).toBe(false);
-    expect(shouldSuggestInstall({ alreadySuggested: false, lessonsCompleted: 2, hasAccount: false })).toBe(false);
-    expect(shouldSuggestInstall({ alreadySuggested: false, lessonsCompleted: 3, hasAccount: false })).toBe(true);
-  });
-
-  it('aparece uma vez só', () => {
-    expect(shouldSuggestInstall({ alreadySuggested: true, lessonsCompleted: 9, hasAccount: true })).toBe(false);
   });
 });
