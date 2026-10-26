@@ -18,6 +18,11 @@ export interface Lesson {
   produce?: string[];
   /** "Soletre seu nome" (U4): palavra de reserva para quando o nome do perfil não dá. */
   spellOwnName?: string;
+  /**
+   * Revisão das mãos parecidas (F e T, O e 0): cada par vira um contrast_pair no bundle. `contexts`
+   * só nos pares da mesma mão: a palavra ou o número em que cada sinal aparece.
+   */
+  contrastPairs?: { signs: string[]; contexts?: Record<string, string> }[];
 }
 
 export interface SourceRef {

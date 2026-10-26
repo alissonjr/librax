@@ -131,12 +131,15 @@
     "u1-l4": "Letras P a T",
     "u1-l5": "Letras U a Z",
     "u1-l6": "Letra Ç",
+    "u1-l7": "Repaso: letras parecidas",
+    "u1-l8": "Repaso: el movimiento cambia la letra",
     "u2": {
       "desc": "Los números del 0 al 10",
       "title": "Números"
     },
     "u2-l1": "Números 0 a 5",
     "u2-l2": "Números 6 a 10",
+    "u2-l3": "Repaso: letras y números",
     "u3": {
       "desc": "Saludar, agradecer y pedir permiso",
       "title": "Saludos y cortesía"
@@ -312,6 +315,28 @@
     "starting": "Iniciando...",
     "successTitle": "¡Bien! Hiciste la letra {letter}",
     "nextLetter": "Siguiente letra"
+  },
+  "exerciseContrastPair": {
+    "cameraStep": "Manos parecidas: {n} de {total}",
+    "compareHint": "Fíjate en lo que cambia de una mano a la otra.",
+    "comparePrompt": "Compara las dos manos",
+    "contextNumber": "Esta mano aparece en el número {context}. ¿Qué es?",
+    "contextWord": "Esta mano aparece en la palabra {context}. ¿Qué es?",
+    "correct": "¡Correcto!",
+    "hand": "Mano {n}",
+    "handLabel": "Mano {n}: {desc}",
+    "pauseMove": "Pausar el movimiento",
+    "pickHint": "Toca la mano correcta. Ahora las manos son de otras personas.",
+    "playMove": "Ver el movimiento",
+    "round": "Ronda {n} de {total}",
+    "sameHand": "Misma mano",
+    "sameHandNote": "Es la misma mano. El contexto dice si es letra o número: en una palabra, es letra; en un número, es número.",
+    "title": "Manos parecidas",
+    "whichLetter": "¿Cuál es la letra {gloss}?",
+    "whichNumber": "¿Cuál es el número {gloss}?",
+    "withMovement": "Con movimiento",
+    "wrongContext": "La respuesta correcta es:",
+    "wrongHand": "La respuesta correcta es la mano {n}."
   },
   "exerciseCameraMotion": {
     "bodyMissing": "Encuadra la cara y los hombros en la cámara",

@@ -1,0 +1,108 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u2-l3",
+  "exercises": [
+    {
+      "id": "u2-l3-ex01",
+      "lesson_id": "u2-l3",
+      "type": "watch_choose_word",
+      "order": 1,
+      "payload": {
+        "sign_id": "numero-0",
+        "correct": "0"
+      }
+    },
+    {
+      "id": "u2-l3-ex02",
+      "lesson_id": "u2-l3",
+      "type": "word_choose_video",
+      "order": 2,
+      "payload": {
+        "word": "O",
+        "video_options": [
+          "letra-O",
+          "numero-8",
+          "letra-S",
+          "letra-Ç"
+        ],
+        "correct_sign_id": "letra-O"
+      }
+    },
+    {
+      "id": "u2-l3-ex03",
+      "lesson_id": "u2-l3",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "numero-8",
+        "correct": "8"
+      }
+    },
+    {
+      "id": "u2-l3-ex04",
+      "lesson_id": "u2-l3",
+      "type": "word_choose_video",
+      "order": 4,
+      "payload": {
+        "word": "S",
+        "video_options": [
+          "letra-S",
+          "numero-0",
+          "letra-O",
+          "letra-Ç"
+        ],
+        "correct_sign_id": "letra-S"
+      }
+    },
+    {
+      "id": "u2-l3-ex05",
+      "lesson_id": "u2-l3",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "numero-0",
+        "correct": "0"
+      }
+    },
+    {
+      "id": "u2-l3-ex06",
+      "lesson_id": "u2-l3",
+      "type": "contrast_pair",
+      "order": 6,
+      "payload": {
+        "sign_ids": [
+          "numero-0",
+          "letra-O"
+        ],
+        "camera_sign_ids": [
+          "numero-0",
+          "letra-O"
+        ],
+        "contexts": {
+          "numero-0": "10",
+          "letra-O": "BOLO"
+        }
+      }
+    },
+    {
+      "id": "u2-l3-ex07",
+      "lesson_id": "u2-l3",
+      "type": "contrast_pair",
+      "order": 7,
+      "payload": {
+        "sign_ids": [
+          "letra-S",
+          "numero-8"
+        ],
+        "camera_sign_ids": [
+          "letra-S",
+          "numero-8"
+        ],
+        "contexts": {
+          "letra-S": "SAPO",
+          "numero-8": "18"
+        }
+      }
+    }
+  ]
+}

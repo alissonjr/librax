@@ -31,6 +31,7 @@ export const EXERCISE_TYPES = [
   'build_phrase',
   'fingerspell',
   'mirror_practice',
+  'contrast_pair',
 ];
 /** Respostas por tipo de exercicio numa licao (as licoes tem de 8 a 20 exercicios). */
 const MAX_ANSWERS_PER_TYPE = 100;

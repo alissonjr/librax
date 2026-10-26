@@ -209,12 +209,15 @@
     "u1-l4": "Letras P a T",
     "u1-l5": "Letras U a Z",
     "u1-l6": "Letra Ç",
+    "u1-l7": "Revisão: letras parecidas",
+    "u1-l8": "Revisão: o movimento muda a letra",
     "u2": {
       "desc": "Os números de 0 a 10",
       "title": "Números"
     },
     "u2-l1": "Números 0 a 5",
     "u2-l2": "Números 6 a 10",
+    "u2-l3": "Revisão: letras e números",
     "u3": {
       "desc": "Cumprimentar, agradecer e pedir licença",
       "title": "Saudações e cortesia"
@@ -390,6 +393,28 @@
     "starting": "Iniciando...",
     "successTitle": "Boa! Você fez a letra {letter}",
     "nextLetter": "Próxima letra"
+  },
+  "exerciseContrastPair": {
+    "cameraStep": "Mãos parecidas: {n} de {total}",
+    "compareHint": "Repare no que muda de uma mão para a outra.",
+    "comparePrompt": "Compare as duas mãos",
+    "contextNumber": "Esta mão aparece no número {context}. O que ela é?",
+    "contextWord": "Esta mão aparece na palavra {context}. O que ela é?",
+    "correct": "Correto!",
+    "hand": "Mão {n}",
+    "handLabel": "Mão {n}: {desc}",
+    "pauseMove": "Pausar o movimento",
+    "pickHint": "Toque na mão certa. Agora as mãos são de outras pessoas.",
+    "playMove": "Ver o movimento",
+    "round": "Rodada {n} de {total}",
+    "sameHand": "Mesma mão",
+    "sameHandNote": "É a mesma mão. Quem diz se é letra ou número é o contexto: numa palavra, é letra; num número, é número.",
+    "title": "Mãos parecidas",
+    "whichLetter": "Qual é a letra {gloss}?",
+    "whichNumber": "Qual é o número {gloss}?",
+    "withMovement": "Com movimento",
+    "wrongContext": "A resposta certa é:",
+    "wrongHand": "A resposta certa é a mão {n}."
   },
   "exerciseCameraMotion": {
     "bodyMissing": "Enquadre o rosto e os ombros na câmera",
