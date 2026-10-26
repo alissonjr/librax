@@ -12,8 +12,8 @@ const signs: Sign[] = [
     params: { CM: 'dedos estendidos e juntos', PA: '', MOV: '', OR: '', ENM: '' },
     video_url: null, video_caption: 'Dedos juntos e estendidos.' },
   { id: 'letra-C', gloss: 'C', category: 'alfabeto', recognition: 'static',
-    params: { CM: 'mao curvada em C', PA: '', MOV: '', OR: '', ENM: '' },
-    video_url: null, video_caption: 'Mao curvada em C.' },
+    params: { CM: 'Mão curvada em C', PA: '', MOV: '', OR: '', ENM: '' },
+    video_url: null, video_caption: 'Mão curvada em C.' },
 ];
 
 describe('ExerciseMatchPairs', () => {
@@ -73,12 +73,12 @@ describe('ExerciseMatchPairs', () => {
   it('a descricao nao entrega a palavra do par', () => {
     const words: Sign[] = [
       { ...signs[0], id: 'sinal-BANANA', gloss: 'BANANA', video_caption: 'Como se descascasse uma banana.' },
-      { ...signs[1], id: 'sinal-CASA', gloss: 'CASA', video_caption: 'Maos formam o telhado de uma casa.' },
+      { ...signs[1], id: 'sinal-CASA', gloss: 'CASA', video_caption: 'Mãos formam o telhado de uma casa.' },
       { ...signs[2], id: 'sinal-MAE', gloss: 'MÃE', video_caption: 'Dedos tocam o queixo.' },
     ];
     render(<ExerciseMatchPairs signs={words} onComplete={vi.fn()} />);
     expect(screen.getByText('Como se descascasse uma ___.')).toBeInTheDocument();
-    expect(screen.getByText('Maos formam o telhado de uma ___.')).toBeInTheDocument();
+    expect(screen.getByText('Mãos formam o telhado de uma ___.')).toBeInTheDocument();
   });
 
   it('marca par errado e permite nova tentativa sem encerrar', async () => {

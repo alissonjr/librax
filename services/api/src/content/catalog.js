@@ -302,8 +302,7 @@ export default {
     },
     {
       "code": "SINAIS_26",
-      "type": "signs_learned",
-      "gte": 26
+      "type": "alphabet_complete"
     },
     {
       "code": "ALFABETO",

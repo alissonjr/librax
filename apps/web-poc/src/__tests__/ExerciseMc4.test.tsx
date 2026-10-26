@@ -9,9 +9,9 @@ const sign: Sign = {
   gloss: 'A',
   category: 'alfabeto',
   recognition: 'static',
-  params: { CM: 'punho fechado', PA: 'espaco neutro', MOV: 'nenhum', OR: 'palma para frente', ENM: 'neutra' },
+  params: { CM: 'Punho fechado', PA: 'espaço neutro', MOV: 'nenhum', OR: 'palma para frente', ENM: 'neutra' },
   video_url: null,
-  video_caption: 'Mao direita em punho com polegar apoiado ao lado.',
+  video_caption: 'Mão direita em punho com polegar apoiado ao lado.',
 };
 
 const choices = ['A', 'B', 'C', 'D'];
@@ -88,6 +88,21 @@ describe('ExerciseMc4', () => {
     };
     render(<ExerciseMc4 sign={pai} choices={['MÃE', 'HOMEM', 'PAI', 'TIO']} onAnswer={vi.fn()} onNext={vi.fn()} />);
     expect(screen.getByText(/desliza para baixo \(sinal ___\) e depois ___ encosta/)).toBeInTheDocument();
+  });
+
+  it('MOV que ja termina com ponto nao fica com ponto duplo na nota de movimento', () => {
+    const ir: Sign = {
+      ...sign,
+      id: 'sinal-IR',
+      gloss: 'IR',
+      category: 'verbos',
+      recognition: 'dynamic',
+      params: { ...sign.params, MOV: 'Forma base: o indicador faz um arco para fora. No espaço: vai até o lugar.' },
+      video_caption: 'Indicador em arco.',
+    };
+    render(<ExerciseMc4 sign={ir} choices={['IR', 'VIR', 'DAR', 'VER']} onAnswer={vi.fn()} onNext={vi.fn()} />);
+    expect(screen.getByText(/vai até o lugar\.$/)).toBeInTheDocument();
+    expect(screen.queryByText(/\.\.$/)).not.toBeInTheDocument();
   });
 
   it('chama onNext ao clicar em Continuar apos resposta', async () => {

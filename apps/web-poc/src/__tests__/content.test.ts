@@ -641,6 +641,25 @@ describe('signsMap', () => {
     });
   });
 
+  it('textos mostrados do sinal estao em portugues com acento (sem "mao", "medio", "espaco"...)', () => {
+    // Formas sem acento que ja apareceram no conteudo; em maiusculas e glosa citada, fica de fora
+    const semAcento = new Set([
+      'mao', 'maos', 'medio', 'minimo', 'espaco', 'rapido', 'tres', 'angulo', 'ate', 'balanca', 'balancando',
+      'circulo', 'comeca', 'direcao', 'so', 'traca', 'tras', 'vitoria', 'voce', 'nao',
+    ]);
+    for (const s of Object.values(signsMap)) {
+      const texts = { ...s.params, video_caption: s.video_caption };
+      for (const [field, text] of Object.entries(texts)) {
+        const wrong = text.split(/[^\p{L}\p{N}]+/u).filter((w) => w !== w.toUpperCase() && semAcento.has(w.toLowerCase()));
+        expect(wrong, `${s.id}.${field}`).toEqual([]);
+        expect(text, `${s.id}.${field}`).not.toMatch(/[–—]/u);
+      }
+      // A CM aparece sozinha como descricao no sign_intro: comeca com maiuscula (ou numero, "1) ...")
+      expect(s.params.CM, s.id).toMatch(/^[\p{Lu}\p{N}]/u);
+      expect(s.video_caption, s.id).toMatch(/^[\p{Lu}\p{N}]/u);
+    }
+  });
+
   it('glosas sao unicas (as opcoes de multipla escolha dependem disso)', () => {
     const glosses = Object.values(signsMap).map((s) => s.gloss);
     expect(new Set(glosses).size).toBe(glosses.length);
@@ -922,6 +941,26 @@ describe('course', () => {
   it('regras de conquista usam so tipos que o dominio conhece', () => {
     const state = { streak: 0, signsLearned: 0, lessonsCompleted: 0, alphabetComplete: false };
     expect(() => evaluateAchievements(course.achievementRules, state, [])).not.toThrow();
+  });
+
+  it('Alfabeto completo (SINAIS_26) pede as 27 letras da U1, nao 26 sinais quaisquer', async () => {
+    // O codigo fica (ja esta no perfil de quem ganhou); a regra e a do alfabeto completo, que o
+    // useSession marca ao concluir a ultima licao da U1 (as licoes abrem em ordem)
+    expect(course.achievementRules.find((r) => r.code === 'SINAIS_26')).toEqual({ code: 'SINAIS_26', type: 'alphabet_complete' });
+    const u1 = course.units[0].lessons;
+    const letters = new Set(u1.flatMap((l) => l.signIds).filter((id) => id.startsWith('letra-')));
+    expect(letters.size).toBe(27);
+    expect([...letters].sort()).toEqual([...LETTER_IDS].sort());
+
+    const content = { lessons: course.lessonsMap, achievementRules: course.achievementRules, signsOrder: course.signsOrder };
+    const repo = new InMemoryRepo();
+    await repo.seedProfile({ userId: 'u', signsLearned: 26 });
+    const done = (lessonId: string, signsLearnedDelta: number, alphabetComplete: boolean) =>
+      completeLesson(repo, content, { userId: 'u', lessonId, today: '2026-10-25', score: 1, reviewed: [], signsLearnedDelta, alphabetComplete }) as
+        Promise<{ achievementsEarned: string[] }>;
+    const u2 = course.units[1].lessons[0];
+    expect((await done(u2.id, u2.signIds.length, false)).achievementsEarned).not.toContain('SINAIS_26');
+    expect((await done(u1[u1.length - 1].id, 0, true)).achievementsEarned).toContain('SINAIS_26');
   });
 });
 
