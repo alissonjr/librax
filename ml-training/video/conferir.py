@@ -10,6 +10,7 @@ Uso:
     python video/conferir.py [id ...]     (sem id: todos os vídeos rotulados)
     python video/conferir.py --letra U [--letra V ...]
     python video/conferir.py --sinal ARROZ     (início, meio e fim do trecho escolhido em cada vídeo)
+        [--rotulos data/sinais15/rotulos-x] [--fontes-extra data/sinais15/fontes_extra.json] [--saida PASTA]
     python video/conferir.py --numero 6 [--numero 7 ...]   (paradas do número, de rotular_numeros.py)
 Saída: ml-training/data/conferir/<id>.jpg, letra-<L>.jpg e sinal-<GLOSA>.jpg; as dos números em
 data/numeros/conferir/numero-<N>.jpg. LIBRAX_DATA aponta para outra pasta de dados.
@@ -116,10 +117,19 @@ def galeria(letra):
     return out
 
 
-def galeria_sinal(glosa):
+def galeria_sinal(glosa, rotulos=None, extras=(), saida=None):
+    """
+    Início, meio e fim do trecho escolhido em cada vídeo do sinal. `rotulos`: pasta dos rótulos (padrão
+    data/rotulos_sinais); `extras`: outras listas de vídeos (os vídeos delas saem com o id em amarelo).
+    """
     fontes = {f["id"]: f for f in json.load(open(os.path.join(DATA, "fontes_sinais.json")))}
+    novos = set()
+    for path in extras:
+        lista = json.load(open(path))
+        fontes.update({f["id"]: f for f in lista})
+        novos |= {f["id"] for f in lista}
     linhas = []
-    for rot_path in sorted(glob.glob(os.path.join(DATA, "rotulos_sinais", "*.json"))):
+    for rot_path in sorted(glob.glob(os.path.join(rotulos or os.path.join(DATA, "rotulos_sinais"), "*.json"))):
         rot = json.load(open(rot_path))
         if rot["glosa"] != glosa or not rot["sinal"]:
             continue
@@ -137,7 +147,8 @@ def galeria_sinal(glosa):
             tiles.append(tile)
         cap.release()
         linha = np.hstack(tiles)
-        cv2.putText(linha, rot["id"][:9], (4, LADO - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (80, 220, 80), 1)
+        cor = (0, 230, 255) if rot["id"] in novos else (80, 220, 80)
+        cv2.putText(linha, rot["id"][:11], (4, LADO - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.45, cor, 1)
         linhas.append(linha)
     if not linhas:
         return None
@@ -148,7 +159,7 @@ def galeria_sinal(glosa):
         linhas.append(np.zeros_like(linhas[0]))
     meio = len(linhas) // 2
     img = np.hstack([np.vstack(linhas[:meio]), np.vstack(linhas[meio:])])
-    out = os.path.join(DATA, "conferir", f"sinal-{glosa}.jpg")
+    out = os.path.join(saida or os.path.join(DATA, "conferir"), f"sinal-{glosa}.jpg")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     cv2.imwrite(out, img, [cv2.IMWRITE_JPEG_QUALITY, 70])
     return out
@@ -206,8 +217,11 @@ def main():
             print(galeria_numero(n) or f"{n}: nenhuma parada")
         return
     if "--sinal" in sys.argv:
-        for g in [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--sinal"]:
-            print(galeria_sinal(g) or f"{g}: nenhum vídeo aceito")
+        def valores(nome):
+            return [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == nome]
+        rotulos, saida = (valores("--rotulos") or [None])[0], (valores("--saida") or [None])[0]
+        for g in valores("--sinal"):
+            print(galeria_sinal(g, rotulos, valores("--fontes-extra"), saida) or f"{g}: nenhum vídeo aceito")
         return
     if "--letra" in sys.argv:
         letras = [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--letra"]

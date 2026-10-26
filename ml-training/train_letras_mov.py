@@ -44,6 +44,7 @@ Uso:
     para o reading_rules do model.json e decidem camera_letters)
     (LM_VIZINHAS=CPVT... põe as vizinhas paradas no "_" com peso, ver VIZINHAS)
     (LM_SEM_XZ=1 deixa de fora os vídeos de video/baixar_xz.py, letras_mov_trechos_xz.json)
+    (LM_SEM_Z2=1 deixa de fora os de video/baixar_extra.py, letras_mov_trechos_z2.json)
     (LIBRAX_DATA=/caminho/data aponta para a pasta de dados)
 """
 
@@ -67,6 +68,11 @@ LANDMARKS = os.path.join(DATA, "letras_mov", "landmarks15")
 LANDMARKS_XZ = os.path.join(DATA, "letras_mov", "landmarks15_xz")
 TRECHOS = os.path.join(AQUI, "letras_mov_trechos.json")
 TRECHOS_XZ = os.path.join(AQUI, "letras_mov_trechos_xz.json")
+# Mais alfabetos de canais novos para o Z (video/baixar_extra.py, data/letras_mov/fontes_z2.json)
+LANDMARKS_Z2 = os.path.join(DATA, "letras_mov", "landmarks15_z2")
+TRECHOS_Z2 = os.path.join(AQUI, "letras_mov_trechos_z2.json")
+# LM_SEM_Z2=1 deixa esses vídeos de fora (para comparar com o modelo anterior)
+SEM_Z2 = os.environ.get("LM_SEM_Z2") == "1"
 # LM_SEM_XZ=1 treina e avalia só com os trechos antigos (para comparar com o modelo anterior)
 SEM_XZ = os.environ.get("LM_SEM_XZ") == "1"
 # Letras dos trechos dos vídeos novos que entram no treino (as outras ficam marcadas ok=false: nem
@@ -220,11 +226,16 @@ INES_CANAL = "ines"
 
 
 def carregar_trechos(caminho=TRECHOS):
-    """Trechos do letras_mov_trechos.json somados aos de letras_mov_trechos_xz.json (sem LM_SEM_XZ=1)."""
+    """
+    Trechos do letras_mov_trechos.json somados aos de letras_mov_trechos_xz.json (sem LM_SEM_XZ=1) e
+    aos de letras_mov_trechos_z2.json (sem LM_SEM_Z2=1).
+    """
     with open(caminho) as f:
         out = json.load(f)
-    if caminho == TRECHOS and not SEM_XZ and os.path.exists(TRECHOS_XZ):
-        with open(TRECHOS_XZ) as f:
+    extras = [] if caminho != TRECHOS else [p for p, fora in ((TRECHOS_XZ, SEM_XZ), (TRECHOS_Z2, SEM_Z2))
+                                             if not fora and os.path.exists(p)]
+    for path in extras:
+        with open(path) as f:
             extra = json.load(f)
         out["trechos"] = out["trechos"] + [t if t["letra"] in LETRAS_XZ else {**t, "ok": False}
                                            for t in extra["trechos"]]
@@ -233,8 +244,8 @@ def carregar_trechos(caminho=TRECHOS):
 
 
 def landmarks_de(vid):
-    """Arquivo de landmarks a 15 quadros por segundo do vídeo (landmarks15 ou landmarks15_xz), ou None."""
-    for pasta in (LANDMARKS, LANDMARKS_XZ):
+    """Arquivo de landmarks a 15 quadros por segundo do vídeo (landmarks15, _xz ou _z2), ou None."""
+    for pasta in (LANDMARKS, LANDMARKS_XZ, LANDMARKS_Z2):
         path = os.path.join(pasta, f"{vid}.json")
         if os.path.exists(path):
             return path

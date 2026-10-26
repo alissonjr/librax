@@ -986,7 +986,8 @@
    ],
    "energia": 2.31,
    "ocr": "",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: tela final do vídeo (agradecimento), sem o Z"
   },
   {
    "id": "JX-ldn8JbH0",
@@ -1550,7 +1551,8 @@
    ],
    "energia": 1.82,
    "ocr": "",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: mão pequena e borrada, o traçado do Z não aparece"
   },
   {
    "id": "Xcm2_NSoSVY",
@@ -2988,7 +2990,8 @@
    "parada": null,
    "energia": 16.0,
    "ocr": "",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: mão do Y o trecho todo, sem o indicador do Z"
   },
   {
    "id": "odnc1OvHCMo",
@@ -3327,7 +3330,8 @@
    ],
    "energia": 2.61,
    "ocr": "",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: pessoa pequena e indicador quase parado, sem o traçado do Z"
   },
   {
    "id": "t1A39_YpJB4",
@@ -3928,7 +3932,8 @@
    ],
    "energia": 1.62,
    "ocr": "YZ",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: indicador para cima quase parado, o traçado do Z não aparece"
   }
  ],
  "ines": [],

@@ -34,6 +34,8 @@ guardadas pelo avaliar --probs, sem treinar de novo.
 Uso:
     python train_sinais.py avaliar --dataset data/sinais15/dataset.npz --landmarks data/sinais15/landmarks \\
         --rotulos data/sinais15/rotulos [--passos 8] [--ocultas 256,128] [--congeladas 2] [--salvar res.json]
+        (vídeos de outra lista: --landmarks com mais uma pasta e --fontes-extra data/sinais15/fontes_extra.json,
+        para o canal deles valer na divisão dos grupos)
     python train_sinais.py treinar --out PASTA (mesmas opções) [--resultados res.json ...]
         com --resultados (o --salvar do avaliar), o model.json leva em camera_signs só os sinais que
         passaram na validação cruzada e no dicionário (MIN_ACERTO_CAMERA); com mais de um arquivo
@@ -358,25 +360,37 @@ def pasta_cache(landmarks):
 
 
 def preparar_ao_vivo(ids, landmarks, processos=4):
+    """
+    Prepara o cache das janelas ao vivo dos vídeos `ids`, procurados nas pastas `landmarks` (uma ou
+    mais; cada pasta tem o seu cache). Devolve {id: pasta do cache}.
+    """
     from multiprocessing import Pool
 
-    pasta = pasta_cache(landmarks)
-    os.makedirs(pasta, exist_ok=True)
-    faltam = [v for v in sorted(ids) if not os.path.exists(os.path.join(pasta, f"aovivo-{v}.npz"))]
-    if faltam:
-        print(f"janelas ao vivo: {len(faltam)} vídeo(s) para preparar", flush=True)
+    if isinstance(landmarks, str):
+        landmarks = [landmarks]
+    pastas, jobs = {}, []
+    for vid in sorted(ids):
+        origem = next((d for d in landmarks if os.path.exists(os.path.join(d, f"{vid}.json"))), landmarks[0])
+        pasta = pasta_cache(origem)
+        pastas[vid] = pasta
+        if not os.path.exists(os.path.join(pasta, f"aovivo-{vid}.npz")):
+            jobs.append((vid, origem, pasta))
+    for pasta in set(pastas.values()):
+        os.makedirs(pasta, exist_ok=True)
+    if jobs:
+        print(f"janelas ao vivo: {len(jobs)} vídeo(s) para preparar", flush=True)
         with Pool(processos) as pool:
-            for _ in pool.imap_unordered(_ao_vivo_job, [(v, landmarks, pasta) for v in faltam], chunksize=4):
+            for _ in pool.imap_unordered(_ao_vivo_job, jobs, chunksize=4):
                 pass
-    return pasta
+    return pastas
 
 
-def probs_ao_vivo(vid, pasta, prever, passos):
+def probs_ao_vivo(vid, pastas, prever, passos):
     """
     Probabilidades de todas as janelas que o app avalia num vídeo, com o movimento de cada uma
     (não dependem das regras de leitura, então dá para variar as regras sem treinar de novo).
     """
-    d = np.load(os.path.join(pasta, f"aovivo-{vid}.npz"))
+    d = np.load(os.path.join(pastas[vid], f"aovivo-{vid}.npz"))
     tempos, W, donos = d["tempos"], d["W"], d["donos"]
     if len(W):
         Xc = compactar(W.astype(np.float32), passos)
@@ -515,7 +529,7 @@ def cfg_de(args):
             "negativas_paradas": args.negativas_paradas}
 
 
-def janelas_paradas_ao_vivo(rots, pasta, n_por_video, rng):
+def janelas_paradas_ao_vivo(rots, pastas, n_por_video, rng):
     """
     Negativas da mão parada como o app vê: janelas ao vivo inteiras dentro de um trecho parado dos
     vídeos (trechos_parados do rotular_sinais), até n_por_video por vídeo. Só as avaliações em que
@@ -527,7 +541,7 @@ def janelas_paradas_ao_vivo(rots, pasta, n_por_video, rng):
         trechos = r.get("trechos_parados", [])
         if not trechos:
             continue
-        d = np.load(os.path.join(pasta, f"aovivo-{r['id']}.npz"))
+        d = np.load(os.path.join(pastas[r["id"]], f"aovivo-{r['id']}.npz"))
         tempos, W, donos = d["tempos"], d["W"], d["donos"]
         if not len(W):
             continue
@@ -580,10 +594,9 @@ def avaliar(args):
     print(f"config: {cfg} | regras: {regras}")
     print(f"janelas: {len(y)} ({collections.Counter(tipo).most_common()}) | glosas: {len(glosas)} | "
           f"canais: {len(set(pessoa))}")
-    with open(os.path.join(DATA, "fontes_sinais.json")) as f:
-        fontes = {x["id"]: x for x in json.load(f)}
+    fontes = rq.carregar_fontes(args.fontes_extra)
     rots = carregar_rotulos(args.rotulos, set(glosas), fontes)
-    pasta = preparar_ao_vivo({r["id"] for r in rots}, args.landmarks, args.processos)
+    pastas = preparar_ao_vivo({r["id"] for r in rots}, args.landmarks, args.processos)
     dic_win = np.array([p.startswith(DICIONARIO) for p in pessoa])
     yt_rots = [r for r in rots if not r["id"].startswith(DICIONARIO)]
     dic_rots = [r for r in rots if r["id"].startswith(DICIONARIO)]
@@ -593,7 +606,7 @@ def avaliar(args):
         """Negativas da mão parada ao vivo dos vídeos de treino (--negativas-paradas)."""
         if cfg["negativas_paradas"] <= 0:
             return None
-        return janelas_paradas_ao_vivo(rots_treino, pasta, cfg["negativas_paradas"], np.random.default_rng(1000 + seed))
+        return janelas_paradas_ao_vivo(rots_treino, pastas, cfg["negativas_paradas"], np.random.default_rng(1000 + seed))
 
     # Validação cruzada por canal do YouTube (os dicionários ficam sempre no treino)
     canais = np.array([r["canal"] for r in yt_rots])
@@ -613,7 +626,7 @@ def avaliar(args):
         probs[np.ix_(idx, cols)] = p
         testado[idx] = True
         for i in te:
-            pv[yt_rots[i]["id"]] = probs_ao_vivo(yt_rots[i]["id"], pasta, prever, cfg["passos"])
+            pv[yt_rots[i]["id"]] = probs_ao_vivo(yt_rots[i]["id"], pastas, prever, cfg["passos"])
         print(f"  grupo {k + 1}/{args.grupos}: {len(te)} vídeos", flush=True)
     m = testado & ~dic_win
 
@@ -622,7 +635,7 @@ def avaliar(args):
     labels, p = prever(compactar(X[dic_win], cfg["passos"]))
     pd = np.zeros((dic_win.sum(), len(classes)))
     pd[:, [classes.index(c) for c in labels]] = p
-    pv_dic = {r["id"]: probs_ao_vivo(r["id"], pasta, prever, cfg["passos"]) for r in dic_rots}
+    pv_dic = {r["id"]: probs_ao_vivo(r["id"], pastas, prever, cfg["passos"]) for r in dic_rots}
 
     sim = {"classes": classes, "glosas": glosas, "grupos": args.grupos, "cfg": cfg, "dataset": args.dataset,
            "y": y[m], "tipo": tipo[m], "probs": probs[m].astype(np.float32), "E": E[m],
@@ -793,7 +806,10 @@ def main():
         a.add_argument("--max-p-nenhum", type=float, default=1.0,
                        help="sem leitura quando p(\"_\") passa disto (1 desliga)")
     a = sub.choices["avaliar"]
-    a.add_argument("--landmarks", default=os.path.join(DATA, "landmarks_sinais"))
+    a.add_argument("--landmarks", nargs="+", default=[os.path.join(DATA, "landmarks_sinais")],
+                   help="pastas dos landmarks (os vídeos de --fontes-extra ficam em outra pasta)")
+    a.add_argument("--fontes-extra", nargs="*", default=[],
+                   help="outras listas no formato do fontes_sinais.json (canal dos vídeos novos)")
     a.add_argument("--rotulos", default=os.path.join(DATA, "rotulos_sinais"))
     a.add_argument("--grupos", type=int, default=5)
     a.add_argument("--processos", type=int, default=4)

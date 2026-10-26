@@ -44,6 +44,9 @@ Saídas em data/ (pastas e nomes mudam com --rotulos e --saida):
   "outro" para as negativas do passo 4, "parada" para as do passo 5).
 - rotulos_sinais/<id>.json: janelas escolhidas, negativas e paradas de cada vídeo, para conferir.
 
+Vídeos de outras listas (video/baixar_extra.py, data/sinais15/fontes_extra.json) entram com
+--fontes-extra (título e canal) e com mais uma pasta em --entrada (data/sinais15/landmarks_extra).
+
 Uso:
     python video/rotular_sinais.py [--glosas A,B,...]
     python video/rotular_sinais.py --entrada data/sinais15/landmarks --dominante buffer --paradas \
@@ -516,12 +519,23 @@ def rotular_glosa(job):
     return g, cols, linha
 
 
+def carregar_fontes(extras=()):
+    """{id: fonte} do fontes_sinais.json mais as listas `extras` (mesmo formato)."""
+    with open(os.path.join(DATA, "fontes_sinais.json")) as f:
+        fontes = {x["id"]: x for x in json.load(f)}
+    for path in extras:
+        with open(path) as f:
+            fontes.update({x["id"]: x for x in json.load(f)})
+    return fontes
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--glosas", default="", help="só estas glosas (separadas por vírgula)")
     # Em 2026-10-25, no piloto de 20 sinais, as âncoras pioraram a validação cruzada (41% contra 47%)
     ap.add_argument("--ancoras", action="store_true", help="usa os dicionários como referência do consenso")
-    ap.add_argument("--entrada", default=ENTRADA, help="pasta dos landmarks (padrão: landmarks_sinais)")
+    ap.add_argument("--entrada", nargs="+", default=[ENTRADA], help="pastas dos landmarks (padrão: landmarks_sinais)")
+    ap.add_argument("--fontes-extra", nargs="*", default=[], help="outras listas no formato do fontes_sinais.json")
     ap.add_argument("--rotulos", default=ROTULOS, help="pasta dos rótulos por vídeo")
     ap.add_argument("--saida", default=SAIDA)
     ap.add_argument("--dominante", choices=("video", "buffer"), default="video",
@@ -531,11 +545,11 @@ def main():
     args = ap.parse_args()
     filtro = {g for g in args.glosas.split(",") if g}
 
-    with open(os.path.join(DATA, "fontes_sinais.json")) as f:
-        fontes = {x["id"]: x for x in json.load(f)}
+    fontes = carregar_fontes(args.fontes_extra)
     titulos = {i: x.get("title", "") for i, x in fontes.items()}
     por_glosa = {}
-    for path in sorted(glob.glob(os.path.join(args.entrada, "*.json"))):
+    paths = sorted(p for pasta in args.entrada for p in glob.glob(os.path.join(pasta, "*.json")))
+    for path in paths:
         vid = os.path.basename(path)[:-5]
         fonte = fontes.get(vid)
         if fonte is not None:
