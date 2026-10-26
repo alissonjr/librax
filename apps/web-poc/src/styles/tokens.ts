@@ -254,6 +254,7 @@ export const tokens = {
   "brand.icon.bgDark": "#0C0A08",
   "brand.icon.mark": "#FF7A2E",
   "brand.icon.dot": "#FFFFFF",
+  "brand.icon.skin": "#A86F4C",
   "font.family.display": [
     "Anybody",
     "system-ui",

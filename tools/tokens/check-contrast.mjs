@@ -188,6 +188,7 @@ for (const mode of ['light', 'dark']) {
   for (const bg of ['bg', 'bgDark']) {
     check('marca', `brand.icon.mark / ${bg} (não texto)`, b('mark'), b(bg), UI);
     check('marca', `brand.icon.dot / ${bg} (não texto)`, b('dot'), b(bg), UI);
+    check('marca', `brand.icon.skin / ${bg} (não texto)`, b('skin'), b(bg), UI);
   }
 }
 

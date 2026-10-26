@@ -9,7 +9,6 @@
     <color name="navigationColorDark">#14110E</color>
     <color name="navigationDividerColor">#F7F5F2</color>
     <color name="navigationDividerColorDark">#14110E</color>
-    <!-- brand.icon.bg: fundo da abertura (o background_color do manifesto web) e do ícone -->
+    <!-- brand.icon.bg: fundo da abertura (o background_color do manifesto web), o mesmo do ícone -->
     <color name="backgroundColor">#1B1510</color>
-    <color name="iconBackground">#1B1510</color>
 </resources>

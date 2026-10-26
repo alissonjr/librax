@@ -119,7 +119,7 @@ reta, curva, circular, repetida e para a frente e para trás. Na câmera, o sina
 | Onde | Como | Componente |
 |---|---|---|
 | Logo e palavra-marca | o L desenhado como um movimento: ponto inicial, descida, curva e ponta; "librax" em Anybody 900 a 125% | `BrandMark`, `Wordmark` (`src/components/Brand.tsx`) |
-| Ícone do app e favicon | o símbolo em tangerina `#FF7A2E` sobre grafite `#1B1510`, ponto branco | `tools/pwa/build-icons.mjs` (`brand.icon.*`) |
+| Ícone do app e favicon | a mão 3D do app fazendo joinha (pele parda `#A86F4C`) sobre grafite `#1B1510`; ver 2.6 | `tools/pwa/build-icons.mjs` (`brand.icon.*`) |
 | Boas-vindas | o L desenhado pelos 21 pontos da mão, com uma seta tangerina e uma petróleo | `WelcomeIllustration`, `HandSketchL` |
 | Mapa | a seta gira em volta da lição atual (`motion.duration.orbit`, parada com menos movimento); trecho feito em tangerina, caminho bloqueado pontilhado | `TraceOrbit` |
 | Card de continuar | arco tangerina sobre o palco | `TraceArc` |
@@ -191,6 +191,27 @@ Vem do manual antigo (seção 9), ajustado para adultos e para a regra de que na
 Textos de estados vazios: os da spec 05 seção 11 (seção 11.11 abaixo).
 
 ---
+
+### 2.6 Ícone do app: o joinha
+
+Decidido em 2026-10-26: o ícone do app (tela inicial do iPhone, do Android e do computador, ícone adaptativo e
+temático do Android, Play Store e favicon) é a **mão 3D do próprio app fazendo joinha**: punho fechado, polegar
+para cima. Em Libras é o "joia/legal" e também o número 1 do curso. A palavra-marca e o símbolo (Traço) continuam
+em todo o resto: abertura, cabeçalhos, landing e vídeo.
+
+- **Render de verdade**, não desenho: a mesma mão (`mao-3d.glb`, `apps/landing/scripts/mao3d/gerar.py`) posada e
+  renderizada no Blender (Cycles) por `apps/landing/scripts/mao3d/joinha.py`, em 3/4 pelo lado da palma, luz de
+  estúdio suave e contorno por trás. O polegar não é torcido: a unha fica virada para o lado do pulso, como na
+  mão de verdade. O polegar é 25% mais grosso que o natural para se ler nos tamanhos pequenos.
+- **Pele parda** `brand.icon.skin` `#A86F4C` (o 4º tom da paleta da mão, `SKIN_TONES`) é a cor do material; no
+  render, com luz e sombra, a pele vai de `#723F20` a `#C68C69` (quartis), mediana `#925633`: um pardo médio.
+- **Fundo** grafite `brand.icon.bg`, com uma luz branca bem leve (7%) atrás da mão, sem gradiente de cor. A pele
+  passa 4,34:1 sobre o grafite.
+- **Tamanhos**: imagem-mestra em `tools/pwa/icone-joinha.png`; `npm run pwa-icons` (no web-poc) gera o favicon
+  (ICO 16/32/48 e PNG 32/48: punho e polegar até a borda, o pulso sai pela direita), "any" 192/512, maskable 512
+  (a mão dentro do círculo de 80%), apple-touch-icon 180 e, no Android, as camadas do ícone adaptativo por
+  densidade (frente dentro do círculo de 66 dp, fundo e silhueta monocromática), os ícones antigos (quadrado e
+  redondo) e o da Play Store. O `favicon.svg` continua sendo o símbolo, usado como logo no admin e no login local.
 
 ## 3. Arquitetura dos tokens
 
@@ -275,7 +296,7 @@ deixava o ouro do XP em 2,90:1 sobre o trilho, abaixo de 3:1).
 | `brand.ink` / `mark` | `#1B1510` / `#E8560A` | `#F7F2EC` / `#FF8A45` | Palavra-marca e símbolo |
 
 Fixos (não mudam com o tema): `brand.icon.bg #1B1510`, `brand.icon.bgDark #0C0A08`, `brand.icon.mark #FF7A2E`,
-`brand.icon.dot #FFFFFF`.
+`brand.icon.dot #FFFFFF`, `brand.icon.skin #A86F4C` (pele da mão do ícone do app).
 
 Observações:
 
@@ -327,7 +348,7 @@ dentro da insígnia, na cor do texto sobre ela.
 ### 4.5 Contraste verificado
 
 Calculado pelo `tools/tokens/check-contrast.mjs` (roda no `npm run build`) com a fórmula de luminância relativa
-do WCAG 2.x sobre os valores reais do `design-tokens.json`: **265 pares, 0 reprovações**. Cores com transparência
+do WCAG 2.x sobre os valores reais do `design-tokens.json`: **267 pares, 0 reprovações**. Cores com transparência
 foram compostas sobre o fundo antes do cálculo; no palco, o pior caso considerado é vídeo totalmente branco.
 Mínimos: 4,5:1 para texto, 3:1 para componentes e gráficos (WCAG 1.4.11). Menor razão em texto: 4,68 (texto
 sobre a insígnia Bronze); em gráfico: 3,03 (ouro do XP sobre o trilho, no claro).
@@ -451,8 +472,10 @@ app (`brand.icon.*`).
 | liga | diamante: fill / surface escuro (não texto) | 10.59 | 3 |
 | marca | brand.icon.mark / bg (não texto) | 6.95 | 3 |
 | marca | brand.icon.dot / bg (não texto) | 18.08 | 3 |
+| marca | brand.icon.skin / bg (não texto) | 4.34 | 3 |
 | marca | brand.icon.mark / bgDark (não texto) | 7.60 | 3 |
 | marca | brand.icon.dot / bgDark (não texto) | 19.76 | 3 |
+| marca | brand.icon.skin / bgDark (não texto) | 4.75 | 3 |
 
 Regras que o contraste não resolve sozinho:
 
