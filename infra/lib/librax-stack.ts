@@ -26,6 +26,7 @@ import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as budgets from 'aws-cdk-lib/aws-budgets';
 import { Annotations, Duration, RemovalPolicy, SecretValue } from 'aws-cdk-lib';
 import { readConfig, PLACEHOLDER_DOMAIN } from './config';
+import { assetLinks, assetLinksFunction } from './assetlinks';
 import {
   adminCsp,
   appCsp,
@@ -58,6 +59,7 @@ const API_DIR = path.join(__dirname, '..', '..', 'services', 'api');
  * - Lambda functions (Node 22, empacotadas com esbuild) para cada endpoint
  * - API Gateway HTTP API (autorizador JWT Cognito) no estagio `api`
  * - CloudFront do app em app.<dominio>, tudo na mesma origem: `/` app, `/content/*`, `/ml/*`, `/api/*`
+ *   e `/.well-known/assetlinks.json` do app Android (TWA, lib/assetlinks.ts)
  * - Landing publica (apps/landing) no dominio raiz, com bucket e CloudFront proprios; www -> apex
  * - EventBridge Scheduler: fechar liga semanal, lembretes (Web Push e e-mail opcional) e o job
  *   diario do painel de administracao (CloudWatch e Cost Explorer)
@@ -623,6 +625,29 @@ export class LibraxStack extends cdk.Stack {
       functionAssociations: [{ function: wasmContentType, eventType: cloudfront.FunctionEventType.VIEWER_RESPONSE }],
     });
 
+    // App Android (TWA, apps/android-twa): o assetlinks.json sai pronto da borda (lib/assetlinks.ts)
+    if (config.android.certFingerprints.length === 0) {
+      Annotations.of(this).addWarningV2(
+        'librax:no-android-fingerprint',
+        'Sem librax:androidCertFingerprints: /.well-known/assetlinks.json sai vazio ([]) e o app Android ' +
+          'abre com a barra de endereco. Ver docs/android-twa.md.',
+      );
+    }
+    const assetLinksResponse = new cloudfront.Function(this, 'AssetLinks', {
+      comment: 'Digital Asset Links do app Android (TWA)',
+      runtime: cloudfront.FunctionRuntime.JS_2_0,
+      code: cloudfront.FunctionCode.fromInline(
+        assetLinksFunction(assetLinks(config.android.packageName, config.android.certFingerprints)),
+      ),
+    });
+    const assetLinksHeaders = new cloudfront.ResponseHeadersPolicy(this, 'AssetLinksHeaders', {
+      comment: 'Librax - assetlinks.json do app Android',
+      securityHeadersBehavior: {
+        contentTypeOptions: { override: true },
+        strictTransportSecurity: { accessControlMaxAge: Duration.days(365), includeSubdomains: true, override: true },
+      },
+    });
+
     const distribution = new cloudfront.Distribution(this, 'LibraxCDN', {
       comment: 'Librax - app, conteudo, ML e API na mesma origem',
       domainNames: certificate ? [config.appDomainName] : undefined,
@@ -636,6 +661,11 @@ export class LibraxStack extends cdk.Stack {
         functionAssociations: [{ function: spaRewrite, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
       },
       additionalBehaviors: {
+        // Respondido pela CloudFront Function, sem ir ao bucket (o sync --delete do app o apagaria)
+        '/.well-known/assetlinks.json': {
+          ...staticBehavior(webOrigin, assetLinksHeaders, cloudfront.CachePolicy.CACHING_DISABLED),
+          functionAssociations: [{ function: assetLinksResponse, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
+        },
         '/assets/*.wasm': wasmBehavior(webOrigin),
         '/assets/*': staticBehavior(webOrigin, immutableHeaders),
         // Player e animações do VLibras (scripts/vlibras-assets.mjs): a versão está na pasta

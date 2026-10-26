@@ -19,6 +19,8 @@
     "librax:googleEnabled": true,
     "librax:appleEnabled": false,
     "librax:emailRemindersEnabled": false,
+    "librax:androidPackageName": "br.com.librax.app",
+    "librax:androidCertFingerprints": "",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [

@@ -1,0 +1,5 @@
+// Casca Android do Librax: uma Trusted Web Activity que abre https://<librax.host>/ no Chrome em
+// tela cheia. O site (apps/web-poc) continua sendo o app; ver README.md.
+plugins {
+    id 'com.android.application' version '8.13.0' apply false
+}
