@@ -326,6 +326,9 @@ await save(await icone(192, ANY), resolve(WEB, 'icon-192.png'));
 await save(await icone(512, ANY), resolve(WEB, 'icon-512.png'));
 await save(await icone(512, MASKABLE), resolve(WEB, 'icon-maskable-512.png'));
 await save(await icone(180, CHEIO), resolve(WEB, 'apple-touch-icon.png'));
+// O iOS pede também o -precomposed antes do normal; sem o arquivo, o fallback de rota devolve
+// HTML e ele mostra a letra do nome no lugar do ícone
+await save(await icone(180, CHEIO), resolve(WEB, 'apple-touch-icon-precomposed.png'));
 
 /** Ícone legado de 48 dp: o desenho em 44 dp, centrado (2 dp de folga como os do sistema). */
 async function legado(size, opts) {
