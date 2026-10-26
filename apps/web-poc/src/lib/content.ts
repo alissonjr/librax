@@ -3,6 +3,7 @@ import { course, type Phrase, type SourceRef } from './course';
 import { getClassifier } from '../recognition/classifier';
 import { getSignGlosses, loadSignIndex } from '../recognition/signModel';
 import { getMotionLetters, loadLetterMotionIndex } from '../recognition/letterMotionModel';
+import { getCameraNumbers, loadNumberIndex } from '../recognition/numberModel';
 import { getDisplayName } from './auth';
 import { ownNameLetters } from './fingerspell';
 
@@ -121,9 +122,10 @@ export interface Exercise {
   /**
    * perform_sign: 'sinais' quando quem avalia é o modelo dos sinais com movimento (mãos e corpo,
    * ExerciseCameraMotionSign); 'letras-mov' quando é o das letras com movimento (só as mãos,
-   * ExerciseCameraMotionLetter); ausente nas letras paradas (ExerciseCameraSign).
+   * ExerciseCameraMotionLetter); 'numeros' quando é o modelo dos números de 0 a 9 (mão parada,
+   * ExerciseCameraSign com o classificador dos números); ausente nas letras paradas (ExerciseCameraSign).
    */
-  recognizer?: 'sinais' | 'letras-mov';
+  recognizer?: 'sinais' | 'letras-mov' | 'numeros';
 }
 
 // Os tipos e o curso continuam saindo daqui para quem já importa de content.ts
@@ -177,8 +179,8 @@ export function maskChoiceCaption(text: string, answer: string, options: string[
 /**
  * A camera so avalia letras estaticas que o classificador em uso conhece: as do MLP treinado
  * quando /ml/classifier/model.json existe, senao as do heuristico (src/recognition/classifier.ts).
- * Os demais sinais (numeros, sinais com movimento, letras fora da lista) ainda nao podem
- * receber nota pela camera.
+ * Numeros (isNumberEvaluable), sinais e letras com movimento tem os modelos proprios; letras fora
+ * da lista nao recebem nota pela camera.
  */
 export function isCameraEvaluable(sign: Sign | undefined): boolean {
   if (!sign) return false;
@@ -208,6 +210,18 @@ export function isLetterMotionEvaluable(sign: Sign | undefined): boolean {
 
 /** Lê o model.json das letras com movimento uma vez por sessão; a rota da lição espera antes de resolver. */
 export { loadLetterMotionIndex };
+
+/**
+ * Número de 0 a 9 que a câmera avalia: está em camera_numbers do modelo dos números
+ * (/ml/numeros/model.json, lido pelo loadNumberIndex antes de resolver a lição), os que passaram no
+ * teste com pessoas nunca vistas. Sem modelo, nenhum: os números seguem como prática livre.
+ */
+export function isNumberEvaluable(sign: Sign | undefined): boolean {
+  return !!sign && sign.category === 'numeros' && getCameraNumbers().has(sign.gloss);
+}
+
+/** Lê o model.json dos números uma vez por sessão; a rota da lição espera antes de resolver. */
+export { loadNumberIndex };
 
 /**
  * Escolhe 3 distratores para as questoes de multipla escolha. Prefere sinais da
@@ -262,6 +276,8 @@ export interface ResolveOptions {
   canEvaluateMotion?: (sign: Sign | undefined) => boolean;
   /** Se o modelo das letras com movimento avalia a letra (padrao: isLetterMotionEvaluable). */
   canEvaluateLetterMotion?: (sign: Sign | undefined) => boolean;
+  /** Se o modelo dos números avalia o número (padrao: isNumberEvaluable). */
+  canEvaluateNumber?: (sign: Sign | undefined) => boolean;
   /** Nome do perfil para o "soletre seu nome" (padrao: o salvo no aparelho pelo onboarding). */
   displayName?: string | null;
 }
@@ -273,7 +289,8 @@ export interface ResolveOptions {
  * - word_choose_video sorteia a ordem das 4 demonstracoes;
  * - perform_sign de letra com movimento que o modelo das letras com movimento conhece fica com ele
  *   (recognizer 'letras-mov'); de letra avaliada, com o classificador das letras paradas; de sinal
- *   que o modelo de sinais com movimento conhece, com ele (recognizer 'sinais'); senao vira mirror_practice
+ *   que o modelo de sinais com movimento conhece, com ele (recognizer 'sinais'); de numero de 0 a 9 que
+ *   o modelo dos numeros avalia, com ele (recognizer 'numeros'); senao vira mirror_practice
  *   (pratica livre, sem nota, para nao contar erro que a pessoa nao cometeu) e a pratica livre
  *   repetida do mesmo sinal sai;
  * - fingerspell so usa a camera quando ela avalia todas as letras da palavra; senao vira
@@ -288,6 +305,7 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
   const canEvaluate = opts.canEvaluate ?? isCameraEvaluable;
   const canEvaluateMotion = opts.canEvaluateMotion ?? isMotionSignEvaluable;
   const canEvaluateLetterMotion = opts.canEvaluateLetterMotion ?? isLetterMotionEvaluable;
+  const canEvaluateNumber = opts.canEvaluateNumber ?? isNumberEvaluable;
   const firstSign = lessonSignIds[0] ?? '';
   const mirrored = new Set<string>();
   const out: Exercise[] = [];
@@ -306,6 +324,8 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
           out.push({ id, type: 'perform_sign', signId });
         } else if (canEvaluateMotion(map[signId])) {
           out.push({ id, type: 'perform_sign', signId, recognizer: 'sinais' });
+        } else if (canEvaluateNumber(map[signId])) {
+          out.push({ id, type: 'perform_sign', signId, recognizer: 'numeros' });
         } else {
           mirrored.add(signId);
           out.push({ id, type: 'mirror_practice', signId });
@@ -389,7 +409,9 @@ export async function loadLessonBundle(lessonId: string): Promise<BundleExercise
 export async function loadLessonExercises(lessonId: string): Promise<Exercise[] | null> {
   const lesson = course.lessonsMap[lessonId];
   if (!lesson) return null;
-  const [items] = await Promise.all([loadLessonBundle(lessonId), loadSignIndex(), loadLetterMotionIndex()]);
+  const [items] = await Promise.all([
+    loadLessonBundle(lessonId), loadSignIndex(), loadLetterMotionIndex(), loadNumberIndex(),
+  ]);
   return items ? resolveExercises(items, lesson.signIds) : null;
 }
 

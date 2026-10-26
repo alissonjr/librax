@@ -141,7 +141,8 @@ interface ItemProps {
 }
 
 function CameraStatsItem({ s, t, decimal, percent }: ItemProps) {
-  const kind = t(s.kind === 'letter' ? 'cameraStats.kindLetter' : 'cameraStats.kindSign');
+  const kind = t(s.kind === 'letter' ? 'cameraStats.kindLetter'
+    : s.kind === 'number' ? 'cameraStats.kindNumber' : 'cameraStats.kindSign');
   return (
     <li className="cam-stats-item">
       <div className="cam-stats-head">

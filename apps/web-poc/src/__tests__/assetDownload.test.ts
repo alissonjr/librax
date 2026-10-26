@@ -242,13 +242,14 @@ describe('estado dos downloads (selo do mapa e Configurações)', () => {
 });
 
 describe('listas de arquivos', () => {
-  it('câmera: WASM com SIMD ou sem, modelo, classificador e letras com movimento opcionais', () => {
+  it('câmera: WASM com SIMD ou sem, modelo, classificador, letras com movimento e números opcionais', () => {
     const simd = cameraFiles(true).map(f => f.url);
     expect(simd).toContain('/ml/1.1.1/wasm/vision_wasm_internal.wasm');
     expect(simd).toContain('/ml/1.1.1/hand_landmarker.task');
     expect(cameraFiles(false).map(f => f.url)).toContain('/ml/1.1.1/wasm/vision_wasm_nosimd_internal.wasm');
     expect(cameraFiles(true).filter(f => f.optional).map(f => f.url)).toEqual([
       '/ml/classifier/model.json', '/ml/classifier/weights.bin', '/ml/letras-mov/model.json', '/ml/letras-mov/weights.bin',
+      '/ml/numeros/model.json', '/ml/numeros/weights.bin',
     ]);
   });
 

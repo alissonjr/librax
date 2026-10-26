@@ -3,7 +3,8 @@ import type { Lm, FingerExtensions } from '../lib/recognizer';
 import { drawSkeleton } from '../lib/cameraUtils';
 import { detectHands, getHandLandmarker, peekHandLandmarker } from '../recognition/landmarker';
 import { startFrameLoop } from '../recognition/frameLoop';
-import { getClassifier, loadClassifier } from '../recognition/classifier';
+import { getClassifier, loadClassifier, type Classifier } from '../recognition/classifier';
+import { loadNumberClassifier } from '../recognition/numberModel';
 import { keepScreenOn, type WakeLockHandle } from '../platform/wakeLock';
 
 export type CamStatus = 'idle' | 'loading' | 'active' | 'denied' | 'error';
@@ -18,6 +19,11 @@ export interface UseCameraRecognizerOptions {
    * para o avatar 3D consumir (o video continua renderizado, nunca com display:none).
    */
   render?: RenderMode;
+  /**
+   * Quem lê a mão: 'letras' (padrão), o classificador das letras paradas; 'numeros', o modelo dos
+   * números de 0 a 9 (/ml/numeros/, src/recognition/numberModel.ts), carregado ao ligar a câmera.
+   */
+  classifier?: 'letras' | 'numeros';
 }
 
 export interface UseCameraRecognizerReturn {
@@ -85,9 +91,13 @@ export function useStableGesture(raw: string | null, holdMs = 400) {
 export function useCameraRecognizer(
   options: UseCameraRecognizerOptions = {},
 ): UseCameraRecognizerReturn {
-  const { render = '2d' } = options;
+  const { render = '2d', classifier = 'letras' } = options;
   const renderRef = useRef<RenderMode>(render);
   renderRef.current = render;
+  const classifierKindRef = useRef(classifier);
+  classifierKindRef.current = classifier;
+  /** Classificador dos números, depois do loadNumberClassifier (null até lá ou nas letras). */
+  const numberClassifierRef = useRef<Classifier | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -127,7 +137,10 @@ export function useCameraRecognizer(
       landmarksRef.current = lms;
       const handedness = result.handedness?.[0]?.[0]?.categoryName ?? null;
       const aspect = video.videoHeight > 0 ? video.videoWidth / video.videoHeight : 1;
-      const { letter, confidence, extensions } = getClassifier().classify(lms, { handedness, aspect });
+      const clf = classifierKindRef.current === 'numeros' ? numberClassifierRef.current : getClassifier();
+      const { letter, confidence, extensions } = clf
+        ? clf.classify(lms, { handedness, aspect })
+        : { letter: null, confidence: 0, extensions: null };
       next = { rawGesture: letter, handPresent: true, confidence, extensions };
       // No modo 3d o avatar (HandAvatar3D) cuida do visual; aqui so detectamos.
       if (ctx && renderRef.current === '2d') drawSkeleton(ctx, lms, canvas.width, canvas.height, confidence);
@@ -161,7 +174,14 @@ export function useCameraRecognizer(
     const cancelled = () => !mountedRef.current || startIdRef.current !== startId;
     setStatus('loading');
     try {
-      loadClassifier();
+      if (classifierKindRef.current === 'numeros') {
+        // Pesos dos números: sem eles a câmera não tem como dar nota
+        numberClassifierRef.current = await loadNumberClassifier();
+        if (cancelled()) return;
+        if (!numberClassifierRef.current) throw new Error('modelo dos números indisponível');
+      } else {
+        loadClassifier();
+      }
       // Landmarker da sessao: na maioria das vezes ja esta pronto (aquecido ao abrir a licao)
       await getHandLandmarker();
       if (cancelled()) return;

@@ -111,6 +111,7 @@
     "summarySkips": "Skips: {n}",
     "listLabel": "From hardest to easiest",
     "kindLetter": "Letter",
+    "kindNumber": "Number",
     "kindSign": "Sign",
     "runs": "Times on camera: {n}",
     "level": {

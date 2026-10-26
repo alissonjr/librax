@@ -30,3 +30,9 @@ export const SIGN_MODEL_DIR = '/ml/sinais';
  * corpo. Se não existir, nada muda.
  */
 export const LETTER_MOTION_DIR = '/ml/letras-mov';
+
+/**
+ * Modelo dos números de 0 a 9 (ml-training/train_numeros15.py): mão parada, o mesmo formato das
+ * letras paradas. Só os números de camera_numbers ganham câmera. Se não existir, nada muda.
+ */
+export const NUMBERS_DIR = '/ml/numeros';

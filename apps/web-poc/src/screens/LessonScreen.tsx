@@ -239,10 +239,11 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
         />
       )}
 
-      {ex.type === 'perform_sign' && !ex.recognizer && (
+      {ex.type === 'perform_sign' && (!ex.recognizer || ex.recognizer === 'numeros') && (
         <ExerciseCameraSign
           key={ex.id}
           sign={getSign(ex.signId)}
+          recognizer={ex.recognizer}
           onComplete={(wasCorrect) => {
             handleAnswer(ex.signId, wasCorrect);
             advance();
