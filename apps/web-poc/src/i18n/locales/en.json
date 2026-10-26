@@ -153,12 +153,15 @@
     "u1-l4": "Letters P to T",
     "u1-l5": "Letters U to Z",
     "u1-l6": "Letter Ç",
+    "u1-l7": "Review: look-alike letters",
+    "u1-l8": "Review: movement changes the letter",
     "u2": {
       "desc": "Numbers from 0 to 10",
       "title": "Numbers"
     },
     "u2-l1": "Numbers 0 to 5",
     "u2-l2": "Numbers 6 to 10",
+    "u2-l3": "Review: letters and numbers",
     "u3": {
       "desc": "Greet, thank and say excuse me",
       "title": "Greetings and courtesy"
@@ -334,6 +337,28 @@
     "starting": "Starting...",
     "successTitle": "Nice! You signed the letter {letter}",
     "nextLetter": "Next letter"
+  },
+  "exerciseContrastPair": {
+    "cameraStep": "Look-alike hands: {n} of {total}",
+    "compareHint": "Notice what changes from one hand to the other.",
+    "comparePrompt": "Compare the two hands",
+    "contextNumber": "This hand shows up in the number {context}. What is it?",
+    "contextWord": "This hand shows up in the word {context}. What is it?",
+    "correct": "Correct!",
+    "hand": "Hand {n}",
+    "handLabel": "Hand {n}: {desc}",
+    "pauseMove": "Pause the movement",
+    "pickHint": "Tap the right hand. These hands are from other people.",
+    "playMove": "Play the movement",
+    "round": "Round {n} of {total}",
+    "sameHand": "Same hand",
+    "sameHandNote": "It is the same hand. The context tells you if it is a letter or a number: in a word, it is a letter; in a number, it is a number.",
+    "title": "Look-alike hands",
+    "whichLetter": "Which one is the letter {gloss}?",
+    "whichNumber": "Which one is the number {gloss}?",
+    "withMovement": "With movement",
+    "wrongContext": "The right answer is:",
+    "wrongHand": "The right answer is hand {n}."
   },
   "exerciseCameraMotion": {
     "bodyMissing": "Fit your face and shoulders in the camera",

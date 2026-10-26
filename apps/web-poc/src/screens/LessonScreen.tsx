@@ -10,6 +10,7 @@ import { ExerciseFingerspell } from '../components/ExerciseFingerspell';
 import { ExerciseMirrorPractice } from '../components/ExerciseMirrorPractice';
 import { ExerciseOrderSequence } from '../components/ExerciseOrderSequence';
 import { ExerciseBuildPhrase } from '../components/ExerciseBuildPhrase';
+import { ExerciseContrastPair } from '../components/ExerciseContrastPair';
 import { course, getSign, type Exercise } from '../lib/content';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
@@ -120,8 +121,10 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
   const alphabetLessons = course.units[0]?.lessons ?? [];
   const isLastLesson = alphabetLessons[alphabetLessons.length - 1]?.id === lessonId;
   const pct = Math.round((currentIdx / (exercises.length || 1)) * 100);
-  const hasCamera = exercises.some(e => CAMERA_EXERCISES.has(e.type));
-  const hasMotionSign = exercises.some(e => e.recognizer === 'sinais');
+  const hasCamera = exercises.some(e => CAMERA_EXERCISES.has(e.type) || !!e.contrast?.camera.length);
+  const hasMotionSign = exercises.some(e => e.recognizer === 'sinais' || !!e.contrast?.camera.some(c => c.recognizer === 'sinais'));
+  // Mãos parecidas: a etapa da câmera também vira palco
+  const [pairStage, setPairStage] = useState(false);
 
   // Aquece o landmarker da sessão ao abrir a lição: quando o exercício de câmera chega, o
   // modelo já está pronto (ou quase). Ele é criado uma vez e serve a todos os exercícios.
@@ -179,6 +182,19 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
     ]);
   }
 
+  // Mãos parecidas: os dois sinais entram no SRS; o que a pessoa errou ou pulou revisa mais cedo
+  function handleContrastPairComplete(signIds: string[], correct: boolean, missed: string[]) {
+    record(correct);
+    setReviewed((r) => [
+      ...r,
+      ...signIds.map((signId) => ({
+        signId,
+        result: missed.includes(signId) ? { state: 'failed' } : { state: 'correct', highConfidence: true },
+      })),
+    ]);
+    advance();
+  }
+
   // Cada sinal do match_pairs entra no SRS: quem errou o par revisa mais cedo
   function handleMatchPairsComplete(signIds: string[], allCorrect: boolean, missed: string[]) {
     record(allCorrect);
@@ -196,7 +212,7 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
 
   const ex = exercises[currentIdx];
   // Exercício com câmera: a tela inteira vira o palco (sempre escuro, nos dois modos)
-  const onStage = CAMERA_EXERCISES.has(ex.type);
+  const onStage = CAMERA_EXERCISES.has(ex.type) || (ex.type === 'contrast_pair' && pairStage);
 
   return (
     <div className={`lesson-screen${onStage ? ' lesson-screen--stage lx-theme-dark' : ''}`}>
@@ -310,6 +326,16 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
             : undefined}
           onAnswer={record}
           onNext={advance}
+        />
+      )}
+
+      {ex.type === 'contrast_pair' && ex.contrast && (
+        <ExerciseContrastPair
+          key={ex.id}
+          pair={ex.contrast}
+          signs={[getSign(ex.contrast.signIds[0]), getSign(ex.contrast.signIds[1])]}
+          onStage={setPairStage}
+          onComplete={({ correct, missed }) => handleContrastPairComplete(ex.contrast?.signIds ?? [], correct, missed)}
         />
       )}
 

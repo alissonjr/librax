@@ -63,6 +63,7 @@ export const EXERCISE_LABELS: Record<string, string> = {
   build_phrase: 'Montar a frase',
   fingerspell: 'Datilologia na câmera',
   mirror_practice: 'Prática no espelho',
+  contrast_pair: 'Mãos parecidas',
 };
 
 export const MISSING_LABELS: Record<string, string> = {

@@ -139,7 +139,7 @@ function pickProduce(signIds, fresh, signsMap, n) {
  * sinais da mesma categoria vistos em lições anteriores (os mais recentes primeiro), os outros
  * sinais da lição e, por fim, qualquer sinal da mesma categoria. Nunca repete glosa.
  */
-function videoDistractors(signId, presented, signIds, signsMap, seenSigns) {
+function videoDistractors(signId, presented, signIds, signsMap, seenSigns, exclude = new Set()) {
   const gloss = (id) => signsMap[id]?.gloss ?? id;
   const category = signsMap[signId]?.category;
   const sameCategory = Object.keys(signsMap).filter((id) => signsMap[id].category === category);
@@ -148,11 +148,29 @@ function videoDistractors(signId, presented, signIds, signsMap, seenSigns) {
   const out = [];
   for (const id of [...presented, ...learned, ...signIds, ...sameCategory]) {
     if (out.length === 3) break;
-    if (id === signId || seen.has(gloss(id))) continue;
+    if (id === signId || exclude.has(id) || seen.has(gloss(id))) continue;
     seen.add(gloss(id));
     out.push(id);
   }
   return out;
+}
+
+/**
+ * Pares de mãos parecidas da lição (`contrastPairs` em course.json), conferidos: dois sinais
+ * diferentes que existem. `contexts` só nos pares da mesma mão (O e 0, S e 8): a palavra ou o
+ * número em que cada sinal aparece, para a checagem perguntar pelo contexto.
+ */
+export function lessonContrastPairs(lesson, signsMap) {
+  return (lesson.contrastPairs ?? []).map((pair) => {
+    const ids = pair.signs ?? [];
+    if (ids.length !== 2 || ids[0] === ids[1] || ids.some((id) => !signsMap[id])) {
+      throw new Error(`Lição ${lesson.id ?? '?'}: par de mãos parecidas inválido (${ids.join(', ')}).`);
+    }
+    if (pair.contexts && ids.some((id) => typeof pair.contexts[id] !== 'string' || !pair.contexts[id])) {
+      throw new Error(`Lição ${lesson.id ?? '?'}: o par ${ids.join(' e ')} precisa de um contexto para cada sinal.`);
+    }
+    return { signs: ids, contexts: pair.contexts ?? null };
+  });
 }
 
 /**
@@ -175,12 +193,17 @@ function videoDistractors(signId, presented, signIds, signsMap, seenSigns) {
  *    `spellOwnName`, o "soletre seu nome" (o app troca a palavra pelo nome do perfil; a de
  *    `spellOwnName` fica para quando o nome não dá). Se ainda não couber, a produção sem lista cai
  *    para 1 perform_sign.
+ *    Depois, um contrast_pair por par de `contrastPairs` (revisão das mãos parecidas, como F e T ou O
+ *    e 0): compara as duas mãos, checa qual é qual e faz as duas na câmera. Cada par conta como um
+ *    exercício no limite de 12 e só usa sinais já ensinados (composeCourse confere).
  * 4. Da U3 em diante, a frase da lição (build_phrase) fecha a sessão.
- * Lição curta demais ganha uma rodada de watch_choose_word antes da frase até chegar a 7.
+ * Lição curta demais ganha uma rodada de watch_choose_word antes dos pares e da frase até chegar a 7.
  *
  * A revisão extensa (o mesmo sinal várias vezes) fica na prática diária: todo sinal da lição tem
  * ao menos um exercício com nota (receptivo ou match_pairs), que o põe na fila do SRS.
  *
+ * `extra.producedSigns`: sinais que tiveram perform_sign em lições anteriores (composeCourse
+ * preenche); a câmera do contrast_pair só pede esses.
  * `extra.seenSigns`: sinais apresentados em lições anteriores (composeCourse preenche). Quando o app
  * não avalia o sinal pela câmera, mostra o perform_sign como prática livre (resolveExercises).
  */
@@ -195,6 +218,7 @@ export function composeLessonExercises(lesson, signsMap, extra = {}) {
   const ownName = lesson.spellOwnName ?? null;
   const spellCount = spellWords.length + (ownName ? 1 : 0);
   const phraseCount = extra.phrase ? 1 : 0;
+  const pairs = lessonContrastPairs(lesson, signsMap);
   const listed = lesson.produce ?? null;
   const outside = (listed ?? []).filter((id) => !signIds.includes(id));
   if (outside.length) {
@@ -207,7 +231,7 @@ export function composeLessonExercises(lesson, signsMap, extra = {}) {
   let group = null;
   const produceOptions = listed ? [listed.length] : spellCount ? [0] : [PRODUCE_COUNT, 1];
   for (const n of produceOptions) {
-    group = groupSize(signIds.length, fresh.length + phraseCount + spellCount + n, listed ? MATCH_MAX_PRODUCE : MATCH_MAX);
+    group = groupSize(signIds.length, fresh.length + phraseCount + spellCount + pairs.length + n, listed ? MATCH_MAX_PRODUCE : MATCH_MAX);
     if (group !== null) {
       produce = listed ?? pickProduce(signIds, fresh, signsMap, n);
       break;
@@ -223,6 +247,13 @@ export function composeLessonExercises(lesson, signsMap, extra = {}) {
   const push = (type, payload) => out.push({ type, payload });
   const presented = [...review];
   let receptive = 0;
+  // Par da mesma mão (O e 0): um não entra como distrator do outro no "Qual é o sinal de"
+  const sameHand = new Map();
+  for (const p of pairs) {
+    if (!p.contexts) continue;
+    sameHand.set(p.signs[0], p.signs[1]);
+    sameHand.set(p.signs[1], p.signs[0]);
+  }
 
   const intro = (id) => {
     if (fresh.includes(id)) push('sign_intro', { sign_id: id });
@@ -233,7 +264,7 @@ export function composeLessonExercises(lesson, signsMap, extra = {}) {
     } else {
       push('word_choose_video', {
         word: gloss(id),
-        video_options: [id, ...videoDistractors(id, presented, signIds, signsMap, seenSigns)],
+        video_options: [id, ...videoDistractors(id, presented, signIds, signsMap, seenSigns, new Set(sameHand.has(id) ? [sameHand.get(id)] : []))],
         correct_sign_id: id,
       });
     }
@@ -277,9 +308,21 @@ export function composeLessonExercises(lesson, signsMap, extra = {}) {
   }
 
   // Lição curta: completa com uma rodada de reconhecimento até o mínimo
-  for (let i = 0; signIds.length && out.length + phraseCount < MIN_EXERCISES; i++) {
+  for (let i = 0; signIds.length && out.length + pairs.length + phraseCount < MIN_EXERCISES; i++) {
     const id = signIds[i % signIds.length];
     push('watch_choose_word', { sign_id: id, correct: gloss(id) });
+  }
+
+  // 3b. Mãos parecidas: compara, checa e faz os dois na câmera. A câmera só pede o sinal que já teve
+  // perform_sign em lição anterior (`extra.producedSigns`, as letras que o modelo lê bem) e que esta
+  // lição ainda não pediu
+  const producedBefore = extra.producedSigns ?? new Set();
+  for (const p of pairs) {
+    push('contrast_pair', {
+      sign_ids: p.signs,
+      camera_sign_ids: p.signs.filter((id) => producedBefore.has(id) && !produce.includes(id)),
+      ...(p.contexts ? { contexts: p.contexts } : {}),
+    });
   }
 
   // 4. A frase fecha a lição
@@ -322,6 +365,8 @@ export function composeCourse(course, signsList) {
   const seenSigns = new Set();
   // Letras que já tiveram perform_sign (até a lição atual, inclusive)
   const producedLetters = new Set();
+  // Sinais que já tiveram perform_sign em lições anteriores (câmera do contrast_pair)
+  const producedSigns = new Set();
   const bundle = {};
 
   course.units.forEach((unit, unitIdx) => {
@@ -336,10 +381,18 @@ export function composeCourse(course, signsList) {
           phrase = unit.phrases[pick];
         }
       }
-      const items = composeLessonExercises(lesson, signsMap, { phrase, unitPhrases: unit.phrases, seenSigns });
+      // Par de mãos parecidas só com sinais já ensinados (em lição anterior ou nesta)
+      for (const p of lessonContrastPairs(lesson, signsMap)) {
+        const missing = p.signs.filter((id) => !seenSigns.has(id) && !lesson.signIds.includes(id));
+        if (missing.length) {
+          throw new Error(`Lição ${lesson.id}: o par ${p.signs.join(' e ')} usa sinal ainda não ensinado (${missing.join(', ')}).`);
+        }
+      }
+      const items = composeLessonExercises(lesson, signsMap, { phrase, unitPhrases: unit.phrases, seenSigns, producedSigns });
       for (const e of items) {
         const s = e.type === 'perform_sign' ? signsMap[e.payload.sign_id] : null;
         if (s?.category === 'alfabeto') producedLetters.add(s.gloss);
+        if (s) producedSigns.add(s.id);
       }
       for (const e of items) {
         if (e.type !== 'fingerspell') continue;
