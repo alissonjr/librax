@@ -125,4 +125,6 @@ npm run landing:publicar  # confere a conta, build com os outputs, sync e invali
 - A mão em 3D da abertura (carregada depois da página: cerca de 300 kB comprimidos, entre o motor 3D e o
   modelo) pede três liberações, todas da própria origem: `'wasm-unsafe-eval'` em `script-src` (o
   descompressor do modelo é WebAssembly embutido no JS) e `blob:` em `img-src` e `connect-src` (a textura
-  que vem dentro do GLB).
+  que vem dentro do GLB). A mesma mão aparece no app, na apresentação das letras e dos números
+  (`apps/web-poc/src/mao3d`): a CSP do app (`infra/lib/web-headers.ts`) já tinha `'wasm-unsafe-eval'` (MediaPipe)
+  e `blob:` em `img-src`, e ganhou `blob:` em `connect-src`.

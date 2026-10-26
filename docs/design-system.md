@@ -1040,6 +1040,15 @@ Nenhum desses estados depende de som. Mensagens de status entram por `aria-live=
   e entregaria a resposta); velocidades 1x, 0,75x e 0,5x; crédito "Avatar: VLibras (Governo Federal), licença
   LGPL-3.0" discreto junto ao avatar e nas Configurações; fora da tela o avatar fica pausado, para não disputar
   a GPU com a câmera. Ver [`conteudo-e-validacao.md`](./conteudo-e-validacao.md).
+- **Mão em 3D na apresentação das letras e dos números** (`HandDemo` e `src/mao3d/`): a mão da abertura da landing
+  (modelo próprio do Librax) com mãos de pessoas reais, lidas pelos modelos do app. Mostra a forma da mão (gira
+  com o dedo, pelos botões ou pelas setas) e, nas letras H, J, K, X, Z e Ç, o movimento real em 1x ou 0,5x.
+  Quando o sinal tem avatar, as duas ficam em abas "Mão 3D | Avatar" (fundo `feedback.info.soft` e texto
+  `text.brand` na atual), abrindo na mão; no Ç, sem avatar, a mão é a demonstração. Palco quadrado na altura do
+  avatar, fundo `stage.bg` dentro da moldura das demonstrações; botões de 48 px sobre o palco (outra pessoa, tom
+  de pele, girar e ver de frente) e, embaixo, tocar/pausar e a velocidade. Tom de pele em seis opções
+  ilustrativas (o do meio sem escolha). Com menos movimento a mão abre parada. Sem 3D no navegador, fica o
+  `SignDemo`. Nos sinais de palavras o avatar continua sozinho: lugar no corpo e expressão fazem parte do sinal.
 
 ### 11.13 Rotas e o voltar do navegador
 
