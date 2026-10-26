@@ -3,9 +3,11 @@ import type { Lm } from '../lib/recognizer';
 import type { MlpModel } from '../recognition/mlp';
 import { PER_HAND, SIGN_FRAME_DIM, SIGN_INPUT_DIM, type SignFrame } from '../recognition/signFeatures';
 import {
-  checkSignModelJson, getSignGlosses, hasSignModel, loadSignIndex, loadSignModel, setSignModelForTests,
+  checkSignModelJson, getSignGlosses, getSignReadingRules, hasSignModel, loadSignIndex, loadSignModel, setSignModelForTests,
 } from '../recognition/signModel';
-import { BUFFER_S, createSignRecognizer, probabilityOf } from '../recognition/signRecognizer';
+import {
+  BUFFER_S, createSignRecognizer, DEFAULT_SIGN_RULES, probabilityOf, signWindowMotion,
+} from '../recognition/signRecognizer';
 
 /** Corpo de frente: nariz em cima, ombros a 0,25 de largura. */
 function pose(): Lm[] {
@@ -129,6 +131,47 @@ describe('reconhecedor de sinais com movimento', () => {
     expect(w.input[PER_HAND]).toBe(0);
   });
 
+  it('portão de movimento: mão levantada e parada não é avaliada; com movimento, lê', () => {
+    const rules = { ...DEFAULT_SIGN_RULES, minMotion: 0.17 };
+    const rec = createSignRecognizer(MESA_CERTA, rules);
+    for (let t = 0; t <= 2.2; t += 1 / 15) rec.push(frame(t, [{ h: 'Left', x: 0.4, y: 0.45 }]), 4 / 3);
+    // as janelas existem (mão levantada), mas nenhuma se mexe o bastante
+    expect(rec.windowInputs()).toHaveLength(3);
+    expect(rec.windowInputs().every(w => signWindowMotion(w.input, rules.motionShapeWeight) < 0.01)).toBe(true);
+    expect(rec.evaluate()).toMatchObject({ gloss: null, windows: 0 });
+    expect(probabilityOf(rec.evaluate(), rec.labels, 'MESA')).toBe(0);
+    rec.reset();
+    for (const f of signing(0, 2.2)) rec.push(f, 4 / 3);
+    expect(rec.evaluate()).toMatchObject({ gloss: 'MESA', windows: 3 });
+  });
+
+  it('movimento da janela: pulso em larguras de ombro mais a forma da mão; vaga sem mão não conta', () => {
+    const input = new Float64Array(SIGN_INPUT_DIM);
+    // dominante em dois passos, o pulso andando 0,3 em x; a outra vaga num passo só (não conta)
+    input[0] = 1;
+    input[3 * SIGN_FRAME_DIM] = 1;
+    input[3 * SIGN_FRAME_DIM + 1] = 0.3;
+    input[5 * SIGN_FRAME_DIM + PER_HAND] = 1;
+    input[5 * SIGN_FRAME_DIM + PER_HAND + 1] = 5;
+    expect(signWindowMotion(input, 1)).toBeCloseTo(0.3, 9);
+    // a forma muda 1 num ponto da normalizeHand: soma 1 / raiz de 21 vezes o peso
+    input[3 * SIGN_FRAME_DIM + 5] = 1;
+    expect(signWindowMotion(input, 1)).toBeCloseTo(0.3 + 1 / Math.sqrt(21), 9);
+    expect(signWindowMotion(input, 0)).toBeCloseTo(0.3, 9);
+  });
+
+  it('teto do "_": sem leitura quando p("_") da janela passa dele', () => {
+    // MESA 0,7 e "_" 0,3: lê com o teto padrão (1), não lê com teto 0,2
+    const model = tinyModel(['MESA', '_'], [Math.log(0.7 / 0.3), 0], [0, 0]);
+    const leitura = (maxNoneProbability: number) => {
+      const rec = createSignRecognizer(model, { ...DEFAULT_SIGN_RULES, maxNoneProbability });
+      for (const f of signing(0, 2.2)) rec.push(f, 4 / 3);
+      return rec.evaluate().gloss;
+    };
+    expect(leitura(1)).toBe('MESA');
+    expect(leitura(0.2)).toBeNull();
+  });
+
   it('quadros sem corpo entram como zero', () => {
     const rec = createSignRecognizer(MESA_CERTA);
     for (let t = 0; t <= 1.2; t += 1 / 15) rec.push(frame(t, [{ h: 'Left', x: 0.4, y: 0.45 }], t < 1), 1);
@@ -171,6 +214,26 @@ describe('modelo de sinais publicado em /ml/sinais/', () => {
     expect(checkSignModelJson(null)).toMatch(/librax-mlp/);
     expect(checkSignModelJson({ ...valid, camera_signs: ['ARROZ'] })).toBeNull();
     expect(checkSignModelJson({ ...valid, camera_signs: 'ARROZ' })).toMatch(/camera_signs/);
+    expect(checkSignModelJson({ ...valid, reading_rules: { min_motion: 0.17 } })).toBeNull();
+    expect(checkSignModelJson({ ...valid, reading_rules: { min_motion: 'alto' } })).toMatch(/min_motion/);
+    expect(checkSignModelJson({ ...valid, reading_rules: [] })).toMatch(/reading_rules/);
+    expect(checkSignModelJson({ ...valid, reading_rules: { max_none_probability: 2 } })).toMatch(/acima de 1/);
+  });
+
+  it('reading_rules do model.json vira as regras do reconhecedor (sem ele, só o limiar)', async () => {
+    expect(getSignReadingRules()).toEqual(DEFAULT_SIGN_RULES);
+    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({
+      ...valid, reading_rules: { min_probability: 0.6, min_motion: 0.17, motion_shape_weight: 1, max_none_probability: 1 },
+    })));
+    await loadSignIndex();
+    expect(getSignReadingRules()).toEqual({ minProbability: 0.6, minMotion: 0.17, motionShapeWeight: 1, maxNoneProbability: 1 });
+  });
+
+  it('model.json sem reading_rules: só o limiar, sem portão', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse(valid)));
+    await loadSignIndex();
+    expect(getSignReadingRules()).toEqual(DEFAULT_SIGN_RULES);
+    expect(DEFAULT_SIGN_RULES).toMatchObject({ minMotion: 0, maxNoneProbability: 1 });
   });
 
   it('com camera_signs: a câmera só avalia as glosas da lista que estão no modelo', async () => {

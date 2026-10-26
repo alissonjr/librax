@@ -5,7 +5,7 @@ import { drawSkeleton } from '../lib/cameraUtils';
 import { detectHands, getHandLandmarker, peekHandLandmarker } from '../recognition/landmarker';
 import { detectPose, getPoseLandmarker, peekPoseLandmarker } from '../recognition/poseLandmarker';
 import { startFrameLoop } from '../recognition/frameLoop';
-import { loadSignModel } from '../recognition/signModel';
+import { getSignReadingRules, loadSignModel } from '../recognition/signModel';
 import { createSignRecognizer, EVAL_MS, probabilityOf, type SignRecognizer } from '../recognition/signRecognizer';
 import type { SignFrame } from '../recognition/signFeatures';
 import { keepScreenOn, type WakeLockHandle } from '../platform/wakeLock';
@@ -180,7 +180,7 @@ export function useSignCameraRecognizer(target: string): UseSignCameraRecognizer
         setStatus('unavailable');
         return;
       }
-      recognizerRef.current = createSignRecognizer(model);
+      recognizerRef.current = createSignRecognizer(model, getSignReadingRules());
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },

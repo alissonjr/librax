@@ -55,15 +55,15 @@
       "total": 5
     },
     "K": {
-      "certas": 4,
+      "certas": 5,
       "total": 6
     },
     "X": {
-      "certas": 5,
+      "certas": 4,
       "total": 5
     },
     "Z": {
-      "certas": 5,
+      "certas": 2,
       "total": 6
     },
     "Ç": {
@@ -72,22 +72,28 @@
     }
   },
   "heldout_false_alarms": {
-    "alarmes": 17,
+    "alarmes": 11,
     "paradas": 99
   },
   "ines": {
     "H": "certa",
     "J": "certa",
     "K": "certa",
-    "X": "certa",
+    "X": "leu nada",
     "Z": "certa",
     "Ç": "certa",
-    "P": "alarme K",
+    "P": "sem alarme",
     "I": "alarme J",
-    "D": "alarme Z",
+    "D": "sem alarme",
     "C": "alarme Ç"
   },
   "source": "scikit-learn",
+  "reading_rules": {
+    "min_probability": 0.7,
+    "min_motion": 0.3,
+    "motion_shape_weight": 1.0,
+    "max_none_probability": 1.0
+  },
   "camera_letters": [
     "H",
     "J",
@@ -107,15 +113,15 @@
       "total": 48
     },
     "K": {
-      "certas": 43,
+      "certas": 45,
       "total": 56
     },
     "X": {
-      "certas": 38,
+      "certas": 36,
       "total": 48
     },
     "Z": {
-      "certas": 38,
+      "certas": 39,
       "total": 56
     },
     "Ç": {
@@ -124,7 +130,7 @@
     }
   },
   "heldout_false_alarms_seeds": {
-    "alarmes": 139,
+    "alarmes": 98,
     "paradas": 792
   }
 }

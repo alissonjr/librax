@@ -10,7 +10,7 @@ import {
   SIGN_FRAME_DIM, WINDOW_FRAMES, type SignFrame,
 } from '../recognition/signFeatures';
 import { checkSignModelJson, NO_SIGN_LABEL, SIGN_MIN_PROBABILITY } from '../recognition/signModel';
-import { createSignRecognizer, SIGN_WINDOWS_S } from '../recognition/signRecognizer';
+import { createSignRecognizer, signWindowMotion, SIGN_WINDOWS_S } from '../recognition/signRecognizer';
 
 /**
  * Paridade TS x Python dos sinais com movimento. O fixture sai de scripts/gerar-fixture-sinais.py,
@@ -23,7 +23,12 @@ const TOLERANCE = 1e-4;
 interface RawHand { h: string | null; lm: number[] }
 interface RawFrame { t: number; hands: RawHand[]; pose: number[] | null }
 interface Fixture {
-  contract: { normalization_version: number; T: number; F: number; frames: number; per_hand: number; windows_s: number[]; min_p: number; none: string };
+  contract: {
+    normalization_version: number; T: number; F: number; frames: number; per_hand: number; windows_s: number[];
+    min_p: number; none: string; motion_shape_weight: number;
+  };
+  /** Entradas sorteadas com a presença ligada e desligada, com o movimento do Python. */
+  motionCases: { input: number[]; motion: number }[];
   frameCases: { name: string; aspect: number; dominant: string | null; frame: RawFrame; expected: number[] | null }[];
   dominantCases: { name: string; aspect: number; frames: RawFrame[]; expected: string | null }[];
   clips: Clip[];
@@ -33,7 +38,7 @@ interface Fixture {
 interface Clip {
   id: string; glosa: string; aspect: number; dominant: string | null; frames: RawFrame[];
   features: { index: number; expected: number[] | null }[];
-  windows: { t0: number; t1: number; input: number[]; resampled?: number[] }[];
+  windows: { t0: number; t1: number; input: number[]; motion: number; resampled?: number[] }[];
 }
 interface GoldenCase { clip?: number; window?: number; input?: number[]; probs: number[] }
 
@@ -170,6 +175,17 @@ describe('reamostrar + compactar', () => {
     const inputs = rec.windowInputs();
     expect(inputs.map(i => i.duration)).toEqual([...SIGN_WINDOWS_S]);
     inputs.forEach((w, i) => expect(maxDiff(w.input, clip.windows[i].input)).toBeLessThan(TOLERANCE));
+  });
+});
+
+describe('movimento da janela (portão das regras de leitura)', () => {
+  it('o mesmo do movimento() do train_sinais.py nas janelas reais, no trecho parado e em entradas sorteadas', () => {
+    const w = fixture.contract.motion_shape_weight;
+    const windows = [...fixture.clips, fixture.stillClip].flatMap(c => c.windows);
+    expect(windows.length).toBeGreaterThan(8);
+    for (const win of windows) expect(Math.abs(signWindowMotion(win.input, w) - win.motion)).toBeLessThan(TOLERANCE);
+    expect(fixture.motionCases.length).toBeGreaterThanOrEqual(4);
+    for (const c of fixture.motionCases) expect(Math.abs(signWindowMotion(c.input, w) - c.motion)).toBeLessThan(TOLERANCE);
   });
 });
 

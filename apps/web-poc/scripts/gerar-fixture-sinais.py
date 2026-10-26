@@ -10,15 +10,17 @@ roda o código do treino sobre landmarks de verdade e guarda o que ele devolve:
 - trechos reais (até 2,4 s, como o buffer do app) de vídeos com o sinal: a mão dominante calculada
   só no trecho (como o app faz ao vivo), os atributos por quadro, a janela reamostrada
   (reamostrar) e a entrada compactada (compactar) das janelas de 1, 1,5 e 2 s que terminam no
-  último quadro, mais uma que começa antes do primeiro quadro;
+  último quadro, mais uma que começa antes do primeiro quadro, com o movimento de cada uma
+  (movimento do train_sinais.py, o portão de movimento das regras de leitura);
+- entradas sorteadas com a presença das mãos ligada e desligada em passos diferentes, com o movimento;
 - um MLP pequeno de pesos sorteados no formato do modelo real (export_web, kind "sinais"), com o
   softmax de mlp_forward para as entradas dos trechos e algumas sorteadas.
 
 O modelo de verdade tem o próprio golden.json (train_sinais.py treinar); o teste também o confere
 quando há modelo em public/ml/sinais/ (ou em LIBRAX_SINAIS_DIR).
 
-Uso (numpy; lê os landmarks de ml-training/data, que fica fora do git):
-    python scripts/gerar-fixture-sinais.py [--ml-training ../../ml-training] [--out <pasta>]
+Uso (numpy; lê os landmarks de ml-training/data, que fica fora do git, ou de --dados):
+    python scripts/gerar-fixture-sinais.py [--ml-training ../../ml-training] [--dados <pasta data>] [--out <pasta>]
 """
 
 import argparse
@@ -130,16 +132,16 @@ def casos_dominante(rq, rng):
             for nome, frames in listas.items()]
 
 
-def escolher_trechos(rq, ml, n_por_lado=1):
+def escolher_trechos(rq, dados, n_por_lado=1):
     """Vídeos aceitos pelo rotular_sinais com a dominante de cada lado e duas mãos no trecho."""
-    rotulos = sorted(glob.glob(os.path.join(ml, "data", "rotulos_sinais", "*.json")))
+    rotulos = sorted(glob.glob(os.path.join(dados, "rotulos_sinais", "*.json")))
     achados = {"Left": [], "Right": []}
     for path in rotulos:
         with open(path) as f:
             r = json.load(f)
         if not r.get("aceito") or not r["sinal"]:
             continue
-        lm = os.path.join(ml, "data", "landmarks_sinais", f"{r['id']}.json")
+        lm = os.path.join(dados, "landmarks_sinais", f"{r['id']}.json")
         if not os.path.exists(lm):
             continue
         with open(lm) as f:
@@ -172,7 +174,8 @@ def trecho_fixture(rq, ts_mod, r, v, frames, com_reamostrada):
     saida = []
     for i, (t0, t1) in enumerate(janelas):
         win = rq.reamostrar(ts, feats, t0, t1)
-        item = {"t0": t0, "t1": t1, "input": arred(ts_mod.compactar(win[None])[0])}
+        entrada = ts_mod.compactar(win[None])
+        item = {"t0": t0, "t1": t1, "input": arred(entrada[0]), "motion": float(ts_mod.movimento(entrada)[0])}
         if i == 0 and com_reamostrada:
             item["resampled"] = arred(win)
         saida.append(item)
@@ -209,9 +212,11 @@ def trecho_parado(rq, ts_mod):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ml-training", default=os.path.join(APP, "..", "..", "ml-training"))
+    ap.add_argument("--dados", default="", help="pasta data com rotulos_sinais e landmarks_sinais (padrão: a do ml-training)")
     ap.add_argument("--out", default=OUT_PADRAO)
     args = ap.parse_args()
     ml = os.path.abspath(args.ml_training)
+    dados = os.path.abspath(args.dados) if args.dados else os.path.join(ml, "data")
     sys.path.insert(0, ml)
     sys.path.insert(0, os.path.join(ml, "video"))
     import rotular_sinais as rq  # noqa: E402
@@ -219,7 +224,7 @@ def main():
     from train_static import NORMALIZATION_VERSION, export_web, mlp_forward  # noqa: E402
 
     rng = np.random.default_rng(SEED)
-    trechos = [trecho_fixture(rq, ts_mod, *t, com_reamostrada=(i == 0)) for i, t in enumerate(escolher_trechos(rq, ml))]
+    trechos = [trecho_fixture(rq, ts_mod, *t, com_reamostrada=(i == 0)) for i, t in enumerate(escolher_trechos(rq, dados))]
     if len(trechos) < 2:
         raise SystemExit("não achei trechos com a dominante dos dois lados")
     parado = trecho_parado(rq, ts_mod)
@@ -247,11 +252,23 @@ def main():
     with open(os.path.join(args.out, "golden.json"), "w") as f:
         json.dump(golden, f, ensure_ascii=False)
 
+    # Movimento em entradas sorteadas: cada vaga de mão presente em alguns passos e ausente em outros
+    # (sorteio à parte, para não mudar os outros casos do fixture)
+    rng_mov = np.random.default_rng(SEED + 2)
+    movimentos = []
+    for _ in range(6):
+        x = rng_mov.normal(0, 0.5, (ts_mod.PASSOS, rq.F))
+        for k in range(2):
+            x[:, k * rq.POR_MAO] = (rng_mov.random(ts_mod.PASSOS) < 0.6).astype(float)
+        x = np.array(arred(x, 4)).reshape(1, -1)
+        movimentos.append({"input": arred(x[0], 4), "motion": float(ts_mod.movimento(x)[0])})
     fixture = {
         "contract": {
             "normalization_version": NORMALIZATION_VERSION, "T": rq.T, "F": rq.F, "frames": ts_mod.PASSOS,
             "per_hand": rq.POR_MAO, "windows_s": list(rq.JANELAS_S), "min_p": ts_mod.MIN_P, "none": ts_mod.NENHUM,
+            "motion_shape_weight": ts_mod.PESO_FORMA,
         },
+        "motionCases": movimentos,
         "frameCases": casos_sinteticos(rq, rng),
         "dominantCases": casos_dominante(rq, rng),
         "clips": trechos,

@@ -11,7 +11,9 @@ devolve:
   quadros por segundo, um com cada rótulo do MediaPipe (se só houver um, o outro é o mesmo trecho
   espelhado), mais uma cópia com quadros sem mão e outra com uma segunda mão mais baixa: as
   janelas de 0,8, 1,2 e 1,6 s que terminam no último quadro, uma que começa antes do primeiro
-  quadro e, no trecho quase sem mão, uma que não é avaliada (null);
+  quadro e, no trecho quase sem mão, uma que não é avaliada (null), com o movimento de cada uma
+  (movimento do train_letras_mov.py, o portão de movimento das regras de leitura);
+- entradas sorteadas com a mão presente em alguns passos, com o movimento;
 - um MLP pequeno de pesos sorteados no formato do modelo real (export_web, kind "letras-mov"), com
   o softmax de mlp_forward para as entradas dos trechos e duas sorteadas.
 
@@ -126,7 +128,8 @@ def trecho_fixture(lm_mod, tr, aspect, frames, com_reamostrada):
     saida = []
     for i, (t0, t1) in enumerate(janelas):
         w = lm_mod.janela(frames, aspect, t0, t1)
-        item = {"t0": t0, "t1": t1, "input": None if w is None else arred(lm_mod.compactar(w)[0])}
+        item = {"t0": t0, "t1": t1, "input": None if w is None else arred(lm_mod.compactar(w)[0]),
+                "motion": None if w is None else float(lm_mod.movimento(lm_mod.compactar(w))[0])}
         if i == 0 and com_reamostrada and w is not None:
             item["resampled"] = arred(w)
         saida.append(item)
@@ -188,12 +191,22 @@ def main():
         json.dump(golden, f, ensure_ascii=False)
 
     maos, rotulos = casos_mao(lm_mod, rng)
+    # Movimento em entradas sorteadas, com a mão em alguns passos (sorteio à parte, para não mudar o resto)
+    rng_mov = np.random.default_rng(SEED + 2)
+    movimentos = []
+    for _ in range(6):
+        x = rng_mov.normal(0, 0.5, (lm_mod.PASSOS, lm_mod.F))
+        x[:, 0] = (rng_mov.random(lm_mod.PASSOS) < 0.6).astype(float)
+        x = np.array(arred(x, 4)).reshape(1, -1)
+        movimentos.append({"input": arred(x[0], 4), "motion": float(lm_mod.movimento(x)[0])})
     fixture = {
         "contract": {
             "normalization_version": NORMALIZATION_VERSION, "T": lm_mod.T, "F": lm_mod.F, "frames": lm_mod.PASSOS,
             "windows_s": list(lm_mod.JANELAS_S), "min_presence": lm_mod.MIN_PRESENCA, "min_p": lm_mod.MIN_P,
             "none": lm_mod.NENHUMA, "buffer_s": lm_mod.BUFFER_S, "eval_s": lm_mod.AVALIA_S, "confirm": lm_mod.CONFIRMA,
+            "motion_shape_weight": lm_mod.PESO_FORMA,
         },
+        "motionCases": movimentos,
         "handCases": maos,
         "labelCases": rotulos,
         "clips": trechos,
