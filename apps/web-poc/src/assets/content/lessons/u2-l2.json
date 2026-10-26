@@ -58,11 +58,10 @@
     {
       "id": "u2-l2-ex06",
       "lesson_id": "u2-l2",
-      "type": "watch_choose_word",
+      "type": "sign_intro",
       "order": 6,
       "payload": {
-        "sign_id": "numero-8",
-        "correct": "8"
+        "sign_id": "numero-9"
       }
     },
     {
@@ -71,42 +70,55 @@
       "type": "sign_intro",
       "order": 7,
       "payload": {
-        "sign_id": "numero-9"
+        "sign_id": "numero-10"
       }
     },
     {
       "id": "u2-l2-ex08",
       "lesson_id": "u2-l2",
-      "type": "word_choose_video",
+      "type": "match_pairs",
       "order": 8,
       "payload": {
-        "word": "9",
-        "video_options": [
-          "numero-9",
-          "numero-6",
-          "numero-7",
-          "numero-8"
-        ],
-        "correct_sign_id": "numero-9"
+        "pairs": [
+          {
+            "sign_id": "numero-8",
+            "gloss": "8"
+          },
+          {
+            "sign_id": "numero-9",
+            "gloss": "9"
+          },
+          {
+            "sign_id": "numero-10",
+            "gloss": "10"
+          }
+        ]
       }
     },
     {
       "id": "u2-l2-ex09",
       "lesson_id": "u2-l2",
-      "type": "sign_intro",
+      "type": "perform_sign",
       "order": 9,
       "payload": {
-        "sign_id": "numero-10"
+        "sign_id": "numero-6",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
       "id": "u2-l2-ex10",
       "lesson_id": "u2-l2",
-      "type": "watch_choose_word",
+      "type": "perform_sign",
       "order": 10,
       "payload": {
-        "sign_id": "numero-10",
-        "correct": "10"
+        "sign_id": "numero-7",
+        "recognition": "static",
+        "min_confidence": null,
+        "max_attempts": null,
+        "hint_video_url": null
       }
     },
     {
@@ -115,7 +127,7 @@
       "type": "perform_sign",
       "order": 11,
       "payload": {
-        "sign_id": "numero-6",
+        "sign_id": "numero-8",
         "recognition": "static",
         "min_confidence": null,
         "max_attempts": null,
@@ -128,7 +140,7 @@
       "type": "perform_sign",
       "order": 12,
       "payload": {
-        "sign_id": "numero-7",
+        "sign_id": "numero-9",
         "recognition": "static",
         "min_confidence": null,
         "max_attempts": null,
