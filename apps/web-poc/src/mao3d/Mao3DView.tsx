@@ -38,11 +38,13 @@ const DRAG = 0.012;
 interface Props {
   sign: Pick<Sign, 'gloss' | 'category' | 'recognition' | 'params'>;
   className?: string;
+  /** Versão compacta (exercícios com câmera): palco menor e sem a legenda. */
+  compact?: boolean;
   /** Sem 3D (falhou ao carregar, sem GPU, contexto perdido): quem chamou mostra o avatar ou o texto. */
   onError: () => void;
 }
 
-export default function Mao3DView({ sign, className, onError }: Props) {
+export default function Mao3DView({ sign, className, compact = false, onError }: Props) {
   const { t, lang } = useT();
   const clip = useMemo(() => clipFor(sign.gloss), [sign.gloss]);
   const reduced = useMemo(() => prefersReducedMotion(), []);
@@ -151,7 +153,7 @@ export default function Mao3DView({ sign, className, onError }: Props) {
   }
 
   return (
-    <figure className={`sign-demo mao3d${className ? ` ${className}` : ''}`}>
+    <figure className={`sign-demo mao3d${compact ? ' mao3d--compact' : ''}${className ? ` ${className}` : ''}`}>
       <div
         ref={stageRef}
         className="sign-demo-stage mao3d-stage"
@@ -253,10 +255,12 @@ export default function Mao3DView({ sign, className, onError }: Props) {
           </button>
         )}
       </div>
-      <figcaption className="mao3d-caption">
-        {movementCaption && <span className="mao3d-caption-mov">{movementCaption}</span>}
-        <span>{t('mao3d.caption')}</span>
-      </figcaption>
+      {!compact && (
+        <figcaption className="mao3d-caption">
+          {movementCaption && <span className="mao3d-caption-mov">{movementCaption}</span>}
+          <span>{t('mao3d.caption')}</span>
+        </figcaption>
+      )}
     </figure>
   );
 }

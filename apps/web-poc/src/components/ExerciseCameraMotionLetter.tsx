@@ -6,7 +6,7 @@ import { Sfx } from '../lib/sound';
 import { launchConfetti } from '../lib/confetti';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
-import { SignDemo, chooseDemoMode } from './SignDemo';
+import { CameraDemo, hasSignDemo } from './HandDemo';
 import { DemoToggle } from './DemoToggle';
 import { TraceCameraArcs } from './Brand';
 import { CameraRun, saveCameraRun } from '../lib/cameraStats';
@@ -33,7 +33,7 @@ export function ExerciseCameraMotionLetter({ sign, onComplete }: Props) {
   // Dica sob demanda: o avatar e a detecção disputam a GPU, então a câmera para enquanto ela abre
   const [showDemo, setShowDemo] = useState(false);
   const demoShownRef = useRef(false);
-  const hasDemo = chooseDemoMode(sign) !== 'text';
+  const hasDemo = hasSignDemo(sign);
   // Última leitura de outra letra, para a dica "Vimos X" não piscar entre as avaliações
   const [lastOther, setLastOther] = useState<string | null>(null);
   // Desempenho da câmera (lib/cameraStats.ts): tentativas, leituras de outra letra e pulo
@@ -122,7 +122,7 @@ export function ExerciseCameraMotionLetter({ sign, onComplete }: Props) {
 
       {showDemo && (
         <div className="cam-sign-demo">
-          <SignDemo sign={sign} fallback={null} />
+          <CameraDemo sign={sign} />
           <p className="cam-sign-demo-note">{t('signDemo.cameraPaused')}</p>
         </div>
       )}

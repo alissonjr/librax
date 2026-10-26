@@ -9,7 +9,7 @@ import { Sfx } from '../lib/sound';
 import { launchConfetti } from '../lib/confetti';
 import { useT, type TFunc } from '../i18n';
 import { Icon } from './Icon';
-import { SignDemo, chooseDemoMode } from './SignDemo';
+import { CameraDemo, hasSignDemo } from './HandDemo';
 import { DemoToggle } from './DemoToggle';
 import { TraceCameraArcs } from './Brand';
 import { HEURISTIC_LETTERS, useRecognizableLetters } from '../recognition/classifier';
@@ -79,7 +79,7 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
   // A câmera para ao abrir a dica e volta ao fechar.
   const [showDemo, setShowDemo] = useState(false);
   const demoShownRef = useRef(false);
-  const hasDemo = chooseDemoMode(sign) !== 'text';
+  const hasDemo = hasSignDemo(sign);
   const [showMomentoZero, setShowMomentoZero] = useState(false);
   const momentoShownRef = useRef(false);
   const targetLetter = sign.gloss;
@@ -179,7 +179,7 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
 
       {showDemo && (
         <div className="cam-sign-demo">
-          <SignDemo sign={sign} fallback={null} />
+          <CameraDemo sign={sign} />
           <p className="cam-sign-demo-note">{t('signDemo.cameraPaused')}</p>
         </div>
       )}

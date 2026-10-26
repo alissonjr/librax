@@ -145,6 +145,26 @@
 }
 
 .mao3d .sign-demo-controls { flex-wrap: wrap; }
+
+/*
+ * Palco largo e mais baixo: na tela baixa da apresentação e sempre na versão compacta ("Ver o
+ * movimento" dos exercícios com câmera, sem legenda). A mão fica no meio (o enquadramento usa a
+ * menor medida) e os botões vão para os cantos, fora dela.
+ */
+.mao3d--compact .mao3d-stage {
+  aspect-ratio: auto;
+  width: 100%;
+  max-width: 420px;
+  height: min(32dvh, 280px);
+}
+@media (max-height: 740px) {
+  .exercise-screen--intro .mao3d-stage {
+    aspect-ratio: auto;
+    width: 100%;
+    max-width: 420px;
+  }
+  .mao3d--compact .mao3d-stage { height: min(30dvh, 220px); }
+}
 .mao3d-caption {
   display: flex;
   flex-direction: column;

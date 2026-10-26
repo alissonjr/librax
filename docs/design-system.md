@@ -1048,7 +1048,11 @@ Nenhum desses estados depende de som. Mensagens de status entram por `aria-live=
   avatar, fundo `stage.bg` dentro da moldura das demonstrações; botões de 48 px sobre o palco (outra pessoa, tom
   de pele, girar e ver de frente) e, embaixo, tocar/pausar e a velocidade. Tom de pele em seis opções
   ilustrativas (o do meio sem escolha). Com menos movimento a mão abre parada. Sem 3D no navegador, fica o
-  `SignDemo`. Nos sinais de palavras o avatar continua sozinho: lugar no corpo e expressão fazem parte do sinal.
+  `SignDemo`. No "Ver o movimento" dos exercícios com câmera, letras e números mostram a mesma mão, compacta
+  (palco largo e baixo, sem abas nem legenda); palavras seguem com o avatar. Na apresentação, "Entendi,
+  continuar" fica num rodapé que gruda no pé da tela (`position: sticky`, fundo `bg.canvas`, acima da safe
+  area), sem cobrir o fim do conteúdo; em tela baixa (até 740 px de altura) o cartão fica mais enxuto e o palco
+  encolhe para 30% da altura. Nos sinais de palavras o avatar continua sozinho: lugar no corpo e expressão fazem parte do sinal.
 
 ### 11.13 Rotas e o voltar do navegador
 
