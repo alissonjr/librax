@@ -20,6 +20,8 @@
  *    Sem ml-training/data, a lista de pares do JSON anterior continua valendo.
  * 3. Cada par vira a diferença (src/dicaErro/diferenca.ts): os dedos que mudam, em palavras de um
  *    vocabulário pequeno (i18n wrongHint.*), e os dedos a destacar nas duas mãos.
+ * 4. Pares em que a diferença calculada contradiz a configuração de mão conferida (signs.json) usam
+ *    a dica revisada (src/dicaErro/revisadas.ts) e saem com "rev": true.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -29,6 +31,7 @@ import { sceneLandmarks } from '../src/mao3d/cena';
 import { clipFor, clipGlosses } from '../src/mao3d/poses';
 import { frameShape, signShape, type Shape, type SignShape } from '../src/dicaErro/forma';
 import { comparePair, shapeDifferences } from '../src/dicaErro/diferenca';
+import { DICAS_REVISADAS, withReviewed } from '../src/dicaErro/revisadas';
 import { normalizeHand } from '../src/recognition/normalize';
 import { classify, parseMlp, type MlpModel } from '../src/recognition/mlp';
 import type { Lm } from '../src/lib/recognizer';
@@ -186,12 +189,15 @@ for (const [a, b] of [['K', 'H'], ['P', 'K'], ['R', 'U'], ['F', 'T'], ['T', 'F']
 
 const linhas: string[] = [];
 for (const [k, p] of [...pares].sort(([a], [b]) => a.localeCompare(b))) {
-  const d = comparePair(formas[p.pedido], formas[p.lido]);
-  linhas.push(`  ${JSON.stringify(k)}: ${JSON.stringify({ ...d, o: [...p.origem].sort(), q: p.quadros })}`);
+  const calculada = comparePair(formas[p.pedido], formas[p.lido]);
+  const d = withReviewed(k, calculada);
+  const rev = DICAS_REVISADAS[k] ? { rev: true } : {};
+  linhas.push(`  ${JSON.stringify(k)}: ${JSON.stringify({ ...d, o: [...p.origem].sort(), q: p.quadros, ...rev })}`);
   // Conferência: os itens e as três maiores notas
   const notas = shapeDifferences(formas[p.pedido], formas[p.lido]).slice(0, 3)
     .map((x) => `${x.item.k}${'d' in x.item ? `:${x.item.d}` : ''}:${x.item.v}=${x.score.toFixed(2)}`).join(' ');
-  console.log(`${k.padEnd(5)} ${d.i.map((it) => `${it.k}${'d' in it ? `:${it.d}` : ''}:${it.v}`).join(' + ') || '(sem diferença)'}  [${notas}]`);
+  const fala = (x: typeof d) => x.i.map((it) => `${it.k}${'d' in it ? `:${it.d}` : ''}:${it.v}`).join(' + ') || '(sem diferença)';
+  console.log(`${k.padEnd(5)} ${fala(d)}  [${notas}]${rev.rev ? `  (revisada; calculada: ${fala(calculada)})` : ''}`);
 }
 
 const sobre =
@@ -199,7 +205,8 @@ const sobre =
   'calculada nas mãos da mão em 3D (maos-licoes.json) depois do retargeting e da colisão: d = dedos a destacar nas duas mãos; ' +
   'i = itens da dica (vocabulário em i18n wrongHint.*); o = de onde veio o par (teste_fixo: letras trocadas pelo classificador ' +
   'nos vídeos do teste fixo; numeros_teste: números trocados nas pessoas de teste; letras_mov: letras do modelo das letras com ' +
-  'movimento; mesma_forma: mesma forma com e sem movimento; plano: trocas do plano de lições); q = quadros trocados nos testes.';
+  'movimento; mesma_forma: mesma forma com e sem movimento; plano: trocas do plano de lições); q = quadros trocados nos testes; ' +
+  'rev = dica revisada à mão (src/dicaErro/revisadas.ts), porque a calculada contradizia a configuração de mão conferida no signs.json.';
 writeFileSync(
   SAIDA,
   `{\n "_sobre": ${JSON.stringify(sobre)},\n "gerado_em": ${JSON.stringify(new Date().toISOString().slice(0, 10))},\n "dicas": {\n${linhas.join(',\n')}\n }\n}\n`,

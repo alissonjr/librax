@@ -3,6 +3,8 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { comparePair, direction, fingerState, shapeDifferences, thumbState, type HintItem } from '../dicaErro/diferenca';
 import { frameShape, shapeVector, signShape, toShape, type Shape, type SignShape } from '../dicaErro/forma';
 import { hintPairs, hintTexts, itemText, pairHint } from '../dicaErro/dicas';
+import { DICAS_REVISADAS, withReviewed } from '../dicaErro/revisadas';
+import dicasJson from '../dicaErro/dicas-erro.json';
 import { BONES, clonePose, positions, retarget, rigFromGlbBytes, solveCollisions } from '../mao3d/retarget';
 import { sceneLandmarks } from '../mao3d/cena';
 import { clipFor } from '../mao3d/poses';
@@ -131,6 +133,46 @@ describe('dica de erro: diferença entre dois sinais', () => {
   });
 });
 
+/* ---------- a descrição conferida de cada sinal pedido ---------- */
+
+/*
+ * Configuração de mão de signs.json (params.CM, conferida no INES e no VLibras), dedo a dedo
+ * [indicador, médio, anelar, mínimo]: E estendido, C curvado, F fechado (dobrado). `polegar`: onde a
+ * dica pode dizer que o polegar fica (sem a chave, a descrição não diz). Uma dica do par "pedido>lido"
+ * descreve o sinal pedido, então tem de caber nesta descrição.
+ */
+type Dedo = 'E' | 'C' | 'F';
+const LONG = ['index', 'middle', 'ring', 'pinky'];
+const ESTADOS: Record<Dedo, string[]> = {
+  E: ['esticado', 'maisEsticado'],
+  C: ['curvado', 'maisDobrado', 'maisEsticado'],
+  F: ['dobrado', 'maisDobrado'],
+};
+interface Cm { cm: string; dedos: Dedo[]; polegar?: string[]; cruzados?: boolean; abertura?: 'juntos' | 'separados' }
+const CM: Record<string, Cm> = {
+  '4': { cm: 'Indicador, médio, anelar e mínimo estendidos e separados; polegar dobrado sobre a palma', dedos: ['E', 'E', 'E', 'E'], polegar: ['dobrado', 'porCima'], abertura: 'separados' },
+  B: { cm: 'Dedos estendidos e juntos, polegar dobrado sobre a palma', dedos: ['E', 'E', 'E', 'E'], polegar: ['dobrado', 'porCima'], abertura: 'juntos' },
+  C: { cm: 'Mão semiaberta curvada em forma de C', dedos: ['C', 'C', 'C', 'C'], polegar: ['frente', 'lado'] },
+  Ç: { cm: 'Mão semiaberta curvada em forma de C (a mesma do C)', dedos: ['C', 'C', 'C', 'C'], polegar: ['frente', 'lado'] },
+  D: { cm: 'Indicador estendido para cima, demais dedos curvados tocando o polegar', dedos: ['E', 'C', 'C', 'C'], polegar: ['tocaPontas', 'tocaPonta:middle', 'encosta:middle'] },
+  E: { cm: 'Todos os dedos curvados sobre a palma, polegar dobrado', dedos: ['C', 'C', 'C', 'C'], polegar: ['dobrado', 'porBaixo'] },
+  F: { cm: 'Indicador esticado na horizontal, apontando para o lado, polegar encostado embaixo dele; médio, anelar e mínimo estendidos', dedos: ['E', 'E', 'E', 'E'], polegar: ['encosta:index', 'porBaixo'] },
+  G: { cm: 'Indicador estendido para cima, polegar esticado e afastado do indicador; médio, anelar e mínimo fechados', dedos: ['E', 'F', 'F', 'F'], polegar: ['lado', 'frente'] },
+  H: { cm: 'Indicador esticado para cima, médio esticado para frente, polegar encostado no médio; anelar e mínimo fechados', dedos: ['E', 'E', 'F', 'F'], polegar: ['encosta:middle'] },
+  I: { cm: 'Só o mínimo estendido para cima, demais dedos dobrados', dedos: ['F', 'F', 'F', 'E'] },
+  J: { cm: 'Mínimo estendido (a mão do I)', dedos: ['F', 'F', 'F', 'E'] },
+  K: { cm: 'Indicador esticado para cima, médio esticado para frente, polegar encostado no médio; anelar e mínimo fechados', dedos: ['E', 'E', 'F', 'F'], polegar: ['encosta:middle', 'encosta:index'] },
+  L: { cm: 'Indicador aponta para cima, polegar estendido para o lado em ângulo de 90 graus', dedos: ['E', 'F', 'F', 'F'], polegar: ['lado'] },
+  O: { cm: 'Todos os dedos curvados formando O fechado com o polegar', dedos: ['C', 'C', 'C', 'C'], polegar: ['tocaPontas', 'tocaPonta:index', 'tocaPonta:middle'] },
+  P: { cm: 'Indicador e médio esticados e separados, polegar encostado no médio; anelar e mínimo fechados', dedos: ['E', 'E', 'F', 'F'], polegar: ['encosta:middle'], abertura: 'separados' },
+  R: { cm: 'Indicador e médio cruzados, apontando para cima', dedos: ['E', 'E', 'F', 'F'], cruzados: true },
+  T: { cm: 'Indicador curvado com a ponta tocando a ponta do polegar; médio, anelar e mínimo estendidos', dedos: ['C', 'E', 'E', 'E'], polegar: ['tocaPonta:index', 'tocaPontas'] },
+  U: { cm: 'Indicador e médio estendidos juntos, apontando para cima', dedos: ['E', 'E', 'F', 'F'], abertura: 'juntos' },
+  V: { cm: 'Indicador e médio estendidos em V aberto, demais dobrados', dedos: ['E', 'E', 'F', 'F'], abertura: 'separados' },
+  X: { cm: 'Indicador dobrado em gancho, demais dedos dobrados', dedos: ['C', 'F', 'F', 'F'] },
+  Z: { cm: 'Indicador estendido (traça o Z)', dedos: ['E', 'F', 'F', 'F'] },
+};
+
 /* ---------- os dados gerados ---------- */
 
 type Fs = { readFileSync(path: URL): Uint8Array };
@@ -202,10 +244,47 @@ describe('dica de erro: dicas-erro.json', () => {
     const get = (g: string) => cache.get(g) ?? cache.set(g, signFromClip(g)).get(g)!;
     for (const k of hintPairs()) {
       const [a, b] = k.split('>');
-      const { d, i } = comparePair(get(a), get(b));
+      // calculada nas poses, ou a revisada à mão quando a calculada contradiz a descrição (revisadas.ts)
+      const { d, i } = withReviewed(k, comparePair(get(a), get(b)));
       expect({ d, i }, k).toEqual({ d: pairHint(a, b)!.d, i: pairHint(a, b)!.i });
     }
   }, 30000);
+
+  it('os pares revisados à mão estão no JSON com a dica revisada', () => {
+    const raw = dicasJson.dicas as Record<string, { rev?: boolean }>;
+    for (const [k, r] of Object.entries(DICAS_REVISADAS)) {
+      expect(hintPairs(), k).toContain(k);
+      expect(pairHint(...(k.split('>') as [string, string]))!.i, k).toEqual(r.i);
+      expect(raw[k].rev, k).toBe(true);
+      expect(r.porque, k).toMatch(/"/); // cita a descrição conferida
+    }
+    for (const [k, v] of Object.entries(raw)) if (v.rev) expect(DICAS_REVISADAS[k], k).toBeDefined();
+    // O caso que motivou a revisão: o F tem o indicador esticado e o polegar encostado embaixo dele
+    expect(hintTexts(tFor(ptBR), 'F', 'T', 'letter').line)
+      .toBe('Diferença: o indicador fica esticado e o polegar encosta no indicador');
+    expect(hintTexts(tFor(ptBR), 'T', 'F', 'letter').line)
+      .toBe('Diferença: o indicador fica curvado e o polegar toca a ponta do indicador');
+  });
+
+  it('nenhuma dica contradiz a configuração de mão conferida do sinal pedido (signs.json)', () => {
+    for (const k of hintPairs()) {
+      const [asked] = k.split('>');
+      const cm = CM[asked];
+      expect(cm, `${k}: falta a descrição de ${asked} na tabela CM do teste`).toBeDefined();
+      for (const it of pairHint(...(k.split('>') as [string, string]))!.i) {
+        const fingers = it.k === 'dedo' ? [it.d] : it.k === 'dedos' ? it.d : [];
+        for (const f of fingers) {
+          const v = (it as { v: string }).v;
+          expect(ESTADOS[cm.dedos[LONG.indexOf(f)]], `${k}: ${f} ${v} contradiz "${cm.cm}"`).toContain(v);
+        }
+        if (it.k === 'polegar' && cm.polegar) {
+          expect(cm.polegar, `${k}: polegar ${it.v} contradiz "${cm.cm}"`).toContain(it.d ? `${it.v}:${it.d}` : it.v);
+        }
+        if (it.k === 'cruzados') expect(it.v === 'cruzados', `${k}: contradiz "${cm.cm}"`).toBe(!!cm.cruzados);
+        if (it.k === 'abertura' && cm.abertura) expect(it.v, `${k}: contradiz "${cm.cm}"`).toBe(cm.abertura);
+      }
+    }
+  });
 
   it('cada item tem texto nos três idiomas, sem travessão e sem chave faltando', () => {
     const items = new Map<string, HintItem>();
