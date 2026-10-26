@@ -93,6 +93,15 @@ O app já avalia sinais quando existe `public/ml/sinais/model.json` (componente
   com os landmarks refeitos a 15 quadros por segundo (mãos e corpo, `video/extrair_sinais.py`):
   ACORDAR, CANSADO, FEIJÃO, HOSPITAL, IDADE, JUNHO, LARANJA, OVO, POR-FAVOR e PREOCUPADO passaram
   em duas divisões diferentes dos canais. No geral, 53% dos 64 sinais confirmados no trecho certo.
+- Mais pessoas nos sinais perto da régua (2026-10-26, `video/baixar_extra.py`, lista
+  `data/sinais15/fontes_extra.json`): 72 vídeos de canais novos (OBRIGADO, MÃE, FAMÍLIA, OI, HOMEM, TRISTE,
+  PRAZER e outros), 8 tirados na revisão das folhas (outro sinal ou outra variante). Com eles (dataset r8),
+  passam nas duas divisões dos canais ARROZ, CANSADO, FAMÍLIA, FEIJÃO, HOMEM, HOSPITAL, IDADE, JUNHO, MÃE,
+  OBRIGADO, POR-FAVOR e PREOCUPADO, mas ACORDAR (14/19 e 11/19), LARANJA (14/19 e 11/19) e OVO (10/16 e 10/16)
+  ficam abaixo de 70%. Não foi publicado: a regra é não tirar a câmera de sinal publicado. Com quatro divisões,
+  antes e depois: ACORDAR 56/76 e 54/76, LARANJA 56/76 e 54/76, OVO 41/60 e 40/64 (já abaixo antes), MÃE 18/24 e
+  50/64, FAMÍLIA 27/28 e 39/44, OBRIGADO 51/68 e 58/68, HOMEM 41/64 e 58/76. Falta decidir se a câmera passa a
+  usar a média de mais divisões (a de duas oscila 2 a 3 vídeos por sinal).
 - (Feito) Exigir duas leituras seguidas da mesma glosa antes de mostrar "Vimos X", porque no teste ao vivo
   apareceram leituras passageiras erradas antes do acerto.
 - (Feito) Mão dominante calculada por janela também no treino, como o app (buffer de 2,5 s).

@@ -119,6 +119,15 @@ só com as mãos (os vídeos do alfabeto não têm corpo e as letras não precis
   31/56 e 38/56, Ç 19/32 e 32/32; parada de letra parada lida como letra com movimento 92/792 e 139/792 (mais C como Ç
   e P, V e T como K). Validação por canal: X 35/44, Z 29/44. A câmera avalia H, J, K, X e Ç (X e Ç na U1 L6); o Z
   (68%) segue como prática livre.
+- Mais pessoas para o Z (2026-10-26, `video/baixar_extra.py buscar-z`, lista `data/letras_mov/fontes_z2.json`):
+  39 alfabetos de canais novos baixados (65 achados: 7 deixados de fora pelo título, animações ou alfabeto com
+  números, e 19 sem vídeo disponível). Na revisão das folhas entram 12 trechos do Z e 11 do X (`letras_mov_conferencia_z2.json`; ficam de fora
+  punho fechado, mão em L, Y, mão aberta e borrados) e saem 6 trechos do Z de `letras_mov_trechos_xz.json` que não
+  mostravam o traçado (indicador parado, tela final, pessoa pequena). Treino com 97 canais; canais separados + INES,
+  soma de 8 sementes, antes e depois: H 55/56 e 54/56, J 48/48 e 48/48, K 45/56 e 48/56, X 36/48 e 36/48, Z 39/56 e
+  39/56, Ç 32/32 e 30/32; parada de letra parada lida como letra com movimento 98/792 e 73/792. Câmera igual (H, J,
+  K, X e Ç): o Z fica no limite (39 ou 40 de 56 conforme o treino; só com o Z novo, sem o X, ele passa com 40/56
+  mas o X cai para 33/48).
 
 ## 4. Dados de treino (quantificado)
 

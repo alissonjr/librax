@@ -47,6 +47,7 @@ Uso:
     (LM_VIZINHAS=CPVT... põe as vizinhas paradas no "_" com peso, ver VIZINHAS; LM_VIZINHAS_FORTES=CIUVP
     dá mais peso a algumas delas, ver VIZINHAS_FORTES)
     (LM_SEM_XZ=1 deixa de fora os vídeos de video/baixar_xz.py, letras_mov_trechos_xz.json)
+    (LM_SEM_Z2=1 deixa de fora os de video/baixar_extra.py, letras_mov_trechos_z2.json)
     (LIBRAX_DATA=/caminho/data aponta para a pasta de dados)
 """
 
@@ -70,6 +71,15 @@ LANDMARKS = os.path.join(DATA, "letras_mov", "landmarks15")
 LANDMARKS_XZ = os.path.join(DATA, "letras_mov", "landmarks15_xz")
 TRECHOS = os.path.join(AQUI, "letras_mov_trechos.json")
 TRECHOS_XZ = os.path.join(AQUI, "letras_mov_trechos_xz.json")
+# Mais alfabetos de canais novos para o Z (video/baixar_extra.py, data/letras_mov/fontes_z2.json)
+LANDMARKS_Z2 = os.path.join(DATA, "letras_mov", "landmarks15_z2")
+TRECHOS_Z2 = os.path.join(AQUI, "letras_mov_trechos_z2.json")
+# LM_SEM_Z2=1 deixa esses vídeos de fora (para comparar com o modelo anterior). Deles só entram o X e
+# o Z (as folhas revisadas a olho, letras_mov_conferencia_z2.json); as outras letras ficam ok=false.
+# 2026-10-26, soma de 8 sementes nos canais separados mais INES: só o Z (LM_Z2_LETRAS=Z), Z 40/56 e
+# X 33/48; com o X e o Z, Z 39/56, X 36/48 e alarme nas paradas 73/792 (98/792 no modelo anterior)
+SEM_Z2 = os.environ.get("LM_SEM_Z2") == "1"
+LETRAS_Z2 = os.environ.get("LM_Z2_LETRAS", "XZ")
 # LM_SEM_XZ=1 treina e avalia só com os trechos antigos (para comparar com o modelo anterior)
 SEM_XZ = os.environ.get("LM_SEM_XZ") == "1"
 # Letras dos trechos dos vídeos novos que entram no treino (as outras ficam marcadas ok=false: nem
@@ -228,26 +238,32 @@ AVALIA_S = 0.25
 BUFFER_S = 2.0
 CONFIRMA = 2
 INES_CANAL = "ines"
-# Processos que montam as janelas dos vídeos (LM_PROCESSOS; menos deixa a máquina livre)
+# Processos do montar e das janelas ao vivo (LM_PROCESSOS; menos quando a máquina está ocupada)
 PROCESSOS = int(os.environ.get("LM_PROCESSOS", "6"))
 
 
 def carregar_trechos(caminho=TRECHOS):
-    """Trechos do letras_mov_trechos.json somados aos de letras_mov_trechos_xz.json (sem LM_SEM_XZ=1)."""
+    """
+    Trechos do letras_mov_trechos.json somados aos de letras_mov_trechos_xz.json (sem LM_SEM_XZ=1) e
+    aos de letras_mov_trechos_z2.json (sem LM_SEM_Z2=1).
+    """
     with open(caminho) as f:
         out = json.load(f)
-    if caminho == TRECHOS and not SEM_XZ and os.path.exists(TRECHOS_XZ):
-        with open(TRECHOS_XZ) as f:
+    extras = [] if caminho != TRECHOS else [(p, letras) for p, fora, letras in
+                                             ((TRECHOS_XZ, SEM_XZ, LETRAS_XZ), (TRECHOS_Z2, SEM_Z2, LETRAS_Z2))
+                                             if not fora and os.path.exists(p)]
+    for path, letras in extras:
+        with open(path) as f:
             extra = json.load(f)
-        out["trechos"] = out["trechos"] + [t if t["letra"] in LETRAS_XZ else {**t, "ok": False}
+        out["trechos"] = out["trechos"] + [t if t["letra"] in letras else {**t, "ok": False}
                                            for t in extra["trechos"]]
         out["videos"] = out["videos"] + extra["videos"]
     return out
 
 
 def landmarks_de(vid):
-    """Arquivo de landmarks a 15 quadros por segundo do vídeo (landmarks15 ou landmarks15_xz), ou None."""
-    for pasta in (LANDMARKS, LANDMARKS_XZ):
+    """Arquivo de landmarks a 15 quadros por segundo do vídeo (landmarks15, _xz ou _z2), ou None."""
+    for pasta in (LANDMARKS, LANDMARKS_XZ, LANDMARKS_Z2):
         path = os.path.join(pasta, f"{vid}.json")
         if os.path.exists(path):
             return path

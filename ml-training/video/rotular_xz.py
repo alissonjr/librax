@@ -23,8 +23,14 @@ mostram a letra vão para letras_mov_conferencia_xz.json.
 
 Saída: ml-training/letras_mov_trechos_xz.json (no git).
 
+Outra lista (video/baixar_extra.py, mais vídeos do Z): --lista data/letras_mov/fontes_z2.json com
+--saida, --conferencia, --conferir e --ocr próprios (sem mexer nos da primeira lista).
+
 Uso:
     python video/rotular_xz.py [--folhas]
+    python video/rotular_xz.py --lista data/letras_mov/fontes_z2.json --saida letras_mov_trechos_z2.json \
+        --conferencia letras_mov_conferencia_z2.json --conferir data/letras_mov/conferir_z2 \
+        --ocr data/letras_mov/ocr_z2 [--folhas]
     (LIBRAX_DATA=/caminho/data aponta para a pasta de dados)
 """
 
@@ -101,16 +107,22 @@ def rotulos_alfabeto(v, seq):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--folhas", action="store_true", help="gera as folhas de conferência")
+    ap.add_argument("--lista", default=LISTA)
+    ap.add_argument("--saida", default=SAIDA)
+    ap.add_argument("--conferencia", default=CONFERENCIA)
+    ap.add_argument("--conferir", default=CONFERIR)
+    ap.add_argument("--ocr", default=OCR_DIR)
     args = ap.parse_args()
+    LISTA_, SAIDA_, CONFERENCIA_, CONFERIR_, OCR_DIR_ = args.lista, args.saida, args.conferencia, args.conferir, args.ocr
 
-    with open(LISTA) as f:
+    with open(LISTA_) as f:
         fontes = {x["id"]: x for x in json.load(f) if x.get("arquivo") and not x.get("fora")}
     arquivos = {vid: os.path.join(DATA, "videos", x["arquivo"]) for vid, x in fontes.items()}
     fora = {}
-    if os.path.exists(CONFERENCIA):
-        with open(CONFERENCIA) as f:
+    if os.path.exists(CONFERENCIA_):
+        with open(CONFERENCIA_) as f:
             fora = {(x["id"], x["letra"]): x.get("motivo", "") for x in json.load(f)["fora"]}
-    os.makedirs(OCR_DIR, exist_ok=True)
+    os.makedirs(OCR_DIR_, exist_ok=True)
     trechos, videos, resumo_alf = [], [], []
     for vid, fonte in sorted(fontes.items()):
         path = landmarks_de(vid)
@@ -119,7 +131,7 @@ def main():
         with open(path) as f:
             v = json.load(f)
         ts, es = rlm.energia(v)
-        cache_path = os.path.join(OCR_DIR, f"{vid}.json")
+        cache_path = os.path.join(OCR_DIR_, f"{vid}.json")
         cache = json.load(open(cache_path)) if os.path.exists(cache_path) else {}
         canal = fonte.get("channel", "")
         if fonte["tipo"] == "alfabeto":
@@ -170,14 +182,15 @@ def main():
             json.dump(cache, f)
 
     saida = {
-        "_sobre": "Trechos das letras com movimento nos vídeos de video/baixar_xz.py (video/rotular_xz.py), no "
-                  "formato do letras_mov_trechos.json; o train_letras_mov.py soma os dois. ok=false fica fora. "
-                  "A revisão a olho das folhas fica em letras_mov_conferencia_xz.json.",
+        "_sobre": f"Trechos das letras com movimento nos vídeos de data/letras_mov/{os.path.basename(LISTA_)} "
+                  "(video/rotular_xz.py), no formato do letras_mov_trechos.json; o train_letras_mov.py soma os "
+                  "dois. ok=false fica fora. A revisão a olho das folhas fica em "
+                  f"{os.path.basename(CONFERENCIA_)}.",
         "trechos": trechos,
         "ines": [],
         "videos": videos,
     }
-    with open(SAIDA, "w") as f:
+    with open(SAIDA_, "w") as f:
         json.dump(saida, f, indent=1, ensure_ascii=False)
         f.write("\n")
     print("cobertura dos alfabetos:", " ".join(f"{a}:{b}" for a, b in resumo_alf))
@@ -186,9 +199,9 @@ def main():
         ok = [t for t in ts_L if t["ok"]]
         print(f"{L}: {len(ok)}/{len(ts_L)} trechos ok, {len({t['channel_id'] for t in ok})} canais "
               f"(alfabeto {sum(t['fonte'] == 'alfabeto' for t in ok)}, letra {sum(t['fonte'] == 'letra' for t in ok)})")
-    print(f"gravado em {SAIDA}")
+    print(f"gravado em {SAIDA_}")
     if args.folhas:
-        rlm.CONFERIR = CONFERIR
+        rlm.CONFERIR = CONFERIR_
         rlm.carregar = lambda vid: json.load(open(landmarks_de(vid))) if landmarks_de(vid) else None
         for out in rlm.folhas(trechos, arquivos):
             print(out)
