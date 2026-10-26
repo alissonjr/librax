@@ -205,7 +205,9 @@ NEGATIVAS_POR_VIDEO = 400
 # movimento) entram todas como "_", a cada PASSO_S, fora do limite NEGATIVAS_POR_VIDEO e com
 # LM_VAR_VIZINHAS variações giradas (as letras têm `variacoes`; o resto do "_", uma). Nos vídeos de
 # uma letra parada dessas letras, as janelas também ganham as variações. Vazio desliga.
-VIZINHAS = os.environ.get("LM_VIZINHAS", "")
+# CPVTUID desde 2026-10-25 (com MAX_NENHUMA 4): alarme nas paradas das letras paradas dos canais
+# separados de 16,5% para 13,1% (16 sementes), K e X um pouco melhores. LM_VIZINHAS= desliga.
+VIZINHAS = os.environ.get("LM_VIZINHAS", "CPVTUID")
 VARIACOES_VIZINHAS = int(os.environ.get("LM_VAR_VIZINHAS", "2"))
 # Rótulo interno das janelas de vizinhas (vira NENHUMA no janelas_do_video)
 _VIZINHA = "_vizinha"
@@ -669,15 +671,20 @@ def medir_ines(trechos, prever, regras=None, imprime=True):
 
 # Regras de leitura do app (letterMotion.ts, no model.json): limiar, portão de movimento (janela que
 # se mexe menos que min_movimento não é lida; 0 desliga, ver movimento()) e teto do "_" (sem leitura
-# quando p("_") passa de max_p_nenhum; 1 desliga)
+# quando p("_") passa de max_p_nenhum; 1 desliga). Limiar 0,7 e portão 0,3 desde 2026-10-25: com as
+# vizinhas, o alarme nas paradas das letras paradas volta a cerca de 12% (o nível de antes dos
+# vídeos do X e do Z) sem tirar letra da câmera. O MIN_P (0,6) fica como o limiar sem reading_rules.
 PESO_FORMA = 1.0
-MIN_MOVIMENTO = 0.0
-REGRAS = {"min_p": MIN_P, "min_movimento": MIN_MOVIMENTO, "max_p_nenhum": 1.0}
+MIN_P_LEITURA = 0.7
+MIN_MOVIMENTO = 0.3
+REGRAS = {"min_p": MIN_P_LEITURA, "min_movimento": MIN_MOVIMENTO, "max_p_nenhum": 1.0}
 
 # MLP: camadas ocultas, regularização L2 e "_" no treino (vezes a soma das letras)
 OCULTAS = (128, 64)
 ALPHA = 1e-2
-MAX_NENHUMA = 2.0
+# 4 (antes 2) junto com as vizinhas: o "_" tem bem mais janelas que isso, e mais delas no treino
+# tiram alarmes sem perder letra (sozinho, sem as vizinhas, não ajudou: 118/792 contra 128/792)
+MAX_NENHUMA = 4.0
 # Letra com movimento só ganha câmera no app com pelo menos esta fração certa nos canais separados
 # mais o INES (e pelo menos MIN_TESTE trechos); as outras ficam no modelo (para não virarem outra
 # letra) mas fora de camera_letters
@@ -963,7 +970,7 @@ def experimento(args):
     modelo = {"ocultas": tuple(int(x) for x in args.ocultas.split(",")), "alpha": args.alpha,
               "max_nenhuma": args.max_nenhuma}
     sementes = []
-    for semente in range(args.sementes):
+    for semente in range(args.primeira_semente, args.primeira_semente + args.sementes):
         prever = guardar(ajustar_sklearn(X, y, seed=semente, **modelo))
         with contextlib.redirect_stdout(io.StringIO()):
             resumo(medir_videos(trechos, teste_ids, prever), "")
@@ -983,7 +990,7 @@ def experimento(args):
         pickle.dump({"sementes": sementes, "cv": cv, "vizinhas": VIZINHAS, "modelo": modelo}, f,
                     protocol=pickle.HIGHEST_PROTOCOL)
     print(f"probabilidades em {args.probs}")
-    varrer_letras([args.probs], [MIN_P], [MIN_MOVIMENTO], [1.0])
+    varrer_letras([args.probs], [REGRAS["min_p"]], [REGRAS["min_movimento"]], [REGRAS["max_p_nenhum"]])
 
 
 def _prever_guardado(guardadas):
@@ -1059,12 +1066,13 @@ def main():
     t.add_argument("--variacoes", type=int, default=2)
     t.add_argument("--sementes", type=int, default=SEMENTES_CAMERA,
                    help="treinos com sementes diferentes somados para decidir camera_letters")
-    t.add_argument("--min-p", type=float, default=MIN_P)
+    t.add_argument("--min-p", type=float, default=MIN_P_LEITURA)
     t.add_argument("--min-movimento", type=float, default=MIN_MOVIMENTO, help="portão de movimento (0 desliga)")
     t.add_argument("--max-p-nenhum", type=float, default=1.0, help="teto do \"_\" (1 desliga)")
     e = sub.add_parser("experimento")
     e.add_argument("--probs", required=True, help="arquivo (pickle) com as probabilidades, para o varrer")
     e.add_argument("--sementes", type=int, default=SEMENTES_CAMERA)
+    e.add_argument("--primeira-semente", type=int, default=0, help="outras sementes para repetir a medida")
     e.add_argument("--variacoes", type=int, default=2)
     e.add_argument("--cv", action="store_true", help="também a validação cruzada por canal")
     e.add_argument("--grupos", type=int, default=5)
@@ -1073,7 +1081,7 @@ def main():
     e.add_argument("--max-nenhuma", type=float, default=MAX_NENHUMA)
     v = sub.add_parser("varrer")
     v.add_argument("probs", nargs="+")
-    v.add_argument("--min-p", type=float, nargs="+", default=[MIN_P])
+    v.add_argument("--min-p", type=float, nargs="+", default=[MIN_P_LEITURA])
     v.add_argument("--min-movimento", type=float, nargs="+", default=[MIN_MOVIMENTO])
     v.add_argument("--max-p-nenhum", type=float, nargs="+", default=[1.0])
     v.add_argument("--por-letra", action="store_true")
