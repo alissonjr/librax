@@ -722,5 +722,93 @@
     "statXp": "XP ganados",
     "title": "¡Unidad {num} completada!"
   },
-  "useDialog": {}
+  "useDialog": {},
+  "wrongHint": {
+    "title": "La cámara vio {read}",
+    "askedLabel": "Tienes que hacer",
+    "readLabel": "La cámara vio",
+    "difference": "Diferencia: {text}",
+    "compare": "Compara las dos manos.",
+    "spoken": "La cámara vio {read}. Tienes que hacer {asked}: {text}.",
+    "spokenNoDiff": "La cámara vio {read}. Tienes que hacer {asked}.",
+    "dismiss": "Entendido",
+    "dismissLabel": "Cerrar la pista y seguir intentando",
+    "handsLabel": "Mano en 3D haciendo {what}, con los dedos que cambian destacados",
+    "handsLabelMove": "Mano en 3D haciendo {what}, con el movimiento",
+    "playMove": "Ver el movimiento",
+    "pauseMove": "Pausar el movimiento",
+    "loading": "Preparando las manos",
+    "highlightNote": "Destacado: lo que cambia",
+    "letter": "la {g}",
+    "number": "el {g}",
+    "and": "{a} y {b}",
+    "list2": "{a} y {b}",
+    "list3": "{a}, {b} y {c}",
+    "allFingers": "los cuatro dedos",
+    "one": "{finger} queda {state}",
+    "many": "{fingers} quedan {state}",
+    "finger": {
+      "thumb": "el pulgar",
+      "index": "el índice",
+      "middle": "el medio",
+      "ring": "el anular",
+      "pinky": "el meñique"
+    },
+    "fingerOf": {
+      "index": "del índice",
+      "middle": "del medio",
+      "ring": "del anular",
+      "pinky": "del meñique"
+    },
+    "fingerOn": {
+      "index": "en el índice",
+      "middle": "en el medio",
+      "ring": "en el anular",
+      "pinky": "en el meñique"
+    },
+    "state": {
+      "esticado": "estirado",
+      "curvado": "curvado",
+      "dobrado": "doblado",
+      "maisDobrado": "más doblado",
+      "maisEsticado": "más estirado"
+    },
+    "statePlural": {
+      "esticado": "estirados",
+      "curvado": "curvados",
+      "dobrado": "doblados",
+      "maisDobrado": "más doblados",
+      "maisEsticado": "más estirados"
+    },
+    "gap": {
+      "juntos": "{fingers} quedan juntos",
+      "separados": "{fingers} quedan separados"
+    },
+    "cross": {
+      "cruzados": "el índice y el medio quedan cruzados",
+      "ladoALado": "el índice y el medio quedan uno al lado del otro, sin cruzar"
+    },
+    "thumb": {
+      "tocaPontas": "el pulgar toca la punta de los dedos",
+      "tocaPonta": "el pulgar toca la punta {of}",
+      "encosta": "el pulgar se apoya {on}",
+      "aoLado": "el pulgar queda al lado del índice",
+      "porCima": "el pulgar queda por encima de los dedos",
+      "porBaixo": "el pulgar queda por debajo de los dedos",
+      "lado": "el pulgar queda estirado hacia el lado",
+      "frente": "el pulgar queda separado, delante de la palma",
+      "dobrado": "el pulgar queda doblado junto a la palma"
+    },
+    "direction": {
+      "cima": "la mano apunta hacia arriba",
+      "baixo": "la mano apunta hacia abajo",
+      "lado": "la mano apunta hacia el lado",
+      "frente": "la mano apunta hacia adelante"
+    },
+    "move": {
+      "pedidoMove": "{what} tiene movimiento",
+      "pedidoParado": "{what} no tiene movimiento",
+      "outroMovimento": "{what} tiene otro movimiento"
+    }
+  }
 }
