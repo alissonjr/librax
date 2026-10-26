@@ -31,6 +31,11 @@ export class IdbRepo {
     await this.db.put('lesson_progress', { userId, lessonId, ...progress });
   }
 
+  /** Desfazer o teste de nivelamento (lib/placement.ts): a lição pulada volta a seguir a ordem. */
+  async deleteProgress(userId: string, lessonId: string) {
+    await this.db.delete('lesson_progress', [userId, lessonId]);
+  }
+
   // --- SRS ---
   async getSrsItem(userId: string, signId: string) {
     return (await this.db.get('srs_items', [userId, signId])) ?? null;

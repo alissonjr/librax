@@ -6,6 +6,7 @@ import { Flags } from '../lib/flags';
 import { enqueueLessonCompletion, flushOutbox } from '../lib/sync';
 import { loadInviteState, recordInviteShown, shouldSuggestInstall } from '../lib/install';
 import { evaluateAppOpen, onAppReopen } from '../lib/appOpen';
+import { alphabetCompleteWith, placedLessonIds } from '../lib/placement';
 import type { LeagueResult } from '../lib/leagueLocal';
 import type { IdbRepo } from '../lib/idbRepo';
 import type { LessonSessionResult } from '../screens/LessonScreen';
@@ -99,8 +100,9 @@ export function SessionProvider({
 
     const lessonUnit = course.units.find(u => u.lessons.some(l => l.id === result.lessonId));
     const isLastInUnit = lessonUnit?.lessons[lessonUnit.lessons.length - 1]?.id === result.lessonId;
-    // Alfabeto completo = fim da U1, nao fim do curso (o curso tem varias unidades)
-    const alphabetComplete = lessonUnit?.id === course.units[0]?.id && isLastInUnit;
+    // Alfabeto completo = todas as lições da U1 (não o fim do curso). Lição pulada pelo teste de
+    // nivelamento só conta se o teste cobriu todas as letras dela (lib/placement.ts).
+    const alphabetComplete = await alphabetCompleteWith(repo, userId, result.lessonId);
 
     // Id da tentativa: o servidor usa para não aplicar a mesma conclusão duas vezes
     const lessonAttemptId = crypto.randomUUID();
@@ -178,7 +180,11 @@ export function SessionProvider({
       const unitSignCount = new Set(
         lessonUnit.lessons.flatMap(l => l.signIds).filter(id => !seenBefore.has(id)),
       ).size;
-      const unitXp = lessonUnit.lessons.reduce((acc, l) => acc + l.xpReward, 0);
+      // XP que a unidade deu de fato: as lições puladas pelo teste de nivelamento não deram XP
+      const placed = new Set(await placedLessonIds(repo, userId, lessonUnit.lessons));
+      const unitXp = lessonUnit.lessons
+        .filter(l => l.id === result.lessonId || !placed.has(l.id))
+        .reduce((acc, l) => acc + l.xpReward, 0);
       setUnitCompletion({ unitId: lessonUnit.id, signsLearned: unitSignCount, xpGained: unitXp });
       return 'unit';
     }

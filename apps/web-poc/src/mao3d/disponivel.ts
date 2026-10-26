@@ -27,6 +27,15 @@ export function isMovingLetter(gloss: string): boolean {
   return MAO3D_MOVING.includes(gloss);
 }
 
+/**
+ * Tira a letra ou o número de uma descrição da mão ("forma de C" vira "forma de ___"), para o
+ * "Qual é esta letra?" do teste de nivelamento não entregar a resposta ao leitor de tela.
+ */
+export function maskHandGloss(text: string, gloss: string): string {
+  const g = gloss.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(`(?<![\\p{L}\\p{N}])${g}(?![\\p{L}\\p{N}])`, 'gu'), '___');
+}
+
 let webgl: boolean | null = null;
 
 /** O navegador cria um contexto WebGL? (uma vez por sessão; sem 3D, a apresentação fica como antes) */

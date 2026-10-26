@@ -73,6 +73,7 @@ const CameraStatsScreen = lazyScreen(() => import('./screens/CameraStatsScreen')
 const CameraScreen = lazyScreen(() => import('./screens/CameraScreen'), 'CameraScreen');
 const FreeModeScreen = lazyScreen(() => import('./screens/FreeModeScreen'), 'FreeModeScreen');
 const LeagueScreen = lazyScreen(() => import('./screens/LeagueScreen'), 'LeagueScreen');
+const PlacementScreen = lazyScreen(() => import('./screens/PlacementScreen'), 'PlacementScreen');
 const AuthScreen = lazyScreen(() => import('./screens/AuthScreen'), 'AuthScreen');
 const LegalScreen = lazyScreen(() => import('./screens/LegalScreen'), 'LegalScreen');
 // Leve: só espera configureAuth() e a sessão; nenhum redirecionamento antes disso
@@ -217,6 +218,7 @@ function LearnRoute() {
       onOpenStreak={() => navigate(ROUTES.streak)}
       onOpenProfile={() => nav.goTab(ROUTES.profile)}
       installInvitePending={suggestInstall}
+      onOpenPlacement={() => navigate(ROUTES.placement)}
     />
   );
 }
@@ -304,7 +306,11 @@ function OnboardingRoute() {
   if (isOnboarded()) return <Navigate to={ROUTES.learn} replace />;
   return (
     <OnboardingScreen
-      onDone={() => navigate(ROUTES.learn, { replace: true })}
+      onDone={next => {
+        navigate(ROUTES.learn, { replace: true });
+        // Convite aceito: o teste abre por cima do mapa (voltar dele leva ao mapa)
+        if (next === 'placement') navigate(ROUTES.placement);
+      }}
       onLogin={() => navigate(ROUTES.login)}
     />
   );
@@ -392,7 +398,45 @@ function SettingsRoute() {
       onNotice={showNotice}
       onOpenAccount={mode => navigate(mode === 'login' ? ROUTES.login : ROUTES.register)}
       onOpenCameraStats={() => navigate(ROUTES.cameraStats)}
+      onOpenPlacement={() => navigate(ROUTES.placement)}
     />
+  );
+}
+
+/**
+ * /nivelamento: o teste de nivelamento (lib/placement.ts). Durante os itens, qualquer saída pergunta
+ * "Sair do teste?" (nada muda no curso); no convite e no resultado, sai direto.
+ */
+function PlacementRoute() {
+  const { repo, userId, showNotice } = useSession();
+  const nav = useAppNavigation();
+  const { t } = useT();
+  const [testing, setTesting] = useState(false);
+  const exit = useLessonExit(testing);
+  return (
+    <>
+      <PlacementScreen
+        repo={repo}
+        userId={userId}
+        onClose={() => nav.back(ROUTES.learn)}
+        onFinished={placed => {
+          exit.finish();
+          if (placed > 0) showNotice('placement.applied');
+          nav.backTo(ROUTES.learn);
+        }}
+        onTestingChange={setTesting}
+      />
+      <Dialog
+        isOpen={exit.asking}
+        title={t('placement.exitTitle')}
+        message={t('placement.exitMessage')}
+        confirmLabel={t('placement.exitConfirm')}
+        cancelLabel={t('placement.exitCancel')}
+        onConfirm={exit.confirm}
+        onCancel={exit.cancel}
+        closeOnBack={false}
+      />
+    </>
   );
 }
 
@@ -664,6 +708,7 @@ export const routes: RouteObject[] = [
           { path: 'conquistas', element: <AchievementsRoute /> },
           { path: 'configuracoes', element: <SettingsRoute /> },
           { path: 'configuracoes/camera', element: <CameraStatsRoute /> },
+          { path: 'nivelamento', element: <PlacementRoute /> },
           { path: 'licao/:id', element: <LessonRoute /> },
           { path: 'licao/:id/concluida', element: <LessonDoneRoute /> },
           { path: 'unidade/:id/concluida', element: <UnitDoneRoute /> },

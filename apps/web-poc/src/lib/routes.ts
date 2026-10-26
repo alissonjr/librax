@@ -27,6 +27,8 @@ export const ROUTES = {
   privacy: '/privacidade',
   terms: '/termos',
   courseDone: '/curso/concluido',
+  // Teste de nivelamento (opcional): convite no fim do onboarding, no mapa e nas Configurações
+  placement: '/nivelamento',
   lesson: (id: string) => `/licao/${encodeURIComponent(id)}`,
   lessonDone: (id: string) => `/licao/${encodeURIComponent(id)}/concluida`,
   unitDone: (id: string) => `/unidade/${encodeURIComponent(id)}/concluida`,
