@@ -1,19 +1,17 @@
 import privacidade from './privacidade.md?raw';
 import termos from './termos.md?raw';
-import { RESPONSAVEL, type ResponsavelKey } from './responsavel';
 import { ROUTES } from '../lib/routes';
 
 /**
  * Política de Privacidade e Termos de Uso (abertos sem login, em /privacidade e /termos).
  *
  * Os textos ficam em Markdown nesta pasta (privacidade.md e termos.md), só em português, com a versão
- * e a data de vigência no cabeçalho. Mudou o texto, sobe a versão e a data. Os dados de quem responde
- * pelo app vêm de responsavel.ts ({{nome}}, {{documento}}, {{email}}, {{foro}}).
+ * e a data de vigência no cabeçalho. Mudou o texto, sobe a versão e a data.
  *
  * O Markdown aceito é o mínimo que os textos usam, lido aqui sem biblioteca:
  * - `## título` (seção, entra no índice) e `### título` (subseção);
  * - parágrafo (linhas seguidas) e lista com `- `;
- * - `**negrito**`, `[texto](endereço)` e as chaves `{{...}}` dentro do texto.
+ * - `**negrito**` e `[texto](endereço)` dentro do texto.
  */
 
 export type LegalDocId = 'privacy' | 'terms';
@@ -38,8 +36,7 @@ export interface LegalDoc {
 export type InlinePart =
   | { type: 'text'; text: string }
   | { type: 'strong'; parts: InlinePart[] }
-  | { type: 'link'; href: string; parts: InlinePart[] }
-  | { type: 'responsavel'; key: ResponsavelKey; value: string };
+  | { type: 'link'; href: string; parts: InlinePart[] };
 
 /** Id de âncora a partir do título ("9. Transferência internacional" -> "9-transferencia-internacional"). */
 export function slugify(text: string): string {
@@ -100,13 +97,9 @@ export function parseBlocks(body: string): LegalBlock[] {
   return blocks;
 }
 
-const INLINE = /\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)\s]+)\)|\{\{(\w+)\}\}/g;
+const INLINE = /\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
 
-function isResponsavelKey(key: string): key is ResponsavelKey {
-  return Object.prototype.hasOwnProperty.call(RESPONSAVEL, key);
-}
-
-/** Texto de um bloco em partes: negrito, links e os dados de responsavel.ts. */
+/** Texto de um bloco em partes: negrito e links. */
 export function parseInline(text: string): InlinePart[] {
   const parts: InlinePart[] = [];
   let last = 0;
@@ -115,13 +108,8 @@ export function parseInline(text: string): InlinePart[] {
     if (index > last) parts.push({ type: 'text', text: text.slice(last, index) });
     if (m[1] !== undefined) {
       parts.push({ type: 'strong', parts: parseInline(m[1]) });
-    } else if (m[2] !== undefined) {
-      parts.push({ type: 'link', href: m[3], parts: parseInline(m[2]) });
-    } else if (isResponsavelKey(m[4])) {
-      parts.push({ type: 'responsavel', key: m[4], value: RESPONSAVEL[m[4]] });
     } else {
-      // Chave desconhecida: aparece como está, para ser notada e corrigida
-      parts.push({ type: 'text', text: m[0] });
+      parts.push({ type: 'link', href: m[3], parts: parseInline(m[2]) });
     }
     last = index + m[0].length;
   }

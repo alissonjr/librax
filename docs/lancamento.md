@@ -220,9 +220,8 @@ Trocar as chaves depois invalida as inscrições de quem já ativou as notifica�
 
 ### Política e Termos
 
-Enquanto `apps/web-poc/src/legal/responsavel.ts` tiver marcadores entre colchetes, as páginas mostram o selo
-"Rascunho". Preencha nome, CNPJ ou CPF, e-mail de contato e foro no repositório (não no CloudShell, que perde o que
-for editado), suba a versão e a data no topo de `privacidade.md` e `termos.md` e publique (próxima seção).
+Os textos ficam em `apps/web-poc/src/legal/privacidade.md` e `termos.md`. Mudou o texto, suba a versão e a data no
+topo do arquivo e publique (próxima seção). Edite no repositório, não no CloudShell, que perde o que for editado.
 
 ## Publicar atualizações
 

@@ -1,6 +1,6 @@
 ---
-versao: 1.1
-vigencia: 2026-10-25
+versao: 1.2
+vigencia: 2026-10-26
 ---
 
 Esta política explica, em linguagem simples, quais dados o Librax usa, para quê, onde eles ficam, por quanto tempo e como você exerce seus direitos pela Lei Geral de Proteção de Dados (LGPD, Lei nº 13.709/2018). Ela vale junto com os [Termos de Uso](/termos).
@@ -12,13 +12,13 @@ Esta política explica, em linguagem simples, quais dados o Librax usa, para qu�
 - **Com conta, guardamos seu e-mail, o nome que você informou e o seu progresso no curso**, para você não perder o que aprendeu e poder continuar em outro aparelho.
 - **Os servidores ficam nos Estados Unidos**, na Amazon Web Services (AWS).
 - **Não vendemos dados, não mostramos anúncios e não usamos ferramentas de análise de uso nem de rastreamento.**
-- Você pode pedir acesso, correção ou exclusão dos seus dados pelo e-mail {{email}}.
+- Você pode ver, exportar, corrigir e excluir os seus dados no próprio app, em Configurações.
 
 ## 2. Quem é o responsável
 
-O responsável pelos seus dados (o "controlador", nas palavras da LGPD) é {{nome}}, {{documento}}.
+O responsável pelos seus dados (o "controlador", nas palavras da LGPD) é o Librax.
 
-O canal para qualquer assunto de privacidade, inclusive os pedidos do item 13, é o e-mail {{email}}.
+Os pedidos do item 13 são feitos no próprio app, como explicado lá.
 
 ## 3. O que fica só no seu aparelho
 
@@ -131,12 +131,10 @@ Pela LGPD (art. 18), você pode pedir:
 - a informação sobre a possibilidade de não dar consentimento e o que acontece se você não der;
 - a revogação do consentimento.
 
-Para fazer um pedido, escreva para {{email}}, de preferência a partir do e-mail da sua conta. Respondemos em até 15 dias. Podemos pedir uma confirmação de que a conta é sua antes de atender.
-
-No próprio app:
+Os pedidos são feitos no próprio app:
 
 - **Exportar meus dados** (Configurações) baixa um arquivo com o perfil, as revisões e o desempenho da câmera guardados neste aparelho.
-- **Excluir conta e dados** (Configurações) apaga, na hora e para sempre, a sua conta, o seu login e tudo o que está guardado no servidor (perfil, progresso, revisões, XP, conquistas e participação em ligas), além dos dados deste aparelho. Se faltar internet ou o servidor falhar, nada é apagado e o app pede para tentar de novo. Fora do app, o mesmo pedido pode ser feito pelo e-mail {{email}}, e atendemos em até 15 dias.
+- **Excluir conta e dados** (Configurações) apaga, na hora e para sempre, a sua conta, o seu login e tudo o que está guardado no servidor (perfil, progresso, revisões, XP, conquistas e participação em ligas), além dos dados deste aparelho. Se faltar internet ou o servidor falhar, nada é apagado e o app pede para tentar de novo.
 
 Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD), em [gov.br/anpd](https://www.gov.br/anpd).
 
@@ -149,12 +147,8 @@ Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD)
 
 ## 15. Idade mínima
 
-O Librax é para pessoas com 18 anos ou mais. Não coletamos de propósito dados de menores de idade. Se você souber de alguém com menos de 18 anos usando uma conta, avise pelo e-mail {{email}} e apagaremos a conta.
+O Librax é para pessoas com 18 anos ou mais. Não coletamos de propósito dados de menores de idade. Se soubermos de uma conta de alguém com menos de 18 anos, ela será apagada.
 
 ## 16. Mudanças nesta política
 
 Quando esta política mudar, a versão e a data no topo da página mudam junto. Se a mudança for importante, avisaremos no app ou por e-mail antes de ela valer.
-
-## 17. Contato
-
-{{nome}}, {{documento}}. E-mail: {{email}}.

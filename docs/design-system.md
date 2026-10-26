@@ -1156,8 +1156,7 @@ Regras:
   indisponível neste ambiente" e o app segue como convidado.
 - **Política e Termos** (`/privacidade`, `/termos`): abrem pelo link direto, sem conta e sem onboarding (o
   Google pede a URL da política na tela de consentimento do login). Texto em `src/legal/*.md`, só em português,
-  com versão e vigência em selos no topo, índice das seções e coluna de leitura; os dados de quem responde pelo
-  app ficam em `src/legal/responsavel.ts`. Os links aparecem nas boas-vindas, em Entrar e Criar conta ("Ao criar
+  com versão e vigência em selos no topo, índice das seções e coluna de leitura. Os links aparecem nas boas-vindas, em Entrar e Criar conta ("Ao criar
   a conta, você concorda com os Termos de Uso e a Política de Privacidade") e nas Configurações. Voltar leva à
   tela de origem ou, aberta pelo link direto, ao início.
 - **Volta do Google** (`/auth/callback`): nenhum redirecionamento acontece antes de `configureAuth()` e de a

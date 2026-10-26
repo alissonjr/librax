@@ -1,13 +1,13 @@
 ---
-versao: 1.0
-vigencia: 2026-10-24
+versao: 1.1
+vigencia: 2026-10-26
 ---
 
 Estes Termos explicam as regras de uso do Librax. Ao usar o app, com ou sem conta, você concorda com eles. Leia também a [Política de Privacidade](/privacidade), que explica como tratamos os seus dados. Se não concordar, não use o Librax.
 
 ## 1. Quem oferece o Librax
 
-O Librax é oferecido por {{nome}}, {{documento}}. Para falar conosco, escreva para {{email}}.
+O Librax é um aplicativo para aprender Libras, a Língua Brasileira de Sinais.
 
 ## 2. Idade mínima
 
@@ -27,11 +27,10 @@ O app está em desenvolvimento. Hoje, os outros participantes da liga semanal mo
 - Concluir lições ou o curso no app não equivale a certificado nem a diploma de curso reconhecido.
 - O Librax não é serviço de tradução nem de interpretação de Libras.
 
-## 5. Conteúdo em rascunho
+## 5. Conteúdo do curso
 
-- Os sinais, as descrições e as frases do curso são um rascunho próprio do Librax, escrito com base em dicionários públicos de Libras (como o Dicionário de Libras do INES), com as fontes citadas. O conteúdo ainda está sendo revisado com pessoas surdas e pode ter erros, omissões e variações regionais.
+- Os sinais, as descrições e as frases do curso são próprios do Librax, escritos com base em dicionários públicos de Libras (como o Dicionário de Libras do INES) e conferidos com essas fontes. Mesmo assim, podem ter erros, omissões e variações regionais.
 - A demonstração dos sinais usa a descrição em texto e o avatar VLibras, do Governo Federal (licença LGPL-3.0). O avatar é uma animação, não uma pessoa, e pode não mostrar com fidelidade as expressões do rosto e os detalhes do movimento.
-- Se encontrar um erro, avise pelo e-mail {{email}}. Isso ajuda muito.
 
 ## 6. O reconhecimento pela câmera pode errar
 
@@ -43,7 +42,7 @@ O app está em desenvolvimento. Hoje, os outros participantes da liga semanal mo
 ## 7. Sua conta
 
 - Informe dados verdadeiros e mantenha a sua senha em segredo. Você responde pelo que for feito com a sua conta.
-- Avise pelo e-mail {{email}} se suspeitar que alguém usou a sua conta.
+- Se suspeitar que alguém usou a sua conta, troque a senha.
 - Sem conta, o progresso fica só no navegador e pode se perder se você limpar os dados do site, trocar de aparelho ou de navegador.
 
 ## 8. O que não é permitido
@@ -58,7 +57,7 @@ Ao usar o Librax, você se compromete a não:
 
 ## 9. Propriedade intelectual
 
-- O app, a marca Librax, o design e os textos do curso pertencem a {{nome}} ou a quem nos autorizou a usá-los. Usar o app não transfere a você nenhum desses direitos.
+- O app, a marca Librax, o design e os textos do curso pertencem ao Librax ou a quem nos autorizou a usá-los. Usar o app não transfere a você nenhum desses direitos.
 - Partes do app são de terceiros e seguem as próprias licenças: o player do avatar VLibras (Governo Federal, LGPL-3.0), o modelo de reconhecimento de mãos MediaPipe (Google, Apache 2.0) e as fontes Anybody e Figtree (SIL Open Font License 1.1).
 
 ## 10. Gratuidade e disponibilidade
@@ -70,7 +69,7 @@ Ao usar o Librax, você se compromete a não:
 ## 11. Responsabilidade
 
 - Oferecemos o Librax como ele está, em desenvolvimento, e trabalhamos para que funcione bem e com segurança.
-- Dentro do que a lei permite, não respondemos por erros do conteúdo em rascunho, por erros do reconhecimento pela câmera, pela perda do progresso guardado só no aparelho nem por falhas de serviços de terceiros.
+- Dentro do que a lei permite, não respondemos por erros do conteúdo do curso, por erros do reconhecimento pela câmera, pela perda do progresso guardado só no aparelho nem por falhas de serviços de terceiros.
 - Nada nestes Termos limita os direitos que você tem pelo Código de Defesa do Consumidor.
 
 ## 12. Suspensão e encerramento
@@ -84,8 +83,4 @@ Quando estes Termos mudarem, a versão e a data no topo da página mudam junto. 
 
 ## 14. Lei e foro
 
-Estes Termos seguem as leis do Brasil. Fica eleito o foro da comarca de {{foro}}, sem prejuízo do seu direito, como consumidor, de propor ação no foro do seu domicílio.
-
-## 15. Contato
-
-{{nome}}, {{documento}}. E-mail: {{email}}.
+Estes Termos seguem as leis do Brasil. Como consumidor, você pode propor qualquer ação no foro do seu domicílio.

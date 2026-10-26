@@ -724,9 +724,6 @@ resumo() {
   if [[ "$(contexto emailRemindersEnabled)" != true ]]; then
     info "- Lembretes por e-mail desligados. Para ligar: domínio no SES e depois --com-lembretes-email."
   fi
-  if grep -q "'\[" "$WEB/src/legal/responsavel.ts" 2>/dev/null; then
-    info "- Política e Termos com o selo \"Rascunho\": preencha apps/web-poc/src/legal/responsavel.ts e publique de novo."
-  fi
   info "- Ativar o Cost Explorer (Faturamento > Cost Explorer) para a tela de custo do painel."
   info "- Ao terminar, apague a pasta: rm -rf $RAIZ (e revogue o token do GitHub)."
 }

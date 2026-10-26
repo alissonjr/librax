@@ -544,10 +544,8 @@ do Cognito precisam estar lá.
 13. **Admin.** Colocar as contas de administração no grupo `admin` do Cognito (docs/painel-admin.md).
 14. **CSP.** No primeiro teste em aparelho, dá para mandar a CSP como Report-Only com
     `-c librax:cspReportOnly=true` e olhar o console antes de travar.
-15. **Política e Termos.** Preencher quem responde pelo app em
-    `apps/web-poc/src/legal/responsavel.ts` (nome, CNPJ ou CPF, e-mail de contato e foro) e subir a
-    versão e a data de vigência no topo de `privacidade.md` e `termos.md`. Enquanto houver marcador
-    entre colchetes, as páginas mostram o selo "Rascunho".
+15. **Política e Termos.** Os textos ficam em `apps/web-poc/src/legal/privacidade.md` e `termos.md`;
+    mudou o texto, suba a versão e a data de vigência no topo do arquivo.
 
 ## Ligas no app: o que precisa mudar
 

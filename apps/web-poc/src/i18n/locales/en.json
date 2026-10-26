@@ -544,7 +544,6 @@
   "legal": {
     "aboutDocument": "About this document",
     "contents": "On this page",
-    "draft": "Draft: controller details still to be filled in",
     "effectiveSince": "Effective since {date}",
     "loginConsent": "By continuing, you agree to the {terms} and the {privacy}.",
     "onboardingConsent": "By starting, you agree to the {terms} and the {privacy}.",

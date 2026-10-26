@@ -3,7 +3,6 @@ import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 import { LegalLink, type LegalPath } from '../components/LegalLinks';
 import { LEGAL_DOCS, parseInline, type InlinePart, type LegalBlock, type LegalDocId } from '../legal/documents';
-import { pendingResponsavel } from '../legal/responsavel';
 import { ROUTES } from '../lib/routes';
 
 interface Props {
@@ -12,7 +11,6 @@ interface Props {
 }
 
 const INTERNAL: ReadonlySet<string> = new Set([ROUTES.privacy, ROUTES.terms]);
-const EMAIL_RE = /^[^\s@[\]]+@[^\s@[\]]+\.[^\s@[\]]+$/;
 
 function reducedMotion(): boolean {
   return typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -47,10 +45,6 @@ function renderPart(part: InlinePart): ReactNode {
     case 'link':
       if (INTERNAL.has(part.href)) return <LegalLink to={part.href as LegalPath}>{renderParts(part.parts)}</LegalLink>;
       return <a href={part.href} target="_blank" rel="noopener noreferrer">{renderParts(part.parts)}</a>;
-    case 'responsavel':
-      if (part.key === 'email' && EMAIL_RE.test(part.value)) return <a href={`mailto:${part.value}`}>{part.value}</a>;
-      // Marcador ainda não preenchido (responsavel.ts): destacado para ninguém publicar sem ver
-      return /^\[.*\]$/.test(part.value) ? <span className="legal-pending">{part.value}</span> : part.value;
   }
 }
 
@@ -78,7 +72,6 @@ export function LegalScreen({ doc, onBack }: Props) {
   const current = LEGAL_DOCS[doc];
   const other = LEGAL_DOCS[doc === 'privacy' ? 'terms' : 'privacy'];
   const sections = current.blocks.filter((b): b is Extract<LegalBlock, { type: 'section' }> => b.type === 'section');
-  const draft = pendingResponsavel().length > 0;
 
   // Endereço com âncora (/privacidade#13-seus-direitos): a tela carrega sob demanda, então a
   // seção só existe depois de montar
@@ -104,7 +97,6 @@ export function LegalScreen({ doc, onBack }: Props) {
         <ul className="legal-meta" aria-label={t('legal.aboutDocument')}>
           <li className="legal-chip">{t('legal.version', { version: current.version })}</li>
           <li className="legal-chip">{t('legal.effectiveSince', { date: formatDate(current.effectiveDate, lang) })}</li>
-          {draft && <li className="legal-chip legal-chip--draft">{t('legal.draft')}</li>}
         </ul>
 
         {lang !== 'pt-BR' && (

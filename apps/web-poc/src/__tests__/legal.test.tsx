@@ -6,7 +6,6 @@ import { openDB } from 'idb';
 import privacidadeMd from '../legal/privacidade.md?raw';
 import termosMd from '../legal/termos.md?raw';
 import { LEGAL_DOCS, parseBlocks, parseFrontMatter, parseInline, slugify } from '../legal/documents';
-import { RESPONSAVEL, pendingResponsavel } from '../legal/responsavel';
 import { LegalScreen } from '../screens/LegalScreen';
 import { I18nProvider } from '../i18n';
 import { routes, ROUTER_FUTURE } from '../router';
@@ -35,24 +34,12 @@ describe('textos (src/legal)', () => {
     }
   });
 
-  it('os dados do responsável vêm só de responsavel.ts', () => {
+  it('sem marcadores de dados pendentes nem aviso de rascunho nos textos', () => {
     for (const [name, source] of Object.entries(SOURCES)) {
-      const keys = [...source.matchAll(/\{\{(\w+)\}\}/g)].map(m => m[1]);
-      expect(keys.length, name).toBeGreaterThan(0);
-      for (const key of keys) expect(Object.keys(RESPONSAVEL), `${name}: {{${key}}}`).toContain(key);
-      // Nenhum marcador escrito direto no texto
-      for (const value of Object.values(RESPONSAVEL)) expect(source, name).not.toContain(value);
+      expect(source, name).not.toMatch(/\{\{\w+\}\}/);
+      expect(source, name).not.toMatch(/\[[A-ZÁÉÍÓÚ /]+\]/);
+      expect(source, name).not.toMatch(/rascunho/i);
     }
-  });
-
-  it('enquanto o responsável não for definido, os quatro marcadores ficam pendentes', () => {
-    expect(RESPONSAVEL).toEqual({
-      nome: '[NOME DO RESPONSÁVEL]',
-      documento: '[CNPJ OU CPF]',
-      email: '[E-MAIL DE CONTATO]',
-      foro: '[CIDADE/UF PARA O FORO]',
-    });
-    expect(pendingResponsavel()).toEqual(['nome', 'documento', 'email', 'foro']);
   });
 
   it('sem travessão nem meia-risca nos textos', () => {
@@ -74,7 +61,7 @@ describe('textos (src/legal)', () => {
     expect(termosMd).toContain('18 anos ou mais');
   });
 
-  it('lê o cabeçalho, as seções, as listas e o negrito, links e chaves do texto', () => {
+  it('lê o cabeçalho, as seções, as listas, o negrito e os links do texto', () => {
     const { meta, body } = parseFrontMatter('---\nversao: 2.1\nvigencia: 2027-01-31\n---\n\nTexto.\n');
     expect(meta).toEqual({ versao: '2.1', vigencia: '2027-01-31' });
     expect(parseBlocks(body)).toEqual([{ type: 'paragraph', text: 'Texto.' }]);
@@ -87,26 +74,23 @@ describe('textos (src/legal)', () => {
     ]);
     expect(slugify('9. Transferência internacional')).toBe('9-transferencia-internacional');
 
-    expect(parseInline('Veja **os [Termos](/termos)** e {{email}}. {{outra}}')).toEqual([
+    expect(parseInline('Veja **os [Termos](/termos)** agora.')).toEqual([
       { type: 'text', text: 'Veja ' },
       { type: 'strong', parts: [{ type: 'text', text: 'os ' }, { type: 'link', href: '/termos', parts: [{ type: 'text', text: 'Termos' }] }] },
-      { type: 'text', text: ' e ' },
-      { type: 'responsavel', key: 'email', value: RESPONSAVEL.email },
-      { type: 'text', text: '. ' },
-      { type: 'text', text: '{{outra}}' },
+      { type: 'text', text: ' agora.' },
     ]);
   });
 });
 
 describe('LegalScreen', () => {
-  it('mostra título, versão, vigência, rascunho, índice e o link para o outro documento', () => {
+  it('mostra título, versão, vigência, índice e o link para o outro documento', () => {
     const onBack = vi.fn();
     render(<LegalScreen doc="privacy" onBack={onBack} />);
     expect(screen.getByRole('heading', { level: 1, name: 'Política de Privacidade' })).toBeInTheDocument();
     const meta = screen.getByRole('list', { name: 'Sobre este documento' });
     expect(meta).toHaveTextContent(`Versão ${LEGAL_DOCS.privacy.version}`);
-    expect(meta).toHaveTextContent('Em vigor desde 25 de outubro de 2026');
-    expect(meta).toHaveTextContent('Rascunho: dados do responsável a preencher');
+    expect(meta).toHaveTextContent('Em vigor desde 26 de outubro de 2026');
+    expect(meta).not.toHaveTextContent('Rascunho');
 
     const toc = screen.getByRole('navigation', { name: 'Nesta página' });
     expect(within(toc).getByRole('link', { name: '13. Seus direitos' })).toHaveAttribute('href', '#13-seus-direitos');
@@ -117,14 +101,6 @@ describe('LegalScreen', () => {
     // O texto é em português, mesmo com a tela em outro idioma
     expect(document.querySelector('article')).toHaveAttribute('lang', 'pt-BR');
     expect(screen.queryByText('Este documento está disponível só em português.')).not.toBeInTheDocument();
-  });
-
-  it('o marcador de e-mail não preenchido aparece destacado, sem virar link de e-mail', () => {
-    render(<LegalScreen doc="privacy" onBack={vi.fn()} />);
-    const pending = screen.getAllByText(RESPONSAVEL.email);
-    expect(pending.length).toBeGreaterThan(1);
-    expect(pending[0]).toHaveClass('legal-pending');
-    expect(document.querySelector('a[href^="mailto:"]')).toBeNull();
   });
 
   it('o índice leva o foco ao título da seção', async () => {
@@ -144,7 +120,7 @@ describe('LegalScreen', () => {
     render(<I18nProvider><LegalScreen doc="terms" onBack={onBack} /></I18nProvider>);
     expect(screen.getByRole('heading', { level: 1, name: 'Terms of Use' })).toBeInTheDocument();
     expect(screen.getByText('This document is available in Portuguese only.')).toBeInTheDocument();
-    expect(screen.getByText(/Effective since October 24, 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Effective since October 26, 2026/)).toBeInTheDocument();
     screen.getByRole('button', { name: 'Back' }).click();
     expect(onBack).toHaveBeenCalled();
   });

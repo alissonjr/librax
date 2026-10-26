@@ -4558,10 +4558,6 @@ button.profile-stat-card { cursor: pointer; }
   color: var(--lx-text-secondary);
   font: var(--lx-typography-label-sm);
 }
-.legal-chip--draft {
-  background: var(--lx-feedback-warning-soft);
-  color: var(--lx-feedback-warning-on-soft);
-}
 
 /* Aviso de texto só em português: fundo suave inteiro */
 .legal-notice {
@@ -4633,14 +4629,6 @@ button.profile-stat-card { cursor: pointer; }
   padding-left: var(--lx-space-5);
 }
 .legal-doc strong { font-weight: var(--lx-font-weight-bold); }
-/* Marcador de responsavel.ts ainda não preenchido */
-.legal-pending {
-  padding: 0 var(--lx-space-1);
-  border-radius: var(--lx-radius-sm);
-  background: var(--lx-feedback-warning-soft);
-  color: var(--lx-feedback-warning-on-soft);
-  font-weight: var(--lx-font-weight-semibold);
-}
 .legal-related {
   padding-top: var(--lx-space-4);
   border-top: var(--lx-border-width-thin) solid var(--lx-border-subtle);

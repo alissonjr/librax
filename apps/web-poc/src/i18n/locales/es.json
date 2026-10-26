@@ -522,7 +522,6 @@
   "legal": {
     "aboutDocument": "Sobre este documento",
     "contents": "En esta página",
-    "draft": "Borrador: faltan los datos del responsable",
     "effectiveSince": "Vigente desde el {date}",
     "loginConsent": "Al continuar, aceptas los {terms} y la {privacy}.",
     "onboardingConsent": "Al empezar, aceptas los {terms} y la {privacy}.",
