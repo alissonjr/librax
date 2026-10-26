@@ -118,11 +118,27 @@
       "type": "fingerspell",
       "order": 10,
       "payload": {
-        "word": "CASA",
+        "word": "CAÇA",
         "letters": [
           "C",
           "A",
-          "S",
+          "Ç",
+          "A"
+        ],
+        "per_letter_confidence": null
+      }
+    },
+    {
+      "id": "u1-l6-ex11",
+      "lesson_id": "u1-l6",
+      "type": "fingerspell",
+      "order": 11,
+      "payload": {
+        "word": "JOIA",
+        "letters": [
+          "J",
+          "O",
+          "I",
           "A"
         ],
         "per_letter_confidence": null

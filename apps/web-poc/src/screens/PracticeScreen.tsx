@@ -9,6 +9,7 @@ import { reviewSigns } from '@usecases/reviewSigns.js';
 import { addDays } from '@apilib/dates.js';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
+import { SPELL_CHALLENGE_SIZE, availableChallengeWords, formatChallengeTime, readBestTime } from '../lib/spellChallenge';
 
 interface QueueItem { signId: string; kind: 'review' | 'new'; }
 type Phase = 'loading' | 'list' | 'session' | 'done';
@@ -30,6 +31,8 @@ interface Props {
   onOpenCamera: () => void;
   /** Modo livre da câmera (soletrar o que quiser). Sem ela, o cartão não aparece. */
   onOpenFreeMode?: () => void;
+  /** Abre o desafio de soletrar (aparece quando as letras vistas já formam as palavras dele). */
+  onOpenSpellChallenge?: () => void;
 }
 
 function daysDiff(dateStr: string, today: string): number {
@@ -38,7 +41,7 @@ function daysDiff(dateStr: string, today: string): number {
   return Math.round((a.getTime() - b.getTime()) / 86400000);
 }
 
-export function PracticeScreen({ userId, repo, onOpenCamera, onOpenFreeMode }: Props) {
+export function PracticeScreen({ userId, repo, onOpenCamera, onOpenFreeMode, onOpenSpellChallenge }: Props) {
   const { t } = useT();
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [session, setSession] = useState<QueueItem[]>([]);
@@ -170,6 +173,10 @@ export function PracticeScreen({ userId, repo, onOpenCamera, onOpenFreeMode }: P
   }
 
   // phase === 'list'
+  // Desafio de soletrar: aparece quando as letras já vistas formam palavras suficientes
+  const seenLetters = new Set(knownIds.filter(id => signsMap[id]?.category === 'alfabeto').map(id => signsMap[id].gloss));
+  const spellChallengeOpen = availableChallengeWords(seenLetters).length >= SPELL_CHALLENGE_SIZE;
+  const bestTime = readBestTime();
   return (
     <div className="practice-screen">
       <header className="screen-header animate__animated animate__fadeInDown animate__faster">
@@ -222,6 +229,23 @@ export function PracticeScreen({ userId, repo, onOpenCamera, onOpenFreeMode }: P
             {t('practiceScreen.practice')}
           </button>
         </div>
+
+        {onOpenSpellChallenge && spellChallengeOpen && (
+          <div className="free-practice-card animate__animated animate__fadeInUp" style={{ animationDelay: '160ms' }}>
+            <div className="free-practice-text">
+              <h3>{t('spellChallenge.title')}</h3>
+              <p>
+                {t('spellChallenge.cardDesc', { n: SPELL_CHALLENGE_SIZE })}{' '}
+                <span className="tabular">
+                  {bestTime !== null ? t('spellChallenge.best', { time: formatChallengeTime(bestTime) }) : t('spellChallenge.noBest')}
+                </span>
+              </p>
+            </div>
+            <button className="btn btn-ghost" onClick={onOpenSpellChallenge}>
+              <Icon name="timer" /> {t('spellChallenge.open')}
+            </button>
+          </div>
+        )}
 
         <button className="camera-access-card animate__animated animate__fadeInUp" style={{ animationDelay: '200ms' }} onClick={onOpenCamera}>
           <Icon name="videocam" className="camera-access-icon" />

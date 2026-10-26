@@ -124,8 +124,23 @@
     {
       "id": "u13-l2-ex11",
       "lesson_id": "u13-l2",
-      "type": "build_phrase",
+      "type": "fingerspell",
       "order": 11,
+      "payload": {
+        "word": "20",
+        "letters": [
+          "2",
+          "0"
+        ],
+        "per_letter_confidence": null,
+        "numbers": true
+      }
+    },
+    {
+      "id": "u13-l2-ex12",
+      "lesson_id": "u13-l2",
+      "type": "build_phrase",
+      "order": 12,
       "payload": {
         "pt": "Por favor, empreste-me vinte reais?",
         "glosses": [

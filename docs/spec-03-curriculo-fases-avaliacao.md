@@ -100,7 +100,7 @@ Nomes finais (decisão 10 do `plano-mobile-web.md`): `intro` virou `sign_intro`;
 | type | payload |
 |---|---|
 | `perform_sign` | `{ sign_id, recognition: "static"\|"dynamic", min_confidence, max_attempts, hint_video_url }` (`min_confidence` e `max_attempts` ficam `null`, padrão do reconhecedor, até a calibração da seção 5.3) |
-| `fingerspell` | `{ word, letters[], per_letter_confidence, own_name? }` (nomes da U4 e palavras de revisão do alfabeto; `per_letter_confidence` fica `null` até a calibração. Com a câmera só quando o classificador em uso avalia todas as letras da palavra; senão o app mostra como `order_sequence`. `own_name: true` é o "soletre seu nome": o app troca a palavra pelo primeiro nome do perfil e `word` fica de reserva, ver seção 5.4) |
+| `fingerspell` | `{ word, letters[], per_letter_confidence, own_name?, numbers? }` (nomes da U4, palavras de revisão do alfabeto e, com `numbers: true`, números feitos dígito a dígito na U13, como "faça 20"; `per_letter_confidence` fica `null` até a calibração. Cada letra ou dígito tem o seu leitor na câmera (seção 5.4); com letra parada que a câmera não avalia, ou sem nenhum passo avaliado, o app mostra como `order_sequence`. `own_name: true` é o "soletre seu nome": o app troca a palavra pelo primeiro nome do perfil e `word` fica de reserva, ver seção 5.4) |
 | `mirror_practice` | `{ sign_id }` (prática livre, sem nota) |
 
 ### Revisão de mãos parecidas
@@ -129,12 +129,17 @@ reconhece receptivo -> produz expressivo, com a frase no fim. Receptivo cobre qu
    listam cada letra que o modelo lê bem (ver abaixo). Depois vêm os `fingerspell`, um por palavra de
    `spellWords` (nomes da U4, palavras de revisão no fim das lições do alfabeto) e, se a lição tiver
    `spellOwnName`, o "soletre seu nome". Na lição de nomes da U4, sem `produce`, os `fingerspell` fazem o papel do
-   `perform_sign`. Se nem agrupando a lição coubesse, a produção sem lista cairia para 1 `perform_sign`; se ainda
+   `perform_sign`. Os números de `spellNumbers` (U13 L2 a L4: 20, 30 e 80) viram `fingerspell` com `numbers: true`
+   depois dos `perform_sign`, sem tirar a produção da lição. Se nem agrupando a lição coubesse, a produção sem lista cairia para 1 `perform_sign`; se ainda
    assim não coubesse, o script falha e pede para dividir a lição (nenhuma lição do A1 chega nisso: elas têm de 4
    a 6 sinais). O script também falha se uma palavra soletrada usa letra que ainda não teve `perform_sign` até a
-   lição: a soletração só pede letras já ensinadas e que a câmera lê bem. Falha também com letra de movimento
-   (`recognition: "dynamic"`: J, Z e Ç), porque a soletração pela câmera lê só a forma parada da mão, mesmo que a
-   letra tenha `perform_sign` com o modelo das letras com movimento.
+   lição: a soletração só pede letras já ensinadas e que a câmera lê bem (`spelledWordProblem` em `compose.mjs`).
+   Letras com movimento com `perform_sign` (H, J, K, X e Ç, avaliadas pelo modelo das letras com movimento) entram
+   como as outras. A única exceção é a letra com movimento sem câmera (o Z hoje), que entra como prática livre
+   dentro da palavra se já foi ensinada, no máximo uma por palavra (`FREE_SPELL_MAX`). Para os números
+   (`spelledNumberProblem`), o script falha se o número não é um sinal do curso, se tem forma própria em Libras
+   (11, 40, 50 e 100, ver as notas do `signs.json`; o 10 e os outros de 12 a 90 são os dígitos em sequência com a
+   mesma mão) ou se algum dígito ainda não teve `perform_sign`.
    Por fim, um `contrast_pair` por par de `contrastPairs` (course.json), a revisão das mãos parecidas (seção
    "Mãos parecidas" abaixo). Cada par conta como um exercício no limite de 12 e o script falha se o par usa
    sinal que ainda não foi ensinado (em lição anterior ou na própria lição).
@@ -150,15 +155,15 @@ movimento (`ml-training/train_letras_mov.py`, spec-01 seção 3.3): quando ele e
 J, X e Ç viram prática livre. J está no `produce` da U1 L2 e X e Ç no da U1 L6 (a U1 L5 já tem 4 letras com câmera:
 U, V, W e Y); Z ficou abaixo de 70% e segue como prática livre. Para acrescentar uma letra, basta pô-la no
 `produce` da lição em que ela é ensinada. As palavras de revisão usam só letras com câmera até a lição: CHEGA
-(U1 L2), BOLO (U1 L3), SAPO (U1 L4), YAGO (U1 L5) e CASA (U1 L6); a U1 L1 não tem, para a primeira lição começar leve
-(as letras dela voltam em CHEGA).
+(U1 L2), BOLO (U1 L3), SAPO (U1 L4), YAGO (U1 L5) e CAÇA e JOIA (U1 L6, com o Ç e o J lidos pelo modelo das letras
+com movimento); a U1 L1 não tem, para a primeira lição começar leve (as letras dela voltam em CHEGA).
 
 **Ç (U1 L6, "Letra Ç")**: vem depois do Z, numa lição própria, porque não cabe na U1 L5 (já com 13 exercícios) nem
 na U1 L1 (5 letras com câmera). A forma é a do C e o que muda é o movimento (a mão treme de um lado para o outro), então
 a lição revisa o C (no `word_choose_video` do C, o Ç é uma das opções) e as outras letras com movimento, J e Z, e a
 pessoa faz o C e logo depois o Ç na câmera. O Ç não tem avatar (o VLibras não tem uma glosa que funcione no player
-do app): a apresentação e os exercícios de reconhecimento mostram a descrição da forma e do movimento. Ç fica fora da
-soletração (palavras de revisão e "soletre seu nome").
+do app): a apresentação e os exercícios de reconhecimento mostram a descrição da forma e do movimento. Na soletração
+(CAÇA, JOIA e o "soletre seu nome") o Ç e o J são lidos pelo modelo das letras com movimento.
 
 Lição que ficasse com menos de 7 ganha uma rodada de `watch_choose_word` antes dos pares e da frase (no A1, só a
 U2 L3, com um `watch_choose_word` a mais).
@@ -188,7 +193,8 @@ Exemplos (bundle atual):
 |---|---|---|---|
 | U1 L1 (A, B, C, D, E) | 5 novos, sem frase, `produce` A a E | intro A, watch A, intro B, C, D e E, match_pairs dos 4, perform A, B, C, D e E | 12 |
 | U1 L5 (U, V, W, X, Y, Z) | 6 novos, `produce` U, V, W e Y, revisão YAGO | intro U, V e W, match_pairs dos 3, intro X, Y e Z, match_pairs dos 3, perform U, V, W e Y, fingerspell YAGO | 13 |
-| U1 L6 (Ç; revisão C, J, X e Z) | 1 novo e 4 de revisão, `produce` C, Ç e X, revisão CASA | intro Ç, watch Ç, word_choose_video C, watch J, word_choose_video X, watch Z, perform C, Ç e X, fingerspell CASA | 10 |
+| U1 L6 (Ç; revisão C, J, X e Z) | 1 novo e 4 de revisão, `produce` C, Ç e X, revisão CAÇA e JOIA | intro Ç, watch Ç, word_choose_video C, watch J, word_choose_video X, watch Z, perform C, Ç e X, fingerspell CAÇA e JOIA | 11 |
+| U13 L2 (16 a 20; "faça 20") | 5 novos + frase, `spellNumbers` 20 | intro e watch 16, intro e word_choose_video 17, intro 18, 19 e 20, match_pairs dos 3, perform 16 e 17, fingerspell 20 (2 e depois 0), build_phrase | 12 |
 | U3 L1 (OI, TCHAU, BOM-DIA, BOA-TARDE, BOA-NOITE) | 5 novos + frase | intro e watch OI, intro e word_choose_video TCHAU, intro BOM-DIA, BOA-TARDE e BOA-NOITE, match_pairs dos 3, perform OI, perform TCHAU, build_phrase | 11 |
 | U6 L1 (FAMÍLIA, MÃE, PAI, FILHO, FILHA, BEBÊ) | 6 novos + frase | intro e watch FAMÍLIA, intro e word_choose_video MÃE, intro PAI, FILHO, FILHA e BEBÊ, match_pairs dos 4, perform FAMÍLIA, perform MÃE, build_phrase | 12 |
 | U4 L4 (D, A, V, I, B, L; nomes DAVI, BIA, LIA e o da pessoa) | 6 de revisão + frase | watch e word_choose_video alternados para os 6 sinais, fingerspell DAVI, BIA e LIA, "soletre seu nome" (reserva LIDIA), build_phrase | 11 |
@@ -252,18 +258,42 @@ function evaluatePerformSign(scoreStream, payload) {
 - Sinais difíceis ganham limiar mais baixo + mais tentativas; reavaliar com o tempo.
 
 ### 5.4 Soletração (`fingerspell`)
-- Avalia letra a letra (estático) em sequência; aceita a palavra se cada letra passou `per_letter_confidence`; permite repetir letra que falhou sem reiniciar a palavra.
-- Letra igual à anterior (o SS de OSSO) só conta de novo depois que a mão sai do quadro ou muda de forma (seção 11.8).
-- Só usa a câmera em palavra cujas letras o classificador em uso avalia; senão vira `order_sequence`.
+- Avalia letra a letra em sequência; aceita a palavra se cada letra passou `per_letter_confidence`; permite repetir letra que falhou sem reiniciar a palavra.
+- **Um leitor por letra** (`spellReadersFor` em `src/lib/content.ts`, `useSpellCamera` e `spellAdvance` em
+  `src/lib/fingerspell.ts`): uma câmera e um laço de quadros para a palavra inteira, e o leitor troca a cada letra.
+  As letras paradas vão para o classificador das letras (leitura estável de 400 ms); H, J, K, X e Ç, quando o modelo
+  das letras com movimento as avalia (`camera_letters`), vão para ele (buffer de 2 s, janelas de 0,8 a 1,6 s, a
+  letra vale com duas avaliações seguidas iguais; ao chegar numa letra com movimento o buffer recomeça, para o
+  movimento da letra anterior não contar). Com uma letra com movimento na palavra, o landmarker procura duas mãos e
+  lê a mais alta. Os dígitos de um número vão para o modelo dos números (`camera_numbers`: 0, 2, 3, 8 e 9).
+- **Prática livre dentro da palavra**: a letra com movimento sem câmera (o Z hoje, ou J e Ç sem o modelo publicado) e
+  o dígito fora de `camera_numbers` não têm nota. A tela mostra a letra com contorno tracejado, a descrição e "Ver o
+  movimento", e a pessoa toca em "Fiz o Z" para seguir. Escolhido o toque, e não o avanço automático depois da dica,
+  porque é previsível, não pressiona com tempo (seção 12.1 do design system: nenhum avanço automático sem botão) e
+  funciona igual com menos movimento e com leitor de tela.
+- Letra igual à anterior (o SS de OSSO) só conta de novo depois que a mão sai do quadro ou muda de forma (seção
+  11.8). Na troca de leitor a espera se solta sozinha: a leitura do outro leitor não é a letra anterior.
+- Usa a câmera quando cada letra tem leitor ou é prática livre e ao menos uma é avaliada; letra parada que o
+  classificador em uso não avalia faz a palavra virar `order_sequence` (número sem nenhum dígito avaliado também).
+- **Números dígito a dígito** (U13: "faça 20", "faça 30", "faça 80"): o número da Libras do curso é feito com os
+  dígitos em sequência pela mesma mão (notas do `signs.json` de 12 a 90 e do 10); 11, 40, 50 e 100 têm forma
+  própria e não entram. O exercício é o mesmo `fingerspell`, com "Faça 20: um dígito de cada vez" e a faixa de
+  dígitos.
+- **Desafio de soletrar** (aba Praticar, `/praticar/soletrar`, `src/lib/spellChallenge.ts`): 3 palavras sorteadas
+  entre as que usam só letras já vistas (aparece quando há pelo menos 3), com o tempo na tela e o melhor tempo no
+  aparelho (`localStorage`). O relógio conta para cima, só enquanto uma palavra está em andamento (para entre a
+  palavra feita e o "Continuar"), sem limite. Pular uma palavra termina o desafio sem valer recorde. Com menos
+  movimento (preferência do sistema ou "Reduzir animações") não há contagem 3, 2, 1 nem relógio correndo: o tempo
+  aparece só no fim. As palavras passam na mesma regra do gerador (teste `spelling.test.ts`).
 - A pausa entre letras (a classe "nenhuma letra" do modelo, ou a mão fora do quadro) chega como leitura vazia: não
   conta como letra, não volta a palavra e libera a letra repetida.
 - **Soletre seu nome** (U4 L4, `own_name`): o app pega o nome que a pessoa deu no onboarding (`librax_displayName`
   no aparelho, então funciona offline e sem conta), fica com o primeiro nome, passa para caixa alta, tira os acentos
   (Á vira A, mas Ç continua Ç) e guarda só as letras (`ownNameLetters` em `src/lib/fingerspell.ts`). Se o nome
-  ficar vazio ou com uma letra, tiver mais de 8 letras ou tiver J, Z ou Ç (letras com movimento, que a soletração
-  pela câmera não avalia: ela lê só a forma parada, mesmo J e Ç tendo câmera no `perform_sign`), o exercício usa a
-  palavra de reserva do bundle (LIDIA) como uma soletração comum. Nomes com letras que o
-  modelo ainda lê mal (M, N, R, T, X) seguem com a câmera; a pessoa pode pular.
+  ficar vazio ou com uma letra ou tiver mais de 8 letras, o exercício usa a palavra de reserva do bundle (LIDIA)
+  como uma soletração comum. Nome com J ou Ç fica com o nome (as letras com movimento têm o seu leitor) e o Z é
+  prática livre dentro do nome. Nomes com letras que o modelo ainda lê mal (M, N, R, T) seguem com a câmera; a
+  pessoa pode pular.
 
 ## 6. Repetição espaçada (algoritmo concreto - SM-2 adaptado)
 
@@ -479,7 +509,9 @@ Pipeline operacional (liga-se à SPEC 02 - bundle em S3):
 
 **Letra repetida:** depois de confirmar uma letra, a mesma letra so conta de novo quando a leitura estavel deixa de ser ela (a mao saiu do quadro ou mudou de forma). Assim o SS de OSSO exige fazer o S duas vezes, e a letra seguinte diferente e aceita direto. A regra e pura, em `src/lib/fingerspell.ts` (`spellStep`); o reconhecimento (`useCameraRecognizer`, `src/recognition`) nao muda. A HUD avisa "Tire a mao ou mude de forma e faca S de novo".
 
-**Sem camera avaliada:** so entra com camera a palavra cujas letras o classificador em uso avalia (as do MLP quando existe, senao as do heuristico). Senao o exercicio vira `order_sequence` com as letras da palavra (no `resolveExercises` e, se o classificador mudar durante a licao, no proprio componente).
+**Leitor por letra e pratica livre:** cada letra tem o seu leitor (letras paradas, letras com movimento ou numeros; secao 5.4). A letra sem camera aparece com contorno tracejado e o botao "Fiz o <LETRA>", sem nota.
+
+**Sem camera avaliada:** com letra parada que o classificador em uso nao avalia (as do MLP quando existe, senao as do heuristico), o exercicio vira `order_sequence` com as letras da palavra (no `resolveExercises` e, se o classificador mudar durante a licao, no proprio componente).
 
 ### 11.9 Exercicio: mirror_practice (expressivo, sem nota)
 
@@ -551,6 +583,7 @@ Passos 4 e 5 sao mutuamente exclusivos. Se a licao nao e a ultima de uma unidade
 - Lista de `SrsItemTile`: icone do sinal, glosa, "Visto ha <N> dias".
 - Botao primario "Iniciar revisao".
 - `FreePracticeCard`: "Pratique sinais que voce ja conhece" + botao "Pratica livre".
+- Cartao "Desafio de soletrar" (quando as letras vistas formam ao menos 3 palavras do desafio): melhor tempo e botao "Desafiar", que abre `/praticar/soletrar` (secao 5.4).
 
 **Estados:**
 | Estado | Condicao | O que muda |

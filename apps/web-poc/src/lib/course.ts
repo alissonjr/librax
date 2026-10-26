@@ -18,6 +18,8 @@ export interface Lesson {
   produce?: string[];
   /** "Soletre seu nome" (U4): palavra de reserva para quando o nome do perfil não dá. */
   spellOwnName?: string;
+  /** Números feitos dígito a dígito na lição (U13: "faça 20"); viram fingerspell com `numbers`. */
+  spellNumbers?: string[];
   /**
    * Revisão das mãos parecidas (F e T, O e 0): cada par vira um contrast_pair no bundle. `contexts`
    * só nos pares da mesma mão: a palavra ou o número em que cada sinal aparece.

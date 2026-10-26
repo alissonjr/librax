@@ -120,7 +120,7 @@
           "xpReward": 10,
           "signIds": ["letra-C","letra-Ç","letra-J","letra-X","letra-Z"],
           "produce": ["letra-C","letra-Ç","letra-X"],
-          "spellWords": ["CASA"]
+          "spellWords": ["CAÇA", "JOIA"]
         },
         {
           "id": "u1-l7",
@@ -675,21 +675,24 @@
           "title": "Números 16 a 20",
           "order": 2,
           "xpReward": 10,
-          "signIds": ["numero-16","numero-17","numero-18","numero-19","numero-20"]
+          "signIds": ["numero-16","numero-17","numero-18","numero-19","numero-20"],
+          "spellNumbers": ["20"]
         },
         {
           "id": "u13-l3",
           "title": "Dezenas 30 a 70",
           "order": 3,
           "xpReward": 10,
-          "signIds": ["numero-30","numero-40","numero-50","numero-60","numero-70"]
+          "signIds": ["numero-30","numero-40","numero-50","numero-60","numero-70"],
+          "spellNumbers": ["30"]
         },
         {
           "id": "u13-l4",
           "title": "80 a 100 e dinheiro",
           "order": 4,
           "xpReward": 10,
-          "signIds": ["numero-80","numero-90","numero-100","sinal-DINHEIRO","sinal-REAL"]
+          "signIds": ["numero-80","numero-90","numero-100","sinal-DINHEIRO","sinal-REAL"],
+          "spellNumbers": ["80"]
         },
         {
           "id": "u13-l5",
