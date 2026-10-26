@@ -32,11 +32,13 @@ import { fileURLToPath } from 'node:url';
 import { isLeftHand, normalizeHand } from '../src/recognition/normalize';
 import { classify, parseMlp, predict, type MlpModel } from '../src/recognition/mlp';
 import {
-  LETTER_WINDOWS_S, NO_LETTER, compactLetterWindow, frameHand, letterWindow, letterWindowMotion, windowHandedness,
+  LETTER_WINDOWS_S, NO_LETTER, compactLetterWindow, letterWindow, letterWindowMotion, windowHandedness,
   type LetterFrame,
 } from '../src/recognition/letterMotion';
 import { readingRulesFromJson } from '../src/recognition/readingRules';
 import type { Lm } from '../src/lib/recognizer';
+import { BONES, clonePose, positions, retarget, rigFromGlbBytes, solveCollisions } from '../src/mao3d/retarget';
+import { sceneLandmarks } from '../src/mao3d/cena';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const APP = resolve(AQUI, '..');
@@ -58,6 +60,13 @@ const MIN_PROB = 0.6;
 /** Janela em volta do meio da parada (s). */
 const JANELA = 0.35;
 const ESCALA = 100;
+/**
+ * Fora de propósito: números com "A CONFERIR" no signs.json em que as mãos lidas pelo modelo não
+ * batem com a descrição da lição. Mostrar a mão dos dados ensinaria a outra forma.
+ */
+const FORA: Record<string, string> = {
+  '5': 'A descrição (signs.json, A CONFERIR) pede indicador e médio em gancho; a única mão lida pelo modelo tem os dois esticados, como no avatar.',
+};
 
 if (!DADOS) {
   console.error('Sem rotulos/ e landmarks/ em ml-training/data. Passe --dados=<caminho de ml-training/data>.');
@@ -167,7 +176,7 @@ function escolher(lista: Candidata[], n: number): Candidata[] {
 /* ---------- letras com movimento ---------- */
 
 interface Trecho { id: string; channel_id: string; letra: string; ini: number; fim: number; ok: boolean }
-interface Movimento { canal: string; prob: number; ines: boolean; quadros: number[][] }
+interface Movimento { canal: string; prob: number; ines: boolean; forma: number; quadros: number[][] }
 
 const trechosBase = JSON.parse(readFileSync(resolve(RAIZ, 'ml-training/letras_mov_trechos.json'), 'utf8')) as { trechos: Trecho[]; ines: Trecho[] };
 const trechosXz = JSON.parse(readFileSync(resolve(RAIZ, 'ml-training/letras_mov_trechos_xz.json'), 'utf8')) as { trechos: Trecho[] };
@@ -194,6 +203,60 @@ function video(id: string): Video | null {
 }
 
 const none = letrasMov.model.labels.indexOf(NO_LETTER);
+
+/**
+ * Forma da mão no movimento: a janela que o modelo lê às vezes pega a passagem da letra vizinha
+ * (dedos abrindo). Fração dos quadros com a configuração da descrição (signs.json): dedo
+ * esticado = da base à ponta quase em linha reta; fechado = bem dobrado.
+ */
+const MIN_FORMA = 0.7;
+const DEDOS = { I: 5, M: 9, A: 13, P: 17 } as const;
+function reto(q: readonly number[], base: number): number {
+  const p = (i: number) => [q[i * 3], q[i * 3 + 1], q[i * 3 + 2]];
+  const d = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  const pts = [0, 1, 2, 3].map((k) => p(base + k));
+  return d(pts[0], pts[3]) / (d(pts[0], pts[1]) + d(pts[1], pts[2]) + d(pts[2], pts[3]));
+}
+const ESTICADO = 0.85;
+const FECHADO = 0.65;
+const FORMAS: Record<string, (q: readonly number[]) => boolean> = {
+  // Mínimo estendido
+  J: (q) => reto(q, DEDOS.P) >= ESTICADO && reto(q, DEDOS.I) <= FECHADO && reto(q, DEDOS.M) <= FECHADO,
+  // Indicador estendido
+  Z: (q) => reto(q, DEDOS.I) >= ESTICADO && reto(q, DEDOS.M) <= FECHADO && reto(q, DEDOS.A) <= FECHADO,
+  // Indicador e médio esticados, anelar e mínimo fechados
+  H: (q) => reto(q, DEDOS.I) >= ESTICADO && reto(q, DEDOS.M) >= ESTICADO && reto(q, DEDOS.A) <= FECHADO,
+  K: (q) => reto(q, DEDOS.I) >= ESTICADO && reto(q, DEDOS.M) >= ESTICADO && reto(q, DEDOS.A) <= FECHADO,
+  // Indicador em gancho (não reto), demais dobrados
+  X: (q) => reto(q, DEDOS.I) < 0.95 && reto(q, DEDOS.M) <= FECHADO && reto(q, DEDOS.A) <= FECHADO,
+  // Mão em C: nenhum dedo fechado no punho
+  'Ç': (q) => [DEDOS.I, DEDOS.M, DEDOS.A, DEDOS.P].every((b) => reto(q, b) > FECHADO),
+};
+/**
+ * A mesma conferência na mão que o app desenha: os pontos do esqueleto do modelo depois do
+ * retargeting (retarget.ts) e da colisão, na ordem do MediaPipe. A profundidade do MediaPipe falha
+ * com a palma de lado, e aí o retargeting pode abrir um dedo que nos dados está dobrado.
+ */
+const rig = rigFromGlbBytes(readFileSync(resolve(APP, 'src/mao3d/mao-3d.glb')));
+const ORDEM_MP: string[] = [
+  'wrist', 'thumb_cmc', 'thumb_mcp', 'thumb_ip', 'thumb_tip',
+  ...['index', 'middle', 'ring', 'pinky'].flatMap((d) => [`${d}_mcp`, `${d}_pip`, `${d}_dip`, `${d}_tip`]),
+];
+function desenhada(q: readonly number[]): number[] {
+  const pose = retarget(rig, sceneLandmarks((i) => q[i * 3], (i) => q[i * 3 + 1], (i) => q[i * 3 + 2]));
+  const pos = positions(rig, solveCollisions(rig, clonePose(pose)));
+  return ORDEM_MP.flatMap((n) => {
+    const v = pos[(BONES as readonly string[]).indexOf(n)];
+    return [v.x, -v.y, -v.z];
+  });
+}
+function forma(letra: string, quadros: readonly number[][]): number {
+  const ok = FORMAS[letra];
+  if (!ok) return 1;
+  const nosDados = quadros.filter((q) => ok(q)).length;
+  const naTela = quadros.filter((q) => ok(desenhada(q))).length;
+  return Math.min(nosDados, naTela) / quadros.length;
+}
 
 /** A janela do trecho que o modelo lê como a letra, com o movimento quadro a quadro; ou null. */
 function movimento(t: Trecho): Movimento | null {
@@ -225,10 +288,23 @@ function movimento(t: Trecho): Movimento | null {
   if (!melhor) return null;
   const { t0, t1 } = melhor;
   const rotulo = windowHandedness(v.frames, t0, t1);
-  // Quadros da janela com a mão escolhida (a mais alta) e o mesmo rótulo da janela
+  // A mesma mão o trecho todo: a mais alta no primeiro quadro (a regra do app) e, depois, a mais
+  // perto do pulso do quadro anterior (o rótulo do MediaPipe às vezes troca no meio; vale o da janela)
+  let anterior: Mao | null = null;
   const dentro = v.raw
-    .map((q, i) => ({ t: q.t, mao: frameHand(v.frames[i].hands) ? q.hands[v.frames[i].hands.indexOf(frameHand(v.frames[i].hands)!)] : null }))
-    .filter((q) => q.t >= t0 - 1e-6 && q.t <= t1 + 1e-6);
+    .filter((q) => q.t >= t0 - 1e-6 && q.t <= t1 + 1e-6)
+    .map((q) => {
+      let mao: Mao | null = null;
+      if (!anterior) {
+        for (const m of q.hands) if (!mao || m.lm[1] < mao.lm[1]) mao = m;
+      } else {
+        const a: Mao = anterior;
+        const d = (m: Mao) => Math.hypot((m.lm[0] - a.lm[0]) * v.aspect, m.lm[1] - a.lm[1]);
+        for (const m of q.hands) if (!mao || d(m) < d(mao)) mao = m;
+      }
+      if (mao) anterior = mao;
+      return { t: q.t, mao };
+    });
   if (dentro.length < 8) return null;
   // Buraco de até 2 quadros: repete a mão vizinha (a reprodução já interpola). Mais que isso, fora.
   let vazios = 0;
@@ -252,6 +328,11 @@ function movimento(t: Trecho): Movimento | null {
   const py = dentro.map(({ mao }) => mao!.lm[1]);
   const mx = px.reduce((a, b) => a + b, 0) / px.length;
   const my = py.reduce((a, b) => a + b, 0) / py.length;
+  // Sem saltos: palmo estável (a mão não some nem troca), pulso sem pular entre quadros e o trecho
+  // inteiro dentro de alguns palmos (salto grande é erro do MediaPipe ou corte do vídeo)
+  if (palmos.some((p) => p / palmo < 0.8 || p / palmo > 1.25)) return null;
+  for (let i = 1; i < px.length; i++) if (Math.hypot(px[i] - px[i - 1], py[i] - py[i - 1]) / palmo > 0.7) return null;
+  if ((Math.max(...px) - Math.min(...px)) / palmo > 3 || (Math.max(...py) - Math.min(...py)) / palmo > 3) return null;
   let quadros = dentro.map(({ mao }, i) => [
     ...pontos(mao!.lm, rotulo, v.aspect),
     ((espelha ? 1 : -1) * (px[i] - mx)) / palmo,
@@ -263,7 +344,9 @@ function movimento(t: Trecho): Movimento | null {
     const b = quadros[Math.min(quadros.length - 1, i + 1)];
     return q.map((v2, k) => (a[k] + 2 * v2 + b[k]) / 4);
   });
-  return { canal: t.channel_id, prob: melhor.prob, ines: t.channel_id === 'ines', quadros };
+  const f = forma(t.letra, quadros);
+  if (f < MIN_FORMA) return null;
+  return { canal: t.channel_id, prob: melhor.prob, ines: t.channel_id === 'ines', forma: f, quadros };
 }
 
 const movimentos: Record<string, Movimento[]> = Object.fromEntries(COM_MOVIMENTO.map((l) => [l, []]));
@@ -277,6 +360,10 @@ for (const t of trechos) {
 const sinais: Record<string, { prob: number[]; poses?: number[][]; mov?: number[][][] }> = {};
 const relatorio: string[] = [];
 for (const s of [...PARADAS, ...NUMEROS]) {
+  if (FORA[s]) {
+    relatorio.push(`${s}: fora (${FORA[s]})`);
+    continue;
+  }
   const escolhidas = escolher(candidatas[s], POR_SINAL);
   if (escolhidas.length === 0) {
     relatorio.push(`${s}: nenhuma mão lida pelo modelo (fica de fora)`);
@@ -292,14 +379,16 @@ for (const s of COM_MOVIMENTO) {
     const atual = porCanal.get(m.canal);
     if (!atual || m.prob > atual.prob) porCanal.set(m.canal, m);
   }
-  const escolhidos = [...porCanal.values()].sort((a, b) => Number(b.ines) - Number(a.ines) || b.prob - a.prob).slice(0, MOVIMENTOS);
+  const escolhidos = [...porCanal.values()]
+    .sort((a, b) => Number(b.ines) - Number(a.ines) || b.forma - a.forma || b.prob - a.prob)
+    .slice(0, MOVIMENTOS);
   if (escolhidos.length === 0) {
     relatorio.push(`${s}: nenhum movimento lido pelo modelo (fica de fora)`);
     continue;
   }
   sinais[s] = { prob: escolhidos.map((m) => Math.round(m.prob * 100) / 100), mov: escolhidos.map((m) => m.quadros.map((q) => q.map(inteiro))) };
   relatorio.push(
-    `${s}: ${escolhidos.length} movimentos (${escolhidos.map((m) => `${m.quadros.length} quadros${m.ines ? ', INES' : ''}`).join('; ')}) de ${porCanal.size} canais lidos pelo modelo`,
+    `${s}: ${escolhidos.length} movimentos (${escolhidos.map((m) => `${m.quadros.length} quadros, forma ${Math.round(m.forma * 100)}%${m.ines ? ', INES' : ''}`).join('; ')}) de ${porCanal.size} canais lidos pelo modelo`,
   );
 }
 console.log(relatorio.join('\n'));
@@ -315,6 +404,7 @@ const json = {
   gerado_em: new Date().toISOString().slice(0, 10),
   fps: 15,
   escala: ESCALA,
+  fora: FORA,
   sinais,
 };
 writeFileSync(SAIDA, `${JSON.stringify(json)}\n`);

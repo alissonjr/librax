@@ -12,7 +12,7 @@
  */
 import { Object3D, type Quaternion, Vector3 } from 'three';
 import { createHandScene, sceneLandmarks, SKIN_TONES } from './cena';
-import { clonePose, mixPose, positions, retarget, solveCollisions, type HandPose } from './retarget';
+import { BONE_INDEX, clonePose, mixPose, positions, retarget, solveCollisions, type HandPose } from './retarget';
 import type { Clip } from './poses';
 import { easeStandard, sampleAt } from './linhaDoTempo';
 
@@ -24,7 +24,9 @@ const AUTO_TURN = 0.55;
 const AUTO_TURN_MS = 9000;
 const SWITCH_MS = 450;
 /** Folga em volta das articulações (grossura dos dedos e ponta além da última articulação), em palmos. */
-const MARGIN = 0.28;
+const MARGIN = 0.22;
+/** Quanto do antebraço do modelo (em palmos, além do pulso) cabe no quadro. */
+const FOREARM = 0.45;
 
 export interface MotorOptions {
   reduced: boolean;
@@ -66,7 +68,11 @@ export async function createMotor(canvas: HTMLCanvasElement, observed: HTMLEleme
   const pts: Vector3[] = [];
   for (const p of people) {
     p.poses.forEach((pose, k) => {
-      for (const q of positions(rig, solve(pose))) pts.push(q.divideScalar(rig.palmLen).add(p.offsets[k]));
+      const joints = positions(rig, solve(pose)).map((q) => q.divideScalar(rig.palmLen).add(p.offsets[k]));
+      pts.push(...joints);
+      // O modelo segue um pouco além do pulso (o começo do antebraço): entra no quadro também
+      const wrist = joints[BONE_INDEX.wrist];
+      pts.push(wrist.clone().sub(joints[BONE_INDEX.middle_mcp]).multiplyScalar(FOREARM).add(wrist));
     });
   }
   const lo = new Vector3(Infinity, Infinity, Infinity);
