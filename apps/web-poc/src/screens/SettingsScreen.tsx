@@ -16,6 +16,7 @@ import { LegalLink } from '../components/LegalLinks';
 import { ROUTES } from '../lib/routes';
 import { listCameraStats } from '../lib/cameraStats';
 import { BUILD, formatVersion } from '../lib/appVersion';
+import { PlacementSettingItem } from '../components/PlacementEntry';
 
 interface Props {
   userId: string;
@@ -27,6 +28,8 @@ interface Props {
   onNotice?: (key: string) => void;
   /** Desempenho da câmera: tentativas e pulos por sinal (lib/cameraStats.ts). */
   onOpenCameraStats?: () => void;
+  /** Teste de nivelamento (lib/placement.ts): fazer, enquanto vale, ou desfazer. */
+  onOpenPlacement?: () => void;
 }
 
 const GOAL_OPTIONS = [
@@ -36,7 +39,7 @@ const GOAL_OPTIONS = [
   { value: 50, key: 'settings.goalIntensivo' },
 ];
 
-export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, onOpenCameraStats }: Props) {
+export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, onOpenCameraStats, onOpenPlacement }: Props) {
   const { t, lang, setLang } = useT();
   const account = useAccount();
   const signedIn = account.status === 'signedIn';
@@ -251,6 +254,9 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
               </div>
               <Icon name="chevron_right" className="settings-item-arrow" />
             </button>
+          )}
+          {onOpenPlacement && (
+            <PlacementSettingItem repo={repo} userId={userId} onOpen={onOpenPlacement} onNotice={onNotice} />
           )}
         </div>
 

@@ -13,6 +13,8 @@ import { latestLessonRun } from '../lib/lessonRun';
 import { scheduleCameraPrefetch } from '../lib/assetDownload';
 import { CameraPrepChip } from '../components/CameraPrepChip';
 import { InstallBanner } from '../components/InstallBanner';
+import { PlacementInvite } from '../components/PlacementEntry';
+import { isPlacementDone } from '../lib/placement';
 
 interface MapState {
   xpTotal: number;
@@ -23,6 +25,8 @@ interface MapState {
   lessonStatuses: Map<string, LessonStatus>;
   bestScores: Map<string, number>;
   nextLesson: string | null;
+  /** Lições puladas pelo teste de nivelamento (selo próprio, sem as marcas de domínio). */
+  placedLessons: Set<string>;
 }
 
 interface Props {
@@ -33,6 +37,8 @@ interface Props {
   onOpenProfile: () => void;
   /** O convite completo de instalar está na vez (AppOpenFlow): a faixa do topo não aparece junto. */
   installInvitePending?: boolean;
+  /** Abre o teste de nivelamento (convite opcional no começo da unidade 1). */
+  onOpenPlacement?: () => void;
 }
 
 function stars(score: number): number {
@@ -42,7 +48,7 @@ function stars(score: number): number {
 }
 
 export function CourseMapScreen({
-  repo, userId, onStartLesson, onOpenStreak, onOpenProfile, installInvitePending = false,
+  repo, userId, onStartLesson, onOpenStreak, onOpenProfile, installInvitePending = false, onOpenPlacement,
 }: Props) {
   const { t } = useT();
   const [state, setState] = useState<MapState | null>(null);
@@ -66,9 +72,9 @@ export function CourseMapScreen({
       const achievements = (profile?.achievements as string[]) ?? [];
       const dayXp = await repo.getDayXp(userId, today);
       // Mesma regra de desbloqueio da guarda de /licao/:id (lib/progress.ts)
-      const { lessonStatuses, bestScores, nextLesson } = await loadCourseProgress(repo, userId);
+      const { lessonStatuses, bestScores, nextLesson, placedLessons = new Set<string>() } = await loadCourseProgress(repo, userId);
 
-      if (!cancelled) setState({ xpTotal, streak, dayXp, dailyGoalXp, achievements, lessonStatuses, bestScores, nextLesson });
+      if (!cancelled) setState({ xpTotal, streak, dayXp, dailyGoalXp, achievements, lessonStatuses, bestScores, nextLesson, placedLessons });
     }
     load();
     return () => { cancelled = true; };
@@ -80,6 +86,9 @@ export function CourseMapScreen({
   const goalDone = state.dayXp >= state.dailyGoalXp;
   const atRisk = state.streak > 0 && state.dayXp === 0 && hoursNow >= 20;
   const allDone = [...state.lessonStatuses.values()].every(s => s === 'completed');
+  // Teste de nivelamento: convite enquanto não foi feito e o alfabeto (unidade 1) não acabou
+  const offerPlacement = !!onOpenPlacement && !isPlacementDone()
+    && (course.units[0]?.lessons ?? []).some(l => state.lessonStatuses.get(l.id) !== 'completed');
 
   const nextLessonObj = state.nextLesson
     ? course.units.flatMap(u => u.lessons).find(l => l.id === state.nextLesson)
@@ -168,13 +177,16 @@ export function CourseMapScreen({
               </div>
             </div>
 
+            {ui === 0 && offerPlacement && onOpenPlacement && <PlacementInvite onOpen={onOpenPlacement} />}
+
             <ol className="lesson-trail">
             {unit.lessons.map((lesson, li) => {
               const st = state.lessonStatuses.get(lesson.id) ?? 'locked';
               const score = state.bestScores.get(lesson.id) ?? 0;
-              const markCount = st === 'completed' ? stars(score) : 0;
+              const placed = state.placedLessons.has(lesson.id);
+              const markCount = st === 'completed' && !placed ? stars(score) : 0;
               const isCurrent = st === 'available';
-              const statusLabel = st === 'completed' ? t('courseMap.statusCompleted') : st === 'available' ? t('courseMap.statusAvailable') : st === 'due_srs' ? t('courseMap.statusReview') : t('courseMap.statusLocked');
+              const statusLabel = placed ? t('placement.statusPlaced') : st === 'completed' ? t('courseMap.statusCompleted') : st === 'available' ? t('courseMap.statusAvailable') : st === 'due_srs' ? t('courseMap.statusReview') : t('courseMap.statusLocked');
               const title = t(`course.${lesson.id}`);
               return (
                 <li
@@ -210,7 +222,9 @@ export function CourseMapScreen({
                     ? <span className="lesson-badge next">{t('courseMap.start')}</span>
                     : st === 'due_srs'
                       ? <span className="lesson-badge srs">{statusLabel}</span>
-                      : null}
+                      : placed
+                        ? <span className="lesson-badge placed" aria-hidden="true">{t('placement.placedChip')}</span>
+                        : null}
                 </li>
               );
             })}

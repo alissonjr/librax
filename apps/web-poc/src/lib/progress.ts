@@ -9,6 +9,8 @@ export interface CourseProgress {
   bestScores: Map<string, number>;
   /** Lição disponível agora; com o curso todo concluído, a primeira do curso. */
   nextLesson: string | null;
+  /** Lições concluídas pelo teste de nivelamento (lib/placement.ts), ainda não refeitas. */
+  placedLessons?: Set<string>;
 }
 
 /**
@@ -42,18 +44,21 @@ export async function loadCourseProgress(repo: IdbRepo, userId: string): Promise
   );
   const completed = new Set<string>();
   const bestScores = new Map<string, number>();
+  const placedLessons = new Set<string>();
   lessons.forEach((lesson, i) => {
     const prog = saved[i];
     if (prog?.status === 'completed') {
       completed.add(lesson.id);
-      bestScores.set(lesson.id, (prog?.bestScore as number) ?? 0.7);
+      // Pulada pelo teste: concluída, mas sem nota (o mapa mostra o selo do teste, não as marcas)
+      if (prog.placement === true) placedLessons.add(lesson.id);
+      else bestScores.set(lesson.id, (prog?.bestScore as number) ?? 0.7);
     }
   });
 
   const statuses = lessonStatuses(completed);
   const available = [...statuses].find(([, st]) => st === 'available')?.[0];
   const nextLesson = available ?? course.units[0]?.lessons[0]?.id ?? null;
-  return { lessonStatuses: statuses, bestScores, nextLesson };
+  return { lessonStatuses: statuses, bestScores, nextLesson, placedLessons };
 }
 
 /** A lição pode ser aberta agora (concluída ou disponível)? Lição fora do curso conta como bloqueada. */

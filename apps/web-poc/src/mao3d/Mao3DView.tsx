@@ -12,7 +12,7 @@ import type { Sign } from '../lib/content';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 import { TraceArrowIcon } from '../components/Brand';
-import { SKIN_TONES, getSkinTone, prefersReducedMotion, setSkinTone } from './disponivel';
+import { SKIN_TONES, getSkinTone, maskHandGloss, prefersReducedMotion, setSkinTone } from './disponivel';
 import { clipFor } from './poses';
 import { ROTATE_STEP, createMotor, type Motor } from './motor';
 import { midMovementMs } from './linhaDoTempo';
@@ -42,9 +42,11 @@ interface Props {
   compact?: boolean;
   /** Sem 3D (falhou ao carregar, sem GPU, contexto perdido): quem chamou mostra o avatar ou o texto. */
   onError: () => void;
+  /** "Qual é esta letra?" (teste de nivelamento): o rótulo acessível não diz qual é. */
+  conceal?: boolean;
 }
 
-export default function Mao3DView({ sign, className, compact = false, onError }: Props) {
+export default function Mao3DView({ sign, className, compact = false, onError, conceal = false }: Props) {
   const { t, lang } = useT();
   const clip = useMemo(() => clipFor(sign.gloss), [sign.gloss]);
   const reduced = useMemo(() => prefersReducedMotion(), []);
@@ -111,7 +113,9 @@ export default function Mao3DView({ sign, className, compact = false, onError }:
 
   const total = clip.people.length;
   const what = sign.category === 'numeros' ? t('mao3d.number', { gloss: sign.gloss }) : t('mao3d.letter', { gloss: sign.gloss });
-  const label = t('mao3d.label', { what, cm: sign.params.CM });
+  const label = conceal
+    ? t('mao3d.labelHidden', { cm: maskHandGloss(sign.params.CM, sign.gloss) })
+    : t('mao3d.label', { what, cm: sign.params.CM });
   const speedLabel = `${new Intl.NumberFormat(lang).format(speed)}x`;
   // O movimento das letras que a câmera avalia paradas (H, K, X) não aparece na apresentação
   const movementCaption = moving && sign.recognition !== 'dynamic' && sign.params.MOV && sign.params.MOV !== 'nenhum'

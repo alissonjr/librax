@@ -6,14 +6,16 @@ import { SoundOnboardingChoice } from '../components/SoundPreference';
 import { authAvailable } from '../lib/account';
 import { WelcomeIllustration, Wordmark } from '../components/Brand';
 import { LegalConsent } from '../components/LegalLinks';
+import '../styles/placement.css';
 
 interface Props {
-  onDone: () => void;
+  /** Fim das boas-vindas; `'placement'` quando a pessoa aceitou o convite do teste de nivelamento. */
+  onDone: (next?: 'placement') => void;
   /** Link "Entrar" das boas-vindas (spec-02 12.1), só quando o login existe neste ambiente. */
   onLogin?: () => void;
 }
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 const MOTIVOS = [
   { id: 'familiar', key: 'onboarding.motivoFamiliar' },
@@ -38,13 +40,14 @@ export function OnboardingScreen({ onDone, onLogin }: Props) {
   const [meta, setMeta] = useState(20);
 
   function advance() {
-    setStep(s => Math.min(4, s + 1) as Step);
+    setStep(s => Math.min(5, s + 1) as Step);
   }
 
-  function handleFinish() {
+  // O nome só é gravado no fim: com ele gravado, o onboarding conta como feito (isOnboarded)
+  function handleFinish(next?: 'placement') {
     const trimmed = name.trim() || t('common.defaultName');
     setDisplayName(trimmed);
-    onDone();
+    onDone(next);
   }
 
   return (
@@ -66,7 +69,7 @@ export function OnboardingScreen({ onDone, onLogin }: Props) {
 
       {/* Progress dots */}
       <div className="onboarding-dots">
-        {([1, 2, 3, 4] as Step[]).map(s => (
+        {([1, 2, 3, 4, 5] as Step[]).map(s => (
           <div key={s} className={`onboarding-dot${step >= s ? ' onboarding-dot--active' : ''}`} />
         ))}
       </div>
@@ -185,16 +188,44 @@ export function OnboardingScreen({ onDone, onLogin }: Props) {
             </p>
           </div>
           <div className="onboarding-camera-actions">
-            <button className="btn btn-primary" onClick={handleFinish}>
+            <button className="btn btn-primary" onClick={advance}>
               <Icon name="videocam" /> {t('onboarding.useCamera')}
             </button>
-            <button className="btn btn-ghost" onClick={handleFinish}>
+            <button className="btn btn-ghost" onClick={advance}>
               {t('onboarding.notNow')}
             </button>
           </div>
           <p className="onboarding-disclaimer">
             {t('onboarding.cameraDisclaimer')}
           </p>
+        </div>
+      )}
+
+      {/* Step 5: convite do teste de nivelamento. Duas escolhas do mesmo peso; nenhuma é a padrão. */}
+      {step === 5 && (
+        <div className="onboarding-step animate__animated animate__fadeInRight">
+          <div className="onboarding-step-icon onboarding-step-icon--hand animate__animated animate__bounceIn">
+            <Icon name="sign_language" />
+          </div>
+          <h2>{t('onboarding.placementTitle')}</h2>
+          <p className="onboarding-sub">{t('onboarding.placementSub')}</p>
+          <div className="onboarding-choices">
+            <button className="onboarding-choice onboarding-choice--goal" onClick={() => handleFinish()}>
+              <Icon name="play_arrow" filled className="placement-choice-icon" />
+              <div>
+                <div className="goal-label">{t('onboarding.placementFromStart')}</div>
+                <div className="goal-sub">{t('onboarding.placementFromStartSub')}</div>
+              </div>
+            </button>
+            <button className="onboarding-choice onboarding-choice--goal" onClick={() => handleFinish('placement')}>
+              <Icon name="skip_next" className="placement-choice-icon" />
+              <div>
+                <div className="goal-label">{t('onboarding.placementTest')}</div>
+                <div className="goal-sub">{t('onboarding.placementTestSub')}</div>
+              </div>
+            </button>
+          </div>
+          <p className="onboarding-disclaimer">{t('onboarding.placementLater')}</p>
         </div>
       )}
     </div>
