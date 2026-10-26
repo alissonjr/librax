@@ -123,6 +123,9 @@ describe('cache e cabecalhos', () => {
     const csp = flat(app.SecurityHeadersConfig.ContentSecurityPolicy.ContentSecurityPolicy);
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("'wasm-unsafe-eval'");
+    // mão em 3D das letras e números: textura do GLB por blob:
+    expect(csp).toMatch(/connect-src 'self' blob:/);
+    expect(csp).toMatch(/img-src [^;]*blob:/);
     expect(csp).toContain('https://auth.librax.example');
     expect(csp).toContain("frame-ancestors 'self'");
     expect(csp).not.toContain("'unsafe-eval'");

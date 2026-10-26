@@ -318,6 +318,14 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
               <VlibrasCredit className="settings-item-value settings-credit" />
             </div>
           </div>
+          {/* Crédito da mão em 3D das letras e dos números (src/mao3d/) */}
+          <div className="settings-item">
+            <Icon name="view_in_ar" className="settings-item-icon" />
+            <div className="settings-item-text">
+              <span className="settings-item-label">{t('mao3d.creditTitle')}</span>
+              <span className="settings-item-value">{t('mao3d.credit')}</span>
+            </div>
+          </div>
         </div>
 
         {!showDeleteConfirm ? (

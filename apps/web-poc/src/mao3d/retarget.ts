@@ -1,6 +1,7 @@
 /*
- * Retargeting dos 21 landmarks do MediaPipe para o esqueleto da mão 3D do protótipo
- * (src/mao-3d.glb, gerado por scripts/mao3d/gerar.py; usado por src/mao3d.ts).
+ * Retargeting dos 21 landmarks do MediaPipe para o esqueleto da mão 3D (mao-3d.glb, gerado por
+ * apps/landing/scripts/mao3d/gerar.py). Usado pela cena (cena.ts) da abertura da landing
+ * (apps/landing/src/mao3d.ts) e da apresentação das letras e dos números no app (Mao3DView.tsx).
  *
  * O esqueleto tem um osso por segmento do MediaPipe: pulso, um metacarpo por dedo (a palma
  * fecha um pouco em concha), polegar CMC/MCP/IP e MCP/PIP/DIP de cada dedo, mais as pontas.
@@ -213,6 +214,27 @@ export function makeRig(nodes: readonly RigNode[]): Rig {
     parent, localPos, localQuat, worldPos: pos, worldQuat: quat, palm, local, palmLen,
     fingerDir, hinge, thumbDir, thumbPad, thumbSide, lengths,
   };
+}
+
+/**
+ * Esqueleto em repouso lido direto dos bytes do GLB (o cabeçalho JSON), sem o carregador do
+ * three.js: para os testes e scripts em Node.
+ */
+export function rigFromGlbBytes(bytes: Uint8Array): Rig {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const len = view.getUint32(12, true);
+  const gltf = JSON.parse(new TextDecoder().decode(bytes.subarray(20, 20 + len))) as {
+    nodes: { name?: string; translation?: number[]; rotation?: number[] }[];
+  };
+  return makeRig(
+    gltf.nodes
+      .filter((n) => n.name && (BONES as readonly string[]).includes(n.name))
+      .map((n) => ({
+        name: n.name!,
+        position: new Vector3(...((n.translation ?? [0, 0, 0]) as [number, number, number])),
+        quaternion: new Quaternion(...((n.rotation ?? [0, 0, 0, 1]) as [number, number, number, number])),
+      })),
+  );
 }
 
 export interface Detail {

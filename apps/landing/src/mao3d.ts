@@ -5,52 +5,26 @@
  * profundidade delas, maos-z.json). A cada volta a mão de cada letra é de outra pessoa, com a
  * transição suave entre as poses e um tom de pele diferente por pessoa.
  *
- * Modelo da mão: nosso (src/mao-3d.glb, gerado no Blender por scripts/mao3d/gerar.py), com
- * unhas, dobras da pele num mapa de normais e um osso por segmento do MediaPipe. O retargeting
- * dos 21 landmarks e a colisão entre os dedos estão em src/retarget.ts. Luz de estúdio neutra: a
- * cor do estado da câmera fica só na moldura, na letra e nos selos, nunca na pele.
+ * Modelo da mão: nosso (mao-3d.glb, gerado no Blender por scripts/mao3d/gerar.py), com unhas,
+ * dobras da pele num mapa de normais e um osso por segmento do MediaPipe. A cena, o modelo, o
+ * retargeting dos 21 landmarks e a colisão entre os dedos são os mesmos da apresentação das letras
+ * no app: ficam em apps/web-poc/src/mao3d/ (cena.ts e retarget.ts). Luz de estúdio neutra: a cor
+ * do estado da câmera fica só na moldura, na letra e nos selos, nunca na pele.
  *
  * Até a mão aparecer, o palco mostra só a moldura vazia (main.ts e abertura-3d.css); com menos
  * movimento ela fica parada no estado final. Sem 3D no navegador, se o 3D falhar ou demorar, ou sem
  * JS, a abertura fica nas seis mãos desenhadas.
  */
-import {
-  Bone,
-  Color,
-  DirectionalLight,
-  HemisphereLight,
-  type Material,
-  MeshPhysicalMaterial,
-  MeshStandardMaterial,
-  NeutralToneMapping,
-  Object3D,
-  PerspectiveCamera,
-  PMREMGenerator,
-  Quaternion,
-  Scene,
-  SkinnedMesh,
-  SRGBColorSpace,
-  Vector3,
-  WebGLRenderer,
-} from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { Color, type Quaternion, Vector3 } from 'three';
 import maos from './maos.json';
 import maosZ from './maos-z.json';
 import { HERO_LETTERS, easeStandard } from './hands';
-import { BONES, clonePose, makeRig, mixPose, positions, retarget, solveCollisions, type HandPose, type Rig } from '../../web-poc/src/mao3d/retarget';
+import { clonePose, mixPose, positions, retarget, solveCollisions, type HandPose } from '../../web-poc/src/mao3d/retarget';
+import { SKIN_TONES as SKIN, createHandScene, sceneLandmarks } from '../../web-poc/src/mao3d/cena';
 
-/**
- * Tons de pele (sRGB), do mais claro ao mais escuro. Ilustrativos: os dados da mão não dizem
- * a cor de ninguém; variam só para mostrar que cada letra é de uma pessoa.
- */
-const SKIN = ['#F3CDB0', '#E2AE8A', '#C98F68', '#A86F4C', '#86553A', '#5E3B29'];
 /** Ordem dos tons ao longo de LIBRAX: vizinhos sempre bem diferentes. */
 const SKIN_ORDER = [0, 3, 1, 4, 2, 5];
 
-/** O z do MediaPipe sai achatado: com 1,8 o comprimento de cada osso varia menos entre as 48 poses. */
-const DEPTH = 1.8;
 const MOVE_MS = 950;
 const READY_MS = 260;
 const HOLD_MS = 1150;
@@ -60,7 +34,7 @@ type State = 'idle' | 'tracking' | 'ready' | 'correct';
 type Letter = (typeof HERO_LETTERS)[number];
 
 interface Options {
-  /** O modelo (src/mao-3d.glb), já pedido pelo main.ts junto com este código. */
+  /** O modelo (web-poc/src/mao3d/mao-3d.glb), já pedido pelo main.ts junto com este código. */
   model: Promise<ArrayBuffer>;
   /** Menos movimento: a mão fica parada no estado final (o X de LIBRAX). */
   reduced: boolean;
@@ -80,7 +54,7 @@ const profundidade = maosZ.letras as Record<string, number[][]>;
 function landmarks(letter: Letter, k: number): Vector3[] {
   const p = letras[letter].poses[k];
   const z = profundidade[letter][k];
-  return Array.from({ length: 21 }, (_, i) => new Vector3(p[i * 2], -p[i * 2 + 1], -z[i] * DEPTH));
+  return sceneLandmarks((i) => p[i * 2], (i) => p[i * 2 + 1], (i) => z[i]);
 }
 
 export async function startHand3d(stage: HTMLElement, opts: Options): Promise<void> {
@@ -94,81 +68,10 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   if (!root || !view || !canvas) return;
   const chips = [...root.querySelectorAll<HTMLElement>('.stage3d-letters li')];
 
-  // ---------- cena ----------
-  const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.outputColorSpace = SRGBColorSpace;
-  renderer.toneMapping = NeutralToneMapping;
-  renderer.toneMappingExposure = 1.05;
-
-  const scene = new Scene();
-  const pmrem = new PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.45;
-  pmrem.dispose();
-
-  // Estúdio: céu quente e chão escuro, luz principal suave do alto à esquerda, preenchimento
-  // do outro lado e um contorno branco fraco por trás (sem cor na pele)
-  scene.add(new HemisphereLight(0xfff4ec, 0x3a2c24, 1.1));
-  const key = new DirectionalLight(0xfff3ea, 2.1);
-  key.position.set(-1.4, 1.8, 3);
-  const fill = new DirectionalLight(0xffeee4, 0.75);
-  fill.position.set(2.2, 0.2, 2.2);
-  const back = new DirectionalLight(0xffffff, 0.55);
-  back.position.set(0.8, 1.5, -2.5);
-  scene.add(key, fill, back);
-
-  const camera = new PerspectiveCamera(16, 4 / 3, 0.1, 100);
-
-  // ---------- modelo ----------
-  const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
-  const gltf = await loader.parseAsync(await opts.model, '');
-  const bones = new Map<string, Bone>();
-  const meshes: SkinnedMesh[] = [];
-  gltf.scene.traverse((o: Object3D) => {
-    if ((o as Bone).isBone) bones.set(o.name, o as Bone);
-    if ((o as SkinnedMesh).isSkinnedMesh) meshes.push(o as SkinnedMesh);
-  });
-  const rig: Rig = makeRig(
-    [...bones.values()].map((b) => ({ name: b.name, position: b.position.clone(), quaternion: b.quaternion.clone() })),
-  );
-  const jointBones = BONES.map((n) => bones.get(n)!);
-  const skinMesh = meshes.find((m) => (m.material as Material).name === 'pele');
-  const nailMesh = meshes.find((m) => (m.material as Material).name === 'unha');
-  if (!skinMesh || !nailMesh) throw new Error('modelo da mão sem pele ou unhas');
-  const baked = skinMesh.material as MeshStandardMaterial;
-  // Pele: o tom vem daqui (o modelo é branco); dobras e unhas vêm do mapa de normais do modelo
-  const skin = new MeshPhysicalMaterial({
-    color: new Color(SKIN[0]),
-    roughness: 0.56,
-    metalness: 0,
-    normalMap: baked.normalMap,
-    normalScale: baked.normalScale.clone().multiplyScalar(0.9),
-    specularIntensity: 0.45,
-    sheen: 0.4,
-    sheenRoughness: 0.5,
-    sheenColor: new Color('#ff9f87'),
-  });
-  const nail = new MeshPhysicalMaterial({
-    color: new Color(SKIN[0]),
-    vertexColors: true,
-    roughness: 0.48,
-    metalness: 0,
-    specularIntensity: 0.5,
-    clearcoat: 0.12,
-    clearcoatRoughness: 0.4,
-  });
-  skinMesh.material = skin;
-  nailMesh.material = nail;
-  for (const m of meshes) m.frustumCulled = false;
-  baked.dispose();
-
-  // Mesma escala dos dados: palma (pulso -> base do médio) = 1
+  // ---------- cena e modelo (os mesmos do app: web-poc/src/mao3d/cena.ts) ----------
+  const three = await createHandScene(canvas, await opts.model);
+  const { renderer, scene, camera, rig, hand, tone } = three;
   const palmLen = rig.palmLen;
-  const hand = new Object3D();
-  gltf.scene.scale.setScalar(1 / palmLen);
-  hand.add(gltf.scene);
-  scene.add(hand);
 
   // Poses de todas as letras, já como ângulos (a colisão entre dedos é resolvida a cada quadro)
   const poses = Object.fromEntries(
@@ -180,9 +83,7 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   // ---------- estado ----------
   let currentPose: HandPose = poses.L[0];
   let current: Quaternion[] = solve(currentPose);
-  const tone = new Color(SKIN[SKIN_ORDER[0]]);
-  /** Unha: o mesmo tom, clareado e rosado. */
-  const NAIL_TINT = new Color('#f2d4cc');
+  tone.set(SKIN[SKIN_ORDER[0]]);
   // Enquadramento: caixa das articulações de todas as poses de cada letra (mais a grossura dos
   // dedos); o lado é o mesmo em todas as letras, como no desenho 2D, e o centro muda com a letra
   const boxes = Object.fromEntries(
@@ -208,21 +109,11 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   const camCenter = centerOf(HERO_LETTERS[0]);
 
   function applyPose() {
-    jointBones.forEach((b, j) => b.quaternion.copy(current[j]));
-    skin.color.copy(tone);
-    // a cor por vértice do modelo (0,74 a 0,9) escurece um pouco; aqui volta ao nível da pele
-    nail.color.copy(tone).lerp(NAIL_TINT, 0.1).multiplyScalar(1.1);
+    three.setPose(current);
     hand.rotation.set(Math.sin(sway / 2300) * 0.05, Math.sin(sway / 1700) * 0.12, 0);
   }
 
-  function resize() {
-    const w = canvas!.clientWidth;
-    const h = canvas!.clientHeight;
-    if (!w || !h) return;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  }
+  const resize = () => void three.resize();
 
   function render() {
     const vFov = (camera.fov * Math.PI) / 180;
@@ -249,7 +140,7 @@ export async function startHand3d(stage: HTMLElement, opts: Options): Promise<vo
   /** Assume o palco (as mãos desenhadas nunca aparecem); false se ele já ficou com elas. */
   const takeStage = () => {
     if (!opts.claim()) {
-      renderer.dispose();
+      three.dispose();
       return false;
     }
     stage.dataset.view = '3d';
