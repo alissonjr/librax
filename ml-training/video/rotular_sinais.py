@@ -552,6 +552,8 @@ def main():
     for path in paths:
         vid = os.path.basename(path)[:-5]
         fonte = fontes.get(vid)
+        if fonte is not None and fonte.get("fora"):
+            continue  # tirado na revisão das folhas (motivo no "fora" da lista)
         if fonte is not None:
             g = fonte.get("glosa") if fonte.get("tipo") == "sinal" else None
         else:

@@ -17,7 +17,7 @@ treino de qualquer jeito), com outras buscas.
 
 Uso:
     python video/baixar_extra.py buscar-sinais --glosas OBRIGADO,TRISTE [--n 30] [--max-por-glosa 12] [--fundo]
-    python video/baixar_extra.py buscar-z [--n 30]
+    python video/baixar_extra.py buscar-z [--n 30] [--rodada 2]
     python video/baixar_extra.py baixar --lista sinais|z [--max 150] [--pausa 8]
     (LIBRAX_DATA=/caminho/data aponta para a pasta de dados)
 """
@@ -59,6 +59,12 @@ BUSCAS_ALFABETO_Z = ["alfabeto em libras para iniciantes devagar", "alfabeto lib
                      "alfabeto libras vídeo curto", "ensinando o alfabeto em libras", "alfabeto datilológico em libras aula",
                      "alfabeto em libras 2024", "alfabeto em libras 2025", "alfabeto libras devagar para aprender",
                      "alfabeto libras sala de aula", "alfabeto em libras crianças surdas", "alfabeto libras bilíngue"]
+# Segunda rodada do Z (a primeira deu 22 alfabetos baixados, 8 com o Z claro)
+BUSCAS_ALFABETO_Z2 = ["alfabeto manual libras A a Z devagar", "datilologia alfabeto libras aula", "alfabeto em libras treino",
+                      "alfabeto libras intérprete", "alfabeto em libras de forma lenta", "alfabeto libras pausado",
+                      "alfabeto libras letras", "aprendendo alfabeto em libras", "alfabeto em libras fácil",
+                      "alfabeto em libras para professores", "alfabeto manual libras exercício", "alfabeto em libras rapido",
+                      "abc libras alfabeto manual", "alfabeto em libras na prática", "alfabeto libras módulo 1"]
 
 
 def carregar(path):
@@ -141,7 +147,7 @@ def cmd_buscar_z(args):
                if x.get("tipo") == "alfabeto" or x.get("rotulo") == "Z"}
     tem = antigos | {x.get("channel_id") for x in lista}
     n_letra = n_alf = 0
-    for q in BUSCAS_Z:
+    for q in (BUSCAS_Z if args.rodada == 1 else []):
         for e in buscar(q, args.n):
             if e["id"] in vistos or e["channel_id"] in teste or not e["duration"] or e["duration"] > MAX_LETRA_S:
                 continue
@@ -152,7 +158,7 @@ def cmd_buscar_z(args):
             tem.add(e["channel_id"])
             n_letra += 1
         time.sleep(2)
-    for q in BUSCAS_ALFABETO_Z:
+    for q in (BUSCAS_ALFABETO_Z if args.rodada == 1 else BUSCAS_ALFABETO_Z2):
         for e in buscar(q, args.n):
             if e["id"] in vistos or e["channel_id"] in teste or e["channel_id"] in tem:
                 continue
@@ -219,6 +225,7 @@ def main():
     s.add_argument("--fundo", action="store_true", help="também as buscas do baixar.py (use --n maior)")
     z = sub.add_parser("buscar-z")
     z.add_argument("--n", type=int, default=30)
+    z.add_argument("--rodada", type=int, default=1, choices=[1, 2])
     d = sub.add_parser("baixar")
     d.add_argument("--lista", choices=sorted(LISTAS), required=True)
     d.add_argument("--max", type=int, default=150)
