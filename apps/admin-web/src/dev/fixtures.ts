@@ -99,6 +99,11 @@ export function sampleOverview(today = '2026-10-23'): Overview {
     abandonRate: Math.round((abandon / (done + abandon)) * 1000) / 1000,
     attempted, wrong, wrongRate: Math.round((wrong / attempted) * 1000) / 1000,
     failedSigns: Math.round(wrong * 0.6), reviewedSigns: Math.round(attempted * 0.8),
+    placementSkips: 0, placementUndos: 0,
+  });
+  const placement = (lessonId: string, title: string, unitTitle: string, placementSkips: number, placementUndos: number) => ({
+    ...lesson(lessonId, title, unitTitle, 1, 0, 1, 0), done: 0, abandonRate: null, attempted: 0, wrongRate: null,
+    failedSigns: 0, reviewedSigns: 0, placementSkips, placementUndos,
   });
   return {
     today,
@@ -122,6 +127,8 @@ export function sampleOverview(today = '2026-10-23'): Overview {
       lesson('u4-l2', 'Meu nome é', 'Apresentação', 210, 22, 1500, 140),
       lesson('u1-l1', 'Letras A a E', 'Alfabeto', 640, 40, 4200, 260),
       lesson('u3-l1', 'Cumprimentos', 'Saudações e cortesia', 400, 18, 2800, 120),
+      placement('u1-l2', 'Letras F a J', 'Alfabeto', 34, 3),
+      placement('u1-l3', 'Letras K a O', 'Alfabeto', 21, 2),
     ],
     exercises: [
       { type: 'perform_sign', attempted: 3200, wrong: 900, wrongRate: 0.281, abandon: 120 },
@@ -161,10 +168,12 @@ export const sampleAccount: AccountSummary = {
   },
   progress: {
     distinctLessons: 3,
-    totalLessons: 53,
+    placementSkipped: 1,
+    totalLessons: 57,
     lessons: [
       { lessonId: 'u2-l1', title: 'Números 0 a 5', unitId: 'u2', status: 'completed', bestScore: 0.8, completedAt: '2026-10-23' },
       { lessonId: 'u1-l5', title: 'Letras U a Z', unitId: 'u1', status: 'completed', bestScore: 0.9, completedAt: '2026-10-20' },
+      { lessonId: 'u1-l2', title: 'Letras F a J', unitId: 'u1', status: 'placement', bestScore: null, completedAt: null, skippedAt: '2026-10-02' },
       { lessonId: 'u1-l1', title: 'Letras A a E', unitId: 'u1', status: 'completed', bestScore: 1, completedAt: '2026-10-02' },
     ],
   },

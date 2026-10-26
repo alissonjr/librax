@@ -1,5 +1,6 @@
 import { parseGuestLog } from '../domain/lessonCompletion.js';
 import { completeLessonOnce } from './completeLessonOnce.js';
+import { applyPlacementOnce } from './placement.js';
 
 /**
  * POST /v1/guest/migrate (SPEC 02 secoes 2 e 12.2; plano mobile web 3.6).
@@ -23,7 +24,10 @@ export async function migrateGuest(repo, content, input) {
 
   const results = [];
   for (const entry of valid) {
-    const r = await completeLessonOnce(repo, content, { ...entry, userId, now: now.getTime() });
+    // marca do teste de nivelamento: na mesma ordem das conclusoes, so o progresso (sem XP)
+    const r = entry.placement
+      ? await applyPlacementOnce(repo, { ...entry, userId })
+      : await completeLessonOnce(repo, content, { ...entry, userId, now: now.getTime() });
     results.push(
       r.duplicate
         ? { lessonAttemptId: entry.lessonAttemptId, status: 'duplicate' }

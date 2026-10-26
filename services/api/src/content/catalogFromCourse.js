@@ -7,6 +7,8 @@ import { xpForLesson } from '../domain/xp.js';
  * do curso (rotulos aceitos no desempenho da camera, lessonCompletion.parseCameraStats).
  *
  * Mesma regra do app (apps/web-poc/src/App.tsx): alfabeto completo = ultima licao da U1.
+ * O teste de nivelamento (apps/web-poc/src/lib/placement.ts, placementLessons) cobre a U1 (alfabeto)
+ * e a U2 (numeros): so licoes dessas duas podem chegar marcadas como puladas (`placementLessonIds`).
  *
  * @param {object} course course.json do bundle de conteudo
  * @param {object[]} [signs] signs.json do bundle (id e glosa de cada sinal)
@@ -32,6 +34,7 @@ export function catalogFromCourse(course, signs = []) {
     achievementRules: course.achievementRules ?? [],
     signsOrder,
     alphabetLessonId: firstUnitLessons[firstUnitLessons.length - 1]?.id ?? null,
+    placementLessonIds: units.slice(0, 2).flatMap((u) => (u.lessons ?? []).map((l) => l.id)),
     signGlosses,
   };
 }

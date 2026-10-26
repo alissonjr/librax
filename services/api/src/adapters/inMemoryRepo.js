@@ -56,6 +56,23 @@ export class InMemoryRepo {
   async saveProgress(userId, lessonId, progress) {
     this._progress.set(`${userId}#${lessonId}`, { ...progress });
   }
+  /**
+   * Marca do teste de nivelamento: grava `record` so se a licao ainda nao tem registro (nem
+   * concluida de verdade, nem ja pulada). Devolve true se gravou.
+   */
+  async markPlacementSkip(userId, lessonId, record) {
+    const key = `${userId}#${lessonId}`;
+    if (this._progress.has(key)) return false;
+    this._progress.set(key, { ...record, status: 'placement' });
+    return true;
+  }
+  /** Desfaz a marca do teste: apaga o registro so se ele ainda e de licao pulada. */
+  async clearPlacementSkip(userId, lessonId) {
+    const key = `${userId}#${lessonId}`;
+    if (this._progress.get(key)?.status !== 'placement') return false;
+    this._progress.delete(key);
+    return true;
+  }
   async listProgress(userId) {
     const prefix = `${userId}#`;
     const out = [];

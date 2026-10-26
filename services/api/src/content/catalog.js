@@ -582,6 +582,19 @@ export default {
     "sinal-APLAUSO"
   ],
   "alphabetLessonId": "u1-l8",
+  "placementLessonIds": [
+    "u1-l1",
+    "u1-l2",
+    "u1-l3",
+    "u1-l4",
+    "u1-l5",
+    "u1-l6",
+    "u1-l7",
+    "u1-l8",
+    "u2-l1",
+    "u2-l2",
+    "u2-l3"
+  ],
   "signGlosses": {
     "letra-A": "A",
     "letra-B": "B",

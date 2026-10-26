@@ -13,6 +13,10 @@ import type { LessonCameraStats } from './cameraStats';
  * - Envio na abertura do app, no evento `online`, ao voltar para a aba (`visibilitychange`)
  *   e ao entrar na conta (startSync). Background Sync fica como extra, não como base.
  *
+ * - Teste de nivelamento (placement.ts): as lições puladas e o "Desfazer" vão pela mesma fila, como
+ *   marcas (`placement: 'skip' | 'undo'`, sem nota), na ordem em que aconteceram junto com as
+ *   conclusões. O servidor só registra o progresso (sem XP, sequência, SRS, conquista nem liga).
+ *
  * O progresso local (IdbRepo) continua sendo a fonte da tela; a fila só leva ao servidor.
  * Banco próprio (`librax-sync`) para não mexer na versão do banco do app (db.ts).
  */
@@ -59,11 +63,19 @@ export interface OutboxEntry {
   completedAt: string;
   exerciseStats?: ExerciseStats;
   cameraStats?: LessonCameraStats;
+  /**
+   * Marca do teste de nivelamento em vez de conclusão: 'skip' (lição pulada) ou 'undo' (teste
+   * desfeito, lição não refeita). Vai sem nota, revisões nem telemetria (`score` e afins ficam
+   * zerados aqui e não são enviados).
+   */
+  placement?: PlacementMark;
   /** sub do Cognito de quem concluiu; null = convidado (vai pela migração). */
   owner: string | null;
   seq: number;
   attempts: number;
 }
+
+export type PlacementMark = 'skip' | 'undo';
 
 export interface SyncResult {
   sent: number;
@@ -139,6 +151,33 @@ export async function enqueueLessonCompletion(input: LessonCompletionInput): Pro
   return entry;
 }
 
+/**
+ * Guarda as marcas do teste de nivelamento na fila, uma por lição (cada uma com o próprio id de
+ * tentativa, para o servidor não aplicar duas vezes). Chamar logo depois de gravar no aparelho.
+ */
+export async function enqueuePlacementMarks(lessonIds: string[], placement: PlacementMark, today: string): Promise<OutboxEntry[]> {
+  if (lessonIds.length === 0) return [];
+  const session = await deps.getSession();
+  const d = await db();
+  const completedAt = deps.now().toISOString();
+  const entries = lessonIds.map((lessonId): OutboxEntry => ({
+    lessonAttemptId: crypto.randomUUID(),
+    lessonId,
+    today,
+    score: 0,
+    reviewed: [],
+    signsLearnedDelta: 0,
+    completedAt,
+    placement,
+    owner: session?.userId ?? null,
+    seq: Date.now() * 1000 + (seqCounter++ % 1000),
+    attempts: 0,
+  }));
+  const tx = d.transaction(STORE, 'readwrite');
+  await Promise.all([...entries.map((e) => tx.store.put(e)), tx.done]);
+  return entries;
+}
+
 /** Entradas ainda não confirmadas pelo servidor, na ordem em que foram concluídas. */
 export async function pendingEntries(): Promise<OutboxEntry[]> {
   return (await (await db()).getAllFromIndex(STORE, 'bySeq')) as OutboxEntry[];
@@ -149,7 +188,14 @@ export async function clearOutbox(): Promise<void> {
   await (await db()).clear(STORE);
 }
 
-const toPayload = (e: OutboxEntry) => ({
+const toPayload = (e: OutboxEntry) => e.placement ? {
+  // sem `score`: um servidor que ainda não conhece a marca recusa (400) em vez de dar XP
+  lessonAttemptId: e.lessonAttemptId,
+  lessonId: e.lessonId,
+  today: e.today,
+  completedAt: e.completedAt,
+  placement: e.placement,
+} : ({
   lessonAttemptId: e.lessonAttemptId,
   lessonId: e.lessonId,
   today: e.today,

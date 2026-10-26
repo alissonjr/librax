@@ -4,6 +4,7 @@ import {
   practiceWrites,
   lessonAbandonWrites,
   newAccountWrites,
+  placementWrites,
 } from '../domain/opsMetrics.js';
 
 /**
@@ -45,6 +46,11 @@ export async function recordPractice(repo, { userId, today }) {
 export async function recordLessonAbandon(repo, { userId, lessonId, today, exerciseType = null }) {
   const fresh = await repo.markActivity(userId, periodsOf(today));
   await apply(repo, lessonAbandonWrites({ lessonId, today, exerciseType, fresh }));
+}
+
+/** Marca do teste de nivelamento que mudou o progresso (usecases/placement.js). Nao marca atividade. */
+export async function recordPlacement(repo, { lessonId, today, placement }) {
+  await apply(repo, placementWrites({ lessonId, today, placement }));
 }
 
 /** Conta nova (gatilho PostConfirmation do Cognito), no dia de Brasilia. */

@@ -124,7 +124,7 @@ depois de criar conta (`POST /v1/guest/migrate`).
 
 | Método | Rota | O que faz |
 |---|---|---|
-| POST | `/v1/lesson/complete` | conclui uma lição; com `lessonAttemptId` é idempotente (fila offline) |
+| POST | `/v1/lesson/complete` | conclui uma lição; com `lessonAttemptId` é idempotente (fila offline). Com `placement: 'skip' \| 'undo'` (e sem `score`) é a marca do teste de nivelamento: só o progresso, sem XP (ver abaixo) |
 | GET | `/v1/lesson/queue` | fila diária de SRS + sinais novos |
 | POST | `/v1/lesson/abandon` | saída no meio da lição (`lessonId`, `today`, `exerciseIndex`, `exerciseCount`, `exerciseType`); só contadores do painel |
 | POST | `/v1/practice/review` | grava no SRS as respostas da prática diária (sem XP nem ofensiva); idempotente por `reviewAttemptId` |
@@ -181,6 +181,30 @@ por sinal, 500 por contagem e 8 rótulos errados por sinal. Sinal fora do format
 desconhecido some do `wrong` e a conclusão segue valendo. Vale também na migração do convidado. A soma vai
 para o item `OPS / DAY#<dia>#CAMERA`, sem id de pessoa (docs/painel-admin.md).
 
+### Marcas do teste de nivelamento
+
+O teste de nivelamento do app (`apps/web-poc/src/lib/placement.ts`) pula lições da U1 e da U2. Cada lição
+pulada e cada lição reaberta pelo "Desfazer" vem pela mesma fila das conclusões, em
+`POST /v1/lesson/complete` ou na migração do convidado:
+
+```json
+{ "lessonAttemptId": "...", "lessonId": "u1-l3", "today": "2026-10-26", "completedAt": "...", "placement": "skip" }
+```
+
+- Sem `score` de propósito: um servidor que ainda não conhece `placement` recusa com 400 `BAD_SCORE` em vez
+  de dar XP. Nota, `reviewed` e telemetria que vierem junto são ignorados.
+- Validação (`parsePlacementEntry`): `placement` é `skip` ou `undo` (senão `BAD_PLACEMENT`),
+  `lessonAttemptId` obrigatório, lição do catálogo e entre as que o teste cobre (`catalog.placementLessonIds`,
+  unidades 1 e 2; senão `NOT_PLACEMENT_LESSON`), data como na conclusão.
+- `applyPlacementOnce` (`usecases/placement.js`), idempotente pelo mesmo `ATTEMPT#<lessonAttemptId>`: `skip`
+  grava `PROG#<licao>` com `status: 'placement'` e `skippedAt` só se a lição ainda não tem registro (Put
+  condicional); `undo` apaga só se ainda for `placement` (Delete condicional). A conclusão de verdade
+  substitui a marca. Nada de XP, ofensiva, SRS, conquista (o "alfabeto completo" segue vindo só da
+  conclusão de verdade da `alphabetLessonId`), liga ou squads.
+- Resposta: `{ placement, lessonId, changed, xpAwarded: 0, lessonAttemptId, duplicate }`. Quando muda o
+  progresso, soma `placement:<licao>` ou `placementUndo:<licao>` no `OPS / DAY#<dia>#LESSON`, sem marcar a
+  pessoa como ativa.
+
 Erros de squad saem com o código do domínio, o mesmo que a tela espera (SPEC 04 seção 4.4):
 `SQUAD_NOT_FOUND` e `TARGET_NOT_MEMBER` (404), `NOT_ADMIN` e `GUEST_NOT_ALLOWED` (403),
 `SQUAD_FULL`, `ALREADY_MEMBER`, `SQUADS_LIMIT_REACHED`, `MUST_TRANSFER_OWNERSHIP`,
@@ -212,7 +236,8 @@ Corpo: `{ "entries": [{ "lessonAttemptId", "lessonId", "today", "score", "comple
   catálogo, nunca do cliente.
 - Limites: corpo até 256 KB (413 `PAYLOAD_TOO_LARGE`, medido antes do parse) e até 200
   conclusões por envio (400 `TOO_MANY_ENTRIES`). O app manda lotes de 100.
-- Ordena por dia, horário e posição e chama `completeLessonOnce` para cada uma.
+- Ordena por dia, horário e posição e chama `completeLessonOnce` para cada uma (ou `applyPlacementOnce` para
+  as marcas do teste de nivelamento, `placement`, sem `score`; ver acima).
 - Resposta: `results` com `applied`, `duplicate` ou `rejected` (com `reason`) por
   `lessonAttemptId`, `summary` e `profile` (`xpTotal`, `streak`). Inválidas não impedem as
   válidas.
@@ -389,7 +414,8 @@ Além dos da SPEC 02 seção 3 e SPEC 04 seção 1:
 
 | Item | PK | SK | Observação |
 |---|---|---|---|
-| Tentativa de lição | `USER#<id>` | `ATTEMPT#<lessonAttemptId>` | `status` pending/done, `result`, TTL `expiresAt` |
+| Tentativa de lição | `USER#<id>` | `ATTEMPT#<lessonAttemptId>` | `status` pending/done, `result`, TTL `expiresAt` (também das marcas do nivelamento) |
+| Progresso de lição | `USER#<id>` | `PROG#<lessonId>` | `status` `completed` (com `bestScore`, `completedAt`) ou `placement` (pulada pelo nivelamento, `skippedAt`) |
 | Inscrição Web Push | `USER#<id>` | `PUSH#<hash>` | `endpoint`, `keys`, `createdAt` |
 | Lembretes | `USER#<id>` | `NOTIF` | preferências + estado; GSI6 `NOTIF#H<balde>` / `USER#<id>` |
 | Liga (META) | `LEAGUE#<leagueId>` | `META` | `tier`, `period`, `periodStart`, `group`?, `memberCount` (até 30), `status` open/closed; GSI2 `LEAGUES#<semana>` / `LEAGUE#<leagueId>` |

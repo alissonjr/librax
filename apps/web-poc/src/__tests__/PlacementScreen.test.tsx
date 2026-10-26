@@ -99,7 +99,8 @@ describe('PlacementScreen', () => {
     await userEvent.click(screen.getByRole('button', { name: /pular as marcadas \(2\)/i }));
     await waitFor(() => expect(onFinished).toHaveBeenCalledWith(2));
     expect(await repo.getProgress('user-ui', 'u1-l2')).toMatchObject({ status: 'completed', placement: true });
-    expect(await pendingEntries()).toEqual([]);
+    // Só marcas do teste na fila (sem nota): o servidor registra a lição pulada, sem XP
+    expect((await pendingEntries()).map(e => [e.lessonId, e.placement])).toEqual([['u1-l1', 'skip'], ['u1-l2', 'skip']]);
     expect(isPlacementDone()).toBe(true);
   });
 

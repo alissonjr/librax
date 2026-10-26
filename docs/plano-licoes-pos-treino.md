@@ -71,6 +71,10 @@ Feito como dica visual (substitui a ideia de dicas em texto no `signs.json`), em
 - `scripts/gerar-dicas-erro.ts` calcula os pares que acontecem (trocas do classificador no teste
   fixo, dos números nas pessoas de teste, das letras com movimento, as de mesma forma com e sem
   movimento como C e Ç, e as desta seção) em `src/dicaErro/dicas-erro.json`; o app só lê.
+- Onde a média das mãos reais contradiz a configuração de mão conferida (signs.json), vale a dica
+  revisada de `src/dicaErro/revisadas.ts` (F e T, G e L, o Ç e o J contra as letras com movimento),
+  marcada com `"rev": true` no JSON. O teste `dicaErroDiferenca.test.ts` confere cada dica contra a
+  descrição de mão do sinal pedido e falha se alguma a contradisser.
 - Abre depois de duas leituras estáveis da mesma letra errada (ou 3 s parada nela; nas letras com
   movimento, a leitura já confirmada em duas avaliações), no máximo uma vez por tentativa, no lugar
   do alvo e com a câmera ligada. Sem WebGL, a mesma dica só em texto.

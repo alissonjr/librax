@@ -99,16 +99,23 @@ export function renderPage(locale: Locale): string {
   const c: Copy = COPY[locale];
   const n = (v: number, d = 0) => formatNumber(locale, v, d);
   const N = numeros;
+  // "H, J, K, X e Ç" / "H, J, K, X and Ç" / "H, J, K, X y Ç"
+  const list = (items: string[]) => new Intl.ListFormat(locale, { type: 'conjunction' }).format(items);
   const vals = {
     unidades: N.curso.unidades,
     licoes: N.curso.licoes,
     sinais: N.curso.sinais,
     animacoes: N.offline.animacoes,
     letras: N.letras.letras_estaticas,
+    letrasMov: list(N.letras.letras_movimento_camera),
+    numerosCamera: list(N.numeros_camera.numeros),
+    sinaisCamera: N.sinais_movimento.sinais_camera,
+    sinaisTreino: N.sinais_movimento.sinais_no_treino - N.sinais_movimento.sinais_camera,
     testes: n(N.testes_app),
   };
   const f = (s: string, extra: Record<string, string | number> = {}) => esc(fill(s, { ...vals, ...extra }));
-  const pessoas = N.treino.pessoas_alfabeto + N.treino.pessoas_sinais;
+  // Canais diferentes, sem contar duas vezes quem aparece no alfabeto e nos sinais
+  const pessoas = N.treino.pessoas_total;
   const pessoasMin = Math.floor(pessoas / 10) * 10;
   const canonical = localePath(locale);
 
@@ -364,7 +371,7 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
       </div>
       <div class="card stat">
         <p class="stat-value stat-value-md">${f(c.numbers.lettersCount, { n: N.letras.letras_estaticas })}</p>
-        <p class="stat-label">${esc(c.numbers.lettersCountText)}</p>
+        <p class="stat-label">${f(c.numbers.lettersCountText)}</p>
       </div>
     </div>
 
@@ -388,7 +395,7 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
     <div class="card motion-card">
       <span class="chip chip-warn">${icon('schedule', { filled: true })}${esc(c.numbers.motionBadge)}</span>
       <h3>${esc(c.numbers.motionTitle)}</h3>
-      <p>${f(c.numbers.motionText, { n: N.sinais_movimento.piloto_sinais })}</p>
+      <p>${f(c.numbers.motionText)}</p>
     </div>
 
     <p class="updated">${f(c.numbers.updated, { data: formatDate(locale, N.atualizado_em) })}</p>

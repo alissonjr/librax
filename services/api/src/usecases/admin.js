@@ -67,11 +67,14 @@ export async function accountSummary(repo, directory, { userId, labels = {}, tot
       lessonId: p.lessonId,
       title: labels.lessons?.[p.lessonId]?.title ?? null,
       unitId: labels.lessons?.[p.lessonId]?.unitId ?? null,
+      // 'completed' ou 'placement' (pulada pelo teste de nivelamento, sem nota: usecases/placement.js)
       status: p.status ?? null,
       bestScore: p.bestScore ?? null,
       completedAt: p.completedAt ?? null,
+      skippedAt: p.skippedAt ?? null,
     }))
-    .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? '') || a.lessonId.localeCompare(b.lessonId));
+    .sort((a, b) =>
+      (b.completedAt ?? b.skippedAt ?? '').localeCompare(a.completedAt ?? a.skippedAt ?? '') || a.lessonId.localeCompare(b.lessonId));
 
   return {
     userId,
@@ -92,6 +95,7 @@ export async function accountSummary(repo, directory, { userId, labels = {}, tot
       : null,
     progress: {
       distinctLessons: lessons.filter((l) => l.status === 'completed').length,
+      placementSkipped: lessons.filter((l) => l.status === 'placement').length,
       totalLessons,
       lessons,
     },

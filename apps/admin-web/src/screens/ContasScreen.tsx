@@ -109,7 +109,14 @@ export function AccountView({ s }: { s: AccountSummary }) {
         <div className="stats">
           <StatTile label="XP" value={fmtInt(p.xpTotal)} />
           <StatTile label="Ofensiva" value={`${fmtInt(p.streak)} dias`} hint={`${fmtInt(p.freezes)} ${p.freezes === 1 ? 'proteção' : 'proteções'}`} />
-          <StatTile label="Lições" value={fmtInt(s.progress.distinctLessons)} hint={s.progress.totalLessons ? `de ${fmtInt(s.progress.totalLessons)}` : undefined} />
+          <StatTile
+            label="Lições"
+            value={fmtInt(s.progress.distinctLessons)}
+            hint={[
+              s.progress.totalLessons ? `de ${fmtInt(s.progress.totalLessons)}` : '',
+              s.progress.placementSkipped ? `${fmtInt(s.progress.placementSkipped)} pulada${s.progress.placementSkipped === 1 ? '' : 's'} pelo nivelamento` : '',
+            ].filter(Boolean).join(', ') || undefined}
+          />
           <StatTile label="Sinais aprendidos" value={fmtInt(p.signsLearned)} hint={`${fmtInt(s.srs.signs)} na revisão, ${fmtInt(s.srs.due)} para hoje`} />
           <StatTile label="Conquistas" value={fmtInt(s.achievements.length)} />
         </div>
@@ -150,15 +157,18 @@ export function AccountView({ s }: { s: AccountSummary }) {
           <div className="table-wrap">
             <table className="table">
               <thead>
-                <tr><th scope="col">Lição</th><th scope="col">Unidade</th><th scope="col" className="num">Melhor nota</th><th scope="col">Concluída em</th></tr>
+                <tr><th scope="col">Lição</th><th scope="col">Unidade</th><th scope="col">Situação</th><th scope="col" className="num">Melhor nota</th><th scope="col">Data</th></tr>
               </thead>
               <tbody>
                 {s.progress.lessons.map((l) => (
                   <tr key={l.lessonId}>
                     <th scope="row">{l.title ?? l.lessonId}<span className="sub">{l.lessonId}</span></th>
                     <td>{l.unitId?.toUpperCase() ?? '-'}</td>
-                    <td className="num">{fmtPct(l.bestScore)}</td>
-                    <td>{l.completedAt ? fmtDay(l.completedAt) : '-'}</td>
+                    <td>{l.status === 'placement'
+                      ? <Chip tone="neutral" icon="skip_next">pulada pelo nivelamento</Chip>
+                      : l.status === 'completed' ? 'concluída' : (l.status ?? '-')}</td>
+                    <td className="num">{l.status === 'placement' ? '-' : fmtPct(l.bestScore)}</td>
+                    <td>{(l.completedAt ?? l.skippedAt) ? fmtDay((l.completedAt ?? l.skippedAt) as string) : '-'}</td>
                   </tr>
                 ))}
               </tbody>

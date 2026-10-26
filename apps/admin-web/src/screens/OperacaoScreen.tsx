@@ -47,6 +47,16 @@ export function OperacaoView({ o }: { o: Overview }) {
       display: fmtPct(l.wrongRate),
     }));
 
+  const placementRows = o.lessons
+    .filter((l) => (l.placementSkips ?? 0) > 0)
+    .sort((a, b) => b.placementSkips - a.placementSkips || (a.lessonId < b.lessonId ? -1 : 1))
+    .map((l) => ({
+      key: l.lessonId,
+      label: l.title ?? l.lessonId,
+      detail: `${l.unitTitle ?? l.unitId ?? ''} · ${l.lessonId}${l.placementUndos ? ` · ${fmtInt(l.placementUndos)} desfeitas` : ''}`,
+      value: l.placementSkips,
+    }));
+
   return (
     <div className="stack">
       <div className="stats">
@@ -86,6 +96,11 @@ export function OperacaoView({ o }: { o: Overview }) {
           <p className="note">Taxa = respostas erradas / respostas, por lição.</p>
         </Card>
       </div>
+
+      <Card title="Puladas pelo nivelamento">
+        <RankList rows={placementRows} tone="trace" label="Lições puladas pelo nivelamento" empty="Nenhuma lição pulada pelo teste de nivelamento no período." />
+        <p className="note">Vezes em que a lição foi pulada pelo teste de nivelamento (sem XP, sequência nem conquista). Desfeitas: a pessoa desfez o teste em Configurações antes de refazer a lição.</p>
+      </Card>
 
       <div className="grid-2">
         <Card title="Por tipo de exercício">

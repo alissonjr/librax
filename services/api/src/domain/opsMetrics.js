@@ -9,7 +9,8 @@ import { localClock } from './reminders.js';
 //
 //   OPS / DAY#<dia>            totais do dia (ativos, contas novas, licoes, pratica, saidas)
 //                              e, gravado pelo job diario, `cloud` (erros e 5xx do CloudWatch)
-//   OPS / DAY#<dia>#LESSON     por licao: done, abandon, attempted, wrong, failedSigns, reviewedSigns
+//   OPS / DAY#<dia>#LESSON     por licao: done, abandon, attempted, wrong, failedSigns, reviewedSigns,
+//                              placement e placementUndo (pulada pelo teste de nivelamento e desfeita)
 //   OPS / DAY#<dia>#EXERCISE   por tipo de exercicio: attempted, wrong, abandon
 //   OPS / DAY#<dia>#SIGN       por sinal: failed
 //   OPS / DAY#<dia>#CAMERA     desempenho da camera por sinal: success, skip, attempts e
@@ -172,6 +173,16 @@ export function lessonAbandonWrites({ lessonId, today, exerciseType = null, fres
     writes.push({ key: opsKey.dayPart(today, 'EXERCISE'), counters: { [`abandon:${exerciseType}`]: 1 }, expiresAt });
   }
   return writes;
+}
+
+/**
+ * Escritas de uma marca do teste de nivelamento que mudou o progresso: `placement:<licao>` (pulada)
+ * ou `placementUndo:<licao>` (o teste foi desfeito). So o item LESSON do dia: pular nao e licao
+ * concluida nem conta a pessoa como ativa.
+ */
+export function placementWrites({ lessonId, today, placement }) {
+  const metric = placement === 'undo' ? 'placementUndo' : 'placement';
+  return [{ key: opsKey.dayPart(today, 'LESSON'), counters: { [`${metric}:${lessonId}`]: 1 }, expiresAt: opsExpiry(today, DAY_RETENTION_DAYS) }];
 }
 
 /** Escritas de uma conta nova (gatilho PostConfirmation do Cognito). */
@@ -375,6 +386,8 @@ export function buildOverview({ dayItems = [], weekItems = [], monthItems = [], 
         wrongRate: ratio(wrong, attempted),
         failedSigns: num(c.failedSigns),
         reviewedSigns: num(c.reviewedSigns),
+        placementSkips: num(c.placement),
+        placementUndos: num(c.placementUndo),
       };
     })
     .sort((a, b) => b.abandon + b.wrong - (a.abandon + a.wrong) || (a.lessonId < b.lessonId ? -1 : 1));
