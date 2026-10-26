@@ -8,22 +8,34 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const infraDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-/** Conta fixada no contexto do CDK; o cdk.context.json (local) vale mais que o cdk.json. */
+/**
+ * Conta fixada no contexto do CDK, na mesma ordem que o CDK lê: o cdk.json vale mais que o
+ * cdk.context.json (local). Uma chave presente no cdk.json, mesmo vazia, esconde a do arquivo local,
+ * por isso o cdk.json do projeto não traz librax:accountId.
+ */
 export function contaFixada(dir = infraDir) {
-  for (const arquivo of ['cdk.context.json', 'cdk.json']) {
+  for (const arquivo of ['cdk.json', 'cdk.context.json']) {
     const caminho = join(dir, arquivo);
     if (!existsSync(caminho)) continue;
     const json = JSON.parse(readFileSync(caminho, 'utf8'));
-    const valor = String((json.context ?? json)['librax:accountId'] ?? '').trim();
-    if (valor) return valor;
+    const valor = (arquivo === 'cdk.json' ? json.context ?? {} : json)['librax:accountId'];
+    if (valor !== undefined && valor !== null) return String(valor).trim();
   }
   return '';
+}
+
+/** De onde vem o login: o contêiner do AWS CloudShell ou o perfil librax (IAM Identity Center). */
+export function origemDoLogin(env = process.env) {
+  return String(env.AWS_EXECUTION_ENV ?? '').startsWith('CloudShell') ? 'CloudShell' : 'perfil librax';
 }
 
 /** Devolve a mensagem de erro, ou null quando a conta do login é a fixada. */
 export function erroDaConta(fixada, atual) {
   if (!/^\d{12}$/.test(fixada)) {
-    return 'Preencha librax:accountId (12 dígitos) em infra/cdk.json antes de usar a AWS.';
+    return (
+      'Preencha librax:accountId (12 dígitos) em infra/cdk.context.json (local) antes de usar a AWS. ' +
+      'Se a chave estiver vazia no infra/cdk.json, tire-a de lá: o cdk.json vale mais que o arquivo local.'
+    );
   }
   if (atual !== fixada) {
     return `O login ativo é da conta ${atual || '(desconhecida)'}, mas o Librax só publica na conta ${fixada}.`;
@@ -40,7 +52,11 @@ function contaDoLogin() {
     return JSON.parse(saida).Account;
   } catch (err) {
     const detalhe = String(err.stderr ?? err.message).trim();
-    console.error(`Sem login válido no perfil librax. Rode: npm run aws:entrar (em infra)\n${detalhe}`);
+    const dica =
+      origemDoLogin() === 'CloudShell'
+        ? 'Sem login válido no CloudShell: feche a aba e abra o CloudShell de novo pelo console.'
+        : 'Sem login válido no perfil librax. Rode: npm run aws:entrar (em infra)';
+    console.error(`${dica}\n${detalhe}`);
     process.exit(1);
   }
 }
@@ -52,5 +68,5 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
     console.error(erro);
     process.exit(1);
   }
-  console.log(`Conta ${fixada} conferida (perfil librax).`);
+  console.log(`Conta ${fixada} conferida (${origemDoLogin()}).`);
 }

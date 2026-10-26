@@ -5,9 +5,10 @@ import { DEFAULT_ANDROID_PACKAGE, normalizeFingerprint, validPackageName } from 
 /**
  * Parametros de contexto do CDK (cdk.json ou `-c chave=valor`).
  *
- * O dominio ainda nao foi escolhido: o padrao `librax.example` e um placeholder (TLD
- * reservado, RFC 2606) que permite `cdk synth` sem conta AWS. Antes do primeiro deploy,
- * ver "Antes do primeiro deploy" em services/api/README.md.
+ * O dominio e `librax.online`, fixado no infra/cdk.json. Sem ele, o padrao do codigo e o
+ * placeholder `librax.example` (TLD reservado, RFC 2606), que gera aviso no synth. O cdk.json
+ * vale mais que o cdk.context.json (ordem do CDK): conta, zona, certificado e e-mails ficam so no
+ * cdk.context.json local. Lancamento: docs/lancamento.md.
  *
  * | chave                          | padrao                          | uso |
  * |--------------------------------|---------------------------------|-----|
