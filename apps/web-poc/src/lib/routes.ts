@@ -9,6 +9,7 @@ export const ROUTES = {
   onboarding: '/boas-vindas',
   learn: '/aprender',
   practice: '/praticar',
+  spellChallenge: '/praticar/soletrar',
   social: '/social',
   league: '/social/liga',
   profile: '/perfil',

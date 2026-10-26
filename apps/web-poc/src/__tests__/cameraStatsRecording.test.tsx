@@ -45,6 +45,11 @@ const signBase: UseSignCameraRecognizerReturn = {
 vi.mock('../lib/confetti', () => ({ launchConfetti: vi.fn() }));
 vi.mock('../hooks/useCameraRecognizer', () => ({ useCameraRecognizer: vi.fn() }));
 vi.mock('../hooks/useSignCameraRecognizer', () => ({ useSignCameraRecognizer: vi.fn() }));
+// A soletração usa a câmera dela (um leitor por letra); aqui as letras paradas vêm da mesma leitura
+vi.mock('../hooks/useSpellCamera', async () => {
+  const cam = await import('../hooks/useCameraRecognizer');
+  return { useSpellCamera: () => ({ ...cam.useCameraRecognizer(), motionLetter: null }) };
+});
 
 import { useCameraRecognizer } from '../hooks/useCameraRecognizer';
 import { useSignCameraRecognizer } from '../hooks/useSignCameraRecognizer';

@@ -285,6 +285,8 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
           key={ex.id}
           word={ex.word}
           letters={ex.letters}
+          readers={ex.spellReaders}
+          numbers={ex.spellNumbers}
           perLetterConfidence={ex.perLetterConfidence}
           ownName={ex.ownName}
           onAnswer={record}
@@ -306,7 +308,8 @@ export function LessonScreen({ lessonId, exercises, onComplete, onExit, initial,
           steps={ex.steps ?? []}
           correctOrder={ex.correctOrder ?? (ex.steps ?? []).map((_, i) => i)}
           prompt={ex.word
-            ? t(ex.ownName ? 'exerciseOrderSequence.spellOwnNamePrompt' : 'exerciseOrderSequence.spellPrompt', { word: ex.word })
+            ? t(ex.spellNumbers ? 'exerciseOrderSequence.spellNumberPrompt'
+              : ex.ownName ? 'exerciseOrderSequence.spellOwnNamePrompt' : 'exerciseOrderSequence.spellPrompt', { word: ex.word })
             : undefined}
           onAnswer={record}
           onNext={advance}

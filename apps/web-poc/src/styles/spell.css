@@ -1,0 +1,85 @@
+/* =========================================================
+   SOLETRAÇÃO: passo livre e desafio de soletrar
+   (ExerciseFingerspell e SpellChallengeScreen, docs/design-system.md 11.7)
+   ========================================================= */
+
+/* Letra sem câmera dentro da palavra (prática livre): contorno tracejado, sem faixa lateral */
+.fingerspell-cell--free { border-style: dashed; }
+
+/* "Fiz o Z": a ação da vez, ao lado do "Ver o movimento" e do mesmo tamanho */
+.fingerspell-free-done { margin: var(--lx-space-3) var(--lx-space-2) 0 0; }
+
+/* ---------- Desafio de soletrar ---------- */
+
+.spell-challenge-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--lx-bg-canvas);
+}
+
+.spell-challenge-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--lx-space-6) var(--lx-space-4) calc(var(--lx-space-6) + var(--lx-safe-bottom, 0px));
+}
+
+.spell-challenge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lx-space-3);
+  text-align: center;
+  background: var(--lx-bg-surface);
+  border: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+  border-radius: var(--lx-radius-lg);
+  padding: var(--lx-space-6) var(--lx-space-4);
+  color: var(--lx-text-primary);
+}
+.spell-challenge-card > .icon { color: var(--lx-text-brand); }
+.spell-challenge-card h2 { font: var(--lx-typography-title); }
+.spell-challenge-card .btn { width: 100%; }
+.spell-challenge-lead { font: var(--lx-typography-body); }
+.spell-challenge-best { font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); }
+.spell-challenge-time { font: var(--lx-typography-headline); letter-spacing: var(--lx-typography-headline-tracking); }
+
+/* Selo do recorde (chip, nunca faixa lateral) */
+.spell-challenge-chip {
+  font: var(--lx-typography-label);
+  color: var(--lx-text-brand);
+  background: var(--lx-feedback-info-soft);
+  border-radius: var(--lx-radius-full);
+  padding: var(--lx-space-1) var(--lx-space-3);
+}
+
+/* Contagem 3, 2, 1: o número entra com escala só quando há movimento (--lx-motion-scale 1) */
+.spell-challenge-countdown {
+  font: var(--lx-typography-display-xl);
+  font-size: calc(var(--lx-typography-display-xl-size) * 2);
+  color: var(--lx-text-brand);
+  animation: lx-spell-count var(--lx-motion-duration-page) var(--lx-motion-easing-standard);
+}
+@keyframes lx-spell-count {
+  from { opacity: 0; transform: scale(calc(1 + 0.4 * var(--lx-motion-scale, 1))); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Barra do topo durante o desafio: contagem de palavras e o relógio */
+.spell-challenge .lesson-topbar { justify-content: space-between; }
+.spell-challenge-count {
+  flex: 1;
+  font: var(--lx-typography-label);
+  color: var(--lx-stage-text-secondary);
+}
+.spell-challenge-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lx-space-1);
+  font: var(--lx-typography-label);
+  color: var(--lx-stage-text);
+  background: var(--lx-stage-pill);
+  border-radius: var(--lx-radius-full);
+  padding: var(--lx-space-1) var(--lx-space-3);
+}
+.spell-challenge-clock .icon { width: var(--lx-size-icon-sm); height: var(--lx-size-icon-sm); color: var(--lx-stage-trace); }

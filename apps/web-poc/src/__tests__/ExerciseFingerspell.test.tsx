@@ -1,32 +1,39 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { OWN_NAME_MAX, SPELL_START, needsRelease, ownNameLetters, spellStep, type SpellState } from '../lib/fingerspell';
-import type { UseCameraRecognizerReturn } from '../hooks/useCameraRecognizer';
+import {
+  OWN_NAME_MAX, SPELL_START, confirmFreeStep, needsRelease, ownNameLetters, spellAdvance, spellGesture, spellStep,
+  type SpellReader, type SpellReadings, type SpellState,
+} from '../lib/fingerspell';
+import type { UseSpellCameraReturn } from '../hooks/useSpellCamera';
 
 const mockStart = vi.fn();
 const mockStop = vi.fn();
 
-const base: UseCameraRecognizerReturn = {
+const base: UseSpellCameraReturn = {
   videoRef: { current: null },
   canvasRef: { current: null },
-  landmarksRef: { current: null },
   status: 'active',
-  rawGesture: null,
   stableGesture: null,
+  motionLetter: null,
   handPresent: true,
   confidence: 0.9,
-  extensions: null,
   start: mockStart,
   stop: mockStop,
 };
 
-vi.mock('../hooks/useCameraRecognizer', () => ({
-  useCameraRecognizer: vi.fn(() => base),
+vi.mock('../hooks/useSpellCamera', () => ({
+  useSpellCamera: vi.fn(() => base),
 }));
 
-import { useCameraRecognizer } from '../hooks/useCameraRecognizer';
+import { useSpellCamera } from '../hooks/useSpellCamera';
 import { ExerciseFingerspell } from '../components/ExerciseFingerspell';
+import { setClassifierForTests } from '../recognition/classifier';
+
+const NO_FINGERS = { thumb: false, index: false, middle: false, ring: false, pinky: false };
+
+// Os testes antigos falam em "câmera": a leitura estável das letras paradas
+const useCameraRecognizer = useSpellCamera;
 
 /** Passa uma sequência de leituras estáveis pela regra da soletração. */
 function run(letters: string[], readings: (string | null)[], minConfidence: number | null = null, confidence = 1) {
@@ -85,6 +92,76 @@ describe('spellStep (regra da soletração)', () => {
   });
 });
 
+describe('soletração com um leitor por letra (spellAdvance)', () => {
+  /** Passa leituras (parada, com movimento) pela regra, com o leitor de cada letra. */
+  function runMixed(letters: string[], readers: SpellReader[], readings: Partial<SpellReadings>[]) {
+    return readings.reduce<SpellState>(
+      (s, r) => spellAdvance(letters, readers, s, { still: null, motion: null, ...r }),
+      SPELL_START,
+    );
+  }
+
+  it('JOIA: o J vale pelo reconhecedor das letras com movimento, o resto pelo das paradas', () => {
+    const letters = ['J', 'O', 'I', 'A'];
+    const readers: SpellReader[] = ['letras-mov', 'letras', 'letras', 'letras'];
+    // leitura parada não serve para o J, nem a com movimento para o O
+    expect(runMixed(letters, readers, [{ still: 'J' }]).index).toBe(0);
+    expect(runMixed(letters, readers, [{ motion: 'J' }, { motion: 'O' }]).index).toBe(1);
+    expect(runMixed(letters, readers, [{ motion: 'J' }, { still: 'O' }, { still: 'I' }, { still: 'A' }]).index).toBe(4);
+  });
+
+  it('troca de leitor solta a espera da letra anterior, como uma pausa', () => {
+    const letters = ['C', 'A', 'Ç', 'A'];
+    const readers: SpellReader[] = ['letras', 'letras', 'letras-mov', 'letras'];
+    // depois do Ç (com movimento) a leitura parada já é A: aceita direto
+    const s = runMixed(letters, readers, [{ still: 'C' }, { still: 'A' }, { still: 'A', motion: 'Ç' }]);
+    expect(s).toEqual({ index: 3, waitingRelease: true });
+    expect(spellAdvance(letters, readers, s, { still: 'A', motion: 'Ç' }).index).toBe(4);
+  });
+
+  it('letra com movimento repetida precisa da pausa ("_" ou mão fora) entre as duas', () => {
+    const letters = ['H', 'H'];
+    const readers: SpellReader[] = ['letras-mov', 'letras-mov'];
+    const s = runMixed(letters, readers, [{ motion: 'H' }]);
+    expect(spellAdvance(letters, readers, s, { still: null, motion: 'H' })).toBe(s);
+    expect(runMixed(letters, readers, [{ motion: 'H' }, { motion: null }, { motion: 'H' }]).index).toBe(2);
+  });
+
+  it('o "_" das letras paradas (leitura null) entre letras não conta nem volta a palavra', () => {
+    const letters = ['K', 'I', 'W', 'I'];
+    const readers: SpellReader[] = ['letras-mov', 'letras', 'letras', 'letras'];
+    const s = runMixed(letters, readers, [{ motion: 'K' }, { still: null }, { still: 'I' }, { still: null }, { still: 'W' }, { still: 'I' }]);
+    expect(s.index).toBe(4);
+  });
+
+  it('passo livre (Z sem câmera) só avança pela confirmação da pessoa', () => {
+    const letters = ['A', 'Z', 'U', 'L'];
+    const readers: SpellReader[] = ['letras', 'livre', 'letras', 'letras'];
+    const s = runMixed(letters, readers, [{ still: 'A' }, { still: 'Z', motion: 'Z' }]);
+    expect(s.index).toBe(1);
+    expect(spellGesture(readers, s, letters.length, { still: 'Z', motion: 'Z' })).toBeNull();
+    const freed = confirmFreeStep(letters, readers, s);
+    expect(freed).toEqual({ index: 2, waitingRelease: false });
+    // fora do passo livre, a confirmação não faz nada
+    expect(confirmFreeStep(letters, readers, freed)).toBe(freed);
+    expect(runMixed(letters, readers, [{ still: 'U' }, { still: 'L' }]).index).toBe(0);
+    expect([{ still: 'U' }, { still: 'L' }].reduce<SpellState>((st, r) => spellAdvance(letters, readers, st, { motion: null, ...r }), freed).index).toBe(4);
+  });
+
+  it('números: os dígitos com câmera pelo modelo dos números, os outros livres', () => {
+    const digits = ['2', '0'];
+    const readers: SpellReader[] = ['numeros', 'numeros'];
+    expect(runMixed(digits, readers, [{ still: '2' }, { still: '0' }]).index).toBe(2);
+    const sixty: SpellReader[] = ['livre', 'numeros'];
+    const s = confirmFreeStep(['6', '0'], sixty, SPELL_START);
+    expect(spellAdvance(['6', '0'], sixty, s, { still: '0', motion: null }).index).toBe(2);
+  });
+
+  it('sem a lista de leitores, tudo é lido como letra parada (como antes)', () => {
+    expect(runMixed(['B', 'I', 'A'], undefined as unknown as SpellReader[], [{ still: 'B' }, { still: 'I' }, { still: 'A' }]).index).toBe(3);
+  });
+});
+
 describe('ownNameLetters (nome do perfil para o "soletre seu nome")', () => {
   it('primeiro nome em caixa alta, sem acento e só com letras', () => {
     expect(ownNameLetters('Ana Maria')).toEqual(['A', 'N', 'A']);
@@ -94,12 +171,14 @@ describe('ownNameLetters (nome do perfil para o "soletre seu nome")', () => {
     expect(ownNameLetters('Ítalo')).toEqual(['I', 'T', 'A', 'L', 'O']);
   });
 
-  it('J, Z e Ç (letras com movimento) não entram: a lição usa a palavra de reserva', () => {
-    expect(ownNameLetters('João')).toBeNull();
-    expect(ownNameLetters('Zeca')).toBeNull();
-    expect(ownNameLetters('Conceição')).toBeNull();
+  it('J, Z e Ç (letras com movimento) entram: cada letra tem o seu leitor na soletração', () => {
+    expect(ownNameLetters('João')).toEqual(['J', 'O', 'A', 'O']);
+    expect(ownNameLetters('Zeca')).toEqual(['Z', 'E', 'C', 'A']);
+    expect(ownNameLetters('Graça')).toEqual(['G', 'R', 'A', 'Ç', 'A']);
     // o Ç continua Ç (não vira C), mesmo escrito com o cedilha separado
-    expect(ownNameLetters('Iraça')).toBeNull();
+    expect(ownNameLetters('Iraça')).toEqual(['I', 'R', 'A', 'Ç', 'A']);
+    // Conceição tem 9 letras: passa do limite
+    expect(ownNameLetters('Conceição')).toBeNull();
   });
 
   it('vazio, de uma letra ou com mais de OWN_NAME_MAX letras não dá', () => {
@@ -175,5 +254,78 @@ describe('ExerciseFingerspell', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Pular este exercício' }));
     expect(onAnswer).toHaveBeenCalledWith(false);
     expect(onNext).toHaveBeenCalled();
+  });
+
+  it('JOIA: o J sai do reconhecedor das letras com movimento e as outras das paradas', () => {
+    const onAnswer = vi.fn();
+    const letters = ['J', 'O', 'I', 'A'];
+    const readers: SpellReader[] = ['letras-mov', 'letras', 'letras', 'letras'];
+    const el = () => <ExerciseFingerspell word="JOIA" letters={letters} readers={readers} onAnswer={onAnswer} onNext={vi.fn()} />;
+    // O fica fora do heurístico: um classificador que conhece as letras paradas da palavra
+    setClassifierForTests({ kind: 'mlp', letters: new Set(['O', 'I', 'A']), classify: () => ({ letter: null, confidence: 0, extensions: NO_FINGERS }) });
+    const view = render(el());
+    expect(vi.mocked(useSpellCamera)).toHaveBeenLastCalledWith(letters, readers, 0);
+    expect(screen.getByText(/Faça a letra J com o movimento/)).toBeInTheDocument();
+    // a leitura parada "J" não conta: o J precisa do movimento
+    vi.mocked(useSpellCamera).mockReturnValue({ ...base, stableGesture: 'J' });
+    view.rerender(el());
+    expect(screen.getByText('Letra 1 de 4: J')).toBeInTheDocument();
+    vi.mocked(useSpellCamera).mockReturnValue({ ...base, motionLetter: 'J' });
+    view.rerender(el());
+    expect(screen.getByText('Letra 2 de 4: O')).toBeInTheDocument();
+    expect(vi.mocked(useSpellCamera)).toHaveBeenLastCalledWith(letters, readers, 1);
+    for (const g of ['O', 'I', 'A']) {
+      vi.mocked(useSpellCamera).mockReturnValue({ ...base, motionLetter: 'J', stableGesture: g });
+      view.rerender(el());
+    }
+    expect(screen.getByText('Palavra soletrada!')).toBeInTheDocument();
+    expect(onAnswer).toHaveBeenCalledWith(true);
+    act(() => setClassifierForTests(null));
+  });
+
+  it('letra sem câmera (Z): prática livre, avança quando a pessoa toca em "Fiz o Z"', async () => {
+    const onAnswer = vi.fn();
+    const letters = ['A', 'Z', 'U', 'L'];
+    const readers: SpellReader[] = ['letras', 'livre', 'letras', 'letras'];
+    const el = () => <ExerciseFingerspell word="AZUL" letters={letters} readers={readers} onAnswer={onAnswer} onNext={vi.fn()} />;
+    const view = render(el());
+    expect(screen.queryByRole('button', { name: /Fiz o/ })).not.toBeInTheDocument();
+    vi.mocked(useSpellCamera).mockReturnValue({ ...base, stableGesture: 'A' });
+    view.rerender(el());
+    expect(screen.getByText('Letra 2 de 4: Z')).toBeInTheDocument();
+    expect(screen.getByText(/Z sem avaliação/)).toBeInTheDocument();
+    // a câmera não avança o passo livre, nem com uma leitura de Z
+    vi.mocked(useSpellCamera).mockReturnValue({ ...base, stableGesture: 'Z', motionLetter: 'Z' });
+    view.rerender(el());
+    expect(screen.getByText('Letra 2 de 4: Z')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Fiz o Z/ }));
+    expect(screen.getByText('Letra 3 de 4: U')).toBeInTheDocument();
+    for (const g of ['U', 'L']) {
+      vi.mocked(useSpellCamera).mockReturnValue({ ...base, stableGesture: g });
+      view.rerender(el());
+    }
+    expect(onAnswer).toHaveBeenCalledWith(true);
+  });
+
+  it('número dígito a dígito: "Faça 20", 2 e depois 0 pelo modelo dos números', () => {
+    const onAnswer = vi.fn();
+    const readers: SpellReader[] = ['numeros', 'numeros'];
+    const el = () => <ExerciseFingerspell word="20" letters={['2', '0']} readers={readers} numbers onAnswer={onAnswer} onNext={vi.fn()} />;
+    const view = render(el());
+    expect(screen.getByRole('heading', { name: 'Faça 20: um dígito de cada vez' })).toBeInTheDocument();
+    expect(screen.getByText('Dígito 1 de 2: 2')).toBeInTheDocument();
+    for (const g of ['2', '0']) {
+      vi.mocked(useSpellCamera).mockReturnValue({ ...base, stableGesture: g });
+      view.rerender(el());
+    }
+    expect(screen.getByText('Número feito!')).toBeInTheDocument();
+    expect(onAnswer).toHaveBeenCalledWith(true);
+  });
+
+  it('número sem câmera em nenhum dígito cai no order_sequence com os dígitos', () => {
+    setClassifierForTests({ kind: 'mlp', letters: new Set(['A']), classify: () => ({ letter: null, confidence: 0, extensions: NO_FINGERS }) });
+    render(<ExerciseFingerspell word="20" letters={['2', '0']} numbers onAnswer={vi.fn()} onNext={vi.fn()} />);
+    expect(screen.getByText(/Faça 20: coloque os dígitos na ordem/)).toBeInTheDocument();
+    act(() => setClassifierForTests(null));
   });
 });

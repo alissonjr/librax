@@ -124,8 +124,23 @@
     {
       "id": "u13-l3-ex11",
       "lesson_id": "u13-l3",
-      "type": "build_phrase",
+      "type": "fingerspell",
       "order": 11,
+      "payload": {
+        "word": "30",
+        "letters": [
+          "3",
+          "0"
+        ],
+        "per_letter_confidence": null,
+        "numbers": true
+      }
+    },
+    {
+      "id": "u13-l3-ex12",
+      "lesson_id": "u13-l3",
+      "type": "build_phrase",
+      "order": 12,
       "payload": {
         "pt": "Só tem trinta vagas no curso de informática.",
         "glosses": [

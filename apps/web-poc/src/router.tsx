@@ -76,6 +76,7 @@ const AuthScreen = lazyScreen(() => import('./screens/AuthScreen'), 'AuthScreen'
 const LegalScreen = lazyScreen(() => import('./screens/LegalScreen'), 'LegalScreen');
 // Leve: só espera configureAuth() e a sessão; nenhum redirecionamento antes disso
 const AuthCallbackScreen = lazyScreen(() => import('./screens/AuthCallbackScreen'), 'AuthCallbackScreen');
+const SpellChallengeScreen = lazyScreen(() => import('./screens/SpellChallengeScreen'), 'SpellChallengeScreen');
 
 // O mapa é a tela de partida: começa a baixar junto com a abertura do banco local (App.tsx),
 // sem esperar o roteador montar, para não somar uma ida à rede no LCP.
@@ -222,7 +223,20 @@ function LearnRoute() {
 function PracticeRoute() {
   const { repo, userId } = useSession();
   const navigate = useNavigate();
-  return <PracticeScreen userId={userId} repo={repo} onOpenCamera={() => navigate(ROUTES.camera)} />;
+  return (
+    <PracticeScreen
+      userId={userId}
+      repo={repo}
+      onOpenCamera={() => navigate(ROUTES.camera)}
+      onOpenSpellChallenge={() => navigate(ROUTES.spellChallenge)}
+    />
+  );
+}
+
+function SpellChallengeRoute() {
+  const { repo, userId } = useSession();
+  const nav = useAppNavigation();
+  return <SpellChallengeScreen userId={userId} repo={repo} onBack={() => nav.back(ROUTES.practice)} />;
 }
 
 function SocialRoute() {
@@ -408,11 +422,12 @@ function LessonRoute() {
       if (course.lessonsMap[id] && !isLessonOpen(progress, id)) return 'locked';
       const lesson = course.lessonsMap[id];
       // As glosas do modelo de sinais com movimento, as letras do modelo das letras com movimento e
-      // os números do modelo dos números (se houver) decidem quais perform_sign a câmera avalia
+      // os números do modelo dos números (se houver) decidem quais perform_sign a câmera avalia; o
+      // classificador das letras paradas (MLP), quais letras paradas a câmera e a soletração leem
       const [bundle] = lesson
         ? await Promise.all([
           content.loadLessonBundle(id), content.loadSignIndex(), content.loadLetterMotionIndex(),
-          content.loadNumberIndex(),
+          content.loadNumberIndex(), content.loadClassifier(),
         ])
         : [null];
       if (!lesson || !bundle) return null;
@@ -623,6 +638,7 @@ export const routes: RouteObject[] = [
             ],
           },
           { path: 'social/liga', element: <LeagueRoute /> },
+          { path: 'praticar/soletrar', element: <SpellChallengeRoute /> },
           { path: 'sequencia', element: <StreakRoute /> },
           { path: 'conquistas', element: <AchievementsRoute /> },
           { path: 'configuracoes', element: <SettingsRoute /> },

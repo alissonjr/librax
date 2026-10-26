@@ -173,8 +173,9 @@ function videoDistractors(signId, presented, signIds, signsMap, seenSigns) {
  *    (sinais novos, estáticos primeiro) ou nenhum, se a lição tem soletração. Depois, um fingerspell
  *    por palavra de `spellWords` (nomes da U4, palavras de revisão do alfabeto) e, se a lição tiver
  *    `spellOwnName`, o "soletre seu nome" (o app troca a palavra pelo nome do perfil; a de
- *    `spellOwnName` fica para quando o nome não dá). Se ainda não couber, a produção sem lista cai
- *    para 1 perform_sign.
+ *    `spellOwnName` fica para quando o nome não dá). Os números de `spellNumbers` (U13: "faça 20",
+ *    dígito a dígito) entram depois, sem tirar o perform_sign da lição. Se ainda não couber, a
+ *    produção sem lista cai para 1 perform_sign.
  * 4. Da U3 em diante, a frase da lição (build_phrase) fecha a sessão.
  * Lição curta demais ganha uma rodada de watch_choose_word antes da frase até chegar a 7.
  *
@@ -194,6 +195,8 @@ export function composeLessonExercises(lesson, signsMap, extra = {}) {
   const spellWords = lesson.spellWords ?? [];
   const ownName = lesson.spellOwnName ?? null;
   const spellCount = spellWords.length + (ownName ? 1 : 0);
+  // Números dígito a dígito ("faça 20"): somam à lição sem tirar o perform_sign dela
+  const spellNumbers = lesson.spellNumbers ?? [];
   const phraseCount = extra.phrase ? 1 : 0;
   const listed = lesson.produce ?? null;
   const outside = (listed ?? []).filter((id) => !signIds.includes(id));
@@ -207,7 +210,9 @@ export function composeLessonExercises(lesson, signsMap, extra = {}) {
   let group = null;
   const produceOptions = listed ? [listed.length] : spellCount ? [0] : [PRODUCE_COUNT, 1];
   for (const n of produceOptions) {
-    group = groupSize(signIds.length, fresh.length + phraseCount + spellCount + n, listed ? MATCH_MAX_PRODUCE : MATCH_MAX);
+    group = groupSize(
+      signIds.length, fresh.length + phraseCount + spellCount + spellNumbers.length + n, listed ? MATCH_MAX_PRODUCE : MATCH_MAX,
+    );
     if (group !== null) {
       produce = listed ?? pickProduce(signIds, fresh, signsMap, n);
       break;
@@ -265,13 +270,19 @@ export function composeLessonExercises(lesson, signsMap, extra = {}) {
     });
   }
   // Soletração com letras que já tiveram câmera (nomes da U4, revisão do alfabeto; composeCourse
-  // confere). O app usa a câmera quando avalia todas as letras da palavra; senão mostra como
+  // confere). O app escolhe o leitor de cada letra (letras paradas, letras com movimento ou prática
+  // livre para a letra sem câmera); com letra parada que a câmera não avalia, mostra como
   // order_sequence (resolveExercises).
   for (const word of spellWords) {
     push('fingerspell', { word, letters: word.split(''), per_letter_confidence: null });
   }
+  // Número dígito a dígito ("faça 20": 2 e depois 0), com o modelo dos números em cada dígito que
+  // ele avalia e prática livre nos outros (composeCourse confere a forma do número)
+  for (const number of spellNumbers) {
+    push('fingerspell', { word: number, letters: [...number], per_letter_confidence: null, numbers: true });
+  }
   // "Soletre seu nome": o app troca a palavra pelo nome do perfil (resolveExercises); `word` é a
-  // palavra de reserva, para nome vazio, longo demais ou com letra de movimento
+  // palavra de reserva, para nome vazio, de uma letra ou longo demais
   if (ownName) {
     push('fingerspell', { word: ownName, letters: ownName.split(''), per_letter_confidence: null, own_name: true });
   }
@@ -306,22 +317,64 @@ export function numberExercises(lessonId, items) {
   }));
 }
 
+/** Letras sem câmera que uma palavra soletrada pode ter, como prática livre dentro dela. */
+export const FREE_SPELL_MAX = 1;
+
+/**
+ * Por que a palavra não pode ser soletrada até aqui, ou null se pode. Cada letra precisa ter tido
+ * perform_sign até a lição (`produced`: a câmera a lê, com o modelo das letras paradas ou, em H, J,
+ * K, X e Ç, com o das letras com movimento), ou ser letra com movimento sem câmera (recognition
+ * dynamic, o Z hoje) já ensinada (`taught`), que vira prática livre dentro da palavra: no máximo
+ * FREE_SPELL_MAX por palavra. Letra parada sem perform_sign (M, N, R, T) não entra.
+ */
+export function spelledWordProblem(word, { produced, taught, signsMap }) {
+  const letters = [...word];
+  const free = letters.filter((l) => !produced.has(l));
+  const blocked = free.filter((l) => signsMap[`letra-${l}`]?.recognition !== 'dynamic' || !taught.has(`letra-${l}`));
+  if (blocked.length) return `a palavra ${word} usa letra sem exercício de câmera até aqui (${[...new Set(blocked)].join(', ')}).`;
+  if (free.length > FREE_SPELL_MAX) {
+    return `a palavra ${word} tem ${free.length} letras sem câmera (${free.join(', ')}); o máximo é ${FREE_SPELL_MAX}, como prática livre.`;
+  }
+  return null;
+}
+
+/**
+ * Números que a Libras do curso não faz dígito a dígito (notas do signs.json): o 11 balança o 1, o
+ * 40 e o 50 fundem a dezena com o 0 numa forma própria e o 100 é o 1 que vai para o lado em O. Os
+ * outros de 10 a 90 são os dígitos em sequência com a mesma mão (o 10 é 1 e 0).
+ */
+export const OWN_FORM_NUMBERS = new Set(['11', '40', '50', '100']);
+
+/**
+ * Por que o número não pode ser feito dígito a dígito até aqui, ou null se pode: precisa ser um sinal
+ * do curso (numero-N) de dois dígitos ou mais, fora de OWN_FORM_NUMBERS, e cada dígito precisa ter
+ * tido perform_sign até a lição (`produced`). O app lê com o modelo dos números os dígitos que ele
+ * avalia e deixa os outros como prática livre.
+ */
+export function spelledNumberProblem(number, { produced, signsMap }) {
+  if (!/^\d{2,}$/.test(number) || !signsMap[`numero-${number}`]) return `${number} não é um número do curso para fazer dígito a dígito.`;
+  if (OWN_FORM_NUMBERS.has(number)) return `${number} tem forma própria em Libras, não é feito dígito a dígito.`;
+  const missing = [...number].filter((d) => !produced.has(d));
+  if (missing.length) return `o número ${number} usa dígito sem exercício de câmera até aqui (${[...new Set(missing)].join(', ')}).`;
+  return null;
+}
+
 /**
  * Bundle do curso inteiro: { [lessonId]: exercícios }. Percorre as lições na ordem do curso
  * para saber quais glosas já foram vistas (a frase de cada lição depende disso).
  *
- * Falha se uma palavra soletrada (fingerspell) usa letra que ainda não teve perform_sign até a
- * lição: a soletração só pede letras já ensinadas e que a câmera lê bem (as de `produce`).
- * Falha também com letra de movimento (recognition dynamic: J, Z e Ç), que a soletração pela
- * câmera não lê, mesmo quando ela tem perform_sign com o modelo das letras com movimento.
+ * Falha se uma palavra soletrada (fingerspell) não passa no spelledWordProblem (letra sem câmera
+ * até a lição, a não ser uma letra com movimento já ensinada como prática livre) ou se um número
+ * dígito a dígito não passa no spelledNumberProblem.
  */
 export function composeCourse(course, signsList) {
   const signsMap = Object.fromEntries(signsList.map((s) => [s.id, s]));
   const seenGlosses = new Set();
   // Sinais já apresentados (sign_intro) em lições anteriores: na lição de revisão não se repetem
   const seenSigns = new Set();
-  // Letras que já tiveram perform_sign (até a lição atual, inclusive)
+  // Letras e números que já tiveram perform_sign (até a lição atual, inclusive)
   const producedLetters = new Set();
+  const producedNumbers = new Set();
   const bundle = {};
 
   course.units.forEach((unit, unitIdx) => {
@@ -340,23 +393,15 @@ export function composeCourse(course, signsList) {
       for (const e of items) {
         const s = e.type === 'perform_sign' ? signsMap[e.payload.sign_id] : null;
         if (s?.category === 'alfabeto') producedLetters.add(s.gloss);
+        if (s?.category === 'numeros') producedNumbers.add(s.gloss);
       }
+      const taught = new Set([...seenSigns, ...lesson.signIds]);
       for (const e of items) {
         if (e.type !== 'fingerspell') continue;
-        const missing = e.payload.letters.filter((l) => !producedLetters.has(l));
-        if (missing.length) {
-          throw new Error(
-            `Lição ${lesson.id}: a palavra ${e.payload.word} usa letra sem exercício de câmera até aqui (${missing.join(', ')}).`,
-          );
-        }
-        // J e Ç têm câmera no perform_sign (modelo das letras com movimento), mas a soletração pela
-        // câmera lê só a forma parada da mão: palavra com letra de movimento viraria order_sequence
-        const moving = e.payload.letters.filter((l) => signsMap[`letra-${l}`]?.recognition === 'dynamic');
-        if (moving.length) {
-          throw new Error(
-            `Lição ${lesson.id}: a palavra ${e.payload.word} usa letra com movimento (${moving.join(', ')}), que a soletração pela câmera não lê.`,
-          );
-        }
+        const problem = e.payload.numbers
+          ? spelledNumberProblem(e.payload.word, { produced: producedNumbers, signsMap })
+          : spelledWordProblem(e.payload.word, { produced: producedLetters, taught, signsMap });
+        if (problem) throw new Error(`Lição ${lesson.id}: ${problem}`);
       }
       bundle[lesson.id] = numberExercises(lesson.id, items);
       for (const id of lesson.signIds) seenSigns.add(id);

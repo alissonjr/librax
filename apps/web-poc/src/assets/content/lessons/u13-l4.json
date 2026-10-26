@@ -124,8 +124,23 @@
     {
       "id": "u13-l4-ex11",
       "lesson_id": "u13-l4",
-      "type": "build_phrase",
+      "type": "fingerspell",
       "order": 11,
+      "payload": {
+        "word": "80",
+        "letters": [
+          "8",
+          "0"
+        ],
+        "per_letter_confidence": null,
+        "numbers": true
+      }
+    },
+    {
+      "id": "u13-l4-ex12",
+      "lesson_id": "u13-l4",
+      "type": "build_phrase",
+      "order": 12,
       "payload": {
         "pt": "Melhor comprar roupa na fábrica, é mais barato.",
         "glosses": [

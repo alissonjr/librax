@@ -1,11 +1,11 @@
 import signsRaw from '../assets/content/signs.json';
 import { course, type Phrase, type SourceRef } from './course';
-import { getClassifier } from '../recognition/classifier';
+import { getClassifier, loadClassifier } from '../recognition/classifier';
 import { getSignGlosses, loadSignIndex } from '../recognition/signModel';
 import { getMotionLetters, loadLetterMotionIndex } from '../recognition/letterMotionModel';
 import { getCameraNumbers, loadNumberIndex } from '../recognition/numberModel';
 import { getDisplayName } from './auth';
-import { ownNameLetters } from './fingerspell';
+import { ownNameLetters, type SpellReader } from './fingerspell';
 
 export interface Sign {
   id: string;
@@ -81,6 +81,8 @@ export type BundleExercise =
       per_letter_confidence: number | null;
       /** "Soletre seu nome": o app troca a palavra pelo nome do perfil; `word` é a reserva. */
       own_name?: boolean;
+      /** Número feito dígito a dígito ("faça 20": 2 e depois 0); `letters` são os dígitos. */
+      numbers?: boolean;
     }>
   | BundleBase<'mirror_practice', { sign_id: string }>;
 
@@ -113,6 +115,10 @@ export interface Exercise {
   perLetterConfidence?: number | null;
   /** fingerspell e order_sequence de soletração: a palavra é o nome do perfil. */
   ownName?: boolean;
+  /** fingerspell: quem lê cada letra (ou dígito) da palavra (spellReadersFor). */
+  spellReaders?: SpellReader[];
+  /** fingerspell e order_sequence de soletração: é um número feito dígito a dígito. */
+  spellNumbers?: boolean;
   /** word_choose_video: os sinais das 4 demonstrações, em ordem sorteada (`signId` é o certo). */
   videoOptions?: string[];
   /** build_phrase: frase da unidade (glosas na ordem certa + tradução). */
@@ -224,6 +230,12 @@ export function isNumberEvaluable(sign: Sign | undefined): boolean {
 export { loadNumberIndex };
 
 /**
+ * Carrega o classificador das letras paradas (o MLP, quando publicado) uma vez por sessão: a rota da
+ * lição espera, para isCameraEvaluable e a soletração verem as letras dele e não só as do heurístico.
+ */
+export { loadClassifier };
+
+/**
  * Escolhe 3 distratores para as questoes de multipla escolha. Prefere sinais da
  * mesma categoria (letras com letras, numeros com numeros) e completa com o
  * restante se a categoria tiver poucos sinais. Nunca repete glosa.
@@ -293,7 +305,10 @@ export interface ResolveOptions {
  *   o modelo dos numeros avalia, com ele (recognizer 'numeros'); senao vira mirror_practice
  *   (pratica livre, sem nota, para nao contar erro que a pessoa nao cometeu) e a pratica livre
  *   repetida do mesmo sinal sai;
- * - fingerspell so usa a camera quando ela avalia todas as letras da palavra; senao vira
+ * - fingerspell ganha o leitor de cada letra (spellReadersFor): letras paradas com o classificador
+ *   delas, letras com movimento com o modelo das letras com movimento, digitos com o dos numeros e,
+ *   sem camera para a letra com movimento (o Z) ou para o digito, pratica livre dentro da palavra.
+ *   Letra parada que a camera nao avalia, ou palavra sem nenhum passo avaliado, vira
  *   order_sequence com as letras (a pessoa poe as letras na ordem). No "soletre seu nome"
  *   (`own_name`), a palavra e o primeiro nome do perfil (ownNameLetters); se o nome nao da, fica a
  *   palavra de reserva do bundle, como um fingerspell comum.
@@ -366,11 +381,19 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
         const letters = name ?? item.payload.letters;
         const word = name ? name.join('') : item.payload.word;
         const own = name ? { ownName: true } : {};
-        const signId = `letra-${letters[0]}`;
-        if (letters.every((l) => canEvaluate(map[`letra-${l}`]))) {
-          out.push({ id, type: 'fingerspell', signId, word, letters, perLetterConfidence: per_letter_confidence, ...own });
+        const numbers = !!item.payload.numbers;
+        const kind = numbers ? { spellNumbers: true } : {};
+        const signId = `${numbers ? 'numero' : 'letra'}-${letters[0]}`;
+        const readers = spellReadersFor(letters, numbers, {
+          signsMap: map, canEvaluate, canEvaluateLetterMotion, canEvaluateNumber,
+        });
+        if (readers) {
+          out.push({
+            id, type: 'fingerspell', signId, word, letters, perLetterConfidence: per_letter_confidence,
+            spellReaders: readers, ...own, ...kind,
+          });
         } else {
-          out.push({ id, type: 'order_sequence', signId, steps: letters, correctOrder: letters.map((_, i) => i), word, ...own });
+          out.push({ id, type: 'order_sequence', signId, steps: letters, correctOrder: letters.map((_, i) => i), word, ...own, ...kind });
         }
         break;
       }
@@ -387,6 +410,38 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
     }
   }
   return out;
+}
+
+/**
+ * Quem lê cada passo de uma soletração, ou null quando a câmera não serve (vira order_sequence).
+ * - Letra: o modelo das letras com movimento quando ele a avalia (H, J, K, X e Ç, como no
+ *   perform_sign); senão o classificador das letras paradas; senão, se é letra com movimento
+ *   (recognition dynamic, o Z), prática livre. Letra parada que a câmera não avalia: null.
+ * - Dígito: o modelo dos números quando ele o avalia (camera_numbers); senão prática livre.
+ * Sem nenhum passo avaliado (todos livres): null.
+ */
+export function spellReadersFor(
+  letters: readonly string[],
+  numbers: boolean,
+  opts: Pick<ResolveOptions, 'signsMap' | 'canEvaluate' | 'canEvaluateLetterMotion' | 'canEvaluateNumber'> = {},
+): SpellReader[] | null {
+  const map = opts.signsMap ?? signsMap;
+  const canEvaluate = opts.canEvaluate ?? isCameraEvaluable;
+  const canEvaluateLetterMotion = opts.canEvaluateLetterMotion ?? isLetterMotionEvaluable;
+  const canEvaluateNumber = opts.canEvaluateNumber ?? isNumberEvaluable;
+  const readers: SpellReader[] = [];
+  for (const l of letters) {
+    if (numbers) {
+      readers.push(canEvaluateNumber(map[`numero-${l}`]) ? 'numeros' : 'livre');
+      continue;
+    }
+    const sign = map[`letra-${l}`];
+    if (canEvaluateLetterMotion(sign)) readers.push('letras-mov');
+    else if (canEvaluate(sign)) readers.push('letras');
+    else if (sign?.recognition === 'dynamic') readers.push('livre');
+    else return null;
+  }
+  return readers.some((r) => r !== 'livre') ? readers : null;
 }
 
 interface LessonFile {
@@ -410,7 +465,7 @@ export async function loadLessonExercises(lessonId: string): Promise<Exercise[] 
   const lesson = course.lessonsMap[lessonId];
   if (!lesson) return null;
   const [items] = await Promise.all([
-    loadLessonBundle(lessonId), loadSignIndex(), loadLetterMotionIndex(), loadNumberIndex(),
+    loadLessonBundle(lessonId), loadSignIndex(), loadLetterMotionIndex(), loadNumberIndex(), loadClassifier(),
   ]);
   return items ? resolveExercises(items, lesson.signIds) : null;
 }
