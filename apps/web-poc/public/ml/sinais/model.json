@@ -631,5 +631,11 @@
       "certas": 0,
       "total": 2
     }
+  },
+  "reading_rules": {
+    "min_probability": 0.6,
+    "min_motion": 0.17,
+    "motion_shape_weight": 1.0,
+    "max_none_probability": 1.0
   }
 }
