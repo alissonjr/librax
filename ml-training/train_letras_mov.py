@@ -71,8 +71,10 @@ TRECHOS_XZ = os.path.join(AQUI, "letras_mov_trechos_xz.json")
 # Mais alfabetos de canais novos para o Z (video/baixar_extra.py, data/letras_mov/fontes_z2.json)
 LANDMARKS_Z2 = os.path.join(DATA, "letras_mov", "landmarks15_z2")
 TRECHOS_Z2 = os.path.join(AQUI, "letras_mov_trechos_z2.json")
-# LM_SEM_Z2=1 deixa esses vídeos de fora (para comparar com o modelo anterior)
+# LM_SEM_Z2=1 deixa esses vídeos de fora (para comparar com o modelo anterior). Deles só entra o Z
+# (a folha revisada a olho, letras_mov_conferencia_z2.json); as outras letras ficam ok=false
 SEM_Z2 = os.environ.get("LM_SEM_Z2") == "1"
+LETRAS_Z2 = os.environ.get("LM_Z2_LETRAS", "Z")
 # LM_SEM_XZ=1 treina e avalia só com os trechos antigos (para comparar com o modelo anterior)
 SEM_XZ = os.environ.get("LM_SEM_XZ") == "1"
 # Letras dos trechos dos vídeos novos que entram no treino (as outras ficam marcadas ok=false: nem
@@ -223,6 +225,8 @@ AVALIA_S = 0.25
 BUFFER_S = 2.0
 CONFIRMA = 2
 INES_CANAL = "ines"
+# Processos do montar e das janelas ao vivo (LM_PROCESSOS; menos quando a máquina está ocupada)
+PROCESSOS = int(os.environ.get("LM_PROCESSOS", "6"))
 
 
 def carregar_trechos(caminho=TRECHOS):
@@ -232,12 +236,13 @@ def carregar_trechos(caminho=TRECHOS):
     """
     with open(caminho) as f:
         out = json.load(f)
-    extras = [] if caminho != TRECHOS else [p for p, fora in ((TRECHOS_XZ, SEM_XZ), (TRECHOS_Z2, SEM_Z2))
+    extras = [] if caminho != TRECHOS else [(p, letras) for p, fora, letras in
+                                             ((TRECHOS_XZ, SEM_XZ, LETRAS_XZ), (TRECHOS_Z2, SEM_Z2, LETRAS_Z2))
                                              if not fora and os.path.exists(p)]
-    for path in extras:
+    for path, letras in extras:
         with open(path) as f:
             extra = json.load(f)
-        out["trechos"] = out["trechos"] + [t if t["letra"] in LETRAS_XZ else {**t, "ok": False}
+        out["trechos"] = out["trechos"] + [t if t["letra"] in letras else {**t, "ok": False}
                                            for t in extra["trechos"]]
         out["videos"] = out["videos"] + extra["videos"]
     return out
@@ -423,7 +428,7 @@ def _janelas_job(args):
     return v["id"], np.array(Xv, dtype=np.float32).reshape(-1, T, F), np.array(yv)
 
 
-def montar(trechos, ids=None, treino=True, variacoes=2, seed=0, processos=6):
+def montar(trechos, ids=None, treino=True, variacoes=2, seed=0, processos=None):
     """Janelas de todos os vídeos (ou só de `ids`): X [N, T, F], y, canal e vídeo."""
     from multiprocessing import Pool
 
@@ -442,7 +447,7 @@ def montar(trechos, ids=None, treino=True, variacoes=2, seed=0, processos=6):
         # semente por vídeo: o resultado não depende da ordem nem de quantos processos
         jobs.append(({**v, "_todos_trechos": todos[v["id"]]}, por_video[v["id"]], variacoes, treino, seed * 1000 + i))
     canal_de = {v["id"]: v["channel_id"] for v in trechos["videos"]}
-    with Pool(processos) as pool:
+    with Pool(processos or PROCESSOS) as pool:
         partes = pool.map(_janelas_job, jobs)
     X = np.concatenate([p[1] for p in partes]) if partes else np.zeros((0, T, F), np.float32)
     y = np.concatenate([p[2] for p in partes]) if partes else np.array([])
@@ -451,11 +456,11 @@ def montar(trechos, ids=None, treino=True, variacoes=2, seed=0, processos=6):
     return X, y.astype(str), canal, video.astype(str)
 
 
-def preparar_ao_vivo(ids, processos=6):
+def preparar_ao_vivo(ids, processos=None):
     """Calcula (e guarda) as janelas ao vivo dos vídeos, em paralelo."""
     from multiprocessing import Pool
 
-    with Pool(processos) as pool:
+    with Pool(processos or PROCESSOS) as pool:
         pool.map(_ao_vivo_job, sorted(ids))
 
 

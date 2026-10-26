@@ -1,0 +1,12 @@
+{
+ "_sobre": "Revisão a olho da folha do Z dos vídeos de data/letras_mov/fontes_z2.json (data/letras_mov/conferir_z2/letra-Z.jpg, video/rotular_xz.py --lista ... --folhas) em 2026-10-26: trechos que não mostram o traçado do Z ficam de fora do treino. Das outras letras desses vídeos só entra o Z (LM_Z2_LETRAS).",
+ "fora": [
+  {"id": "0fKWqIBF82k", "letra": "Z", "motivo": "Y e depois o punho fechado, sem o indicador do Z"},
+  {"id": "3gLeLtU97oI", "letra": "Z", "motivo": "mão borrada e depois o dedo na boca, sem o Z"},
+  {"id": "A2WwJTa_4OM", "letra": "Z", "motivo": "mão colada na câmera e borrada, o Z não fica claro"},
+  {"id": "URuFsgkMWDE", "letra": "Z", "motivo": "punho fechado, sem o indicador do Z"},
+  {"id": "duvsWXLbXK4", "letra": "Z", "motivo": "mão em L (polegar e indicador), não o Z"},
+  {"id": "inF7p3Of4_o", "letra": "Z", "motivo": "mão aberta e borrada, sem o indicador do Z"},
+  {"id": "wE2rXWuw_HI", "letra": "Z", "motivo": "Y e depois as mãos no peito, o Z não fica claro"}
+ ]
+}
