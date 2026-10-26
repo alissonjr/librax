@@ -60,7 +60,7 @@ export function App() {
   }, []);
 
   // A barra da abertura é anunciada no idioma do app (o index.html sai em pt-BR)
-  useEffect(() => { setSplashLabel(t('splash.label')); }, [t]);
+  useEffect(() => { setSplashLabel(t('splash.label'), t('brand.betaAria')); }, [t]);
 
   if (!state) {
     return (

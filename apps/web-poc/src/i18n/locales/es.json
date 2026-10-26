@@ -55,6 +55,13 @@
   "app": {
     "cameraTitle": "Cámara"
   },
+  "appUpdate": {
+    "updated": "App actualizada"
+  },
+  "brand": {
+    "beta": "Beta",
+    "betaAria": "Versión beta"
+  },
   "cameraScreen": {
     "activate": "Activar cámara",
     "denied": "Permiso de cámara denegado. Revisa la configuración del navegador e inténtalo de nuevo.",
@@ -597,7 +604,8 @@
     "themeLight": "Claro",
     "themeSystem": "Seguir el sistema",
     "title": "Configuración",
-    "version": "Versión"
+    "version": "Versión",
+    "versionDev": "Desarrollo"
   },
   "signDemo": {
     "avatarLabel": "Avatar VLibras haciendo la seña {gloss}",

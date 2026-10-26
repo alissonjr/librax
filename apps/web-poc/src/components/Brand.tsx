@@ -1,4 +1,5 @@
 import { useId, type CSSProperties } from 'react';
+import { useT } from '../i18n';
 
 /*
  * Marca Traço (estudo/marca/traco.html): o movimento do sinal vira desenho, com as setas de
@@ -48,17 +49,35 @@ export function BrandMark({ size, variant = 'symbol', className }: MarkProps) {
   );
 }
 
-/** Palavra-marca: símbolo + "librax" em Anybody larga. `size` é o corpo do nome em px. */
-export function Wordmark({ size, className }: { size: number; className?: string }) {
+/**
+ * Selo "Beta" ao lado do nome (design-system 11.3): chip em petróleo suave, sem faixa. O leitor de
+ * tela ouve "Versão beta"; o "Beta" visível fica escondido dele.
+ */
+export function BetaBadge() {
+  const { t } = useT();
+  return (
+    <span className="beta-badge" data-testid="beta-badge">
+      <span aria-hidden="true">{t('brand.beta')}</span>
+      <span className="sr-only">{t('brand.betaAria')}</span>
+    </span>
+  );
+}
+
+/**
+ * Palavra-marca: símbolo + "librax" em Anybody larga, com o selo "Beta" (o app está em beta).
+ * `size` é o corpo do nome em px.
+ */
+export function Wordmark({ size, className, beta = true }: { size: number; className?: string; beta?: boolean }) {
   return (
     <span
       className={['wordmark', className ?? ''].filter(Boolean).join(' ')}
-      role="img"
-      aria-label="Librax"
       style={{ '--wm': `${size}px` } as CSSProperties}
     >
-      <BrandMark size={Math.round(size * 1.3)} />
-      <span className="wordmark-text" aria-hidden="true">librax</span>
+      <span className="wordmark-logo" role="img" aria-label="Librax">
+        <BrandMark size={Math.round(size * 1.3)} />
+        <span className="wordmark-text" aria-hidden="true">librax</span>
+      </span>
+      {beta && <BetaBadge />}
     </span>
   );
 }

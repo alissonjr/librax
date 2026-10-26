@@ -5,6 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'path';
 import { createReadStream, existsSync, mkdirSync, statSync, writeFileSync } from 'fs';
 import { networkInterfaces } from 'os';
+import { execSync } from 'child_process';
 import { tokens } from './src/styles/tokens';
 import { decodeSignUrl, rejectHtmlPlugin } from './src/lib/vlibrasServing';
 
@@ -22,6 +23,10 @@ function tokenCss(name: string): string {
   if (typeof value === 'string' || typeof value === 'number') return String(value);
   if (Array.isArray(value) && value.every((v) => typeof v === 'number')) return `cubic-bezier(${value.join(', ')})`;
   if (Array.isArray(value)) return value.join(', ');
+  if (value && typeof value === 'object' && 'fontFamily' in value && 'fontSize' in value && 'fontWeight' in value && 'lineHeight' in value) {
+    const family = (value.fontFamily as string[]).map((font) => /\s/.test(font) ? `"${font}"` : font).join(', ');
+    return `${value.fontWeight} ${value.fontSize}/${value.lineHeight} ${family}`;
+  }
   throw new Error(`index.html: token desconhecido ou sem valor CSS: ${name}`);
 }
 
@@ -151,6 +156,20 @@ const printPhoneUrl = (): Plugin => ({
   },
 });
 
+// Versão do build (src/lib/appVersion.ts): data e hora do build e o commit curto, mostrados nas
+// Configurações. Sem git (código copiado sem .git), usa LX_COMMIT ou o
+// commit do CI, se houver; sem nada disso, a versão fica só com a data.
+function buildCommit(): string {
+  let commit = '';
+  try {
+    commit = execSync('git rev-parse --short HEAD', { cwd: __dirname, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    commit = process.env.LX_COMMIT ?? process.env.GITHUB_SHA ?? process.env.CODEBUILD_RESOLVED_SOURCE_VERSION ?? '';
+  }
+  commit = commit.slice(0, 7).toLowerCase();
+  return /^[0-9a-f]{4,7}$/.test(commit) ? commit : '';
+}
+
 // npm run dev:local: contra o ambiente local que simula a AWS (docs/ambiente-local.md). As VITE_*
 // vêm da pasta gerada pelo bootstrap (nunca do .env.local, que é o da AWS de verdade) e /api vai
 // para a API local.
@@ -167,6 +186,10 @@ export default defineConfig(({ mode }) => {
 
   return {
     ...(local ? { envDir: LOCAL_ENV_DIR } : {}),
+    define: {
+      __LX_BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+      __LX_BUILD_COMMIT__: JSON.stringify(buildCommit()),
+    },
     // SPA: o servidor de desenvolvimento e o "vite preview" respondem index.html para qualquer rota
     // do app (/aprender, /licao/u1-l1...), então recarregar numa URL funciona. Em produção o
     // service worker faz o mesmo (navigateFallback abaixo) e o CDN precisa responder index.html

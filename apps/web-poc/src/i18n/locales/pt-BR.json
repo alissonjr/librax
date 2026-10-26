@@ -133,6 +133,13 @@
   "app": {
     "cameraTitle": "Câmera"
   },
+  "appUpdate": {
+    "updated": "App atualizado"
+  },
+  "brand": {
+    "beta": "Beta",
+    "betaAria": "Versão beta"
+  },
   "cameraScreen": {
     "activate": "Ativar câmera",
     "denied": "Permissão de câmera negada. Verifique as configurações do navegador e tente novamente.",
@@ -740,7 +747,8 @@
     "sound": "Sons",
     "soundOn": "Ligados",
     "soundOff": "Desligados",
-    "soundHint": "Tudo o que o som reforça também aparece na tela."
+    "soundHint": "Tudo o que o som reforça também aparece na tela.",
+    "versionDev": "Desenvolvimento"
   },
   "signDemo": {
     "avatarLabel": "Avatar VLibras fazendo o sinal {gloss}",

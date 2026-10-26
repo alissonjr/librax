@@ -15,6 +15,7 @@ import { OfflineSettingItem } from '../components/OfflineSettingItem';
 import { LegalLink } from '../components/LegalLinks';
 import { ROUTES } from '../lib/routes';
 import { listCameraStats } from '../lib/cameraStats';
+import { BUILD, formatVersion } from '../lib/appVersion';
 
 interface Props {
   userId: string;
@@ -295,7 +296,10 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
             <Icon name="info" className="settings-item-icon" />
             <div className="settings-item-text">
               <span className="settings-item-label">{t('settings.version')}</span>
-              <span className="settings-item-value">PoC 1.0</span>
+              {/* Data e hora do build e o commit (lib/appVersion.ts): muda a cada atualização */}
+              <span className="settings-item-value" data-testid="app-version">
+                {formatVersion(BUILD, lang) || t('settings.versionDev')}
+              </span>
             </div>
           </div>
           <LegalLink to={ROUTES.terms} className="settings-item settings-item--btn settings-item--link">

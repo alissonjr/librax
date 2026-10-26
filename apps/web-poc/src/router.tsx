@@ -24,6 +24,7 @@ import { Nav } from './components/Nav';
 import { Icon } from './components/Icon';
 import { Dialog } from './components/Dialog';
 import { Toast } from './components/Toast';
+import { AppUpdateNotice } from './components/AppUpdateNotice';
 import { ScreenSkeleton } from './components/ScreenSkeleton';
 import { AppOpenFlow } from './components/AppOpenFlow';
 import { ConvertAccountSheet } from './components/ConvertAccountSheet';
@@ -117,11 +118,19 @@ function RouteAnnouncer() {
   return null;
 }
 
-/** Aviso discreto da sessão (por exemplo, lição bloqueada aberta pelo endereço). */
+/**
+ * Aviso discreto da sessão (por exemplo, lição bloqueada aberta pelo endereço) e o de app atualizado,
+ * que espera o da sessão sair.
+ */
 function NoticeToast() {
   const { t } = useT();
   const { notice, dismissNotice } = useSession();
-  return notice ? <Toast message={t(notice)} onDone={dismissNotice} /> : null;
+  return (
+    <>
+      {notice && <Toast message={t(notice)} onDone={dismissNotice} />}
+      <AppUpdateNotice busy={!!notice} />
+    </>
+  );
 }
 
 /**
