@@ -71,10 +71,12 @@ TRECHOS_XZ = os.path.join(AQUI, "letras_mov_trechos_xz.json")
 # Mais alfabetos de canais novos para o Z (video/baixar_extra.py, data/letras_mov/fontes_z2.json)
 LANDMARKS_Z2 = os.path.join(DATA, "letras_mov", "landmarks15_z2")
 TRECHOS_Z2 = os.path.join(AQUI, "letras_mov_trechos_z2.json")
-# LM_SEM_Z2=1 deixa esses vídeos de fora (para comparar com o modelo anterior). Deles só entra o Z
-# (a folha revisada a olho, letras_mov_conferencia_z2.json); as outras letras ficam ok=false
+# LM_SEM_Z2=1 deixa esses vídeos de fora (para comparar com o modelo anterior). Deles só entram o X e
+# o Z (as folhas revisadas a olho, letras_mov_conferencia_z2.json); as outras letras ficam ok=false.
+# 2026-10-26, soma de 8 sementes nos canais separados mais INES: só o Z (LM_Z2_LETRAS=Z), Z 40/56 e
+# X 33/48; com o X e o Z, Z 39/56, X 36/48 e alarme nas paradas 73/792 (98/792 no modelo anterior)
 SEM_Z2 = os.environ.get("LM_SEM_Z2") == "1"
-LETRAS_Z2 = os.environ.get("LM_Z2_LETRAS", "Z")
+LETRAS_Z2 = os.environ.get("LM_Z2_LETRAS", "XZ")
 # LM_SEM_XZ=1 treina e avalia só com os trechos antigos (para comparar com o modelo anterior)
 SEM_XZ = os.environ.get("LM_SEM_XZ") == "1"
 # Letras dos trechos dos vídeos novos que entram no treino (as outras ficam marcadas ok=false: nem

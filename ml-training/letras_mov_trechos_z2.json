@@ -710,7 +710,8 @@
    ],
    "energia": 16.22,
    "ocr": "X",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: C e punho fechado, sem o gancho do X"
   },
   {
    "id": "Nass-RO2610",
@@ -878,7 +879,8 @@
    ],
    "energia": 4.48,
    "ocr": "",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: mão de lado e borrada, o gancho do X não fica claro"
   },
   {
    "id": "URuFsgkMWDE",
@@ -1046,7 +1048,8 @@
    "parada": null,
    "energia": 2.98,
    "ocr": "",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: mão do Y e em garra, sem o gancho do X"
   },
   {
    "id": "W13zoSoQ4-4",
@@ -1147,7 +1150,8 @@
    "parada": null,
    "energia": 17.48,
    "ocr": "XY",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: mão borrada de perto, o gancho do X não aparece"
   },
   {
    "id": "XAlOL606OKk",
@@ -1495,7 +1499,8 @@
    "parada": null,
    "energia": 21.88,
    "ocr": "XY",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: punho fechado, sem o gancho do X"
   },
   {
    "id": "inF7p3Of4_o",
@@ -2107,7 +2112,8 @@
    "parada": null,
    "energia": 16.64,
    "ocr": "Y",
-   "ok": true
+   "ok": false,
+   "motivo": "conferência: mão borrada, o gancho do X não aparece"
   },
   {
    "id": "yfSnbO6Dh0A",

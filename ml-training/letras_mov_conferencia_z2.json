@@ -1,5 +1,5 @@
 {
- "_sobre": "Revisão a olho da folha do Z dos vídeos de data/letras_mov/fontes_z2.json (data/letras_mov/conferir_z2/letra-Z.jpg, video/rotular_xz.py --lista ... --folhas) em 2026-10-26: trechos que não mostram o traçado do Z ficam de fora do treino. Das outras letras desses vídeos só entra o Z (LM_Z2_LETRAS).",
+ "_sobre": "Revisão a olho das folhas do X e do Z dos vídeos de data/letras_mov/fontes_z2.json (data/letras_mov/conferir_z2/letra-<L>.jpg, video/rotular_xz.py --lista ... --folhas) em 2026-10-26: trechos que não mostram a letra ficam de fora do treino. Das outras letras desses vídeos nada entra (LM_Z2_LETRAS, padrão XZ).",
  "fora": [
   {"id": "0fKWqIBF82k", "letra": "Z", "motivo": "Y e depois o punho fechado, sem o indicador do Z"},
   {"id": "3gLeLtU97oI", "letra": "Z", "motivo": "mão borrada e depois o dedo na boca, sem o Z"},
@@ -14,6 +14,12 @@
   {"id": "XAlOL606OKk", "letra": "Z", "motivo": "mão borrada de perto, o Z não fica claro"},
   {"id": "nA3PMOKeKG0", "letra": "Z", "motivo": "Y e depois a mão aberta, sem o indicador do Z"},
   {"id": "wFm4JuzFb78", "letra": "Z", "motivo": "mão do Y quase o trecho todo, sem o indicador do Z"},
-  {"id": "yfSnbO6Dh0A", "letra": "Z", "motivo": "Y e quadros escuros e borrados, sem o Z claro"}
+  {"id": "yfSnbO6Dh0A", "letra": "Z", "motivo": "Y e quadros escuros e borrados, sem o Z claro"},
+  {"id": "inF7p3Of4_o", "letra": "X", "motivo": "punho fechado, sem o gancho do X"},
+  {"id": "W13zoSoQ4-4", "letra": "X", "motivo": "mão do Y e em garra, sem o gancho do X"},
+  {"id": "Nass-RO2610", "letra": "X", "motivo": "C e punho fechado, sem o gancho do X"},
+  {"id": "yfSnbO6Dh0A", "letra": "X", "motivo": "mão borrada, o gancho do X não aparece"},
+  {"id": "XAlOL606OKk", "letra": "X", "motivo": "mão borrada de perto, o gancho do X não aparece"},
+  {"id": "URuFsgkMWDE", "letra": "X", "motivo": "mão de lado e borrada, o gancho do X não fica claro"}
  ]
 }
