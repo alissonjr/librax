@@ -7,7 +7,7 @@
  * - o seletor de idioma guarda a escolha e a faixa sugere o idioma do navegador quando ele é
  *   outro. O app fica em outro endereço: o idioma vai para ele no link (?lang=, config.ts).
  */
-import handUrl from './mao-3d.glb?url';
+import handUrl from '../../web-poc/src/mao3d/mao-3d.glb?url';
 import maos from './maos.json';
 import { bonesPath, easeStandard, lerpPose, HERO_LETTERS, type Pose } from './hands';
 import { detectPlatform, type Platform } from './install';

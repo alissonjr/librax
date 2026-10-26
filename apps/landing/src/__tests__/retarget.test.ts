@@ -5,13 +5,13 @@ import { Quaternion, Vector3 } from 'three';
 import {
   BONES, BONE_INDEX as B, FINGERS, clonePose, makeRig, mixPose, positions, retarget, solveCollisions, toLocal,
   type CollisionStats, type Detail,
-} from '../retarget';
+} from '../../../web-poc/src/mao3d/retarget';
 import maos from '../maos.json';
 import maosZ from '../maos-z.json';
 
 /** Ossos em repouso lidos direto do GLB (cabeçalho JSON do arquivo). */
 function rigFromGlb() {
-  const buf = readFileSync(resolve(__dirname, '../mao-3d.glb'));
+  const buf = readFileSync(resolve(__dirname, '../../../web-poc/src/mao3d/mao-3d.glb'));
   const len = buf.readUInt32LE(12);
   const gltf = JSON.parse(buf.subarray(20, 20 + len).toString('utf8')) as {
     nodes: { name?: string; translation?: number[]; rotation?: number[] }[];

@@ -39,7 +39,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import maos from './maos.json';
 import maosZ from './maos-z.json';
 import { HERO_LETTERS, easeStandard } from './hands';
-import { BONES, clonePose, makeRig, mixPose, positions, retarget, solveCollisions, type HandPose, type Rig } from './retarget';
+import { BONES, clonePose, makeRig, mixPose, positions, retarget, solveCollisions, type HandPose, type Rig } from '../../web-poc/src/mao3d/retarget';
 
 /**
  * Tons de pele (sRGB), do mais claro ao mais escuro. Ilustrativos: os dados da mão não dizem
