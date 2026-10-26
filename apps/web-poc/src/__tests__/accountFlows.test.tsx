@@ -1,15 +1,16 @@
-import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { openDB } from 'idb';
 
 // O avatar VLibras não roda no jsdom
+const vlibrasState = vi.hoisted(() => ({ status: 'error', progress: 0, playing: false, speed: 1, error: 'sem avatar' }));
 vi.mock('../lib/vlibras', () => ({
   VLIBRAS_SITE_URL: 'https://www.vlibras.gov.br/',
   VLIBRAS_LICENSE_URL: 'https://www.gnu.org/licenses/lgpl-3.0.html',
   VLIBRAS_SPEEDS: [1, 0.75, 0.5],
-  getVlibrasState: () => ({ status: 'error', progress: 0, playing: false, speed: 1, error: 'sem avatar' }),
+  getVlibrasState: () => vlibrasState,
   subscribeVlibras: () => () => {},
   attachVlibras: () => () => {},
   play: async () => false,
@@ -24,6 +25,8 @@ import { IdbRepo } from '../lib/idbRepo';
 import { upgradeLibraxDb } from '../lib/db';
 import { getToday } from '../lib/today';
 import type { LeagueResult } from '../lib/leagueLocal';
+import { initInstall, loadInviteState, recordInviteShown, resetInstallForTests } from '../lib/install';
+import { UA, firePromptEvent, setDevice, setDisplayMode } from './installTestUtils';
 
 let session: ReturnType<typeof useSession> | null = null;
 function Probe() {
@@ -32,10 +35,14 @@ function Probe() {
 }
 
 /** Sem as VITE_COGNITO_* (como nos testes e no ambiente local): login indisponível. */
-async function renderAt(entries: string[], opts: { brokenStreak?: number; leagueResult?: LeagueResult | null } = {}) {
+async function renderAt(entries: string[], opts: {
+  brokenStreak?: number;
+  leagueResult?: LeagueResult | null;
+  lessonsCompleted?: number;
+} = {}) {
   const db = await openDB(`librax-flows-${Date.now()}-${Math.random()}`, 1, { upgrade: upgradeLibraxDb });
   const repo = new IdbRepo(db, 'user-test');
-  await repo.saveProfile({ userId: 'user-test', xpTotal: 0, streak: 0, achievements: [] });
+  await repo.saveProfile({ userId: 'user-test', xpTotal: 0, streak: 0, achievements: [], lessonsCompleted: opts.lessonsCompleted ?? 0 });
   const router = createMemoryRouter(routes, { initialEntries: entries, initialIndex: entries.length - 1, future: ROUTER_FUTURE });
   render(
     <SessionProvider repo={repo} userId="user-test" brokenStreak={opts.brokenStreak ?? 0} leagueResult={opts.leagueResult ?? null}>
@@ -50,6 +57,7 @@ const path = (router: ReturnType<typeof createMemoryRouter>) => router.state.loc
 
 // Telas e sheets sob demanda: transforma os módulos antes, para o findBy não estourar em máquina ocupada
 beforeAll(async () => {
+  initInstall();
   await Promise.all([
     import('../lib/content'), import('../lib/leagueLocal'), import('../components/LeagueResultSheet'),
     import('../screens/CourseMapScreen'), import('../screens/LessonCompletionScreen'), import('../screens/AuthScreen'),
@@ -63,6 +71,15 @@ beforeEach(() => {
   localStorage.clear();
   sessionStorage.clear();
   localStorage.setItem('librax_displayName', 'Ana');
+  resetInstallForTests();
+  setDevice(UA.firefoxDesktop);
+  setDisplayMode(null);
+  Object.defineProperty(navigator, 'standalone', { value: undefined, configurable: true });
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 describe('AppOpenFlow (spec-02 12.10)', () => {
@@ -143,5 +160,94 @@ describe('conta sem Cognito (ambiente local)', () => {
     const router = await renderAt(['/perfil', '/configuracoes']);
     await userEvent.click(await screen.findByRole('button', { name: /Entrar na conta/ }));
     await waitFor(() => expect(path(router)).toBe('/entrar'));
+  });
+});
+
+describe('instalação no fluxo real', () => {
+  const title = 'Coloque o Librax na tela inicial';
+  const DAY = 24 * 60 * 60 * 1000;
+
+  it('a faixa aparece desde a primeira visita, apenas no mapa', async () => {
+    setDevice(UA.iphoneSafari, 5);
+    const router = await renderAt(['/aprender']);
+    expect(await screen.findByRole('region', { name: 'Use o Librax como app' })).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await act(() => router.navigate('/praticar'));
+    await screen.findByRole('navigation');
+    expect(screen.queryByRole('region', { name: 'Use o Librax como app' })).not.toBeInTheDocument();
+    await act(() => router.navigate('/licao/u1-l1'));
+    await screen.findByRole('progressbar');
+    expect(screen.queryByRole('region', { name: 'Use o Librax como app' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: title })).not.toBeInTheDocument();
+  });
+
+  it('convidado recebe o convite após a primeira lição e depois do pedido de conta', async () => {
+    setDevice(UA.iphoneSafari, 5);
+    const router = await renderAt(['/aprender']);
+    await screen.findByRole('navigation');
+    await act(async () => {
+      await session!.finishLesson({
+        lessonId: 'u1-l1', score: 0.9, xpReward: 10, signsLearnedDelta: 3, isLastLesson: false, reviewed: [],
+      });
+    });
+    await act(() => router.navigate('/licao/u1-l1/concluida'));
+    await userEvent.click(await screen.findByRole('button', { name: /Continuar/ }));
+    expect(await screen.findByRole('heading', { name: 'Salvar seu progresso' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: title })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('dialog').querySelector('.btn-primary') as HTMLElement);
+    expect(await screen.findByRole('heading', { name: title })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Use o Librax como app' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Entendi' }));
+    expect(loadInviteState()).toMatchObject({ count: 1, lessons: 1 });
+    await act(() => router.navigate('/perfil'));
+    await act(() => router.navigate('/aprender'));
+    await screen.findByText('Meta do dia');
+    expect(screen.queryByRole('heading', { name: title })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Use o Librax como app' })).not.toBeInTheDocument();
+  });
+
+  it('o convite espera os outros sheets e o voltar registra a dispensa', async () => {
+    setDevice(UA.iphoneSafari, 5);
+    const router = await renderAt(['/aprender'], { lessonsCompleted: 1, brokenStreak: 5 });
+    expect(await screen.findByRole('heading', { name: 'Sua sequência de 5 dias acabou' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: title })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Agora não' }));
+    expect(await screen.findByRole('heading', { name: title })).toBeInTheDocument();
+    await waitFor(() => expect(router.state.historyAction).toBe('PUSH'));
+    await act(() => router.navigate(-1));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(loadInviteState().count).toBe(1);
+    expect(path(router)).toBe('/aprender');
+  });
+
+  it('Android: recusar o pedido nativo registra o convite sem reabri-lo', async () => {
+    setDevice(UA.androidChrome, 5);
+    const event = firePromptEvent('dismissed');
+    await renderAt(['/aprender'], { lessonsCompleted: 1 });
+    await userEvent.click(await screen.findByRole('button', { name: 'Instalar' }));
+    await waitFor(() => expect(loadInviteState().count).toBe(1));
+    expect(event.prompt).toHaveBeenCalledTimes(1);
+    act(() => { firePromptEvent(); });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('voltar à aba dias depois reavalia a segunda oferta, sem exigir recarregar', async () => {
+    setDevice(UA.iphoneSafari, 5);
+    const now = Date.now();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(now);
+    recordInviteShown(1, now - 2 * DAY);
+    await renderAt(['/aprender'], { lessonsCompleted: 2 });
+    await screen.findByText('Meta do dia');
+    expect(session!.suggestInstall).toBe(false);
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    act(() => { document.dispatchEvent(new Event('visibilitychange')); });
+    vi.setSystemTime(now + DAY);
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+    act(() => { document.dispatchEvent(new Event('visibilitychange')); });
+    expect(await screen.findByRole('heading', { name: title })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Entendi' }));
+    expect(loadInviteState().count).toBe(2);
+    expect(session!.suggestInstall).toBe(false);
   });
 });

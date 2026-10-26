@@ -4,8 +4,7 @@ import { course } from '../lib/course';
 import { getToday } from '../lib/today';
 import { Flags } from '../lib/flags';
 import { enqueueLessonCompletion, flushOutbox } from '../lib/sync';
-import { useAccount } from '../lib/account';
-import { shouldSuggestInstall } from '../lib/install';
+import { loadInviteState, recordInviteShown, shouldSuggestInstall } from '../lib/install';
 import { evaluateAppOpen, onAppReopen } from '../lib/appOpen';
 import type { LeagueResult } from '../lib/leagueLocal';
 import type { IdbRepo } from '../lib/idbRepo';
@@ -40,8 +39,9 @@ interface SessionValue {
   /** AppOpenFlow, passo 2: sequência perdida detectada ao abrir o app (0 = nada a mostrar). */
   brokenStreak: number;
   dismissBrokenStreak: () => void;
-  /** Hora de sugerir instalar na tela inicial (shouldSuggestInstall, decisão 13). */
+  /** Hora do convite completo de instalar na tela inicial (shouldSuggestInstall, decisão 13). */
   suggestInstall: boolean;
+  /** O convite foi visto e fechado: conta para a repetição (uma vez só, dias depois). */
   markInstallSuggested: () => void;
   /** Grava a lição (domínio completeLesson) e prepara as telas de conclusão. */
   finishLesson: (result: LessonSessionResult) => Promise<AfterLesson>;
@@ -69,9 +69,9 @@ export function SessionProvider({
   const [courseCompletion, setCourseCompletion] = useState<CourseCompletionData | null>(null);
   const [brokenStreak, setBrokenStreak] = useState(initialBroken);
   const [leagueResult, setLeagueResult] = useState<LeagueResult | null>(initialLeague);
-  const [installSuggested, setInstallSuggested] = useState(Flags.installSuggested);
+  const [installInvite, setInstallInvite] = useState(loadInviteState);
   const [lessonsCompleted, setLessonsCompleted] = useState(0);
-  const account = useAccount();
+  const [installNow, setInstallNow] = useState(Date.now);
 
   // Lições concluídas (contando repetições) para a regra de instalar
   useEffect(() => {
@@ -84,6 +84,7 @@ export function SessionProvider({
 
   // Voltar ao app depois de horas conta como nova abertura: reavalia o AppOpenFlow
   useEffect(() => onAppReopen(() => {
+    setInstallNow(Date.now());
     evaluateAppOpen(repo, userId).then(steps => {
       if (steps.leagueResult) setLeagueResult(steps.leagueResult);
       if (steps.brokenStreak > 0) setBrokenStreak(steps.brokenStreak);
@@ -143,6 +144,7 @@ export function SessionProvider({
       .catch(() => {});
 
     setLessonsCompleted(n => n + 1);
+    setInstallNow(Date.now());
 
     setCompletion({
       result,
@@ -186,16 +188,12 @@ export function SessionProvider({
   const dismissBrokenStreak = useCallback(() => setBrokenStreak(0), []);
   const dismissLeagueResult = useCallback(() => setLeagueResult(null), []);
 
-  const suggestInstall = shouldSuggestInstall({
-    alreadySuggested: installSuggested,
-    lessonsCompleted,
-    hasAccount: account.status === 'signedIn',
-  });
+  // Para todos, com ou sem conta: depois da primeira lição e, dispensado, mais uma vez só
+  const suggestInstall = shouldSuggestInstall({ invite: installInvite, lessonsCompleted, now: installNow });
 
   const markInstallSuggested = useCallback(() => {
-    Flags.setInstallSuggested();
-    setInstallSuggested(true);
-  }, []);
+    setInstallInvite(recordInviteShown(lessonsCompleted));
+  }, [lessonsCompleted]);
 
   const showNotice = useCallback((key: string) => setNotice(key), []);
   const dismissNotice = useCallback(() => setNotice(null), []);

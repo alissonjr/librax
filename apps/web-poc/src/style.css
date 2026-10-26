@@ -4036,6 +4036,64 @@ button.profile-stat-card { cursor: pointer; }
   color: var(--lx-text-brand);
 }
 .install-step-icon .icon { width: var(--lx-size-icon-lg); height: var(--lx-size-icon-lg); }
+
+/* InstallBanner: faixa discreta no topo do mapa, card inteiro sem faixa lateral. Entra junto com o
+   conteúdo do mapa (o fade da troca de tela), sem animação própria e sem empurrar nada depois. */
+.install-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "icon text close" ". action .";
+  align-items: center;
+  gap: var(--lx-space-2);
+  min-height: var(--lx-size-touch-min);
+  padding: var(--lx-space-2) var(--lx-space-1) var(--lx-space-2) var(--lx-space-3);
+  border: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-bg-surface);
+}
+.install-banner-icon {
+  grid-area: icon;
+  display: inline-flex;
+  flex: none;
+  color: var(--lx-text-brand);
+}
+.install-banner-icon .icon { width: var(--lx-size-icon-lg); height: var(--lx-size-icon-lg); }
+.install-banner-text {
+  grid-area: text;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.install-banner-title {
+  font: var(--lx-typography-body-sm);
+  font-weight: var(--lx-font-weight-bold);
+  color: var(--lx-text-primary);
+}
+.install-banner-sub {
+  font: var(--lx-typography-caption);
+  color: var(--lx-text-secondary);
+}
+.install-banner-action {
+  grid-area: action;
+  justify-self: start;
+  max-width: 100%;
+  flex: none;
+  margin-bottom: 0;
+  touch-action: manipulation;
+}
+.install-banner-close {
+  grid-area: close;
+  color: var(--lx-text-secondary);
+  touch-action: manipulation;
+}
+.install-banner-close .icon { width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); }
+@media (min-width: 560px) {
+  .install-banner {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: "icon text action close";
+  }
+}
 .streak-sheet-title {
   font: var(--lx-typography-title);
   text-align: center;

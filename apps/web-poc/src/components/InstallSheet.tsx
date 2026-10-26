@@ -1,4 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
 import { useCloseOnBack } from '../hooks/useCloseOnBack';
@@ -34,7 +35,8 @@ export function InstallSheet({ mode, onClose }: Props) {
     onClose();
   }
 
-  return (
+  // Fora do conteúdo animado da aba: o diálogo cobre também a barra de navegação.
+  return createPortal(
     <div
       className={`streak-sheet-backdrop${visible ? ' streak-sheet-backdrop--visible' : ''}`}
       onClick={onClose}
@@ -86,6 +88,7 @@ export function InstallSheet({ mode, onClose }: Props) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -433,6 +433,23 @@
     "almost": "Almost!",
     "rightAnswer": "Right answer"
   },
+  "install": {
+    "bannerClose": "Close install suggestion",
+    "bannerHowTo": "How to install",
+    "bannerInstall": "Install the app",
+    "bannerSub": "Opens in one tap, full screen.",
+    "bannerSubIos": "From Safari, in two taps.",
+    "bannerTitle": "Use Librax as an app",
+    "install": "Install",
+    "iosStep1": "Tap Share in the Safari bar.",
+    "iosStep2": "Choose \"Add to Home Screen\".",
+    "notNow": "Not now",
+    "settingsLabel": "Install Librax",
+    "settingsValue": "Open it from your home screen, like an app",
+    "sub": "Open it straight from your home screen, full screen, and keep your progress safer on this device.",
+    "title": "Put Librax on your home screen",
+    "understood": "Got it"
+  },
   "language": {
     "select": "Select language",
     "title": "Language"

@@ -182,7 +182,17 @@ Convidado (100% local, sem Identity Pool: ele foi removido; migracao por `POST /
 - Conta solicitada apenas ao concluir a primeira licao (12.2).
 - `navigator.storage.persist()` e chamado sempre, ja no primeiro acesso, para reduzir o risco de o navegador apagar o progresso local.
 
-**Momento "instalar o app":** depois da primeira licao concluida **e** com conta criada, o app sugere "Adicionar a tela inicial" (Android: `beforeinstallprompt`; iPhone: instrucoes de "Compartilhar > Adicionar a Tela de Inicio"). Nunca obrigatorio. Instalado, o app ganha push no iPhone e fica livre da limpeza de 7 dias do Safari. Se a pessoa ainda for convidada, o pedido de conta vem antes (reforco do 12.2), e o mesmo reforco aparece antes de ligar lembretes. Se a pessoa nunca criar conta, a sugestao aparece depois da **terceira** licao concluida (repeticoes contam): no iPhone o app instalado e o que protege os dados de quem so joga como convidado. A sugestao aparece uma vez so, ao voltar para o mapa e depois dos sheets do AppOpenFlow (12.10); nas Configuracoes a opcao continua disponivel. Implementacao: `shouldSuggestInstall` em `apps/web-poc/src/lib/install.ts`.
+**Momento "instalar o app"** (revisto em 2026-10-25): duas formas, nunca obrigatorias. Instalado, o app ganha push no iPhone e fica livre da limpeza de 7 dias do Safari.
+
+- **Faixa no topo do mapa** (`InstallBanner`): desde a primeira visita, quando o app esta numa aba do navegador. Chrome e Edge (Android e computador): "Instalar o app" abre o pedido nativo guardado do `beforeinstallprompt`. Safari do iPhone e do iPad: "Como instalar" abre as instrucoes de "Compartilhar > Adicionar a Tela de Inicio". Onde nao da para instalar (navegador de dentro de outros apps no iOS, Chrome e Firefox do iPhone, Firefox no computador, navegador sem o evento) ela nao aparece. Pode ser fechada: volta so depois de 7 dias e, fechada 3 vezes, nao volta mais; recusar o pedido nativo ou fechar as instrucoes conta como fechar. Nao aparece junto com o convite completo nem nos 7 dias seguintes a ele ter sido dispensado. So existe no mapa: nunca na licao, nas boas-vindas, na camera nem na tela de abertura. A decisao de mostrar e tomada quando o mapa monta, para nao empurrar a tela depois; se o pedido nativo do Chrome chegar mais tarde, ela fica para a proxima vez que o mapa abrir.
+- **Convite completo** (`InstallSheet`): ao voltar para o mapa depois da **primeira** licao concluida, para todos, com ou sem conta (repeticoes contam), depois dos sheets do AppOpenFlow (12.10). Para convidados o pedido de conta do fim da licao (12.2) vem antes, e o mesmo reforco aparece antes de ligar lembretes. Dispensado, aparece **mais uma vez so**, passados 3 dias e com pelo menos mais uma licao concluida; depois disso, nunca mais.
+- **Nunca com o app instalado**: aberto como app (`display-mode: standalone`, `navigator.standalone` no iPhone) ou depois do evento `appinstalled` (guardado no aparelho), nada aparece.
+- Nas Configuracoes a opcao continua disponivel enquanto houver como instalar (12.8).
+
+Implementacao: `shouldShowInstallBanner`, `shouldSuggestInstall` e `getInstallMode` em `apps/web-poc/src/lib/install.ts`.
+Os fechamentos ficam guardados no aparelho; se o armazenamento estiver bloqueado, os limites continuam
+valendo durante a visita. Voltar a uma aba depois de horas tambem reavalia o prazo da segunda oferta,
+sem precisar recarregar a pagina. A flag antiga `installSuggested` conta como uma oferta ja vista.
 
 ### 12.2 ConvertAccountSheet (convidado -> conta)
 

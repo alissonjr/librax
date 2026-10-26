@@ -12,6 +12,7 @@ import { TraceArc, TraceOrbit, Wordmark } from '../components/Brand';
 import { latestLessonRun } from '../lib/lessonRun';
 import { scheduleCameraPrefetch } from '../lib/assetDownload';
 import { CameraPrepChip } from '../components/CameraPrepChip';
+import { InstallBanner } from '../components/InstallBanner';
 
 interface MapState {
   xpTotal: number;
@@ -30,6 +31,8 @@ interface Props {
   onStartLesson: (lessonId: string) => void;
   onOpenStreak: () => void;
   onOpenProfile: () => void;
+  /** O convite completo de instalar está na vez (AppOpenFlow): a faixa do topo não aparece junto. */
+  installInvitePending?: boolean;
 }
 
 function stars(score: number): number {
@@ -38,7 +41,9 @@ function stars(score: number): number {
   return 1;
 }
 
-export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onOpenProfile }: Props) {
+export function CourseMapScreen({
+  repo, userId, onStartLesson, onOpenStreak, onOpenProfile, installInvitePending = false,
+}: Props) {
   const { t } = useT();
   const [state, setState] = useState<MapState | null>(null);
   const today = getToday();
@@ -105,6 +110,9 @@ export function CourseMapScreen({ repo, userId, onStartLesson, onOpenStreak, onO
       </div>
 
       <div className="coursemap-body">
+        {/* Instalar o app: só numa aba do navegador, monta junto com o mapa (decisão 13) */}
+        <InstallBanner suppressed={installInvitePending} />
+
         {/* Daily Goal Bar */}
         <div className="xp-bar-card">
           <div className="xp-bar-header">

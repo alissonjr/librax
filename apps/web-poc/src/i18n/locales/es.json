@@ -411,6 +411,23 @@
     "almost": "¡Casi!",
     "rightAnswer": "Respuesta correcta"
   },
+  "install": {
+    "bannerClose": "Cerrar sugerencia de instalación",
+    "bannerHowTo": "Cómo instalar",
+    "bannerInstall": "Instalar la app",
+    "bannerSub": "Se abre con un toque, en pantalla completa.",
+    "bannerSubIos": "Desde Safari, en dos toques.",
+    "bannerTitle": "Usa Librax como app",
+    "install": "Instalar",
+    "iosStep1": "Toca Compartir, en la barra de Safari.",
+    "iosStep2": "Elige \"Agregar a inicio\".",
+    "notNow": "Ahora no",
+    "settingsLabel": "Instalar Librax",
+    "settingsValue": "Ábrelo desde la pantalla de inicio, como una app",
+    "sub": "Ábrelo directo desde la pantalla de inicio, en pantalla completa, y protege mejor tu progreso en el dispositivo.",
+    "title": "Pon Librax en tu pantalla de inicio",
+    "understood": "Entendido"
+  },
   "language": {
     "select": "Selecciona el idioma",
     "title": "Idioma"
