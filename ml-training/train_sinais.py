@@ -27,9 +27,10 @@ alguma janela com p >= MIN_P, e a leitura só conta com CONFIRMA avaliações se
 Uso:
     python train_sinais.py avaliar --dataset data/sinais15/dataset.npz --landmarks data/sinais15/landmarks \\
         --rotulos data/sinais15/rotulos [--passos 8] [--ocultas 256,128] [--congeladas 2] [--salvar res.json]
-    python train_sinais.py treinar --out PASTA (mesmas opções) [--resultados res.json]
+    python train_sinais.py treinar --out PASTA (mesmas opções) [--resultados res.json ...]
         com --resultados (o --salvar do avaliar), o model.json leva em camera_signs só os sinais que
-        passaram na validação cruzada e no dicionário (MIN_ACERTO_CAMERA)
+        passaram na validação cruzada e no dicionário (MIN_ACERTO_CAMERA); com mais de um arquivo
+        (avaliar --semente N muda a divisão dos canais), só os que passaram em todos
     (LIBRAX_DATA=/caminho/data aponta para a pasta de dados)
 """
 
@@ -51,7 +52,7 @@ DATA = os.environ.get("LIBRAX_DATA") or os.path.join(AQUI, "data")
 DATASET = os.path.join(DATA, "dataset_sinais.npz")
 
 PASSOS = 8
-MIN_PESSOAS = 3
+MIN_PESSOAS = 6
 MIN_P = 0.6  # mesmo limiar das letras
 NENHUM = "_"
 DICIONARIO = "dic-"
@@ -72,7 +73,7 @@ FOLGA_S = 1.0
 OCULTAS = (256, 128)
 ALPHA = 1e-2
 AUMENTO = 3
-MAX_NENHUM = 1.5
+MAX_NENHUM = 3.0
 
 # Sinal só ganha câmera no app com pelo menos esta fração certa nos vídeos deixados de fora da
 # validação cruzada (no trecho, com pelo menos MIN_TESTE vídeos) e, quando há pelo menos
@@ -438,7 +439,9 @@ def avaliar(args):
     res_cv = []
     probs = np.zeros((len(y), len(classes)))
     testado = np.zeros(len(y), dtype=bool)
-    for k, (_, te) in enumerate(GroupKFold(args.grupos).split(canais, groups=canais)):
+    # --semente: outra divisão dos canais em grupos (confere se o acerto por sinal se repete)
+    gk = GroupKFold(args.grupos, shuffle=True, random_state=args.semente) if args.semente else GroupKFold(args.grupos)
+    for k, (_, te) in enumerate(gk.split(canais, groups=canais)):
         fora = set(canais[te])
         tr = np.array([p not in fora for p in pessoa])
         prever = ajustar(X[tr], y[tr], cfg, seed=k)
@@ -518,9 +521,13 @@ def treinar(args):
         "people": int(len({p for p in pessoa if not p.startswith(DICIONARIO)})), "source": "scikit-learn",
     }
     if args.resultados:
-        with open(args.resultados) as f:
-            res = json.load(f)
-        camera = [g for g in sinais_camera(res) if g in labels]
+        # com mais de um arquivo (divisões diferentes dos canais), o sinal precisa passar em todos
+        todos = []
+        for path in args.resultados:
+            with open(path) as f:
+                todos.append(json.load(f))
+        res = todos[0]
+        camera = [g for g in sinais_camera(res) if g in labels and all(g in sinais_camera(r) for r in todos[1:])]
         extra.update({
             "camera_signs": camera, "camera_min_heldout": MIN_ACERTO_CAMERA,
             "heldout": {g: {"certas": v["trecho"][0], "total": v["trecho"][1]} for g, v in sorted(res["cv"].items())},
@@ -557,9 +564,10 @@ def main():
     a.add_argument("--grupos", type=int, default=5)
     a.add_argument("--processos", type=int, default=4)
     a.add_argument("--salvar", default="")
+    a.add_argument("--semente", type=int, default=0, help="divisão sorteada dos canais nos grupos")
     t = sub.choices["treinar"]
     t.add_argument("--out", required=True)
-    t.add_argument("--resultados", default="")
+    t.add_argument("--resultados", nargs="*", default=[], help="o --salvar do avaliar (um ou mais)")
     args = ap.parse_args()
     if args.cmd == "avaliar":
         avaliar(args)

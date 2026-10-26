@@ -15,7 +15,7 @@ entram no treino) e do piloto de sinais (`ml-training/train_sinais.py`).
 | Câmera reconhecia 10 letras, por regras de dedos | Modelo v6 reconhece 24 letras paradas e "nenhuma letra" |
 | Mão parada ou aberta virava letra (o "A" fantasma) | Mão em repouso vira letra em 2,7% dos casos (antes 29,5%) |
 | Sem medida honesta de acerto | Teste fixo: 83,5% das letras em pessoas nunca vistas |
-| Sinais com movimento só como prática livre | App pronto para avaliar sinais quando houver modelo; piloto de 20 sinais acerta cerca de 50% |
+| Sinais com movimento só como prática livre | Modelo de 64 sinais a 15 quadros por segundo; a câmera avalia os 10 que passaram de 70% com pessoas nunca vistas |
 | Descrições escritas sem conferir com quem sinaliza | Descrições comparadas com dezenas de professores (o T estava no alfabeto americano) |
 
 ## 1. Câmera em mais letras (prioridade alta)
@@ -84,12 +84,18 @@ americano. O mesmo cruzamento vale para todo o alfabeto e os números:
 O app já avalia sinais quando existe `public/ml/sinais/model.json` (componente
 `ExerciseCameraMotionSign`). Para ligar isso nas lições:
 
-- Instalar o modelo só com os sinais que passarem de 70% no teste com pessoas nunca vistas; os
-  outros continuam como prática livre, sem nota. O app já faz essa separação por glosa.
+- (Feito) Instalar o modelo só com os sinais que passarem de 70% no teste com pessoas nunca vistas
+  (camera_signs no model.json); os outros continuam como prática livre, sem nota. Em 2026-10-25,
+  com os landmarks refeitos a 15 quadros por segundo (mãos e corpo, `video/extrair_sinais.py`):
+  ACORDAR, CANSADO, FEIJÃO, HOSPITAL, IDADE, JUNHO, LARANJA, OVO, POR-FAVOR e PREOCUPADO passaram
+  em duas divisões diferentes dos canais. No geral, 53% dos 64 sinais confirmados no trecho certo.
 - (Feito) Exigir duas leituras seguidas da mesma glosa antes de mostrar "Vimos X", porque no teste ao vivo
   apareceram leituras passageiras erradas antes do acerto.
-- Mão dominante calculada por janela também no treino (hoje é por vídeo inteiro), para bater com
-  o app.
+- (Feito) Mão dominante calculada por janela também no treino, como o app (buffer de 2,5 s).
+- Mão levantada e parada ainda vira sinal em cerca de 38% das janelas paradas (janela a janela);
+  as janelas "congeladas" no treino derrubam isso para 7%, mas tiram 10 pontos do acerto.
+- Os vídeos curtos de dicionário (INES, Spread the Sign) quase não confirmam leitura (cerca de
+  25%): falta testar com gente de verdade na câmera.
 - Começar pelas unidades com mais sinais que o modelo já cobre (comida, sentimentos, tempo).
 
 ## 6. Números (prioridade baixa)

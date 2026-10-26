@@ -1,0 +1,635 @@
+{
+  "format": "librax-mlp",
+  "format_version": 1,
+  "normalization_version": 2,
+  "input_dim": 1120,
+  "labels": [
+    "ACORDAR",
+    "ALMOÇO",
+    "AMIGO",
+    "ARROZ",
+    "BEBER",
+    "BRANCO",
+    "CAMA",
+    "CANSADO",
+    "CASA",
+    "COMER",
+    "COMUNIDADE",
+    "CULTURA",
+    "DOENTE",
+    "DORMIR",
+    "ENCONTRAR",
+    "ESCOLA",
+    "ESTUDAR",
+    "FAMÍLIA",
+    "FARMÁCIA",
+    "FEIJÃO",
+    "FELIZ",
+    "FEVEREIRO",
+    "FRUTA",
+    "HOMEM",
+    "HOSPITAL",
+    "IDADE",
+    "IRMÃO",
+    "JANEIRO",
+    "JUNHO",
+    "LARANJA",
+    "MAIO",
+    "MANHÃ",
+    "MEIO-DIA",
+    "MESA",
+    "MORAR",
+    "MÃE",
+    "NERVOSO",
+    "OBRIGADO",
+    "OI",
+    "ONTEM",
+    "OUTUBRO",
+    "OVO",
+    "PAGAR",
+    "PERGUNTAR",
+    "POR-FAVOR",
+    "PRAZER",
+    "PREOCUPADO",
+    "QUARTO",
+    "RESPONDER",
+    "RESTAURANTE",
+    "SEGUNDA-FEIRA",
+    "SEMANA",
+    "SETEMBRO",
+    "SIM",
+    "SINAL",
+    "TCHAU",
+    "TERÇA-FEIRA",
+    "TIA",
+    "TIO",
+    "TRABALHAR",
+    "TRISTE",
+    "TUDO-BEM",
+    "VERDE",
+    "VIR",
+    "_"
+  ],
+  "layers": [
+    {
+      "in": 1120,
+      "out": 256,
+      "activation": "relu"
+    },
+    {
+      "in": 256,
+      "out": 128,
+      "activation": "relu"
+    },
+    {
+      "in": 128,
+      "out": 65,
+      "activation": "softmax"
+    }
+  ],
+  "weights": {
+    "file": "weights.bin",
+    "dtype": "float32",
+    "byte_length": 1313028
+  },
+  "kind": "sinais",
+  "frames": 8,
+  "features_per_frame": 140,
+  "window_frames": 24,
+  "windows_s": [
+    1.0,
+    1.5,
+    2.0
+  ],
+  "people": 260,
+  "source": "scikit-learn",
+  "camera_signs": [
+    "ACORDAR",
+    "CANSADO",
+    "FEIJÃO",
+    "HOSPITAL",
+    "IDADE",
+    "JUNHO",
+    "LARANJA",
+    "OVO",
+    "POR-FAVOR",
+    "PREOCUPADO"
+  ],
+  "camera_min_heldout": 0.7,
+  "heldout": {
+    "ACORDAR": {
+      "certas": 14,
+      "total": 19
+    },
+    "ALMOÇO": {
+      "certas": 3,
+      "total": 6
+    },
+    "AMIGO": {
+      "certas": 6,
+      "total": 12
+    },
+    "ARROZ": {
+      "certas": 12,
+      "total": 21
+    },
+    "BEBER": {
+      "certas": 5,
+      "total": 14
+    },
+    "BRANCO": {
+      "certas": 2,
+      "total": 14
+    },
+    "CAMA": {
+      "certas": 9,
+      "total": 15
+    },
+    "CANSADO": {
+      "certas": 13,
+      "total": 15
+    },
+    "CASA": {
+      "certas": 5,
+      "total": 8
+    },
+    "COMER": {
+      "certas": 5,
+      "total": 7
+    },
+    "COMUNIDADE": {
+      "certas": 3,
+      "total": 10
+    },
+    "CULTURA": {
+      "certas": 2,
+      "total": 7
+    },
+    "DOENTE": {
+      "certas": 4,
+      "total": 11
+    },
+    "DORMIR": {
+      "certas": 5,
+      "total": 13
+    },
+    "ENCONTRAR": {
+      "certas": 3,
+      "total": 9
+    },
+    "ESCOLA": {
+      "certas": 2,
+      "total": 8
+    },
+    "ESTUDAR": {
+      "certas": 4,
+      "total": 7
+    },
+    "FAMÍLIA": {
+      "certas": 6,
+      "total": 7
+    },
+    "FARMÁCIA": {
+      "certas": 8,
+      "total": 31
+    },
+    "FEIJÃO": {
+      "certas": 17,
+      "total": 21
+    },
+    "FELIZ": {
+      "certas": 10,
+      "total": 12
+    },
+    "FEVEREIRO": {
+      "certas": 10,
+      "total": 15
+    },
+    "FRUTA": {
+      "certas": 1,
+      "total": 10
+    },
+    "HOMEM": {
+      "certas": 11,
+      "total": 16
+    },
+    "HOSPITAL": {
+      "certas": 12,
+      "total": 14
+    },
+    "IDADE": {
+      "certas": 13,
+      "total": 17
+    },
+    "IRMÃO": {
+      "certas": 13,
+      "total": 19
+    },
+    "JANEIRO": {
+      "certas": 0,
+      "total": 7
+    },
+    "JUNHO": {
+      "certas": 23,
+      "total": 25
+    },
+    "LARANJA": {
+      "certas": 15,
+      "total": 19
+    },
+    "MAIO": {
+      "certas": 7,
+      "total": 16
+    },
+    "MANHÃ": {
+      "certas": 3,
+      "total": 9
+    },
+    "MEIO-DIA": {
+      "certas": 2,
+      "total": 6
+    },
+    "MESA": {
+      "certas": 6,
+      "total": 17
+    },
+    "MORAR": {
+      "certas": 1,
+      "total": 8
+    },
+    "MÃE": {
+      "certas": 6,
+      "total": 6
+    },
+    "NERVOSO": {
+      "certas": 3,
+      "total": 19
+    },
+    "OBRIGADO": {
+      "certas": 13,
+      "total": 17
+    },
+    "OI": {
+      "certas": 4,
+      "total": 10
+    },
+    "ONTEM": {
+      "certas": 10,
+      "total": 17
+    },
+    "OUTUBRO": {
+      "certas": 11,
+      "total": 16
+    },
+    "OVO": {
+      "certas": 11,
+      "total": 15
+    },
+    "PAGAR": {
+      "certas": 3,
+      "total": 16
+    },
+    "PERGUNTAR": {
+      "certas": 4,
+      "total": 7
+    },
+    "POR-FAVOR": {
+      "certas": 12,
+      "total": 13
+    },
+    "PRAZER": {
+      "certas": 13,
+      "total": 16
+    },
+    "PREOCUPADO": {
+      "certas": 8,
+      "total": 8
+    },
+    "QUARTO": {
+      "certas": 5,
+      "total": 11
+    },
+    "RESPONDER": {
+      "certas": 4,
+      "total": 12
+    },
+    "RESTAURANTE": {
+      "certas": 4,
+      "total": 11
+    },
+    "SEGUNDA-FEIRA": {
+      "certas": 10,
+      "total": 16
+    },
+    "SEMANA": {
+      "certas": 5,
+      "total": 10
+    },
+    "SETEMBRO": {
+      "certas": 0,
+      "total": 16
+    },
+    "SIM": {
+      "certas": 3,
+      "total": 12
+    },
+    "SINAL": {
+      "certas": 1,
+      "total": 8
+    },
+    "TCHAU": {
+      "certas": 8,
+      "total": 16
+    },
+    "TERÇA-FEIRA": {
+      "certas": 11,
+      "total": 17
+    },
+    "TIA": {
+      "certas": 5,
+      "total": 14
+    },
+    "TIO": {
+      "certas": 4,
+      "total": 12
+    },
+    "TRABALHAR": {
+      "certas": 4,
+      "total": 7
+    },
+    "TRISTE": {
+      "certas": 14,
+      "total": 19
+    },
+    "TUDO-BEM": {
+      "certas": 4,
+      "total": 6
+    },
+    "VERDE": {
+      "certas": 5,
+      "total": 14
+    },
+    "VIR": {
+      "certas": 3,
+      "total": 7
+    }
+  },
+  "dictionary": {
+    "ACORDAR": {
+      "certas": 0,
+      "total": 2
+    },
+    "ALMOÇO": {
+      "certas": 1,
+      "total": 2
+    },
+    "AMIGO": {
+      "certas": 0,
+      "total": 2
+    },
+    "ARROZ": {
+      "certas": 2,
+      "total": 2
+    },
+    "BEBER": {
+      "certas": 0,
+      "total": 2
+    },
+    "BRANCO": {
+      "certas": 0,
+      "total": 2
+    },
+    "CAMA": {
+      "certas": 0,
+      "total": 2
+    },
+    "CANSADO": {
+      "certas": 0,
+      "total": 2
+    },
+    "CASA": {
+      "certas": 0,
+      "total": 2
+    },
+    "COMER": {
+      "certas": 0,
+      "total": 2
+    },
+    "COMUNIDADE": {
+      "certas": 0,
+      "total": 1
+    },
+    "CULTURA": {
+      "certas": 0,
+      "total": 1
+    },
+    "DOENTE": {
+      "certas": 1,
+      "total": 2
+    },
+    "DORMIR": {
+      "certas": 1,
+      "total": 2
+    },
+    "ENCONTRAR": {
+      "certas": 2,
+      "total": 2
+    },
+    "ESCOLA": {
+      "certas": 1,
+      "total": 2
+    },
+    "ESTUDAR": {
+      "certas": 0,
+      "total": 2
+    },
+    "FAMÍLIA": {
+      "certas": 1,
+      "total": 2
+    },
+    "FARMÁCIA": {
+      "certas": 0,
+      "total": 1
+    },
+    "FEIJÃO": {
+      "certas": 1,
+      "total": 2
+    },
+    "FELIZ": {
+      "certas": 1,
+      "total": 4
+    },
+    "FEVEREIRO": {
+      "certas": 2,
+      "total": 2
+    },
+    "FRUTA": {
+      "certas": 1,
+      "total": 2
+    },
+    "HOMEM": {
+      "certas": 0,
+      "total": 2
+    },
+    "HOSPITAL": {
+      "certas": 0,
+      "total": 2
+    },
+    "IDADE": {
+      "certas": 1,
+      "total": 2
+    },
+    "IRMÃO": {
+      "certas": 0,
+      "total": 2
+    },
+    "JANEIRO": {
+      "certas": 0,
+      "total": 2
+    },
+    "JUNHO": {
+      "certas": 1,
+      "total": 2
+    },
+    "LARANJA": {
+      "certas": 2,
+      "total": 3
+    },
+    "MAIO": {
+      "certas": 0,
+      "total": 2
+    },
+    "MANHÃ": {
+      "certas": 0,
+      "total": 2
+    },
+    "MEIO-DIA": {
+      "certas": 0,
+      "total": 1
+    },
+    "MESA": {
+      "certas": 1,
+      "total": 2
+    },
+    "MORAR": {
+      "certas": 0,
+      "total": 1
+    },
+    "MÃE": {
+      "certas": 1,
+      "total": 2
+    },
+    "NERVOSO": {
+      "certas": 0,
+      "total": 2
+    },
+    "OBRIGADO": {
+      "certas": 1,
+      "total": 2
+    },
+    "OI": {
+      "certas": 0,
+      "total": 1
+    },
+    "ONTEM": {
+      "certas": 1,
+      "total": 2
+    },
+    "OUTUBRO": {
+      "certas": 1,
+      "total": 2
+    },
+    "OVO": {
+      "certas": 0,
+      "total": 2
+    },
+    "PAGAR": {
+      "certas": 0,
+      "total": 2
+    },
+    "PERGUNTAR": {
+      "certas": 0,
+      "total": 2
+    },
+    "POR-FAVOR": {
+      "certas": 1,
+      "total": 2
+    },
+    "PRAZER": {
+      "certas": 1,
+      "total": 3
+    },
+    "PREOCUPADO": {
+      "certas": 1,
+      "total": 2
+    },
+    "QUARTO": {
+      "certas": 0,
+      "total": 1
+    },
+    "RESPONDER": {
+      "certas": 1,
+      "total": 2
+    },
+    "RESTAURANTE": {
+      "certas": 0,
+      "total": 2
+    },
+    "SEGUNDA-FEIRA": {
+      "certas": 1,
+      "total": 2
+    },
+    "SEMANA": {
+      "certas": 0,
+      "total": 2
+    },
+    "SETEMBRO": {
+      "certas": 0,
+      "total": 2
+    },
+    "SIM": {
+      "certas": 0,
+      "total": 1
+    },
+    "SINAL": {
+      "certas": 0,
+      "total": 2
+    },
+    "TCHAU": {
+      "certas": 1,
+      "total": 2
+    },
+    "TERÇA-FEIRA": {
+      "certas": 0,
+      "total": 1
+    },
+    "TIA": {
+      "certas": 0,
+      "total": 1
+    },
+    "TIO": {
+      "certas": 0,
+      "total": 1
+    },
+    "TRABALHAR": {
+      "certas": 0,
+      "total": 2
+    },
+    "TRISTE": {
+      "certas": 1,
+      "total": 2
+    },
+    "TUDO-BEM": {
+      "certas": 0,
+      "total": 2
+    },
+    "VERDE": {
+      "certas": 0,
+      "total": 2
+    },
+    "VIR": {
+      "certas": 0,
+      "total": 2
+    }
+  }
+}
