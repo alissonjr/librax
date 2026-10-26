@@ -920,5 +920,93 @@
     "statXp": "XP ganhos",
     "title": "Unidade {num} concluída!"
   },
-  "useDialog": {}
+  "useDialog": {},
+  "wrongHint": {
+    "title": "A câmera viu {read}",
+    "askedLabel": "Você precisa fazer",
+    "readLabel": "A câmera viu",
+    "difference": "Diferença: {text}",
+    "compare": "Compare as duas mãos.",
+    "spoken": "A câmera viu {read}. Você precisa fazer {asked}: {text}.",
+    "spokenNoDiff": "A câmera viu {read}. Você precisa fazer {asked}.",
+    "dismiss": "Entendi",
+    "dismissLabel": "Fechar a dica e continuar tentando",
+    "handsLabel": "Mão em 3D fazendo {what}, com os dedos que mudam destacados",
+    "handsLabelMove": "Mão em 3D fazendo {what}, com o movimento",
+    "playMove": "Ver o movimento",
+    "pauseMove": "Pausar o movimento",
+    "loading": "Preparando as mãos",
+    "highlightNote": "Em destaque: o que muda",
+    "letter": "o {g}",
+    "number": "o {g}",
+    "and": "{a} e {b}",
+    "list2": "{a} e {b}",
+    "list3": "{a}, {b} e {c}",
+    "allFingers": "os quatro dedos",
+    "one": "{finger} fica {state}",
+    "many": "{fingers} ficam {state}",
+    "finger": {
+      "thumb": "o polegar",
+      "index": "o indicador",
+      "middle": "o médio",
+      "ring": "o anelar",
+      "pinky": "o mínimo"
+    },
+    "fingerOf": {
+      "index": "do indicador",
+      "middle": "do médio",
+      "ring": "do anelar",
+      "pinky": "do mínimo"
+    },
+    "fingerOn": {
+      "index": "no indicador",
+      "middle": "no médio",
+      "ring": "no anelar",
+      "pinky": "no mínimo"
+    },
+    "state": {
+      "esticado": "esticado",
+      "curvado": "curvado",
+      "dobrado": "dobrado",
+      "maisDobrado": "mais dobrado",
+      "maisEsticado": "mais esticado"
+    },
+    "statePlural": {
+      "esticado": "esticados",
+      "curvado": "curvados",
+      "dobrado": "dobrados",
+      "maisDobrado": "mais dobrados",
+      "maisEsticado": "mais esticados"
+    },
+    "gap": {
+      "juntos": "{fingers} ficam juntos",
+      "separados": "{fingers} ficam separados"
+    },
+    "cross": {
+      "cruzados": "o indicador e o médio ficam cruzados",
+      "ladoALado": "o indicador e o médio ficam lado a lado, sem cruzar"
+    },
+    "thumb": {
+      "tocaPontas": "o polegar toca a ponta dos dedos",
+      "tocaPonta": "o polegar toca a ponta {of}",
+      "encosta": "o polegar encosta {on}",
+      "aoLado": "o polegar fica ao lado do indicador",
+      "porCima": "o polegar fica por cima dos dedos",
+      "porBaixo": "o polegar fica por baixo dos dedos",
+      "lado": "o polegar fica esticado para o lado",
+      "frente": "o polegar fica afastado, na frente da palma",
+      "dobrado": "o polegar fica dobrado junto da palma"
+    },
+    "direction": {
+      "cima": "a mão aponta para cima",
+      "baixo": "a mão aponta para baixo",
+      "lado": "a mão aponta para o lado",
+      "frente": "a mão aponta para a frente"
+    },
+    "move": {
+      "pedidoMove": "{what} tem movimento",
+      "pedidoParado": "{what} fica parado, sem movimento",
+      "outroMovimento": "{what} tem outro movimento"
+    }
+  }
 }

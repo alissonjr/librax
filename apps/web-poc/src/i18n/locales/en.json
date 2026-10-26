@@ -810,5 +810,93 @@
     "statXp": "XP earned",
     "title": "Unit {num} completed!"
   },
-  "useDialog": {}
+  "useDialog": {},
+  "wrongHint": {
+    "title": "The camera saw {read}",
+    "askedLabel": "You need to make",
+    "readLabel": "The camera saw",
+    "difference": "Difference: {text}",
+    "compare": "Compare the two hands.",
+    "spoken": "The camera saw {read}. You need to make {asked}: {text}.",
+    "spokenNoDiff": "The camera saw {read}. You need to make {asked}.",
+    "dismiss": "Got it",
+    "dismissLabel": "Close the hint and keep trying",
+    "handsLabel": "3D hand making {what}, with the fingers that change highlighted",
+    "handsLabelMove": "3D hand making {what}, with its movement",
+    "playMove": "See the movement",
+    "pauseMove": "Pause the movement",
+    "loading": "Preparing the hands",
+    "highlightNote": "Highlighted: what changes",
+    "letter": "{g}",
+    "number": "{g}",
+    "and": "{a} and {b}",
+    "list2": "{a} and {b}",
+    "list3": "{a}, {b} and {c}",
+    "allFingers": "all four fingers",
+    "one": "{finger} is {state}",
+    "many": "{fingers} are {state}",
+    "finger": {
+      "thumb": "the thumb",
+      "index": "the index finger",
+      "middle": "the middle finger",
+      "ring": "the ring finger",
+      "pinky": "the little finger"
+    },
+    "fingerOf": {
+      "index": "of the index finger",
+      "middle": "of the middle finger",
+      "ring": "of the ring finger",
+      "pinky": "of the little finger"
+    },
+    "fingerOn": {
+      "index": "the index finger",
+      "middle": "the middle finger",
+      "ring": "the ring finger",
+      "pinky": "the little finger"
+    },
+    "state": {
+      "esticado": "straight",
+      "curvado": "curved",
+      "dobrado": "folded down",
+      "maisDobrado": "bent more",
+      "maisEsticado": "straighter"
+    },
+    "statePlural": {
+      "esticado": "straight",
+      "curvado": "curved",
+      "dobrado": "folded down",
+      "maisDobrado": "bent more",
+      "maisEsticado": "straighter"
+    },
+    "gap": {
+      "juntos": "{fingers} stay together",
+      "separados": "{fingers} stay apart"
+    },
+    "cross": {
+      "cruzados": "the index and middle fingers are crossed",
+      "ladoALado": "the index and middle fingers stay side by side, not crossed"
+    },
+    "thumb": {
+      "tocaPontas": "the thumb touches the fingertips",
+      "tocaPonta": "the thumb touches the tip {of}",
+      "encosta": "the thumb rests against {on}",
+      "aoLado": "the thumb sits beside the index finger",
+      "porCima": "the thumb goes over the fingers",
+      "porBaixo": "the thumb goes under the fingers",
+      "lado": "the thumb sticks out to the side",
+      "frente": "the thumb stays apart, in front of the palm",
+      "dobrado": "the thumb is folded against the palm"
+    },
+    "direction": {
+      "cima": "the hand points up",
+      "baixo": "the hand points down",
+      "lado": "the hand points to the side",
+      "frente": "the hand points forward"
+    },
+    "move": {
+      "pedidoMove": "{what} has a movement",
+      "pedidoParado": "{what} stays still, with no movement",
+      "outroMovimento": "{what} has a different movement"
+    }
+  }
 }

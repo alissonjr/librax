@@ -1,0 +1,138 @@
+/* =========================================================
+   DICA DE ERRO da câmera (src/dicaErro/WrongReadingHint.tsx)
+   Painel sobre o palco, no lugar do alvo e acima da câmera. Só tokens de src/styles/tokens.css.
+   Destaque dos dedos em stage.landmark.retry (o dedo a ajustar), sempre com o texto junto.
+   Sem faixa colorida lateral: o âmbar aparece no ícone, nos dedos e na amostra da legenda.
+   ========================================================= */
+
+.wrong-hint {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--lx-space-3);
+  background: var(--lx-stage-surface);
+  color: var(--lx-stage-text);
+  border: var(--lx-border-width-thin) solid var(--lx-stage-border);
+  border-radius: var(--lx-radius-lg);
+  animation: lx-fade-in var(--lx-motion-duration-fast) var(--lx-motion-easing-decelerate);
+}
+
+.wrong-hint-head {
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-2);
+  min-height: var(--lx-size-touch-min);
+}
+.wrong-hint-icon {
+  flex: none;
+  width: var(--lx-size-icon-md);
+  height: var(--lx-size-icon-md);
+  color: var(--lx-stage-landmark-retry);
+}
+.wrong-hint-title {
+  flex: 1;
+  margin: 0;
+  font: var(--lx-typography-title-sm);
+  color: var(--lx-stage-text);
+}
+.wrong-hint-close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--lx-size-touch-min);
+  height: var(--lx-size-touch-min);
+  margin: calc(-1 * var(--lx-space-2)) calc(-1 * var(--lx-space-2)) calc(-1 * var(--lx-space-2)) 0;
+  border: 0;
+  border-radius: var(--lx-radius-full);
+  background: transparent;
+  color: var(--lx-stage-text-secondary);
+  cursor: pointer;
+}
+.wrong-hint-close .icon { width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); }
+
+.wrong-hint-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lx-space-2);
+}
+.wrong-hint-hand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lx-space-1);
+  margin: 0;
+  min-width: 0;
+}
+.wrong-hint-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 168px;
+  border-radius: var(--lx-radius-md);
+  overflow: hidden;
+  background: var(--lx-stage-bg);
+}
+.wrong-hint-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.wrong-hint-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lx-stage-text-secondary);
+}
+.wrong-hint-hand figcaption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.wrong-hint-label {
+  font: var(--lx-typography-caption);
+  color: var(--lx-stage-text-secondary);
+}
+.wrong-hint-gloss {
+  font: var(--lx-typography-title);
+  color: var(--lx-stage-text);
+}
+.wrong-hint-gloss--asked { color: var(--lx-stage-trace); }
+
+.wrong-hint-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lx-space-2) var(--lx-space-3);
+}
+.wrong-hint-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lx-space-1);
+  font: var(--lx-typography-caption);
+  color: var(--lx-stage-text-secondary);
+}
+.wrong-hint-swatch {
+  width: var(--lx-space-3);
+  height: var(--lx-space-3);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-stage-landmark-retry);
+}
+
+.wrong-hint-line {
+  margin: 0;
+  font: var(--lx-typography-body);
+  font-weight: var(--lx-font-weight-semibold);
+  color: var(--lx-stage-text);
+  text-align: center;
+}
+.wrong-hint-ok { align-self: center; }

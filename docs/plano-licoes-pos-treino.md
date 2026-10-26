@@ -59,11 +59,21 @@ O teste fixo mostra as trocas mais comuns: K lida como H, P como K, R como U, F 
 como H ou N. Em vez de só "tente de novo", a lição diz o que diferencia a letra pedida da letra que
 a câmera leu.
 
-- O texto de cada dica sai da diferença entre os `CM` das duas letras no `signs.json`, conferida
-  nos vídeos (seção 4) antes de ir para a lição. Não escrever dica de memória: foi assim que o T
-  do alfabeto americano entrou no curso.
-- As dicas ficam em `signs.json` (um campo por troca) e aparecem depois de duas leituras seguidas
-  da letra errada, para não reagir a leituras passageiras.
+Feito como dica visual (substitui a ideia de dicas em texto no `signs.json`), em
+`apps/web-poc/src/dicaErro/`:
+
+- A mão em 3D do sinal pedido e a do sinal lido, lado a lado, com os dedos que mudam destacados
+  (`stage.landmark.retry`) e uma linha com a diferença ("Diferença: o indicador e o médio ficam
+  juntos"). Nada escrito de memória: a diferença sai das mesmas mãos reais da mão em 3D
+  (`maos-licoes.json`), depois do retargeting e da colisão, e vira palavras de um vocabulário
+  pequeno em i18n (`wrongHint.*`: dedo esticado, curvado ou dobrado, dedos juntos, separados ou
+  cruzados, onde fica o polegar, para onde a mão aponta e, nas letras com movimento, o movimento).
+- `scripts/gerar-dicas-erro.ts` calcula os pares que acontecem (trocas do classificador no teste
+  fixo, dos números nas pessoas de teste, das letras com movimento, as de mesma forma com e sem
+  movimento como C e Ç, e as desta seção) em `src/dicaErro/dicas-erro.json`; o app só lê.
+- Abre depois de duas leituras estáveis da mesma letra errada (ou 3 s parada nela; nas letras com
+  movimento, a leitura já confirmada em duas avaliações), no máximo uma vez por tentativa, no lugar
+  do alvo e com a câmera ligada. Sem WebGL, a mesma dica só em texto.
 
 ## 4. Conteúdo conferido com os dados (prioridade média)
 

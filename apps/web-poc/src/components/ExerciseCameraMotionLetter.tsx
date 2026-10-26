@@ -10,6 +10,8 @@ import { CameraDemo, hasSignDemo } from './HandDemo';
 import { DemoToggle } from './DemoToggle';
 import { TraceCameraArcs } from './Brand';
 import { CameraRun, saveCameraRun } from '../lib/cameraStats';
+import { WrongReadingHint } from '../dicaErro/WrongReadingHint';
+import { useWrongReadingHint } from '../dicaErro/gatilho';
 
 interface Props {
   sign: Sign;
@@ -38,6 +40,8 @@ export function ExerciseCameraMotionLetter({ sign, onComplete }: Props) {
   const [lastOther, setLastOther] = useState<string | null>(null);
   // Desempenho da câmera (lib/cameraStats.ts): tentativas, leituras de outra letra e pulo
   const [run] = useState(() => new CameraRun(sign.id, letter, 'letter'));
+  // Dica de erro (src/dicaErro/): a leitura já vem confirmada (duas avaliações seguidas)
+  const wrongHint = useWrongReadingHint(letter, read, { confirmed: true, succeeded, enabled: !showDemo });
 
   useEffect(() => {
     if (status === 'active') run.started = true;
@@ -111,6 +115,9 @@ export function ExerciseCameraMotionLetter({ sign, onComplete }: Props) {
 
   return (
     <div className="exercise-screen cam-sign-layout">
+      {wrongHint.read && !succeeded ? (
+        <WrongReadingHint asked={letter} read={wrongHint.read} kind="letter" onDismiss={wrongHint.dismiss} />
+      ) : (
       <div className="cam-sign-target animate__animated animate__fadeInDown animate__faster">
         <div className="cam-sign-prompt">{t('exerciseCameraMotionLetter.makeLetter')}</div>
         <div className="cam-sign-letter animate__animated animate__bounceIn" style={{ animationDelay: '120ms' }}>{letter}</div>
@@ -119,6 +126,7 @@ export function ExerciseCameraMotionLetter({ sign, onComplete }: Props) {
           <DemoToggle showDemo={showDemo} onOpen={openDemo} onClose={() => setShowDemo(false)} />
         )}
       </div>
+      )}
 
       {showDemo && (
         <div className="cam-sign-demo">
