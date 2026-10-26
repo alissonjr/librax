@@ -8,6 +8,12 @@ import { parseIsoDate, daysBetween } from '../lib/dates.js';
  * XP vem do catalogo (completeLesson), signsLearnedDelta e limitado pela licao e
  * alphabetComplete e derivado do catalogo, nunca do cliente. A telemetria do painel de
  * administracao (exerciseStats e cameraStats) fora do formato e descartada sem recusar a conclusao.
+ *
+ * Teste de nivelamento (apps/web-poc/src/lib/placement.ts): a mesma fila manda marcas de licao
+ * pulada, com `placement: 'skip'` (pulada pelo teste) ou `placement: 'undo'` (o teste foi desfeito e
+ * a licao, ainda nao refeita, volta a ficar aberta). A marca nao tem nota (`score`) de proposito: um
+ * servidor antigo, que nao conhece o campo, recusa a entrada com BAD_SCORE em vez de dar XP. Ver
+ * parsePlacementEntry e usecases/placement.js.
  */
 
 export const LIMITS = {
@@ -144,8 +150,52 @@ export function parseCameraStats(raw, glosses = {}) {
   return Object.keys(out).length > 0 ? out : null;
 }
 
+/** Acoes do teste de nivelamento que chegam pela fila de conclusoes. */
+export const PLACEMENT_ACTIONS = ['skip', 'undo'];
+
+const checkDay = (day, today) => {
+  if (!isRealDate(day)) return 'BAD_DATE';
+  const age = daysBetween(today, day);
+  if (age > LIMITS.pastDays || age < -LIMITS.futureDays) return 'DATE_OUT_OF_RANGE';
+  return null;
+};
+
 /**
- * Valida e normaliza uma conclusao.
+ * Valida uma marca do teste de nivelamento: `{ lessonAttemptId, lessonId, today, placement,
+ * completedAt? }`. O id da tentativa e obrigatorio (e ele que deixa o reenvio idempotente) e a
+ * licao tem de estar entre as que o teste cobre (`catalog.placementLessonIds`, unidades 1 e 2).
+ * Nota, sinais revisados e telemetria sao ignorados: a marca nao da XP, ofensiva, SRS, conquista
+ * nem pontos de liga.
+ *
+ * @returns {{ok: true, value: object} | {ok: false, error: string}}
+ */
+export function parsePlacementEntry(raw, ctx) {
+  const { catalog, today } = ctx;
+  if (!isObject(raw)) return { ok: false, error: 'NOT_OBJECT' };
+  if (!PLACEMENT_ACTIONS.includes(raw.placement)) return { ok: false, error: 'BAD_PLACEMENT' };
+
+  const { lessonAttemptId } = raw;
+  if (typeof lessonAttemptId !== 'string' || !ATTEMPT_ID_RE.test(lessonAttemptId)) {
+    return { ok: false, error: 'BAD_ATTEMPT_ID' };
+  }
+
+  const { lessonId } = raw;
+  if (typeof lessonId !== 'string' || !has(catalog.lessons ?? {}, lessonId)) return { ok: false, error: 'UNKNOWN_LESSON' };
+  if (!(catalog.placementLessonIds ?? []).includes(lessonId)) return { ok: false, error: 'NOT_PLACEMENT_LESSON' };
+
+  const dayError = checkDay(raw.today, today);
+  if (dayError) return { ok: false, error: dayError };
+
+  const completedAt = raw.completedAt ?? null;
+  if (completedAt !== null && (typeof completedAt !== 'string' || !ISO_DATETIME_RE.test(completedAt) || Number.isNaN(Date.parse(completedAt)))) {
+    return { ok: false, error: 'BAD_COMPLETED_AT' };
+  }
+
+  return { ok: true, value: { lessonAttemptId, lessonId, today: raw.today, completedAt, placement: raw.placement } };
+}
+
+/**
+ * Valida e normaliza uma conclusao (ou, com `placement`, uma marca do teste de nivelamento).
  *
  * @param {object} raw     conclusao vinda do cliente
  * @param {object} ctx     { catalog, today: 'YYYY-MM-DD' (servidor, UTC), requireAttemptId = true }
@@ -154,6 +204,7 @@ export function parseCameraStats(raw, glosses = {}) {
 export function parseCompletionEntry(raw, ctx) {
   const { catalog, today, requireAttemptId = true } = ctx;
   if (!isObject(raw)) return { ok: false, error: 'NOT_OBJECT' };
+  if (has(raw, 'placement')) return parsePlacementEntry(raw, ctx);
 
   const { lessonAttemptId = null } = raw;
   if (lessonAttemptId !== null || requireAttemptId) {

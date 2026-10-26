@@ -204,7 +204,7 @@ describe('andamento e nota', () => {
 });
 
 describe('pular lições (gravação)', () => {
-  it('grava como concluída pelo teste, sem XP, sequência, SRS, conquista nem fila de envio', async () => {
+  it('grava como concluída pelo teste, sem XP, sequência, SRS nem conquista, e põe as marcas na fila', async () => {
     const repo = await newRepo();
     const placed = await applyPlacement(repo, 'user-p', [
       { lessonId: 'u1-l1', passedSigns: ['letra-A', 'letra-C'] },
@@ -217,7 +217,12 @@ describe('pular lições (gravação)', () => {
     expect(profile).toMatchObject({ xpTotal: 0, streak: 0, lessonsCompleted: 0, signsLearned: 0, achievements: [] });
     expect(await repo.hasDayLog('user-p', '2026-10-26')).toBe(false);
     expect(await repo.listSrsItems('user-p')).toEqual([]);
-    expect(await pendingEntries()).toEqual([]);
+    // Fila de envio: uma marca `skip` por lição pulada, sem nota (o servidor não dá XP por ela)
+    const queued = await pendingEntries();
+    expect(queued.map(e => [e.lessonId, e.placement, e.today])).toEqual([
+      ['u1-l1', 'skip', '2026-10-26'], ['u1-l2', 'skip', '2026-10-26'],
+    ]);
+    expect(new Set(queued.map(e => e.lessonAttemptId)).size).toBe(2);
     expect(isPlacementDone()).toBe(true);
 
     // Mapa: as puladas abertas para refazer, sem nota, e a próxima é a primeira não pulada
@@ -244,6 +249,7 @@ describe('pular lições (gravação)', () => {
     expect(await applyPlacement(repo, 'user-p', [{ lessonId: 'u1-l1', passedSigns: ['letra-A'] }], '2026-10-26')).toBe(0);
     expect(await repo.getProgress('user-p', 'u1-l1')).toMatchObject({ bestScore: 0.9 });
     expect((await repo.getProgress('user-p', 'u1-l1') as Record<string, unknown>).placement).toBeUndefined();
+    expect(await pendingEntries()).toEqual([]);
   });
 
   it('desfazer reabre as puladas (não as refeitas) e o convite volta', async () => {
@@ -255,8 +261,11 @@ describe('pular lições (gravação)', () => {
     await repo.saveProgress('user-p', 'u1-l2', { status: 'completed', bestScore: 1, completedAt: '2026-10-26' });
     expect(await loadPlacementStatus(repo, 'user-p')).toEqual({ offer: false, placed: ['u1-l1'] });
 
-    expect(await undoPlacement(repo, 'user-p')).toBe(1);
+    await clearOutbox();
+    expect(await undoPlacement(repo, 'user-p', '2026-10-27')).toBe(1);
     expect(await repo.getProgress('user-p', 'u1-l1')).toBeNull();
+    // Só a reaberta vai como marca `undo` (a refeita já é conclusão normal no servidor)
+    expect((await pendingEntries()).map(e => [e.lessonId, e.placement, e.today])).toEqual([['u1-l1', 'undo', '2026-10-27']]);
     expect(await repo.getProgress('user-p', 'u1-l2')).toMatchObject({ status: 'completed', bestScore: 1 });
     expect(isPlacementDone()).toBe(false);
     expect(await loadPlacementStatus(repo, 'user-p')).toEqual({ offer: true, placed: [] });
@@ -335,8 +344,11 @@ describe('Alfabeto completo com o teste', () => {
     const profile = await repo.getProfile('user-p') as Record<string, unknown>;
     expect(profile.xpTotal).toBe(last.xpReward);
     expect(profile.lessonsCompleted).toBe(1);
-    // Só a lição feita vai para a fila de envio
-    expect((await pendingEntries()).map(e => e.lessonId)).toEqual([last.id]);
+    // Fila de envio: as puladas como marcas (sem nota, o servidor não dá XP nem conquista por elas)
+    // e só a lição feita como conclusão
+    const queued = await pendingEntries();
+    expect(queued.filter(e => !e.placement).map(e => e.lessonId)).toEqual([last.id]);
+    expect(queued.filter(e => e.placement).map(e => [e.lessonId, e.placement])).toEqual(u1.slice(0, -1).map(l => [l.id, 'skip']));
   });
 
   it('concluir uma lição do meio da U1 depois de pular as outras não dá a conquista', async () => {

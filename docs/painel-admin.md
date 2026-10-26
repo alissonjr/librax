@@ -20,10 +20,10 @@ Código:
 
 | Tela | O que tem | De onde vem |
 |---|---|---|
-| **Operação** | pessoas ativas por dia (30 dias), semana (12) e mês (12); contas novas; lições concluídas; lições onde mais desistem e mais erram; erros por tipo de exercício; sinais mais errados; erros do servidor por dia e por Lambda | contadores agregados (seção 3) e o job diário |
+| **Operação** | pessoas ativas por dia (30 dias), semana (12) e mês (12); contas novas; lições concluídas; lições onde mais desistem e mais erram; lições puladas pelo nivelamento (por lição, com as desfeitas); erros por tipo de exercício; sinais mais errados; erros do servidor por dia e por Lambda | contadores agregados (seção 3) e o job diário |
 | **Câmera** | letras e sinais do mais difícil para o mais fácil nos mesmos 30 dias (taxa de pulo, depois média de tentativas até acertar), com nível, filtro de letras ou sinais e as leituras trocadas mais comuns (K lida como H) | item `CAMERA` do dia (seção 3), pela mesma rota da Operação |
-| **Conteúdo** | as 14 unidades e os 254 sinais: validado (`validated`), origem (`source`), vídeo, avatar e o que falta em cada sinal, com filtros | `services/api/src/content/contentStatus.js`, gerado do bundle do app por `npm run catalog` |
-| **Contas** | busca pelo começo do e-mail ou pelo id; resumo com perfil, progresso, liga, squads e última atividade | Cognito (`ListUsers`) e a partição `USER#<id>` |
+| **Conteúdo** | as 14 unidades e os 255 sinais: validado (`validated`), origem (`source`), vídeo, avatar e o que falta em cada sinal, com filtros | `services/api/src/content/contentStatus.js`, gerado do bundle do app por `npm run catalog` |
+| **Contas** | busca pelo começo do e-mail ou pelo id; resumo com perfil, progresso (lição concluída ou "pulada pelo nivelamento"), liga, squads e última atividade | Cognito (`ListUsers`) e a partição `USER#<id>` |
 | **Squads** | nome, tipo, tamanho e criação, da mais nova para a mais velha | registro `SQUADINDEX` e o META de cada squad |
 | **Custo** | gasto estimado do mês e o detalhe por serviço; meses anteriores | Cost Explorer, uma vez por dia |
 
@@ -38,6 +38,9 @@ Definições usadas nas telas:
 - **Erro**: resposta errada num exercício (contada por tipo de exercício e por lição) e sinal com estado
   `failed` na revisão.
 - **Erros do servidor**: 5xx da API mais erros das Lambdas, do CloudWatch, até o dia anterior.
+- **Pulada pelo nivelamento**: a pessoa fez o teste de nivelamento e pulou a lição (sem XP, ofensiva, SRS,
+  conquista nem liga; não conta como lição concluída nem como pessoa ativa). Desfeita: a pessoa desfez o teste
+  em Configurações antes de refazer a lição. Lição refeita depois vira conclusão normal.
 - **Câmera**: uma vez é do momento em que a câmera abre até acertar ou pular; tentativa é cada leitura
   diferente da câmera até acertar. Nível difícil com metade ou mais de pulos ou 3 tentativas ou mais em média,
   atenção a partir de 20% de pulos ou 2 tentativas (a mesma regra da tela "Desempenho da câmera" do app). A
@@ -88,7 +91,7 @@ dia, e as telas leem só esses itens por chave ou por uma Query na partição `O
 | Item | PK / SK | O que tem | TTL |
 |---|---|---|---|
 | Totais do dia | `OPS` / `DAY#<dia>` | `activeUsers`, `newAccounts`, `lessonsCompleted`, `practiceSessions`, `lessonAbandons` e, do job, `cloud` | 400 dias |
-| Por lição | `OPS` / `DAY#<dia>#LESSON` | `done:`, `abandon:`, `attempted:`, `wrong:`, `failedSigns:`, `reviewedSigns:` + id da lição | 400 dias |
+| Por lição | `OPS` / `DAY#<dia>#LESSON` | `done:`, `abandon:`, `attempted:`, `wrong:`, `failedSigns:`, `reviewedSigns:`, `placement:`, `placementUndo:` + id da lição | 400 dias |
 | Por exercício | `OPS` / `DAY#<dia>#EXERCISE` | `attempted:`, `wrong:`, `abandon:` + tipo | 400 dias |
 | Por sinal | `OPS` / `DAY#<dia>#SIGN` | `failed:` + id do sinal | 400 dias |
 | Câmera | `OPS` / `DAY#<dia>#CAMERA` | `success:`, `skip:`, `attempts:` + id do sinal e `wrong:<id>:<rótulo>` | 400 dias |
@@ -134,6 +137,11 @@ Para "onde erram ou desistem" o app passou a mandar duas coisas, só com conta:
   pela fila offline com a conclusão: sem rede, vai quando a rede volta; sem conta, fica na fila e vai na
   migração, ao entrar. O acumulado do aparelho nunca é enviado. O servidor só aceita sinais e glosas do curso
   (formato no `services/api/README.md`) e grava só a soma do dia, sem id de pessoa.
+- Marcas do teste de nivelamento (`placement: 'skip'` ou `'undo'`, sem nota) pela mesma fila das conclusões
+  (`POST /v1/lesson/complete` e na migração): cada lição pulada e cada lição reaberta pelo "Desfazer". O
+  servidor grava o progresso como `status: 'placement'` (só se a lição ainda não tem registro; nunca cobre
+  conclusão de verdade), apaga no `undo` só se ainda for marca, e soma `placement:` / `placementUndo:` no item
+  da lição do dia (`services/api/src/usecases/placement.js`).
 
 ## 4. Job diário e custo
 

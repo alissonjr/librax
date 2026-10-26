@@ -103,6 +103,51 @@ export class DynamoRepo {
     );
   }
 
+  /**
+   * Marca do teste de nivelamento (status 'placement'). Escrita condicional: so grava se a licao
+   * ainda nao tem registro, para nunca cobrir uma conclusao de verdade (nem contar duas vezes).
+   * A conclusao de verdade (saveProgress) substitui a marca sem condicao.
+   * @returns {Promise<boolean>} true se gravou
+   */
+  async markPlacementSkip(userId, lessonId, record) {
+    try {
+      await this._db.send(
+        new PutCommand({
+          TableName: TABLE,
+          Item: { PK: `USER#${userId}`, SK: `PROG#${lessonId}`, ...record, status: 'placement' },
+          ConditionExpression: 'attribute_not_exists(PK)',
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (isConditionFailure(e)) return false;
+      throw e;
+    }
+  }
+
+  /**
+   * Desfaz a marca do teste: apaga o registro so se ele ainda e de licao pulada (a licao refeita
+   * virou 'completed' e fica).
+   * @returns {Promise<boolean>} true se apagou
+   */
+  async clearPlacementSkip(userId, lessonId) {
+    try {
+      await this._db.send(
+        new DeleteCommand({
+          TableName: TABLE,
+          Key: { PK: `USER#${userId}`, SK: `PROG#${lessonId}` },
+          ConditionExpression: '#status = :placement',
+          ExpressionAttributeNames: { '#status': 'status' },
+          ExpressionAttributeValues: { ':placement': 'placement' },
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (isConditionFailure(e)) return false;
+      throw e;
+    }
+  }
+
   /** Progresso de todas as licoes da pessoa (resumo da conta no painel). */
   async listProgress(userId) {
     const items = await this._queryAll({

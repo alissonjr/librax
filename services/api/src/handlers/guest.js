@@ -3,7 +3,8 @@
  *
  * Chamado pelo app logo depois de criar conta (ou entrar numa conta) com o JWT do User Pool.
  * Corpo: { entries: [{ lessonAttemptId, lessonId, today, score, completedAt?, reviewed?,
- * signsLearnedDelta? }] } - o log local de conclusoes do convidado (fila offline do app).
+ * signsLearnedDelta? }] } - o log local de conclusoes do convidado (fila offline do app). A
+ * mesma lista traz as marcas do teste de nivelamento (`placement`, sem score; usecases/placement.js).
  *
  * Resposta 200: { results: [{ lessonAttemptId, status: applied|duplicate|rejected, ... }],
  * summary: { applied, duplicate, rejected }, profile: { xpTotal, streak } }.

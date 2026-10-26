@@ -1,7 +1,9 @@
 /**
  * Handlers Lambda para endpoints de licao e fila diaria.
  *
- * POST /v1/lesson/complete  -> completeLesson (idempotente com lessonAttemptId)
+ * POST /v1/lesson/complete  -> completeLesson (idempotente com lessonAttemptId); com
+ *                              `placement: 'skip'|'undo'` e sem nota, marca do teste de
+ *                              nivelamento (applyPlacementOnce: so o progresso, sem XP)
  * GET  /v1/lesson/queue     -> getDailyQueue
  * POST /v1/lesson/abandon   -> recordLessonAbandon (saida no meio da licao; so contadores do
  *                              painel de administracao, sem XP nem SRS)
@@ -17,6 +19,7 @@
 import { completeLesson } from '../usecases/completeLesson.js';
 import { completeLessonOnce } from '../usecases/completeLessonOnce.js';
 import { getDailyQueue } from '../usecases/getDailyQueue.js';
+import { applyPlacementOnce } from '../usecases/placement.js';
 import { parseCompletionEntry, parseLessonAbandon } from '../domain/lessonCompletion.js';
 import { quietly, recordLessonAbandon, recordLessonCompleted } from '../usecases/opsMetrics.js';
 import { userId, body, ok, ApiError, wrap } from './_http.js';
@@ -37,6 +40,9 @@ export function makeLessonHandlers({ repo, catalog, now = () => new Date() }) {
       { catalog, today, requireAttemptId: false },
     );
     if (!parsed.ok) throw new ApiError(400, parsed.error, `Conclusao invalida: ${parsed.error}`);
+
+    // marca do teste de nivelamento (`placement`): so o progresso, sem XP (usecases/placement.js)
+    if (parsed.value.placement) return ok(await applyPlacementOnce(repo, { ...parsed.value, userId: uid }));
 
     // `now` (relogio do servidor) decide a semana da liga e das squads, nunca o aparelho
     const input = { ...parsed.value, userId: uid, now: now().getTime() };

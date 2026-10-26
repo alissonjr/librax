@@ -1,5 +1,7 @@
 import { course, type Lesson } from './course';
 import type { IdbRepo } from './idbRepo';
+import { enqueuePlacementMarks, flushOutbox, type PlacementMark } from './sync';
+import { getToday } from './today';
 
 /**
  * Teste de nivelamento (spec-03 seções 7 e 11.11): um convite, nunca obrigatório.
@@ -15,16 +17,19 @@ import type { IdbRepo } from './idbRepo';
  *   ser pulada entre as NO_CAMERA_MAX_LESSONS primeiras do curso. Sem câmera (negada, com erro ou
  *   por escolha), o teste fica nelas.
  * - Pular é só abrir caminho: a lição é gravada como concluída com `placement: true`, sem XP, sem
- *   sequência, sem SRS, sem conquista e sem ir para a fila de envio (sync.ts). A lição pulada
- *   continua aberta para refazer; refeita, vira uma conclusão normal (o registro é substituído).
+ *   sequência, sem SRS e sem conquista. A lição pulada continua aberta para refazer; refeita, vira
+ *   uma conclusão normal (o registro é substituído).
  * - Lições de revisão (sem sinal novo, como "letras parecidas") não têm itens: são puladas junto
  *   só quando todas as lições de onde vêm os sinais delas foram puladas no teste ou já concluídas.
  * - "Alfabeto completo" segue a regra do servidor: concluir de verdade a última lição da U1
  *   (alphabetLessonId). O teste nunca dá a conquista; se ela foi pulada, vem ao refazê-la.
  * - Desfazer (Configurações) apaga os registros com `placement` e o convite volta.
  *
- * O servidor não fica sabendo do teste: o app não lê o progresso do servidor, e mandar a lição
- * pulada como conclusão daria XP e sequência lá (o completeLesson não tem essa noção).
+ * O servidor fica sabendo pela fila de envio (sync.ts, enqueuePlacementMarks): cada lição pulada
+ * vira uma marca `skip` e cada lição reaberta pelo "Desfazer" uma marca `undo`, sem nota. Lá a marca
+ * só registra o progresso ("pulada pelo nivelamento" no painel de administração), sem XP, sequência,
+ * SRS, conquista nem liga; nunca cobre uma conclusão de verdade, e a lição refeita substitui a marca
+ * (services/api/src/usecases/placement.js). Convidado: as marcas vão na migração, ao entrar na conta.
  */
 
 /** Itens por lição testada. */
@@ -333,9 +338,23 @@ function clearPlacementDone(): void {
 }
 
 /**
+ * Manda as marcas ao servidor pela fila. Falha aqui (banco da fila indisponível) nunca desfaz o que
+ * já foi gravado no aparelho.
+ */
+async function syncMarks(lessonIds: string[], mark: PlacementMark, today: string): Promise<void> {
+  if (lessonIds.length === 0) return;
+  try {
+    await enqueuePlacementMarks(lessonIds, mark, today);
+    void flushOutbox().catch(() => {});
+  } catch {
+    /* sem fila: o aparelho segue certo, o servidor só não fica sabendo */
+  }
+}
+
+/**
  * Pula as lições escolhidas no resultado: grava cada uma como concluída pelo teste. Só mexe no
- * progresso das lições (nada de perfil, XP do dia, sequência, SRS, conquistas ou fila de envio).
- * Lição já concluída de verdade fica como está. Devolve quantas foram puladas.
+ * progresso das lições (nada de perfil, XP do dia, sequência, SRS ou conquistas) e põe as marcas
+ * `skip` na fila de envio. Lição já concluída de verdade fica como está. Devolve quantas foram puladas.
  */
 export async function applyPlacement(
   repo: IdbRepo,
@@ -343,7 +362,7 @@ export async function applyPlacement(
   lessons: { lessonId: string; passedSigns: string[] }[],
   today: string,
 ): Promise<number> {
-  let placed = 0;
+  const placed: string[] = [];
   for (const { lessonId, passedSigns } of lessons) {
     if (!course.lessonsMap[lessonId]) continue;
     const prev = (await repo.getProgress(userId, lessonId)) as ProgressRecord | null;
@@ -354,10 +373,11 @@ export async function applyPlacement(
       placementSigns: [...passedSigns],
       completedAt: today,
     });
-    placed += 1;
+    placed.push(lessonId);
   }
   markPlacementDone(today);
-  return placed;
+  await syncMarks(placed, 'skip', today);
+  return placed.length;
 }
 
 /** Lições ainda marcadas como puladas pelo teste (não refeitas). */
@@ -368,12 +388,14 @@ export async function placedLessonIds(repo: IdbRepo, userId: string, lessons: Le
 
 /**
  * Desfaz o teste: as lições puladas (e não refeitas) voltam a seguir a ordem do curso, e o convite
- * volta. As refeitas continuam concluídas. Devolve quantas foram reabertas.
+ * volta. As refeitas continuam concluídas. Só as reabertas vão como marca `undo` para o servidor.
+ * Devolve quantas foram reabertas.
  */
-export async function undoPlacement(repo: IdbRepo, userId: string): Promise<number> {
+export async function undoPlacement(repo: IdbRepo, userId: string, today: string = getToday()): Promise<number> {
   const ids = await placedLessonIds(repo, userId);
   for (const id of ids) await repo.deleteProgress(userId, id);
   clearPlacementDone();
+  await syncMarks(ids, 'undo', today);
   return ids.length;
 }
 

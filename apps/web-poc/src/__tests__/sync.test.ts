@@ -18,6 +18,7 @@ vi.mock('../lib/auth', () => ({
 import {
   configureSync,
   enqueueLessonCompletion,
+  enqueuePlacementMarks,
   pendingEntries,
   flushOutbox,
   migrateGuest,
@@ -305,6 +306,64 @@ describe('migrateGuest (ao criar conta)', () => {
     const calls = mockFetch(serverOk());
     await flushOutbox();
     expect(calls.map((c) => c.url)).toEqual(['/api/v1/guest/migrate', '/api/v1/lesson/complete']);
+  });
+});
+
+describe('marcas do teste de nivelamento', () => {
+  it('com conta: cada lição pulada vai em ordem, sem nota, junto com as conclusões', async () => {
+    signedIn();
+    const calls = mockFetch(serverOk());
+    const [skipA, skipB] = await enqueuePlacementMarks(['u1-l1', 'u1-l2'], 'skip', '2026-10-23');
+    const done = await enqueueLessonCompletion(lesson({ lessonId: 'u1-l2' }));
+    const [undo] = await enqueuePlacementMarks(['u1-l1'], 'undo', '2026-10-24');
+    expect(skipA.owner).toBe('sub-1');
+    expect(skipA.lessonAttemptId).not.toBe(skipB.lessonAttemptId);
+
+    expect(await flushOutbox()).toMatchObject({ sent: 4, remaining: 0 });
+    expect(calls.map((c) => c.url)).toEqual(Array(4).fill('/api/v1/lesson/complete'));
+    expect(calls.map((c) => (c.body as { lessonAttemptId: string }).lessonAttemptId))
+      .toEqual([skipA.lessonAttemptId, skipB.lessonAttemptId, done.lessonAttemptId, undo.lessonAttemptId]);
+    // sem `score`: um servidor que não conhece a marca recusa em vez de dar XP
+    expect(calls[0].body).toEqual({
+      lessonAttemptId: skipA.lessonAttemptId,
+      lessonId: 'u1-l1',
+      today: '2026-10-23',
+      completedAt: '2026-10-23T15:00:00.000Z',
+      placement: 'skip',
+    });
+    expect(calls[3].body).toMatchObject({ lessonId: 'u1-l1', today: '2026-10-24', placement: 'undo' });
+    expect((calls[2].body as { score?: number }).score).toBe(0.9);
+  });
+
+  it('convidado: as marcas esperam e vão na migração, ao entrar na conta', async () => {
+    guest();
+    await enqueuePlacementMarks(['u1-l1'], 'skip', '2026-10-23');
+    await enqueueLessonCompletion(lesson({ lessonId: 'u1-l2' }));
+    const calls = mockFetch(serverOk());
+    expect((await flushOutbox()).skipped).toBe('signed_out');
+    expect(calls).toHaveLength(0);
+
+    signedIn();
+    expect(await migrateGuest()).toMatchObject({ sent: 2, remaining: 0 });
+    const { entries } = calls[0].body as { entries: Record<string, unknown>[] };
+    expect(calls[0].url).toBe('/api/v1/guest/migrate');
+    expect(entries.map((e) => [e.lessonId, e.placement ?? null, 'score' in e])).toEqual([
+      ['u1-l1', 'skip', false],
+      ['u1-l2', null, true],
+    ]);
+  });
+
+  it('400 do servidor (lição fora do teste, servidor antigo): a marca sai da fila', async () => {
+    signedIn();
+    await enqueuePlacementMarks(['u1-l1'], 'skip', '2026-10-23');
+    mockFetch(() => reply(400, { error: { code: 'BAD_SCORE' } }));
+    expect(await flushOutbox()).toMatchObject({ sent: 0, dropped: 1, remaining: 0 });
+  });
+
+  it('nenhuma lição: nada entra na fila', async () => {
+    guest();
+    expect(await enqueuePlacementMarks([], 'undo', '2026-10-23')).toEqual([]);
+    expect(await pendingEntries()).toEqual([]);
   });
 });
 

@@ -39,6 +39,9 @@ export interface LessonRow {
   wrongRate: number | null;
   failedSigns: number;
   reviewedSigns: number;
+  /** Puladas pelo teste de nivelamento e desfeitas (Configurações > Desfazer), na janela. */
+  placementSkips: number;
+  placementUndos: number;
 }
 
 export interface ExerciseRow {
@@ -169,8 +172,19 @@ export interface AccountSummary {
   } | null;
   progress: {
     distinctLessons: number;
+    /** Lições puladas pelo teste de nivelamento (status 'placement'), ainda não refeitas. */
+    placementSkipped?: number;
     totalLessons: number | null;
-    lessons: Array<{ lessonId: string; title: string | null; unitId: string | null; status: string | null; bestScore: number | null; completedAt: string | null }>;
+    lessons: Array<{
+      lessonId: string;
+      title: string | null;
+      unitId: string | null;
+      /** 'completed' ou 'placement' (pulada pelo nivelamento, sem nota). */
+      status: string | null;
+      bestScore: number | null;
+      completedAt: string | null;
+      skippedAt?: string | null;
+    }>;
   };
   srs: { signs: number; due: number };
   achievements: string[];

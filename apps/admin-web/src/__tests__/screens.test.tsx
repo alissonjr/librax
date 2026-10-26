@@ -48,10 +48,21 @@ describe('Operação', () => {
     expect(screen.getByText('CloudWatch até 22 out')).toBeInTheDocument();
   });
 
+  it('lições puladas pelo nivelamento, por lição, com as desfeitas', () => {
+    render(<OperacaoView o={sampleOverview()} />);
+    const list = screen.getByRole('list', { name: 'Lições puladas pelo nivelamento' });
+    const items = within(list).getAllByRole('listitem');
+    expect(items.map((i) => i.textContent)).toHaveLength(2);
+    expect(items[0]).toHaveTextContent('Letras F a J');
+    expect(items[0]).toHaveTextContent('34');
+    expect(items[0]).toHaveTextContent('3 desfeitas');
+  });
+
   it('sem dados ainda: textos de estado vazio', () => {
     const o = { ...sampleOverview(), lessons: [], exercises: [], signs: [], serverErrors: { collectedThrough: null, byFunction: [] } };
     render(<OperacaoView o={o} />);
     expect(screen.getByText('Ainda sem respostas por tipo de exercício.')).toBeInTheDocument();
+    expect(screen.getByText('Nenhuma lição pulada pelo teste de nivelamento no período.')).toBeInTheDocument();
     expect(screen.getByText('Job diário ainda não rodou')).toBeInTheDocument();
   });
 });
@@ -104,16 +115,16 @@ describe('Câmera', () => {
 });
 
 describe('Conteúdo', () => {
-  it('14 unidades e 254 sinais, filtro pelo que falta e páginas de 40', async () => {
+  it('14 unidades e 255 sinais, filtro pelo que falta e páginas de 40', async () => {
     render(<ConteudoView c={sampleContent} />);
     expect(screen.getAllByRole('listitem').filter((li) => li.classList.contains('unit'))).toHaveLength(14);
-    expect(screen.getByRole('status', { name: '' })).toHaveTextContent(`254 de 254 sinais, mostrando ${PAGE_SIZE}`);
+    expect(screen.getByRole('status', { name: '' })).toHaveTextContent(`255 de 255 sinais, mostrando ${PAGE_SIZE}`);
     const table = () => screen.getAllByRole('table').at(-1)!;
     expect(within(table()).getAllByRole('row')).toHaveLength(PAGE_SIZE + 1);
 
     await userEvent.click(screen.getByRole('radio', { name: 'Sem fonte' }));
     const semFonte = sampleContent.signs.filter((s) => s.missing.includes('source')).length;
-    expect(screen.getByText(`${semFonte} de 254 sinais`)).toBeInTheDocument();
+    expect(screen.getByText(`${semFonte} de 255 sinais`)).toBeInTheDocument();
     expect(within(table()).getAllByRole('row')).toHaveLength(semFonte + 1);
 
     await userEvent.click(screen.getByRole('radio', { name: 'Todos' }));
@@ -138,6 +149,11 @@ describe('Contas', () => {
     expect(account).toHaveBeenCalledWith('22222222-2222-4222-8222-222222222222');
     expect(screen.getByText('Turma de quinta')).toBeInTheDocument();
     expect(screen.getByText('subiu para Prata (2º de 30)')).toBeInTheDocument();
+    // lição pulada pelo teste de nivelamento: sem nota, com a data em que foi pulada
+    const skipped = screen.getByText('Letras F a J').closest('tr') as HTMLElement;
+    expect(skipped).toHaveTextContent('pulada pelo nivelamento');
+    expect(skipped).toHaveTextContent('2 out');
+    expect(screen.getByText('de 57, 1 pulada pelo nivelamento')).toBeInTheDocument();
     const labels = screen.getAllByRole('button').map((b) => b.textContent ?? '');
     expect(labels.some((l) => /excluir|apagar|validar|editar|banir/i.test(l))).toBe(false);
   });
