@@ -8,7 +8,7 @@ import { NORMALIZATION_VERSION } from '../recognition/normalize';
 import {
   compactLetterWindow, createLetterMotionRecognizer, frameHand, LETTER_BUFFER_S, LETTER_EVAL_MS, LETTER_FRAME_DIM,
   LETTER_MIN_PROBABILITY, LETTER_MODEL_FRAME_INDEX, LETTER_MODEL_FRAMES, LETTER_WINDOW_FRAMES, LETTER_WINDOWS_S,
-  letterWindow, letterWindowMotion, MIN_PRESENCE, NO_LETTER, windowHandedness, type LetterFrame,
+  letterWindow, letterWindowDrawing, letterWindowMotion, MIN_PRESENCE, NO_LETTER, windowHandedness, type LetterFrame,
 } from '../recognition/letterMotion';
 import { checkLetterMotionModelJson } from '../recognition/letterMotionModel';
 import { CONFIRM_READINGS } from '../hooks/useSignCameraRecognizer';
@@ -34,7 +34,11 @@ interface Fixture {
   labelCases: { name: string; frames: RawFrame[]; t0: number; t1: number; expected: string | null }[];
   clips: {
     id: string; letra: string; aspect: number; frames: RawFrame[];
-    windows: { t0: number; t1: number; input: number[] | null; motion: number | null; resampled?: number[] }[];
+    windows: {
+      t0: number; t1: number; input: number[] | null; motion: number | null; resampled?: number[];
+      /** desenho() do treino na janela inteira (regras por letra). */
+      drawing?: { displacement: number; shapeChange: number; shapeOscillation: number };
+    }[];
   }[];
 }
 interface GoldenCase { clip?: number; window?: number; input?: number[]; probs: number[] }
@@ -156,6 +160,25 @@ describe('movimento da janela (portão das regras de leitura)', () => {
     expect(n).toBeGreaterThan(12);
     expect(fixture.motionCases.length).toBeGreaterThanOrEqual(4);
     for (const c of fixture.motionCases) expect(Math.abs(letterWindowMotion(c.input, weight) - c.motion)).toBeLessThan(TOLERANCE);
+  });
+});
+
+describe('desenho da janela (regras por letra)', () => {
+  it('o mesmo do desenho() do train_letras_mov.py nas janelas reais, com buracos e com outra mão', () => {
+    let n = 0;
+    for (const clip of fixture.clips) {
+      const frames = clip.frames.map(toFrame);
+      for (const w of clip.windows) {
+        if (w.input === null) continue;
+        expect(w.drawing, `${clip.id} ${w.t0}`).toBeDefined();
+        const got = letterWindowDrawing(letterWindow(frames, clip.aspect, w.t0, w.t1)!);
+        for (const k of ['displacement', 'shapeChange', 'shapeOscillation'] as const) {
+          expect(Math.abs(got[k] - w.drawing![k]), `${clip.id} ${w.t0} ${k}`).toBeLessThan(TOLERANCE);
+        }
+        n++;
+      }
+    }
+    expect(n).toBeGreaterThan(12);
   });
 });
 

@@ -42,7 +42,8 @@ Uso:
                                                        mede regras de leitura sem treinar de novo
     (treinar aceita --min-p, --min-movimento e --max-p-nenhum: as regras de leitura do app, que vão
     para o reading_rules do model.json e decidem camera_letters)
-    (LM_VIZINHAS=CPVT... põe as vizinhas paradas no "_" com peso, ver VIZINHAS)
+    (LM_VIZINHAS=CPVT... põe as vizinhas paradas no "_" com peso, ver VIZINHAS; LM_VIZINHAS_FORTES=CIUVP
+    dá mais peso a algumas delas, ver VIZINHAS_FORTES)
     (LM_SEM_XZ=1 deixa de fora os vídeos de video/baixar_xz.py, letras_mov_trechos_xz.json)
     (LIBRAX_DATA=/caminho/data aponta para a pasta de dados)
 """
@@ -209,8 +210,14 @@ NEGATIVAS_POR_VIDEO = 400
 # separados de 16,5% para 13,1% (16 sementes), K e X um pouco melhores. LM_VIZINHAS= desliga.
 VIZINHAS = os.environ.get("LM_VIZINHAS", "CPVTUID")
 VARIACOES_VIZINHAS = int(os.environ.get("LM_VAR_VIZINHAS", "2"))
+# Vizinhas que mais confundem (C com Ç, I com J, U, V e P com K): com LM_VIZINHAS_FORTES, as paradas
+# dessas letras (e os vídeos de uma delas) ganham LM_VAR_FORTES variações giradas no lugar de
+# LM_VAR_VIZINHAS, mais peso no "_" para o par. Vazio (o padrão) desliga.
+VIZINHAS_FORTES = os.environ.get("LM_VIZINHAS_FORTES", "")
+VARIACOES_FORTES = int(os.environ.get("LM_VAR_FORTES", "6"))
 # Rótulo interno das janelas de vizinhas (vira NENHUMA no janelas_do_video)
 _VIZINHA = "_vizinha"
+_VIZINHA_FORTE = "_vizinha_forte"
 # Avaliação como no app (letterMotion.ts): a cada AVALIA_S, janelas que terminam ali; leitura
 # confirmada com CONFIRMA leituras seguidas iguais
 AVALIA_S = 0.25
@@ -368,16 +375,17 @@ def pedidos_do_video(video, trechos_video, frames, aspect, rng, treino):
                 if p["letra"] not in VIZINHAS:
                     continue
                 r0 = next((a for a, b in seguras if a <= p["ini"] <= b), p["ini"])
+                rotulo = _VIZINHA_FORTE if p["letra"] in VIZINHAS_FORTES else _VIZINHA
                 for D in JANELAS_S:
                     te = max(p["ini"] + 0.2, r0 + D)
                     while te <= p["fim"]:
                         if not any(te - D < m1 and te > m0 for m0, m1 in moveis):
-                            pedidos.append((te - D, te, _VIZINHA))
+                            pedidos.append((te - D, te, rotulo))
                         te += PASSO_S
     elif video.get("fonte") == "letra-parada":
         # vídeo de uma letra parada: a mão sobe, faz a letra e desce
         vizinha = treino and VIZINHAS and video.get("letra") and video["letra"] in VIZINHAS
-        rotulo = _VIZINHA if vizinha else NENHUMA
+        rotulo = (_VIZINHA_FORTE if video["letra"] in VIZINHAS_FORTES else _VIZINHA) if vizinha else NENHUMA
         for r0, r1 in video["regioes"]:
             for D in JANELAS_S:
                 te = r0 + D
@@ -397,6 +405,8 @@ def janelas_do_video(video, trechos_video, frames, aspect, rng, variacoes, trein
         n_var = variacoes if L != NENHUMA else min(variacoes, 1)
         if L == _VIZINHA:
             L, n_var = NENHUMA, VARIACOES_VIZINHAS
+        elif L == _VIZINHA_FORTE:
+            L, n_var = NENHUMA, VARIACOES_FORTES
         for fr in [perto] + [girar_maos(perto, aspect, rng) for _ in range(n_var if treino else 0)]:
             w = janela(fr, aspect, t0, t1)
             if w is not None:
@@ -528,6 +538,52 @@ def movimento(Xc):
     return np.where(par, dw + PESO_FORMA * dh, 0.0).max((1, 2))
 
 
+def desenho(W):
+    """
+    Desenho do movimento em cada janela inteira [N, T, F] (ou [T, F]), antes de compactar, só com os
+    passos com a mão, em ordem: "deslocamento" (do pulso, em palmos, do primeiro ao último passo),
+    "mudanca_forma" (distância dos 63 pontos da normalize_hand entre o primeiro e o último passo,
+    dividida por raiz de 21) e "vaivem_forma" (caminho desses pontos passo a passo, dividido por raiz
+    de 21, menos a mudança: quanto a forma vai e volta). Janela com a mão em menos de dois passos vale
+    0 nas três. Contrato com o letterMotion.ts (letterWindowDrawing); as regras por letra
+    (REGRAS_LETRAS) usam estas medidas.
+    """
+    W = np.asarray(W, dtype=np.float64)
+    if W.ndim == 2:
+        W = W[None]
+    out = {k: np.zeros(len(W)) for k in ("deslocamento", "mudanca_forma", "vaivem_forma")}
+    raiz21 = np.sqrt(21)
+    for i, w in enumerate(W):
+        w = w[w[:, 0] > 0.5]
+        if len(w) < 2:
+            continue
+        forma = w[:, 4:67]
+        out["deslocamento"][i] = np.hypot(w[-1, 1] - w[0, 1], w[-1, 2] - w[0, 2])
+        mudanca = np.linalg.norm(forma[-1] - forma[0]) / raiz21
+        out["mudanca_forma"][i] = mudanca
+        out["vaivem_forma"][i] = np.linalg.norm(np.diff(forma, axis=0), axis=1).sum() / raiz21 - mudanca
+    return out
+
+
+_CACHE_DESENHO = {}
+
+
+def desenho_ao_vivo(vid):
+    """desenho() das janelas ao vivo de um vídeo (na ordem das probabilidades do probs_ao_vivo)."""
+    if vid not in _CACHE_DESENHO:
+        _CACHE_DESENHO[vid] = desenho(janelas_ao_vivo_cache(vid)[1])
+    return _CACHE_DESENHO[vid]
+
+
+def passa_desenho(regra, med):
+    """Máscara das janelas que cumprem a regra de uma letra ({"min_vaivem_forma": ..., ...})."""
+    ok = np.ones(len(med["deslocamento"]), dtype=bool)
+    for chave, v in regra.items():
+        lado, medida = chave.split("_", 1)
+        ok &= med[medida] >= v if lado == "min" else med[medida] <= v
+    return ok
+
+
 def guardar(prever):
     """Marca o prever para guardar as probabilidades de cada vídeo (varrer as regras sem prever de novo)."""
     prever.guardadas = {}
@@ -556,9 +612,10 @@ def probs_ao_vivo(vid, prever):
 def leituras(vid, prever, regras=None):
     """
     Simula o app num vídeo: em cada avaliação, a leitura (letra mais provável de alguma janela, não
-    "_", com p >= min_p, movimento >= min_movimento e p("_") <= max_p_nenhum; vale a de maior p) e a
-    confirmada (CONFIRMA leituras seguidas iguais). Devolve [(t, lida, confirmada)]. `prever`:
-    [n, PASSOS * F] -> (rótulos, probabilidades). `regras`: as do app (REGRAS sem elas).
+    "_", com p >= min_p, movimento >= min_movimento, p("_") <= max_p_nenhum e, se a letra tem regra
+    em regras["letras"], o desenho da janela dentro dela; vale a de maior p) e a confirmada (CONFIRMA
+    leituras seguidas iguais). Devolve [(t, lida, confirmada)]. `prever`: [n, PASSOS * F] ->
+    (rótulos, probabilidades). `regras`: as do app (REGRAS sem elas).
     """
     regras = regras or REGRAS
     pv = probs_ao_vivo(vid, prever)
@@ -568,8 +625,13 @@ def leituras(vid, prever, regras=None):
     if len(P):
         nenhuma = labels.index(NENHUMA)
         j = P.argmax(1)
-        ok = ((np.asarray(labels)[j] != NENHUMA) & (P[np.arange(len(P)), j] >= regras["min_p"])
+        lida = np.asarray(labels)[j]
+        ok = ((lida != NENHUMA) & (P[np.arange(len(P)), j] >= regras["min_p"])
               & (E >= regras["min_movimento"]) & (P[:, nenhuma] <= regras["max_p_nenhum"]))
+        if regras.get("letras"):
+            med = desenho_ao_vivo(vid)
+            for L, regra in regras["letras"].items():
+                ok &= (lida != L) | passa_desenho(regra, med)
         for k, jj, p in zip(donos[ok], j[ok], P[ok]):
             if p[jj] > melhor_p[k]:
                 lidas[k], melhor_p[k] = labels[jj], float(p[jj])
@@ -677,7 +739,15 @@ def medir_ines(trechos, prever, regras=None, imprime=True):
 PESO_FORMA = 1.0
 MIN_P_LEITURA = 0.7
 MIN_MOVIMENTO = 0.3
-REGRAS = {"min_p": MIN_P_LEITURA, "min_movimento": MIN_MOVIMENTO, "max_p_nenhum": 1.0}
+# Regras por letra: o desenho da janela (desenho()) que a letra lida precisa ter, além das regras de
+# cima. Desde 2026-10-26: o Ç precisa da forma indo e voltando (o tremido; o C parado com a mão
+# chegando nele não tem), o J da forma mudando (a mão gira ao desenhar o J; o I parado não) e o K
+# anda no máximo 2 palmos (as passagens entre U, V e P com a mão andando muito viravam K). Chaves:
+# min_ ou max_ mais a medida do desenho(); {} desliga.
+REGRAS_LETRAS = {"Ç": {"min_vaivem_forma": 0.5}, "J": {"min_mudanca_forma": 0.5}, "K": {"max_deslocamento": 2.0}}
+REGRAS = {"min_p": MIN_P_LEITURA, "min_movimento": MIN_MOVIMENTO, "max_p_nenhum": 1.0, "letras": REGRAS_LETRAS}
+# Nomes das medidas do desenho no model.json (reading_rules.letter_rules, readingRules.ts)
+DESENHO_JSON = {"deslocamento": "displacement", "mudanca_forma": "shape_change", "vaivem_forma": "shape_oscillation"}
 
 # MLP: camadas ocultas, regularização L2 e "_" no treino (vezes a soma das letras)
 OCULTAS = (128, 64)
@@ -786,6 +856,8 @@ def montar_cache(trechos, ids, variacoes):
     if VIZINHAS:
         # só entra na chave quando ligado: o cache de antes continua valendo
         regras += [VIZINHAS, VARIACOES_VIZINHAS]
+    if VIZINHAS and VIZINHAS_FORTES:
+        regras += [VIZINHAS_FORTES, VARIACOES_FORTES]
     chave = hashlib.sha1((json.dumps(trechos, sort_keys=True) + json.dumps(regras)).encode()).hexdigest()[:16]
     path = os.path.join(DATA, "letras_mov", "cache", f"treino-{chave}.npz")
     if os.path.exists(path):
@@ -831,8 +903,23 @@ def avaliar(grupos, variacoes, **modelo):
 
 def regras_json(regras):
     """Regras de leitura no formato do model.json (reading_rules, readingRules.ts do app)."""
-    return {"min_probability": regras["min_p"], "min_motion": regras["min_movimento"],
-            "motion_shape_weight": PESO_FORMA, "max_none_probability": regras["max_p_nenhum"]}
+    out = {"min_probability": regras["min_p"], "min_motion": regras["min_movimento"],
+           "motion_shape_weight": PESO_FORMA, "max_none_probability": regras["max_p_nenhum"]}
+    if regras.get("letras"):
+        out["letter_rules"] = {L: {k.split("_", 1)[0] + "_" + DESENHO_JSON[k.split("_", 1)[1]]: v for k, v in r.items()}
+                               for L, r in regras["letras"].items()}
+    return out
+
+
+def regras_letras_arg(texto):
+    """--regras-letras: JSON {letra: {min_ ou max_ + medida do desenho(): valor}} ("{}" desliga)."""
+    regras = json.loads(texto)
+    for L, r in regras.items():
+        for k in r:
+            lado, _, medida = k.partition("_")
+            if lado not in ("min", "max") or medida not in DESENHO_JSON:
+                raise argparse.ArgumentTypeError(f"regra {k} da letra {L}: use min_ ou max_ + {', '.join(DESENHO_JSON)}")
+    return regras
 
 
 def treinar(out, variacoes, sementes=SEMENTES_CAMERA, regras=None):
@@ -921,12 +1008,16 @@ def treinar(out, variacoes, sementes=SEMENTES_CAMERA, regras=None):
 def medir_sementes(trechos, teste_ids, prevs, regras=None):
     """
     Soma, nos treinos `prevs` (sementes diferentes), o acerto por letra nos canais separados mais o
-    INES, os alarmes nas paradas das letras paradas e os alarmes do INES nas letras paradas.
+    INES, os alarmes nas paradas das letras paradas, os alarmes do INES nas letras paradas e os
+    alarmes nas paradas por par ("C->Ç").
     """
     soma, alarmes, paradas, ines_alarmes, ines_paradas = {}, 0, 0, collections.Counter(), 0
+    pares = collections.Counter()
     for prever in prevs:
+        res = medir_videos(trechos, teste_ids, prever, regras)
+        pares.update(f"{L}->{lida}" for r in res for L, lida, fonte in r["paradas"] if fonte == "alfabeto" and lida)
         with contextlib.redirect_stdout(io.StringIO()):
-            por, (al, par) = resumo(medir_videos(trechos, teste_ids, prever, regras), "")
+            por, (al, par) = resumo(res, "")
         linhas = medir_ines(trechos, prever, regras, imprime=False)
         for L, (a, b) in por.items():
             soma.setdefault(L, [0, 0])
@@ -943,7 +1034,7 @@ def medir_sementes(trechos, teste_ids, prevs, regras=None):
                     ines_alarmes[f"{L}->{r.split()[1]}"] += 1
         alarmes += al
         paradas += par
-    return soma, (alarmes, paradas), (ines_alarmes, ines_paradas)
+    return soma, (alarmes, paradas), (ines_alarmes, ines_paradas), pares
 
 
 def letras_camera(soma, sementes):
@@ -987,10 +1078,11 @@ def experimento(args):
             cv.update(prever.guardadas)
             print(f"  grupo {k + 1}/{args.grupos}", flush=True)
     with open(args.probs, "wb") as f:
-        pickle.dump({"sementes": sementes, "cv": cv, "vizinhas": VIZINHAS, "modelo": modelo}, f,
+        pickle.dump({"sementes": sementes, "cv": cv, "vizinhas": VIZINHAS, "fortes": VIZINHAS_FORTES, "modelo": modelo}, f,
                     protocol=pickle.HIGHEST_PROTOCOL)
     print(f"probabilidades em {args.probs}")
-    varrer_letras([args.probs], [REGRAS["min_p"]], [REGRAS["min_movimento"]], [REGRAS["max_p_nenhum"]])
+    varrer_letras([args.probs], [REGRAS["min_p"]], [REGRAS["min_movimento"]], [REGRAS["max_p_nenhum"]],
+                  letras=[{}, REGRAS["letras"]], por_letra=True)
 
 
 def _prever_guardado(guardadas):
@@ -1001,8 +1093,11 @@ def _prever_guardado(guardadas):
     return prever
 
 
-def varrer_letras(arquivos, min_ps, min_movs, max_nenhumas, por_letra=False):
-    """Varre as regras de leitura do app sobre as probabilidades do experimento (sem treinar de novo)."""
+def varrer_letras(arquivos, min_ps, min_movs, max_nenhumas, por_letra=False, letras=None):
+    """
+    Varre as regras de leitura do app sobre as probabilidades do experimento (sem treinar de novo).
+    `letras`: lista de regras por letra (REGRAS_LETRAS) a combinar com as outras.
+    """
     import itertools
     import pickle
 
@@ -1013,12 +1108,15 @@ def varrer_letras(arquivos, min_ps, min_movs, max_nenhumas, por_letra=False):
             d = pickle.load(f)
         prevs = [_prever_guardado(g) for g in d["sementes"]]
         n = len(prevs)
-        print(f"== {path} ({n} sementes, vizinhas {d.get('vizinhas') or '-'})")
+        print(f"== {path} ({n} sementes, vizinhas {d.get('vizinhas') or '-'}, fortes {d.get('fortes') or '-'})")
         print("min_p mov  max_ | " + " ".join(f"{L:>7s}" for L in LETRAS_MOV)
               + " | paradas      | INES paradas | VC certas  VC alarme | câmera")
-        for min_p, mm, mx in itertools.product(min_ps, min_movs, max_nenhumas):
-            regras = {"min_p": min_p, "min_movimento": mm, "max_p_nenhum": mx}
-            soma, (al, par), (ines_al, ines_par) = medir_sementes(trechos, teste_ids, prevs, regras)
+        for k, (regras_letras, min_p, mm, mx) in enumerate(itertools.product(letras or [REGRAS["letras"]], min_ps, min_movs,
+                                                                             max_nenhumas)):
+            if k == 0 or len(letras or []) > 1:
+                print(f"  regras por letra: {json.dumps(regras_letras, ensure_ascii=False) if regras_letras else '-'}")
+            regras = {"min_p": min_p, "min_movimento": mm, "max_p_nenhum": mx, "letras": regras_letras}
+            soma, (al, par), (ines_al, ines_par), pares = medir_sementes(trechos, teste_ids, prevs, regras)
             vc = ""
             if d["cv"]:
                 with contextlib.redirect_stdout(io.StringIO()):
@@ -1035,6 +1133,7 @@ def varrer_letras(arquivos, min_ps, min_movs, max_nenhumas, por_letra=False):
             if por_letra:
                 print("      ", " ".join(f"{L}:{a}/{b}" for L, (a, b) in sorted(soma.items())),
                       "| INES:", " ".join(f"{k}:{c}" for k, c in ines_al.most_common()))
+                print("       paradas:", " ".join(f"{k}:{c}" for k, c in pares.most_common(12)))
 
 
 def medir(pasta):
@@ -1069,6 +1168,8 @@ def main():
     t.add_argument("--min-p", type=float, default=MIN_P_LEITURA)
     t.add_argument("--min-movimento", type=float, default=MIN_MOVIMENTO, help="portão de movimento (0 desliga)")
     t.add_argument("--max-p-nenhum", type=float, default=1.0, help="teto do \"_\" (1 desliga)")
+    t.add_argument("--regras-letras", type=regras_letras_arg, default=REGRAS_LETRAS,
+                   help='regras por letra em JSON, ex. \'{"Ç": {"min_vaivem_forma": 0.5}}\' ("{}" desliga)')
     e = sub.add_parser("experimento")
     e.add_argument("--probs", required=True, help="arquivo (pickle) com as probabilidades, para o varrer")
     e.add_argument("--sementes", type=int, default=SEMENTES_CAMERA)
@@ -1085,11 +1186,13 @@ def main():
     v.add_argument("--min-movimento", type=float, nargs="+", default=[MIN_MOVIMENTO])
     v.add_argument("--max-p-nenhum", type=float, nargs="+", default=[1.0])
     v.add_argument("--por-letra", action="store_true")
+    v.add_argument("--regras-letras", type=regras_letras_arg, nargs="+", default=[REGRAS_LETRAS],
+                   help="um ou mais conjuntos de regras por letra em JSON (\"{}\" desliga)")
     args = ap.parse_args()
     if args.cmd == "experimento":
         experimento(args)
     elif args.cmd == "varrer":
-        varrer_letras(args.probs, args.min_p, args.min_movimento, args.max_p_nenhum, args.por_letra)
+        varrer_letras(args.probs, args.min_p, args.min_movimento, args.max_p_nenhum, args.por_letra, args.regras_letras)
     elif args.cmd == "medir":
         medir(args.modelo)
     elif args.cmd == "avaliar":
@@ -1097,7 +1200,8 @@ def main():
                 alpha=args.alpha, max_nenhuma=args.max_nenhuma)
     else:
         treinar(args.out, args.variacoes, args.sementes,
-                {"min_p": args.min_p, "min_movimento": args.min_movimento, "max_p_nenhum": args.max_p_nenhum})
+                {"min_p": args.min_p, "min_movimento": args.min_movimento, "max_p_nenhum": args.max_p_nenhum,
+                 "letras": args.regras_letras})
 
 
 if __name__ == "__main__":

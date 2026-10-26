@@ -12,7 +12,8 @@ devolve:
   espelhado), mais uma cópia com quadros sem mão e outra com uma segunda mão mais baixa: as
   janelas de 0,8, 1,2 e 1,6 s que terminam no último quadro, uma que começa antes do primeiro
   quadro e, no trecho quase sem mão, uma que não é avaliada (null), com o movimento de cada uma
-  (movimento do train_letras_mov.py, o portão de movimento das regras de leitura);
+  (movimento do train_letras_mov.py, o portão de movimento das regras de leitura) e o desenho da
+  janela inteira (desenho, as regras por letra);
 - entradas sorteadas com a mão presente em alguns passos, com o movimento;
 - um MLP pequeno de pesos sorteados no formato do modelo real (export_web, kind "letras-mov"), com
   o softmax de mlp_forward para as entradas dos trechos e duas sorteadas.
@@ -130,6 +131,10 @@ def trecho_fixture(lm_mod, tr, aspect, frames, com_reamostrada):
         w = lm_mod.janela(frames, aspect, t0, t1)
         item = {"t0": t0, "t1": t1, "input": None if w is None else arred(lm_mod.compactar(w)[0]),
                 "motion": None if w is None else float(lm_mod.movimento(lm_mod.compactar(w))[0])}
+        if w is not None:
+            med = lm_mod.desenho(w)
+            item["drawing"] = {"displacement": float(med["deslocamento"][0]), "shapeChange": float(med["mudanca_forma"][0]),
+                               "shapeOscillation": float(med["vaivem_forma"][0])}
         if i == 0 and com_reamostrada and w is not None:
             item["resampled"] = arred(w)
         saida.append(item)
