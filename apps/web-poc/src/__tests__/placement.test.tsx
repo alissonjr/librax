@@ -10,7 +10,7 @@ import { clearOutbox, pendingEntries } from '../lib/sync';
 import { SessionProvider, useSession } from '../hooks/useSession';
 import { MAO3D_MOVING, MAO3D_STATIC, maskHandGloss } from '../mao3d/disponivel';
 import {
-  alphabetCompleteWith, applyPlacement, buildPlacementPlan, countsForAlphabet, drawPlacementOptions,
+  applyPlacement, buildPlacementPlan, drawPlacementOptions, isReviewLesson, reviewLessonsToSkip, reviewSources,
   isPlacementDone, loadPlacementStatus, nextItemIndex, scorePlacement, undoPlacement, withinNoCameraCap,
   withoutCamera, ITEMS_PER_LESSON, NO_CAMERA_MAX_LESSONS,
   type PlacementAnswer, type PlacementCapabilities, type PlacementItem, type PlacementSign,
@@ -43,6 +43,9 @@ function seeded(seed = 7) {
 
 const u1 = course.units[0].lessons;
 const u2 = course.units[1].lessons;
+/** Lições com sinais novos (as testadas); as revisões não têm itens. */
+const u1Taught = u1.filter(l => !isReviewLesson(l));
+const u2Taught = u2.filter(l => !isReviewLesson(l));
 const signs = signsMap as Record<string, PlacementSign>;
 const gloss = (id: string) => signs[id].gloss;
 
@@ -62,8 +65,8 @@ describe('sorteio dos itens', () => {
   it('2 sinais por lição do alfabeto ainda não concluída, sem repetir, nas lições certas', () => {
     for (let seed = 1; seed < 30; seed++) {
       const plan = buildPlacementPlan({ completed: new Set(), includeNumbers: false, caps: caps(), signs, rng: seeded(seed) });
-      expect(plan).toHaveLength(u1.length * ITEMS_PER_LESSON);
-      for (const lesson of u1) {
+      expect(plan).toHaveLength(u1Taught.length * ITEMS_PER_LESSON);
+      for (const lesson of u1Taught) {
         const items = plan.filter(it => it.lessonId === lesson.id);
         expect(items).toHaveLength(2);
         expect(new Set(items.map(it => it.signId)).size).toBe(2);
@@ -81,7 +84,7 @@ describe('sorteio dos itens', () => {
       expect(motion('u1-l5')).toContain('X');
       expect(motion('u1-l6')).toContain('Ç');
       expect(motion('u1-l1')).toEqual([]);
-      for (const lesson of u1) {
+      for (const lesson of u1Taught) {
         const kinds = plan.filter(it => it.lessonId === lesson.id).map(it => it.kind);
         if (kinds.includes('camera-motion') && kinds[0] !== kinds[1]) expect(kinds[1]).toBe('camera-motion');
       }
@@ -104,7 +107,7 @@ describe('sorteio dos itens', () => {
 
   it('lições já concluídas ficam de fora', () => {
     const plan = buildPlacementPlan({ completed: new Set(['u1-l1', 'u1-l2']), includeNumbers: false, caps: caps(), signs, rng: seeded() });
-    expect(new Set(plan.map(it => it.lessonId))).toEqual(new Set(u1.slice(2).map(l => l.id)));
+    expect(new Set(plan.map(it => it.lessonId))).toEqual(new Set(u1Taught.slice(2).map(l => l.id)));
   });
 
   it('números só quando pedidos; sem câmera nos números, a mão em 3D (nada de 5 ou 10, que não têm mão)', () => {
@@ -112,7 +115,7 @@ describe('sorteio dos itens', () => {
     for (let seed = 1; seed < 30; seed++) {
       const plan = buildPlacementPlan({ completed: new Set(), includeNumbers: true, caps: caps(), signs, rng: seeded(seed) });
       const nums = plan.filter(it => it.lessonId.startsWith('u2'));
-      expect(nums).toHaveLength(u2.length * 2);
+      expect(nums).toHaveLength(u2Taught.length * 2);
       nums.forEach(it => {
         expect(it.kind).toBe('choice');
         expect(['5', '10']).not.toContain(gloss(it.signId));
@@ -266,30 +269,37 @@ describe('pular lições (gravação)', () => {
   });
 });
 
+describe('lições de revisão', () => {
+  it('as revisões (sem sinal novo) não têm itens no teste', () => {
+    expect(u1.filter(isReviewLesson).map(l => l.id)).toEqual(['u1-l7', 'u1-l8']);
+    expect(u2.filter(isReviewLesson).map(l => l.id)).toEqual(['u2-l3']);
+    expect(isReviewLesson(course.lessonsMap['u1-l6'])).toBe(false); // o Ç é novo
+    const plan = buildPlacementPlan({ completed: new Set(), includeNumbers: true, caps: caps(), signs, rng: seeded() });
+    expect(plan.some(it => ['u1-l7', 'u1-l8', 'u2-l3'].includes(it.lessonId))).toBe(false);
+    expect(reviewSources(course.lessonsMap['u1-l8']).sort()).toEqual(['u1-l1', 'u1-l2', 'u1-l3', 'u1-l4', 'u1-l6']);
+  });
+
+  it('só são puladas junto quando todas as lições de origem foram puladas', () => {
+    const none = new Set<string>();
+    const all = new Set(u1Taught.map(l => l.id));
+    expect(reviewLessonsToSkip(false, all, none)).toEqual(['u1-l7', 'u1-l8']);
+    // Sem o Ç pulado, a revisão do movimento (C/Ç) fica; a das parecidas (F/T, U/V, M/N) vai junto
+    const semCedilha = new Set([...all].filter(id => id !== 'u1-l6'));
+    expect(reviewLessonsToSkip(false, semCedilha, none)).toEqual(['u1-l7']);
+    // Origem concluída de verdade não basta: quem fez a lição pelo curso faz a revisão
+    expect(reviewLessonsToSkip(false, none, all)).toEqual([]);
+    // Revisão já concluída fica de fora
+    expect(reviewLessonsToSkip(false, all, new Set(['u1-l7']))).toEqual(['u1-l8']);
+    // A de números depende de letras e números, e só entra com os números no teste
+    const tudo = new Set([...all, ...u2Taught.map(l => l.id)]);
+    expect(reviewLessonsToSkip(false, tudo, none)).not.toContain('u2-l3');
+    expect(reviewLessonsToSkip(true, tudo, none)).toContain('u2-l3');
+    expect(reviewLessonsToSkip(true, all, none)).not.toContain('u2-l3');
+  });
+});
+
 describe('Alfabeto completo com o teste', () => {
-  it('lição pulada só conta se o teste cobriu todas as letras dela', () => {
-    const l1 = course.lessonsMap['u1-l1'];
-    expect(countsForAlphabet(l1, { status: 'completed', bestScore: 1 })).toBe(true);
-    expect(countsForAlphabet(l1, { status: 'completed', placement: true, placementSigns: ['letra-A', 'letra-B'] })).toBe(false);
-    expect(countsForAlphabet(l1, { status: 'completed', placement: true, placementSigns: [...l1.signIds] })).toBe(true);
-    expect(countsForAlphabet(l1, null)).toBe(false);
-  });
-
-  it('sem teste, é o mesmo que concluir a última lição da U1 com as outras feitas', async () => {
-    const repo = await newRepo();
-    for (const l of u1.slice(0, -1)) await repo.saveProgress('user-p', l.id, { status: 'completed', bestScore: 1 });
-    expect(await alphabetCompleteWith(repo, 'user-p', 'u1-l6')).toBe(true);
-    expect(await alphabetCompleteWith(repo, 'user-p', 'u2-l1')).toBe(false);
-    await repo.deleteProgress('user-p', 'u1-l3');
-    expect(await alphabetCompleteWith(repo, 'user-p', 'u1-l6')).toBe(false);
-    // Refazer a que faltava completa
-    for (const l of u1.slice(3)) await repo.saveProgress('user-p', l.id, { status: 'completed', bestScore: 1 });
-    expect(await alphabetCompleteWith(repo, 'user-p', 'u1-l3')).toBe(true);
-  });
-
-  it('concluir a última da U1 depois de pular as outras: XP só dela, sem ALFABETO, unidade sem XP falso', async () => {
-    const repo = await newRepo();
-    await applyPlacement(repo, 'user-p', u1.slice(0, -1).map(l => ({ lessonId: l.id, passedSigns: l.signIds.slice(0, 2) })), '2026-10-26');
+  async function sessionFor(repo: IdbRepo) {
     let session: ReturnType<typeof useSession> | null = null;
     function Probe() {
       session = useSession();
@@ -298,24 +308,47 @@ describe('Alfabeto completo com o teste', () => {
     await act(async () => {
       render(<SessionProvider repo={repo} userId="user-p" brokenStreak={0}><Probe /></SessionProvider>);
     });
+    return () => session!;
+  }
+
+  it('o teste nunca dá a conquista; ela vem ao concluir de verdade a última da U1, como no servidor', async () => {
+    const repo = await newRepo();
+    const last = u1[u1.length - 1];
+    await applyPlacement(repo, 'user-p', u1.slice(0, -1).map(l => ({ lessonId: l.id, passedSigns: l.signIds.slice(0, 2) })), '2026-10-26');
+    expect(((await repo.getProfile('user-p')) as Record<string, unknown>).achievements).toEqual([]);
+
+    const session = await sessionFor(repo);
     let after: unknown;
     await act(async () => {
-      after = await session!.finishLesson({
-        lessonId: 'u1-l6', score: 1, xpReward: 10, signsLearnedDelta: 1, isLastLesson: false,
+      after = await session().finishLesson({
+        lessonId: last.id, score: 1, xpReward: last.xpReward, signsLearnedDelta: 0, isLastLesson: false,
         reviewed: [{ signId: 'letra-Ç', result: { state: 'correct', highConfidence: true } }],
       });
     });
     expect(after).toBe('unit');
-    const s = session!;
-    expect(s.completion?.xpAwarded).toBe(course.lessonsMap['u1-l6'].xpReward);
-    expect(s.completion?.achievementsEarned).not.toContain('ALFABETO');
-    expect(s.completion?.achievementsEarned).not.toContain('SINAIS_26');
-    expect(s.unitCompletion?.xpGained).toBe(course.lessonsMap['u1-l6'].xpReward);
+    const s = session();
+    // Mesma regra do servidor (alphabetLessonId = última lição da U1)
+    expect(s.completion?.achievementsEarned).toContain('ALFABETO');
+    // XP só da lição feita; a tela da unidade não soma as puladas
+    expect(s.completion?.xpAwarded).toBe(last.xpReward);
+    expect(s.unitCompletion?.xpGained).toBe(last.xpReward);
     const profile = await repo.getProfile('user-p') as Record<string, unknown>;
-    expect(profile.xpTotal).toBe(course.lessonsMap['u1-l6'].xpReward);
+    expect(profile.xpTotal).toBe(last.xpReward);
     expect(profile.lessonsCompleted).toBe(1);
-    expect(profile.alphabetComplete).toBeUndefined();
     // Só a lição feita vai para a fila de envio
-    expect((await pendingEntries()).map(e => e.lessonId)).toEqual(['u1-l6']);
+    expect((await pendingEntries()).map(e => e.lessonId)).toEqual([last.id]);
+  });
+
+  it('concluir uma lição do meio da U1 depois de pular as outras não dá a conquista', async () => {
+    const repo = await newRepo();
+    await applyPlacement(repo, 'user-p', u1.filter(l => l.id !== 'u1-l6').map(l => ({ lessonId: l.id, passedSigns: [] })), '2026-10-26');
+    const session = await sessionFor(repo);
+    await act(async () => {
+      await session().finishLesson({
+        lessonId: 'u1-l6', score: 1, xpReward: 10, signsLearnedDelta: 1, isLastLesson: false, reviewed: [],
+      });
+    });
+    expect(session().completion?.achievementsEarned).not.toContain('ALFABETO');
+    expect(session().completion?.achievementsEarned).not.toContain('SINAIS_26');
   });
 });

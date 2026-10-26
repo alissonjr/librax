@@ -425,6 +425,7 @@ function PlacementRoute() {
           nav.backTo(ROUTES.learn);
         }}
         onTestingChange={setTesting}
+        paused={exit.asking}
       />
       <Dialog
         isOpen={exit.asking}

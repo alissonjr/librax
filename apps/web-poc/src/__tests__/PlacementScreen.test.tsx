@@ -27,6 +27,7 @@ vi.mock('../recognition/landmarker', async (importOriginal) => ({
 }));
 
 import { PlacementScreen } from '../screens/PlacementScreen';
+import { PlacementChoiceItem } from '../components/PlacementItems';
 import { IdbRepo } from '../lib/idbRepo';
 import { upgradeLibraxDb } from '../lib/db';
 import { signsMap } from '../lib/content';
@@ -118,6 +119,8 @@ describe('PlacementScreen', () => {
     await answerChoice(signs[plan[3].signId].gloss);
 
     expect(await screen.findByText('Vamos estudar')).toBeInTheDocument();
+    // As revisões da U1 dependem de lições que não foram testadas: ficam para fazer
+    expect(screen.getAllByText('Vamos fazer')).toHaveLength(2);
     const skip = screen.getByRole('checkbox');
     expect(skip).toBeChecked();
     await userEvent.click(skip);
@@ -137,6 +140,19 @@ describe('PlacementScreen', () => {
     expect(await screen.findByText(/sem câmera, o teste segue só com reconhecimento/i)).toBeInTheDocument();
     expect(await screen.findByRole('radiogroup')).toBeInTheDocument();
     expect(screen.getByText('1/4')).toBeInTheDocument();
+  });
+});
+
+describe('tempo do item', () => {
+  it('para enquanto o "Sair do teste?" está aberto e volta a contar ao fechar', async () => {
+    const sign = signsMap['letra-A'];
+    const options = ['letra-A', 'letra-B', 'letra-C', 'letra-D'].map(id => signsMap[id]);
+    const { rerender } = render(<PlacementChoiceItem sign={sign} options={options} onAnswer={vi.fn()} paused />);
+    expect(screen.getByRole('timer')).toHaveAccessibleName(/30 segundos/);
+    await new Promise(r => setTimeout(r, 1200));
+    expect(screen.getByRole('timer')).toHaveAccessibleName(/30 segundos/);
+    rerender(<PlacementChoiceItem sign={sign} options={options} onAnswer={vi.fn()} paused={false} />);
+    await waitFor(() => expect(screen.getByRole('timer')).toHaveAccessibleName(/29 segundos/), { timeout: 2000 });
   });
 });
 

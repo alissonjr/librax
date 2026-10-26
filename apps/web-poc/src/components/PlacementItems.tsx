@@ -70,6 +70,8 @@ interface CameraItemProps {
   onAnswer: (answer: PlacementAnswer) => void;
   /** A câmera não ficou disponível: 'denied' para o teste todo, 'model' só para este sinal. */
   onCameraLost: (reason: CameraLoss) => void;
+  /** "Sair do teste?" aberto: o tempo para e nada avança sozinho. */
+  paused?: boolean;
 }
 
 interface StageProps {
@@ -82,21 +84,22 @@ interface StageProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   succeeded: boolean;
   limitMs: number;
+  paused: boolean;
   onNext: () => void;
   onSkip: () => void;
 }
 
 /** Palco comum dos itens com câmera: alvo, vídeo com o esqueleto, tempo, acerto e "Não sei". */
-function CameraStage({ sign, prompt, status, handPresent, hint, videoRef, canvasRef, succeeded, limitMs, onNext, onSkip }: StageProps) {
+function CameraStage({ sign, prompt, status, handPresent, hint, videoRef, canvasRef, succeeded, limitMs, paused, onNext, onSkip }: StageProps) {
   const { t } = useT();
-  const { left, expired, extend } = useCountdown(limitMs, status === 'active' && !succeeded);
+  const { left, expired, extend } = useCountdown(limitMs, status === 'active' && !succeeded && !paused);
 
-  // Acerto: a próxima entra sozinha, com o botão à vista
+  // Acerto: a próxima entra sozinha, com o botão à vista (não com o "Sair do teste?" aberto)
   useEffect(() => {
-    if (!succeeded) return;
+    if (!succeeded || paused) return;
     const timer = window.setTimeout(onNext, SUCCESS_ADVANCE_MS);
     return () => window.clearTimeout(timer);
-  }, [succeeded, onNext]);
+  }, [succeeded, paused, onNext]);
 
   return (
     <div className="exercise-screen cam-sign-layout placement-item">
@@ -154,7 +157,7 @@ function CameraStage({ sign, prompt, status, handPresent, hint, videoRef, canvas
 }
 
 /** Letra parada ou número de 0 a 9: o classificador das letras ou o modelo dos números. */
-export function PlacementCameraItem({ sign, onAnswer, onCameraLost }: CameraItemProps) {
+export function PlacementCameraItem({ sign, onAnswer, onCameraLost, paused = false }: CameraItemProps) {
   const { t } = useT();
   const isNumber = sign.category === 'numeros';
   const cam = useCameraRecognizer({ classifier: isNumber ? 'numeros' : 'letras' });
@@ -208,6 +211,7 @@ export function PlacementCameraItem({ sign, onAnswer, onCameraLost }: CameraItem
       canvasRef={cam.canvasRef}
       succeeded={succeeded}
       limitMs={ITEM_TIME_MS[isNumber ? 'camera-number' : 'camera-letter']}
+      paused={paused}
       onNext={() => answer(true)}
       onSkip={() => answer(false)}
     />
@@ -215,7 +219,7 @@ export function PlacementCameraItem({ sign, onAnswer, onCameraLost }: CameraItem
 }
 
 /** Letra com movimento (H, J, K, X, Ç): o modelo das letras com movimento, com a mesma regra de leitura da lição. */
-export function PlacementMotionItem({ sign, onAnswer, onCameraLost }: CameraItemProps) {
+export function PlacementMotionItem({ sign, onAnswer, onCameraLost, paused = false }: CameraItemProps) {
   const { t } = useT();
   const cam = useLetterMotionCamera(sign.gloss);
   const [succeeded, setSucceeded] = useState(false);
@@ -271,6 +275,7 @@ export function PlacementMotionItem({ sign, onAnswer, onCameraLost }: CameraItem
       canvasRef={cam.canvasRef}
       succeeded={succeeded}
       limitMs={ITEM_TIME_MS['camera-motion']}
+      paused={paused}
       onNext={() => answer(true)}
       onSkip={() => answer(false)}
     />
@@ -316,14 +321,16 @@ interface ChoiceItemProps {
   /** As 4 opções, já sorteadas (lib/placement.ts drawPlacementOptions). */
   options: { id: string; gloss: string }[];
   onAnswer: (answer: PlacementAnswer) => void;
+  /** "Sair do teste?" aberto: o tempo para. */
+  paused?: boolean;
 }
 
-export function PlacementChoiceItem({ sign, options, onAnswer }: ChoiceItemProps) {
+export function PlacementChoiceItem({ sign, options, onAnswer, paused = false }: ChoiceItemProps) {
   const { t } = useT();
   const [selected, setSelected] = useState<string | null>(null);
   const radios = useRef<(HTMLButtonElement | null)[]>([]);
   const answered = useRef(false);
-  const { left, expired, extend } = useCountdown(ITEM_TIME_MS.choice, true);
+  const { left, expired, extend } = useCountdown(ITEM_TIME_MS.choice, !paused);
   const isNumber = sign.category === 'numeros';
 
   const answer = (correct: boolean) => {

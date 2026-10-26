@@ -17,6 +17,10 @@ import type { IdbRepo } from './idbRepo';
  * - Pular é só abrir caminho: a lição é gravada como concluída com `placement: true`, sem XP, sem
  *   sequência, sem SRS, sem conquista e sem ir para a fila de envio (sync.ts). A lição pulada
  *   continua aberta para refazer; refeita, vira uma conclusão normal (o registro é substituído).
+ * - Lições de revisão (sem sinal novo, como "letras parecidas") não têm itens: são puladas junto
+ *   só quando todas as lições de onde vêm os sinais delas foram puladas no teste ou já concluídas.
+ * - "Alfabeto completo" segue a regra do servidor: concluir de verdade a última lição da U1
+ *   (alphabetLessonId). O teste nunca dá a conquista; se ela foi pulada, vem ao refazê-la.
  * - Desfazer (Configurações) apaga os registros com `placement` e o convite volta.
  *
  * O servidor não fica sabendo do teste: o app não lê o progresso do servidor, e mandar a lição
@@ -99,6 +103,52 @@ export function itemKind(sign: PlacementSign, caps: PlacementCapabilities): Plac
   return 'choice';
 }
 
+/** De qual lição vem cada sinal (a primeira do curso que o tem). */
+function sourceLessons(): Map<string, string> {
+  const source = new Map<string, string>();
+  for (const unit of course.units) {
+    for (const lesson of unit.lessons) {
+      for (const id of lesson.signIds) if (!source.has(id)) source.set(id, lesson.id);
+    }
+  }
+  return source;
+}
+
+/** Lição de revisão: nenhum sinal novo (todos vieram de lições anteriores). */
+export function isReviewLesson(lesson: Lesson): boolean {
+  const source = sourceLessons();
+  return lesson.signIds.length > 0 && lesson.signIds.every(id => source.get(id) !== lesson.id);
+}
+
+/** Lições de onde vêm os sinais de uma lição de revisão. */
+export function reviewSources(lesson: Lesson): string[] {
+  const source = sourceLessons();
+  return [...new Set(lesson.signIds.map(id => source.get(id)).filter((id): id is string => !!id && id !== lesson.id))];
+}
+
+/**
+ * Lições de revisão (das cobertas pelo teste, ainda não concluídas) que podem ser puladas junto: todas
+ * as lições de origem estão em `skipped` (puladas agora ou num teste anterior). Origem concluída de
+ * verdade não basta: quem fez a lição pelo curso faz a revisão dela. Uma revisão pode depender de
+ * outra revisão pulada nesta mesma rodada, por isso repete até estabilizar.
+ */
+export function reviewLessonsToSkip(includeNumbers: boolean, skipped: ReadonlySet<string>, completed: ReadonlySet<string>): string[] {
+  const reviews = placementLessons(includeNumbers).filter(l => !completed.has(l.id) && isReviewLesson(l));
+  const ok = new Set<string>();
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const lesson of reviews) {
+      if (ok.has(lesson.id)) continue;
+      if (reviewSources(lesson).every(id => skipped.has(id) || ok.has(id))) {
+        ok.add(lesson.id);
+        changed = true;
+      }
+    }
+  }
+  return reviews.filter(l => ok.has(l.id)).map(l => l.id);
+}
+
 function pickRandom<T>(list: T[], rng: () => number): T | undefined {
   if (list.length === 0) return undefined;
   return list[Math.min(list.length - 1, Math.floor(rng() * list.length))];
@@ -121,7 +171,7 @@ export interface PlanOptions {
  */
 export function buildPlacementPlan({ completed, includeNumbers, caps, signs, rng = Math.random }: PlanOptions): PlacementItem[] {
   const lessons = placementLessons(includeNumbers && caps.camera)
-    .filter(l => !completed.has(l.id))
+    .filter(l => !completed.has(l.id) && !isReviewLesson(l))
     .filter(l => caps.camera || withinNoCameraCap(l.id));
   const seenBefore = new Set<string>();
   // Sinais das lições anteriores do curso (mesmo as concluídas), para achar os novos de cada uma
@@ -341,29 +391,4 @@ export async function loadPlacementStatus(repo: IdbRepo, userId: string): Promis
   const unitDone = letters.every(l => recs[lessons.indexOf(l)]?.status === 'completed');
   const placed = lessons.filter((_, i) => isPlacementRecord(recs[i])).map(l => l.id);
   return { offer: !isPlacementDone() && !unitDone, placed };
-}
-
-/* ---------- efeitos na conclusão de lição ---------- */
-
-/** A lição conta para o "Alfabeto completo": feita de verdade, ou pulada num teste que cobriu todas as letras dela. */
-export function countsForAlphabet(lesson: Lesson, rec: unknown): boolean {
-  const r = rec as ProgressRecord | null;
-  if (r?.status !== 'completed') return false;
-  if (!r.placement) return true;
-  const covered = new Set(r.placementSigns ?? []);
-  return lesson.signIds.every(id => covered.has(id));
-}
-
-/**
- * Concluir `lessonId` agora completa o alfabeto? Só quando é uma lição da unidade 1 e todas as outras
- * da unidade contam (countsForAlphabet). Sem o teste, é o mesmo que "concluiu a última da U1".
- */
-export async function alphabetCompleteWith(repo: IdbRepo, userId: string, lessonId: string): Promise<boolean> {
-  const lessons = letterUnit()?.lessons ?? [];
-  if (!lessons.some(l => l.id === lessonId)) return false;
-  for (const lesson of lessons) {
-    if (lesson.id === lessonId) continue;
-    if (!countsForAlphabet(lesson, await repo.getProgress(userId, lesson.id))) return false;
-  }
-  return true;
 }
