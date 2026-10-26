@@ -4,7 +4,7 @@ import type { Lm } from '../lib/recognizer';
 import { drawSkeleton } from '../lib/cameraUtils';
 import { detectHands, getHandLandmarker, peekHandLandmarker } from '../recognition/landmarker';
 import { startFrameLoop } from '../recognition/frameLoop';
-import { loadLetterMotionModel } from '../recognition/letterMotionModel';
+import { getLetterMotionReadingRules, loadLetterMotionModel } from '../recognition/letterMotionModel';
 import {
   createLetterMotionRecognizer, LETTER_EVAL_MS, type LetterFrame, type LetterMotionRecognizer,
 } from '../recognition/letterMotion';
@@ -142,7 +142,7 @@ export function useLetterMotionCamera(target: string): UseLetterMotionCameraRetu
         setStatus('unavailable');
         return;
       }
-      recognizerRef.current = createLetterMotionRecognizer(model);
+      recognizerRef.current = createLetterMotionRecognizer(model, getLetterMotionReadingRules());
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },

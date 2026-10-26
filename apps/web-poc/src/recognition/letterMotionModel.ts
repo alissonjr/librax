@@ -2,15 +2,18 @@ import { LETTER_MOTION_DIR } from './mlAssets';
 import { parseMlp, type MlpModel } from './mlp';
 import { NORMALIZATION_VERSION } from './normalize';
 import {
-  LETTER_FRAME_DIM, LETTER_INPUT_DIM, LETTER_MODEL_FRAMES, LETTER_WINDOW_FRAMES, LETTER_WINDOWS_S, NO_LETTER,
+  LETTER_FRAME_DIM, LETTER_INPUT_DIM, LETTER_MIN_PROBABILITY, LETTER_MODEL_FRAMES, LETTER_WINDOW_FRAMES, LETTER_WINDOWS_S,
+  NO_LETTER,
 } from './letterMotion';
+import { defaultReadingRules, readingRulesFromJson, type ReadingRules } from './readingRules';
 
 /**
  * Modelo das letras com movimento (ml-training/train_letras_mov.py treinar), em /ml/letras-mov/.
  *
  * - model.json: o mesmo librax-mlp das letras paradas, com kind "letras-mov", frames,
  *   features_per_frame, window_frames e windows_s. Rótulos: as letras e "_" (nenhuma letra com
- *   movimento).
+ *   movimento). Com reading_rules, as regras de leitura do treino (limiar, portão de movimento e
+ *   teto do "_", readingRules.ts).
  * - weights.bin: pesos float32 (mlp.ts).
  *
  * Sem modelo publicado nada muda: H e K continuam com o modelo das letras paradas (a forma da mão)
@@ -25,6 +28,8 @@ export interface LetterMotionIndex {
   /** Letras que a câmera avalia com o movimento (camera_letters, sem "_"). */
   letters: ReadonlySet<string>;
   weightsFile: string;
+  /** Regras de leitura (reading_rules do model.json, ou só o limiar). */
+  rules: ReadingRules;
   json: unknown;
 }
 
@@ -48,6 +53,8 @@ export function checkLetterMotionModelJson(json: unknown): string | null {
   if (m.input_dim !== LETTER_INPUT_DIM) return `input_dim ${String(m.input_dim)}, esperado ${LETTER_INPUT_DIM}`;
   if (!Array.isArray(m.labels) || !m.labels.includes(NO_LETTER)) return `sem a classe "${NO_LETTER}"`;
   if (m.camera_letters !== undefined && !Array.isArray(m.camera_letters)) return 'camera_letters não é uma lista';
+  const rules = readingRulesFromJson(m, LETTER_MIN_PROBABILITY);
+  if (typeof rules === 'string') return rules;
   return null;
 }
 
@@ -84,7 +91,8 @@ async function fetchIndex(): Promise<LetterMotionIndex | null> {
     }
     const labels = (json.labels as unknown[]).map(String);
     const weightsFile = typeof json.weights?.file === 'string' ? json.weights.file : 'weights.bin';
-    return { labels, letters: cameraLetters(json, labels), weightsFile, json };
+    const rules = readingRulesFromJson(json, LETTER_MIN_PROBABILITY) as ReadingRules;
+    return { labels, letters: cameraLetters(json, labels), weightsFile, rules, json };
   } catch {
     // Sem modelo, offline ou sem resposta a tempo: segue sem
     return null;
@@ -107,6 +115,11 @@ export function loadLetterMotionIndex(): Promise<ReadonlySet<string>> {
 /** Letras que a câmera avalia com o movimento agora (vazio até o loadLetterMotionIndex terminar, ou sem modelo). */
 export function getMotionLetters(): ReadonlySet<string> {
   return index?.letters ?? EMPTY;
+}
+
+/** Regras de leitura do modelo publicado (só o limiar enquanto não há índice). */
+export function getLetterMotionReadingRules(): ReadingRules {
+  return index?.rules ?? defaultReadingRules(LETTER_MIN_PROBABILITY);
 }
 
 /** O modelo com os pesos, carregado na primeira vez que um exercício de letra com movimento abre. */
@@ -132,7 +145,7 @@ export function loadLetterMotionModel(): Promise<MlpModel | null> {
 }
 
 /** Só para testes: define o modelo (ou esquece tudo com null). */
-export function setLetterMotionModelForTests(next: { model: MlpModel } | null): void {
+export function setLetterMotionModelForTests(next: { model: MlpModel; rules?: ReadingRules } | null): void {
   if (!next) {
     index = null;
     indexLoading = null;
@@ -140,7 +153,10 @@ export function setLetterMotionModelForTests(next: { model: MlpModel } | null): 
     return;
   }
   const labels = next.model.labels;
-  index = { labels, letters: new Set(labels.filter(l => l !== NO_LETTER)), weightsFile: 'weights.bin', json: null };
+  index = {
+    labels, letters: new Set(labels.filter(l => l !== NO_LETTER)), weightsFile: 'weights.bin',
+    rules: next.rules ?? defaultReadingRules(LETTER_MIN_PROBABILITY), json: null,
+  };
   indexLoading = Promise.resolve(index);
   model = Promise.resolve(next.model);
 }

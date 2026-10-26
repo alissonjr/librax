@@ -8,7 +8,7 @@ import { NORMALIZATION_VERSION } from '../recognition/normalize';
 import {
   compactLetterWindow, createLetterMotionRecognizer, frameHand, LETTER_BUFFER_S, LETTER_EVAL_MS, LETTER_FRAME_DIM,
   LETTER_MIN_PROBABILITY, LETTER_MODEL_FRAME_INDEX, LETTER_MODEL_FRAMES, LETTER_WINDOW_FRAMES, LETTER_WINDOWS_S,
-  letterWindow, MIN_PRESENCE, NO_LETTER, windowHandedness, type LetterFrame,
+  letterWindow, letterWindowMotion, MIN_PRESENCE, NO_LETTER, windowHandedness, type LetterFrame,
 } from '../recognition/letterMotion';
 import { checkLetterMotionModelJson } from '../recognition/letterMotionModel';
 import { CONFIRM_READINGS } from '../hooks/useSignCameraRecognizer';
@@ -26,13 +26,15 @@ interface RawFrame { t: number; hands: RawHand[] }
 interface Fixture {
   contract: {
     normalization_version: number; T: number; F: number; frames: number; windows_s: number[]; min_presence: number;
-    min_p: number; none: string; buffer_s: number; eval_s: number; confirm: number;
+    min_p: number; none: string; buffer_s: number; eval_s: number; confirm: number; motion_shape_weight: number;
   };
+  /** Entradas sorteadas com a mão em alguns passos, com o movimento do Python. */
+  motionCases: { input: number[]; motion: number }[];
   handCases: { name: string; frame: RawFrame; expected: number | null }[];
   labelCases: { name: string; frames: RawFrame[]; t0: number; t1: number; expected: string | null }[];
   clips: {
     id: string; letra: string; aspect: number; frames: RawFrame[];
-    windows: { t0: number; t1: number; input: number[] | null; resampled?: number[] }[];
+    windows: { t0: number; t1: number; input: number[] | null; motion: number | null; resampled?: number[] }[];
   }[];
 }
 interface GoldenCase { clip?: number; window?: number; input?: number[]; probs: number[] }
@@ -137,6 +139,23 @@ describe('janela e entrada do modelo', () => {
       expect(got.map(w => w.duration)).toEqual(expected.map(w => w.duration));
       got.forEach((w, i) => expect(maxDiff(w.input, expected[i].input!)).toBeLessThan(TOLERANCE));
     }
+  });
+});
+
+describe('movimento da janela (portão das regras de leitura)', () => {
+  it('o mesmo do movimento() do train_letras_mov.py nas janelas reais e em entradas sorteadas', () => {
+    const weight = fixture.contract.motion_shape_weight;
+    let n = 0;
+    for (const clip of fixture.clips) {
+      for (const w of clip.windows) {
+        if (w.input === null) continue;
+        expect(Math.abs(letterWindowMotion(w.input, weight) - w.motion!)).toBeLessThan(TOLERANCE);
+        n++;
+      }
+    }
+    expect(n).toBeGreaterThan(12);
+    expect(fixture.motionCases.length).toBeGreaterThanOrEqual(4);
+    for (const c of fixture.motionCases) expect(Math.abs(letterWindowMotion(c.input, weight) - c.motion)).toBeLessThan(TOLERANCE);
   });
 });
 

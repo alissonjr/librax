@@ -1,6 +1,7 @@
 import { SIGN_MODEL_DIR } from './mlAssets';
 import { parseMlp, type MlpModel } from './mlp';
 import { NORMALIZATION_VERSION } from './normalize';
+import { defaultReadingRules, readingRulesFromJson, type ReadingRules } from './readingRules';
 import { MODEL_FRAMES, SIGN_FRAME_DIM, SIGN_INPUT_DIM, WINDOW_FRAMES } from './signFeatures';
 
 /**
@@ -30,6 +31,8 @@ export interface SignModelIndex {
   /** Glosas que a câmera avalia (camera_signs, ou todas as do modelo sem "_" quando não há a lista). */
   glosses: ReadonlySet<string>;
   weightsFile: string;
+  /** Regras de leitura (reading_rules do model.json, ou só o limiar). */
+  rules: ReadingRules;
   json: unknown;
 }
 
@@ -49,6 +52,8 @@ export function checkSignModelJson(json: unknown): string | null {
   if (m.input_dim !== SIGN_INPUT_DIM) return `input_dim ${String(m.input_dim)}, esperado ${SIGN_INPUT_DIM}`;
   if (!Array.isArray(m.labels) || !m.labels.includes(NO_SIGN_LABEL)) return `sem a classe "${NO_SIGN_LABEL}"`;
   if (m.camera_signs !== undefined && !Array.isArray(m.camera_signs)) return 'camera_signs não é uma lista';
+  const rules = readingRulesFromJson(m, SIGN_MIN_PROBABILITY);
+  if (typeof rules === 'string') return rules;
   return null;
 }
 
@@ -84,7 +89,8 @@ async function fetchIndex(): Promise<SignModelIndex | null> {
     }
     const labels = (json.labels as unknown[]).map(String);
     const weightsFile = typeof json.weights?.file === 'string' ? json.weights.file : 'weights.bin';
-    return { labels, glosses: cameraSigns(json, labels), weightsFile, json };
+    const rules = readingRulesFromJson(json, SIGN_MIN_PROBABILITY) as ReadingRules;
+    return { labels, glosses: cameraSigns(json, labels), weightsFile, rules, json };
   } catch {
     // Sem modelo, offline ou sem resposta a tempo: segue sem
     return null;
@@ -107,6 +113,11 @@ export function loadSignIndex(): Promise<ReadonlySet<string>> {
 /** Glosas que a câmera avalia agora (vazio até o loadSignIndex terminar, ou sem modelo). */
 export function getSignGlosses(): ReadonlySet<string> {
   return index?.glosses ?? EMPTY;
+}
+
+/** Regras de leitura do modelo publicado (só o limiar enquanto não há índice). */
+export function getSignReadingRules(): ReadingRules {
+  return index?.rules ?? defaultReadingRules(SIGN_MIN_PROBABILITY);
 }
 
 /** Há modelo de sinais publicado (depois do loadSignIndex)? */
@@ -140,7 +151,9 @@ export function loadSignModel(): Promise<MlpModel | null> {
  * Só para testes: define o modelo (ou esquece tudo com null). `cameraSigns` faz o papel do
  * camera_signs do model.json (sem ele, todas as glosas do modelo).
  */
-export function setSignModelForTests(next: { model: MlpModel; cameraSigns?: readonly string[] } | null): void {
+export function setSignModelForTests(
+  next: { model: MlpModel; cameraSigns?: readonly string[]; rules?: ReadingRules } | null,
+): void {
   if (!next) {
     index = null;
     indexLoading = null;
@@ -149,7 +162,7 @@ export function setSignModelForTests(next: { model: MlpModel; cameraSigns?: read
   }
   const labels = next.model.labels;
   const glosses = cameraSigns(next.cameraSigns ? { camera_signs: [...next.cameraSigns] } : {}, labels);
-  index = { labels, glosses, weightsFile: 'weights.bin', json: null };
+  index = { labels, glosses, weightsFile: 'weights.bin', rules: next.rules ?? defaultReadingRules(SIGN_MIN_PROBABILITY), json: null };
   indexLoading = Promise.resolve(index);
   model = Promise.resolve(next.model);
 }

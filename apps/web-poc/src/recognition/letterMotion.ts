@@ -1,6 +1,7 @@
 import type { Lm } from '../lib/recognizer';
 import { isLeftHand, normalizeHand, FEATURE_DIM } from './normalize';
 import { predict, type MlpModel } from './mlp';
+import { defaultReadingRules, windowMotion, type MotionSlot, type ReadingRules } from './readingRules';
 
 /**
  * Letras com movimento do alfabeto manual (H, J, K, X, Z e Ç): entrada do modelo e reconhecedor
@@ -41,6 +42,16 @@ export const LETTER_MIN_PROBABILITY = 0.6;
 export const NO_LETTER = '_';
 /** Janela só é avaliada quando o buffer cobre pelo menos esta fração dela (como nos sinais). */
 const MIN_COVERAGE = 0.9;
+/** Presença, pulso (em palmos) e os 65 da normalizeHand em cada passo, para o movimento da janela. */
+const LETTER_MOTION_SLOTS: readonly MotionSlot[] = [{ presence: 0, wrist: 1, shape: [4, LETTER_FRAME_DIM] }];
+
+/** Movimento da janela (entrada do modelo): o movimento() do train_letras_mov.py. */
+export function letterWindowMotion(input: ArrayLike<number>, shapeWeight: number): number {
+  return windowMotion(input, LETTER_MODEL_FRAMES, LETTER_FRAME_DIM, LETTER_MOTION_SLOTS, shapeWeight);
+}
+
+/** Regras de leitura sem o model.json dizer outras: só o limiar. */
+export const DEFAULT_LETTER_RULES: ReadingRules = defaultReadingRules(LETTER_MIN_PROBABILITY);
 
 export interface LetterHand {
   /** categoryName do MediaPipe ('Left' ou 'Right', invertido no quadro não espelhado). */
@@ -190,7 +201,7 @@ export interface LetterMotionReading {
   probability: number;
   /** Maior probabilidade de cada rótulo entre as janelas avaliadas, na ordem de `labels`. */
   probs: Float64Array;
-  /** Janelas avaliadas (0: buffer curto ou sem mão). */
+  /** Janelas avaliadas (0: buffer curto, sem mão ou mão parada). */
   windows: number;
 }
 
@@ -209,10 +220,13 @@ export interface LetterMotionRecognizer {
 /**
  * Guarda os últimos LETTER_BUFFER_S segundos e, a cada chamada do evaluate (a câmera chama a cada
  * LETTER_EVAL_MS), passa pelo MLP as janelas de LETTER_WINDOWS_S que terminam no quadro mais
- * recente. Vale a letra (não "_") de maior probabilidade, se passar do limiar: o mesmo critério do
- * leituras() do treino e do reconhecedor dos sinais.
+ * recente que se mexem o bastante (portão de movimento das regras, readingRules.ts). Vale a letra
+ * (não "_") de maior probabilidade, se passar do limiar e o "_" da janela não passar do teto: o
+ * mesmo critério do leituras() do treino e do reconhecedor dos sinais.
  */
-export function createLetterMotionRecognizer(model: MlpModel): LetterMotionRecognizer {
+export function createLetterMotionRecognizer(
+  model: MlpModel, rules: ReadingRules = DEFAULT_LETTER_RULES,
+): LetterMotionRecognizer {
   let frames: LetterFrame[] = [];
   let aspect = 1;
   const none = model.labels.indexOf(NO_LETTER);
@@ -247,7 +261,8 @@ export function createLetterMotionRecognizer(model: MlpModel): LetterMotionRecog
       const probs = new Float64Array(model.labels.length);
       let letter: string | null = null;
       let probability = 0;
-      const inputs = windowInputs();
+      // Portão de movimento: janela com a mão parada nem passa pelo modelo
+      const inputs = windowInputs().filter(w => letterWindowMotion(w.input, rules.motionShapeWeight) >= rules.minMotion);
       for (const { input } of inputs) {
         const p = predict(model, input);
         let best = 0;
@@ -255,7 +270,8 @@ export function createLetterMotionRecognizer(model: MlpModel): LetterMotionRecog
           if (p[j] > probs[j]) probs[j] = p[j];
           if (p[j] > p[best]) best = j;
         }
-        if (best !== none && p[best] >= LETTER_MIN_PROBABILITY && p[best] > probability) {
+        const noneOk = none < 0 || p[none] <= rules.maxNoneProbability;
+        if (best !== none && p[best] >= rules.minProbability && noneOk && p[best] > probability) {
           letter = model.labels[best];
           probability = p[best];
         }

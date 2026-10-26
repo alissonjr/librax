@@ -2,10 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { Lm } from '../lib/recognizer';
 import type { MlpModel } from '../recognition/mlp';
 import {
-  createLetterMotionRecognizer, LETTER_BUFFER_S, LETTER_FRAME_DIM, LETTER_INPUT_DIM, type LetterFrame,
+  createLetterMotionRecognizer, DEFAULT_LETTER_RULES, LETTER_BUFFER_S, LETTER_FRAME_DIM, LETTER_INPUT_DIM,
+  letterWindowMotion, type LetterFrame,
 } from '../recognition/letterMotion';
 import {
-  checkLetterMotionModelJson, getMotionLetters, loadLetterMotionIndex, loadLetterMotionModel, setLetterMotionModelForTests,
+  checkLetterMotionModelJson, getLetterMotionReadingRules, getMotionLetters, loadLetterMotionIndex, loadLetterMotionModel,
+  setLetterMotionModelForTests,
 } from '../recognition/letterMotionModel';
 
 /** Mão aberta com o pulso em (x, y). */
@@ -48,6 +50,40 @@ describe('reconhecedor das letras com movimento', () => {
     expect(r.windows).toBe(3);
     expect(r.letter).toBe('J');
     expect(r.probability).toBeGreaterThan(0.99);
+  });
+
+  it('portão de movimento: a forma segurada (mão parada) não é avaliada; com movimento, lê', () => {
+    const rules = { ...DEFAULT_LETTER_RULES, minMotion: 0.1 };
+    const rec = createLetterMotionRecognizer(J_CERTO, rules);
+    for (let t = 0; t <= 2.1; t += 1 / 15) rec.push(frame(t, [{ h: 'Left', x: 0.4, y: 0.45 }]), 4 / 3);
+    expect(rec.windowInputs()).toHaveLength(3);
+    expect(rec.evaluate()).toMatchObject({ letter: null, windows: 0 });
+    rec.reset();
+    for (const f of drawing(0, 2.1)) rec.push(f, 4 / 3);
+    expect(rec.evaluate()).toMatchObject({ letter: 'J', windows: 3 });
+  });
+
+  it('movimento da janela: pulso em palmos mais a forma da mão; passo sem mão não conta', () => {
+    const input = new Float64Array(LETTER_INPUT_DIM);
+    input[0] = 1;
+    input[2 * LETTER_FRAME_DIM] = 1;
+    input[2 * LETTER_FRAME_DIM + 2] = 0.4;
+    // passo sem mão com o pulso longe: fica de fora
+    input[6 * LETTER_FRAME_DIM + 1] = 9;
+    expect(letterWindowMotion(input, 1)).toBeCloseTo(0.4, 9);
+    input[2 * LETTER_FRAME_DIM + 4] = 2;
+    expect(letterWindowMotion(input, 0.5)).toBeCloseTo(0.4 + 1 / Math.sqrt(21), 9);
+  });
+
+  it('teto do "_": sem leitura quando p("_") da janela passa dele', () => {
+    const model = tinyModel(['J', '_'], [Math.log(0.7 / 0.3), 0], [0, 0]);
+    const leitura = (maxNoneProbability: number) => {
+      const rec = createLetterMotionRecognizer(model, { ...DEFAULT_LETTER_RULES, maxNoneProbability });
+      for (const f of drawing(0, 2.1)) rec.push(f, 4 / 3);
+      return rec.evaluate().letter;
+    };
+    expect(leitura(1)).toBe('J');
+    expect(leitura(0.2)).toBeNull();
   });
 
   it('"_" mais provável não vira letra', () => {
@@ -137,6 +173,15 @@ describe('modelo das letras com movimento em /ml/letras-mov/', () => {
     expect(checkLetterMotionModelJson({ ...valid, input_dim: 10 })).toMatch(/input_dim/);
     expect(checkLetterMotionModelJson({ ...valid, labels: ['H'] })).toMatch(/_/);
     expect(checkLetterMotionModelJson(null)).toMatch(/librax-mlp/);
+    expect(checkLetterMotionModelJson({ ...valid, reading_rules: { min_motion: 0.3 } })).toBeNull();
+    expect(checkLetterMotionModelJson({ ...valid, reading_rules: { min_motion: -1 } })).toMatch(/min_motion/);
+  });
+
+  it('reading_rules do model.json vira as regras do reconhecedor (sem ele, só o limiar)', async () => {
+    expect(getLetterMotionReadingRules()).toEqual(DEFAULT_LETTER_RULES);
+    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({ ...valid, reading_rules: { min_motion: 0.3, motion_shape_weight: 1 } })));
+    await loadLetterMotionIndex();
+    expect(getLetterMotionReadingRules()).toEqual({ ...DEFAULT_LETTER_RULES, minMotion: 0.3 });
   });
 
   it('sem modelo (404 ou o index.html do servidor de desenvolvimento): nenhuma letra, uma busca por sessão', async () => {
