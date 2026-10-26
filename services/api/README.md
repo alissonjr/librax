@@ -441,24 +441,32 @@ os campos de semana.
 ## Infra sem conta AWS
 
 ```bash
-cd services/api && npm ci          # o esbuild do CDK empacota web-push daqui
+cd services/api && npm ci          # o esbuild do CDK (devDependency daqui) empacota as Lambdas e o web-push
 cd ../../infra && npm ci
 npm test                           # assertions do template (vitest), sem empacotar
-npx cdk synth                      # funciona sem credenciais, com o domínio placeholder
+npx cdk synth                      # funciona sem credenciais
 ```
 
 Os parâmetros de contexto estão documentados em `infra/lib/config.ts` e podem ir no
-`infra/cdk.json` ou na linha de comando (`-c librax:domainName=...`). O padrão
-`librax.example` é placeholder e gera aviso no synth.
+`infra/cdk.context.json` (local) ou na linha de comando (`-c librax:alarmEmail=...`); o `infra/cdk.json`
+vale mais que o arquivo local, então só traz o domínio e o pacote do Android
+([`docs/conta-aws.md`](../../docs/conta-aws.md#como-funciona)). Sem `librax:domainName`, o padrão do código
+é o placeholder `librax.example`, que gera aviso no synth.
+
+O CDK roda o esbuild com `npx --no-install esbuild` na pasta `services/api`: por isso ele é devDependency daqui,
+na mesma versão do `infra`. Sem isso, o empacotamento só funcionava com o esbuild no cache do `npx` da máquina.
 
 ## Antes do primeiro deploy
+
+Passo a passo do lançamento em `librax.online` pelo AWS CloudShell, com um script que faz os itens abaixo
+na ordem certa (`infra/scripts/lancar-cloudshell.sh`): [`docs/lancamento.md`](../../docs/lancamento.md).
 
 Nada disso foi criado: é a lista do que o dono da conta precisa decidir ou criar. Regiões:
 a stack usa `us-east-1` por padrão porque o certificado do CloudFront e o do domínio próprio
 do Cognito precisam estar lá.
 
-1. **Domínio.** Escolher o domínio (ex.: `librax.com.br`) e passar
-   `-c librax:domainName=<dominio>`. A landing fica em `<dominio>` (com `www.<dominio>`
+1. **Domínio.** `librax.online`, já em `librax:domainName` no `infra/cdk.json` (para outro, troque lá ou
+   passe `-c librax:domainName=<dominio>`). A landing fica em `<dominio>` (com `www.<dominio>`
    redirecionando), o app em `app.<dominio>` e o Cognito em `auth.<dominio>` (mude com
    `librax:landingDomainName`, `librax:wwwDomainName`, `librax:appDomainName` e
    `librax:authDomainName`). Nomes, registros DNS e publicação da landing:
@@ -509,7 +517,8 @@ do Cognito precisam estar lá.
    `librax:extraLogoutUrls=http://localhost:5173/` e
    `librax:extraCorsOrigins=http://localhost:5173`. Não use em produção.
 10. **Build e upload do app.** Preencher `apps/web-poc/.env.local` com os outputs
-    (`UserPoolId`, `UserPoolClientId`, `AuthDomain`) e:
+    (`UserPoolId`, `UserPoolClientId`, `AuthDomain`; com `librax:googleEnabled=false`, também
+    `VITE_GOOGLE_ENABLED=false`, que esconde o botão do Google) e:
     ```bash
     cd apps/web-poc && npm ci && npm run build
     aws s3 sync dist s3://<WebBucketName> --delete
@@ -521,7 +530,14 @@ do Cognito precisam estar lá.
     [`docs/conta-aws.md`](../../docs/conta-aws.md#publicar-a-landing).
 11. **Conteúdo e modelos.** No bucket `ContentBucketName`, a chave repete a URL:
     `content/<courseId>/v<N>/...` e `ml/<versao>/...`. Suba `.wasm` com
-    `--content-type application/wasm` (o CloudFront também força esse tipo em `*.wasm`).
+    `--content-type application/wasm` (o CloudFront também força esse tipo em `*.wasm`). Hoje o
+    conteúdo vai dentro do app e o `/content/*` fica vazio; o `/ml/*` vem do bucket de conteúdo, então o
+    `dist/ml` do build do app (WASM e modelos do MediaPipe, classificador e modelos dos sinais) vai para
+    `s3://<ContentBucketName>/ml/` (o `lancar-cloudshell.sh` faz isso). Cache: só `ml/<versão do
+    MediaPipe>/` é imutável (`--cache-control 'public, max-age=31536000, immutable'`); as pastas de
+    modelo sem versão (`classifier`, `sinais`, `letras-mov`, `numeros`) sobem com
+    `--cache-control no-cache`, e o CloudFront manda o mesmo, para modelo republicado chegar aos apps
+    instalados ([`docs/lancamento.md`](../../docs/lancamento.md#modelos-de-ml-nos-apps-instalados)).
 12. **Alertas e orçamento.** Passar `-c librax:alarmEmail=<e-mail>` (e, se quiser outro,
     `librax:budgetEmail`) e confirmar a assinatura no e-mail que a AWS manda. O AWS Budget avisa em 80% e 100% de
     `librax:monthlyBudgetUsd` (padrão 10). Ativar o Cost Explorer no console de Billing para a tela de custo.

@@ -35,7 +35,7 @@ Android 6). `compileSdk` e `targetSdk` 36.
 | Propriedade | Padrão | Para que serve |
 |---|---|---|
 | `librax.applicationId` | `br.com.librax.app` | id na Play Store; nunca muda depois da primeira publicação. Igual a `librax:androidPackageName` do CDK |
-| `librax.host` | `app.librax.example` | domínio do app (placeholder). O build de release recusa o placeholder |
+| `librax.host` | `app.librax.online` | domínio do app. O build de release recusa o placeholder `librax.example` |
 | `librax.port` | (vazio) | só para teste local (ex.: `4443`) |
 | `librax.launchPath` | `/?origem=android` | endereço de abertura; o `origem=android` faz o site esconder o convite de instalar |
 | `librax.appName` | `Librax` | nome embaixo do ícone |
@@ -81,7 +81,7 @@ keyAlias=upload
 keyPassword=...
 ```
 
-e rode `./gradlew bundleRelease -Plibrax.host=app.<dominio>` (sai em `app/build/outputs/bundle/release/`).
+e rode `./gradlew bundleRelease` (domínio do `gradle.properties`; sai em `app/build/outputs/bundle/release/`).
 Sem o `keystore.properties` o AAB sai sem assinatura. Guarde o `.jks` fora do repositório, com cópia de
 segurança (caminho relativo em `storeFile` parte desta pasta).
 

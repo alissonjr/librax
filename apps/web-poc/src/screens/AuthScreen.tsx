@@ -5,7 +5,7 @@ import { BusyLabel } from '../components/BusyLabel';
 import { LegalConsent } from '../components/LegalLinks';
 import {
   authErrorCode, confirmEmailCode, confirmPasswordReset, getDisplayName, requestPasswordReset, signInWithEmail,
-  signInWithGoogle, signUpWithEmail,
+  googleEnabled, signInWithGoogle, signUpWithEmail,
 } from '../lib/auth';
 import { authAvailable, authErrorKey, refreshAccount, useAccount } from '../lib/account';
 import { flushOutbox } from '../lib/sync';
@@ -53,6 +53,7 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
   const [notice, setNotice] = useState<string | null>(null);
   const errorRef = useRef<HTMLParagraphElement>(null);
   const available = authAvailable();
+  const google = googleEnabled();
   const isRegister = mode === 'register';
   const title = isRegister ? t('account.registerTitle') : t('account.loginTitle');
 
@@ -313,19 +314,23 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
           </button>
         </form>
 
-        <p className="auth-notice" role="note">
-          <Icon name="info" />
-          <span>{t('account.reset.googleNote')}</span>
-        </p>
-        <button
-          type="button"
-          className="btn btn-ghost auth-google"
-          onClick={handleGoogle}
-          disabled={locked}
-          aria-busy={busy === 'google' || undefined}
-        >
-          {busy === 'google' ? <BusyLabel text={t('account.openingGoogle')} /> : t('account.continueWithGoogle')}
-        </button>
+        {google && (
+          <>
+            <p className="auth-notice" role="note">
+              <Icon name="info" />
+              <span>{t('account.reset.googleNote')}</span>
+            </p>
+            <button
+              type="button"
+              className="btn btn-ghost auth-google"
+              onClick={handleGoogle}
+              disabled={locked}
+              aria-busy={busy === 'google' || undefined}
+            >
+              {busy === 'google' ? <BusyLabel text={t('account.openingGoogle')} /> : t('account.continueWithGoogle')}
+            </button>
+          </>
+        )}
       </>
     );
   } else if (step === 'reset') {
@@ -410,17 +415,21 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
           </p>
         )}
 
-        <button
-          type="button"
-          className="btn btn-ghost auth-google"
-          onClick={handleGoogle}
-          disabled={locked}
-          aria-busy={busy === 'google' || undefined}
-        >
-          {busy === 'google' ? <BusyLabel text={t('account.openingGoogle')} /> : t('account.continueWithGoogle')}
-        </button>
+        {google && (
+          <>
+            <button
+              type="button"
+              className="btn btn-ghost auth-google"
+              onClick={handleGoogle}
+              disabled={locked}
+              aria-busy={busy === 'google' || undefined}
+            >
+              {busy === 'google' ? <BusyLabel text={t('account.openingGoogle')} /> : t('account.continueWithGoogle')}
+            </button>
 
-        <p className="auth-divider" role="separator"><span>{t('account.or')}</span></p>
+            <p className="auth-divider" role="separator"><span>{t('account.or')}</span></p>
+          </>
+        )}
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           {isRegister && (

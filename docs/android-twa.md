@@ -2,8 +2,8 @@
 
 O app Android do Librax é só uma casca em volta do site: uma Trusted Web Activity (TWA) que abre
 `https://app.<dominio>/` no Chrome do aparelho, em tela cheia, como se fosse um app nativo. O projeto fica
-em [`apps/android-twa`](../apps/android-twa/README.md) e está pronto para build; faltam o domínio real e a
-chave ("projeto pronto, chave depois").
+em [`apps/android-twa`](../apps/android-twa/README.md) e está pronto para build, já com o domínio
+`app.librax.online`; falta a chave ("projeto pronto, chave depois").
 
 ## Como as atualizações chegam
 
@@ -45,8 +45,9 @@ A CSP e os cabeçalhos do app não mudam: o TWA é o Chrome abrindo o site, com 
 
 ## Publicar na Play Store
 
-1. **Domínio.** Com o domínio escolhido e a stack publicada (`docs/conta-aws.md`), troque `librax.host`
-   em `apps/android-twa/gradle.properties` por `app.<dominio>`. O build de release recusa o placeholder.
+1. **Domínio.** `librax.host` em `apps/android-twa/gradle.properties` já é `app.librax.online` (o domínio do
+   lançamento, `docs/lancamento.md`). A stack precisa estar publicada antes do teste. O build de release
+   recusa o placeholder `librax.example`.
 2. **Conta de desenvolvedor** no Play Console (taxa única) e o app criado com o pacote
    `br.com.librax.app` (o pacote não muda nunca mais; se for outro, troque nos dois lugares acima).
 3. **Chave de upload.** Gere uma vez e guarde fora do repositório, com cópia de segurança:

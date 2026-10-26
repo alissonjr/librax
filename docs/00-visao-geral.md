@@ -53,6 +53,9 @@ Specs executáveis (fonte da verdade):
 - [SPEC 05 - Experiência WoW](./spec-05-experiencia-wow.md) - design emocional: câmera como palco, motion design, som, háptica, marcos de progressão, cartões de cultura surda, notificações com voz humana, empty states, CourseCompletion coreografado, performance como feature.
 
 Operação:
+- [Lançamento em librax.online](./lancamento.md) - do zero pelo AWS CloudShell: zona no Route 53, servidores de nomes na GoDaddy, certificado, um script que publica tudo, atualizações, custos e como desfazer.
+- [Login da conta AWS](./conta-aws.md) - login do projeto (IAM Identity Center ou CloudShell), trava da conta, domínio e publicação da landing.
+- [App Android (TWA)](./android-twa.md) - casca da Play Store em volta do site e o `assetlinks.json`.
 - [Painel de administração](./painel-admin.md) - painel só de leitura em `/admin` (grupo `admin` do Cognito): operação, conteúdo, contas, squads e custo, com contadores agregados, job diário, alarmes por e-mail e AWS Budget. Inclui como dar acesso e o custo extra estimado.
 
 Notas técnicas:

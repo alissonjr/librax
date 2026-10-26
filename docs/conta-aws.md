@@ -4,15 +4,37 @@ O projeto tem um login próprio da AWS, separado do que a máquina usa no dia a 
 IAM Identity Center: você entra pelo navegador, nenhuma senha ou chave fica salva e o acesso vence
 sozinho. Fora dos comandos do projeto, o `aws` continua usando o `~/.aws` de sempre.
 
+O lançamento pode ser feito sem nada disso, pelo AWS CloudShell: [`lancamento.md`](lancamento.md).
+
 ## Como funciona
 
 - `infra/scripts/aws.sh <comando>` roda qualquer comando com o perfil `librax` da pasta `.aws/` na
   raiz do projeto (fora do git). Ele ignora o `~/.aws/config` e o `~/.aws/credentials` e descarta as
   credenciais, a região e os endpoints que estiverem no terminal (por exemplo os do ambiente local).
-- A conta do Librax fica fixada em `librax:accountId` (`infra/cdk.json`, ou `infra/cdk.context.json`,
-  que é local e fica fora do git). `npm run bootstrap`, `npm run diff` e `npm run deploy` conferem a
-  conta do login antes de começar e recusam qualquer outra. Sem a conta fixada, recusam sempre. O CDK
-  também usa esse número na stack, então ele mesmo recusa credenciais de outra conta.
+- No AWS CloudShell (`AWS_EXECUTION_ENV` começando com `CloudShell`) não há perfil local: o `aws.sh`
+  mantém só as credenciais do contêiner (o login do console, `AWS_CONTAINER_CREDENTIALS_FULL_URI` e o
+  token dele) e a região da sessão, e continua descartando chaves avulsas, perfis e endpoints. A trava
+  da conta roda igual.
+- A conta do Librax fica fixada em `librax:accountId`, no `infra/cdk.context.json` (local, fora do
+  repositório; o `lancar-cloudshell.sh` grava ele). `npm run bootstrap`, `npm run diff` e `npm run deploy`
+  conferem a conta do login antes de começar e recusam qualquer outra. Sem a conta fixada, recusam sempre.
+  O CDK também usa esse número na stack, então ele mesmo recusa credenciais de outra conta.
+- Ordem do contexto (a do CDK): `-c chave=valor` vale mais que o `infra/cdk.json`, que vale mais que o
+  `infra/cdk.context.json`. Uma chave presente no `cdk.json`, mesmo vazia, esconde a do arquivo local. Por
+  isso o `cdk.json` só traz o que é do projeto (`librax:domainName` e `librax:androidPackageName`); conta,
+  zona, certificado, e-mails, Google, lembretes e impressões digitais do Android vão no
+  `cdk.context.json`, por exemplo:
+
+  ```json
+  {
+    "librax:accountId": "123456789012",
+    "librax:hostedZoneId": "Z0123456789ABCDEFGHIJ",
+    "librax:hostedZoneName": "librax.online",
+    "librax:certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/...",
+    "librax:alarmEmail": "alertas@exemplo.com",
+    "librax:googleEnabled": false
+  }
+  ```
 - O token temporário do Identity Center fica em `~/.aws/sso/cache`, num arquivo próprio da sessão
   `librax`. Ele não altera o login que já existe na máquina.
 
@@ -46,7 +68,7 @@ Respostas:
 | Default client Region | `us-east-1` |
 | CLI default output format | `json` |
 
-Depois, preencha `"librax:accountId"` em `infra/cdk.json` com o número da conta e confira:
+Depois, crie `infra/cdk.context.json` com `{ "librax:accountId": "<número da conta>" }` e confira:
 
 ```bash
 npm run aws:conta   # "Conta 123456789012 conferida (perfil librax)."
@@ -67,7 +89,7 @@ inclusive as de outros projetos. Para sair, basta deixar o acesso vencer.
 
 ## Domínio: landing e app
 
-Um domínio só (`librax:domainName`) e quatro nomes. A landing (`apps/landing`) fica na raiz, com bucket e
+Um domínio só (`librax:domainName`, `librax.online` no `infra/cdk.json`) e quatro nomes. A landing (`apps/landing`) fica na raiz, com bucket e
 CloudFront próprios; o app continua como é hoje, só que em `app.`: mesmo CloudFront, mesmos caminhos, mesmo
 escopo do PWA. Os nomes partem do domínio e podem ser trocados por contexto (`infra/lib/config.ts`).
 

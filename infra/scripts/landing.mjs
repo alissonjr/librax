@@ -20,10 +20,10 @@ const distDir = join(landingDir, 'dist');
 const PAGINAS = ['index.html', 'en/index.html', 'es/index.html'];
 const STACK = 'LibraxStack';
 
-/** Contexto do CDK: o cdk.context.json (local) vale mais que o cdk.json. */
+/** Contexto do CDK, na ordem do CDK: o cdk.json vale mais que o cdk.context.json (local). */
 export function contexto(dir = infraDir) {
   let ctx = {};
-  for (const arquivo of ['cdk.json', 'cdk.context.json']) {
+  for (const arquivo of ['cdk.context.json', 'cdk.json']) {
     const caminho = join(dir, arquivo);
     if (!existsSync(caminho)) continue;
     const json = JSON.parse(readFileSync(caminho, 'utf8'));

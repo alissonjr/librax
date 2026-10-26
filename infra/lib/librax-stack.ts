@@ -33,6 +33,7 @@ import {
   vlibrasCsp,
   ADMIN_SPA_REWRITE_FUNCTION,
   IMMUTABLE,
+  ML_REVALIDATE,
   NO_CACHE,
   PERMISSIONS_POLICY,
   SPA_REWRITE_FUNCTION,
@@ -548,10 +549,16 @@ export class LibraxStack extends cdk.Stack {
       csp: cspValue,
       extra: { 'Cache-Control': NO_CACHE },
     });
-    // /assets/* do Vite tem hash no nome; /ml/<versao>/ e versionado
+    // /assets/* do Vite tem hash no nome; /ml/<versao>/ e versionado (so a pasta do MediaPipe)
     const immutableHeaders = headerPolicy('ImmutableHeaders', 'Librax - arquivos com hash (immutable)', {
       csp: cspValue,
       extra: { 'Cache-Control': IMMUTABLE },
+    });
+    // Modelos de ML sem versao no caminho: modelo republicado chega ao PWA e ao app Android sem
+    // versao nova (o service worker busca por tras e o navegador revalida com o ETag)
+    const mlModelHeaders = headerPolicy('MlModelHeaders', 'Librax - modelos de ML sem versao (revalida)', {
+      csp: cspValue,
+      extra: { 'Cache-Control': ML_REVALIDATE },
     });
     const contentHeaders = headerPolicy('ContentHeaders', 'Librax - conteudo (cache da origem)', { csp: cspValue });
     const vlibrasHeaders = headerPolicy('VlibrasHeaders', 'Librax - player VLibras (Unity)', {
@@ -620,10 +627,32 @@ export class LibraxStack extends cdk.Stack {
       ...staticBehavior(adminOrigin, adminShellHeaders, appShellCache),
       functionAssociations: [{ function: adminRewrite, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
     };
-    const wasmBehavior = (origin: cloudfront.IOrigin): cloudfront.BehaviorOptions => ({
-      ...staticBehavior(origin, immutableHeaders),
+    const wasmBehavior = (
+      origin: cloudfront.IOrigin,
+      headers: cloudfront.IResponseHeadersPolicy = immutableHeaders,
+      cachePolicy?: cloudfront.ICachePolicy,
+    ): cloudfront.BehaviorOptions => ({
+      ...staticBehavior(origin, headers, cachePolicy),
       functionAssociations: [{ function: wasmContentType, eventType: cloudfront.FunctionEventType.VIEWER_RESPONSE }],
     });
+
+    // /ml/: so a pasta da versao do MediaPipe (WASM e modelos fixados pelo SHA-256) e imutavel. O resto
+    // (classificador, sinais, letras com movimento, numeros e qualquer pasta nova) revalida com o S3 na
+    // borda e no navegador. Versao nova do MediaPipe sem deploy cai na regra que revalida: funciona,
+    // so com menos cache.
+    const mlBehaviors: Record<string, cloudfront.BehaviorOptions> = {};
+    if (config.mediapipeVersion) {
+      mlBehaviors[`/ml/${config.mediapipeVersion}/*.wasm`] = wasmBehavior(contentOrigin);
+      mlBehaviors[`/ml/${config.mediapipeVersion}/*`] = staticBehavior(contentOrigin, immutableHeaders);
+    } else {
+      Annotations.of(this).addWarningV2(
+        'librax:no-mediapipe-version',
+        'Sem a versao do @mediapipe/tasks-vision (apps/web-poc/package.json ou librax:mediapipeVersion): ' +
+          'todo o /ml/ revalida a cada pedido, sem cache imutavel.',
+      );
+    }
+    mlBehaviors['/ml/*.wasm'] = wasmBehavior(contentOrigin, mlModelHeaders, appShellCache);
+    mlBehaviors['/ml/*'] = staticBehavior(contentOrigin, mlModelHeaders, appShellCache);
 
     // App Android (TWA, apps/android-twa): o assetlinks.json sai pronto da borda (lib/assetlinks.ts)
     if (config.android.certFingerprints.length === 0) {
@@ -673,8 +702,7 @@ export class LibraxStack extends cdk.Stack {
         '/vlibras/sinais/*': staticBehavior(webOrigin, immutableHeaders),
         '/vlibras/*': staticBehavior(webOrigin, vlibrasHeaders, appShellCache),
         '/content/*': staticBehavior(contentOrigin, contentHeaders),
-        '/ml/*.wasm': wasmBehavior(contentOrigin),
-        '/ml/*': staticBehavior(contentOrigin, immutableHeaders),
+        ...mlBehaviors,
         '/api/*': {
           origin: apiOrigin,
           viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.HTTPS_ONLY,

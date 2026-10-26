@@ -16,6 +16,8 @@
 // Roda antes do dev e do build. Uso manual:
 //   node scripts/vlibras-assets.mjs [--opcional]
 // --opcional (dev): falha de rede vira aviso; sem os arquivos o avatar cai na descrição em texto.
+// LIBRAX_VLIBRAS_OPCIONAL=1 faz o mesmo no build (prebuild), para publicar mesmo com os servidores do
+// VLibras fora do ar (infra/scripts/lancar-cloudshell.sh --vlibras-opcional).
 
 import { createHash } from 'node:crypto';
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -42,7 +44,7 @@ const PLAYER_FILES = [
 ];
 const BUNDLES_URL = `https://dicionario2.vlibras.gov.br/static/BUNDLES/${BUNDLES_VERSION}/WEBGL/BR/`;
 
-const optional = process.argv.includes('--opcional');
+const optional = process.argv.includes('--opcional') || process.env.LIBRAX_VLIBRAS_OPCIONAL === '1';
 const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
 
 function courseGlosses() {
