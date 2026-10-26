@@ -40,8 +40,10 @@ Uso:
                                                        probabilidades das janelas ao vivo
     python train_letras_mov.py varrer probs.pkl --min-movimento 0 0.3 [--max-p-nenhum 1 0.3]
                                                        mede regras de leitura sem treinar de novo
-    (treinar aceita --min-p, --min-movimento e --max-p-nenhum: as regras de leitura do app, que vão
-    para o reading_rules do model.json e decidem camera_letters)
+    (treinar aceita --min-p, --min-movimento, --max-p-nenhum e --regras-letras: as regras de leitura
+    do app, que vão para o reading_rules do model.json e decidem camera_letters; o varrer aceita
+    vários --regras-letras, ver REGRAS_LETRAS)
+    (LM_PROCESSOS=3 monta as janelas com menos processos)
     (LM_VIZINHAS=CPVT... põe as vizinhas paradas no "_" com peso, ver VIZINHAS; LM_VIZINHAS_FORTES=CIUVP
     dá mais peso a algumas delas, ver VIZINHAS_FORTES)
     (LM_SEM_XZ=1 deixa de fora os vídeos de video/baixar_xz.py, letras_mov_trechos_xz.json)
@@ -212,7 +214,9 @@ VIZINHAS = os.environ.get("LM_VIZINHAS", "CPVTUID")
 VARIACOES_VIZINHAS = int(os.environ.get("LM_VAR_VIZINHAS", "2"))
 # Vizinhas que mais confundem (C com Ç, I com J, U, V e P com K): com LM_VIZINHAS_FORTES, as paradas
 # dessas letras (e os vídeos de uma delas) ganham LM_VAR_FORTES variações giradas no lugar de
-# LM_VAR_VIZINHAS, mais peso no "_" para o par. Vazio (o padrão) desliga.
+# LM_VAR_VIZINHAS, mais peso no "_" para o par. Vazio (o padrão) desliga. CIUVP com 6 variações
+# (2026-10-26, 8 sementes) piorou: alarme nas paradas das letras paradas de 95/792 para 121/792
+# (C->Ç de 24 para 28), Z de 80% para 70% e validação cruzada de 81,4% para 78,5%.
 VIZINHAS_FORTES = os.environ.get("LM_VIZINHAS_FORTES", "")
 VARIACOES_FORTES = int(os.environ.get("LM_VAR_FORTES", "6"))
 # Rótulo interno das janelas de vizinhas (vira NENHUMA no janelas_do_video)
@@ -224,6 +228,8 @@ AVALIA_S = 0.25
 BUFFER_S = 2.0
 CONFIRMA = 2
 INES_CANAL = "ines"
+# Processos que montam as janelas dos vídeos (LM_PROCESSOS; menos deixa a máquina livre)
+PROCESSOS = int(os.environ.get("LM_PROCESSOS", "6"))
 
 
 def carregar_trechos(caminho=TRECHOS):
@@ -422,7 +428,7 @@ def _janelas_job(args):
     return v["id"], np.array(Xv, dtype=np.float32).reshape(-1, T, F), np.array(yv)
 
 
-def montar(trechos, ids=None, treino=True, variacoes=2, seed=0, processos=6):
+def montar(trechos, ids=None, treino=True, variacoes=2, seed=0, processos=None):
     """Janelas de todos os vídeos (ou só de `ids`): X [N, T, F], y, canal e vídeo."""
     from multiprocessing import Pool
 
@@ -441,7 +447,7 @@ def montar(trechos, ids=None, treino=True, variacoes=2, seed=0, processos=6):
         # semente por vídeo: o resultado não depende da ordem nem de quantos processos
         jobs.append(({**v, "_todos_trechos": todos[v["id"]]}, por_video[v["id"]], variacoes, treino, seed * 1000 + i))
     canal_de = {v["id"]: v["channel_id"] for v in trechos["videos"]}
-    with Pool(processos) as pool:
+    with Pool(processos or PROCESSOS) as pool:
         partes = pool.map(_janelas_job, jobs)
     X = np.concatenate([p[1] for p in partes]) if partes else np.zeros((0, T, F), np.float32)
     y = np.concatenate([p[2] for p in partes]) if partes else np.array([])
@@ -450,11 +456,11 @@ def montar(trechos, ids=None, treino=True, variacoes=2, seed=0, processos=6):
     return X, y.astype(str), canal, video.astype(str)
 
 
-def preparar_ao_vivo(ids, processos=6):
+def preparar_ao_vivo(ids, processos=None):
     """Calcula (e guarda) as janelas ao vivo dos vídeos, em paralelo."""
     from multiprocessing import Pool
 
-    with Pool(processos) as pool:
+    with Pool(processos or PROCESSOS) as pool:
         pool.map(_ao_vivo_job, sorted(ids))
 
 
