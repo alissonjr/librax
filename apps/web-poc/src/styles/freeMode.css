@@ -1,0 +1,271 @@
+/* =========================================================
+   MODO LIVRE DA CÂMERA (screens/FreeModeScreen.tsx)
+   Palco da câmera (seção 11.7) com a leitura atual numa pílula, o texto lido embaixo e os
+   controles de edição. Só tokens; nenhum card com faixa lateral.
+   ========================================================= */
+
+.fm-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-4);
+  /* A barra de abas e a safe area de baixo ficam com o .main-content */
+  padding: var(--lx-space-4) max(var(--lx-space-4), var(--lx-safe-right)) var(--lx-space-6) max(var(--lx-space-4), var(--lx-safe-left));
+  max-width: var(--lx-size-content-max);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.fm-intro {
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-secondary);
+}
+
+/* Letras | Números */
+.fm-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lx-space-1);
+  padding: var(--lx-space-1);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-bg-sunken);
+}
+.fm-switch-option {
+  min-height: var(--lx-size-touch-min);
+  padding: 0 var(--lx-space-4);
+  border: 0;
+  border-radius: var(--lx-radius-full);
+  background: transparent;
+  color: var(--lx-text-secondary);
+  font: var(--lx-typography-label);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard),
+    color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
+}
+/* Mesma marcação das abas "Mão 3D | Avatar" (HandDemo) */
+.fm-switch-option[aria-checked="true"] {
+  background: var(--lx-feedback-info-soft);
+  color: var(--lx-text-brand);
+}
+.fm-switch-option:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: var(--lx-border-width-focus-offset);
+}
+
+.fm-idle { padding: var(--lx-space-8) var(--lx-space-4); }
+
+/* Palco: vídeo espelhado 4:3, raio em volta (a tela tem margem) */
+.fm-stage { display: flex; flex-direction: column; }
+.fm-viewport {
+  flex: none;
+  border-radius: var(--lx-radius-lg);
+  aspect-ratio: 4 / 3;
+  overscroll-behavior: contain;
+}
+.fm-viewport .camera-video { height: 100%; object-fit: cover; }
+
+/* Leitura atual: pílula discreta no canto */
+.fm-reading {
+  position: absolute;
+  top: var(--lx-space-3);
+  right: var(--lx-space-3);
+  display: grid;
+  justify-items: center;
+  gap: var(--lx-space-1);
+  min-width: 72px;
+  padding: var(--lx-space-2) var(--lx-space-3);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-stage-pill);
+  color: var(--lx-stage-text);
+  pointer-events: none;
+}
+.fm-reading-label {
+  font: var(--lx-typography-caption);
+  color: var(--lx-stage-text-secondary);
+}
+.fm-reading-letter {
+  font: var(--lx-typography-display);
+  line-height: 1;
+  animation: fm-pop var(--lx-motion-duration-fast) var(--lx-motion-easing-overshoot);
+}
+.fm-reading-meter {
+  width: 100%;
+  height: var(--lx-size-confidence-bar);
+  border-radius: var(--lx-radius-full);
+  background: color-mix(in srgb, var(--lx-stage-text) 20%, transparent);
+  overflow: hidden;
+}
+.fm-reading-meter > span {
+  display: block;
+  height: 100%;
+  background: var(--lx-stage-landmark-tracking);
+  transition: width var(--lx-motion-duration-fast) linear;
+}
+@keyframes fm-pop {
+  0% { transform: scale(calc(1 - 0.15 * var(--lx-motion-scale, 1))); }
+  100% { transform: scale(1); }
+}
+
+/* Dica e avisos: pílula na base do vídeo (texto sobre o vídeo nunca solto) */
+.fm-status {
+  position: absolute;
+  left: var(--lx-space-3);
+  right: var(--lx-space-3);
+  bottom: var(--lx-space-3);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.fm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lx-space-2);
+  max-width: 100%;
+  padding: var(--lx-space-2) var(--lx-space-3);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-stage-pill);
+  color: var(--lx-stage-text);
+  font: var(--lx-typography-body-sm);
+  animation: fm-fade var(--lx-motion-duration-base) var(--lx-motion-easing-standard);
+}
+.fm-pill .icon { flex: none; color: var(--lx-stage-trace); }
+@keyframes fm-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Texto lido */
+.fm-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+}
+.fm-text-label {
+  font: var(--lx-typography-label-sm);
+  color: var(--lx-text-secondary);
+}
+.fm-text-box {
+  min-height: calc(var(--lx-size-touch-comfort) + var(--lx-space-4));
+  max-height: 9.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--lx-space-3) var(--lx-space-4);
+  border: var(--lx-border-width-thin) solid var(--lx-border-default);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-bg-surface);
+}
+.fm-text-box:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: var(--lx-border-width-focus-offset);
+}
+.fm-text-value {
+  font: var(--lx-typography-headline);
+  letter-spacing: 0.06em;
+  color: var(--lx-text-primary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.fm-text-placeholder {
+  font: var(--lx-typography-body);
+  color: var(--lx-text-tertiary);
+}
+.fm-caret {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-text-brand);
+  animation: fm-caret 1.1s steps(1) infinite;
+}
+@keyframes fm-caret {
+  50% { opacity: 0; }
+}
+
+.fm-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--lx-space-2);
+}
+.fm-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lx-space-0-5);
+  min-height: var(--lx-size-touch-comfort);
+  padding: var(--lx-space-1);
+  border: var(--lx-border-width-thin) solid var(--lx-border-default);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-bg-surface);
+  color: var(--lx-text-brand);
+  font: var(--lx-typography-label-sm);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.fm-action .icon { width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); }
+.fm-action:active:not(:disabled) { background: var(--lx-bg-sunken); }
+.fm-action:disabled {
+  color: var(--lx-text-disabled);
+  cursor: default;
+}
+.fm-action:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: var(--lx-border-width-focus-offset);
+}
+
+/* Como soletrar e o que a câmera lê */
+.fm-help {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-3);
+  padding-top: var(--lx-space-3);
+  border-top: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+}
+.fm-help-title {
+  font: var(--lx-typography-title-sm);
+  color: var(--lx-text-primary);
+}
+.fm-tips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-1);
+  padding-left: var(--lx-space-5);
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-secondary);
+}
+.fm-chips-group { display: flex; flex-direction: column; gap: var(--lx-space-2); }
+.fm-chips-title {
+  font: var(--lx-typography-label-sm);
+  color: var(--lx-text-secondary);
+}
+
+/* Telas largas: vídeo e texto lado a lado */
+@media (min-width: 768px) {
+  .fm-screen {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    column-gap: var(--lx-space-6);
+    align-items: start;
+  }
+  .fm-intro, .fm-switch, .fm-idle { grid-column: 1 / -1; }
+  .fm-switch { max-width: 360px; }
+  .fm-stage { grid-column: 1; grid-row: span 2; }
+}
+
+/* Menos movimento: sem pulo, sem piscar */
+@media (prefers-reduced-motion: reduce) {
+  .fm-reading-letter, .fm-pill { animation: none; }
+  .fm-caret { animation: none; }
+  .fm-switch-option, .fm-reading-meter > span { transition: none; }
+}
+:root[data-reduced-motion="true"] .fm-reading-letter,
+:root[data-reduced-motion="true"] .fm-pill,
+:root[data-reduced-motion="true"] .fm-caret { animation: none; }
+:root[data-reduced-motion="true"] .fm-switch-option,
+:root[data-reduced-motion="true"] .fm-reading-meter > span { transition: none; }
+
+/* Atalho para o modo livre no topo da tela da câmera */
+.camera-free-mode-card { margin-top: var(--lx-space-3); }

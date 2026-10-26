@@ -15,6 +15,8 @@ import { TraceCameraArcs } from './Brand';
 import { HEURISTIC_LETTERS, useRecognizableLetters } from '../recognition/classifier';
 import { CameraRun, saveCameraRun } from '../lib/cameraStats';
 import { getCameraNumbers } from '../recognition/numberModel';
+import { WrongReadingHint } from '../dicaErro/WrongReadingHint';
+import { useWrongReadingHint } from '../dicaErro/gatilho';
 
 /**
  * Letras que a composição das lições trata como avaliáveis pela câmera (src/lib/content.ts).
@@ -95,6 +97,8 @@ export function ExerciseCameraSign({ sign, onComplete, recognizer }: Props) {
   const isRecognizable = isNumber ? getCameraNumbers().has(targetLetter) : recognizable.has(targetLetter);
   // Desempenho da câmera (lib/cameraStats.ts): tentativas, leituras erradas e pulo desta letra
   const [run] = useState(() => new CameraRun(sign.id, targetLetter, isNumber ? 'number' : 'letter'));
+  // Dica de erro (src/dicaErro/): a câmera leu outra letra ou número de forma estável
+  const wrongHint = useWrongReadingHint(targetLetter, stableGesture, { succeeded, enabled: isRecognizable && !showDemo });
 
   useEffect(() => {
     if (status === 'active') run.started = true;
@@ -176,6 +180,9 @@ export function ExerciseCameraSign({ sign, onComplete, recognizer }: Props) {
     <div className="exercise-screen cam-sign-layout">
       {showMomentoZero && <MomentoZeroOverlay onDismiss={() => setShowMomentoZero(false)} t={t} />}
 
+      {wrongHint.read && !succeeded ? (
+        <WrongReadingHint asked={targetLetter} read={wrongHint.read} kind={isNumber ? 'number' : 'letter'} onDismiss={wrongHint.dismiss} />
+      ) : (
       <div className="cam-sign-target animate__animated animate__fadeInDown animate__faster">
         <div className="cam-sign-prompt">{t('exerciseCameraSign.makeSign')}</div>
         <div className="cam-sign-letter animate__animated animate__bounceIn" style={{ animationDelay: '120ms' }}>{targetLetter}</div>
@@ -184,6 +191,7 @@ export function ExerciseCameraSign({ sign, onComplete, recognizer }: Props) {
           <DemoToggle showDemo={showDemo} onOpen={openDemo} onClose={() => setShowDemo(false)} />
         )}
       </div>
+      )}
 
       {showDemo && (
         <div className="cam-sign-demo">

@@ -121,6 +121,32 @@
           "signIds": ["letra-C","letra-Ç","letra-J","letra-X","letra-Z"],
           "produce": ["letra-C","letra-Ç","letra-X"],
           "spellWords": ["CAÇA", "JOIA"]
+        },
+        {
+          "id": "u1-l7",
+          "title": "Revisão: letras parecidas",
+          "order": 7,
+          "xpReward": 10,
+          "signIds": ["letra-F","letra-T","letra-U","letra-V","letra-M","letra-N"],
+          "produce": [],
+          "contrastPairs": [
+            { "signs": ["letra-F","letra-T"] },
+            { "signs": ["letra-U","letra-V"] },
+            { "signs": ["letra-M","letra-N"] }
+          ]
+        },
+        {
+          "id": "u1-l8",
+          "title": "Revisão: o movimento muda a letra",
+          "order": 8,
+          "xpReward": 10,
+          "signIds": ["letra-C","letra-Ç","letra-K","letra-H","letra-P"],
+          "produce": [],
+          "contrastPairs": [
+            { "signs": ["letra-C","letra-Ç"] },
+            { "signs": ["letra-K","letra-H"] },
+            { "signs": ["letra-P","letra-K"] }
+          ]
         }
       ]
     },
@@ -144,6 +170,18 @@
           "xpReward": 15,
           "signIds": ["numero-6","numero-7","numero-8","numero-9","numero-10"],
           "produce": ["numero-6","numero-7","numero-8","numero-9"]
+        },
+        {
+          "id": "u2-l3",
+          "title": "Revisão: letras e números",
+          "order": 3,
+          "xpReward": 10,
+          "signIds": ["numero-0","letra-O","numero-8","letra-S"],
+          "produce": [],
+          "contrastPairs": [
+            { "signs": ["numero-0","letra-O"], "contexts": { "numero-0": "10", "letra-O": "BOLO" } },
+            { "signs": ["letra-S","numero-8"], "contexts": { "letra-S": "SAPO", "numero-8": "18" } }
+          ]
         }
       ]
     },

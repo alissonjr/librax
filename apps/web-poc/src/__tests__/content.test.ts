@@ -34,7 +34,7 @@ const BUNDLE: Record<string, BundleExercise[]> = Object.fromEntries(
 /** Tipos do catalogo da spec-03 secao 3 (nomes finais). */
 const SPEC_TYPES = new Set([
   'sign_intro', 'watch_choose_word', 'word_choose_video', 'match_pairs', 'order_sequence', 'build_phrase',
-  'perform_sign', 'fingerspell', 'mirror_practice',
+  'perform_sign', 'fingerspell', 'mirror_practice', 'contrast_pair',
 ]);
 
 type Composed = { type: string; payload: Record<string, unknown> };
@@ -64,7 +64,7 @@ function lessonFor(signIds: string[], map: Record<string, Sign> = signsMap, pool
 /** Fases da sessao (spec-03 secao 4): apresenta e reconhece, produz, frase no fim. */
 const PHASE: Record<string, number> = {
   sign_intro: 1, watch_choose_word: 1, word_choose_video: 1, match_pairs: 1,
-  perform_sign: 2, mirror_practice: 2, fingerspell: 2, order_sequence: 2,
+  perform_sign: 2, mirror_practice: 2, fingerspell: 2, order_sequence: 2, contrast_pair: 2,
   build_phrase: 3,
 };
 
@@ -74,6 +74,7 @@ function gradedSigns(exercises: Exercise[]): Set<string> {
   for (const e of exercises) {
     if (e.type === 'watch_choose_word' || e.type === 'word_choose_video' || e.type === 'perform_sign') out.add(e.signId);
     if (e.type === 'match_pairs') e.pairSignIds!.forEach((id) => out.add(id));
+    if (e.type === 'contrast_pair') e.contrast!.signIds.forEach((id) => out.add(id));
   }
   return out;
 }
@@ -711,9 +712,10 @@ describe('bundle versionado', () => {
   it('todo sinal citado no bundle existe', () => {
     for (const items of Object.values(BUNDLE)) {
       items.forEach((e) => {
-        const p = e.payload as { sign_id?: string; pairs?: { sign_id: string }[] };
+        const p = e.payload as { sign_id?: string; pairs?: { sign_id: string }[]; sign_ids?: string[] };
         if (p.sign_id) expect(signsMap[p.sign_id], `${e.id}: ${p.sign_id}`).toBeDefined();
         p.pairs?.forEach((pair) => expect(signsMap[pair.sign_id], e.id).toBeDefined());
+        p.sign_ids?.forEach((id) => expect(signsMap[id], `${e.id}: ${id}`).toBeDefined());
       });
     }
   });
@@ -882,7 +884,7 @@ describe('course', () => {
   });
 
   it('licoes so usam tipos de exercicio que o LessonScreen renderiza', () => {
-    const rendered = new Set(['sign_intro', 'perform_sign', 'match_pairs', 'watch_choose_word', 'word_choose_video', 'mirror_practice', 'order_sequence', 'build_phrase', 'fingerspell']);
+    const rendered = new Set(['sign_intro', 'perform_sign', 'match_pairs', 'watch_choose_word', 'word_choose_video', 'mirror_practice', 'order_sequence', 'build_phrase', 'fingerspell', 'contrast_pair']);
     lessons.forEach((l) => resolveExercises(BUNDLE[l.id], l.signIds).forEach((e) => expect(rendered.has(e.type), `${l.id}: ${e.type}`).toBe(true)));
   });
 

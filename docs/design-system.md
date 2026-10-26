@@ -961,6 +961,18 @@ Painel que sobe do rodapé (`slow`, `decelerate`), cobre o botão e fica acima d
 Nenhum desses estados depende de som. Mensagens de status entram por `aria-live="polite"`, no máximo uma a cada
 3 s, para não inundar o leitor de tela.
 
+**Modo livre** (`FreeModeScreen`, rota `/camera/livre`, dentro da aba Praticar; atalhos no cartão de Praticar e no
+topo da tela da câmera): a pessoa soletra o que quiser e o texto se forma, como um ditado. Seletor "Letras |
+Números" no estilo das abas da `HandDemo` (um reconhecedor por vez, para O e 0 ou S e 8 não se confundirem);
+palco 4:3 com raio `lg`; a leitura atual numa pílula `stage.pill` no canto (rótulo "Lendo", letra em `display` e a
+barra de confiança, sem número); dicas e avisos numa pílula na base do vídeo. Embaixo, o texto lido em `headline`
+num campo `bg.surface` com borda fina, cursor em `text.brand` (parado com menos movimento) e quatro botões de 48
+px com ícone e rótulo: Espaço, Apagar, Limpar e Copiar. Regras de leitura em `lib/freeSpell.ts`: letra parada
+vale depois de 600 ms com a mão parada; H, J, K, X e Ç só pelo movimento (a forma parada vira a dica "O K tem
+movimento"); a mesma letra seguida pede soltar a mão; mão fora do quadro por 1,2 s põe um espaço; 4 s sem letra
+nova mostra "Segure a mão parada por um instante." Cada letra nova é anunciada numa região `aria-live` à parte.
+Nada vai para o progresso das lições nem sai do aparelho.
+
 ### 11.8 Modal de conquista (sheet de celebração)
 
 - Bottom sheet de altura automática, fundo `stage.bg` (sempre escuro), topo com raio `xl`, `elevation 3`.

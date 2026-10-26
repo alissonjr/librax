@@ -189,6 +189,47 @@
     "clearConfirm": "Apagar",
     "privacyNote": "Só números, sem imagem nem vídeo. Com conta, os números de cada lição vão junto com ela para o servidor, só para os totais de todas as pessoas, sem identificar você."
   },
+  "freeMode": {
+    "title": "Modo livre",
+    "subtitle": "Soletre o que quiser e veja o texto se formar, como um ditado.",
+    "entryTitle": "Modo livre",
+    "entryDesc": "Soletre o que quiser e veja as letras aparecerem",
+    "modeLabel": "O que a câmera lê",
+    "modeLetters": "Letras",
+    "modeNumbers": "Números",
+    "idle": "Ligue a câmera e soletre. Nada é gravado nem enviado.",
+    "activate": "Ativar câmera",
+    "loading": "Preparando o reconhecimento...",
+    "denied": "A câmera está bloqueada. Libere o acesso nas configurações do navegador e tente de novo.",
+    "error": "Não foi possível ligar a câmera. Sem internet, ela funciona depois de baixar os arquivos em Configurações.",
+    "unsupported": "Este aparelho ou navegador não dá acesso à câmera.",
+    "retry": "Tentar de novo",
+    "feedLabel": "Imagem da câmera",
+    "reading": "Lendo",
+    "readingMotion": "Movimento",
+    "noHand": "Mostre sua mão dentro do quadro.",
+    "hintHold": "Segure a mão parada por um instante.",
+    "hintMotion": "O {letter} tem movimento: faça o movimento da letra.",
+    "hintRelease": "Para repetir a letra, solte a mão antes.",
+    "numbersUnavailable": "Os números precisam do modelo da câmera. Conecte-se à internet uma vez.",
+    "textLabel": "Texto lido",
+    "placeholder": "Soletre e as letras aparecem aqui.",
+    "space": "Espaço",
+    "deleteLast": "Apagar",
+    "clear": "Limpar",
+    "copy": "Copiar",
+    "copied": "Texto copiado.",
+    "copyFailed": "Não foi possível copiar. Toque e segure o texto para copiar.",
+    "announceSpace": "Espaço",
+    "announceReplace": "Trocado por {char}",
+    "tipsTitle": "Como soletrar",
+    "tipPause": "Faça uma pausa curta entre as letras. Para repetir uma letra, solte a mão antes.",
+    "tipSpace": "Abaixe a mão por um instante para dar espaço.",
+    "tipPrivate": "Este modo não conta nas lições e nada sai do seu aparelho.",
+    "stillLetters": "Letras paradas",
+    "motionLetters": "Letras com movimento",
+    "numbersList": "Números que a câmera lê"
+  },
   "common": {
     "back": "Voltar",
     "cancel": "Cancelar",
@@ -209,12 +250,15 @@
     "u1-l4": "Letras P a T",
     "u1-l5": "Letras U a Z",
     "u1-l6": "Letra Ç",
+    "u1-l7": "Revisão: letras parecidas",
+    "u1-l8": "Revisão: o movimento muda a letra",
     "u2": {
       "desc": "Os números de 0 a 10",
       "title": "Números"
     },
     "u2-l1": "Números 0 a 5",
     "u2-l2": "Números 6 a 10",
+    "u2-l3": "Revisão: letras e números",
     "u3": {
       "desc": "Cumprimentar, agradecer e pedir licença",
       "title": "Saudações e cortesia"
@@ -390,6 +434,28 @@
     "starting": "Iniciando...",
     "successTitle": "Boa! Você fez a letra {letter}",
     "nextLetter": "Próxima letra"
+  },
+  "exerciseContrastPair": {
+    "cameraStep": "Mãos parecidas: {n} de {total}",
+    "compareHint": "Repare no que muda de uma mão para a outra.",
+    "comparePrompt": "Compare as duas mãos",
+    "contextNumber": "Esta mão aparece no número {context}. O que ela é?",
+    "contextWord": "Esta mão aparece na palavra {context}. O que ela é?",
+    "correct": "Correto!",
+    "hand": "Mão {n}",
+    "handLabel": "Mão {n}: {desc}",
+    "pauseMove": "Pausar o movimento",
+    "pickHint": "Toque na mão certa. Agora as mãos são de outras pessoas.",
+    "playMove": "Ver o movimento",
+    "round": "Rodada {n} de {total}",
+    "sameHand": "Mesma mão",
+    "sameHandNote": "É a mesma mão. Quem diz se é letra ou número é o contexto: numa palavra, é letra; num número, é número.",
+    "title": "Mãos parecidas",
+    "whichLetter": "Qual é a letra {gloss}?",
+    "whichNumber": "Qual é o número {gloss}?",
+    "withMovement": "Com movimento",
+    "wrongContext": "A resposta certa é:",
+    "wrongHand": "A resposta certa é a mão {n}."
   },
   "exerciseCameraMotion": {
     "bodyMissing": "Enquadre o rosto e os ombros na câmera",
@@ -887,5 +953,93 @@
     "statXp": "XP ganhos",
     "title": "Unidade {num} concluída!"
   },
-  "useDialog": {}
+  "useDialog": {},
+  "wrongHint": {
+    "title": "A câmera viu {read}",
+    "askedLabel": "Você precisa fazer",
+    "readLabel": "A câmera viu",
+    "difference": "Diferença: {text}",
+    "compare": "Compare as duas mãos.",
+    "spoken": "A câmera viu {read}. Você precisa fazer {asked}: {text}.",
+    "spokenNoDiff": "A câmera viu {read}. Você precisa fazer {asked}.",
+    "dismiss": "Entendi",
+    "dismissLabel": "Fechar a dica e continuar tentando",
+    "handsLabel": "Mão em 3D fazendo {what}, com os dedos que mudam destacados",
+    "handsLabelMove": "Mão em 3D fazendo {what}, com o movimento",
+    "playMove": "Ver o movimento",
+    "pauseMove": "Pausar o movimento",
+    "loading": "Preparando as mãos",
+    "highlightNote": "Em destaque: o que muda",
+    "letter": "o {g}",
+    "number": "o {g}",
+    "and": "{a} e {b}",
+    "list2": "{a} e {b}",
+    "list3": "{a}, {b} e {c}",
+    "allFingers": "os quatro dedos",
+    "one": "{finger} fica {state}",
+    "many": "{fingers} ficam {state}",
+    "finger": {
+      "thumb": "o polegar",
+      "index": "o indicador",
+      "middle": "o médio",
+      "ring": "o anelar",
+      "pinky": "o mínimo"
+    },
+    "fingerOf": {
+      "index": "do indicador",
+      "middle": "do médio",
+      "ring": "do anelar",
+      "pinky": "do mínimo"
+    },
+    "fingerOn": {
+      "index": "no indicador",
+      "middle": "no médio",
+      "ring": "no anelar",
+      "pinky": "no mínimo"
+    },
+    "state": {
+      "esticado": "esticado",
+      "curvado": "curvado",
+      "dobrado": "dobrado",
+      "maisDobrado": "mais dobrado",
+      "maisEsticado": "mais esticado"
+    },
+    "statePlural": {
+      "esticado": "esticados",
+      "curvado": "curvados",
+      "dobrado": "dobrados",
+      "maisDobrado": "mais dobrados",
+      "maisEsticado": "mais esticados"
+    },
+    "gap": {
+      "juntos": "{fingers} ficam juntos",
+      "separados": "{fingers} ficam separados"
+    },
+    "cross": {
+      "cruzados": "o indicador e o médio ficam cruzados",
+      "ladoALado": "o indicador e o médio ficam lado a lado, sem cruzar"
+    },
+    "thumb": {
+      "tocaPontas": "o polegar toca a ponta dos dedos",
+      "tocaPonta": "o polegar toca a ponta {of}",
+      "encosta": "o polegar encosta {on}",
+      "aoLado": "o polegar fica ao lado do indicador",
+      "porCima": "o polegar fica por cima dos dedos",
+      "porBaixo": "o polegar fica por baixo dos dedos",
+      "lado": "o polegar fica esticado para o lado",
+      "frente": "o polegar fica afastado, na frente da palma",
+      "dobrado": "o polegar fica dobrado junto da palma"
+    },
+    "direction": {
+      "cima": "a mão aponta para cima",
+      "baixo": "a mão aponta para baixo",
+      "lado": "a mão aponta para o lado",
+      "frente": "a mão aponta para a frente"
+    },
+    "move": {
+      "pedidoMove": "{what} tem movimento",
+      "pedidoParado": "{what} fica parado, sem movimento",
+      "outroMovimento": "{what} tem outro movimento"
+    }
+  }
 }

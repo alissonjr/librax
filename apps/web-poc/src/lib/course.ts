@@ -20,6 +20,11 @@ export interface Lesson {
   spellOwnName?: string;
   /** Números feitos dígito a dígito na lição (U13: "faça 20"); viram fingerspell com `numbers`. */
   spellNumbers?: string[];
+  /**
+   * Revisão das mãos parecidas (F e T, O e 0): cada par vira um contrast_pair no bundle. `contexts`
+   * só nos pares da mesma mão: a palavra ou o número em que cada sinal aparece.
+   */
+  contrastPairs?: { signs: string[]; contexts?: Record<string, string> }[];
 }
 
 export interface SourceRef {

@@ -1,0 +1,217 @@
+/* =========================================================
+   MÃOS PARECIDAS (contrast_pair, components/ExerciseContrastPair.tsx)
+   Só tokens de src/styles/tokens.css. Estado em selo/chip, contorno completo e fundo do cartão
+   inteiro, como o ChoiceTile (design system 11.2); nunca faixa colorida lateral.
+   ========================================================= */
+
+.pair-screen { gap: var(--lx-space-3); }
+
+.pair-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lx-space-2);
+}
+.pair-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lx-space-1);
+  padding: var(--lx-space-1) var(--lx-space-3);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-game-hand-soft);
+  color: var(--lx-game-hand-text);
+  font: var(--lx-typography-label-sm);
+}
+.pair-chip .icon, .pair-chip svg { width: 16px; height: 16px; }
+.pair-chip--same,
+.pair-chip--move {
+  background: var(--lx-game-trace-soft);
+  color: var(--lx-game-trace-on-soft);
+}
+.pair-hint,
+.pair-round {
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-secondary);
+}
+.pair-round { font: var(--lx-typography-label-sm); }
+
+/* Duas mãos lado a lado (uma embaixo da outra abaixo de 340 px) */
+.pair-hands {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lx-space-3);
+  width: 100%;
+}
+@media (max-width: 339px) {
+  .pair-hands { grid-template-columns: 1fr; }
+}
+
+.pair-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--lx-space-2);
+  margin: 0;
+  padding: var(--lx-space-2);
+  border: var(--lx-border-width-thin) solid var(--lx-border-default);
+  border-radius: var(--lx-radius-lg);
+  background: var(--lx-bg-surface);
+  min-width: 0;
+}
+.pair-card-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lx-space-1);
+  padding: 0 var(--lx-space-1) var(--lx-space-1);
+}
+.pair-gloss {
+  font: var(--lx-typography-display);
+  color: var(--lx-text-primary);
+  line-height: 1;
+}
+.pair-kind {
+  font: var(--lx-typography-label-sm);
+  color: var(--lx-text-secondary);
+}
+.pair-desc {
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-primary);
+}
+
+/* Palco da mão pequena: quadrado, fundo do palco como as outras demonstrações */
+.mao3d-mini {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--lx-radius-md);
+  overflow: hidden;
+  background: var(--lx-stage-bg);
+  color: var(--lx-stage-text);
+  pointer-events: none;
+}
+.mao3d-mini-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.pair-hand-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+  align-items: flex-start;
+  min-height: 120px;
+  padding: var(--lx-space-3);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-game-hand-soft);
+  color: var(--lx-game-hand-text);
+  font: var(--lx-typography-body-sm);
+  text-align: left;
+}
+.pair-hand-text p { margin: 0; }
+
+.pair-move { align-self: center; }
+/* O botão Entendi fica no pé da tela, como na apresentação */
+.pair-screen > .exercise-intro-footer { margin-top: auto; }
+
+/* Checagem: o cartão inteiro é a opção (alvo grande, contorno completo no estado) */
+.pair-pick {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-width: var(--lx-border-width-thick);
+  border-radius: var(--lx-radius-choice);
+  transition: transform var(--lx-motion-duration-instant) var(--lx-motion-easing-standard);
+}
+.pair-pick:active:not([aria-disabled="true"]) {
+  transform: scale(calc(1 - 0.02 * var(--lx-motion-scale, 1)));
+  border-color: var(--lx-border-focus);
+}
+.pair-pick[aria-disabled="true"] { cursor: default; }
+.pair-pick-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lx-space-2);
+  min-height: var(--lx-size-touch-min);
+  padding: 0 var(--lx-space-1);
+  font: var(--lx-typography-label);
+  color: var(--lx-text-primary);
+}
+.pair-pick-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-bg-sunken);
+  color: var(--lx-text-primary);
+  font: var(--lx-typography-label-sm);
+}
+.pair-pick-tag {
+  padding: 0 var(--lx-space-1) var(--lx-space-1);
+  font: var(--lx-typography-caption);
+  color: var(--lx-feedback-success-text);
+}
+.pair-pick--correct {
+  border-color: var(--lx-feedback-success-strong);
+  background: var(--lx-feedback-success-soft);
+}
+.pair-pick--correct .pair-pick-badge {
+  background: var(--lx-feedback-success-strong);
+  color: var(--lx-bg-surface);
+}
+.pair-pick--wrong {
+  border-color: var(--lx-feedback-error-strong);
+  background: var(--lx-feedback-error-soft);
+}
+.pair-pick--wrong .pair-pick-badge {
+  background: var(--lx-feedback-error-strong);
+  color: var(--lx-bg-surface);
+}
+.pair-pick--reveal {
+  border-style: dashed;
+  border-color: var(--lx-feedback-success-strong);
+}
+.pair-pick--dimmed { opacity: .6; }
+
+/* Mesma mão: a mão e o contexto (palavra ou número) em que ela aparece */
+.pair-context {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--lx-space-3);
+}
+.pair-card--single { max-width: 220px; }
+.pair-context-word {
+  padding: var(--lx-space-2) var(--lx-space-4);
+  border-radius: var(--lx-radius-lg);
+  background: var(--lx-game-trace-soft);
+  color: var(--lx-game-trace-on-soft);
+  font: var(--lx-typography-display);
+}
+.pair-option { font: var(--lx-typography-title-sm); }
+
+/* Câmera: o contador dos dois sinais acima do exercício de câmera de sempre */
+.pair-camera {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.pair-camera-count {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  gap: var(--lx-space-1);
+  margin: var(--lx-space-2) 0 0;
+  padding: var(--lx-space-1) var(--lx-space-3);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-stage-surface);
+  color: var(--lx-stage-text);
+  font: var(--lx-typography-label-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pair-pick { transition: none; }
+}
+:root[data-reduced-motion="true"] .pair-pick { transition: none; }

@@ -50,7 +50,8 @@ export type ExerciseType =
   | 'order_sequence'
   | 'build_phrase'
   | 'fingerspell'
-  | 'mirror_practice';
+  | 'mirror_practice'
+  | 'contrast_pair';
 
 interface BundleBase<T extends ExerciseType, P> {
   id: string;
@@ -84,7 +85,15 @@ export type BundleExercise =
       /** Número feito dígito a dígito ("faça 20": 2 e depois 0); `letters` são os dígitos. */
       numbers?: boolean;
     }>
-  | BundleBase<'mirror_practice', { sign_id: string }>;
+  | BundleBase<'mirror_practice', { sign_id: string }>
+  | BundleBase<'contrast_pair', {
+      /** Os dois sinais de mãos parecidas (F e T, O e 0). */
+      sign_ids: [string, string];
+      /** Os que a câmera pede (já tiveram perform_sign em lição anterior), na ordem. */
+      camera_sign_ids: string[];
+      /** Mesma mão (O e 0, S e 8): a palavra ou o número em que cada sinal aparece. */
+      contexts?: Record<string, string>;
+    }>;
 
 /** Tipos que o LessonScreen renderiza hoje. */
 export type RenderedExerciseType =
@@ -96,7 +105,22 @@ export type RenderedExerciseType =
   | 'order_sequence'
   | 'build_phrase'
   | 'fingerspell'
-  | 'mirror_practice';
+  | 'mirror_practice'
+  | 'contrast_pair';
+
+/** Reconhecedor da câmera de um sinal (o mesmo critério do perform_sign, em resolveExercises). */
+export type CameraRecognizer = 'letras' | 'letras-mov' | 'numeros' | 'sinais';
+
+/** contrast_pair pronto para a tela: o par, as rodadas sorteadas e a câmera de cada sinal. */
+export interface ContrastPair {
+  signIds: [string, string];
+  /** Rodadas da checagem: o sinal pedido e a ordem das duas mãos na tela (as duas sorteadas). */
+  rounds: { target: string; order: [string, string] }[];
+  /** Mesma mão: a checagem pergunta pelo contexto (palavra ou número) em vez de escolher a mão. */
+  contexts?: Record<string, string>;
+  /** Sinais feitos na câmera, um depois do outro, com o reconhecedor de cada um (vazio: sem câmera). */
+  camera: { signId: string; recognizer: CameraRecognizer }[];
+}
 
 /** Exercício pronto para a tela: o do bundle com os sorteios da sessão já feitos. */
 export interface Exercise {
@@ -132,6 +156,8 @@ export interface Exercise {
    * ExerciseCameraSign com o classificador dos números); ausente nas letras paradas (ExerciseCameraSign).
    */
   recognizer?: 'sinais' | 'letras-mov' | 'numeros';
+  /** contrast_pair: mãos parecidas (compara, checa e faz as duas na câmera). */
+  contrast?: ContrastPair;
 }
 
 // Os tipos e o curso continuam saindo daqui para quem já importa de content.ts
@@ -295,6 +321,19 @@ export interface ResolveOptions {
 }
 
 /**
+ * Quem avalia o sinal na câmera, na mesma ordem do perform_sign: o modelo das letras com movimento,
+ * o classificador das letras paradas, o modelo dos sinais com movimento e o dos números; null quando
+ * nenhum avalia (o sinal seria prática livre).
+ */
+export function cameraRecognizerFor(sign: Sign | undefined, opts: ResolveOptions = {}): CameraRecognizer | null {
+  if ((opts.canEvaluateLetterMotion ?? isLetterMotionEvaluable)(sign)) return 'letras-mov';
+  if ((opts.canEvaluate ?? isCameraEvaluable)(sign)) return 'letras';
+  if ((opts.canEvaluateMotion ?? isMotionSignEvaluable)(sign)) return 'sinais';
+  if ((opts.canEvaluateNumber ?? isNumberEvaluable)(sign)) return 'numeros';
+  return null;
+}
+
+/**
  * Transforma os exercicios do bundle no que a tela mostra, com os sorteios da sessao:
  * - watch_choose_word sem `options` ganha 3 distratores (mesma categoria primeiro) e ordem sorteada;
  * - build_phrase sorteia os distratores e a ordem dos blocos;
@@ -312,6 +351,9 @@ export interface ResolveOptions {
  *   order_sequence com as letras (a pessoa poe as letras na ordem). No "soletre seu nome"
  *   (`own_name`), a palavra e o primeiro nome do perfil (ownNameLetters); se o nome nao da, fica a
  *   palavra de reserva do bundle, como um fingerspell comum.
+ * - contrast_pair sorteia a ordem das rodadas da checagem (uma por sinal) e a posicao das duas maos
+ *   em cada uma; a camera fica so com os sinais de `camera_sign_ids` que algum reconhecedor avalia
+ *   (cameraRecognizerFor), cada um com o seu; sem nenhum, o exercicio nao tem a etapa da camera.
  * `lessonSignIds[0]` e o sinal de referencia dos exercicios que nao tem um sinal so.
  */
 export function resolveExercises(items: BundleExercise[], lessonSignIds: string[], opts: ResolveOptions = {}): Exercise[] {
@@ -405,6 +447,21 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
       case 'word_choose_video': {
         const { correct_sign_id, video_options } = item.payload;
         out.push({ id, type: 'word_choose_video', signId: correct_sign_id, videoOptions: shuffle(video_options) });
+        break;
+      }
+      case 'contrast_pair': {
+        const { sign_ids: pair, camera_sign_ids, contexts } = item.payload;
+        const rounds = shuffle(pair).map((target) => ({ target, order: shuffle(pair) as [string, string] }));
+        const camera = camera_sign_ids.flatMap((signId) => {
+          const recognizer = cameraRecognizerFor(map[signId], opts);
+          return recognizer ? [{ signId, recognizer }] : [];
+        });
+        out.push({
+          id,
+          type: 'contrast_pair',
+          signId: pair[0],
+          contrast: { signIds: [pair[0], pair[1]], rounds, camera, ...(contexts ? { contexts } : {}) },
+        });
         break;
       }
     }

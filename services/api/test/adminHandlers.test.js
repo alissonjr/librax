@@ -203,7 +203,7 @@ test('resumo da conta: perfil, progresso, liga, squads e atividade', async () =>
   assert.equal(s.account.email, 'ana@exemplo.com');
   assert.equal(s.profile.xpTotal, 40);
   assert.equal(s.progress.distinctLessons, 1);
-  assert.equal(s.progress.totalLessons, 54);
+  assert.equal(s.progress.totalLessons, 57);
   assert.equal(s.progress.lessons[0].unitId, 'u1');
   assert.deepEqual(s.srs, { signs: 1, due: 1 });
   assert.deepEqual(s.achievements, ['PRIMEIRA_LICAO']);

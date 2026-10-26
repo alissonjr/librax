@@ -103,6 +103,11 @@ Nomes finais (decisão 10 do `plano-mobile-web.md`): `intro` virou `sign_intro`;
 | `fingerspell` | `{ word, letters[], per_letter_confidence, own_name?, numbers? }` (nomes da U4, palavras de revisão do alfabeto e, com `numbers: true`, números feitos dígito a dígito na U13, como "faça 20"; `per_letter_confidence` fica `null` até a calibração. Cada letra ou dígito tem o seu leitor na câmera (seção 5.4); com letra parada que a câmera não avalia, ou sem nenhum passo avaliado, o app mostra como `order_sequence`. `own_name: true` é o "soletre seu nome": o app troca a palavra pelo primeiro nome do perfil e `word` fica de reserva, ver seção 5.4) |
 | `mirror_practice` | `{ sign_id }` (prática livre, sem nota) |
 
+### Revisão de mãos parecidas
+| type | payload |
+|---|---|
+| `contrast_pair` | `{ sign_ids: [a, b], camera_sign_ids[], contexts? }` ("Mãos parecidas": compara as duas mãos em 3D lado a lado, checa qual é qual e faz as duas na câmera, seção 11.17. `camera_sign_ids` são os sinais do par que já tiveram `perform_sign` em lição anterior e que a lição ainda não pediu; `contexts` só nos pares da mesma mão, como O e 0: a palavra ou o número em que cada sinal aparece. O app sorteia a ordem das rodadas e a posição das mãos e escolhe o reconhecedor de cada sinal) |
+
 **Regra de composição da lição**: toda lição mistura receptivo + expressivo, na sequência apresenta (vídeo) ->
 reconhece receptivo -> produz expressivo, com a frase no fim. Receptivo cobre quem está sem câmera. A sessão tem
 **de 7 a 12 exercícios** (seção 4; a única exceção é o `match_pairs` dividido do item 2), gerada por
@@ -135,6 +140,9 @@ reconhece receptivo -> produz expressivo, com a frase no fim. Receptivo cobre qu
    (`spelledNumberProblem`), o script falha se o número não é um sinal do curso, se tem forma própria em Libras
    (11, 40, 50 e 100, ver as notas do `signs.json`; o 10 e os outros de 12 a 90 são os dígitos em sequência com a
    mesma mão) ou se algum dígito ainda não teve `perform_sign`.
+   Por fim, um `contrast_pair` por par de `contrastPairs` (course.json), a revisão das mãos parecidas (seção
+   "Mãos parecidas" abaixo). Cada par conta como um exercício no limite de 12 e o script falha se o par usa
+   sinal que ainda não foi ensinado (em lição anterior ou na própria lição).
 4. **Frase.** Da U3 em diante, o `build_phrase` fecha a sessão.
 
 **Câmera no alfabeto** (plano `plano-licoes-pos-treino.md`, seção 1): cada lição da U1 tem `perform_sign` para as
@@ -157,7 +165,27 @@ pessoa faz o C e logo depois o Ç na câmera. O Ç não tem avatar (o VLibras n�
 do app): a apresentação e os exercícios de reconhecimento mostram a descrição da forma e do movimento. Na soletração
 (CAÇA, JOIA e o "soletre seu nome") o Ç e o J são lidos pelo modelo das letras com movimento.
 
-Lição que ficasse com menos de 7 ganharia uma rodada de `watch_choose_word` antes da frase (não acontece no A1).
+Lição que ficasse com menos de 7 ganha uma rodada de `watch_choose_word` antes dos pares e da frase (no A1, só a
+U2 L3, com um `watch_choose_word` a mais).
+
+**Mãos parecidas (`contrast_pair`).** Pares de configurações de mão que se confundem, ensinados lado a lado depois que
+os dois sinais já foram vistos. A lista é curada (8 pares) a partir do pedido do produto e dos dados: o teste fixo do
+modelo das letras paradas (`ml-training/teste_fixo.py`: F e T trocam entre si, K é lido como H, P como K) e o relatório
+do modelo dos números (`ml-training/numeros15_relatorio.json`: o O é lido como 0 em 43 de 43 quadros e o S como 8 em
+48 de 50, porque são a mesma mão, cg42 e cg02 no INES). Só entram pares com as duas descrições do `signs.json`
+conferidas no INES e na VLibras (nada "A CONFERIR"); por isso 2 e 7 (o 7 está "A CONFERIR") e G e Q (o polegar do G
+está "A CONFERIR") ficaram de fora, e R e U (1 troca em cada sentido no teste fixo) ficou para depois.
+
+| Lição | Pares | Câmera |
+|---|---|---|
+| U1 L7, "Revisão: letras parecidas" (F, T, U, V, M, N) | F e T, U e V, M e N | F, U e V (T, M e N ainda abaixo de 80% no teste fixo ficam sem câmera) |
+| U1 L8, "Revisão: o movimento muda a letra" (C, Ç, K, H, P) | C e Ç, K e H, P e K | todas, com o modelo das letras com movimento no Ç, no K e no H |
+| U2 L3, "Revisão: letras e números" (0, O, 8, S) | 0 e O, S e 8 (mesma mão: a checagem pergunta pelo contexto, BOLO e 10, SAPO e 18) | as quatro, o 0 e o 8 com o modelo dos números |
+
+As revisões ficam no fim da unidade em que o último sinal do par é ensinado: a U1 L7 e a U1 L8 depois do Ç, a U2 L3
+depois do 10 (o O e o S vêm da U1). Cada lição tem os receptivos de sempre para cada sinal (`produce` vazio: a câmera
+fica com os pares) e, nos pares da mesma mão, um sinal não entra como distrator do outro no `word_choose_video`. Com a
+U1 L8 no fim da U1, o "Alfabeto completo" passa a vir na conclusão dela (é a última lição da unidade).
 
 Exemplos (bundle atual):
 
@@ -171,6 +199,8 @@ Exemplos (bundle atual):
 | U6 L1 (FAMÍLIA, MÃE, PAI, FILHO, FILHA, BEBÊ) | 6 novos + frase | intro e watch FAMÍLIA, intro e word_choose_video MÃE, intro PAI, FILHO, FILHA e BEBÊ, match_pairs dos 4, perform FAMÍLIA, perform MÃE, build_phrase | 12 |
 | U4 L4 (D, A, V, I, B, L; nomes DAVI, BIA, LIA e o da pessoa) | 6 de revisão + frase | watch e word_choose_video alternados para os 6 sinais, fingerspell DAVI, BIA e LIA, "soletre seu nome" (reserva LIDIA), build_phrase | 11 |
 | U14 L3 (OI, NOME, SURDO, OUVINTE, ONDE, MORAR) | 6 de revisão + frase | 6 receptivos alternados, perform OI, perform NOME, build_phrase | 9 |
+| U1 L7 (F, T, U, V, M, N; pares F e T, U e V, M e N) | 6 de revisão, `produce` vazio | 6 receptivos alternados, contrast_pair F e T, U e V, M e N | 9 |
+| U2 L3 (0, O, 8, S; pares 0 e O, S e 8) | 4 de revisão, `produce` vazio | 4 receptivos alternados, watch 0 (completa 7), contrast_pair 0 e O, S e 8 | 7 |
 
 **Revisão fora da lição**: a repetição do mesmo sinal várias vezes saiu da lição e fica na prática diária (aba
 Praticar, seção 11.12). Todo sinal da lição tem ao menos um exercício com nota (o receptivo individual ou o
@@ -631,6 +661,36 @@ Passos 4 e 5 sao mutuamente exclusivos. Se a licao nao e a ultima de uma unidade
 **Regra de conquista:** a conquista "A1 Completo" e concedida pelo Lambda (mesmo fluxo das outras conquistas, SPEC 02 secao 5.4 e 12.6) e seu bottom sheet celebratorio ja foi exibido antes da LessonCompletionScreen, portanto nao reaparece aqui.
 
 ---
+
+### 11.17 Exercicio: contrast_pair (maos parecidas)
+
+**Componente:** `ExerciseContrastPair` (`src/components/ExerciseContrastPair.tsx`), com a mao em 3D pequena
+(`src/mao3d/Mao3DMini.tsx`, carregada sob demanda) e os estilos em `src/styles/contrast.css`.
+
+**Etapas:**
+1. **Compara.** Selo "Maos parecidas" (e "Mesma mao" nos pares da mesma mao), "Compare as duas maos" e dois cartoes
+   lado a lado (um embaixo do outro abaixo de 340 px): a mao em 3D de frente, a glosa, "Letra F" ou "Numero 0", o selo
+   "Com movimento" nas letras com movimento e a forma da mao (`CM`) e o movimento (`MOV`) do `signs.json`. Com alguma
+   letra com movimento, um botao "Ver o movimento" toca e pausa as duas maos juntas (com menos movimento elas abrem
+   paradas). Botao "Entendi, continuar" fixo no pe da tela.
+2. **Checa.** Uma rodada por sinal, em ordem sorteada: "Qual e a letra F?" e as duas maos como opcoes ("Mao 1",
+   "Mao 2", posicoes sorteadas a cada rodada), agora com a mao de outra pessoa dos dados, para a pessoa reconhecer a
+   forma e nao a mesma imagem. Tocar responde: o cartao fica com contorno e fundo de acerto ou de erro (a certa
+   revelada com contorno tracejado) e o painel de feedback da secao 11.6 traz "Correto!" ou "A resposta certa e a mao
+   2." e o botao Continuar. Nos pares da mesma mao (O e 0, S e 8) a escolha e pelo contexto: a mao e a palavra ou o
+   numero em que ela aparece ("Esta mao aparece na palavra BOLO. O que ela e?") e as opcoes "Letra O" e "Numero 0".
+3. **Camera.** Os sinais de `camera_sign_ids` que algum reconhecedor avalia, um depois do outro, cada um no exercicio
+   de camera de sempre (letra parada: `ExerciseCameraSign`; letra com movimento: `ExerciseCameraMotionLetter`; numero:
+   `ExerciseCameraSign` com o modelo dos numeros), com o selo "Maos parecidas: 1 de 2" em cima. A licao vira palco
+   escuro so nesta etapa. Sem nenhum sinal com camera (os dois seriam pratica livre), sem `getUserMedia` ou com a
+   permissao da camera negada, a etapa e pulada sem contar erro.
+
+**Nota:** o exercicio conta um acerto quando a pessoa acerta as rodadas e faz na camera todos os sinais pedidos. Os
+dois sinais vao para o SRS; o que a pessoa errou na checagem ou pulou na camera vai como `failed` e revisa mais cedo.
+Sem WebGL, cada mao vira a descricao escrita (na checagem, sem a glosa). Leitor de tela: cada opcao e um botao com
+"Mao 1: <forma da mao>".
+
+`payload`: `{ sign_ids, camera_sign_ids, contexts? }`.
 
 ### 11.16 Adicao a definicao de pronto desta camada
 

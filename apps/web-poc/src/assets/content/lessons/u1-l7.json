@@ -1,0 +1,128 @@
+{
+  "generated_by": "tools/content/build-lessons.mjs",
+  "lesson_id": "u1-l7",
+  "exercises": [
+    {
+      "id": "u1-l7-ex01",
+      "lesson_id": "u1-l7",
+      "type": "watch_choose_word",
+      "order": 1,
+      "payload": {
+        "sign_id": "letra-F",
+        "correct": "F"
+      }
+    },
+    {
+      "id": "u1-l7-ex02",
+      "lesson_id": "u1-l7",
+      "type": "word_choose_video",
+      "order": 2,
+      "payload": {
+        "word": "T",
+        "video_options": [
+          "letra-T",
+          "letra-F",
+          "letra-U",
+          "letra-V"
+        ],
+        "correct_sign_id": "letra-T"
+      }
+    },
+    {
+      "id": "u1-l7-ex03",
+      "lesson_id": "u1-l7",
+      "type": "watch_choose_word",
+      "order": 3,
+      "payload": {
+        "sign_id": "letra-U",
+        "correct": "U"
+      }
+    },
+    {
+      "id": "u1-l7-ex04",
+      "lesson_id": "u1-l7",
+      "type": "word_choose_video",
+      "order": 4,
+      "payload": {
+        "word": "V",
+        "video_options": [
+          "letra-V",
+          "letra-F",
+          "letra-T",
+          "letra-U"
+        ],
+        "correct_sign_id": "letra-V"
+      }
+    },
+    {
+      "id": "u1-l7-ex05",
+      "lesson_id": "u1-l7",
+      "type": "watch_choose_word",
+      "order": 5,
+      "payload": {
+        "sign_id": "letra-M",
+        "correct": "M"
+      }
+    },
+    {
+      "id": "u1-l7-ex06",
+      "lesson_id": "u1-l7",
+      "type": "word_choose_video",
+      "order": 6,
+      "payload": {
+        "word": "N",
+        "video_options": [
+          "letra-N",
+          "letra-F",
+          "letra-T",
+          "letra-U"
+        ],
+        "correct_sign_id": "letra-N"
+      }
+    },
+    {
+      "id": "u1-l7-ex07",
+      "lesson_id": "u1-l7",
+      "type": "contrast_pair",
+      "order": 7,
+      "payload": {
+        "sign_ids": [
+          "letra-F",
+          "letra-T"
+        ],
+        "camera_sign_ids": [
+          "letra-F"
+        ]
+      }
+    },
+    {
+      "id": "u1-l7-ex08",
+      "lesson_id": "u1-l7",
+      "type": "contrast_pair",
+      "order": 8,
+      "payload": {
+        "sign_ids": [
+          "letra-U",
+          "letra-V"
+        ],
+        "camera_sign_ids": [
+          "letra-U",
+          "letra-V"
+        ]
+      }
+    },
+    {
+      "id": "u1-l7-ex09",
+      "lesson_id": "u1-l7",
+      "type": "contrast_pair",
+      "order": 9,
+      "payload": {
+        "sign_ids": [
+          "letra-M",
+          "letra-N"
+        ],
+        "camera_sign_ids": []
+      }
+    }
+  ]
+}

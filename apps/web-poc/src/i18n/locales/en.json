@@ -133,6 +133,47 @@
     "clearConfirm": "Clear",
     "privacyNote": "Numbers only, no image or video. With an account, each lesson's numbers are sent along with it, only for the totals across all learners, without identifying you."
   },
+  "freeMode": {
+    "title": "Free mode",
+    "subtitle": "Fingerspell anything and watch the text appear, like dictation.",
+    "entryTitle": "Free mode",
+    "entryDesc": "Fingerspell anything and watch the letters appear",
+    "modeLabel": "What the camera reads",
+    "modeLetters": "Letters",
+    "modeNumbers": "Numbers",
+    "idle": "Turn on the camera and fingerspell. Nothing is recorded or sent.",
+    "activate": "Turn on camera",
+    "loading": "Getting recognition ready...",
+    "denied": "The camera is blocked. Allow access in your browser settings and try again.",
+    "error": "Could not turn on the camera. Offline, it works after you download the files in Settings.",
+    "unsupported": "This device or browser does not give access to a camera.",
+    "retry": "Try again",
+    "feedLabel": "Camera image",
+    "reading": "Reading",
+    "readingMotion": "Movement",
+    "noHand": "Show your hand inside the frame.",
+    "hintHold": "Hold your hand still for a moment.",
+    "hintMotion": "{letter} has movement: make the letter's movement.",
+    "hintRelease": "To repeat the letter, relax your hand first.",
+    "numbersUnavailable": "Numbers need the camera model. Connect to the internet once.",
+    "textLabel": "Text read",
+    "placeholder": "Fingerspell and the letters show up here.",
+    "space": "Space",
+    "deleteLast": "Delete",
+    "clear": "Clear",
+    "copy": "Copy",
+    "copied": "Text copied.",
+    "copyFailed": "Could not copy. Touch and hold the text to copy it.",
+    "announceSpace": "Space",
+    "announceReplace": "Changed to {char}",
+    "tipsTitle": "How to fingerspell",
+    "tipPause": "Pause briefly between letters. To repeat a letter, relax your hand first.",
+    "tipSpace": "Lower your hand for a moment to add a space.",
+    "tipPrivate": "This mode does not count toward lessons and nothing leaves your device.",
+    "stillLetters": "Still letters",
+    "motionLetters": "Letters with movement",
+    "numbersList": "Numbers the camera reads"
+  },
   "common": {
     "back": "Back",
     "cancel": "Cancel",
@@ -153,12 +194,15 @@
     "u1-l4": "Letters P to T",
     "u1-l5": "Letters U to Z",
     "u1-l6": "Letter Ç",
+    "u1-l7": "Review: look-alike letters",
+    "u1-l8": "Review: movement changes the letter",
     "u2": {
       "desc": "Numbers from 0 to 10",
       "title": "Numbers"
     },
     "u2-l1": "Numbers 0 to 5",
     "u2-l2": "Numbers 6 to 10",
+    "u2-l3": "Review: letters and numbers",
     "u3": {
       "desc": "Greet, thank and say excuse me",
       "title": "Greetings and courtesy"
@@ -334,6 +378,28 @@
     "starting": "Starting...",
     "successTitle": "Nice! You signed the letter {letter}",
     "nextLetter": "Next letter"
+  },
+  "exerciseContrastPair": {
+    "cameraStep": "Look-alike hands: {n} of {total}",
+    "compareHint": "Notice what changes from one hand to the other.",
+    "comparePrompt": "Compare the two hands",
+    "contextNumber": "This hand shows up in the number {context}. What is it?",
+    "contextWord": "This hand shows up in the word {context}. What is it?",
+    "correct": "Correct!",
+    "hand": "Hand {n}",
+    "handLabel": "Hand {n}: {desc}",
+    "pauseMove": "Pause the movement",
+    "pickHint": "Tap the right hand. These hands are from other people.",
+    "playMove": "Play the movement",
+    "round": "Round {n} of {total}",
+    "sameHand": "Same hand",
+    "sameHandNote": "It is the same hand. The context tells you if it is a letter or a number: in a word, it is a letter; in a number, it is a number.",
+    "title": "Look-alike hands",
+    "whichLetter": "Which one is the letter {gloss}?",
+    "whichNumber": "Which one is the number {gloss}?",
+    "withMovement": "With movement",
+    "wrongContext": "The right answer is:",
+    "wrongHand": "The right answer is hand {n}."
   },
   "exerciseCameraMotion": {
     "bodyMissing": "Fit your face and shoulders in the camera",
@@ -777,5 +843,93 @@
     "statXp": "XP earned",
     "title": "Unit {num} completed!"
   },
-  "useDialog": {}
+  "useDialog": {},
+  "wrongHint": {
+    "title": "The camera saw {read}",
+    "askedLabel": "You need to make",
+    "readLabel": "The camera saw",
+    "difference": "Difference: {text}",
+    "compare": "Compare the two hands.",
+    "spoken": "The camera saw {read}. You need to make {asked}: {text}.",
+    "spokenNoDiff": "The camera saw {read}. You need to make {asked}.",
+    "dismiss": "Got it",
+    "dismissLabel": "Close the hint and keep trying",
+    "handsLabel": "3D hand making {what}, with the fingers that change highlighted",
+    "handsLabelMove": "3D hand making {what}, with its movement",
+    "playMove": "See the movement",
+    "pauseMove": "Pause the movement",
+    "loading": "Preparing the hands",
+    "highlightNote": "Highlighted: what changes",
+    "letter": "{g}",
+    "number": "{g}",
+    "and": "{a} and {b}",
+    "list2": "{a} and {b}",
+    "list3": "{a}, {b} and {c}",
+    "allFingers": "all four fingers",
+    "one": "{finger} is {state}",
+    "many": "{fingers} are {state}",
+    "finger": {
+      "thumb": "the thumb",
+      "index": "the index finger",
+      "middle": "the middle finger",
+      "ring": "the ring finger",
+      "pinky": "the little finger"
+    },
+    "fingerOf": {
+      "index": "of the index finger",
+      "middle": "of the middle finger",
+      "ring": "of the ring finger",
+      "pinky": "of the little finger"
+    },
+    "fingerOn": {
+      "index": "the index finger",
+      "middle": "the middle finger",
+      "ring": "the ring finger",
+      "pinky": "the little finger"
+    },
+    "state": {
+      "esticado": "straight",
+      "curvado": "curved",
+      "dobrado": "folded down",
+      "maisDobrado": "bent more",
+      "maisEsticado": "straighter"
+    },
+    "statePlural": {
+      "esticado": "straight",
+      "curvado": "curved",
+      "dobrado": "folded down",
+      "maisDobrado": "bent more",
+      "maisEsticado": "straighter"
+    },
+    "gap": {
+      "juntos": "{fingers} stay together",
+      "separados": "{fingers} stay apart"
+    },
+    "cross": {
+      "cruzados": "the index and middle fingers are crossed",
+      "ladoALado": "the index and middle fingers stay side by side, not crossed"
+    },
+    "thumb": {
+      "tocaPontas": "the thumb touches the fingertips",
+      "tocaPonta": "the thumb touches the tip {of}",
+      "encosta": "the thumb rests against {on}",
+      "aoLado": "the thumb sits beside the index finger",
+      "porCima": "the thumb goes over the fingers",
+      "porBaixo": "the thumb goes under the fingers",
+      "lado": "the thumb sticks out to the side",
+      "frente": "the thumb stays apart, in front of the palm",
+      "dobrado": "the thumb is folded against the palm"
+    },
+    "direction": {
+      "cima": "the hand points up",
+      "baixo": "the hand points down",
+      "lado": "the hand points to the side",
+      "frente": "the hand points forward"
+    },
+    "move": {
+      "pedidoMove": "{what} has a movement",
+      "pedidoParado": "{what} stays still, with no movement",
+      "outroMovimento": "{what} has a different movement"
+    }
+  }
 }

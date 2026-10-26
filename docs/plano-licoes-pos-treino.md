@@ -59,11 +59,21 @@ O teste fixo mostra as trocas mais comuns: K lida como H, P como K, R como U, F 
 como H ou N. Em vez de só "tente de novo", a lição diz o que diferencia a letra pedida da letra que
 a câmera leu.
 
-- O texto de cada dica sai da diferença entre os `CM` das duas letras no `signs.json`, conferida
-  nos vídeos (seção 4) antes de ir para a lição. Não escrever dica de memória: foi assim que o T
-  do alfabeto americano entrou no curso.
-- As dicas ficam em `signs.json` (um campo por troca) e aparecem depois de duas leituras seguidas
-  da letra errada, para não reagir a leituras passageiras.
+Feito como dica visual (substitui a ideia de dicas em texto no `signs.json`), em
+`apps/web-poc/src/dicaErro/`:
+
+- A mão em 3D do sinal pedido e a do sinal lido, lado a lado, com os dedos que mudam destacados
+  (`stage.landmark.retry`) e uma linha com a diferença ("Diferença: o indicador e o médio ficam
+  juntos"). Nada escrito de memória: a diferença sai das mesmas mãos reais da mão em 3D
+  (`maos-licoes.json`), depois do retargeting e da colisão, e vira palavras de um vocabulário
+  pequeno em i18n (`wrongHint.*`: dedo esticado, curvado ou dobrado, dedos juntos, separados ou
+  cruzados, onde fica o polegar, para onde a mão aponta e, nas letras com movimento, o movimento).
+- `scripts/gerar-dicas-erro.ts` calcula os pares que acontecem (trocas do classificador no teste
+  fixo, dos números nas pessoas de teste, das letras com movimento, as de mesma forma com e sem
+  movimento como C e Ç, e as desta seção) em `src/dicaErro/dicas-erro.json`; o app só lê.
+- Abre depois de duas leituras estáveis da mesma letra errada (ou 3 s parada nela; nas letras com
+  movimento, a leitura já confirmada em duas avaliações), no máximo uma vez por tentativa, no lugar
+  do alvo e com a câmera ligada. Sem WebGL, a mesma dica só em texto.
 
 ## 4. Conteúdo conferido com os dados (prioridade média)
 
@@ -93,6 +103,15 @@ O app já avalia sinais quando existe `public/ml/sinais/model.json` (componente
   com os landmarks refeitos a 15 quadros por segundo (mãos e corpo, `video/extrair_sinais.py`):
   ACORDAR, CANSADO, FEIJÃO, HOSPITAL, IDADE, JUNHO, LARANJA, OVO, POR-FAVOR e PREOCUPADO passaram
   em duas divisões diferentes dos canais. No geral, 53% dos 64 sinais confirmados no trecho certo.
+- Mais pessoas nos sinais perto da régua (2026-10-26, `video/baixar_extra.py`, lista
+  `data/sinais15/fontes_extra.json`): 72 vídeos de canais novos (OBRIGADO, MÃE, FAMÍLIA, OI, HOMEM, TRISTE,
+  PRAZER e outros), 8 tirados na revisão das folhas (outro sinal ou outra variante). Com eles (dataset r8),
+  passam nas duas divisões dos canais ARROZ, CANSADO, FAMÍLIA, FEIJÃO, HOMEM, HOSPITAL, IDADE, JUNHO, MÃE,
+  OBRIGADO, POR-FAVOR e PREOCUPADO, mas ACORDAR (14/19 e 11/19), LARANJA (14/19 e 11/19) e OVO (10/16 e 10/16)
+  ficam abaixo de 70%. Não foi publicado: a regra é não tirar a câmera de sinal publicado. Com quatro divisões,
+  antes e depois: ACORDAR 56/76 e 54/76, LARANJA 56/76 e 54/76, OVO 41/60 e 40/64 (já abaixo antes), MÃE 18/24 e
+  50/64, FAMÍLIA 27/28 e 39/44, OBRIGADO 51/68 e 58/68, HOMEM 41/64 e 58/76. Falta decidir se a câmera passa a
+  usar a média de mais divisões (a de duas oscila 2 a 3 vídeos por sinal).
 - (Feito) Exigir duas leituras seguidas da mesma glosa antes de mostrar "Vimos X", porque no teste ao vivo
   apareceram leituras passageiras erradas antes do acerto.
 - (Feito) Mão dominante calculada por janela também no treino, como o app (buffer de 2,5 s).

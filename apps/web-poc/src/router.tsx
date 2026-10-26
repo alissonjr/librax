@@ -71,6 +71,7 @@ const AchievementsScreen = lazyScreen(() => import('./screens/AchievementsScreen
 const SettingsScreen = lazyScreen(() => import('./screens/SettingsScreen'), 'SettingsScreen');
 const CameraStatsScreen = lazyScreen(() => import('./screens/CameraStatsScreen'), 'CameraStatsScreen');
 const CameraScreen = lazyScreen(() => import('./screens/CameraScreen'), 'CameraScreen');
+const FreeModeScreen = lazyScreen(() => import('./screens/FreeModeScreen'), 'FreeModeScreen');
 const LeagueScreen = lazyScreen(() => import('./screens/LeagueScreen'), 'LeagueScreen');
 const AuthScreen = lazyScreen(() => import('./screens/AuthScreen'), 'AuthScreen');
 const LegalScreen = lazyScreen(() => import('./screens/LegalScreen'), 'LegalScreen');
@@ -228,6 +229,7 @@ function PracticeRoute() {
       userId={userId}
       repo={repo}
       onOpenCamera={() => navigate(ROUTES.camera)}
+      onOpenFreeMode={() => navigate(ROUTES.freeMode)}
       onOpenSpellChallenge={() => navigate(ROUTES.spellChallenge)}
     />
   );
@@ -264,6 +266,7 @@ function ProfileRoute() {
 function CameraRoute() {
   const { t } = useT();
   const nav = useAppNavigation();
+  const navigate = useNavigate();
   return (
     <>
       <div className="sub-screen-bar">
@@ -272,7 +275,24 @@ function CameraRoute() {
         </button>
         <h1>{t('app.cameraTitle')}</h1>
       </div>
-      <CameraScreen />
+      <CameraScreen onOpenFreeMode={() => navigate(ROUTES.freeMode)} />
+    </>
+  );
+}
+
+/** /camera/livre: modo livre, a pessoa soletra o que quiser e o texto se forma (nada vai para o progresso). */
+function FreeModeRoute() {
+  const { t } = useT();
+  const nav = useAppNavigation();
+  return (
+    <>
+      <div className="sub-screen-bar">
+        <button className="back-btn" onClick={() => nav.back(ROUTES.practice)} aria-label={t('common.back')}>
+          <Icon name="arrow_back" />
+        </button>
+        <h1>{t('freeMode.title')}</h1>
+      </div>
+      <FreeModeScreen />
     </>
   );
 }
@@ -635,6 +655,7 @@ export const routes: RouteObject[] = [
               { path: 'social', element: <SocialRoute /> },
               { path: 'perfil', element: <ProfileRoute /> },
               { path: 'camera', element: <CameraRoute /> },
+              { path: 'camera/livre', element: <FreeModeRoute /> },
             ],
           },
           { path: 'social/liga', element: <LeagueRoute /> },
