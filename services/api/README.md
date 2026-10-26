@@ -533,7 +533,11 @@ do Cognito precisam estar lá.
     `--content-type application/wasm` (o CloudFront também força esse tipo em `*.wasm`). Hoje o
     conteúdo vai dentro do app e o `/content/*` fica vazio; o `/ml/*` vem do bucket de conteúdo, então o
     `dist/ml` do build do app (WASM e modelos do MediaPipe, classificador e modelos dos sinais) vai para
-    `s3://<ContentBucketName>/ml/` (o `lancar-cloudshell.sh` faz isso).
+    `s3://<ContentBucketName>/ml/` (o `lancar-cloudshell.sh` faz isso). Cache: só `ml/<versão do
+    MediaPipe>/` é imutável (`--cache-control 'public, max-age=31536000, immutable'`); as pastas de
+    modelo sem versão (`classifier`, `sinais`, `letras-mov`, `numeros`) sobem com
+    `--cache-control no-cache`, e o CloudFront manda o mesmo, para modelo republicado chegar aos apps
+    instalados ([`docs/lancamento.md`](../../docs/lancamento.md#modelos-de-ml-nos-apps-instalados)).
 12. **Alertas e orçamento.** Passar `-c librax:alarmEmail=<e-mail>` (e, se quiser outro,
     `librax:budgetEmail`) e confirmar a assinatura no e-mail que a AWS manda. O AWS Budget avisa em 80% e 100% de
     `librax:monthlyBudgetUsd` (padrão 10). Ativar o Cost Explorer no console de Billing para a tela de custo.

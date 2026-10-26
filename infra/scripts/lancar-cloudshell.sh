@@ -26,6 +26,9 @@ NODE_MINIMO=20
 NODE_VERSAO=22.20.0
 NODE_DIR=${LIBRAX_NODE_DIR:-/tmp/librax-node}
 ESPACO_MINIMO_MB=2500
+# Cache-Control dos arquivos de ML no S3 (os mesmos de infra/lib/web-headers.ts: IMMUTABLE e ML_REVALIDATE)
+CACHE_IMUTAVEL='public, max-age=31536000, immutable'
+CACHE_REVALIDA='no-cache'
 
 # ---------------------------------------------------------------------------------------------
 # Opções
@@ -585,7 +588,7 @@ output() {
 escrever_envs() {
   passo "Variáveis de build do app e do painel (a partir dos outputs da stack)"
   ler_outputs AppUrl AdminUrl LandingUrl UserPoolId UserPoolClientId AuthDomain AdminClientId \
-    WebBucketName ContentBucketName AdminBucketName DistributionId
+    WebBucketName ContentBucketName AdminBucketName
   local dominio_auth vapid google
   dominio_auth=$(output AuthDomain)
   dominio_auth=${dominio_auth#https://}
@@ -656,17 +659,26 @@ enviar_app() {
   sync_s3 "$WEB/dist" "s3://$web" --exclude '*' --include index.html --include sw.js
   sync_s3 "$WEB/dist" "s3://$web" --exclude 'ml/*' --delete
   # /ml/* é servido pelo bucket de conteúdo (README da API, item 11). Sem --delete: versões antigas
-  # continuam para quem ainda está com o app anterior.
-  sync_s3 "$WEB/dist/ml" "s3://$conteudo/ml" --exclude '*.wasm'
-  sync_s3 "$WEB/dist/ml" "s3://$conteudo/ml" --exclude '*' --include '*.wasm' --content-type application/wasm
+  # continuam para quem ainda está com o app anterior. O Cache-Control vai também como metadado,
+  # com a mesma regra do CloudFront (infra/lib/web-headers.ts): só a pasta com versão no nome
+  # (/ml/<versão>/ do MediaPipe) é imutável; as pastas de modelo (classifier, sinais, letras-mov,
+  # numeros e outras) são republicadas no mesmo endereço e revalidam a cada pedido.
+  local pasta nome cache
+  sync_s3 "$WEB/dist/ml" "s3://$conteudo/ml" --exclude '*/*' --cache-control "$CACHE_REVALIDA"
+  for pasta in "$WEB/dist/ml"/*/; do
+    [[ -d "$pasta" ]] || continue
+    nome=$(basename "$pasta")
+    cache=$CACHE_REVALIDA
+    [[ "$nome" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && cache=$CACHE_IMUTAVEL
+    sync_s3 "$pasta" "s3://$conteudo/ml/$nome" --exclude '*.wasm' --cache-control "$cache"
+    sync_s3 "$pasta" "s3://$conteudo/ml/$nome" --exclude '*' --include '*.wasm' \
+      --content-type application/wasm --cache-control "$cache"
+  done
 }
 
 publicar_sites() {
   passo "Upload do app (bucket do app e modelos de ML no bucket de conteúdo)"
   demorado "upload do app" enviar_app
-  # Os modelos sem versão no caminho (classificador, sinais, números) trocam no mesmo endereço
-  aws_l cloudfront create-invalidation --distribution-id "$(output DistributionId)" --paths '/ml/*' \
-    --query 'Invalidation.Id' --output text >/dev/null
   ok "app em $(output AppUrl)"
 
   passo "Upload do painel de administração"

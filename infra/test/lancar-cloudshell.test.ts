@@ -3,6 +3,7 @@ import { spawnSync } from 'child_process';
 import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import * as path from 'path';
+import { IMMUTABLE, ML_REVALIDATE } from '../lib/web-headers';
 
 // scripts/lancar-cloudshell.sh sem AWS: as funções puras pelo `source` e o caminho do --admin com um
 // `aws` falso no PATH (responde STS, CloudFormation e Cognito e anota cada chamada).
@@ -81,6 +82,11 @@ describe('funções', () => {
       'librax:googleEnabled': false,
       'librax:monthlyBudgetUsd': '15',
     });
+  });
+
+  test('Cache-Control dos arquivos de ML no S3 igual ao do CloudFront', () => {
+    const r = comFuncoes('printf "%s|%s" "$CACHE_IMUTAVEL" "$CACHE_REVALIDA"');
+    expect(r.stdout).toBe(`${IMMUTABLE}|${ML_REVALIDATE}`);
   });
 
   test('sem terminal, pergunta sem valor para com erro; com valor válido, segue', () => {

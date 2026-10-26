@@ -8,6 +8,7 @@ import { networkInterfaces } from 'os';
 import { execSync } from 'child_process';
 import { tokens } from './src/styles/tokens';
 import { decodeSignUrl, rejectHtmlPlugin } from './src/lib/vlibrasServing';
+import { ML_ROUTES } from './src/lib/mlCache';
 
 // Cor do tema do PWA: token bg.canvas do modo claro. O index.html recebe o mesmo valor
 // (e o do modo escuro) pelo plugin abaixo, para não haver cor escrita à mão.
@@ -244,49 +245,20 @@ export default defineConfig(({ mode }) => {
             /^\/vlibras\//, /^\/api\//, /^\/content\//, /^\/ml\//, /^\/teste-camera/, /^\/coleta/,
           ],
           runtimeCaching: [
-            // WASM e modelo do MediaPipe: a versão está na URL (/ml/1.1.1/...), então o que foi
-            // baixado uma vez vale para sempre e a câmera funciona offline depois do primeiro uso.
-            // Versões antigas saem pela expiração.
-            {
-              urlPattern: ({ url, sameOrigin }) => sameOrigin && /^\/ml\/\d+\.\d+\.\d+\//.test(url.pathname),
-              handler: 'CacheFirst',
+            // Arquivos de ML (/ml/): com versão no caminho, CacheFirst; pastas de modelo sem versão
+            // (classificador, sinais, letras com movimento, números...), StaleWhileRevalidate, para o
+            // modelo republicado chegar ao PWA e ao app Android sem nova versão. Regras e motivo em
+            // src/lib/mlCache.ts. Um 404 (ainda sem modelo) ou o index.html no lugar não entram.
+            ...ML_ROUTES.map((r) => ({
+              urlPattern: r.pattern,
+              handler: r.versioned ? ('CacheFirst' as const) : ('StaleWhileRevalidate' as const),
               options: {
-                cacheName: 'librax-ml-v1',
-                expiration: { maxEntries: 8 },
+                cacheName: r.cacheName,
+                expiration: { maxEntries: r.maxEntries },
                 cacheableResponse: { statuses: [200] },
+                plugins: [rejectHtmlPlugin],
               },
-            },
-            // Classificador treinado (model.json + weights.bin): a URL não tem versão, então usa o
-            // guardado e atualiza por trás. Um 404 (ainda sem modelo) não entra no cache.
-            {
-              urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/ml/classifier/'),
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'librax-classifier-v1',
-                expiration: { maxEntries: 4 },
-                cacheableResponse: { statuses: [200] },
-              },
-            },
-            // Modelo dos sinais com movimento (/ml/sinais/): mesma regra do classificador das letras
-            {
-              urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/ml/sinais/'),
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'librax-sinais-v1',
-                expiration: { maxEntries: 4 },
-                cacheableResponse: { statuses: [200] },
-              },
-            },
-            // Modelo das letras com movimento (/ml/letras-mov/): mesma regra
-            {
-              urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/ml/letras-mov/'),
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'librax-letras-mov-v1',
-                expiration: { maxEntries: 4 },
-                cacheableResponse: { statuses: [200] },
-              },
-            },
+            })),
             {
               urlPattern: /\.mp4$/,
               handler: 'CacheFirst',

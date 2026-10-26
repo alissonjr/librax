@@ -4,7 +4,10 @@ import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
 import { Annotations, Match, Template } from 'aws-cdk-lib/assertions';
 import { LibraxStack } from '../lib/librax-stack';
-import { SPA_REWRITE_FUNCTION } from '../lib/web-headers';
+import { IMMUTABLE, ML_REVALIDATE, SPA_REWRITE_FUNCTION } from '../lib/web-headers';
+import { appMediapipeVersion } from '../lib/config';
+
+const MEDIAPIPE = appMediapipeVersion() as string;
 
 // Assertions sobre o template sintetizado, sem conta AWS e sem empacotar as Lambdas
 // (aws:cdk:bundling-stacks vazio pula o esbuild).
@@ -60,7 +63,8 @@ describe('CloudFront do app na mesma origem', () => {
     const paths = config.CacheBehaviors.map((b: { PathPattern: string }) => b.PathPattern);
     expect(paths).toEqual([
       '/.well-known/assetlinks.json',
-      '/assets/*.wasm', '/assets/*', '/vlibras/v*', '/vlibras/sinais/*', '/vlibras/*', '/content/*', '/ml/*.wasm', '/ml/*', '/api/*',
+      '/assets/*.wasm', '/assets/*', '/vlibras/v*', '/vlibras/sinais/*', '/vlibras/*', '/content/*',
+      `/ml/${MEDIAPIPE}/*.wasm`, `/ml/${MEDIAPIPE}/*`, '/ml/*.wasm', '/ml/*', '/api/*',
       '/admin/assets/*', '/admin', '/admin/*',
     ]);
     expect(config.Aliases).toEqual(['app.librax.example']);
@@ -104,6 +108,55 @@ describe('CloudFront do app na mesma origem', () => {
     expect(behaviors(template).Aliases).toBeUndefined();
     Annotations.fromStack(stack).hasWarning('*', Match.stringLikeRegexp('librax:certificateArn'));
     Annotations.fromStack(stack).hasWarning('*', Match.stringLikeRegexp('placeholder'));
+  });
+});
+
+describe('cache dos arquivos de ML (/ml/)', () => {
+  type Behavior = { PathPattern: string; ResponseHeadersPolicyId: { Ref: string }; CachePolicyId: string | { Ref: string }; FunctionAssociations?: unknown[] };
+
+  function mlCache(template: Template) {
+    const resources = template.toJSON().Resources as Record<string, { Properties: Record<string, any> }>;
+    const byPath = new Map<string, Behavior>(behaviors(template).CacheBehaviors.map((b: Behavior) => [b.PathPattern, b]));
+    return (pathPattern: string) => {
+      const b = byPath.get(pathPattern);
+      if (!b) return undefined;
+      const headers = resources[b.ResponseHeadersPolicyId.Ref].Properties.ResponseHeadersPolicyConfig;
+      const cache = typeof b.CachePolicyId === 'string' ? null : resources[b.CachePolicyId.Ref].Properties.CachePolicyConfig;
+      return {
+        cacheControl: headers.CustomHeadersConfig.Items.find((h: { Header: string }) => h.Header === 'Cache-Control')?.Value,
+        edgeDefaultTtl: cache ? cache.DefaultTTL : 'CachingOptimized',
+        wasm: (b.FunctionAssociations ?? []).length > 0,
+      };
+    };
+  }
+
+  test('a versao do MediaPipe vem do package.json do app e e exata', () => {
+    expect(MEDIAPIPE).toMatch(/^\d+\.\d+\.\d+$/);
+  });
+
+  test('so /ml/<versao>/ e imutavel; as pastas de modelo sem versao revalidam no navegador e na borda', () => {
+    const cache = mlCache(synth(withDomain).template);
+    expect(cache(`/ml/${MEDIAPIPE}/*.wasm`)).toEqual({ cacheControl: IMMUTABLE, edgeDefaultTtl: 'CachingOptimized', wasm: true });
+    expect(cache(`/ml/${MEDIAPIPE}/*`)).toEqual({ cacheControl: IMMUTABLE, edgeDefaultTtl: 'CachingOptimized', wasm: false });
+    // /ml/classifier/, /ml/sinais/, /ml/letras-mov/, /ml/numeros/ e qualquer pasta nova caem aqui
+    expect(cache('/ml/*.wasm')).toEqual({ cacheControl: ML_REVALIDATE, edgeDefaultTtl: 0, wasm: true });
+    expect(cache('/ml/*')).toEqual({ cacheControl: ML_REVALIDATE, edgeDefaultTtl: 0, wasm: false });
+    expect(ML_REVALIDATE).toBe('no-cache');
+  });
+
+  test('versao por contexto; versao nao exata ou ausente: nada imutavel em /ml/, com aviso', () => {
+    const outra = synth({ ...withDomain, 'librax:mediapipeVersion': '2.0.0' }).template;
+    expect(mlCache(outra)('/ml/2.0.0/*')?.cacheControl).toBe(IMMUTABLE);
+    expect(mlCache(outra)(`/ml/${MEDIAPIPE}/*`)).toBeUndefined();
+
+    const { stack, template } = synth({ ...withDomain, 'librax:mediapipeVersion': '^1.2.3' });
+    const paths = behaviors(template).CacheBehaviors.map((b: Behavior) => b.PathPattern).filter((p: string) => p.startsWith('/ml/'));
+    expect(paths).toEqual(['/ml/*.wasm', '/ml/*']);
+    Annotations.fromStack(stack).hasWarning('*', Match.stringLikeRegexp('mediapipe'));
+  });
+
+  test('appMediapipeVersion: sem o app (checkout so da infra), sem versao', () => {
+    expect(appMediapipeVersion(path.join(__dirname, '__sem_arquivo__.json'))).toBeUndefined();
   });
 });
 
@@ -152,7 +205,7 @@ describe('cache e cabecalhos', () => {
       FunctionCode: Match.stringLikeRegexp('application/wasm'),
     });
     const wasm = behaviors(template).CacheBehaviors.filter((b: { PathPattern: string }) => b.PathPattern.endsWith('.wasm'));
-    expect(wasm).toHaveLength(2);
+    expect(wasm.map((b: { PathPattern: string }) => b.PathPattern)).toEqual(['/assets/*.wasm', `/ml/${MEDIAPIPE}/*.wasm`, '/ml/*.wasm']);
     for (const b of wasm) expect(b.FunctionAssociations[0].EventType).toBe('viewer-response');
   });
 

@@ -29,6 +29,12 @@ export const PERMISSIONS_POLICY =
 
 /** Cache-Control dos arquivos que precisam ser revalidados a cada abertura (index.html, sw.js). */
 export const NO_CACHE = 'no-cache';
+/**
+ * Cache-Control dos modelos de ML sem versao no caminho (/ml/classifier/, /ml/sinais/...): o mesmo
+ * endereco recebe modelo novo a cada publicacao, entao o navegador sempre revalida (ETag do S3, 304
+ * quando nao mudou). Tambem vai como metadado do objeto no upload (infra/scripts/lancar-cloudshell.sh).
+ */
+export const ML_REVALIDATE = 'no-cache';
 /** Cache-Control dos arquivos com hash no nome (/assets/) e versionados (/ml/<versao>/). */
 export const IMMUTABLE = 'public, max-age=31536000, immutable';
 

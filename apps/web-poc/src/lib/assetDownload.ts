@@ -8,7 +8,8 @@ import { whenSplashDone } from './splash';
  * Arquivos grandes baixados em segundo plano, sem nunca atrasar a abertura (plano mobile web 3.5:
  * nada pesado no carregamento inicial).
  *
- * - O service worker já guarda /ml/ e /vlibras/ quando são pedidos (CacheFirst no vite.config.ts).
+ * - O service worker já guarda /ml/ e /vlibras/ quando são pedidos (vite.config.ts; regras do /ml/ em
+ *   lib/mlCache.ts: o modelo sem versão no caminho se atualiza por trás e continua offline).
  *   Aqui o app só pede os mesmos endereços com fetch e lê o corpo até o fim: a cópia que o service
  *   worker guarda é a mesma que a câmera e o avatar vão pedir depois, e funciona offline.
  * - Câmera: depois que a abertura terminou e o app ficou ocioso, se a conexão parece boa (sem

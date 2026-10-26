@@ -139,7 +139,8 @@ Depois, sem perguntar mais nada:
 8. Lê os outputs da stack e grava as variáveis de build do app e do painel (`.env.production.local`).
 9. Faz o build do app (baixa os modelos de ML e o avatar VLibras na primeira vez) e do painel.
 10. Envia o app para o bucket do app, os modelos de ML (`/ml/`) para o bucket de conteúdo, o painel para
-    `admin/` e publica a landing.
+    `admin/` e publica a landing. Cada pasta de `/ml/` sobe com o `Cache-Control` certo (ver
+    [Modelos de ML nos apps instalados](#modelos-de-ml-nos-apps-instalados)).
 
 **Não deixe o CloudShell parado.** Ele fecha a sessão depois de 20 a 30 minutos sem teclado ou mouse, mesmo com o
 script trabalhando. O script avisa a cada 2 minutos; quando aparecer o aviso, clique no terminal ou aperte Shift.
@@ -233,12 +234,29 @@ bash infra/scripts/lancar-cloudshell.sh --so-publicar   # mudou só o app, o pai
 bash infra/scripts/lancar-cloudshell.sh                 # mudou infra/ ou services/api/ (o bootstrap é pulado)
 ```
 
-O `--so-publicar` não mexe na stack: faz o build e o upload do app, do painel e da landing. Se a landing mudar o
+O `--so-publicar` não mexe na stack: faz o build e o upload do app, do painel e da landing. É o caminho
+para publicar modelo de ML novo: o PWA e o app Android pegam sozinhos, sem versão nova na loja (abaixo). Se a landing mudar o
 script inline da página, ele para pedindo a rodada completa (a CSP da landing sai do deploy). Outras opções:
 `bash infra/scripts/lancar-cloudshell.sh --ajuda`.
 
 Fora do CloudShell, num computador com o login do Identity Center ([`conta-aws.md`](conta-aws.md)), o mesmo
 script funciona com o perfil `librax`.
+
+### Modelos de ML nos apps instalados
+
+O app instalado (PWA ou Android) recebe site novo e modelo novo sem passar pela loja. O `/ml/` tem duas regras,
+iguais no CloudFront (`infra/lib/librax-stack.ts`), no metadado do S3 (o upload do script) e no service worker
+(`apps/web-poc/src/lib/mlCache.ts`):
+
+| Caminho | Cache no navegador e na borda | Service worker |
+|---|---|---|
+| `/ml/<versão do MediaPipe>/` (WASM e modelos da mão e do corpo) | um ano, `immutable` | guarda para sempre (CacheFirst) |
+| `/ml/classifier/`, `/ml/sinais/`, `/ml/letras-mov/`, `/ml/numeros/` e qualquer outra pasta | `no-cache`: sempre revalida com o ETag (resposta 304 quando não mudou) | entrega o guardado (funciona offline) e busca o novo por trás (StaleWhileRevalidate) |
+
+Na prática: depois de publicar um modelo, quem abrir a câmera com internet já baixa o novo por trás e passa a
+usar a partir da abertura seguinte do app; sem internet, continua com o anterior. O pacote "Baixar para usar
+offline" usa os mesmos caches. A pasta com versão só muda quando o `@mediapipe/tasks-vision` muda de versão:
+trocar um arquivo dentro de `/ml/<versão>/` sem trocar a versão não chegaria a quem já baixou.
 
 ## Custos
 

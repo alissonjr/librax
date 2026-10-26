@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { existsSync, readFileSync } from 'fs';
 import { Node } from 'constructs';
 import { DEFAULT_ANDROID_PACKAGE, normalizeFingerprint, validPackageName } from './assetlinks';
 
@@ -36,6 +37,7 @@ import { DEFAULT_ANDROID_PACKAGE, normalizeFingerprint, validPackageName } from 
  * | librax:emailRemindersEnabled   | false                           | liga o lembrete por e-mail (SES) |
  * | librax:emailFrom               | lembretes@<domainName>          | remetente verificado no SES |
  * | librax:cspReportOnly           | false                           | manda a CSP como Report-Only (diagnostico) |
+ * | librax:mediapipeVersion        | a do apps/web-poc/package.json  | pasta /ml/<versao>/ com cache imutavel; o resto de /ml/ revalida |
  * | librax:extraAdminCallbackUrls  | (vazio)                         | callbacks extras do painel (ex.: http://localhost:5310/admin/auth/callback) |
  * | librax:extraAdminLogoutUrls    | (vazio)                         | logouts extras do painel |
  * | librax:alarmEmail              | (vazio)                         | e-mail que recebe os alarmes (SNS); sem ele o topico fica sem assinatura |
@@ -69,6 +71,11 @@ export interface LibraxConfig {
   vapid: { publicKeyParam: string; privateKeyParam: string; subject: string };
   email: { enabled: boolean; from: string };
   cspReportOnly: boolean;
+  /**
+   * Versao do @mediapipe/tasks-vision do app: so /ml/<versao>/ tem cache imutavel. As pastas de modelo
+   * sem versao no caminho (classifier, sinais, letras-mov, numeros...) revalidam a cada pedido.
+   */
+  mediapipeVersion?: string;
   extraAdminCallbackUrls: string[];
   extraAdminLogoutUrls: string[];
   alarms: { email?: string };
@@ -143,6 +150,7 @@ export function readConfig(node: Node): LibraxConfig {
       from: str('emailFrom', `lembretes@${domainName}`),
     },
     cspReportOnly: bool('cspReportOnly', false),
+    mediapipeVersion: semver(str('mediapipeVersion') || appMediapipeVersion()),
     extraAdminCallbackUrls: list('extraAdminCallbackUrls'),
     extraAdminLogoutUrls: list('extraAdminLogoutUrls'),
     alarms: { email: str('alarmEmail') || undefined },
@@ -177,4 +185,18 @@ function positiveNumber(raw: string, key: string): number {
   const n = Number(raw);
   if (!Number.isFinite(n) || n <= 0) throw new Error(`librax:${key} deve ser um numero maior que zero (veio "${raw}")`);
   return n;
+}
+
+/** Versao fixada do @mediapipe/tasks-vision no app (a mesma pasta que o scripts/ml-assets.mjs gera). */
+export function appMediapipeVersion(
+  pkgPath = path.join(__dirname, '..', '..', 'apps', 'web-poc', 'package.json'),
+): string | undefined {
+  if (!existsSync(pkgPath)) return undefined;
+  const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+  return pkg.dependencies?.['@mediapipe/tasks-vision'];
+}
+
+/** So versao exata (1.2.3) vira pasta imutavel; `^1.2.3` ou vazio, nenhuma. */
+function semver(raw: string | undefined): string | undefined {
+  return raw && /^\d+\.\d+\.\d+$/.test(raw) ? raw : undefined;
 }
