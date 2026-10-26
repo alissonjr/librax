@@ -89,8 +89,11 @@ MAX_NENHUM = 3.0
 
 # Portão de movimento (contrato com o signRecognizer.ts, windowMotion): janela que se mexe menos que
 # min_movimento não é lida (mão levantada e parada não vira sinal). 0 desliga. Ver movimento().
+# 0,17 (2026-10-25, varrer nas duas divisões dos canais): alarme em janelas de mão parada de 33,9%
+# para 8,6% e trechos parados de 2 s com leitura de 13/43 para 0,5/43, com o acerto no trecho de
+# 52,2% para 51,6% e nenhum sinal da câmera mudando de acerto
 PESO_FORMA = 1.0
-MIN_MOVIMENTO = 0.0
+MIN_MOVIMENTO = 0.17
 
 # Sinal só ganha câmera no app com pelo menos esta fração certa nos vídeos deixados de fora da
 # validação cruzada (no trecho, com pelo menos MIN_TESTE vídeos) e, quando há pelo menos
@@ -746,6 +749,10 @@ def treinar(args):
         for path in args.resultados:
             with open(path) as f:
                 todos.append(json.load(f))
+            # resultados de antes das regras de leitura: só o limiar, sem portão
+            medido = todos[-1].get("regras", {"min_p": MIN_P, "min_movimento": 0.0, "max_p_nenhum": 1.0})
+            if medido != regras_de(args):
+                print(f"aviso: {path} foi medido com as regras {medido}, o modelo sai com {regras_de(args)}")
         res = todos[0]
         camera = [g for g in sinais_camera(res) if g in labels and all(g in sinais_camera(r) for r in todos[1:])]
         extra.update({
