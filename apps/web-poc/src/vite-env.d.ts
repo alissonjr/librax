@@ -11,6 +11,8 @@ interface ImportMetaEnv {
   readonly VITE_COGNITO_ENDPOINT?: string;
   readonly VITE_API_BASE?: string;
   readonly VITE_VAPID_PUBLIC_KEY?: string;
+  /** `false` esconde o "Continuar com Google" (Google desligado no Cognito, librax:googleEnabled). */
+  readonly VITE_GOOGLE_ENABLED?: string;
 }
 
 interface ImportMeta {

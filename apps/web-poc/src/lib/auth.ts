@@ -89,6 +89,15 @@ export function readAuthConfig(
   };
 }
 
+/**
+ * Google ligado no Cognito (`librax:googleEnabled` no CDK). Só `VITE_GOOGLE_ENABLED=false` desliga:
+ * sem a variável o botão aparece, como antes. Com o Google desligado na stack, o botão levaria a um
+ * erro na página do Cognito, então as telas o escondem.
+ */
+export function googleEnabled(env: Env = import.meta.env as Env): boolean {
+  return env.VITE_GOOGLE_ENABLED !== 'false';
+}
+
 let configured: Promise<boolean> | null = null;
 
 /**

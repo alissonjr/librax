@@ -42,6 +42,7 @@ import {
   onAuthEvent,
   authErrorCode,
   getUserId,
+  googleEnabled,
   __resetAuthForTests,
 } from '../lib/auth';
 
@@ -76,6 +77,13 @@ describe('configuração por VITE_*', () => {
       'https://librax.example',
     );
     expect(custom?.redirectSignIn).toBe('http://localhost:5173/auth/callback');
+  });
+
+  it('Google ligado por padrão; só VITE_GOOGLE_ENABLED=false desliga', () => {
+    expect(googleEnabled({})).toBe(true);
+    expect(googleEnabled({ VITE_GOOGLE_ENABLED: 'true' })).toBe(true);
+    expect(googleEnabled({ VITE_GOOGLE_ENABLED: '' })).toBe(true);
+    expect(googleEnabled({ VITE_GOOGLE_ENABLED: 'false' })).toBe(false);
   });
 
   it('configura o Amplify uma vez, com OAuth code (PKCE) e e-mail como login', async () => {

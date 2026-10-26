@@ -3,7 +3,7 @@ import { useT } from '../i18n';
 import { Icon } from './Icon';
 import { BusyLabel } from './BusyLabel';
 import { useCloseOnBack } from '../hooks/useCloseOnBack';
-import { authErrorCode, signInWithGoogle } from '../lib/auth';
+import { authErrorCode, googleEnabled, signInWithGoogle } from '../lib/auth';
 import { authAvailable, authErrorKey } from '../lib/account';
 
 interface Props {
@@ -29,6 +29,7 @@ export function ConvertAccountSheet({ onCreateWithEmail, onSkip, onClose, firstL
   const [error, setError] = useState<string | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const available = authAvailable();
+  const google = googleEnabled();
   // Voltar fecha o sheet (design-system 11.13)
   useCloseOnBack(true, onClose);
 
@@ -85,9 +86,11 @@ export function ConvertAccountSheet({ onCreateWithEmail, onSkip, onClose, firstL
             <button className="btn btn-primary" onClick={onCreateWithEmail} disabled={busy}>
               <Icon name="mail" /> {t('account.createWithEmail')}
             </button>
-            <button className="btn btn-ghost" onClick={handleGoogle} disabled={busy} aria-busy={busy || undefined}>
-              {busy ? <BusyLabel text={t('account.openingGoogle')} /> : t('account.continueWithGoogle')}
-            </button>
+            {google && (
+              <button className="btn btn-ghost" onClick={handleGoogle} disabled={busy} aria-busy={busy || undefined}>
+                {busy ? <BusyLabel text={t('account.openingGoogle')} /> : t('account.continueWithGoogle')}
+              </button>
+            )}
             {error && <p className="auth-error" role="alert">{error}</p>}
             <button className="btn-text-muted" onClick={onSkip} disabled={busy}>
               {t('account.continueWithoutAccount')}

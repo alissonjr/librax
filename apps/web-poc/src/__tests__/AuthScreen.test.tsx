@@ -304,6 +304,32 @@ describe('criar conta (spec-02 12.3)', () => {
   });
 });
 
+describe('Google desligado na stack (VITE_GOOGLE_ENABLED=false)', () => {
+  beforeEach(() => {
+    cognitoEnv();
+    vi.stubEnv('VITE_GOOGLE_ENABLED', 'false');
+  });
+
+  it('Entrar e Criar conta sem o botão do Google nem o "ou"', () => {
+    for (const mode of ['login', 'register'] as const) {
+      renderAuth(mode);
+      expect(screen.queryByRole('button', { name: 'Continuar com Google' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('separator')).not.toBeInTheDocument();
+      expect(screen.getByLabelText('E-mail')).toBeInTheDocument();
+      cleanup();
+    }
+  });
+
+  it('esqueci a senha sem a orientação de quem entrou com o Google', async () => {
+    renderAuth('login');
+    await userEvent.type(screen.getByLabelText('E-mail'), 'ana@librax.example');
+    await userEvent.click(screen.getByRole('button', { name: 'Esqueci a senha' }));
+    expect(screen.getByRole('heading', { name: 'Recuperar a senha' })).toBeInTheDocument();
+    expect(screen.queryByRole('note')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Continuar com Google' })).not.toBeInTheDocument();
+  });
+});
+
 describe('Termos e Política no Entrar', () => {
   beforeEach(cognitoEnv);
 
