@@ -148,7 +148,7 @@ def escolher_trechos(rq, ml, n_por_lado=1):
         frames = [fr for fr in v["frames"] if t_fim - TRECHO_S < fr["t"] <= t_fim]
         if len(frames) < 20:
             continue
-        dom = rq.mao_dominante(frames, v["aspect"])
+        dom = rq.dominante_ao_vivo(frames, v["aspect"])
         duas = any(len(fr["hands"]) >= 2 for fr in frames)
         if dom in achados and len(achados[dom]) < n_por_lado and duas:
             achados[dom].append((r, v, frames))
@@ -159,7 +159,8 @@ def escolher_trechos(rq, ml, n_por_lado=1):
 
 def trecho_fixture(rq, ts_mod, r, v, frames, com_reamostrada):
     aspect = v["aspect"]
-    dom = rq.mao_dominante(frames, aspect)
+    # como o app ao vivo e o treino a 15 quadros por segundo: sem movimento, a mão mais vista
+    dom = rq.dominante_ao_vivo(frames, aspect)
     ts = np.array([fr["t"] for fr in frames])
     feats = []
     for fr in frames:
@@ -185,6 +186,26 @@ def trecho_fixture(rq, ts_mod, r, v, frames, com_reamostrada):
     }
 
 
+def trecho_parado(rq, ts_mod):
+    """
+    Trecho sintético em que nenhuma mão aparece duas vezes (mao_dominante dá None): a dominante é
+    a mais vista, a que apareceu primeiro no empate (dominante_ao_vivo, como o app).
+    """
+    rng = np.random.default_rng(SEED + 1)
+    corpo_fixo = corpo(rng)
+    frames = []
+    for i in range(30):
+        hands = []
+        if i == 20:
+            hands = [{"h": "Left", "lm": mao(0.35, 0.45, 0.03, rng)}]
+        elif i == 26:
+            hands = [{"h": "Right", "lm": mao(0.62, 0.5, 0.03, rng)}]
+        frames.append({"t": round(i / 15, 5), "hands": hands, "pose": corpo_fixo})
+    assert rq.mao_dominante(frames, 16 / 9) is None and rq.dominante_ao_vivo(frames, 16 / 9) == "Left"
+    return trecho_fixture(rq, ts_mod, {"id": "parado", "glosa": "_"}, {"aspect": 16 / 9}, frames,
+                          com_reamostrada=False)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ml-training", default=os.path.join(APP, "..", "..", "ml-training"))
@@ -201,6 +222,7 @@ def main():
     trechos = [trecho_fixture(rq, ts_mod, *t, com_reamostrada=(i == 0)) for i, t in enumerate(escolher_trechos(rq, ml))]
     if len(trechos) < 2:
         raise SystemExit("não achei trechos com a dominante dos dois lados")
+    parado = trecho_parado(rq, ts_mod)
 
     # MLP pequeno no formato do modelo real: 1120 -> 8 -> rótulos, pesos sorteados
     labels = ["ARROZ", "MESA", "FELIZ", "_"]
@@ -233,6 +255,8 @@ def main():
         "frameCases": casos_sinteticos(rq, rng),
         "dominantCases": casos_dominante(rq, rng),
         "clips": trechos,
+        # nenhuma mão aparece duas vezes: mao_dominante dá None e o app (como o treino) usa a mais vista
+        "stillClip": parado,
     }
     with open(os.path.join(args.out, "features.json"), "w") as f:
         json.dump(fixture, f, ensure_ascii=False, separators=(",", ":"))

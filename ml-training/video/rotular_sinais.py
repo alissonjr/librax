@@ -1,11 +1,14 @@
 """
-Rotula os vídeos de sinais (data/landmarks_sinais/*.json, gravados pela página treino-video.html no
-modo sinais) e gera o dataset do modelo de movimento.
+Rotula os vídeos de sinais e gera o dataset do modelo de movimento. Lê os landmarks de
+data/landmarks_sinais/ (gravados pela página treino-video.html no modo sinais, cerca de 5 quadros
+por segundo) ou, com --entrada, de outra pasta no mesmo formato, como data/sinais15/landmarks/
+(video/extrair_sinais.py, 15 quadros por segundo, a taxa da câmera do app).
 
 Cada vídeo "sinal de X em Libras" tem introdução, fala e o sinal (às vezes repetido). O título diz
 qual é o sinal, mas não quando. Como sai o trecho:
 0. Vídeo cujo título fala de outra coisa com a glosa dentro ("Tênis de Mesa", "Arroz doce",
-   "Almoço x Jantar") fica de fora (titulo_composto).
+   "Almoço x Jantar") fica de fora (titulo_composto). Números ficam de fora (têm o modelo próprio,
+   video/rotular_numeros.py).
 1. Quadro ativo: mão presente, corpo presente e pulso acima de ATIVO_ABAIXO_OMBRO larguras de
    ombro abaixo da linha dos ombros. Trechos ativos viram janelas candidatas de JANELAS_S
    segundos (passo PASSO_S), reamostradas para T quadros.
@@ -19,23 +22,39 @@ qual é o sinal, mas não quando. Como sai o trecho:
    rodadas de refinamento comparam só com as janelas escolhidas nos dicionários.
 4. Janelas ativas que não se sobrepõem às escolhidas, em vídeos aceitos, viram "_" (nenhum sinal),
    até NEGATIVAS_POR_VIDEO por vídeo.
+5. Com --paradas (lição das letras com movimento: a forma parada não é o sinal), os momentos de
+   mão levantada e parada do mesmo vídeo (a pose do começo ou do fim do sinal, segurada) também
+   viram "_": janelas com pelo menos PARADA_DENTRO da duração em trecho parado, até
+   PARADAS_POR_VIDEO por vídeo. Trecho parado: quadros ativos com velocidade (pulsos em larguras
+   de ombro por segundo, mais a mudança da forma da mão) abaixo de PARADA_VEL, por pelo menos
+   PARADA_MIN_S. Janela com mais de MAX_PARADA_NO_SINAL da duração parada não concorre a sinal.
+
+Mão dominante: com --dominante video (o padrão antigo), a que mais se mexe no vídeo inteiro. Com
+--dominante buffer, a de cada janela é calculada como o app faz ao vivo (signRecognizer.ts): a que
+mais se mexe nos BUFFER_S segundos de quadros que terminam no fim da janela e, sem movimento, a
+mais vista (dominante_ao_vivo).
 
 Atributos por quadro (features_quadro), em relação ao corpo, na ordem: para a mão dominante e
 depois a outra, [presença, pulso x/y a partir do meio dos ombros, pulso x/y a partir do nariz,
 65 da normalize_hand]. Posições em larguras de ombro, x com o aspecto corrigido, espelhadas quando
 a dominante é a esquerda da pessoa. Sem a mão, tudo zero. F = 2 x 70 = 140.
 
-Saídas em data/:
-- dataset_sinais.npz: X [N, T, F] float32, y, pessoa (canal), video, t0, t1.
-- rotulos_sinais/<id>.json: janelas escolhidas e negativas de cada vídeo, para conferir.
+Saídas em data/ (pastas e nomes mudam com --rotulos e --saida):
+- dataset_sinais.npz: X [N, T, F] float32, y, pessoa (canal), video, t0, t1 e tipo ("sinal",
+  "outro" para as negativas do passo 4, "parada" para as do passo 5).
+- rotulos_sinais/<id>.json: janelas escolhidas, negativas e paradas de cada vídeo, para conferir.
 
 Uso:
     python video/rotular_sinais.py [--glosas A,B,...]
+    python video/rotular_sinais.py --entrada data/sinais15/landmarks --dominante buffer --paradas \
+        --rotulos data/sinais15/rotulos --saida data/sinais15/dataset.npz
+    (LIBRAX_DATA=/caminho/data aponta para outra pasta de dados)
 """
 
 import argparse
 import glob
 import json
+import multiprocessing
 import os
 import re
 import sys
@@ -47,7 +66,7 @@ AQUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(AQUI, ".."))
 from train_static import is_left_hand, normalize_hand  # noqa: E402
 
-DATA = os.path.join(AQUI, "..", "data")
+DATA = os.environ.get("LIBRAX_DATA") or os.path.join(AQUI, "..", "data")
 ENTRADA = os.path.join(DATA, "landmarks_sinais")
 ROTULOS = os.path.join(DATA, "rotulos_sinais")
 SAIDA = os.path.join(DATA, "dataset_sinais.npz")
@@ -60,6 +79,15 @@ JUNTAR_GAP_S = 0.3
 RODADAS = 3
 REPETICAO_FOLGA = 1.15
 NEGATIVAS_POR_VIDEO = 4
+# Buffer de quadros do app (BUFFER_S do signRecognizer.ts), para a mão dominante ao vivo
+BUFFER_S = 2.5
+# Mão levantada e parada (passo 5 do cabeçalho)
+PARADA_VEL = 0.35
+PARADA_PESO_FORMA = 0.3
+PARADA_MIN_S = 0.5
+PARADA_DENTRO = 0.85
+MAX_PARADA_NO_SINAL = 0.7
+PARADAS_POR_VIDEO = 6
 NENHUM = "_"
 DICIONARIO = "dic-"  # prefixo dos vídeos de dicionário (video/baixar_dicionarios.py)
 
@@ -159,23 +187,131 @@ def features_quadro(f, aspect, dominante):
     return out
 
 
-def quadros(video):
-    """(tempos, matriz [n, F] com NaN onde não há corpo, ativo [n])."""
-    aspect = video["aspect"]
-    dom = mao_dominante(video["frames"], aspect)
-    ts, feats, ativo = [], [], []
-    for f in video["frames"]:
-        x = features_quadro(f, aspect, dom)
-        ts.append(f["t"])
-        if x is None:
-            feats.append(np.full(F, np.nan))
-            ativo.append(False)
+def mais_vista(frames):
+    """Rótulo de mão que mais aparece nos quadros (empate: o que apareceu primeiro), ou None."""
+    cont = {}
+    for f in frames:
+        for h in f["hands"]:
+            cont[h["h"]] = cont.get(h["h"], 0) + 1
+    melhor, n = None, 0
+    for k, c in cont.items():
+        if c > n:
+            melhor, n = k, c
+    return melhor
+
+
+def dominante_ao_vivo(frames, aspect):
+    """Mão dominante como o app calcula no buffer: a que mais se mexe; sem movimento, a mais vista."""
+    dom = mao_dominante(frames, aspect)
+    return dom if dom is not None else mais_vista(frames)
+
+
+def velocidade(ts, feats):
+    """
+    Velocidade de cada quadro em relação ao anterior com corpo: soma, nas vagas com mão nos dois
+    quadros, do deslocamento do pulso (larguras de ombro) e de PARADA_PESO_FORMA vezes a mudança
+    média dos pontos da normalize_hand; mão que aparece ou some conta 0,5. Por segundo, com a
+    mediana de 3 quadros. NaN sem corpo.
+    """
+    n = len(ts)
+    v = np.full(n, np.nan)
+    ant = None
+    for i in range(n):
+        x = feats[i]
+        if np.isnan(x[0]):
             continue
-        feats.append(x)
+        if ant is not None:
+            a = feats[ant]
+            d = 0.0
+            for k in range(2):
+                b0 = k * POR_MAO
+                pa, pb = a[b0] > 0, x[b0] > 0
+                if pa and pb:
+                    d += float(np.linalg.norm(x[b0 + 1:b0 + 3] - a[b0 + 1:b0 + 3]))
+                    d += PARADA_PESO_FORMA * float(np.linalg.norm(x[b0 + 5:b0 + 68] - a[b0 + 5:b0 + 68])) / np.sqrt(21)
+                elif pa != pb:
+                    d += 0.5
+            v[i] = d / max(ts[i] - ts[ant], 1e-3)
+        ant = i
+    out = v.copy()
+    for i in range(1, n - 1):
+        trio = v[i - 1:i + 2]
+        if not np.isnan(trio).any():
+            out[i] = float(np.median(trio))
+    return out
+
+
+class Quadros:
+    """
+    Atributos dos quadros de um vídeo. `modo` "video": mão dominante do vídeo inteiro (o padrão
+    antigo); "buffer": a de cada janela, como o app ao vivo (dominante_ao_vivo nos BUFFER_S
+    segundos que terminam no fim da janela).
+    """
+
+    def __init__(self, video, modo="video"):
+        self.aspect = video["aspect"]
+        self.frames = video["frames"]
+        self.modo = modo
+        self.ts = np.array([f["t"] for f in self.frames], dtype=np.float64)
+        self._feats = {}
+        self.dom_video = mao_dominante(self.frames, self.aspect)
+        base = self.feats(self.dom_video)
+        tem = ~np.isnan(base[:, 0])
         # mão levantada: alguma mão presente com o pulso perto da linha dos ombros ou acima
-        alto = any(x[k * POR_MAO] > 0 and x[k * POR_MAO + 2] < ATIVO_ABAIXO_OMBRO for k in range(2))
-        ativo.append(alto)
-    return np.array(ts), np.array(feats), np.array(ativo)
+        alto = np.zeros(len(self.ts), dtype=bool)
+        for k in range(2):
+            alto |= tem & (np.nan_to_num(base[:, k * POR_MAO]) > 0) & (np.nan_to_num(base[:, k * POR_MAO + 2]) < ATIVO_ABAIXO_OMBRO)
+        self.ativo = alto
+        self.vel = velocidade(self.ts, base)
+        parado = self.ativo & (np.nan_to_num(self.vel, nan=np.inf) < PARADA_VEL)
+        self.paradas = [(a, b) for a, b in _trechos(self.ts, parado) if b - a >= PARADA_MIN_S]
+
+    def feats(self, dom):
+        """Matriz [n, F] com a dominante `dom` (NaN onde não há corpo)."""
+        if dom not in self._feats:
+            out = np.full((len(self.ts), F), np.nan)
+            for i, f in enumerate(self.frames):
+                x = features_quadro(f, self.aspect, dom)
+                if x is not None:
+                    out[i] = x
+            self._feats[dom] = out
+        return self._feats[dom]
+
+    def dominante(self, t1):
+        if self.modo != "buffer":
+            return self.dom_video
+        i1 = int(np.searchsorted(self.ts, t1, side="right"))
+        if i1 == 0:
+            return None
+        i0 = int(np.searchsorted(self.ts, self.ts[i1 - 1] - BUFFER_S, side="left"))
+        return dominante_ao_vivo(self.frames[i0:i1], self.aspect)
+
+    def janela(self, t0, t1):
+        return reamostrar(self.ts, self.feats(self.dominante(t1)), t0, t1)
+
+    def fracao_parada(self, t0, t1):
+        dentro = sum(max(0.0, min(t1, b) - max(t0, a)) for a, b in self.paradas)
+        return dentro / max(t1 - t0, 1e-6)
+
+
+def _trechos(ts, marca):
+    """Trechos [(t_ini, t_fim)] de quadros seguidos com `marca`."""
+    out, ini = [], None
+    for i, m in enumerate(marca):
+        if m and ini is None:
+            ini = i
+        if not m and ini is not None:
+            out.append((ts[ini], ts[i - 1]))
+            ini = None
+    if ini is not None:
+        out.append((ts[ini], ts[len(marca) - 1]))
+    return out
+
+
+def quadros(video):
+    """(tempos, matriz [n, F] com NaN onde não há corpo, ativo [n]), com a dominante do vídeo."""
+    q = Quadros(video)
+    return q.ts, q.feats(q.dom_video), q.ativo
 
 
 # ---------------------------------------------------------------------------
@@ -214,17 +350,40 @@ def reamostrar(ts, feats, t0, t1):
     return out
 
 
-def candidatas(ts, feats, ativo):
+def candidatas(q):
+    """Janelas candidatas [(t0, t1, [T, F], fração parada)] dos trechos ativos de um Quadros."""
     cands = []
-    for a, b in trechos_ativos(ts, ativo):
+    for a, b in trechos_ativos(q.ts, q.ativo):
         for dur in JANELAS_S:
             if b - a < dur * 0.6:
                 continue
             ini = a - 0.2
             while ini + dur <= b + 0.2 + 1e-9:
-                cands.append((ini, ini + dur, reamostrar(ts, feats, ini, ini + dur)))
+                cands.append((ini, ini + dur, q.janela(ini, ini + dur), q.fracao_parada(ini, ini + dur)))
                 ini += PASSO_S
     return cands
+
+
+def janelas_paradas(q, rng, n_max):
+    """Janelas "_" de mão levantada e parada (passo 5): pelo menos PARADA_DENTRO dentro das paradas."""
+    achadas = []
+    for a, b in q.paradas:
+        for dur in JANELAS_S:
+            fim = a + dur * PARADA_DENTRO
+            while fim <= b + dur * (1 - PARADA_DENTRO) + 1e-9:
+                t0, t1 = fim - dur, fim
+                if q.fracao_parada(t0, t1) >= PARADA_DENTRO:
+                    achadas.append((t0, t1))
+                fim += PASSO_S
+    out = []
+    for i in rng.permutation(len(achadas)):
+        if len(out) >= n_max:
+            break
+        t0, t1 = achadas[i]
+        # sem repetir quase a mesma janela
+        if all(abs(t0 - o[0]) > PASSO_S / 2 or abs(t1 - o[1]) > PASSO_S / 2 for o in out):
+            out.append((t0, t1))
+    return [(t0, t1, q.janela(t0, t1)) for t0, t1 in sorted(out)]
 
 
 def resumo(x):
@@ -293,68 +452,126 @@ def consenso(videos, usar_ancoras=False):
     return out, nota_video
 
 
+def rotular_glosa(job):
+    """Rotula os vídeos de uma glosa (roda num processo à parte). Devolve (glosa, colunas, linha de log)."""
+    g, paths, titulos, cfg = job
+    rng = np.random.default_rng(cfg["seed"])
+    vids = []
+    for path in paths:
+        with open(path) as f:
+            v = json.load(f)
+        if not v["id"].startswith(DICIONARIO) and titulo_composto(g, titulos.get(v["id"], "")):
+            continue
+        q = Quadros(v, cfg["dominante"])
+        todas = candidatas(q)
+        # com --paradas, janela quase toda parada não concorre a sinal
+        v["_todas"] = todas
+        v["_cands"] = [c for c in todas if not cfg["paradas"] or c[3] <= MAX_PARADA_NO_SINAL]
+        v["_q"] = q
+        v["frames"] = None  # libera memória (o Quadros guarda o que precisa)
+        vids.append(v)
+    escolhidas, notas = consenso(vids, cfg["ancoras"])
+    cols = {k: [] for k in ("X", "y", "pessoa", "video", "t0", "t1", "tipo")}
+
+    def junta(v, t0, t1, x, rotulo, tipo):
+        cols["X"].append(x.astype(np.float32)); cols["y"].append(rotulo)
+        cols["pessoa"].append(v.get("channel_id") or v["id"]); cols["video"].append(v["id"])
+        cols["t0"].append(t0); cols["t1"].append(t1); cols["tipo"].append(tipo)
+
+    aceitos = 0
+    for v in vids:
+        pegos = escolhidas.get(v["id"], [])
+        sinal = [v["_cands"][c] for c in pegos]
+        for t0, t1, x, _ in sinal:
+            junta(v, t0, t1, x, g, "sinal")
+        negs, paradas = [], []
+        if sinal:
+            aceitos += 1
+            livres = [c for c in v["_todas"] if all(c[1] <= s[0] or c[0] >= s[1] for s in sinal)
+                      and (not cfg["paradas"] or c[3] <= MAX_PARADA_NO_SINAL)]
+            for i in rng.permutation(len(livres)):
+                c = livres[i]
+                if len(negs) >= NEGATIVAS_POR_VIDEO:
+                    break
+                if all(c[1] <= n[0] or c[0] >= n[1] for n in negs):
+                    negs.append(c)
+            for t0, t1, x, _ in negs:
+                junta(v, t0, t1, x, NENHUM, "outro")
+            if cfg["paradas"]:
+                paradas = janelas_paradas(v["_q"], rng, PARADAS_POR_VIDEO)
+                for t0, t1, x in paradas:
+                    junta(v, t0, t1, x, NENHUM, "parada")
+        if cfg["rotulos"]:
+            with open(os.path.join(cfg["rotulos"], f"{v['id']}.json"), "w") as f:
+                json.dump({
+                    "id": v["id"], "glosa": g, "nota": notas.get(v["id"]), "aceito": bool(sinal),
+                    "sinal": [[round(a, 2), round(b, 2)] for a, b, _, _ in sinal],
+                    "negativas": [[round(a, 2), round(b, 2)] for a, b, _, _ in negs],
+                    "paradas": [[round(a, 2), round(b, 2)] for a, b, _ in paradas],
+                    "trechos_parados": [[round(a, 2), round(b, 2)] for a, b in v["_q"].paradas],
+                }, f, ensure_ascii=False)
+    n_sinal = sum(1 for t in cols["tipo"] if t == "sinal")
+    n_par = sum(1 for t in cols["tipo"] if t == "parada")
+    linha = f"{g}: {aceitos}/{len(vids)} vídeos aceitos, {n_sinal} janelas, {n_par} paradas"
+    return g, cols, linha
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--glosas", default="", help="só estas glosas (separadas por vírgula)")
     # Em 2026-10-25, no piloto de 20 sinais, as âncoras pioraram a validação cruzada (41% contra 47%)
     ap.add_argument("--ancoras", action="store_true", help="usa os dicionários como referência do consenso")
+    ap.add_argument("--entrada", default=ENTRADA, help="pasta dos landmarks (padrão: landmarks_sinais)")
+    ap.add_argument("--rotulos", default=ROTULOS, help="pasta dos rótulos por vídeo")
     ap.add_argument("--saida", default=SAIDA)
+    ap.add_argument("--dominante", choices=("video", "buffer"), default="video",
+                    help="mão dominante do vídeo inteiro ou do buffer do app no fim de cada janela")
+    ap.add_argument("--paradas", action="store_true", help="mão levantada e parada também vira \"_\" (passo 5)")
+    ap.add_argument("--processos", type=int, default=1)
     args = ap.parse_args()
     filtro = {g for g in args.glosas.split(",") if g}
 
     with open(os.path.join(DATA, "fontes_sinais.json")) as f:
-        titulos = {x["id"]: x.get("title", "") for x in json.load(f)}
+        fontes = {x["id"]: x for x in json.load(f)}
+    titulos = {i: x.get("title", "") for i, x in fontes.items()}
     por_glosa = {}
-    for path in sorted(glob.glob(os.path.join(ENTRADA, "*.json"))):
-        with open(path) as f:
-            v = json.load(f)
-        g = v.get("glosa")
-        if not g or (filtro and g not in filtro):
+    for path in sorted(glob.glob(os.path.join(args.entrada, "*.json"))):
+        vid = os.path.basename(path)[:-5]
+        fonte = fontes.get(vid)
+        if fonte is not None:
+            g = fonte.get("glosa") if fonte.get("tipo") == "sinal" else None
+        else:
+            with open(path) as f:
+                g = json.load(f).get("glosa")
+        # números têm o modelo próprio (video/rotular_numeros.py)
+        if not g or g.isdigit() or (filtro and g not in filtro):
             continue
-        if not v["id"].startswith(DICIONARIO) and titulo_composto(g, titulos.get(v["id"], "")):
-            continue
-        ts, feats, ativo = quadros(v)
-        v["_ts"], v["_cands"] = ts, candidatas(ts, feats, ativo)
-        v["frames"] = None  # libera memória
-        por_glosa.setdefault(g, []).append(v)
+        por_glosa.setdefault(g, []).append(path)
 
-    os.makedirs(ROTULOS, exist_ok=True)
-    X, y, pessoa, video, t0s, t1s = [], [], [], [], [], []
-    rng = np.random.default_rng(0)
-    for g in sorted(por_glosa):
-        vids = por_glosa[g]
-        escolhidas, notas = consenso(vids, args.ancoras)
-        aceitos = 0
-        for v in vids:
-            pegos = escolhidas.get(v["id"], [])
-            sinal = [v["_cands"][c] for c in pegos]
-            for t0, t1, x in sinal:
-                X.append(x); y.append(g); pessoa.append(v.get("channel_id") or v["id"]); video.append(v["id"])
-                t0s.append(t0); t1s.append(t1)
-            negs = []
-            if sinal:
-                aceitos += 1
-                livres = [c for c in v["_cands"] if all(c[1] <= s[0] or c[0] >= s[1] for s in sinal)]
-                for i in rng.permutation(len(livres)):
-                    c = livres[i]
-                    if len(negs) >= NEGATIVAS_POR_VIDEO:
-                        break
-                    if all(c[1] <= n[0] or c[0] >= n[1] for n in negs):
-                        negs.append(c)
-                for t0, t1, x in negs:
-                    X.append(x); y.append(NENHUM); pessoa.append(v.get("channel_id") or v["id"]); video.append(v["id"])
-                    t0s.append(t0); t1s.append(t1)
-            with open(os.path.join(ROTULOS, f"{v['id']}.json"), "w") as f:
-                json.dump({
-                    "id": v["id"], "glosa": g, "nota": notas.get(v["id"]), "aceito": bool(sinal),
-                    "sinal": [[round(a, 2), round(b, 2)] for a, b, _ in sinal],
-                    "negativas": [[round(a, 2), round(b, 2)] for a, b, _ in negs],
-                }, f, ensure_ascii=False)
-        print(f"{g}: {aceitos}/{len(vids)} vídeos aceitos, {sum(1 for yy in y if yy == g)} janelas", flush=True)
+    os.makedirs(args.rotulos, exist_ok=True)
+    cfg = {"dominante": args.dominante, "paradas": args.paradas, "ancoras": args.ancoras, "rotulos": args.rotulos}
+    jobs = [(g, por_glosa[g], titulos, {**cfg, "seed": i}) for i, g in enumerate(sorted(por_glosa))]
+    cols = {k: [] for k in ("X", "y", "pessoa", "video", "t0", "t1", "tipo")}
+    if args.processos > 1:
+        pool = multiprocessing.Pool(args.processos)
+        resultados = pool.imap(rotular_glosa, jobs)
+    else:
+        pool = None
+        resultados = map(rotular_glosa, jobs)
+    for g, c, linha in resultados:
+        for k in cols:
+            cols[k] += c[k]
+        print(linha, flush=True)
+    if pool is not None:
+        pool.close()
 
-    np.savez_compressed(args.saida, X=np.array(X, dtype=np.float32), y=np.array(y), pessoa=np.array(pessoa),
-                        video=np.array(video), t0=np.array(t0s), t1=np.array(t1s))
-    print(f"{len(X)} janelas ({sum(1 for yy in y if yy == NENHUM)} de nenhum sinal) em {args.saida}")
+    X = np.array(cols["X"], dtype=np.float32).reshape(-1, T, F)
+    np.savez_compressed(args.saida, X=X, y=np.array(cols["y"]), pessoa=np.array(cols["pessoa"]),
+                        video=np.array(cols["video"]), t0=np.array(cols["t0"]), t1=np.array(cols["t1"]),
+                        tipo=np.array(cols["tipo"]))
+    y = cols["y"]
+    print(f"{len(y)} janelas ({sum(1 for yy in y if yy == NENHUM)} de nenhum sinal, "
+          f"{sum(1 for t in cols['tipo'] if t == 'parada')} paradas) em {args.saida}")
 
 
 if __name__ == "__main__":

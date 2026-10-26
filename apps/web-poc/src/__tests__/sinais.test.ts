@@ -169,6 +169,20 @@ describe('modelo de sinais publicado em /ml/sinais/', () => {
     expect(checkSignModelJson({ ...valid, input_dim: 10 })).toMatch(/input_dim/);
     expect(checkSignModelJson({ ...valid, labels: ['ARROZ'] })).toMatch(/_/);
     expect(checkSignModelJson(null)).toMatch(/librax-mlp/);
+    expect(checkSignModelJson({ ...valid, camera_signs: ['ARROZ'] })).toBeNull();
+    expect(checkSignModelJson({ ...valid, camera_signs: 'ARROZ' })).toMatch(/camera_signs/);
+  });
+
+  it('com camera_signs: a câmera só avalia as glosas da lista que estão no modelo', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({ ...valid, camera_signs: ['MESA', 'CASA'] })));
+    expect([...(await loadSignIndex())]).toEqual(['MESA']);
+    expect([...getSignGlosses()]).toEqual(['MESA']);
+    expect(hasSignModel()).toBe(true);
+  });
+
+  it('com camera_signs vazio: modelo publicado, nenhuma glosa pela câmera', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({ ...valid, camera_signs: [] })));
+    expect((await loadSignIndex()).size).toBe(0);
   });
 
   it('sem modelo (404 ou o index.html do servidor de desenvolvimento): nenhuma glosa, uma busca por sessão', async () => {

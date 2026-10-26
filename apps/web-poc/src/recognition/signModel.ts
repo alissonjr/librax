@@ -7,7 +7,9 @@ import { MODEL_FRAMES, SIGN_FRAME_DIM, SIGN_INPUT_DIM, WINDOW_FRAMES } from './s
  * Modelo dos sinais com movimento (ml-training/train_sinais.py treinar), em /ml/sinais/.
  *
  * - model.json: o mesmo librax-mlp das letras, com kind "sinais", frames, features_per_frame e
- *   window_frames. Rótulos: as glosas e "_" (nenhum sinal).
+ *   window_frames. Rótulos: as glosas e "_" (nenhum sinal). Com camera_signs, a câmera só avalia
+ *   essas glosas (as que acertaram com pessoas nunca vistas no treino); as outras ficam no modelo
+ *   só para não virarem outro sinal.
  * - weights.bin: pesos float32 (mlp.ts).
  *
  * Sem modelo publicado (o normal hoje) nada muda: os exercícios de sinal com movimento continuam
@@ -25,7 +27,7 @@ const INDEX_TIMEOUT_MS = 4000;
 export interface SignModelIndex {
   /** Rótulos na ordem das saídas do modelo. */
   labels: string[];
-  /** Glosas que o modelo reconhece (sem "_"). */
+  /** Glosas que a câmera avalia (camera_signs, ou todas as do modelo sem "_" quando não há a lista). */
   glosses: ReadonlySet<string>;
   weightsFile: string;
   json: unknown;
@@ -46,7 +48,17 @@ export function checkSignModelJson(json: unknown): string | null {
   }
   if (m.input_dim !== SIGN_INPUT_DIM) return `input_dim ${String(m.input_dim)}, esperado ${SIGN_INPUT_DIM}`;
   if (!Array.isArray(m.labels) || !m.labels.includes(NO_SIGN_LABEL)) return `sem a classe "${NO_SIGN_LABEL}"`;
+  if (m.camera_signs !== undefined && !Array.isArray(m.camera_signs)) return 'camera_signs não é uma lista';
   return null;
+}
+
+/**
+ * Glosas que a câmera avalia: as de camera_signs (as que passaram na validação com pessoas nunca
+ * vistas, ml-training/train_sinais.py) que estão nos rótulos. Sem a lista, todas as do modelo.
+ */
+function cameraSigns(json: Record<string, unknown>, labels: readonly string[]): ReadonlySet<string> {
+  const listed = Array.isArray(json.camera_signs) ? json.camera_signs.map(String) : null;
+  return new Set(labels.filter(l => l !== NO_SIGN_LABEL && (!listed || listed.includes(l))));
 }
 
 let index: SignModelIndex | null = null;
@@ -72,7 +84,7 @@ async function fetchIndex(): Promise<SignModelIndex | null> {
     }
     const labels = (json.labels as unknown[]).map(String);
     const weightsFile = typeof json.weights?.file === 'string' ? json.weights.file : 'weights.bin';
-    return { labels, glosses: new Set(labels.filter(l => l !== NO_SIGN_LABEL)), weightsFile, json };
+    return { labels, glosses: cameraSigns(json, labels), weightsFile, json };
   } catch {
     // Sem modelo, offline ou sem resposta a tempo: segue sem
     return null;
@@ -124,8 +136,11 @@ export function loadSignModel(): Promise<MlpModel | null> {
   return model;
 }
 
-/** Só para testes: define o modelo (ou esquece tudo com null). */
-export function setSignModelForTests(next: { model: MlpModel } | null): void {
+/**
+ * Só para testes: define o modelo (ou esquece tudo com null). `cameraSigns` faz o papel do
+ * camera_signs do model.json (sem ele, todas as glosas do modelo).
+ */
+export function setSignModelForTests(next: { model: MlpModel; cameraSigns?: readonly string[] } | null): void {
   if (!next) {
     index = null;
     indexLoading = null;
@@ -133,7 +148,8 @@ export function setSignModelForTests(next: { model: MlpModel } | null): void {
     return;
   }
   const labels = next.model.labels;
-  index = { labels, glosses: new Set(labels.filter(l => l !== NO_SIGN_LABEL)), weightsFile: 'weights.bin', json: null };
+  const glosses = cameraSigns(next.cameraSigns ? { camera_signs: [...next.cameraSigns] } : {}, labels);
+  index = { labels, glosses, weightsFile: 'weights.bin', json: null };
   indexLoading = Promise.resolve(index);
   model = Promise.resolve(next.model);
 }

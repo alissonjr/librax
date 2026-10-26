@@ -26,11 +26,14 @@ interface Fixture {
   contract: { normalization_version: number; T: number; F: number; frames: number; per_hand: number; windows_s: number[]; min_p: number; none: string };
   frameCases: { name: string; aspect: number; dominant: string | null; frame: RawFrame; expected: number[] | null }[];
   dominantCases: { name: string; aspect: number; frames: RawFrame[]; expected: string | null }[];
-  clips: {
-    id: string; glosa: string; aspect: number; dominant: string | null; frames: RawFrame[];
-    features: { index: number; expected: number[] | null }[];
-    windows: { t0: number; t1: number; input: number[]; resampled?: number[] }[];
-  }[];
+  clips: Clip[];
+  /** Nenhuma mão aparece duas vezes: a dominante é a mais vista (dominante_ao_vivo do Python). */
+  stillClip: Clip;
+}
+interface Clip {
+  id: string; glosa: string; aspect: number; dominant: string | null; frames: RawFrame[];
+  features: { index: number; expected: number[] | null }[];
+  windows: { t0: number; t1: number; input: number[]; resampled?: number[] }[];
 }
 interface GoldenCase { clip?: number; window?: number; input?: number[]; probs: number[] }
 
@@ -156,6 +159,18 @@ describe('reamostrar + compactar', () => {
       inputs.forEach((w, i) => expect(maxDiff(w.input, clip.windows[i].input)).toBeLessThan(TOLERANCE));
     }
   });
+
+  it('sem mão que apareça duas vezes, o reconhecedor usa a mais vista, como o treino (dominante_ao_vivo)', () => {
+    const clip = fixture.stillClip;
+    const frames = clip.frames.map(toFrame);
+    expect(dominantHand(frames, clip.aspect)).toBeNull();
+    expect(clip.dominant).toBe('Left');
+    const rec = createSignRecognizer(model);
+    for (const f of frames) rec.push(f, clip.aspect);
+    const inputs = rec.windowInputs();
+    expect(inputs.map(i => i.duration)).toEqual([...SIGN_WINDOWS_S]);
+    inputs.forEach((w, i) => expect(maxDiff(w.input, clip.windows[i].input)).toBeLessThan(TOLERANCE));
+  });
 });
 
 describe('MLP dos sinais', () => {
@@ -177,7 +192,7 @@ describe('MLP dos sinais', () => {
 });
 
 /**
- * Modelo de verdade: o golden.json do train_sinais.py treinar (softmax do Keras). Confere quando há
+ * Modelo de verdade: o golden.json do train_sinais.py treinar (softmax do scikit-learn). Confere quando há
  * modelo em LIBRAX_SINAIS_DIR ou em public/ml/sinais/ com o golden.json junto; senão pula.
  */
 describe('modelo treinado (golden.json do train_sinais.py)', () => {
