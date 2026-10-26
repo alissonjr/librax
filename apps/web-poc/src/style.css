@@ -445,9 +445,25 @@ h1[tabindex="-1"]:focus { outline: none; }
 .wordmark {
   display: inline-flex;
   align-items: center;
-  gap: calc(var(--wm) * .32);
+  gap: var(--lx-space-2);
   width: fit-content;
   line-height: 1;
+}
+.wordmark-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--wm) * .32);
+}
+/* Selo "Beta" ao lado do nome: chip em petróleo suave, como o selo da unidade (sem faixa) */
+.beta-badge {
+  position: relative;
+  flex-shrink: 0;
+  padding: var(--lx-space-0-5) var(--lx-space-2);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-game-hand-soft);
+  color: var(--lx-game-hand-text);
+  font: var(--lx-typography-label-sm);
+  white-space: nowrap;
 }
 .wordmark-text {
   font-family: var(--lx-font-family-display);

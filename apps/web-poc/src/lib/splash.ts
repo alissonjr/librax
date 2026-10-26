@@ -80,8 +80,9 @@ export function splashStep(step: SplashStep): void {
 }
 
 /** Texto da barra para o leitor de tela no idioma do app (o HTML sai em pt-BR). */
-export function setSplashLabel(label: string): void {
+export function setSplashLabel(label: string, betaLabel?: string): void {
   splashEl()?.querySelector('[role="progressbar"]')?.setAttribute('aria-label', label);
+  if (betaLabel) splashEl()?.querySelector('.lx-splash-brand')?.setAttribute('aria-label', `Librax, ${betaLabel}`);
 }
 
 function scheduleCheck() {

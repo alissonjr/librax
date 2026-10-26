@@ -77,6 +77,13 @@
   "app": {
     "cameraTitle": "Camera"
   },
+  "appUpdate": {
+    "updated": "App updated"
+  },
+  "brand": {
+    "beta": "Beta",
+    "betaAria": "Beta version"
+  },
   "cameraScreen": {
     "activate": "Turn on camera",
     "denied": "Camera permission denied. Check your browser settings and try again.",
@@ -636,7 +643,8 @@
     "themeLight": "Light",
     "themeSystem": "Follow system",
     "title": "Settings",
-    "version": "Version"
+    "version": "Version",
+    "versionDev": "Development"
   },
   "signDemo": {
     "avatarLabel": "VLibras avatar signing {gloss}",

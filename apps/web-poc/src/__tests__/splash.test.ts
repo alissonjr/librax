@@ -9,6 +9,7 @@ import {
 function mountSplash() {
   document.body.innerHTML = `
     <div id="lx-splash" class="lx-splash">
+      <div class="lx-splash-brand" role="img" aria-label="Librax, versão beta">librax Beta</div>
       <div class="lx-splash-bar" role="progressbar" aria-label="Abrindo o Librax" aria-valuenow="20">
         <div class="lx-splash-fill" style="width: 20%"></div>
       </div>
@@ -70,8 +71,9 @@ describe('etapas da abertura', () => {
   });
 
   it('o rótulo da barra troca para o idioma do app', () => {
-    setSplashLabel('Opening Librax');
+    setSplashLabel('Opening Librax', 'Beta version');
     expect(bar()?.getAttribute('aria-label')).toBe('Opening Librax');
+    expect(document.querySelector('.lx-splash-brand')?.getAttribute('aria-label')).toBe('Librax, Beta version');
   });
 
   it('espera os skeletons saírem depois que a primeira rota montou', async () => {

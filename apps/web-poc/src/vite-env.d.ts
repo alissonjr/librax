@@ -16,3 +16,7 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+/** Versão do build (vite.config.ts, define): data e hora do build em ISO e o commit curto ('' sem git). */
+declare const __LX_BUILD_TIME__: string;
+declare const __LX_BUILD_COMMIT__: string;
