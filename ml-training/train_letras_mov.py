@@ -25,7 +25,8 @@ Janela com mão em menos de MIN_PRESENCA dos quadros entre t0 e t1 não é avali
 
 Classes: as letras com movimento e "_" (nenhuma letra com movimento: letras paradas, transições,
 mão parada). O model.json traz em camera_letters só as que acertam pelo menos MIN_ACERTO_CAMERA
-nos canais separados mais o INES: o app avalia pela câmera só essas.
+nos canais separados mais o INES, somando SEMENTES_CAMERA treinos com sementes diferentes (o
+exportado é o da semente 0): o app avalia pela câmera só essas.
 
 Uso:
     python train_letras_mov.py avaliar [--grupos 5]   validação por canal (GroupKFold) no treino
@@ -40,6 +41,8 @@ Uso:
 
 import argparse
 import collections
+import contextlib
+import io
 import json
 import os
 import sys
@@ -591,6 +594,10 @@ MAX_NENHUMA = 2.0
 # letra) mas fora de camera_letters
 MIN_ACERTO_CAMERA = 0.7
 MIN_TESTE = 3
+# A decisão da câmera soma os acertos de SEMENTES_CAMERA treinos iguais com sementes diferentes (o
+# exportado é o da semente 0): com 6 ou 7 trechos por letra no teste, um trecho a mais ou a menos
+# muda 15 pontos, e só a semente já fazia o X ir de 4/6 a 6/6 e o Z de 4/7 a 6/7 (2026-10-25)
+SEMENTES_CAMERA = 8
 
 
 def equilibrar(X, y, rng, max_nenhuma=MAX_NENHUMA):
@@ -723,7 +730,7 @@ def avaliar(grupos, variacoes, **modelo):
     medir_ines(trechos, prever)
 
 
-def treinar(out, variacoes):
+def treinar(out, variacoes, sementes=SEMENTES_CAMERA):
     from train_static import export_web
 
     trechos = carregar_trechos()
@@ -744,16 +751,40 @@ def treinar(out, variacoes):
     prever = prever_camadas(layers, labels)
     por_letra, (alarmes, paradas) = resumo(medir_videos(trechos, teste_ids, prever), "canais separados (modelo exportado)")
     ines = medir_ines(trechos, prever)
-    teste = {L: [a, b] for L, (a, b) in por_letra.items()}
-    for L, r, _ in ines:
-        if L in LETRAS_MOV:
-            teste.setdefault(L, [0, 0])
-            teste[L][0] += r == "certa"
-            teste[L][1] += 1
-    camera = [L for L in labels if L in teste and teste[L][1] >= MIN_TESTE
-              and teste[L][0] / teste[L][1] >= MIN_ACERTO_CAMERA]
-    print("canais separados + INES:", " ".join(f"{L}:{a}/{b}" for L, (a, b) in sorted(teste.items())),
-          f"| câmera: {' '.join(camera) or 'nenhuma'}")
+
+    def com_ines(por, linhas):
+        out = {L: [a, b] for L, (a, b) in por.items()}
+        for L, r, _ in linhas:
+            if L in LETRAS_MOV:
+                out.setdefault(L, [0, 0])
+                out[L][0] += r == "certa"
+                out[L][1] += 1
+        return out
+
+    teste = com_ines(por_letra, ines)
+    print("canais separados + INES (modelo exportado):", " ".join(f"{L}:{a}/{b}" for L, (a, b) in sorted(teste.items())))
+    # Soma de SEMENTES_CAMERA treinos (a semente 0 é o exportado)
+    soma = {L: list(v) for L, v in teste.items()}
+    soma_alarmes = [alarmes, paradas]
+    for semente in range(1, sementes):
+        outro = ajustar_sklearn(X, y, seed=semente)
+        with contextlib.redirect_stdout(io.StringIO()):
+            por_s, (al_s, par_s) = resumo(medir_videos(trechos, teste_ids, outro), "")
+            ines_s = medir_ines(trechos, outro)
+        t_s = com_ines(por_s, ines_s)
+        print(f"semente {semente}:", " ".join(f"{L}:{a}/{b}" for L, (a, b) in sorted(t_s.items())), f"alarmes {al_s}/{par_s}",
+              flush=True)
+        for L, (a, b) in t_s.items():
+            soma.setdefault(L, [0, 0])
+            soma[L][0] += a
+            soma[L][1] += b
+        soma_alarmes[0] += al_s
+        soma_alarmes[1] += par_s
+    camera = [L for L in labels if L in soma and soma[L][1] >= MIN_TESTE * sementes
+              and soma[L][0] / soma[L][1] >= MIN_ACERTO_CAMERA]
+    print(f"canais separados + INES, soma de {sementes} sementes:",
+          " ".join(f"{L}:{a}/{b} ({a / b:.0%})" for L, (a, b) in sorted(soma.items())),
+          f"alarmes {soma_alarmes[0]}/{soma_alarmes[1]} | câmera: {' '.join(camera) or 'nenhuma'}")
     export_web(out, layers, labels, [], extra={
         "kind": "letras-mov", "frames": PASSOS, "features_per_frame": F, "window_frames": T,
         "windows_s": list(JANELAS_S), "min_presence": MIN_PRESENCA, "channels": int(len(set(canal))),
@@ -763,6 +794,9 @@ def treinar(out, variacoes):
         "source": "scikit-learn",
         "camera_letters": camera,
         "camera_min_heldout": MIN_ACERTO_CAMERA,
+        "camera_seeds": sementes,
+        "heldout_ines_seeds": {L: {"certas": a, "total": b} for L, (a, b) in sorted(soma.items())},
+        "heldout_false_alarms_seeds": {"alarmes": soma_alarmes[0], "paradas": soma_alarmes[1]},
     })
     # vetores dourados: janelas de verdade (entrada compactada) e o softmax do scikit-learn
     picks = np.linspace(0, len(Xc) - 1, min(12, len(Xc))).round().astype(int)
@@ -801,6 +835,8 @@ def main():
     t = sub.add_parser("treinar")
     t.add_argument("--out", required=True)
     t.add_argument("--variacoes", type=int, default=2)
+    t.add_argument("--sementes", type=int, default=SEMENTES_CAMERA,
+                   help="treinos com sementes diferentes somados para decidir camera_letters")
     args = ap.parse_args()
     if args.cmd == "medir":
         medir(args.modelo)
@@ -808,7 +844,7 @@ def main():
         avaliar(args.grupos, args.variacoes, ocultas=tuple(int(x) for x in args.ocultas.split(",")),
                 alpha=args.alpha, max_nenhuma=args.max_nenhuma)
     else:
-        treinar(args.out, args.variacoes)
+        treinar(args.out, args.variacoes, args.sementes)
 
 
 if __name__ == "__main__":
