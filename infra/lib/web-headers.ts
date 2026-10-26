@@ -49,8 +49,11 @@ export function appCsp(authOrigin: string, cognitoIdpOrigin: string): string {
     // wasm-unsafe-eval: compilar o WASM do MediaPipe; sem 'unsafe-eval' nem inline
     'script-src': ["'self'", "'wasm-unsafe-eval'", 'https://cdn.jsdelivr.net'],
     'worker-src': ["'self'", 'blob:'],
+    // blob:: a textura (mapa de normais) que vem dentro do modelo da mao em 3D das letras e dos
+    // numeros (apps/web-poc/src/mao3d); o descompressor dele e WebAssembly (wasm-unsafe-eval acima)
     'connect-src': [
       "'self'",
+      'blob:',
       cognitoIdpOrigin,
       authOrigin,
       ...EXTERNAL_ML_HOSTS,

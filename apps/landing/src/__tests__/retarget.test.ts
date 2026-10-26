@@ -1,30 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Quaternion, Vector3 } from 'three';
+import { Vector3 } from 'three';
 import {
-  BONES, BONE_INDEX as B, FINGERS, clonePose, makeRig, mixPose, positions, retarget, solveCollisions, toLocal,
+  BONES, BONE_INDEX as B, FINGERS, clonePose, mixPose, positions, retarget, rigFromGlbBytes, solveCollisions, toLocal,
   type CollisionStats, type Detail,
-} from '../retarget';
+} from '../../../web-poc/src/mao3d/retarget';
 import maos from '../maos.json';
 import maosZ from '../maos-z.json';
 
-/** Ossos em repouso lidos direto do GLB (cabeçalho JSON do arquivo). */
+/** Ossos em repouso lidos direto do GLB (cabeçalho JSON do arquivo); o modelo é o mesmo do app. */
 function rigFromGlb() {
-  const buf = readFileSync(resolve(__dirname, '../mao-3d.glb'));
-  const len = buf.readUInt32LE(12);
-  const gltf = JSON.parse(buf.subarray(20, 20 + len).toString('utf8')) as {
-    nodes: { name?: string; translation?: number[]; rotation?: number[] }[];
-  };
-  return makeRig(
-    gltf.nodes
-      .filter((n) => n.name && (BONES as readonly string[]).includes(n.name))
-      .map((n) => ({
-        name: n.name!,
-        position: new Vector3(...(n.translation ?? [0, 0, 0])),
-        quaternion: new Quaternion(...(n.rotation ?? [0, 0, 0, 1])),
-      })),
-  );
+  return rigFromGlbBytes(readFileSync(resolve(__dirname, '../../../web-poc/src/mao3d/mao-3d.glb')));
 }
 
 const DEPTH = 1.8;

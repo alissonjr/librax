@@ -1,7 +1,7 @@
 import type { Sign } from '../lib/content';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
-import { SignDemo } from './SignDemo';
+import { HandDemo } from './HandDemo';
 
 interface Props {
   sign: Sign;
@@ -16,7 +16,7 @@ export function ExerciseIntro({ sign, onNext }: Props) {
   return (
     <div className="exercise-screen">
       <div className="sign-card animate__animated animate__zoomIn animate__faster">
-        <SignDemo
+        <HandDemo
           sign={sign}
           className="sign-demo--intro"
           fallback={

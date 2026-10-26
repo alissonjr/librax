@@ -55,7 +55,15 @@ function links(): Plugin {
 export default defineConfig({
   // Landing na raiz do domínio; o app fica em APP_URL (src/config.ts)
   base: '/',
-  server: { port: 5198, strictPort: true, host: '127.0.0.1' },
+  // A mão em 3D (retargeting e modelo) é a mesma do app: fica em apps/web-poc/src/mao3d e entra aqui
+  // por caminho relativo. O three vem sempre do node_modules da landing (mesma versão do app).
+  resolve: { dedupe: ['three'] },
+  server: {
+    port: 5198,
+    strictPort: true,
+    host: '127.0.0.1',
+    fs: { allow: [ROOT, resolve(ROOT, '../web-poc/src/mao3d')] },
+  },
   preview: { port: 5199, strictPort: true, host: '127.0.0.1' },
   build: {
     target: 'es2020',

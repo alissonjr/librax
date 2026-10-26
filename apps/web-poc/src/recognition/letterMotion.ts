@@ -1,7 +1,9 @@
 import type { Lm } from '../lib/recognizer';
 import { isLeftHand, normalizeHand, FEATURE_DIM } from './normalize';
 import { predict, type MlpModel } from './mlp';
-import { defaultReadingRules, windowMotion, type MotionSlot, type ReadingRules } from './readingRules';
+import {
+  defaultReadingRules, passesLetterRule, windowMotion, type DrawingMeasure, type MotionSlot, type ReadingRules,
+} from './readingRules';
 
 /**
  * Letras com movimento do alfabeto manual (H, J, K, X, Z e Ç): entrada do modelo e reconhecedor
@@ -48,6 +50,42 @@ const LETTER_MOTION_SLOTS: readonly MotionSlot[] = [{ presence: 0, wrist: 1, sha
 /** Movimento da janela (entrada do modelo): o movimento() do train_letras_mov.py. */
 export function letterWindowMotion(input: ArrayLike<number>, shapeWeight: number): number {
   return windowMotion(input, LETTER_MODEL_FRAMES, LETTER_FRAME_DIM, LETTER_MOTION_SLOTS, shapeWeight);
+}
+
+const ROOT21 = Math.sqrt(21);
+/** Os 63 pontos da normalizeHand em cada passo da janela (sem a direção). */
+const SHAPE_FROM = 4;
+const SHAPE_TO = 4 + 63;
+
+/**
+ * Desenho do movimento na janela inteira (LETTER_WINDOW_FRAMES passos, antes de compactar), só com
+ * os passos com a mão, em ordem: deslocamento do pulso (palmos) do primeiro ao último passo, mudança
+ * da forma (distância dos 63 pontos da normalizeHand entre o primeiro e o último passo, dividida
+ * por raiz de 21) e vaivém da forma (o caminho desses pontos passo a passo, dividido por raiz de
+ * 21, menos a mudança). Mão em menos de dois passos: tudo 0. É o desenho() do train_letras_mov.py;
+ * as regras por letra (letterRules) usam estas medidas.
+ */
+export function letterWindowDrawing(window: readonly Float64Array[]): Record<DrawingMeasure, number> {
+  const rows = window.filter(row => row[0] > 0.5);
+  if (rows.length < 2) return { displacement: 0, shapeChange: 0, shapeOscillation: 0 };
+  const dist = (a: Float64Array, b: Float64Array) => {
+    let s = 0;
+    for (let k = SHAPE_FROM; k < SHAPE_TO; k++) {
+      const d = b[k] - a[k];
+      s += d * d;
+    }
+    return Math.sqrt(s);
+  };
+  const first = rows[0];
+  const last = rows[rows.length - 1];
+  let path = 0;
+  for (let i = 1; i < rows.length; i++) path += dist(rows[i - 1], rows[i]);
+  const change = dist(first, last) / ROOT21;
+  return {
+    displacement: Math.hypot(last[1] - first[1], last[2] - first[2]),
+    shapeChange: change,
+    shapeOscillation: path / ROOT21 - change,
+  };
 }
 
 /** Regras de leitura sem o model.json dizer outras: só o limiar. */
@@ -195,6 +233,14 @@ export function compactLetterWindow(window: readonly Float64Array[]): Float64Arr
 
 /* ---------- reconhecedor ao vivo ---------- */
 
+export interface LetterWindowInput {
+  duration: number;
+  /** A janela inteira (letterWindow), para o desenho das regras por letra. */
+  window: Float64Array[];
+  /** Entrada do modelo (compactLetterWindow). */
+  input: Float64Array;
+}
+
 export interface LetterMotionReading {
   /** Letra lida (probabilidade >= LETTER_MIN_PROBABILITY e não "_"), ou null. */
   letter: string | null;
@@ -211,8 +257,8 @@ export interface LetterMotionRecognizer {
   push(frame: LetterFrame, aspect: number): void;
   /** Avalia as janelas que terminam no quadro mais recente. */
   evaluate(): LetterMotionReading;
-  /** Entradas do modelo de cada janela avaliável agora (usado pelo evaluate e pelos testes). */
-  windowInputs(): { duration: number; input: Float64Array }[];
+  /** Janelas avaliáveis agora, inteiras e como entrada do modelo (usado pelo evaluate e pelos testes). */
+  windowInputs(): LetterWindowInput[];
   size(): number;
   reset(): void;
 }
@@ -221,7 +267,8 @@ export interface LetterMotionRecognizer {
  * Guarda os últimos LETTER_BUFFER_S segundos e, a cada chamada do evaluate (a câmera chama a cada
  * LETTER_EVAL_MS), passa pelo MLP as janelas de LETTER_WINDOWS_S que terminam no quadro mais
  * recente que se mexem o bastante (portão de movimento das regras, readingRules.ts). Vale a letra
- * (não "_") de maior probabilidade, se passar do limiar e o "_" da janela não passar do teto: o
+ * (não "_") de maior probabilidade, se passar do limiar, o "_" da janela não passar do teto e, se a
+ * letra tem regra própria (letterRules), o desenho da janela (letterWindowDrawing) a cumprir: o
  * mesmo critério do leituras() do treino e do reconhecedor dos sinais.
  */
 export function createLetterMotionRecognizer(
@@ -235,11 +282,11 @@ export function createLetterMotionRecognizer(
     if (frames.length < 2) return [];
     const tEnd = frames[frames.length - 1].t;
     const span = tEnd - frames[0].t;
-    const out: { duration: number; input: Float64Array }[] = [];
+    const out: LetterWindowInput[] = [];
     for (const duration of LETTER_WINDOWS_S) {
       if (span < duration * MIN_COVERAGE) continue;
       const w = letterWindow(frames, aspect, tEnd - duration, tEnd);
-      if (w) out.push({ duration, input: compactLetterWindow(w) });
+      if (w) out.push({ duration, window: w, input: compactLetterWindow(w) });
     }
     return out;
   };
@@ -263,7 +310,7 @@ export function createLetterMotionRecognizer(
       let probability = 0;
       // Portão de movimento: janela com a mão parada nem passa pelo modelo
       const inputs = windowInputs().filter(w => letterWindowMotion(w.input, rules.motionShapeWeight) >= rules.minMotion);
-      for (const { input } of inputs) {
+      for (const { window, input } of inputs) {
         const p = predict(model, input);
         let best = 0;
         for (let j = 0; j < p.length; j++) {
@@ -271,7 +318,8 @@ export function createLetterMotionRecognizer(
           if (p[j] > p[best]) best = j;
         }
         const noneOk = none < 0 || p[none] <= rules.maxNoneProbability;
-        if (best !== none && p[best] >= rules.minProbability && noneOk && p[best] > probability) {
+        if (best !== none && p[best] >= rules.minProbability && noneOk && p[best] > probability
+          && passesLetterRule(rules.letterRules?.[model.labels[best]], letterWindowDrawing(window))) {
           letter = model.labels[best];
           probability = p[best];
         }

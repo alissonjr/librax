@@ -1,0 +1,166 @@
+/* =========================================================
+   MÃO EM 3D na apresentação das letras e dos números (HandDemo e src/mao3d/Mao3DView.tsx)
+   Só tokens de src/styles/tokens.css. A moldura é a mesma das outras demonstrações
+   (.sign-demo-stage); dentro, o palco escuro (stage.bg) como no vídeo. Sem faixa colorida:
+   a aba atual aparece pelo fundo e pelo ícone preenchido.
+   ========================================================= */
+
+/* Abas "Mão 3D | Avatar" (só quando o sinal tem avatar ou vídeo) */
+.hand-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lx-space-2);
+  width: 100%;
+}
+.hand-demo-tabs {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lx-space-1);
+  padding: var(--lx-space-1);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-bg-sunken);
+}
+.hand-demo-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lx-space-1);
+  min-height: var(--lx-size-touch-min);
+  padding: 0 var(--lx-space-4);
+  border: 0;
+  border-radius: var(--lx-radius-full);
+  background: transparent;
+  color: var(--lx-text-secondary);
+  font: var(--lx-typography-label-sm);
+  cursor: pointer;
+  transition: background-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard), color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
+}
+.hand-demo-tab[aria-selected="true"] {
+  background: var(--lx-feedback-info-soft);
+  color: var(--lx-text-brand);
+}
+.hand-demo-panel {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Palco: quadrado (números na horizontal cabem), na mesma altura do avatar */
+.mao3d-stage {
+  aspect-ratio: 1 / 1;
+  outline-offset: 2px;
+}
+.mao3d-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--lx-radius-md);
+  overflow: hidden;
+  background: var(--lx-stage-bg);
+  color: var(--lx-stage-text);
+  /* Arrastar para os lados gira a mão; para cima e para baixo continua rolando a tela */
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.mao3d-stage:active .mao3d-screen { cursor: grabbing; }
+.mao3d-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* O modelo termina no pulso: o pé da vista esmaece para o fundo */
+.mao3d-screen::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 18%;
+  background: linear-gradient(to bottom, transparent, var(--lx-stage-bg) 80%);
+  pointer-events: none;
+}
+.mao3d-loading { color: var(--lx-stage-text); }
+
+/* Botões sobre o palco: 48 px, fundo do cartão do palco */
+.mao3d-tool {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--lx-size-touch-min);
+  height: var(--lx-size-touch-min);
+  padding: 0;
+  border: var(--lx-border-width-thin) solid var(--lx-stage-border);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-stage-surface);
+  color: var(--lx-stage-text);
+  cursor: pointer;
+}
+.mao3d-tool .icon { width: 24px; height: 24px; }
+.mao3d-tool:active { transform: scale(calc(1 - 0.06 * var(--lx-motion-scale, 1))); }
+.mao3d-tool--skin { top: var(--lx-space-2); right: var(--lx-space-2); }
+.mao3d-tool--person { top: var(--lx-space-2); left: var(--lx-space-2); }
+.mao3d-tool--left { bottom: var(--lx-space-2); left: var(--lx-space-2); }
+.mao3d-tool--right { bottom: var(--lx-space-2); right: var(--lx-space-2); }
+.mao3d-tool--reset { bottom: var(--lx-space-2); left: calc(50% - var(--lx-size-touch-min) / 2); }
+
+.mao3d-swatch {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--lx-radius-full);
+  border: var(--lx-border-width-thick) solid var(--lx-stage-text);
+}
+/* Tons de pele: três por linha, alvos de 48 px */
+.mao3d-skins {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--lx-space-2) + var(--lx-size-touch-min) + var(--lx-space-1));
+  right: var(--lx-space-2);
+  display: grid;
+  grid-template-columns: repeat(3, var(--lx-size-touch-min));
+  padding: var(--lx-space-1);
+  border: var(--lx-border-width-thin) solid var(--lx-stage-border);
+  border-radius: var(--lx-radius-lg);
+  background: var(--lx-stage-surface);
+}
+.mao3d-skin {
+  display: grid;
+  place-items: center;
+  width: var(--lx-size-touch-min);
+  height: var(--lx-size-touch-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--lx-radius-full);
+  background: transparent;
+  cursor: pointer;
+}
+.mao3d-skin .mao3d-swatch { width: 28px; height: 28px; border-color: var(--lx-stage-border); }
+.mao3d-skin[aria-checked="true"] .mao3d-swatch {
+  border-color: var(--lx-stage-text);
+  box-shadow: 0 0 0 var(--lx-border-width-thick) var(--lx-game-trace-fill);
+}
+
+.mao3d .sign-demo-controls { flex-wrap: wrap; }
+.mao3d-caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-1);
+  max-width: 40ch;
+  font: var(--lx-typography-caption);
+  color: var(--lx-text-secondary);
+  text-align: center;
+}
+.mao3d-caption-mov {
+  font: var(--lx-typography-body-sm);
+  font-weight: var(--lx-font-weight-bold);
+  color: var(--lx-text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hand-demo-tab { transition: none; }
+}
+:root[data-reduced-motion="true"] .hand-demo-tab { transition: none; }

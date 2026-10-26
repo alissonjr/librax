@@ -230,7 +230,9 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2,m4a}'],
+          // glb: o modelo da mão em 3D das letras e dos números (src/mao3d/, ~150 KB). O motor 3D é um
+          // pedaço .js e entra junto, então a apresentação funciona offline desde a instalação.
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2,m4a,glb}'],
           // ML fora do precache: o WASM (13 MB) e o modelo (7,8 MB) estouram o limite de 2 MB
           // e só quem usa a câmera precisa deles. Entram no cache em runtime (abaixo).
           globIgnores: ['ml/**', 'vlibras/v*/**', 'vlibras/sinais/**'],

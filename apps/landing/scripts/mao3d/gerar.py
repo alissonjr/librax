@@ -1,8 +1,8 @@
 """
-Gera a mao 3D do prototipo da abertura (src/mao-3d.glb), com o Blender em modo headless.
+Gera a mao 3D da abertura e das licoes do app (apps/web-poc/src/mao3d/mao-3d.glb), com o Blender em modo headless.
 
     blender --background --factory-startup --python scripts/mao3d/gerar.py -- --out /tmp/mao-bruta.glb
-    npx gltfpack -i /tmp/mao-bruta.glb -o src/mao-3d.glb -cc -kn -km
+    npx gltfpack -i /tmp/mao-bruta.glb -o ../web-poc/src/mao3d/mao-3d.glb -cc -kn -km
 
 O modelo e nosso (feito por este script), sem asset de terceiros. Etapas:
 1. Forma: funcao de distancia da mao em repouso (anatomia.py), virada em malha por surface nets.

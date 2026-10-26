@@ -3,8 +3,9 @@ import type { Lm } from '../lib/recognizer';
 import type { MlpModel } from '../recognition/mlp';
 import {
   createLetterMotionRecognizer, DEFAULT_LETTER_RULES, LETTER_BUFFER_S, LETTER_FRAME_DIM, LETTER_INPUT_DIM,
-  letterWindowMotion, type LetterFrame,
+  letterWindowDrawing, letterWindowMotion, type LetterFrame,
 } from '../recognition/letterMotion';
+import { readingRulesFromJson } from '../recognition/readingRules';
 import {
   checkLetterMotionModelJson, getLetterMotionReadingRules, getMotionLetters, loadLetterMotionIndex, loadLetterMotionModel,
   setLetterMotionModelForTests,
@@ -84,6 +85,40 @@ describe('reconhecedor das letras com movimento', () => {
     };
     expect(leitura(1)).toBe('J');
     expect(leitura(0.2)).toBeNull();
+  });
+
+  it('regra por letra: a leitura só vale com o desenho da janela dentro dela', () => {
+    // a curva do drawing() anda com o pulso e a forma da mão não muda
+    const leitura = (letterRules: NonNullable<typeof DEFAULT_LETTER_RULES.letterRules>) => {
+      const rec = createLetterMotionRecognizer(J_CERTO, { ...DEFAULT_LETTER_RULES, letterRules });
+      for (const f of drawing(0, 2.1)) rec.push(f, 4 / 3);
+      return rec.evaluate().letter;
+    };
+    expect(leitura({})).toBe('J');
+    expect(leitura({ Z: { shapeChange: { min: 0.5 } } })).toBe('J');
+    expect(leitura({ J: { shapeChange: { min: 0.5 } } })).toBeNull();
+    expect(leitura({ J: { shapeOscillation: { min: 0.1 } } })).toBeNull();
+    expect(leitura({ J: { displacement: { max: 0.01 } } })).toBeNull();
+    expect(leitura({ J: { displacement: { min: 0.01, max: 50 } } })).toBe('J');
+  });
+
+  it('desenho da janela: deslocamento do pulso, mudança e vaivém da forma; passo sem mão não conta', () => {
+    const row = (presence: number, x: number, y: number, shape: number) => {
+      const r = new Float64Array(LETTER_FRAME_DIM);
+      r[0] = presence;
+      r[1] = x;
+      r[2] = y;
+      r[4] = shape;
+      // a direção da mão (colunas 67 e 68) fica de fora da forma
+      r[67] = shape * 10;
+      return r;
+    };
+    const win = [row(1, 0, 0, 0), row(1, 1, 0, 2), row(0, 9, 9, 9), row(1, 3, 4, 1)];
+    const d = letterWindowDrawing(win);
+    expect(d.displacement).toBeCloseTo(5, 9);
+    expect(d.shapeChange).toBeCloseTo(1 / Math.sqrt(21), 9);
+    expect(d.shapeOscillation).toBeCloseTo(3 / Math.sqrt(21) - 1 / Math.sqrt(21), 9);
+    expect(letterWindowDrawing([row(1, 0, 0, 0), row(0, 3, 4, 1)])).toEqual({ displacement: 0, shapeChange: 0, shapeOscillation: 0 });
   });
 
   it('"_" mais provável não vira letra', () => {
@@ -175,6 +210,24 @@ describe('modelo das letras com movimento em /ml/letras-mov/', () => {
     expect(checkLetterMotionModelJson(null)).toMatch(/librax-mlp/);
     expect(checkLetterMotionModelJson({ ...valid, reading_rules: { min_motion: 0.3 } })).toBeNull();
     expect(checkLetterMotionModelJson({ ...valid, reading_rules: { min_motion: -1 } })).toMatch(/min_motion/);
+    const letterRules = (letter_rules: unknown) => checkLetterMotionModelJson({ ...valid, reading_rules: { letter_rules } });
+    expect(letterRules({ Ç: { min_shape_oscillation: 0.5 }, K: { max_displacement: 2 } })).toBeNull();
+    expect(letterRules([])).toMatch(/letter_rules/);
+    expect(letterRules({ K: 2 })).toMatch(/letter_rules\.K/);
+    expect(letterRules({ K: { max_speed: 2 } })).toMatch(/max_speed desconhecida/);
+    expect(letterRules({ K: { displacement: 2 } })).toMatch(/displacement desconhecida/);
+    expect(letterRules({ K: { max_displacement: '2' } })).toMatch(/inválido/);
+  });
+
+  it('letter_rules vira letterRules (sem ele, nenhuma regra por letra)', () => {
+    expect(readingRulesFromJson({ reading_rules: { min_motion: 0.3 } }, 0.6)).not.toHaveProperty('letterRules');
+    expect(readingRulesFromJson({ reading_rules: {
+      letter_rules: { Ç: { min_shape_oscillation: 0.5 }, J: { min_shape_change: 0.5 }, K: { max_displacement: 2, min_displacement: 0.1 } },
+    } }, 0.6)).toMatchObject({
+      letterRules: {
+        Ç: { shapeOscillation: { min: 0.5 } }, J: { shapeChange: { min: 0.5 } }, K: { displacement: { min: 0.1, max: 2 } },
+      },
+    });
   });
 
   it('reading_rules do model.json vira as regras do reconhecedor (sem ele, só o limiar)', async () => {
