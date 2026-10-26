@@ -1,0 +1,19 @@
+# Build e IDE
+.gradle/
+build/
+app/build/
+.idea/
+*.iml
+.kotlin/
+local.properties
+captures/
+
+# Pacotes gerados
+*.apk
+*.aab
+*.idsig
+
+# Chaves e senhas: nunca no git
+keystore.properties
+*.keystore
+*.jks

@@ -1,0 +1,101 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Valores do gradle.properties (ou -P na linha de comando). Ver README.md.
+def prop = { String name, String fallback = null ->
+    def value = project.findProperty(name)?.toString()?.trim()
+    if (value) return value
+    if (fallback != null) return fallback
+    throw new GradleException("Falta a propriedade ${name} (gradle.properties ou -P${name}=...)")
+}
+
+def appId = prop('librax.applicationId')
+def host = prop('librax.host')
+def port = prop('librax.port', '')
+def origin = "https://${host}${port ? ':' + port : ''}"
+def launchPath = prop('librax.launchPath', '/')
+def launchUrl = origin + launchPath
+// Marca de abertura pelo app (origem=android), repetida também nos links que abrem o app
+def launchParam = launchPath.contains('?') ? launchPath.substring(launchPath.indexOf('?') + 1) : ''
+def appName = prop('librax.appName', 'Librax')
+def notifications = prop('librax.enableNotifications', 'true').toBoolean()
+
+// Release com o domínio placeholder não serve para nada: para antes de gerar
+gradle.taskGraph.whenReady { graph ->
+    if (host.endsWith('librax.example') && graph.allTasks.any { it.name.toLowerCase().contains('release') }) {
+        throw new GradleException('librax.host ainda é o placeholder (librax.example): defina o domínio real em gradle.properties')
+    }
+}
+
+// Chave de upload (fora do git): keystore.properties ao lado deste projeto. Ver README.md.
+def keystoreFile = rootProject.file('keystore.properties')
+def keystore = new Properties()
+if (keystoreFile.exists()) keystoreFile.withInputStream { keystore.load(it) }
+
+android {
+    namespace = 'br.com.librax.app'
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = appId
+        minSdk = 23
+        targetSdk = 36
+        versionCode = prop('librax.versionCode').toInteger()
+        versionName = prop('librax.versionName')
+
+        // Domínio do intent-filter (links https://<host>/... abrem no app)
+        manifestPlaceholders = [hostName: host]
+
+        resValue 'string', 'appName', appName
+        resValue 'string', 'launcherName', appName
+        resValue 'string', 'launchUrl', launchUrl
+        resValue 'string', 'launchParam', launchParam
+        resValue 'string', 'webManifestUrl', "${origin}/manifest.webmanifest"
+        resValue 'string', 'providerAuthority', "${appId}.fileprovider"
+        // O lado Android da verificação (o lado web é o assetlinks.json servido pelo CloudFront)
+        resValue 'string', 'assetStatements',
+            '[{\\"relation\\": [\\"delegate_permission/common.handle_all_urls\\"], ' +
+            '\\"target\\": {\\"namespace\\": \\"web\\", \\"site\\": \\"' + origin + '\\"}}]'
+        // Chrome sem suporte a TWA: abre numa Custom Tab (com a barra do navegador), nunca WebView
+        resValue 'string', 'fallbackType', 'customtabs'
+        resValue 'string', 'orientation', 'portrait'
+        resValue 'bool', 'enableNotification', notifications.toString()
+        resValue 'integer', 'splashScreenFadeOutDuration', '300'
+    }
+
+    signingConfigs {
+        if (keystoreFile.exists()) {
+            upload {
+                storeFile = rootProject.file(keystore['storeFile'])
+                storePassword = keystore['storePassword']
+                keyAlias = keystore['keyAlias']
+                keyPassword = keystore['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            if (keystoreFile.exists()) signingConfig = signingConfigs.upload
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    lint {
+        // Ícone e textos são da marca e do site; o lint não precisa travar o build por isso
+        abortOnError = false
+    }
+}
+
+dependencies {
+    // Fixo: atualizar de propósito, testando a abertura e a splash num aparelho
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.3'
+}

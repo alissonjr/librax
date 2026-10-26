@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gerado por scripts/gerar-recursos.mjs a partir de apps/web-poc/src/styles/tokens.ts. Não editar à mão. -->
+<resources>
+    <!-- theme.light.bg.canvas: barra de status e de navegação (o theme_color do manifesto web) -->
+    <color name="colorPrimary">#F7F5F2</color>
+    <!-- theme.dark.bg.canvas: as mesmas barras com o aparelho no tema escuro -->
+    <color name="colorPrimaryDark">#14110E</color>
+    <color name="navigationColor">#F7F5F2</color>
+    <color name="navigationColorDark">#14110E</color>
+    <color name="navigationDividerColor">#F7F5F2</color>
+    <color name="navigationDividerColorDark">#14110E</color>
+    <!-- brand.icon.bg: fundo da abertura (o background_color do manifesto web) e do ícone -->
+    <color name="backgroundColor">#1B1510</color>
+    <color name="iconBackground">#1B1510</color>
+</resources>

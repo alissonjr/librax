@@ -128,3 +128,13 @@ npm run landing:publicar  # confere a conta, build com os outputs, sync e invali
   que vem dentro do GLB). A mesma mão aparece no app, na apresentação das letras e dos números
   (`apps/web-poc/src/mao3d`): a CSP do app (`infra/lib/web-headers.ts`) já tinha `'wasm-unsafe-eval'` (MediaPipe)
   e `blob:` em `img-src`, e ganhou `blob:` em `connect-src`.
+
+## App Android (assetlinks.json)
+
+O app Android da Play Store (`apps/android-twa`) abre o site do app numa Trusted Web Activity. Para o Chrome
+abrir em tela cheia, `https://app.<dominio>/.well-known/assetlinks.json` precisa declarar o pacote e o
+certificado do app. A stack serve esse arquivo direto do CloudFront do app (CloudFront Function,
+`infra/lib/assetlinks.ts`), gerado das chaves `librax:androidPackageName` (padrão `br.com.librax.app`) e
+`librax:androidCertFingerprints` (SHA-256 separados por vírgula: a chave de upload e a da assinatura de apps
+do Google Play). Sem impressão digital ele sai como `[]` e o synth avisa. Depois de preencher, `npm run deploy`.
+Passo a passo da publicação: [`docs/android-twa.md`](android-twa.md).
