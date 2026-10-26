@@ -321,7 +321,7 @@ export default defineConfig(({ mode }) => {
             },
           ],
         },
-        // Ícones gerados por tools/pwa/build-icons.mjs (npm run pwa-icons) com as cores dos tokens
+        // Ícones (a mão 3D fazendo joinha) gerados por tools/pwa/build-icons.mjs (npm run pwa-icons)
         manifest: {
           id: '/',
           name: 'Librax: aprenda Libras',

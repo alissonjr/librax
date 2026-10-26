@@ -992,6 +992,10 @@
       "dot": {
         "$value": "{color.grafite.0}",
         "$description": "Ponto inicial do movimento"
+      },
+      "skin": {
+        "$value": "#A86F4C",
+        "$description": "Pele (pardo) da mao 3D do icone do app (joinha); o 4o tom da paleta da mao (SKIN_TONES). O render fica em tools/pwa/icone-joinha.png"
       }
     }
   },

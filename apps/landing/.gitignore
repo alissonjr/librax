@@ -6,6 +6,9 @@ dist/
 node_modules/
 # Copiados do web-poc por scripts/sync-ds.mjs (a fonte da verdade fica no web-poc)
 /public/fonts/
+/public/favicon.ico
+/public/favicon-32.png
+/public/favicon-48.png
 /public/favicon.svg
 /public/apple-touch-icon.png
 /public/icon-192.png

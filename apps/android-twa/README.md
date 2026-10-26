@@ -46,12 +46,15 @@ Tudo pode ser passado na hora, sem editar: `./gradlew assembleDebug -Plibrax.hos
 
 Cores e ícones saem da marca e dos tokens do app web (`apps/web-poc/src/styles/tokens.ts`): barra de
 status e de navegação em `theme.light.bg.canvas` (e `theme.dark.bg.canvas` com o aparelho no escuro),
-abertura e fundo do ícone em `brand.icon.bg`. Para gerar de novo depois de mudar a marca:
+abertura e fundo do ícone em `brand.icon.bg`. O ícone do app é a mão 3D fazendo joinha (seção 2.6 do
+`docs/design-system.md`): os PNG por densidade (ícone adaptativo com frente, fundo e silhueta monocromática,
+mais os antigos quadrado e redondo) e `loja/icone-play-512.png` saem do `tools/pwa/build-icons.mjs`, junto
+com os ícones do PWA. A abertura, a notificação, as cores e a ligação do ícone adaptativo saem do
+`scripts/gerar-recursos.mjs`. Para gerar de novo depois de mudar a marca:
 
 ```bash
-cd apps/android-twa
-npm install --prefix /tmp/sharp sharp
-NODE_PATH=/tmp/sharp/node_modules node scripts/gerar-recursos.mjs
+cd apps/web-poc && npm install --no-save sharp && npm run pwa-icons   # ícone do app (PWA e Android)
+cd ../android-twa && node scripts/gerar-recursos.mjs                   # abertura, notificação e cores
 ```
 
 ## Build

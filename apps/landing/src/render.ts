@@ -218,7 +218,9 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
 <meta property="og:description" content="${esc(c.meta.description)}">
 <meta property="og:locale" content="${c.meta.ogLocale}">
 <meta property="og:image" content="/icon-512.png">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/Anybody-latin-wdth-wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/Figtree-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
