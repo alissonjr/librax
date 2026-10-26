@@ -19,6 +19,7 @@ pontos com x, y, z e visibilidade, como a página grava) ou null sem corpo. Víd
 
 Uso:
     nice -n 10 python video/extrair_sinais.py [--processos 6] [--glosas A,B] [--ids ID ...]
+    nice -n 10 python video/extrair_sinais.py --tipos numero,sequencia --saida data/numeros15/landmarks
     python video/extrair_sinais.py --estimar 6     (mede uns vídeos e estima o tempo total)
     (LIBRAX_DATA=/caminho/data aponta para outra pasta de dados)
 """
@@ -160,6 +161,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ids", nargs="*", default=[])
     ap.add_argument("--glosas", default="", help="só estas glosas (separadas por vírgula)")
+    ap.add_argument("--tipos", default="sinal",
+                    help='tipos de fontes_sinais.json (separados por vírgula; os números usam "numero,sequencia")')
     ap.add_argument("--fontes", default=os.path.join(DATA, "fontes_sinais.json"))
     ap.add_argument("--videos", default=os.path.join(DATA, "videos"))
     ap.add_argument("--maos", default=MAOS_PADRAO)
@@ -176,7 +179,8 @@ def main():
         fontes = json.load(f)
     glosas = {g for g in args.glosas.split(",") if g}
     pedidos = set(args.ids)
-    escolhidas = [x for x in fontes if x.get("tipo") == "sinal" and x.get("arquivo")
+    tipos = set(args.tipos.split(","))
+    escolhidas = [x for x in fontes if x.get("tipo") in tipos and x.get("arquivo")
                   and (not pedidos or x["id"] in pedidos) and (not glosas or x.get("glosa") in glosas)]
     # Primeiro as glosas dos exercícios de câmera das lições (perform_sign) e, dentro delas, as com
     # mais pessoas (canais): são as que dá para treinar antes de tudo acabar
