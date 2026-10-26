@@ -59,6 +59,7 @@ describe('CloudFront do app na mesma origem', () => {
     const config = behaviors(template);
     const paths = config.CacheBehaviors.map((b: { PathPattern: string }) => b.PathPattern);
     expect(paths).toEqual([
+      '/.well-known/assetlinks.json',
       '/assets/*.wasm', '/assets/*', '/vlibras/v*', '/vlibras/sinais/*', '/vlibras/*', '/content/*', '/ml/*.wasm', '/ml/*', '/api/*',
       '/admin/assets/*', '/admin', '/admin/*',
     ]);

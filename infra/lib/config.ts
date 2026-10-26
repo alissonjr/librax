@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { Node } from 'constructs';
+import { DEFAULT_ANDROID_PACKAGE, normalizeFingerprint, validPackageName } from './assetlinks';
 
 /**
  * Parametros de contexto do CDK (cdk.json ou `-c chave=valor`).
@@ -39,6 +40,8 @@ import { Node } from 'constructs';
  * | librax:alarmEmail              | (vazio)                         | e-mail que recebe os alarmes (SNS); sem ele o topico fica sem assinatura |
  * | librax:budgetEmail             | = alarmEmail                    | e-mail dos avisos do AWS Budget (80% e 100%) |
  * | librax:monthlyBudgetUsd        | 10                              | valor mensal do AWS Budget, em dolares |
+ * | librax:androidPackageName      | br.com.librax.app               | pacote do app Android (TWA) no assetlinks.json |
+ * | librax:androidCertFingerprints | (vazio)                         | SHA-256 dos certificados do app Android, separados por virgula (upload e Play App Signing) |
  *
  * Os e-mails nunca ficam no codigo: passe por contexto (`-c librax:alarmEmail=...`) ou no
  * cdk.context.json local, que nao vai para o repositorio.
@@ -69,6 +72,8 @@ export interface LibraxConfig {
   extraAdminLogoutUrls: string[];
   alarms: { email?: string };
   budget: { email?: string; monthlyUsd: number };
+  /** App Android (TWA, apps/android-twa): o que vai no /.well-known/assetlinks.json do app. */
+  android: { packageName: string; certFingerprints: string[] };
 }
 
 export const PLACEHOLDER_DOMAIN = 'librax.example';
@@ -144,7 +149,27 @@ export function readConfig(node: Node): LibraxConfig {
       email: str('budgetEmail') || str('alarmEmail') || undefined,
       monthlyUsd: positiveNumber(str('monthlyBudgetUsd', '10'), 'monthlyBudgetUsd'),
     },
+    android: {
+      packageName: androidPackage(str('androidPackageName', DEFAULT_ANDROID_PACKAGE)),
+      certFingerprints: [...new Set(list('androidCertFingerprints').map(fingerprint))],
+    },
   };
+}
+
+function androidPackage(name: string): string {
+  if (!validPackageName(name)) throw new Error(`librax:androidPackageName invalido (veio "${name}"); exemplo: br.com.librax.app`);
+  return name;
+}
+
+function fingerprint(raw: string): string {
+  const value = normalizeFingerprint(raw);
+  if (!value) {
+    throw new Error(
+      `librax:androidCertFingerprints: "${raw}" nao e um SHA-256 (32 bytes, como AB:CD:...); ` +
+        'use o SHA-256 do keytool ou do Play Console, nao o SHA-1',
+    );
+  }
+  return value;
 }
 
 function positiveNumber(raw: string, key: string): number {
