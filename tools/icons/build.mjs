@@ -43,6 +43,8 @@ const ICONS = [
   'query_stats',
   // mão em 3D da apresentação das letras e dos números (src/mao3d/)
   'view_in_ar', 'rotate_left', 'rotate_right', 'recenter', 'switch_account', 'autorenew',
+  // modo livre da câmera (texto soletrado: espaço e apagar)
+  'space_bar', 'backspace',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).
