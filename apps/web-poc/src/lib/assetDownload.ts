@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import {
-  CLASSIFIER_DIR, HAND_MODEL_URL, LETTER_MOTION_DIR, MEDIAPIPE_WASM_DIR, POSE_MODEL_URL, SIGN_MODEL_DIR,
+  CLASSIFIER_DIR, HAND_MODEL_URL, LETTER_MOTION_DIR, MEDIAPIPE_WASM_DIR, NUMBERS_DIR, POSE_MODEL_URL, SIGN_MODEL_DIR,
 } from '../recognition/mlAssets';
 import { whenSplashDone } from './splash';
 
@@ -61,6 +61,9 @@ export function cameraFiles(simd: boolean, signs = false): AssetFile[] {
     // Letras com movimento: só as mãos (sem o modelo do corpo), opcional como o classificador
     { url: `${LETTER_MOTION_DIR}/model.json`, bytes: 1_000, optional: true },
     { url: `${LETTER_MOTION_DIR}/weights.bin`, bytes: 318_000, optional: true },
+    // Números de 0 a 9: mão parada, o mesmo formato do classificador das letras
+    { url: `${NUMBERS_DIR}/model.json`, bytes: 2_000, optional: true },
+    { url: `${NUMBERS_DIR}/weights.bin`, bytes: 70_000, optional: true },
   ];
   if (signs) {
     files.push(

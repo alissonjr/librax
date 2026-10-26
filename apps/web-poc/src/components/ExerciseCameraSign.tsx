@@ -14,6 +14,7 @@ import { DemoToggle } from './DemoToggle';
 import { TraceCameraArcs } from './Brand';
 import { HEURISTIC_LETTERS, useRecognizableLetters } from '../recognition/classifier';
 import { CameraRun, saveCameraRun } from '../lib/cameraStats';
+import { getCameraNumbers } from '../recognition/numberModel';
 
 /**
  * Letras que a composição das lições trata como avaliáveis pela câmera (src/lib/content.ts).
@@ -66,13 +67,19 @@ function FingerStatus({ extensions, confidence, t }: { extensions: FingerExtensi
 interface Props {
   sign: Sign;
   onComplete: (correct: boolean) => void;
+  /**
+   * 'numeros': número de 0 a 9 lido pelo modelo dos números (/ml/numeros/, src/lib/content.ts decide);
+   * ausente: letra parada, lida pelo classificador das letras.
+   */
+  recognizer?: 'numeros';
 }
 
-export function ExerciseCameraSign({ sign, onComplete }: Props) {
+export function ExerciseCameraSign({ sign, onComplete, recognizer }: Props) {
   const { t } = useT();
+  const isNumber = recognizer === 'numeros';
   // Esqueleto 2D sobre o vídeo da própria pessoa (decisão 5 do plano mobile web): o avatar 3D saiu do MVP
   const { videoRef, canvasRef, status, rawGesture, stableGesture, handPresent, confidence, extensions, start, stop } =
-    useCameraRecognizer();
+    useCameraRecognizer({ classifier: isNumber ? 'numeros' : 'letras' });
 
   const [succeeded, setSucceeded] = useState(false);
   // Dica sob demanda: o avatar não roda junto com a detecção (os dois disputam a GPU).
@@ -84,9 +91,10 @@ export function ExerciseCameraSign({ sign, onComplete }: Props) {
   const momentoShownRef = useRef(false);
   const targetLetter = sign.gloss;
   const recognizable = useRecognizableLetters();
-  const isRecognizable = recognizable.has(targetLetter);
+  // Números: os de camera_numbers do modelo (o índice já foi lido ao abrir a lição)
+  const isRecognizable = isNumber ? getCameraNumbers().has(targetLetter) : recognizable.has(targetLetter);
   // Desempenho da câmera (lib/cameraStats.ts): tentativas, leituras erradas e pulo desta letra
-  const [run] = useState(() => new CameraRun(sign.id, targetLetter, 'letter'));
+  const [run] = useState(() => new CameraRun(sign.id, targetLetter, isNumber ? 'number' : 'letter'));
 
   useEffect(() => {
     if (status === 'active') run.started = true;

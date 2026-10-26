@@ -1,0 +1,47 @@
+{
+ "_sobre": "Fontes dos números de 0 a 9 a 15 quadros por segundo (video/rotular_numeros15.py). Vídeos de um número (fontes_sinais.json, glosa 0 a 9 e números compostos) entram sozinhos, menos os de 'excluir'. Vídeos de sequência só entram pelos trechos daqui, conferidos a olho em folhas de quadros. Na sequência, 'q1' a 'q4' marcam a forma de QUANTIDADE do 1 ao 4 (dedos para cima), que o curso não usa: ocupam o lugar no alinhamento e não vão para o dataset. Modo 'ocr': aula fora de ordem; cada parada vale o dígito escrito na tela, entre os 'digitos' do trecho.",
+ "excluir": {
+  "ckIpVQiHYog": "Sinais diários: o sinal da palavra NÚMERO, não os números",
+  "esweMVJGmHQ": "Sinais diários: a palavra NUMERAL CARDINAL e explicação, sem sequência",
+  "AyIrcaaUvls": "Sinais diários: a palavra NUMERAL e explicação, sem sequência",
+  "j46d2PpfNAE": "aula falada sem o número na tela; não dá para saber qual número é qual",
+  "-0DAwHz6OeE": "a mesma pessoa em dois quadros (corpo inteiro e ampliação): mãos repetidas",
+  "2DNFAHal1Yo": "história com números, sem ordem",
+  "zj4OG_Cl--Y": "animação com mãos desenhadas, forma de quantidade",
+  "D2C_zECDGac": "duas imagens da mesma pessoa e forma de quantidade",
+  "ePtLF3tmQUU": "avatar 3D (Hand Talk), mãos pequenas e números rápidos",
+  "uveH7KBO604": "vídeo em espanhol sobre libras de peso, não é Libras",
+  "rS2jrRoClS8": "corinho (música) com o 4 no título",
+  "TTzcVV-k5mk": "compara a letra S com o 8 no mesmo vídeo",
+  "kExYXx94tuE": "aula longa falada sobre o 3",
+  "Mf9GH0Df0E4": "quiz, não mostra o 6 sozinho",
+  "JfBCJSAl54s": "forma de quantidade e mão cortada; na folha o 5 saiu como V"
+ },
+ "recusar": [
+  {"item": "eLEXxyA6FjU@1", "t": 96.1, "nota": "mão com o polegar para cima no meio da explicação do 7"},
+  {"item": "bdEDTuu0DcA@1", "t": 164.9, "nota": "mão fechada entre um 7 e outro (o 7 da tela continua)"},
+  {"item": "bdEDTuu0DcA@1", "t": 166.6, "nota": "mão fechada entre um 7 e outro"},
+  {"item": "8YYPgdJxJPo", "t": 2.2, "nota": "vídeo borrado: mão fechada, não dá para ver o 7"},
+  {"item": "s2ZLbwhTxgQ", "t": 2.3, "nota": "vídeo borrado: mão fechada, não dá para ver o 7"}
+ ],
+ "trechos": [
+  {"id": "TFtme0cvf28", "ini": 6.0, "fim": 43.0, "sequencia": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"], "nota": "Neto Libras, só a mão, cardinais com o número na tela"},
+  {"id": "TFtme0cvf28", "ini": 43.5, "fim": 77.5, "sequencia": ["q1", "q2", "q3", "q4", "5", "6", "7", "8", "9", "0"], "nota": "Neto Libras, quantitativos: de 5 em diante a mesma forma"},
+  {"id": "eLEXxyA6FjU", "ini": 62.0, "fim": 130.0, "sequencia": ["0", "q1", "q2", "q3", "q4", "5", "6", "7", "8", "9"], "nota": "Prof. Raoni, nome do número escrito na tela; do 1 ao 4 faz a forma vertical (quantidade)"},
+  {"id": "emFsDa_atic", "ini": 4.3, "fim": 28.6, "sequencia": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], "nota": "IFSP, cardinais com o número na tela"},
+  {"id": "bdEDTuu0DcA", "ini": 108.0, "fim": 240.0, "modo": "ocr", "digitos": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], "nota": "Libras UEL, cardinais fora de ordem com o número na tela"},
+  {"id": "bdEDTuu0DcA", "ini": 255.0, "fim": 292.0, "modo": "ocr", "digitos": ["5", "6", "7", "8", "9"], "nota": "Libras UEL, quantitativos: só de 5 a 9, iguais aos cardinais"},
+  {"id": "iZmQAQah0Q4", "ini": 7.0, "fim": 45.0, "sequencia": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], "nota": "Libras com Cici, só a mão, cardinais"},
+  {"id": "iZmQAQah0Q4", "ini": 58.0, "fim": 81.0, "sequencia": ["q1", "q2", "q3", "q4", "5", "6", "7", "8", "9"], "nota": "Libras com Cici, quantidade"},
+  {"id": "n_OOlBtYzYM", "ini": 16.5, "fim": 61.0, "sequencia": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], "nota": "Sabrina Pimentel, cardinais com o número na tela"},
+  {"id": "vVJjktw5mas", "ini": 6.0, "fim": 41.5, "sequencia": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], "nota": "Julianno, cardinais com o número na tela"},
+  {"id": "vVJjktw5mas", "ini": 43.0, "fim": 76.0, "sequencia": ["q1", "q2", "q3", "q4", "5", "6", "7", "8", "9", "0"], "nota": "Julianno, quantitativos"},
+  {"id": "gXrVdUlyWbw", "ini": 7.3, "fim": 28.0, "sequencia": ["1", "2", "3", "4", "5", "6", "7", "8", "9"], "nota": "Os Desafios em Libras, cardinais com o número na tela"},
+  {"id": "rXSWPnizUz8", "ini": 4.8, "fim": 29.8, "sequencia": ["1", "2", "3", "4", "5", "6", "7", "8", "9"], "nota": "Sinalario, cardinais com o número na tela"},
+  {"id": "VhfKeS35aDg", "ini": 13.8, "fim": 28.0, "sequencia": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], "nota": "tainara martins, depois do nome soletrado"},
+  {"id": "O4MB5v_KTec", "ini": 1.0, "fim": 50.5, "sequencia": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], "nota": "Cleidiane Segura, primeira volta; balões com mãos desenhadas"},
+  {"id": "O4MB5v_KTec", "ini": 50.5, "fim": 100.5, "sequencia": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], "nota": "Cleidiane Segura, segunda volta"},
+  {"id": "cKmRcDAKAF8", "ini": 163.5, "fim": 193.0, "sequencia": ["1", "2", "3", "4", "5", "6", "7", "8", "9"], "sem_ocr": true, "nota": "Otávio Carvalho, depois do alfabeto; sem OCR (lê os números da camiseta)"},
+  {"id": "cT3l6iP7NXY", "pasta": "letras_mov/landmarks15", "ini": 161.0, "fim": 187.5, "sequencia": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "1", "0"], "nota": "Cecierj, aula 3 (vídeo das letras): cardinais de 1 a 10 com o número na tela"}
+ ]
+}

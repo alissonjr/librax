@@ -11,6 +11,8 @@ Uso:
     python video/conferir.py --letra U [--letra V ...]
     python video/conferir.py --sinal ARROZ     (início, meio e fim do trecho escolhido em cada vídeo)
     python video/conferir.py --numero 6 [--numero 7 ...]   (paradas do número, de rotular_numeros.py)
+    python video/conferir.py --numeros15   (galerias e folhas dos trechos do rotular_numeros15.py,
+                                            em data/numeros15/conferir/)
 Saída: ml-training/data/conferir/<id>.jpg, letra-<L>.jpg e sinal-<GLOSA>.jpg; as dos números em
 data/numeros/conferir/numero-<N>.jpg. LIBRAX_DATA aponta para outra pasta de dados.
 """
@@ -154,18 +156,19 @@ def galeria_sinal(glosa):
     return out
 
 
-def galeria_numero(numero):
+def galeria_numero(numero, base="numeros", so_aceitas=False):
     """
     As paradas que o rotular_numeros.py deu como o número, uma por quadro: aceitas com o rótulo em
     verde, recusadas na checagem em cinza. Embaixo, o vídeo, o canal e o tempo.
+    base "numeros15": as do rotular_numeros15.py (data/numeros15/rotulos, landmarks a 15 por segundo).
     """
     tiles = []
-    for rot_path in sorted(glob.glob(os.path.join(DATA, "numeros", "rotulos", "*.json"))):
+    for rot_path in sorted(glob.glob(os.path.join(DATA, base, "rotulos", "*.json"))):
         rot = json.load(open(rot_path))
-        ps = [p for p in rot["paradas"] if p["numero"] == numero]
+        ps = [p for p in rot["paradas"] if p["numero"] == numero and (p["aceita"] or not so_aceitas)]
         if not ps or not rot.get("arquivo"):
             continue
-        lms = json.load(open(os.path.join(DATA, rot["pasta"], f"{rot['id']}.json")))
+        lms = json.load(open(os.path.join(DATA, rot["pasta"], f"{rot.get('video', rot['id'])}.json")))
         tempos = np.array([f["t"] for f in lms["frames"]])
         cap = cv2.VideoCapture(os.path.join(DATA, "videos", rot["arquivo"]))
         for p in ps:
@@ -194,13 +197,61 @@ def galeria_numero(numero):
     while len(tiles) % COLUNAS:
         tiles.append(np.zeros_like(tiles[0]))
     img = np.vstack([np.hstack(tiles[i:i + COLUNAS]) for i in range(0, len(tiles), COLUNAS)])
-    out = os.path.join(DATA, "numeros", "conferir", f"numero-{numero}.jpg")
+    out = os.path.join(DATA, base, "conferir", f"numero-{numero}.jpg")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    cv2.imwrite(out, img, [cv2.IMWRITE_JPEG_QUALITY, 80])
+    return out
+
+
+def folha_numeros15(item):
+    """Todas as paradas de um item do rotular_numeros15.py, em ordem, com o rótulo (verde: aceita;
+    cinza: recusada ou lixo; laranja: forma de quantidade) e o texto lido na tela."""
+    rot = json.load(open(os.path.join(DATA, "numeros15", "rotulos", f"{item}.json")))
+    if not rot["paradas"] or not rot.get("arquivo"):
+        return None
+    lms = json.load(open(os.path.join(DATA, rot["pasta"], f"{rot['video']}.json")))
+    tempos = np.array([f["t"] for f in lms["frames"]])
+    cap = cv2.VideoCapture(os.path.join(DATA, "videos", rot["arquivo"]))
+    tiles = []
+    for p in rot["paradas"]:
+        i = int(np.argmin(np.abs(tempos - p["meio"])))
+        hands = lms["frames"][i]["hands"]
+        cap.set(cv2.CAP_PROP_POS_MSEC, p["meio"] * 1000)
+        ok, frame = cap.read()
+        if not ok or not hands:
+            continue
+        alvo = p["pulso"]
+        mao = min(hands, key=lambda h: (h["lm"][0] - alvo[0]) ** 2 + (h["lm"][1] - alvo[1]) ** 2)
+        tile = recorte(frame, mao["lm"], lms["aspect"])
+        txt = p.get("posicao") or "-"
+        cor = (40, 200, 40) if p["aceita"] else (0, 140, 255) if txt.startswith("q") else (140, 140, 140)
+        cv2.rectangle(tile, (0, 0), (LADO, 26), (0, 0, 0), -1)
+        cv2.putText(tile, txt, (6, 21), cv2.FONT_HERSHEY_SIMPLEX, 0.7, cor, 2)
+        cv2.putText(tile, f"{p['meio']:.1f}s", (LADO - 56, 19), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (220, 220, 220), 1)
+        cv2.rectangle(tile, (0, LADO - 20), (LADO, LADO), (0, 0, 0), -1)
+        cv2.putText(tile, f"ocr {p.get('ocr') or '-'} {p['fim'] - p['ini']:.1f}s", (3, LADO - 6),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, (220, 220, 220), 1)
+        tiles.append(tile)
+    cap.release()
+    if not tiles:
+        return None
+    while len(tiles) % COLUNAS:
+        tiles.append(np.zeros_like(tiles[0]))
+    img = np.vstack([np.hstack(tiles[i:i + COLUNAS]) for i in range(0, len(tiles), COLUNAS)])
+    out = os.path.join(DATA, "numeros15", "conferir", f"{item}.jpg")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     cv2.imwrite(out, img, [cv2.IMWRITE_JPEG_QUALITY, 80])
     return out
 
 
 def main():
+    if "--numeros15" in sys.argv:
+        # galerias dos dez números (só as aceitas) e uma folha por item de sequência
+        for n in [str(d) for d in range(10)]:
+            print(galeria_numero(n, "numeros15", so_aceitas=True) or f"{n}: nenhuma parada")
+        for path in sorted(glob.glob(os.path.join(DATA, "numeros15", "rotulos", "*@*.json"))):
+            print(folha_numeros15(os.path.basename(path)[:-5]))
+        return
     if "--numero" in sys.argv:
         for n in [sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--numero"]:
             print(galeria_numero(n) or f"{n}: nenhuma parada")

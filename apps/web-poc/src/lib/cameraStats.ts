@@ -24,8 +24,8 @@ export const CAMERA_STATS_STORE = 'camera_stats';
 /** Formato do arquivo exportado. Mudou o formato, sobe a versão. */
 export const CAMERA_STATS_FORMAT = 1;
 
-/** Letra parada (alfabeto, também na soletração) ou sinal com movimento. */
-export type CameraSignKind = 'letter' | 'sign';
+/** Letra parada (alfabeto, também na soletração), número de 0 a 9 ou sinal com movimento. */
+export type CameraSignKind = 'letter' | 'number' | 'sign';
 
 export interface CameraSignStats {
   signId: string;
