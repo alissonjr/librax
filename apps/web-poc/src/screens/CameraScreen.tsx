@@ -6,13 +6,19 @@ import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 import { signsMap } from '../lib/content';
 import { useRecognizableLetters } from '../recognition/classifier';
+import '../styles/freeMode.css';
 
 /** Como fazer a letra: a descrição do sinal no conteúdo do curso (signs.json). */
 function letterHint(letter: string): string {
   return signsMap[`letra-${letter}`]?.video_caption ?? letter;
 }
 
-export function CameraScreen() {
+interface Props {
+  /** Abre o modo livre (soletrar o que quiser); sem ela o atalho não aparece. */
+  onOpenFreeMode?: () => void;
+}
+
+export function CameraScreen({ onOpenFreeMode }: Props = {}) {
   const { t } = useT();
   // Letras do classificador em uso: as do modelo treinado ou, sem ele, as do heurístico
   const recognizable = useRecognizableLetters();
@@ -30,6 +36,16 @@ export function CameraScreen() {
         <p className="screen-subtitle">
           {t('cameraScreen.subtitle')}
         </p>
+        {onOpenFreeMode && (
+          <button className="camera-access-card camera-free-mode-card" onClick={onOpenFreeMode}>
+            <Icon name="sign_language" className="camera-access-icon" />
+            <div>
+              <div className="camera-access-title">{t('freeMode.entryTitle')}</div>
+              <div className="camera-access-desc">{t('freeMode.entryDesc')}</div>
+            </div>
+            <Icon name="arrow_forward" className="camera-access-arrow" />
+          </button>
+        )}
       </header>
 
       {status === 'idle' && (

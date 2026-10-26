@@ -13,6 +13,8 @@ export const ROUTES = {
   league: '/social/liga',
   profile: '/perfil',
   camera: '/camera',
+  /** Modo livre da câmera: soletrar o que quiser (screens/FreeModeScreen.tsx). */
+  freeMode: '/camera/livre',
   streak: '/sequencia',
   achievements: '/conquistas',
   settings: '/configuracoes',

@@ -28,6 +28,8 @@ interface Props {
   userId: string;
   repo: IdbRepo;
   onOpenCamera: () => void;
+  /** Modo livre da câmera (soletrar o que quiser). Sem ela, o cartão não aparece. */
+  onOpenFreeMode?: () => void;
 }
 
 function daysDiff(dateStr: string, today: string): number {
@@ -36,7 +38,7 @@ function daysDiff(dateStr: string, today: string): number {
   return Math.round((a.getTime() - b.getTime()) / 86400000);
 }
 
-export function PracticeScreen({ userId, repo, onOpenCamera }: Props) {
+export function PracticeScreen({ userId, repo, onOpenCamera, onOpenFreeMode }: Props) {
   const { t } = useT();
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [session, setSession] = useState<QueueItem[]>([]);
@@ -229,6 +231,17 @@ export function PracticeScreen({ userId, repo, onOpenCamera }: Props) {
           </div>
           <Icon name="arrow_forward" className="camera-access-arrow" />
         </button>
+
+        {onOpenFreeMode && (
+          <button className="camera-access-card animate__animated animate__fadeInUp" style={{ animationDelay: '260ms' }} onClick={onOpenFreeMode}>
+            <Icon name="sign_language" className="camera-access-icon" />
+            <div>
+              <div className="camera-access-title">{t('freeMode.entryTitle')}</div>
+              <div className="camera-access-desc">{t('freeMode.entryDesc')}</div>
+            </div>
+            <Icon name="arrow_forward" className="camera-access-arrow" />
+          </button>
+        )}
       </div>
     </div>
   );
