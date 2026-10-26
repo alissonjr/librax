@@ -132,13 +132,13 @@ reconhece receptivo -> produz expressivo, com a frase no fim. Receptivo cobre qu
 
 **Câmera no alfabeto** (plano `plano-licoes-pos-treino.md`, seção 1): cada lição da U1 tem `perform_sign` para as
 letras que o modelo v6 lê com 80% ou mais no teste fixo (C, D, E, H, I, O, S, W, Y), além das 10 que já tinham
-(A, B, F, G, K, L, P, Q, U, V; F, Q e U ficaram abaixo de 80% e seguem em observação). M, N, R, T e X entram quando
+(A, B, F, G, K, L, P, Q, U, V; F, Q e U ficaram abaixo de 80% e seguem em observação; o U saiu da U1 L5 para dar lugar ao X). M, N, R e T entram quando
 passarem de 80%. As letras com movimento (H, J, K, X, Z e Ç) têm um modelo próprio, que lê a forma da mão e o
 movimento (`ml-training/train_letras_mov.py`, spec-01 seção 3.3): quando ele está publicado em
-`public/ml/letras-mov/`, o `perform_sign` de H, K e J usa esse modelo (só as letras de `camera_letters` do
+`public/ml/letras-mov/`, o `perform_sign` de H, K, J e X usa esse modelo (só as letras de `camera_letters` do
 `model.json`, que passaram de 70% com pessoas nunca vistas); sem ele, H e K seguem com o modelo das letras paradas e J
-vira prática livre. J está no `produce` da U1 L2; X e Z ficaram abaixo de 70% e seguem como prática livre; Ç não tem
-lição. Para acrescentar uma letra, basta pô-la no
+vira prática livre. J está no `produce` da U1 L2 e X no da U1 L5 (no lugar do U: a lição só cabe 4 letras com
+câmera); Z ficou abaixo de 70% e segue como prática livre; Ç não tem lição. Para acrescentar uma letra, basta pô-la no
 `produce` da lição em que ela é ensinada. As palavras de revisão usam só letras com câmera até a lição: CHEGA
 (U1 L2), BOLO (U1 L3), SAPO (U1 L4) e YAGO (U1 L5); a U1 L1 não tem, para a primeira lição começar leve (as letras
 dela voltam em CHEGA).
@@ -150,7 +150,7 @@ Exemplos (bundle atual):
 | Lição | Sinais | Sequência | Total |
 |---|---|---|---|
 | U1 L1 (A, B, C, D, E) | 5 novos, sem frase, `produce` A a E | intro A, watch A, intro B, C, D e E, match_pairs dos 4, perform A, B, C, D e E | 12 |
-| U1 L5 (U, V, W, X, Y, Z) | 6 novos, `produce` U, V, W e Y, revisão YAGO | intro U, V e W, match_pairs dos 3, intro X, Y e Z, match_pairs dos 3, perform U, V, W e Y, fingerspell YAGO | 13 |
+| U1 L5 (U, V, W, X, Y, Z) | 6 novos, `produce` V, W, X e Y, revisão YAGO | intro U, V e W, match_pairs dos 3, intro X, Y e Z, match_pairs dos 3, perform V, W, X e Y, fingerspell YAGO | 13 |
 | U3 L1 (OI, TCHAU, BOM-DIA, BOA-TARDE, BOA-NOITE) | 5 novos + frase | intro e watch OI, intro e word_choose_video TCHAU, intro BOM-DIA, BOA-TARDE e BOA-NOITE, match_pairs dos 3, perform OI, perform TCHAU, build_phrase | 11 |
 | U6 L1 (FAMÍLIA, MÃE, PAI, FILHO, FILHA, BEBÊ) | 6 novos + frase | intro e watch FAMÍLIA, intro e word_choose_video MÃE, intro PAI, FILHO, FILHA e BEBÊ, match_pairs dos 4, perform FAMÍLIA, perform MÃE, build_phrase | 12 |
 | U4 L4 (D, A, V, I, B, L; nomes DAVI, BIA, LIA e o da pessoa) | 6 de revisão + frase | watch e word_choose_video alternados para os 6 sinais, fingerspell DAVI, BIA e LIA, "soletre seu nome" (reserva LIDIA), build_phrase | 11 |

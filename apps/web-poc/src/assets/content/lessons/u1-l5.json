@@ -106,7 +106,7 @@
       "type": "perform_sign",
       "order": 9,
       "payload": {
-        "sign_id": "letra-U",
+        "sign_id": "letra-V",
         "recognition": "static",
         "min_confidence": null,
         "max_attempts": null,
@@ -119,7 +119,7 @@
       "type": "perform_sign",
       "order": 10,
       "payload": {
-        "sign_id": "letra-V",
+        "sign_id": "letra-W",
         "recognition": "static",
         "min_confidence": null,
         "max_attempts": null,
@@ -132,7 +132,7 @@
       "type": "perform_sign",
       "order": 11,
       "payload": {
-        "sign_id": "letra-W",
+        "sign_id": "letra-X",
         "recognition": "static",
         "min_confidence": null,
         "max_attempts": null,

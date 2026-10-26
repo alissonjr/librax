@@ -106,7 +106,19 @@ só com as mãos (os vídeos do alfabeto não têm corpo e as letras não precis
   `teste_fixo.json` mais o INES, que nunca entram no treino. Resultado de 2026-10-25 (modelo `letras-mov`, 26
   canais no treino): canais separados + INES H 6/7, J 6/6, K 5/7, Ç 3/4, X 3/6, Z 4/7; validação por canal H 15/17,
   J 8/9, K 11/14, Ç 6/9, X 2/16, Z 3/13; parada de letra parada lida como letra com movimento 9/99 nos canais
-  separados (P, U e V como K; C e O como Ç; I como J). A câmera avalia H, J e K (e Ç, sem lição).
+  separados (P, U e V como K; C e O como Ç; I como J). A câmera avaliava H, J e K (e Ç, sem lição).
+- Mais X e Z (2026-10-25, `video/baixar_xz.py` e `video/rotular_xz.py`): nos vídeos do alfabeto o X quase sempre
+  aparece parado e o Z varia. Entraram 54 vídeos novos do YouTube (alfabetos de até 3 min e vídeos de uma letra), as 27
+  letras do Spread the Sign (pt.br) e 12 alfabetos do `fontes.json` que o rotular.py tinha deixado de fora; vídeo de
+  canal do teste fixo não entra. Nos vídeos novos as paradas saem do modelo das letras paradas com o alinhamento
+  monotônico do rotular.py, e os trechos, como antes, entre as paradas das letras vizinhas; revisão a olho em
+  `letras_mov_conferencia_xz.json`, trechos em `letras_mov_trechos_xz.json` (o treino soma os dois arquivos). Treino
+  com 68 canais. Como um trecho a mais ou a menos muda 15 pontos e só a semente do treino já movia o X de 4/6 a 6/6,
+  `camera_letters` passou a somar 8 treinos com sementes diferentes (o exportado é o da semente 0). Canais separados +
+  INES, soma de 8 sementes, antes e depois: H 49/56 e 55/56, J 48/48 e 48/48, K 44/56 e 43/56, X 22/48 e 38/48, Z
+  31/56 e 38/56, Ç 19/32 e 32/32; parada de letra parada lida como letra com movimento 92/792 e 139/792 (mais C como Ç
+  e P, V e T como K). Validação por canal: X 35/44, Z 29/44. A câmera avalia H, J, K e X (e Ç, sem lição); o Z
+  (68%) segue como prática livre.
 
 ## 4. Dados de treino (quantificado)
 

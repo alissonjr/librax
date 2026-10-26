@@ -851,11 +851,13 @@ describe('course', () => {
     expect(perform('u1-l2')).toEqual(['F', 'G', 'H', 'I', 'J']);
     expect(perform('u1-l3')).toEqual(['K', 'L', 'O']);
     expect(perform('u1-l4')).toEqual(['P', 'Q', 'S']);
-    expect(perform('u1-l5')).toEqual(['U', 'V', 'W', 'Y']);
-    // Fracas no teste fixo (abaixo de 80%) e X e Z, abaixo de 70% no modelo das letras com
+    // X: avaliado pelo modelo das letras com movimento. A licao so cabe 4 letras com camera; o U
+    // sai (forma parecida com a do V, que fica)
+    expect(perform('u1-l5')).toEqual(['V', 'W', 'X', 'Y']);
+    // Fracas no teste fixo (abaixo de 80%) e o Z, abaixo de 70% no modelo das letras com
     // movimento, ficam sem camera por enquanto
     const all = course.units[0].lessons.flatMap((l) => perform(l.id));
-    for (const letter of ['M', 'N', 'R', 'T', 'X', 'Z']) expect(all).not.toContain(letter);
+    for (const letter of ['M', 'N', 'R', 'T', 'Z']) expect(all).not.toContain(letter);
   });
 
   it('"soletre seu nome" fica na licao de nomes da U4, depois dos nomes fixos', () => {

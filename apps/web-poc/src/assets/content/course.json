@@ -110,7 +110,7 @@
           "order": 5,
           "xpReward": 15,
           "signIds": ["letra-U","letra-V","letra-W","letra-X","letra-Y","letra-Z"],
-          "produce": ["letra-U","letra-V","letra-W","letra-Y"],
+          "produce": ["letra-V","letra-W","letra-X","letra-Y"],
           "spellWords": ["YAGO"]
         }
       ]
