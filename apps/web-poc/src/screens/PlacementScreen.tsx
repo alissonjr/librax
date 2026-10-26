@@ -6,7 +6,8 @@ import { loadCourseProgress } from '../lib/progress';
 import { getToday } from '../lib/today';
 import {
   applyPlacement, buildPlacementPlan, drawPlacementOptions, markPlacementDone, nextItemIndex,
-  scorePlacement, withinNoCameraCap, withoutCamera, NO_CAMERA_MAX_LESSONS,
+  isReviewLesson, placementLessons, reviewLessonsToSkip, scorePlacement, withinNoCameraCap, withoutCamera,
+  NO_CAMERA_MAX_LESSONS,
   type PlacementAnswer, type PlacementCapabilities, type PlacementItem, type PlacementLessonResult,
 } from '../lib/placement';
 import { hasHand3d, webglAvailable } from '../mao3d/disponivel';
@@ -28,12 +29,16 @@ interface Loaded {
   /** Capacidades do aparelho, menos a escolha de usar a câmera. */
   caps: Omit<PlacementCapabilities, 'camera'>;
   completed: Set<string>;
+  /** Lições já puladas num teste anterior (contam como origem das revisões). */
+  placedBefore: Set<string>;
   /** A câmera avalia algum número neste aparelho (sem isso, a parte dos números não pularia nada). */
   numbersAvailable: boolean;
 }
 
 interface TestState {
   camera: boolean;
+  /** A parte dos números entrou no teste. */
+  numbers: boolean;
   lessonIds: string[];
   plan: PlacementItem[];
   answers: Record<number, PlacementAnswer>;
@@ -52,11 +57,13 @@ interface Props {
   onFinished: (placed: number) => void;
   /** O teste está em andamento (a rota segura a saída com "Sair do teste?"). */
   onTestingChange?: (testing: boolean) => void;
+  /** "Sair do teste?" aberto: o tempo do item para. */
+  paused?: boolean;
   /** Só para os testes: sorteio fixo. */
   rng?: () => number;
 }
 
-export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingChange, rng = Math.random }: Props) {
+export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingChange, paused = false, rng = Math.random }: Props) {
   const { t } = useT();
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [phase, setPhase] = useState<Phase>('intro');
@@ -86,7 +93,8 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
         hand3d: s => hasHand3d(s) && webglAvailable(),
       };
       const numbersAvailable = (course.units[1]?.lessons ?? []).some(l => l.signIds.some(id => signs[id] && caps.number(signs[id])));
-      if (alive) setLoaded({ signs, caps, completed, numbersAvailable });
+      const placedBefore = new Set(progress.placedLessons ?? []);
+      if (alive) setLoaded({ signs, caps, completed, placedBefore, numbersAvailable });
     })().catch(() => { if (alive) closeRef.current(); });
     return () => { alive = false; };
   }, [repo, userId]);
@@ -97,15 +105,16 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
 
   const start = (camera: boolean) => {
     if (!loaded) return;
+    const numbers = includeNumbers && loaded.numbersAvailable && camera;
     const plan = buildPlacementPlan({
       completed: loaded.completed,
-      includeNumbers: includeNumbers && loaded.numbersAvailable,
+      includeNumbers: numbers,
       caps: { ...loaded.caps, camera },
       signs: loaded.signs,
       rng,
     });
     const lessonIds = [...new Set(plan.map(it => it.lessonId))];
-    setTest({ camera, lessonIds, plan, answers: {}, index: 0, cameraLost: !camera });
+    setTest({ camera, numbers, lessonIds, plan, answers: {}, index: 0, cameraLost: !camera });
     setPhase('test');
   };
 
@@ -155,13 +164,23 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
   async function applyChosen() {
     if (saving) return;
     setSaving(true);
-    const picked = results.filter(r => chosen.has(r.lessonId));
+    const picked = [
+      ...results.filter(r => chosen.has(r.lessonId)),
+      ...reviewSkips().map(lessonId => ({ lessonId, passedSigns: [] as string[] })),
+    ];
     try {
       const placed = await applyPlacement(repo, userId, picked, getToday());
       onFinished(placed);
     } catch {
       setSaving(false);
     }
+  }
+
+  /** Revisões puladas junto com as lições marcadas (lib/placement.ts reviewLessonsToSkip). */
+  function reviewSkips(): string[] {
+    if (!test || !loaded) return [];
+    const skipped = new Set([...loaded.placedBefore, ...results.filter(r => chosen.has(r.lessonId)).map(r => r.lessonId)]);
+    return reviewLessonsToSkip(test.numbers, skipped, loaded.completed);
   }
 
   function keepAll() {
@@ -173,7 +192,8 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
 
   /* ---------- convite ---------- */
   if (phase === 'intro') {
-    const remaining = (course.units[0]?.lessons ?? []).filter(l => !loaded.completed.has(l.id));
+    // Só as lições com sinais novos são testadas (as revisões vão junto no resultado)
+    const remaining = (course.units[0]?.lessons ?? []).filter(l => !loaded.completed.has(l.id) && !isReviewLesson(l));
     // Sem câmera o teste só cobre as primeiras lições: se já foram feitas, não há o que oferecer
     const noCameraPossible = remaining.some(l => withinNoCameraCap(l.id));
     return (
@@ -237,7 +257,12 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
   /* ---------- resultado ---------- */
   if (phase === 'result') {
     const mastered = results.filter(r => r.outcome === 'mastered');
-    const count = mastered.filter(r => chosen.has(r.lessonId)).length;
+    const reviewSkip = new Set(reviewSkips());
+    const count = mastered.filter(r => chosen.has(r.lessonId)).length + reviewSkip.size;
+    // Linhas na ordem do curso: as testadas e as revisões que o teste cobre
+    const byId = new Map(results.map(r => [r.lessonId, r]));
+    const rows = placementLessons(test?.numbers ?? false)
+      .filter(l => byId.has(l.id) || (isReviewLesson(l) && !loaded.completed.has(l.id)));
     const toggle = (id: string) => setChosen(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
@@ -258,8 +283,23 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
           {mastered.length > 0 && <p className="placement-note">{t('placement.resultHint')}</p>}
           {results.length > 0 && (
             <ul className="placement-results">
-              {results.map(r => {
-                const title = t(`course.${r.lessonId}`);
+              {rows.map(lesson => {
+                const r = byId.get(lesson.id);
+                const title = t(`course.${lesson.id}`);
+                if (!r) {
+                  const skip = reviewSkip.has(lesson.id);
+                  return (
+                    <li key={lesson.id} className={`placement-result placement-result--${skip ? 'review' : 'missed'}`}>
+                      <span className="placement-result-main">
+                        <Icon name="replay" className="placement-result-icon" />
+                        <span className="placement-result-title">{title}</span>
+                      </span>
+                      <span className={`placement-chip placement-chip--${skip ? 'mastered' : 'missed'}`}>
+                        {t(skip ? 'placement.outcomeReviewSkip' : 'placement.outcomeReviewKeep')}
+                      </span>
+                    </li>
+                  );
+                }
                 const outcomeKey = r.outcome === 'mastered' ? 'outcomeMastered' : r.outcome === 'missed' ? 'outcomeMissed' : 'outcomeNeedsCamera';
                 return (
                   <li key={r.lessonId} className={`placement-result placement-result--${r.outcome}`}>
@@ -280,6 +320,7 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
               })}
             </ul>
           )}
+          {rows.some(l => !byId.has(l.id)) && <p className="placement-note"><Icon name="replay" /> {t('placement.reviewNote')}</p>}
           <p className="placement-note"><Icon name="info" /> {t('placement.noXpNote')}</p>
           <div className="placement-actions">
             {count > 0 ? (
@@ -332,13 +373,13 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
       )}
       <div key={`${test.index}-${current.kind}`} className="lesson-exercise-wrap animate__animated animate__fadeIn animate__faster">
         {current.kind === 'choice' && (
-          <PlacementChoiceItem sign={currentSign} options={options} onAnswer={handleAnswer} />
+          <PlacementChoiceItem sign={currentSign} options={options} onAnswer={handleAnswer} paused={paused} />
         )}
         {current.kind === 'camera-motion' && (
-          <PlacementMotionItem sign={currentSign} onAnswer={handleAnswer} onCameraLost={handleCameraLost} />
+          <PlacementMotionItem sign={currentSign} onAnswer={handleAnswer} onCameraLost={handleCameraLost} paused={paused} />
         )}
         {(current.kind === 'camera-letter' || current.kind === 'camera-number') && (
-          <PlacementCameraItem sign={currentSign} onAnswer={handleAnswer} onCameraLost={handleCameraLost} />
+          <PlacementCameraItem sign={currentSign} onAnswer={handleAnswer} onCameraLost={handleCameraLost} paused={paused} />
         )}
       </div>
     </div>

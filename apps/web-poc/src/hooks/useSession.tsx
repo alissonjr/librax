@@ -6,7 +6,7 @@ import { Flags } from '../lib/flags';
 import { enqueueLessonCompletion, flushOutbox } from '../lib/sync';
 import { loadInviteState, recordInviteShown, shouldSuggestInstall } from '../lib/install';
 import { evaluateAppOpen, onAppReopen } from '../lib/appOpen';
-import { alphabetCompleteWith, placedLessonIds } from '../lib/placement';
+import { placedLessonIds } from '../lib/placement';
 import type { LeagueResult } from '../lib/leagueLocal';
 import type { IdbRepo } from '../lib/idbRepo';
 import type { LessonSessionResult } from '../screens/LessonScreen';
@@ -100,9 +100,9 @@ export function SessionProvider({
 
     const lessonUnit = course.units.find(u => u.lessons.some(l => l.id === result.lessonId));
     const isLastInUnit = lessonUnit?.lessons[lessonUnit.lessons.length - 1]?.id === result.lessonId;
-    // Alfabeto completo = todas as lições da U1 (não o fim do curso). Lição pulada pelo teste de
-    // nivelamento só conta se o teste cobriu todas as letras dela (lib/placement.ts).
-    const alphabetComplete = await alphabetCompleteWith(repo, userId, result.lessonId);
+    // Alfabeto completo = fim da U1 (alphabetLessonId do servidor), não o fim do curso. O teste de
+    // nivelamento nunca dá a conquista: se pulou a última da U1, ela vem ao refazê-la.
+    const alphabetComplete = lessonUnit?.id === course.units[0]?.id && isLastInUnit;
 
     // Id da tentativa: o servidor usa para não aplicar a mesma conclusão duas vezes
     const lessonAttemptId = crypto.randomUUID();
