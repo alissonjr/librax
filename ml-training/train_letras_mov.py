@@ -32,6 +32,9 @@ Uso:
                                                        e teste nos canais separados e no INES
     python train_letras_mov.py treinar --out out/letras-mov-v1    MLP do scikit-learn (o mesmo do
                                                        avaliar) no formato librax-mlp
+    python train_letras_mov.py medir --modelo PASTA    mede um modelo exportado nos canais separados
+                                                       e no INES (para comparar com o anterior)
+    (LM_SEM_XZ=1 deixa de fora os vídeos de video/baixar_xz.py, letras_mov_trechos_xz.json)
     (LIBRAX_DATA=/caminho/data aponta para a pasta de dados)
 """
 
@@ -49,7 +52,15 @@ from train_static import NORMALIZATION_VERSION, is_left_hand, normalize_hand  # 
 
 DATA = os.environ.get("LIBRAX_DATA") or os.path.join(AQUI, "data")
 LANDMARKS = os.path.join(DATA, "letras_mov", "landmarks15")
+# Vídeos de video/baixar_xz.py (mais X e Z com o movimento à vista): landmarks e trechos à parte
+LANDMARKS_XZ = os.path.join(DATA, "letras_mov", "landmarks15_xz")
 TRECHOS = os.path.join(AQUI, "letras_mov_trechos.json")
+TRECHOS_XZ = os.path.join(AQUI, "letras_mov_trechos_xz.json")
+# LM_SEM_XZ=1 treina e avalia só com os trechos antigos (para comparar com o modelo anterior)
+SEM_XZ = os.environ.get("LM_SEM_XZ") == "1"
+# Letras dos trechos dos vídeos novos que entram no treino (as outras ficam marcadas ok=false: nem
+# letra nem "_")
+LETRAS_XZ = os.environ.get("LM_XZ_LETRAS", "HJKXZÇ")
 
 # Contrato da janela (letterMotion.ts)
 T = 24
@@ -187,12 +198,29 @@ INES_CANAL = "ines"
 
 
 def carregar_trechos(caminho=TRECHOS):
+    """Trechos do letras_mov_trechos.json somados aos de letras_mov_trechos_xz.json (sem LM_SEM_XZ=1)."""
     with open(caminho) as f:
-        return json.load(f)
+        out = json.load(f)
+    if caminho == TRECHOS and not SEM_XZ and os.path.exists(TRECHOS_XZ):
+        with open(TRECHOS_XZ) as f:
+            extra = json.load(f)
+        out["trechos"] = out["trechos"] + [t if t["letra"] in LETRAS_XZ else {**t, "ok": False}
+                                           for t in extra["trechos"]]
+        out["videos"] = out["videos"] + extra["videos"]
+    return out
+
+
+def landmarks_de(vid):
+    """Arquivo de landmarks a 15 quadros por segundo do vídeo (landmarks15 ou landmarks15_xz), ou None."""
+    for pasta in (LANDMARKS, LANDMARKS_XZ):
+        path = os.path.join(pasta, f"{vid}.json")
+        if os.path.exists(path):
+            return path
+    return None
 
 
 def carregar_video(vid):
-    with open(os.path.join(LANDMARKS, f"{vid}.json")) as f:
+    with open(landmarks_de(vid)) as f:
         return json.load(f)
 
 
@@ -360,7 +388,7 @@ def montar(trechos, ids=None, treino=True, variacoes=2, seed=0, processos=6):
     for i, v in enumerate(trechos["videos"]):
         if ids is not None and v["id"] not in ids:
             continue
-        if not os.path.exists(os.path.join(LANDMARKS, f"{v['id']}.json")):
+        if not landmarks_de(v["id"]):
             continue
         # semente por vídeo: o resultado não depende da ordem nem de quantos processos
         jobs.append(({**v, "_todos_trechos": todos[v["id"]]}, por_video[v["id"]], variacoes, treino, seed * 1000 + i))
@@ -625,7 +653,7 @@ def prever_camadas(layers, labels):
 def videos_por_canal(trechos):
     out = collections.defaultdict(list)
     for v in trechos["videos"]:
-        if os.path.exists(os.path.join(LANDMARKS, f"{v['id']}.json")):
+        if landmarks_de(v["id"]):
             out[v["channel_id"]].append(v["id"])
     return out
 
@@ -746,9 +774,24 @@ def treinar(out, variacoes):
     print(f"modelo em {out} ({', '.join(labels)})")
 
 
+def medir(pasta):
+    """Mede um modelo exportado (model.json + weights.bin) nos canais separados e no INES."""
+    from teste_fixo import carregar_modelo
+
+    labels, layers = carregar_modelo(pasta)
+    prever = prever_camadas(layers, labels)
+    trechos = carregar_trechos()
+    _, teste_ids = separar(trechos)
+    preparar_ao_vivo(teste_ids | {x["id"] for x in trechos.get("ines", [])})
+    resumo(medir_videos(trechos, teste_ids, prever), f"canais separados ({pasta})")
+    medir_ines(trechos, prever)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
+    md = sub.add_parser("medir")
+    md.add_argument("--modelo", required=True, help="pasta com model.json e weights.bin")
     a = sub.add_parser("avaliar")
     a.add_argument("--grupos", type=int, default=5)
     a.add_argument("--variacoes", type=int, default=2)
@@ -759,7 +802,9 @@ def main():
     t.add_argument("--out", required=True)
     t.add_argument("--variacoes", type=int, default=2)
     args = ap.parse_args()
-    if args.cmd == "avaliar":
+    if args.cmd == "medir":
+        medir(args.modelo)
+    elif args.cmd == "avaliar":
         avaliar(args.grupos, args.variacoes, ocultas=tuple(int(x) for x in args.ocultas.split(",")),
                 alpha=args.alpha, max_nenhuma=args.max_nenhuma)
     else:
