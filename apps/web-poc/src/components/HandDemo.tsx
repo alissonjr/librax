@@ -2,7 +2,7 @@ import { Component, lazy, Suspense, useState, type ReactNode } from 'react';
 import type { Sign } from '../lib/content';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
-import { SignDemo, avatarGloss } from './SignDemo';
+import { SignDemo, avatarGloss, chooseDemoMode } from './SignDemo';
 import '../styles/mao3d.css';
 import { getDemoView, hasHand3d, setDemoView, webglAvailable, type DemoView } from '../mao3d/disponivel';
 
@@ -34,10 +34,10 @@ class Boundary extends Component<{ onError: () => void; children: ReactNode }, {
   }
 }
 
-function Loading({ className }: { className?: string }) {
+function Loading({ className, compact }: { className?: string; compact: boolean }) {
   const { t } = useT();
   return (
-    <figure className={`sign-demo mao3d${className ? ` ${className}` : ''}`}>
+    <figure className={`sign-demo mao3d${compact ? ' mao3d--compact' : ''}${className ? ` ${className}` : ''}`}>
       <div className="sign-demo-stage mao3d-stage">
         <div className="mao3d-screen">
           <div className="sign-demo-loading mao3d-loading" aria-live="polite">
@@ -55,9 +55,14 @@ interface Props {
   /** O que aparece sem 3D, sem vídeo e sem avatar (a descrição de hoje). */
   fallback: ReactNode;
   className?: string;
+  /**
+   * "Ver o movimento" dos exercícios com câmera: nas letras e números a mão em 3D, compacta, no
+   * lugar do avatar (sem abas); nas palavras o avatar de sempre.
+   */
+  camera?: boolean;
 }
 
-export function HandDemo({ sign, fallback, className }: Props) {
+export function HandDemo({ sign, fallback, className, camera = false }: Props) {
   const { t } = useT();
   const [failed, setFailed] = useState(false);
   const [view, setView] = useState<DemoView>(getDemoView);
@@ -67,13 +72,13 @@ export function HandDemo({ sign, fallback, className }: Props) {
 
   const hand = (
     <Boundary onError={() => setFailed(true)}>
-      <Suspense fallback={<Loading className={className} />}>
-        <Mao3DView sign={sign} className={className} onError={() => setFailed(true)} />
+      <Suspense fallback={<Loading className={className} compact={camera} />}>
+        <Mao3DView sign={sign} className={className} compact={camera} onError={() => setFailed(true)} />
       </Suspense>
     </Boundary>
   );
   const other = !!sign.video_url || avatarGloss(sign) !== null;
-  if (!other) return hand;
+  if (!other || camera) return hand;
 
   const choose = (v: DemoView) => {
     setView(v);
@@ -116,4 +121,14 @@ export function HandDemo({ sign, fallback, className }: Props) {
       </div>
     </div>
   );
+}
+
+/** O sinal tem alguma demonstração? (mão em 3D nas letras e números, vídeo ou avatar) */
+export function hasSignDemo(sign: Sign): boolean {
+  return (hasHand3d(sign) && webglAvailable()) || chooseDemoMode(sign) !== 'text';
+}
+
+/** Demonstração do "Ver o movimento" dos exercícios com câmera (a câmera fica pausada). */
+export function CameraDemo({ sign }: { sign: Sign }) {
+  return <HandDemo sign={sign} fallback={null} className="sign-demo--camera" camera />;
 }

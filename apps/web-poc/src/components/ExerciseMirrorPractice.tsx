@@ -5,7 +5,7 @@ import { RecognizedLetterBadge } from './RecognizedLetterBadge';
 import type { FingerExtensions } from '../lib/recognizer';
 import { useT, type TFunc } from '../i18n';
 import { Icon } from './Icon';
-import { SignDemo, chooseDemoMode } from './SignDemo';
+import { CameraDemo, hasSignDemo } from './HandDemo';
 import { DemoToggle } from './DemoToggle';
 
 const FINGER_LABEL_KEYS = ['fingerThumb', 'fingerIndex', 'fingerMiddle', 'fingerRing', 'fingerPinky'] as const;
@@ -44,7 +44,7 @@ export function ExerciseMirrorPractice({ sign, onComplete }: Props) {
   // para enquanto o sinal é mostrado e volta quando a referência fecha.
   const [showDemo, setShowDemo] = useState(false);
   const demoShownRef = useRef(false);
-  const hasDemo = chooseDemoMode(sign) !== 'text';
+  const hasDemo = hasSignDemo(sign);
 
   useEffect(() => { start(); }, []);
 
@@ -84,7 +84,7 @@ export function ExerciseMirrorPractice({ sign, onComplete }: Props) {
 
       {showDemo && (
         <div className="cam-sign-demo">
-          <SignDemo sign={sign} fallback={null} />
+          <CameraDemo sign={sign} />
           <p className="cam-sign-demo-note">{t('signDemo.cameraPaused')}</p>
         </div>
       )}

@@ -37,7 +37,7 @@ vi.mock('../lib/vlibras', () => ({
 }));
 
 import Mao3DView, { loadHandModel } from '../mao3d/Mao3DView';
-import { HandDemo } from '../components/HandDemo';
+import { CameraDemo, HandDemo, hasSignDemo } from '../components/HandDemo';
 import { ExerciseIntro } from '../components/ExerciseIntro';
 import { getSign } from '../lib/content';
 import { setWebglAvailableForTests, getSkinTone } from '../mao3d/disponivel';
@@ -174,5 +174,69 @@ describe('HandDemo', () => {
     render(<HandDemo sign={word} fallback={<p>texto</p>} />);
     expect(screen.queryByRole('tablist')).toBeNull();
     expect(m.created).toHaveLength(0);
+  });
+});
+
+describe('Apresentação: botão "Entendi" sempre à vista', () => {
+  it('o botão fica num rodapé próprio, no fim do fluxo da tela', () => {
+    setWebglAvailableForTests(false);
+    const { container } = render(<ExerciseIntro sign={getSign('letra-A')} onNext={vi.fn()} />);
+    const footer = container.querySelector('.exercise-screen--intro > .exercise-intro-footer');
+    expect(footer).not.toBeNull();
+    expect(footer!.querySelector('button')).toHaveTextContent(/Entendi/);
+    // No fluxo (o último filho da tela), não por cima do conteúdo: sem pulo quando tudo cabe
+    expect(container.querySelector('.exercise-screen--intro')!.lastElementChild).toBe(footer);
+  });
+
+  it('CSS: gruda no pé da tela acima da safe area, e o palco encolhe na tela baixa', async () => {
+    const fs = (await import(/* @vite-ignore */ 'node:fs' as string)) as { readFileSync(p: string, enc: string): string };
+    const appCss = fs.readFileSync('src/style.css', 'utf8') /* vitest roda em apps/web-poc */;
+    const mao3dCss = fs.readFileSync('src/styles/mao3d.css', 'utf8');
+    const rule = (css: string, sel: string) => {
+      const i = css.indexOf(`${sel} {`);
+      return i < 0 ? '' : css.slice(i, css.indexOf('}', i));
+    };
+    const footer = rule(appCss, '.exercise-intro-footer');
+    expect(footer).toMatch(/position:\s*sticky/);
+    expect(footer).toMatch(/bottom:\s*var\(--lx-nav-offset\)/);
+    expect(footer).toMatch(/var\(--lx-safe-bottom\)/);
+    expect(footer).toMatch(/background:\s*var\(--lx-bg-canvas\)/);
+    const short = appCss.slice(appCss.indexOf('@media (max-height: 740px)'));
+    expect(short).toMatch(/\.exercise-screen--intro \.sign-demo--intro \.sign-demo-stage \{ height: min\(30dvh/);
+    expect(mao3dCss).toMatch(/\.mao3d--compact \.mao3d-stage \{/);
+  });
+});
+
+describe('"Ver o movimento" nos exercícios com câmera', () => {
+  it('letra: a mão em 3D compacta, sem abas e sem legenda, com os mesmos controles', async () => {
+    setWebglAvailableForTests(true);
+    const { container } = render(<CameraDemo sign={getSign('letra-F')} />);
+    expect(await screen.findByRole('img', { name: /Mão em 3D fazendo a letra F/ })).toBeInTheDocument();
+    expect(screen.queryByRole('tablist')).toBeNull();
+    expect(container.querySelector('.mao3d--compact')).not.toBeNull();
+    expect(screen.queryByText(/Arraste para girar/)).toBeNull();
+    expect(await screen.findByRole('button', { name: 'Girar a mão para a esquerda' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Tom de pele da mão' })).toBeInTheDocument();
+  });
+
+  it('letra com movimento: com 0,5x', async () => {
+    setWebglAvailableForTests(true);
+    render(<CameraDemo sign={getSign('letra-J')} />);
+    expect(await screen.findByRole('button', { name: /Velocidade 1x/ })).toBeInTheDocument();
+  });
+
+  it('palavra: continua o avatar', () => {
+    setWebglAvailableForTests(true);
+    render(<CameraDemo sign={getSign('sinal-BANANA')} />);
+    expect(screen.getByRole('img', { name: /Avatar VLibras/ })).toBeInTheDocument();
+    expect(m.created).toHaveLength(0);
+  });
+
+  it('Ç ganha o "Ver o movimento" com 3D; sem 3D e sem avatar, não', () => {
+    setWebglAvailableForTests(true);
+    expect(hasSignDemo(getSign('letra-Ç'))).toBe(true);
+    setWebglAvailableForTests(false);
+    expect(hasSignDemo(getSign('letra-Ç'))).toBe(false);
+    expect(hasSignDemo(getSign('letra-A'))).toBe(true);
   });
 });

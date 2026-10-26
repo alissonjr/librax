@@ -9,7 +9,7 @@ import { useT } from '../i18n';
 import { Icon } from './Icon';
 import { FeedbackPanel } from './FeedbackPanel';
 import { DemoToggle } from './DemoToggle';
-import { SignDemo, chooseDemoMode } from './SignDemo';
+import { CameraDemo, hasSignDemo } from './HandDemo';
 import { ExerciseOrderSequence } from './ExerciseOrderSequence';
 import { CameraRun, saveCameraRun } from '../lib/cameraStats';
 
@@ -75,7 +75,7 @@ function FingerspellCamera({ word, letters, perLetterConfidence = null, ownName,
   const done = spell.index >= letters.length;
   const current = letters[Math.min(spell.index, letters.length - 1)];
   const currentSign = signsMap[`letra-${current}`];
-  const hasDemo = currentSign ? chooseDemoMode(currentSign) !== 'text' : false;
+  const hasDemo = currentSign ? hasSignDemo(currentSign) : false;
   const waitRelease = needsRelease(letters, spell);
 
   useEffect(() => {
@@ -182,7 +182,7 @@ function FingerspellCamera({ word, letters, perLetterConfidence = null, ownName,
 
       {showDemo && currentSign && (
         <div className="cam-sign-demo">
-          <SignDemo sign={currentSign} fallback={null} />
+          <CameraDemo sign={currentSign} />
           <p className="cam-sign-demo-note">{t('signDemo.cameraPaused')}</p>
         </div>
       )}

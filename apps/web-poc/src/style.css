@@ -1456,6 +1456,28 @@ h1[tabindex="-1"]:focus { outline: none; }
 }
 /* Sem itálico (seção 5.2): ênfase com peso */
 .sign-description--movement { font-weight: var(--lx-font-weight-bold); }
+
+/* "Entendi, continuar" sempre à vista: fica no fluxo (sem pulo quando tudo cabe) e gruda no pé
+   da tela quando a apresentação é mais alta que ela, acima da safe area do iPhone */
+.exercise-intro-footer {
+  position: sticky;
+  bottom: var(--lx-nav-offset);
+  z-index: var(--lx-z-index-sticky);
+  display: flex;
+  flex-direction: column;
+  margin: 0 calc(-1 * var(--lx-space-4)) calc(-1 * var(--lx-space-4));
+  padding: var(--lx-space-3) var(--lx-space-4) calc(var(--lx-space-4) + var(--lx-safe-bottom));
+  background: var(--lx-bg-canvas);
+  border-top: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+}
+/* Tela baixa (390 x 664, 360 x 640): cartão mais enxuto e palco menor, para a demonstração e os
+   controles caberem acima do botão */
+@media (max-height: 740px) {
+  .exercise-screen--intro { gap: var(--lx-space-3); padding-top: var(--lx-space-3); }
+  .exercise-screen--intro .sign-card { gap: var(--lx-space-2); padding: var(--lx-space-4) var(--lx-space-4); }
+  .exercise-screen--intro .sign-demo--intro .sign-demo-stage { height: min(30dvh, 240px); }
+  .exercise-screen--intro .sign-gloss { font: var(--lx-typography-display-xl); font-weight: var(--lx-font-weight-heavy); }
+}
 .sign-type-badge {
   font: var(--lx-typography-label-sm);
   padding: var(--lx-space-1) var(--lx-space-3);

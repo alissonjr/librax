@@ -14,7 +14,7 @@ export function ExerciseIntro({ sign, onNext }: Props) {
     sign.recognition === 'dynamic' ? t('exerciseIntro.badgeDynamic') : t('exerciseIntro.badgeStatic');
 
   return (
-    <div className="exercise-screen">
+    <div className="exercise-screen exercise-screen--intro">
       <div className="sign-card animate__animated animate__zoomIn animate__faster">
         <HandDemo
           sign={sign}
@@ -41,9 +41,12 @@ export function ExerciseIntro({ sign, onNext }: Props) {
           </p>
         )}
       </div>
-      <button className="btn btn-primary" onClick={onNext}>
-        {t('exerciseIntro.understood')} <Icon name="arrow_forward" />
-      </button>
+      {/* Fixo no pé da tela (sticky): sempre à vista no celular, acima da safe area */}
+      <div className="exercise-intro-footer">
+        <button className="btn btn-primary" onClick={onNext}>
+          {t('exerciseIntro.understood')} <Icon name="arrow_forward" />
+        </button>
+      </div>
     </div>
   );
 }
