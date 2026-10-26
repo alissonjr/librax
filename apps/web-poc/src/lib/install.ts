@@ -15,9 +15,11 @@
  * - Onde não dá para instalar (navegadores dentro de outros apps no iOS, Chrome e Firefox do iPhone,
  *   Firefox no computador, navegador sem o evento): nada aparece.
  * Nas Configurações a opção continua disponível enquanto houver como instalar.
+ * Dentro do app Android da loja (TWA, lib/twa.ts) o app já está instalado: nada aparece.
  */
 
 import { Flags } from './flags';
+import { isTwa, rememberTwaLaunch } from './twa';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -164,6 +166,8 @@ const notify = () => listeners.forEach((fn) => fn());
 /** Liga a escuta dos eventos. Chamado uma vez no main.tsx, antes de o React montar. */
 export function initInstall(): void {
   if (typeof window === 'undefined') return;
+  // Aberto pelo app Android (?origem=android ou referrer android-app://): lê antes do roteador
+  rememberTwaLaunch();
   window.addEventListener('beforeinstallprompt', (e) => {
     // Segura o mini-infobar do Chrome: o app decide o momento de sugerir
     e.preventDefault();
@@ -213,7 +217,7 @@ function wasInstalled(): boolean {
 
 /** Como dá para instalar agora: pedido nativo, instruções do iOS, ou nada. */
 export function getInstallMode(): InstallMode {
-  if (typeof window === 'undefined' || wasInstalled() || isStandalone()) return null;
+  if (typeof window === 'undefined' || wasInstalled() || isStandalone() || isTwa()) return null;
   if (deferred) return 'prompt';
   if (isIosSafari()) return 'ios';
   return null;
