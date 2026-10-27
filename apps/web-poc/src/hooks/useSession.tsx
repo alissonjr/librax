@@ -7,6 +7,8 @@ import { enqueueLessonCompletion, flushOutbox } from '../lib/sync';
 import { loadInviteState, recordInviteShown, shouldSuggestInstall } from '../lib/install';
 import { evaluateAppOpen, onAppReopen } from '../lib/appOpen';
 import { placedLessonIds } from '../lib/placement';
+import { flushTelemetry, track, trackLessonComplete } from '../lib/telemetry';
+import { refreshTelemetryProgress } from '../lib/telemetryProgress';
 import type { LeagueResult } from '../lib/leagueLocal';
 import type { IdbRepo } from '../lib/idbRepo';
 import type { LessonSessionResult } from '../screens/LessonScreen';
@@ -44,6 +46,8 @@ interface SessionValue {
   suggestInstall: boolean;
   /** O convite foi visto e fechado: conta para a repetição (uma vez só, dias depois). */
   markInstallSuggested: () => void;
+  /** Lições concluídas no aparelho, contando repetições (convite de instalar e pedido de nota). */
+  lessonsCompleted: number;
   /** Grava a lição (domínio completeLesson) e prepara as telas de conclusão. */
   finishLesson: (result: LessonSessionResult) => Promise<AfterLesson>;
   /** Aviso discreto na tela (toast, design-system 11.12): chave de tradução, ou null. */
@@ -148,6 +152,11 @@ export function SessionProvider({
     setLessonsCompleted(n => n + 1);
     setInstallNow(Date.now());
 
+    // Dados de uso anônimos: o evento, o retrato novo e o envio no fim da lição (sem esperar a rede)
+    trackLessonComplete(result.lessonId, result.score, outcome.xpAwarded);
+    if (outcome.goalMet) track({ type: 'daily_goal_met' });
+    void refreshTelemetryProgress(repo, userId).then(() => flushTelemetry()).catch(() => {});
+
     setCompletion({
       result,
       xpAwarded: outcome.xpAwarded,
@@ -206,10 +215,10 @@ export function SessionProvider({
 
   const value = useMemo<SessionValue>(() => ({
     repo, userId, completion, unitCompletion, courseCompletion, leagueResult, dismissLeagueResult,
-    brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, finishLesson,
+    brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, lessonsCompleted, finishLesson,
     notice, showNotice, dismissNotice,
   }), [repo, userId, completion, unitCompletion, courseCompletion, leagueResult, dismissLeagueResult,
-    brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, finishLesson,
+    brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, lessonsCompleted, finishLesson,
     notice, showNotice, dismissNotice]);
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

@@ -521,7 +521,19 @@
   },
   "feedback": {
     "almost": "Almost!",
-    "rightAnswer": "Right answer"
+    "rightAnswer": "Right answer",
+    "title": "How are you liking Librax?",
+    "sub": "Your rating helps us improve the lessons.",
+    "textLabel": "Comment (optional)",
+    "textPlaceholder": "Tell us what works well or what could be better",
+    "privacy": "Do not write personal data. Your answer does not identify you.",
+    "count": "{n} of {max}",
+    "starsLabel": "Tap a star to send",
+    "starAria": "Rate {n} out of 5 and send",
+    "later": "Not now",
+    "thanksTitle": "Thank you!",
+    "thanksSub": "We received your rating.",
+    "close": "Close"
   },
   "install": {
     "bannerClose": "Close install suggestion",
@@ -831,7 +843,11 @@
     "title": "Settings",
     "version": "Version",
     "versionDev": "Development",
-    "goalSaveError": "Couldn't save your goal. Try again."
+    "goalSaveError": "Couldn't save your goal. Try again.",
+    "usageData": "Send anonymous usage data",
+    "usageDataOn": "On",
+    "usageDataOff": "Off",
+    "usageDataHint": "Usage metrics to calibrate the algorithm and the exercises, without identifying you. Turning it off deletes what was already sent."
   },
   "signDemo": {
     "avatarLabel": "VLibras avatar signing {gloss}",
@@ -1013,5 +1029,12 @@
       "pedidoParado": "{what} stays still, with no movement",
       "outroMovimento": "{what} has a different movement"
     }
+  },
+  "usageNotice": {
+    "title": "Anonymous usage data",
+    "body": "The app sends usage metrics to calibrate the algorithm and the exercises, without identifying you.",
+    "policy": "See the Privacy Policy",
+    "settings": "Settings",
+    "close": "Close notice"
   }
 }

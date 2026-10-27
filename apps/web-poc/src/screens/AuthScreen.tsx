@@ -9,6 +9,7 @@ import {
 } from '../lib/auth';
 import { authAvailable, authErrorKey, refreshAccount, useAccount } from '../lib/account';
 import { flushOutbox } from '../lib/sync';
+import { track } from '../lib/telemetry';
 
 export type AuthMode = 'login' | 'register';
 
@@ -113,7 +114,10 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
       if (isRegister) {
         const r = await signUpWithEmail(email.trim(), password, name.trim() || undefined, lang);
         if (r.needsConfirmation) setStep('confirm');
-        else await signIn();
+        else {
+          track({ type: 'account_created' });
+          await signIn();
+        }
       } else {
         await signIn();
       }
@@ -131,6 +135,8 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
     setBusy('code');
     try {
       await confirmEmailCode(email.trim(), code.trim());
+      // Dados de uso anônimos: só o fato de que uma conta foi criada, sem e-mail nem id
+      track({ type: 'account_created' });
       await signIn();
     } catch (err) {
       fail(err);

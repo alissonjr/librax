@@ -27,6 +27,7 @@ import { getToday } from '../lib/today';
 import type { LeagueResult } from '../lib/leagueLocal';
 import { initInstall, loadInviteState, recordInviteShown, resetInstallForTests } from '../lib/install';
 import { UA, firePromptEvent, setDevice, setDisplayMode } from './installTestUtils';
+import { PRIVACY_POLICY_VERSION } from '../lib/usageNotice';
 
 let session: ReturnType<typeof useSession> | null = null;
 function Probe() {
@@ -71,6 +72,10 @@ beforeEach(() => {
   localStorage.clear();
   sessionStorage.clear();
   localStorage.setItem('librax_displayName', 'Ana');
+  // Já viu o aviso dos dados de uso (lib/usageNotice.ts): a faixa de instalar não fica para depois
+  localStorage.setItem('librax_policySeen', PRIVACY_POLICY_VERSION);
+  // A nota do app (último sheet do mapa) tem teste próprio (feedback.test.tsx)
+  localStorage.setItem('librax_feedbackPrompt', JSON.stringify({ answered: true, dismissals: 0, nextAt: null }));
   resetInstallForTests();
   setDevice(UA.firefoxDesktop);
   setDisplayMode(null);

@@ -575,7 +575,19 @@
   },
   "feedback": {
     "almost": "Quase!",
-    "rightAnswer": "Resposta certa"
+    "rightAnswer": "Resposta certa",
+    "title": "O que você está achando do Librax?",
+    "sub": "Sua nota ajuda a melhorar as lições.",
+    "textLabel": "Comentário (opcional)",
+    "textPlaceholder": "Conte o que está bom ou o que pode melhorar",
+    "privacy": "Não escreva dados pessoais. Sua resposta não identifica você.",
+    "count": "{n} de {max}",
+    "starsLabel": "Toque numa estrela para enviar",
+    "starAria": "Dar nota {n} de 5 e enviar",
+    "later": "Agora não",
+    "thanksTitle": "Obrigado!",
+    "thanksSub": "Recebemos a sua nota.",
+    "close": "Fechar"
   },
   "install": {
     "bannerClose": "Fechar sugestão de instalar",
@@ -935,7 +947,11 @@
     "soundOff": "Desligados",
     "soundHint": "Tudo o que o som reforça também aparece na tela.",
     "versionDev": "Desenvolvimento",
-    "goalSaveError": "Não deu para salvar a meta. Tente de novo."
+    "goalSaveError": "Não deu para salvar a meta. Tente de novo.",
+    "usageData": "Enviar dados de uso anônimos",
+    "usageDataOn": "Ligado",
+    "usageDataOff": "Desligado",
+    "usageDataHint": "Métricas de uso para calibrar o algoritmo e os exercícios, sem identificar você. Desligar apaga o que já foi enviado."
   },
   "signDemo": {
     "avatarLabel": "Avatar VLibras fazendo o sinal {gloss}",
@@ -1117,5 +1133,12 @@
       "pedidoParado": "{what} fica parado, sem movimento",
       "outroMovimento": "{what} tem outro movimento"
     }
+  },
+  "usageNotice": {
+    "title": "Dados de uso anônimos",
+    "body": "O app envia métricas de uso para calibrar o algoritmo e os exercícios, sem identificar você.",
+    "policy": "Ver a Política de Privacidade",
+    "settings": "Configurações",
+    "close": "Fechar aviso"
   }
 }

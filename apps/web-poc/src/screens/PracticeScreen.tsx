@@ -10,6 +10,7 @@ import { addDays } from '@apilib/dates.js';
 import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 import { SPELL_CHALLENGE_SIZE, availableChallengeWords, formatChallengeTime, readBestTime } from '../lib/spellChallenge';
+import { track } from '../lib/telemetry';
 
 interface QueueItem { signId: string; kind: 'review' | 'new'; }
 type Phase = 'loading' | 'list' | 'session' | 'done';
@@ -81,6 +82,14 @@ export function PracticeScreen({ userId, repo, onOpenCamera, onOpenFreeMode, onO
   }, [userId, repo]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Dados de uso anônimos: uma rodada terminada (revisão do dia ou prática livre), com o placar
+  useEffect(() => {
+    if (phase !== 'done' || session.length === 0) return;
+    track({ type: 'practice_done', mode, items: Math.min(session.length, 100), correct: Math.min(correct, session.length, 100) });
+    // só ao chegar no fim da rodada
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   function startReview() {
     setMode('review');

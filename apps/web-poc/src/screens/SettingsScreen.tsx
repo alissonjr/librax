@@ -18,6 +18,8 @@ import { listCameraStats } from '../lib/cameraStats';
 import { BUILD, formatVersion } from '../lib/appVersion';
 import { PlacementSettingItem } from '../components/PlacementEntry';
 import { DEFAULT_DAILY_GOAL, loadDailyGoal, saveDailyGoal } from '../lib/dailyGoal';
+import { prepareDataReset } from '../lib/telemetry';
+import { UsageSettingItem } from '../components/UsageSettingItem';
 
 interface Props {
   userId: string;
@@ -116,6 +118,9 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
         return;
       }
     }
+    // Dados de uso anônimos e nota do app: pede ao servidor para apagar a cópia (com nova tentativa
+    // na próxima abertura, se faltar rede) e esquece o código deste aparelho
+    const restoreTelemetry = prepareDataReset();
     // A fila de envio também sai, e a conta conectada é desconectada deste aparelho
     await clearOutbox().catch(() => {});
     if (signedIn) await signOutAccount().catch(() => {});
@@ -127,6 +132,7 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
       // localStorage e recarregando para voltar ao onboarding.
     }
     localStorage.clear();
+    restoreTelemetry();
     // Recomeça do início do app (o roteador leva às boas-vindas)
     window.location.replace('/');
   }
@@ -281,6 +287,7 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
 
         <div className="settings-group">
           <p className="settings-group-label">{t('settings.privacy')}</p>
+          <UsageSettingItem />
           <button className="settings-item settings-item--btn" onClick={handleExport}>
             <Icon name="download" className="settings-item-icon" />
             <div className="settings-item-text">

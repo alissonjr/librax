@@ -16,6 +16,7 @@ import { useT } from '../i18n';
 import { Icon } from '../components/Icon';
 import { ScreenSkeleton } from '../components/ScreenSkeleton';
 import { PlacementCameraItem, PlacementChoiceItem, PlacementMotionItem, type CameraLoss } from '../components/PlacementItems';
+import { track } from '../lib/telemetry';
 import '../styles/placement.css';
 
 /**
@@ -116,6 +117,7 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
     const lessonIds = [...new Set(plan.map(it => it.lessonId))];
     setTest({ camera, numbers, lessonIds, plan, answers: {}, index: 0, cameraLost: !camera });
     setPhase('test');
+    track({ type: 'placement_started', camera });
   };
 
   const finishTest = useCallback((state: TestState) => {
@@ -170,6 +172,7 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
     ];
     try {
       const placed = await applyPlacement(repo, userId, picked, getToday());
+      track({ type: 'placement_done', placed });
       onFinished(placed);
     } catch {
       setSaving(false);
@@ -185,6 +188,7 @@ export function PlacementScreen({ repo, userId, onClose, onFinished, onTestingCh
 
   function keepAll() {
     markPlacementDone(getToday());
+    track({ type: 'placement_done', placed: 0 });
     onFinished(0);
   }
 

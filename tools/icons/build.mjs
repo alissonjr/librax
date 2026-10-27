@@ -45,13 +45,15 @@ const ICONS = [
   'view_in_ar', 'rotate_left', 'rotate_right', 'recenter', 'switch_account', 'autorenew',
   // modo livre da câmera (texto soletrado: espaço e apagar)
   'space_bar', 'backspace',
+  // nota do app (estrelas) e dados de uso anônimos (Configurações)
+  'star', 'rate_review',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).
 const FILLED = new Set([
   'school', 'sign_language', 'group', 'person',
   'local_fire_department', 'bolt', 'military_tech', 'trophy', 'check_circle', 'lightbulb', 'lock',
-  'play_arrow', 'warning', 'info', 'mobile_arrow_down',
+  'play_arrow', 'warning', 'info', 'mobile_arrow_down', 'star',
 ]);
 
 const pathOf = (file) => {

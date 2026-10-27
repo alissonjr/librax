@@ -8,6 +8,7 @@ import { shouldOfferAccount, useAccount } from './lib/account';
 import { Flags } from './lib/flags';
 import { getToday } from './lib/today';
 import { reportLessonAbandon } from './lib/sync';
+import { flushTelemetry, trackLessonAbandon, trackLessonOpen } from './lib/telemetry';
 import { course } from './lib/course';
 import { isLessonOpen, loadCourseProgress } from './lib/progress';
 import type { Exercise } from './lib/content';
@@ -509,6 +510,8 @@ function LessonRoute() {
         }
         return saved.exercises;
       }
+      // Lição aberta do começo (a retomada depois de recarregar já contou): dados de uso anônimos
+      if (!cancelled) trackLessonOpen(id);
       return content.resolveExercises(bundle, lesson.signIds);
     }
     load()
@@ -549,6 +552,9 @@ function LessonRoute() {
       exerciseCount: lessonExercises.length,
       exerciseType: lessonExercises[index]?.type ?? null,
     });
+    // Dados de uso anônimos (com ou sem conta): onde parou, e manda a fila sem esperar
+    trackLessonAbandon(id, index, lessonExercises.length);
+    void flushTelemetry().catch(() => {});
     exit.confirm();
   }
 

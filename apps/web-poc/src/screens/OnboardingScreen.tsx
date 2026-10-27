@@ -8,6 +8,8 @@ import { authAvailable } from '../lib/account';
 import { DEFAULT_DAILY_GOAL, saveDailyGoal, type ProfileStore } from '../lib/dailyGoal';
 import { WelcomeIllustration, Wordmark } from '../components/Brand';
 import { LegalConsent } from '../components/LegalLinks';
+import { markPolicySeen } from '../lib/usageNotice';
+import { track } from '../lib/telemetry';
 import '../styles/placement.css';
 
 interface Props {
@@ -57,6 +59,9 @@ export function OnboardingScreen({ repo, userId, onDone, onLogin }: Props) {
     await saveDailyGoal(repo, userId, meta).catch(() => {});
     const trimmed = name.trim() || t('common.defaultName');
     setDisplayName(trimmed);
+    // Aceitou a política em vigor ao começar (LegalConsent): o aviso dos dados de uso não aparece
+    markPolicySeen();
+    track({ type: 'onboarding_done', lang, dailyGoal: meta });
     onDone(next);
   }
 

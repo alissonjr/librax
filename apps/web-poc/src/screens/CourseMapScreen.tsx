@@ -13,6 +13,8 @@ import { latestLessonRun } from '../lib/lessonRun';
 import { scheduleCameraPrefetch } from '../lib/assetDownload';
 import { CameraPrepChip } from '../components/CameraPrepChip';
 import { InstallBanner } from '../components/InstallBanner';
+import { UsageNotice } from '../components/UsageNotice';
+import { usageNoticePending } from '../lib/usageNotice';
 import { PlacementInvite } from '../components/PlacementEntry';
 import { isPlacementDone } from '../lib/placement';
 import { dailyGoalOf } from '../lib/dailyGoal';
@@ -53,6 +55,8 @@ export function CourseMapScreen({
 }: Props) {
   const { t } = useT();
   const [state, setState] = useState<MapState | null>(null);
+  // Com o aviso dos dados de uso na tela, a faixa de instalar fica para a próxima vez (uma faixa só)
+  const [usageNoticeAtOpen] = useState(usageNoticePending);
   const today = getToday();
   const name = getDisplayName() ?? t('common.defaultName');
   const hoursNow = new Date().getHours();
@@ -121,7 +125,9 @@ export function CourseMapScreen({
 
       <div className="coursemap-body">
         {/* Instalar o app: só numa aba do navegador, monta junto com o mapa (decisão 13) */}
-        <InstallBanner suppressed={installInvitePending} />
+        {/* Aviso de uma vez dos dados de uso anônimos, para quem já usava o app (lib/usageNotice.ts) */}
+        <UsageNotice />
+        <InstallBanner suppressed={installInvitePending || usageNoticeAtOpen} />
 
         {/* Daily Goal Bar */}
         <div className="xp-bar-card">

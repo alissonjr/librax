@@ -1,6 +1,6 @@
 ---
-versao: 1.3
-vigencia: 2026-10-26
+versao: 1.4
+vigencia: 2026-10-27
 ---
 
 Esta política explica, em linguagem simples, quais dados o Librax usa, para quê, onde eles ficam, por quanto tempo e como você exerce seus direitos pela Lei Geral de Proteção de Dados (LGPD, Lei nº 13.709/2018). Ela vale junto com os [Termos de Uso](/termos).
@@ -8,10 +8,10 @@ Esta política explica, em linguagem simples, quais dados o Librax usa, para qu�
 ## 1. Resumo
 
 - **A imagem da câmera nunca sai do seu aparelho.** O reconhecimento dos sinais roda no próprio celular. Nem a imagem nem os pontos da sua mão são enviados para nós.
-- **Sem conta, tudo fica só neste navegador.** Nós não recebemos nada.
+- **Sem conta, o seu progresso fica só neste navegador.** O app envia apenas dados de uso anônimos: métricas para calibrar o algoritmo e os exercícios, sem identificar você (item 6). Dá para desligar em Configurações.
 - **Com conta, guardamos seu e-mail, o nome que você informou e o seu progresso no curso**, para você não perder o que aprendeu e poder continuar em outro aparelho.
 - **Os servidores ficam nos Estados Unidos**, na Amazon Web Services (AWS).
-- **Não vendemos dados, não mostramos anúncios e não usamos ferramentas de análise de uso nem de rastreamento.**
+- **Não vendemos dados, não mostramos anúncios e não usamos ferramentas de análise ou de rastreamento de terceiros.**
 - Você pode ver, exportar, corrigir e excluir os seus dados no próprio app, em Configurações.
 
 ## 2. Quem é o responsável
@@ -22,7 +22,7 @@ Os pedidos do item 13 são feitos no próprio app, como explicado lá.
 
 ## 3. O que fica só no seu aparelho
 
-Enquanto você usa o Librax sem conta, os dados abaixo ficam guardados no navegador do seu aparelho (no armazenamento local do site e no cache do app). Nós não temos acesso a eles:
+Enquanto você usa o Librax sem conta, os dados abaixo ficam guardados no navegador do seu aparelho (no armazenamento local do site e no cache do app). Nós não temos acesso a eles. Os dados de uso anônimos do item 6 são outra coisa: métricas que o app envia, sem identificar você.
 
 - o nome ou apelido que você digita nas boas-vindas;
 - o seu progresso: XP, sequência de dias, lições concluídas, conquistas, as revisões programadas de cada sinal e a liga da semana;
@@ -32,6 +32,8 @@ Enquanto você usa o Librax sem conta, os dados abaixo ficam guardados no navega
 - um código aleatório criado pelo app para separar os dados deste aparelho, que não identifica você;
 - se você tiver conta, outro código aleatório deste navegador, usado só para reconhecer os aparelhos em que a conta já entrou (item 5, "Aparelhos e segurança da conta"). Ele não é tirado de nenhuma característica do aparelho;
 - as lições concluídas que ainda vão ser enviadas, se você tiver ou criar uma conta;
+- o código anônimo dos dados de uso (item 6), outro código aleatório, diferente dos dois acima, e os eventos que ainda vão ser enviados;
+- se você já deu a sua nota ao app, para não perguntar de novo;
 - os arquivos do próprio app, do modelo de reconhecimento e das animações do avatar, guardados para o app funcionar sem internet.
 
 A resposta sobre o motivo de você aprender Libras, nas boas-vindas, não é guardada nem enviada.
@@ -83,7 +85,7 @@ O progresso vai para o servidor quando você conclui uma lição (ou assim que h
 
 Com conta, o app também envia quantas respostas e quantos erros você teve em cada tipo de exercício da lição e, se você sair no meio, em que exercício parou. Junto com a lição concluída vai também o desempenho da câmera só daquela lição: quantas vezes cada letra ou sinal foi acertado ou pulado, quantas tentativas precisou e qual letra ou sinal do curso a câmera leu no lugar. São só contagens, sem imagem, vídeo ou texto. As lições feitas como convidado levam esses números quando você entra na conta. Esses números só entram nos totais do item 6 e não ficam ligados à sua conta.
 
-## 6. Números da operação
+## 6. Números da operação e dados de uso anônimos
 
 Para saber se o app funciona e onde as pessoas têm mais dificuldade, o servidor soma totais por dia, por semana e por mês: pessoas ativas, contas novas, lições concluídas e abandonadas, erros por lição, por tipo de exercício e por sinal, e o desempenho da câmera por letra e sinal (acertos, pulos, tentativas e as letras ou sinais lidos no lugar), somando todas as pessoas. Esses totais não guardam quem fez o quê.
 
@@ -91,9 +93,24 @@ Registros técnicos de funcionamento do servidor (por exemplo, erros) ficam 30 d
 
 Pessoas da equipe com acesso de administração podem consultar o resumo de uma conta (e-mail, perfil, progresso e última atividade) para operar o serviço e atender pedidos. Cada consulta fica registrada.
 
+### Dados de uso anônimos
+
+Para calibrar o algoritmo e os exercícios, o app envia métricas de uso sem identificar você, com ou sem conta:
+
+- o que acontece no app: abrir o app, terminar as boas-vindas (com o idioma e a meta diária escolhidos), abrir, concluir (com a nota, o XP e o tempo) ou deixar no meio uma lição (com o exercício em que parou), cumprir a meta do dia, começar e terminar o teste de nivelamento, terminar uma rodada de prática e criar uma conta (só o fato);
+- um retrato do progresso: quantas lições você concluiu, o XP, a sequência de dias, a lição atual, se tem conta (só sim ou não), a versão do app, o idioma, o tipo de aparelho (Android, iPhone ou computador) e se o app está instalado ou aberto no navegador.
+
+Tudo vai com um código anônimo criado só para isso neste navegador. Ele é diferente do código do aparelho do item 3 e não é ligado à sua conta. Não enviamos o seu nome, o e-mail nem o identificador da conta, e o servidor não guarda o endereço IP nem o identificador do navegador. O caminho é de mão única: nada volta para o app e nada disso muda o seu progresso.
+
+Os dados de cada código são apagados sozinhos 12 meses depois do último uso. Para parar, desligue "Enviar dados de uso anônimos" em Configurações: o app deixa de enviar e apaga o que já foi enviado deste aparelho. "Excluir conta e dados" também apaga. Os totais por dia, semana e mês, que somam todas as pessoas, ficam como os outros totais deste item.
+
+### Nota e comentário
+
+Depois da primeira lição, o app pode pedir uma nota de 1 a 5 e um comentário opcional. Eles vão com o mesmo código anônimo (com os dados de uso desligados, com um código aleatório só para a nota), junto com quantas lições você concluiu, a lição atual, se tem conta, a versão do app, o idioma e o tipo de aparelho. **Não escreva dados pessoais no comentário.** A nota é apagada sozinha 12 meses depois de enviada, ou antes, com "Excluir conta e dados" e, se foi enviada com os dados de uso ligados, ao desligá-los.
+
 ## 7. Sem anúncios e sem rastreamento
 
-O Librax não usa ferramentas de análise de uso (como o Google Analytics), pixels de anúncio, cookies de rastreamento nem perfis de publicidade. As fontes, os ícones e os arquivos do app são entregues pelos próprios servidores do Librax.
+O Librax não usa ferramentas de análise de uso de terceiros (como o Google Analytics), pixels de anúncio, cookies de rastreamento nem perfis de publicidade. Os dados de uso anônimos do item 6 são do próprio Librax, ficam nos nossos servidores e não servem para anúncios nem para seguir você em outros sites. As fontes, os ícones e os arquivos do app são entregues pelos próprios servidores do Librax.
 
 O app guarda dados no navegador só para funcionar (item 3). A página de login da conta pode usar cookies próprios para manter a sessão de login.
 
@@ -105,7 +122,7 @@ O app guarda dados no navegador só para funcionar (item 3). A página de login 
 
 ## 9. Transferência internacional
 
-Os servidores do Librax ficam na região us-east-1 da AWS, na Virgínia do Norte, Estados Unidos. Por isso, os dados da conta e do progresso são transferidos para fora do Brasil.
+Os servidores do Librax ficam na região us-east-1 da AWS, na Virgínia do Norte, Estados Unidos. Por isso, os dados da conta e do progresso e os dados de uso anônimos são transferidos para fora do Brasil.
 
 Essa transferência é necessária para prestar o serviço que você pede ao criar a conta (art. 33, inciso IX, combinado com o art. 7º, inciso V, da LGPD). A AWS se compromete por contrato a proteger os dados e a tratá-los só conforme as nossas instruções. Os serviços do Google e do VLibras também podem tratar dados fora do Brasil, conforme as políticas deles.
 
@@ -113,6 +130,7 @@ Essa transferência é necessária para prestar o serviço que você pede ao cri
 
 - **Criar e manter a sua conta, guardar e sincronizar o progresso, calcular XP, sequência e liga, e enviar o código de confirmação**: execução do contrato que são os Termos de Uso (art. 7º, V, da LGPD).
 - **Totais da operação, segurança, prevenção de abuso e registros técnicos**: legítimo interesse (art. 7º, IX), sempre com o mínimo de dados e sem identificar você nos totais.
+- **Dados de uso anônimos, nota e comentário**: legítimo interesse (art. 7º, IX) em calibrar o algoritmo e os exercícios, com o mínimo de dados, sem identificar você e com a opção de desligar a qualquer momento.
 - **Lista de aparelhos da conta e aviso de acesso num aparelho novo**: legítimo interesse na segurança da sua conta (art. 7º, IX), com os dados mínimos do item 5.
 - **Lembretes por e-mail, quando existirem**: o seu consentimento (art. 7º, I), que você pode retirar a qualquer momento.
 - **Cumprir obrigações legais e atender pedidos de autoridades**: obrigação legal (art. 7º, II).
@@ -131,6 +149,7 @@ Quando o recurso estiver disponível, ele só vai funcionar se você permitir as
 - **Registro de cada lição enviada**: 60 dias.
 - **Registros técnicos**: 30 dias.
 - **Cópias de segurança do banco de dados**: até 35 dias. Depois de uma exclusão, o dado ainda pode existir nessas cópias por até 35 dias, sem uso, até ser descartado.
+- **Dados de uso anônimos**: 12 meses depois do último uso. **Nota e comentário**: 12 meses depois de enviados.
 - **Totais da operação, sem identificação**: 400 dias para os totais por dia, 800 dias para os totais por semana e sem prazo definido para os totais por mês.
 
 ## 13. Seus direitos
@@ -149,7 +168,8 @@ Pela LGPD (art. 18), você pode pedir:
 Os pedidos são feitos no próprio app:
 
 - **Exportar meus dados** (Configurações) baixa um arquivo com o perfil, as revisões e o desempenho da câmera guardados neste aparelho.
-- **Excluir conta e dados** (Configurações) apaga, na hora e para sempre, a sua conta, o seu login e tudo o que está guardado no servidor (perfil, progresso, revisões, XP, conquistas, participação em ligas e a lista de aparelhos), além dos dados deste aparelho. Se faltar internet ou o servidor falhar, nada é apagado e o app pede para tentar de novo.
+- **Excluir conta e dados** (Configurações) apaga, na hora e para sempre, a sua conta, o seu login e tudo o que está guardado no servidor (perfil, progresso, revisões, XP, conquistas, participação em ligas e a lista de aparelhos), além dos dados deste aparelho. Se faltar internet ou o servidor falhar, nada é apagado e o app pede para tentar de novo. Sem conta, o mesmo botão apaga os dados deste aparelho.
+- **Excluir conta e dados** e **Enviar dados de uso anônimos** (desligar) também pedem ao servidor para apagar os dados de uso anônimos e a nota enviados deste aparelho. Sem internet, o app tenta de novo na próxima abertura.
 
 Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD), em [gov.br/anpd](https://www.gov.br/anpd).
 

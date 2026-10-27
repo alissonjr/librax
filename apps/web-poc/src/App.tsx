@@ -5,6 +5,8 @@ import { IdbRepo } from './lib/idbRepo';
 import { getUserId } from './lib/auth';
 import { startAccount, useAccount } from './lib/account';
 import { reportDevice } from './lib/device';
+import { setTelemetryContext, startTelemetry } from './lib/telemetry';
+import { refreshTelemetryProgress } from './lib/telemetryProgress';
 import { evaluateAppOpen, preloadAppOpen } from './lib/appOpen';
 import { setSplashLabel, splashStep } from './lib/splash';
 import type { LeagueResult } from './lib/leagueLocal';
@@ -43,6 +45,10 @@ async function boot(): Promise<Boot> {
   // qualquer redirecionamento) e startSync(). Sem as VITE_COGNITO_*, segue só como convidado.
   startAccount();
 
+  // Dados de uso anônimos (lib/telemetry.ts): só mandam; nada volta nem muda o progresso local
+  await refreshTelemetryProgress(repo, userId);
+  startTelemetry();
+
   // AppOpenFlow (spec-02 12.10): resultado da liga e sequência quebrada, nessa ordem
   const { leagueResult, brokenStreak } = await evaluateAppOpen(repo, userId);
   // Tela de abertura: banco local e perfil prontos
@@ -65,6 +71,11 @@ export function App() {
   // lib/device.ts), ao entrar e quando o idioma muda
   useEffect(() => {
     if (account.status === 'signedIn') void reportDevice(lang);
+  }, [account.status, lang]);
+
+  // Dados de uso anônimos: só se há conta (sim ou não, nunca qual) e o idioma do app
+  useEffect(() => {
+    setTelemetryContext({ hasAccount: account.status === 'signedIn', lang });
   }, [account.status, lang]);
 
   // A barra da abertura é anunciada no idioma do app (o index.html sai em pt-BR)

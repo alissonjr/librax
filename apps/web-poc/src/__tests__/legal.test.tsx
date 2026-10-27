@@ -12,6 +12,7 @@ import { routes, ROUTER_FUTURE } from '../router';
 import { SessionProvider } from '../hooks/useSession';
 import { IdbRepo } from '../lib/idbRepo';
 import { upgradeLibraxDb } from '../lib/db';
+import { PRIVACY_POLICY_VERSION } from '../lib/usageNotice';
 
 const SOURCES = { privacidade: privacidadeMd, termos: termosMd };
 
@@ -52,7 +53,29 @@ describe('textos (src/legal)', () => {
       '4. A câmera', '9. Transferência internacional', '13. Seus direitos', '15. Idade mínima',
     ]));
     expect(privacidadeMd).toContain('us-east-1');
-    expect(privacidadeMd).toMatch(/não usamos ferramentas de análise de uso nem de rastreamento/);
+    expect(privacidadeMd).toMatch(/não usamos ferramentas de análise ou de rastreamento de terceiros/);
+  });
+
+  it('a versão 1.4 conta o que vai nos dados de uso anônimos, por quanto tempo e como desligar e apagar', () => {
+    expect(LEGAL_DOCS.privacy.version).toBe('1.4');
+    // o número que o app usa para o aviso de uma vez é o mesmo do texto
+    expect(PRIVACY_POLICY_VERSION).toBe(LEGAL_DOCS.privacy.version);
+    // a frase antiga dizia que, sem conta, nada era recebido
+    expect(privacidadeMd).not.toContain('Nós não recebemos nada');
+    expect(privacidadeMd).toContain('calibrar o algoritmo e os exercícios, sem identificar você');
+    const titles = LEGAL_DOCS.privacy.blocks.flatMap(b => (b.type === 'subsection' ? [b.text] : []));
+    expect(titles).toEqual(expect.arrayContaining(['Dados de uso anônimos', 'Nota e comentário']));
+    for (const fact of [
+      'diferente do código do aparelho do item 3',
+      'Não enviamos o seu nome, o e-mail nem o identificador da conta',
+      'não guarda o endereço IP',
+      'nada volta para o app e nada disso muda o seu progresso',
+      '12 meses depois do último uso',
+      '"Enviar dados de uso anônimos" em Configurações',
+      'Não escreva dados pessoais no comentário',
+    ]) {
+      expect(privacidadeMd, fact).toContain(fact);
+    }
   });
 
   it('os termos dizem que é ferramenta de estudo, que o reconhecimento pode errar e pedem 18 anos', () => {
@@ -89,7 +112,7 @@ describe('LegalScreen', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Política de Privacidade' })).toBeInTheDocument();
     const meta = screen.getByRole('list', { name: 'Sobre este documento' });
     expect(meta).toHaveTextContent(`Versão ${LEGAL_DOCS.privacy.version}`);
-    expect(meta).toHaveTextContent('Em vigor desde 26 de outubro de 2026');
+    expect(meta).toHaveTextContent('Em vigor desde 27 de outubro de 2026');
     expect(meta).not.toHaveTextContent('Rascunho');
 
     const toc = screen.getByRole('navigation', { name: 'Nesta página' });
