@@ -44,7 +44,7 @@
     1.6
   ],
   "min_presence": 0.6,
-  "channels": 68,
+  "channels": 100,
   "heldout": {
     "H": {
       "certas": 6,
@@ -55,7 +55,7 @@
       "total": 5
     },
     "K": {
-      "certas": 4,
+      "certas": 5,
       "total": 6
     },
     "X": {
@@ -63,7 +63,7 @@
       "total": 5
     },
     "Z": {
-      "certas": 3,
+      "certas": 4,
       "total": 6
     },
     "Ç": {
@@ -72,14 +72,14 @@
     }
   },
   "heldout_false_alarms": {
-    "alarmes": 8,
+    "alarmes": 3,
     "paradas": 99
   },
   "ines": {
     "H": "certa",
     "J": "certa",
     "K": "certa",
-    "X": "leu Z",
+    "X": "certa",
     "Z": "certa",
     "Ç": "certa",
     "P": "sem alarme",
@@ -110,6 +110,7 @@
     "J",
     "K",
     "X",
+    "Z",
     "Ç"
   ],
   "camera_min_heldout": 0.7,
@@ -124,24 +125,24 @@
       "total": 48
     },
     "K": {
-      "certas": 43,
+      "certas": 48,
       "total": 56
     },
     "X": {
-      "certas": 37,
+      "certas": 38,
       "total": 48
     },
     "Z": {
-      "certas": 39,
+      "certas": 40,
       "total": 56
     },
     "Ç": {
-      "certas": 32,
+      "certas": 31,
       "total": 32
     }
   },
   "heldout_false_alarms_seeds": {
-    "alarmes": 49,
+    "alarmes": 35,
     "paradas": 792
   }
 }

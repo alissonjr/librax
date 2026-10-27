@@ -7,8 +7,8 @@
 
 /**
  * Palavras do desafio. Todas passam na regra da soletração do gerador (spelledWordProblem em
- * tools/content/compose.mjs) com as letras que têm câmera ao fim da U1; o teste confere. AZUL tem o Z
- * como prática livre; as outras misturam letras paradas e com movimento (H, J, K, X e Ç).
+ * tools/content/compose.mjs) com as letras que têm câmera ao fim da U1; o teste confere. Misturam letras
+ * paradas e com movimento (H, J, K, X, Z e Ç; o Z de AZUL vira prática livre sem o modelo publicado).
  */
 export const SPELL_CHALLENGE_WORDS: readonly string[] = [
   'CASA', 'BOLO', 'SAPO', 'CHEGA', 'YAGO', 'CAÇA', 'JOIA', 'KIWI', 'XALE', 'HOJE', 'CAJU', 'FOGO', 'PIPA', 'AZUL',

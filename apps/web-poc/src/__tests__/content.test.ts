@@ -573,17 +573,17 @@ describe('letras com movimento avaliadas pelo modelo das letras com movimento (/
     expect(ex.filter((e) => e.type === 'perform_sign').map((e) => e.recognizer)).toEqual(['letras-mov']);
   });
 
-  it('Ç (U1 L6): o modelo publicado tem o Ç na câmera; o C segue com o modelo das letras paradas', () => {
+  it('Ç, X e Z (U1 L6): o modelo publicado tem os três na câmera; o C segue com o modelo das letras paradas', () => {
     const [published] = Object.values(import.meta.glob<{ camera_letters: string[] }>(
       '../../public/ml/letras-mov/model.json', { eager: true, import: 'default' },
     ));
-    expect(published.camera_letters).toContain('Ç');
+    for (const letter of ['Ç', 'X', 'Z']) expect(published.camera_letters).toContain(letter);
     setLetterMotionModelForTests({ model: fakeModel(published.camera_letters.concat('_')) });
     const lesson = course.lessonsMap['u1-l6'];
     const still = (s: Sign | undefined) => ['C', 'A', 'O', 'I'].includes(s?.gloss ?? '');
     const ex = resolveExercises(BUNDLE['u1-l6'], lesson.signIds, { canEvaluate: still });
     expect(ex.filter((e) => e.type === 'perform_sign').map((e) => [e.signId, e.recognizer]))
-      .toEqual([['letra-C', undefined], ['letra-Ç', 'letras-mov'], ['letra-X', 'letras-mov']]);
+      .toEqual([['letra-C', undefined], ['letra-Ç', 'letras-mov'], ['letra-X', 'letras-mov'], ['letra-Z', 'letras-mov']]);
     // CAÇA e JOIA: as letras paradas com o classificador delas, o Ç e o J com o modelo das letras com movimento
     expect(ex.find((e) => e.word === 'CAÇA')).toMatchObject({ type: 'fingerspell', spellReaders: ['letras', 'letras', 'letras-mov', 'letras'] });
     expect(ex.find((e) => e.word === 'JOIA')).toMatchObject({ type: 'fingerspell', spellReaders: ['letras-mov', 'letras', 'letras', 'letras'] });
@@ -923,14 +923,13 @@ describe('course', () => {
     expect(perform('u1-l3')).toEqual(['K', 'L', 'O']);
     expect(perform('u1-l4')).toEqual(['P', 'Q', 'S']);
     expect(perform('u1-l5')).toEqual(['U', 'V', 'W', 'Y']);
-    // Ç: depois do Z, com o C de revisão antes (mesma forma, o Ç treme); X: a U1 L5 já tem 4 letras com
-    // camera, então ele entra na revisão da U1 L6. Os dois são avaliados pelo modelo das letras com
+    // Ç: depois do Z, com o C de revisão antes (mesma forma, o Ç treme); X e Z: a U1 L5 já tem 4 letras
+    // com camera, então eles entram na revisão da U1 L6. Os três são avaliados pelo modelo das letras com
     // movimento (sem ele, prática livre)
-    expect(perform('u1-l6')).toEqual(['C', 'Ç', 'X']);
-    // Fracas no teste fixo (abaixo de 80%) e o Z, abaixo de 70% no modelo das letras com
-    // movimento, ficam sem camera por enquanto
+    expect(perform('u1-l6')).toEqual(['C', 'Ç', 'X', 'Z']);
+    // Fracas no teste fixo (abaixo de 80%) ficam sem camera por enquanto
     const all = course.units[0].lessons.flatMap((l) => perform(l.id));
-    for (const letter of ['M', 'N', 'R', 'T', 'Z']) expect(all).not.toContain(letter);
+    for (const letter of ['M', 'N', 'R', 'T']) expect(all).not.toContain(letter);
   });
 
   it('"soletre seu nome" fica na licao de nomes da U4, depois dos nomes fixos', () => {

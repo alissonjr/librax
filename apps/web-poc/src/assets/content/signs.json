@@ -569,7 +569,7 @@
     },
     "status": "rascunho",
     "validated": false,
-    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/zSm_Prog001.mp4, configuracao de mao cg14) e no avatar VLibras: as duas fontes concordam com esta descricao. As duas mostram o indicador esticado tracando o Z no ar. O MOV dizia \"diagonal para baixo, diagonal para cima\", diferente da legenda e do que as fontes mostram; foi alinhado com a legenda."
+    "notes": "Conferido em 2026-10-25 no dicionario do INES (https://dicionario.ines.gov.br/public/media/palavras/videos/zSm_Prog001.mp4, configuracao de mao cg14) e no avatar VLibras: as duas fontes concordam com esta descricao. As duas mostram o indicador esticado tracando o Z no ar. O MOV dizia \"diagonal para baixo, diagonal para cima\", diferente da legenda e do que as fontes mostram; foi alinhado com a legenda. Com o modelo das letras com movimento publicado em 2026-10-26 (public/ml/letras-mov, Z em camera_letters com 40 de 56 nos canais separados mais o INES, soma de 8 sementes), a camera avalia o Z com o movimento na U1 L6."
   },
   {
     "id": "letra-Ç",
