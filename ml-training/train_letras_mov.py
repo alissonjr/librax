@@ -48,6 +48,8 @@ Uso:
     dá mais peso a algumas delas, ver VIZINHAS_FORTES)
     (LM_SEM_XZ=1 deixa de fora os vídeos de video/baixar_xz.py, letras_mov_trechos_xz.json)
     (LM_SEM_Z2=1 deixa de fora os de video/baixar_extra.py, letras_mov_trechos_z2.json)
+    (LM_SEM_EXT=1 deixa de fora os de video/baixar_externas.py, letras_mov_trechos_ext.json; LM_EXT_LETRAS=Z
+    usa só o Z deles, o padrão é XZ)
     (LIBRAX_DATA=/caminho/data aponta para a pasta de dados)
 """
 
@@ -80,6 +82,15 @@ TRECHOS_Z2 = os.path.join(AQUI, "letras_mov_trechos_z2.json")
 # X 33/48; com o X e o Z, Z 39/56, X 36/48 e alarme nas paradas 73/792 (98/792 no modelo anterior)
 SEM_Z2 = os.environ.get("LM_SEM_Z2") == "1"
 LETRAS_Z2 = os.environ.get("LM_Z2_LETRAS", "XZ")
+# Vídeos de fora do YouTube (video/baixar_externas.py, data/letras_mov/fontes_externas.json): o PEdAL da
+# UFRGS, 3 pessoas por letra com movimento e palavras soletradas com Z. LM_SEM_EXT=1 deixa de fora;
+# LM_EXT_LETRAS escolhe as letras que entram (as outras ficam ok=false). 2026-10-26, soma de 8 sementes nos
+# canais separados mais INES: com o X e o Z (padrão, o publicado) Z 40/56, X 38/48 e alarme 35/792; com todas,
+# Z 39/56 e X 39/48; só o Z, Z 38/56 e X 35/48; sem eles, Z 39/56, X 36/48 e alarme 31/792
+LANDMARKS_EXT = os.path.join(DATA, "letras_mov", "landmarks15_ext")
+TRECHOS_EXT = os.path.join(AQUI, "letras_mov_trechos_ext.json")
+SEM_EXT = os.environ.get("LM_SEM_EXT") == "1"
+LETRAS_EXT = os.environ.get("LM_EXT_LETRAS", "XZ")
 # LM_SEM_XZ=1 treina e avalia só com os trechos antigos (para comparar com o modelo anterior)
 SEM_XZ = os.environ.get("LM_SEM_XZ") == "1"
 # Letras dos trechos dos vídeos novos que entram no treino (as outras ficam marcadas ok=false: nem
@@ -245,12 +256,13 @@ PROCESSOS = int(os.environ.get("LM_PROCESSOS", "6"))
 def carregar_trechos(caminho=TRECHOS):
     """
     Trechos do letras_mov_trechos.json somados aos de letras_mov_trechos_xz.json (sem LM_SEM_XZ=1) e
-    aos de letras_mov_trechos_z2.json (sem LM_SEM_Z2=1).
+    aos de letras_mov_trechos_z2.json (sem LM_SEM_Z2=1) e aos de letras_mov_trechos_ext.json (sem LM_SEM_EXT=1).
     """
     with open(caminho) as f:
         out = json.load(f)
     extras = [] if caminho != TRECHOS else [(p, letras) for p, fora, letras in
-                                             ((TRECHOS_XZ, SEM_XZ, LETRAS_XZ), (TRECHOS_Z2, SEM_Z2, LETRAS_Z2))
+                                             ((TRECHOS_XZ, SEM_XZ, LETRAS_XZ), (TRECHOS_Z2, SEM_Z2, LETRAS_Z2),
+                                              (TRECHOS_EXT, SEM_EXT, LETRAS_EXT))
                                              if not fora and os.path.exists(p)]
     for path, letras in extras:
         with open(path) as f:
@@ -262,8 +274,8 @@ def carregar_trechos(caminho=TRECHOS):
 
 
 def landmarks_de(vid):
-    """Arquivo de landmarks a 15 quadros por segundo do vídeo (landmarks15, _xz ou _z2), ou None."""
-    for pasta in (LANDMARKS, LANDMARKS_XZ, LANDMARKS_Z2):
+    """Arquivo de landmarks a 15 quadros por segundo do vídeo (landmarks15, _xz, _z2 ou _ext), ou None."""
+    for pasta in (LANDMARKS, LANDMARKS_XZ, LANDMARKS_Z2, LANDMARKS_EXT):
         path = os.path.join(pasta, f"{vid}.json")
         if os.path.exists(path):
             return path
@@ -790,7 +802,9 @@ SEMENTES_CAMERA = 8
 
 def equilibrar(X, y, rng, max_nenhuma=MAX_NENHUMA):
     """Repete as janelas das letras até cada letra ter a média delas; "_" fica com até max_nenhuma x as letras."""
-    idx = {c: np.where(y == c)[0] for c in set(y)}
+    # em ordem: com o set direto, a ordem dos sorteios mudava com o PYTHONHASHSEED de cada execução e o
+    # mesmo treino dava outro resultado (o Z ia de 38 a 40 de 56 na soma das 8 sementes)
+    idx = {c: np.where(y == c)[0] for c in sorted(set(y))}
     letras = [c for c in idx if c != NENHUMA]
     alvo = int(np.mean([len(idx[c]) for c in letras])) if letras else 0
     pega = []
