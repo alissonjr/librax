@@ -50,6 +50,9 @@ bootstrap (só se faltar), deploy da stack, build e upload do app, do painel e d
   --sem-google              desliga o login com Google (padrão no primeiro lançamento)
   --com-lembretes-email     liga os lembretes por e-mail (precisa do domínio verificado no SES)
   --sem-lembretes-email     desliga os lembretes por e-mail (padrão)
+  --com-email-ses           códigos do login (cadastro e nova senha) pelo SES do domínio, sem o limite
+                            de 50 e-mails por dia do Cognito (precisa do domínio verificado no SES)
+  --sem-email-ses           códigos do login pelo envio padrão do Cognito (padrão)
   --so-publicar             pula bootstrap e deploy: só build e upload do app, do painel e da landing
   --vlibras-opcional        publica mesmo se o download do avatar VLibras falhar (cai no texto)
   --ignorar-dns             não confere se o domínio já aponta para o Route 53
@@ -68,6 +71,7 @@ OPT_EMAIL=""
 OPT_ORCAMENTO=""
 OPT_GOOGLE=""
 OPT_LEMBRETES=""
+OPT_EMAIL_SES=""
 SO_PUBLICAR=false
 VLIBRAS_OPCIONAL=false
 IGNORAR_DNS=false
@@ -92,6 +96,8 @@ ler_opcoes() {
       --sem-google) OPT_GOOGLE=false; shift ;;
       --com-lembretes-email) OPT_LEMBRETES=true; shift ;;
       --sem-lembretes-email) OPT_LEMBRETES=false; shift ;;
+      --com-email-ses) OPT_EMAIL_SES=true; shift ;;
+      --sem-email-ses) OPT_EMAIL_SES=false; shift ;;
       --so-publicar) SO_PUBLICAR=true; shift ;;
       --vlibras-opcional) VLIBRAS_OPCIONAL=true; shift ;;
       --ignorar-dns) IGNORAR_DNS=true; shift ;;
@@ -389,7 +395,7 @@ ler_contexto_do_lancamento() {
   passo "Valores do lançamento (infra/cdk.context.json)"
   ok "domínio: $DOMINIO (infra/cdk.json)"
 
-  local zona cert email orcamento google lembretes sugestao
+  local zona cert email orcamento google lembretes email_ses sugestao
   zona=${OPT_ZONA:-$(contexto hostedZoneId)}
   if [[ ! "$zona" =~ $RE_ZONA ]]; then
     sugestao=$(sugerir_zona)
@@ -415,18 +421,23 @@ ler_contexto_do_lancamento() {
   orcamento=${OPT_ORCAMENTO:-$(contexto monthlyBudgetUsd)}
   [[ -z "$orcamento" || "$orcamento" =~ $RE_DOLARES ]] || falha "--orcamento precisa ser um número (dólares)."
 
-  # Google e lembretes por e-mail: a opção vale; sem ela, o que já estava; no primeiro lançamento, desligados
+  # Google, lembretes por e-mail e e-mails do login pelo SES: a opção vale; sem ela, o que já estava;
+  # no primeiro lançamento, desligados
   google=${OPT_GOOGLE:-$(contexto googleEnabled)}
   [[ "$google" == true ]] || google=false
   lembretes=${OPT_LEMBRETES:-$(contexto emailRemindersEnabled)}
   [[ "$lembretes" == true ]] || lembretes=false
+  email_ses=${OPT_EMAIL_SES:-$(contexto cognitoEmailSes)}
+  [[ "$email_ses" == true ]] || email_ses=false
 
   gravar_contexto "hostedZoneId=$zona" "hostedZoneName=$DOMINIO" "certificateArn=$cert" "alarmEmail=$email" \
-    "monthlyBudgetUsd=$orcamento" "googleEnabled=$google" "emailRemindersEnabled=$lembretes"
+    "monthlyBudgetUsd=$orcamento" "googleEnabled=$google" "emailRemindersEnabled=$lembretes" \
+    "cognitoEmailSes=$email_ses"
   ZONA=$zona
   CERT=$cert
   GOOGLE=$google
   LEMBRETES=$lembretes
+  EMAIL_SES=$email_ses
   ALARM_EMAIL=$email
   ok "zona: $zona"
   ok "certificado: $cert"
@@ -434,6 +445,11 @@ ler_contexto_do_lancamento() {
   ok "orçamento mensal: ${orcamento:-10} dólares"
   ok "login com Google: $([[ $google == true ]] && echo ligado || echo desligado)"
   ok "lembretes por e-mail: $([[ $lembretes == true ]] && echo ligados || echo desligados)"
+  if [[ "$email_ses" == true ]]; then
+    ok "códigos do login (cadastro e nova senha): pelo SES, de $(remetente_do_login)"
+  else
+    ok "códigos do login (cadastro e nova senha): envio padrão do Cognito (até 50 e-mails por dia)"
+  fi
   [[ -n "$email" ]] || aviso "Sem e-mail dos alarmes: os alarmes não avisam ninguém e o orçamento mensal não é criado."
 }
 
@@ -503,6 +519,48 @@ conferir_pre_requisitos() {
       aviso "O SES ainda está no sandbox: os lembretes só chegam a e-mails verificados até a AWS liberar a saída."
     fi
     ok "domínio verificado no SES"
+  fi
+  if [[ "$EMAIL_SES" == true ]]; then
+    conferir_ses_do_login
+  fi
+}
+
+# Remetente dos códigos do login: librax:cognitoEmailFrom ou o padrão da stack (infra/lib/config.ts)
+remetente_do_login() {
+  local remetente
+  remetente=$(contexto cognitoEmailFrom)
+  printf '%s' "${remetente:-nao-responda@$DOMINIO}"
+}
+
+# Códigos do login pelo SES (só leitura): o domínio do remetente precisa existir e estar verificado no
+# SES em us-east-1. No sandbox o deploy segue, mas com um aviso: lá o SES só entrega para endereços
+# verificados, então quem criar conta não recebe o código até a AWS liberar a conta.
+conferir_ses_do_login() {
+  local remetente dominio saida verificado status producao
+  remetente=$(remetente_do_login)
+  [[ "$remetente" =~ $RE_EMAIL ]] || falha "librax:cognitoEmailFrom inválido ($remetente) em infra/cdk.context.json."
+  dominio=${remetente#*@}
+  if ! saida=$(aws_l sesv2 get-email-identity --region "$REGIAO" --email-identity "$dominio" \
+    --query '[VerifiedForSendingStatus, VerificationStatus]' --output text 2>&1); then
+    if [[ "$saida" == *NotFoundException* ]]; then
+      falha "E-mails do login pelo SES ligados, mas $dominio não está cadastrado no SES em $REGIAO. Crie a identidade em Amazon SES > Identidades > Criar identidade > Domínio, com Easy DKIM e publicando os registros no Route 53 (docs/lancamento.md, E-mails do login pelo SES). Ou rode com --sem-email-ses."
+    fi
+    printf '%s\n' "$saida" >&2
+    falha "Não consegui consultar $dominio no SES (veja a mensagem acima)."
+  fi
+  read -r verificado status <<<"$saida"
+  [[ "$verificado" == True ]] ||
+    falha "E-mails do login pelo SES ligados, mas $dominio ainda não está verificado no SES (situação: ${status:-desconhecida}). Confira os 3 registros CNAME do DKIM no Route 53 e espere a verificação (costuma levar minutos, no máximo 72 horas). Ou rode com --sem-email-ses."
+  ok "$dominio verificado no SES: os códigos do login saem de $remetente"
+
+  producao=$(aws_l sesv2 get-account --region "$REGIAO" --query ProductionAccessEnabled --output text 2>/dev/null || true)
+  if [[ "$producao" != True ]]; then
+    aviso "A conta ainda está no sandbox do SES em $REGIAO. Com o envio pelo SES ligado, o código de cadastro e o de nova senha só chegam a e-mails verificados no SES: quem criar conta agora não recebe o código."
+    info "Peça a liberação no console: Amazon SES > Painel da conta (Account dashboard) > Solicitar acesso de produção"
+    info "(Request production access). Texto sugerido em docs/lancamento.md, E-mails do login pelo SES."
+    info "Até a AWS liberar, prefira rodar com --sem-email-ses (envio padrão do Cognito, até 50 e-mails por dia)."
+  else
+    ok "SES fora do sandbox (acesso de produção liberado)"
   fi
 }
 
@@ -724,6 +782,9 @@ resumo() {
   if [[ "$(contexto emailRemindersEnabled)" != true ]]; then
     info "- Lembretes por e-mail desligados. Para ligar: domínio no SES e depois --com-lembretes-email."
   fi
+  if [[ "$(contexto cognitoEmailSes)" != true ]]; then
+    info "- Códigos do login pelo envio padrão do Cognito (até 50 e-mails por dia). Para usar o SES: domínio no SES e depois --com-email-ses."
+  fi
   info "- Ativar o Cost Explorer (Faturamento > Cost Explorer) para a tela de custo do painel."
   info "- Ao terminar, apague a pasta: rm -rf $RAIZ (e revogue o token do GitHub)."
 }
@@ -736,6 +797,7 @@ ZONA=""
 CERT=""
 GOOGLE=false
 LEMBRETES=false
+EMAIL_SES=false
 ALARM_EMAIL=""
 OUTPUTS=""
 ESTADO_STACK=""
@@ -762,8 +824,8 @@ main() {
   instalar_dependencias
   conferir_conta
   if [[ "$SO_PUBLICAR" == true ]]; then
-    if [[ -n "$OPT_ZONA$OPT_CERT$OPT_EMAIL$OPT_ORCAMENTO$OPT_GOOGLE$OPT_LEMBRETES" ]]; then
-      aviso "Com --so-publicar a stack não muda: --zona, --certificado, --email-alarmes, --orcamento, --com/--sem-google e --com/--sem-lembretes-email ficam para o lançamento completo."
+    if [[ -n "$OPT_ZONA$OPT_CERT$OPT_EMAIL$OPT_ORCAMENTO$OPT_GOOGLE$OPT_LEMBRETES$OPT_EMAIL_SES" ]]; then
+      aviso "Com --so-publicar a stack não muda: --zona, --certificado, --email-alarmes, --orcamento, --com/--sem-google, --com/--sem-lembretes-email e --com/--sem-email-ses ficam para o lançamento completo."
     fi
     passo "Stack publicada"
     esperar_stack

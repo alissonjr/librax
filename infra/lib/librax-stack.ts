@@ -27,6 +27,7 @@ import * as budgets from 'aws-cdk-lib/aws-budgets';
 import { Annotations, Duration, RemovalPolicy, SecretValue } from 'aws-cdk-lib';
 import { readConfig, PLACEHOLDER_DOMAIN } from './config';
 import { assetLinks, assetLinksFunction } from './assetlinks';
+import { cognitoUserPoolEmail, COGNITO_USER_VERIFICATION } from './cognito-email';
 import {
   adminCsp,
   appCsp,
@@ -56,7 +57,8 @@ const API_DIR = path.join(__dirname, '..', '..', 'services', 'api');
  *
  * Recursos criados:
  * - DynamoDB single-table `librax` com GSI1-GSI6 e TTL
- * - Cognito User Pool com dominio proprio, OAuth code + PKCE, Google (e Apple opcional)
+ * - Cognito User Pool com dominio proprio, OAuth code + PKCE, Google (e Apple opcional) e codigos
+ *   por e-mail pelo envio padrao do Cognito ou, opcional, pelo SES do dominio
  * - Lambda functions (Node 22, empacotadas com esbuild) para cada endpoint
  * - API Gateway HTTP API (autorizador JWT Cognito) no estagio `api`
  * - CloudFront do app em app.<dominio>, tudo na mesma origem: `/` app, `/content/*`, `/ml/*`, `/api/*`
@@ -208,9 +210,13 @@ export class LibraxStack extends cdk.Stack {
         requireDigits: false,
         requireSymbols: false,
       },
-      // "Esqueci a senha" so por e-mail. Sem `email`, os codigos (cadastro e nova senha) saem pelo
-      // envio padrao do Cognito, com limite diario baixo (docs/spec-02-backend-gestao-engajamento.md, secao 2)
+      // "Esqueci a senha" so por e-mail. Os codigos (cadastro e nova senha) saem pelo envio padrao do
+      // Cognito (50 por dia) ou, com librax:cognitoEmailSes, pelo SES do dominio (lib/cognito-email.ts;
+      // docs/spec-02-backend-gestao-engajamento.md, secao 2)
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+      email: cognitoUserPoolEmail(config),
+      // Texto do codigo em portugues; vale para o cadastro e para "esqueci a senha"
+      userVerification: COGNITO_USER_VERIFICATION,
       removalPolicy: RemovalPolicy.RETAIN,
     });
 

@@ -21,8 +21,8 @@ function rodar(args: string[], env: Record<string, string> = {}, script = SCRIPT
 }
 
 /** Roda um trecho de bash com as funções do script carregadas. */
-function comFuncoes(trecho: string, env: Record<string, string> = {}) {
-  return spawnSync('bash', ['-c', `source "${SCRIPT}"; set +e; ${trecho}`], {
+function comFuncoes(trecho: string, env: Record<string, string> = {}, script = SCRIPT) {
+  return spawnSync('bash', ['-c', `source "${script}"; set +e; ${trecho}`], {
     encoding: 'utf8',
     env: { PATH: process.env.PATH ?? '', HOME: process.env.HOME ?? '', ...env },
   });
@@ -34,6 +34,14 @@ describe('opções', () => {
     expect(r.status).toBe(0);
     expect(r.stdout).toContain('--so-publicar');
     expect(r.stdout).toContain('--com-google');
+    expect(r.stdout).toContain('--com-email-ses');
+    expect(r.stdout).toContain('--sem-email-ses');
+  });
+
+  test('--com-email-ses e --sem-email-ses', () => {
+    const r = comFuncoes('ler_opcoes --com-email-ses; echo "a=$OPT_EMAIL_SES"; ler_opcoes --sem-email-ses; echo "b=$OPT_EMAIL_SES"');
+    expect(r.stdout).toContain('a=true');
+    expect(r.stdout).toContain('b=false');
   });
 
   test('opção desconhecida ou sem valor para antes de começar', () => {
@@ -129,6 +137,16 @@ if (cmd === 'sts get-caller-identity') console.log(JSON.stringify({ Account: ${J
 else if (cmd === 'cloudformation describe-stacks') console.log(JSON.stringify(${JSON.stringify(outputs)}));
 else if (cmd === 'cognito-idp list-users') console.log('google_111\\tuser-2');
 else if (cmd === 'cognito-idp admin-add-user-to-group') {}
+else if (cmd === 'sesv2 get-email-identity') {
+  // LIBRAX_TESTE_SES: "ausente" ou "<VerifiedForSendingStatus> <VerificationStatus>"
+  const ses = e.LIBRAX_TESTE_SES ?? 'ausente';
+  if (ses === 'ausente') {
+    console.error('An error occurred (NotFoundException) when calling the GetEmailIdentity operation: Email identity does not exist.');
+    process.exit(254);
+  }
+  console.log(ses.split(' ').join('\t'));
+}
+else if (cmd === 'sesv2 get-account') console.log(e.LIBRAX_TESTE_SES_PRODUCAO ?? 'False');
 else { console.error('aws falso: chamada inesperada ' + args.join(' ')); process.exit(9); }
 `,
   );
@@ -198,5 +216,89 @@ describe('--admin no CloudShell (aws falso)', () => {
     expect(r.status).toBe(1);
     expect(r.stderr).toContain('Clone em /tmp');
     expect(chamadas()).toEqual([]);
+  });
+});
+
+describe('--com-email-ses (códigos do login pelo SES)', () => {
+  test('grava librax:cognitoEmailSes: a opção vale, sem ela fica o que estava, no começo desligado', () => {
+    const infra = mkdtempSync(path.join(tmpdir(), 'librax-lancar-ses-'));
+    writeFileSync(path.join(infra, 'cdk.json'), JSON.stringify({ context: { 'librax:domainName': 'librax.online' } }));
+    const contexto = path.join(infra, 'cdk.context.json');
+    const cert = `arn:aws:acm:us-east-1:${CONTA}:certificate/00000000-0000-0000-0000-000000000000`;
+    const ler = (opcoes: string) =>
+      comFuncoes(
+        `INFRA="${infra}"; CONTEXTO="${contexto}"; DOMINIO=librax.online; CONTA=${CONTA}; ` +
+          `ler_opcoes --zona Z0123456789ABCDEFGHIJ --certificado ${cert} --email-alarmes a@exemplo.com ${opcoes}; ` +
+          'ler_contexto_do_lancamento; echo "EMAIL_SES=$EMAIL_SES"',
+      );
+    const valor = () => JSON.parse(readFileSync(contexto, 'utf8'))['librax:cognitoEmailSes'];
+
+    let r = ler('');
+    expect(r.stderr).toBe('');
+    expect(r.stdout).toContain('EMAIL_SES=false');
+    expect(r.stdout).toContain('envio padrão do Cognito (até 50 e-mails por dia)');
+    expect(valor()).toBe(false);
+
+    r = ler('--com-email-ses');
+    expect(r.stdout).toContain('EMAIL_SES=true');
+    expect(r.stdout).toContain('pelo SES, de nao-responda@librax.online');
+    expect(valor()).toBe(true);
+
+    expect(ler('').stdout).toContain('EMAIL_SES=true'); // segunda rodada sem a opção: mantém
+    expect(ler('--sem-email-ses').stdout).toContain('EMAIL_SES=false');
+    expect(valor()).toBe(false);
+  });
+
+  function conferir(ses: string, producao: string, contexto?: Record<string, string>) {
+    const { script, env, chamadas, repo } = montarRepositorio(CONTA);
+    if (contexto) writeFileSync(path.join(repo, 'infra/cdk.context.json'), JSON.stringify(contexto));
+    const r = comFuncoes(
+      'DOMINIO=librax.online; conferir_ses_do_login; echo "status=$?"',
+      { ...env, LIBRAX_TESTE_SES: ses, LIBRAX_TESTE_SES_PRODUCAO: producao },
+      script,
+    );
+    return { r, chamadas: chamadas() };
+  }
+
+  test('domínio verificado e conta liberada: segue sem aviso, só com leituras no SES de us-east-1', () => {
+    const { r, chamadas } = conferir('True SUCCESS', 'True');
+    expect(r.stderr).toBe('');
+    expect(r.stdout).toContain('status=0');
+    expect(r.stdout).toContain('librax.online verificado no SES: os códigos do login saem de nao-responda@librax.online');
+    expect(r.stdout).toContain('SES fora do sandbox');
+    expect(r.stdout).not.toContain('ATENÇÃO');
+    expect(chamadas.map((c) => c.args.slice(0, 2).join(' '))).toEqual(['sesv2 get-email-identity', 'sesv2 get-account']);
+    const identidade = chamadas[0].args;
+    expect(identidade[identidade.indexOf('--email-identity') + 1]).toBe('librax.online');
+    expect(identidade[identidade.indexOf('--region') + 1]).toBe('us-east-1');
+  });
+
+  test('ainda no sandbox: avisa em português com o caminho no console e segue', () => {
+    const { r } = conferir('True SUCCESS', 'False');
+    expect(r.stdout).toContain('status=0');
+    expect(r.stdout).toContain('ATENÇÃO: A conta ainda está no sandbox do SES em us-east-1');
+    expect(r.stdout).toContain('quem criar conta agora não recebe o código');
+    expect(r.stdout).toContain('Amazon SES > Painel da conta (Account dashboard) > Solicitar acesso de produção');
+    expect(r.stdout).toContain('--sem-email-ses');
+  });
+
+  test('domínio sem identidade no SES ou ainda pendente: para com o que fazer', () => {
+    const ausente = conferir('ausente', 'True').r;
+    expect(ausente.status).toBe(1);
+    expect(ausente.stderr).toContain('librax.online não está cadastrado no SES em us-east-1');
+    expect(ausente.stderr).toContain('Easy DKIM');
+    expect(ausente.stdout).not.toContain('status=');
+
+    const pendente = conferir('False PENDING', 'True').r;
+    expect(pendente.status).toBe(1);
+    expect(pendente.stderr).toContain('librax.online ainda não está verificado no SES (situação: PENDING)');
+    expect(pendente.stderr).toContain('--sem-email-ses');
+  });
+
+  test('remetente por contexto: confere o domínio dele', () => {
+    const { r, chamadas } = conferir('True SUCCESS', 'True', { 'librax:cognitoEmailFrom': 'contas@mail.librax.online' });
+    expect(r.stdout).toContain('os códigos do login saem de contas@mail.librax.online');
+    const identidade = chamadas[0].args;
+    expect(identidade[identidade.indexOf('--email-identity') + 1]).toBe('mail.librax.online');
   });
 });

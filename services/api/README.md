@@ -505,9 +505,17 @@ do Cognito precisam estar lá.
    A pública também vai no build do app (`VITE_VAPID_PUBLIC_KEY`). Contato exigido pelos
    serviços de push: `librax:vapidSubject` (padrão `mailto:contato@<dominio>`). Trocar as
    chaves invalida todas as inscrições.
-7. **SES (opcional).** Verificar a identidade do domínio no SES (DKIM no DNS), pedir saída do
-   sandbox e então `-c librax:emailRemindersEnabled=true -c librax:emailFrom=lembretes@<dominio>`.
-   Sem isso o lembrete por e-mail fica desligado.
+7. **SES (opcional).** Verificar a identidade do domínio no SES em `us-east-1` (Easy DKIM, com os
+   registros publicados no Route 53), pedir a saída do sandbox e então ligar o que for usar
+   (passo a passo em [`docs/lancamento.md`](../../docs/lancamento.md#e-mails-do-login-pelo-ses)):
+   - **Códigos do login** (cadastro e "esqueci a senha"): `-c librax:cognitoEmailSes=true` (ou
+     `lancar-cloudshell.sh --com-email-ses`). O User Pool passa a enviar pelo SES (`DEVELOPER`) de
+     `Librax <nao-responda@<dominio>>`; mude com `librax:cognitoEmailFrom`, `librax:cognitoEmailFromName`
+     e `librax:cognitoEmailReplyTo`. Sem isso, fica o envio padrão do Cognito (50 e-mails por dia). Ligar ou
+     desligar só atualiza o User Pool (não recria) e o Cognito cria sozinho o papel vinculado ao serviço
+     que usa o SES. O texto (`lib/cognito-email.ts`) é um só, em português, para os dois códigos.
+   - **Lembretes:** `-c librax:emailRemindersEnabled=true -c librax:emailFrom=lembretes@<dominio>`.
+     Sem isso o lembrete por e-mail fica desligado.
 8. **Login e bootstrap.** Configurar o login da conta pelo IAM Identity Center e fixar
    `librax:accountId` ([`docs/conta-aws.md`](../../docs/conta-aws.md)). Depois, em `infra`,
    `npm run bootstrap` (o bootstrap do CDK na conta e região). `bootstrap`, `diff` e `deploy`

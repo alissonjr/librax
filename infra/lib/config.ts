@@ -36,6 +36,10 @@ import { DEFAULT_ANDROID_PACKAGE, normalizeFingerprint, validPackageName } from 
  * | librax:vapidSubject            | mailto:contato@<domainName>     | contato VAPID |
  * | librax:emailRemindersEnabled   | false                           | liga o lembrete por e-mail (SES) |
  * | librax:emailFrom               | lembretes@<domainName>          | remetente verificado no SES |
+ * | librax:cognitoEmailSes         | false                           | codigos do login (cadastro e nova senha) saem pelo SES, nao pelo envio padrao do Cognito (50 por dia) |
+ * | librax:cognitoEmailFrom        | nao-responda@<domainName>       | remetente desses codigos; o dominio dele precisa estar verificado no SES (us-east-1) |
+ * | librax:cognitoEmailFromName    | Librax                          | nome que aparece como remetente |
+ * | librax:cognitoEmailReplyTo     | (vazio)                         | endereco de resposta (opcional) |
  * | librax:cspReportOnly           | false                           | manda a CSP como Report-Only (diagnostico) |
  * | librax:mediapipeVersion        | a do apps/web-poc/package.json  | pasta /ml/<versao>/ com cache imutavel; o resto de /ml/ revalida |
  * | librax:extraAdminCallbackUrls  | (vazio)                         | callbacks extras do painel (ex.: http://localhost:5310/admin/auth/callback) |
@@ -70,6 +74,12 @@ export interface LibraxConfig {
   };
   vapid: { publicKeyParam: string; privateKeyParam: string; subject: string };
   email: { enabled: boolean; from: string };
+  /**
+   * Envio dos e-mails do Cognito (codigo de cadastro e de nova senha). Desligado, fica o envio padrao
+   * do Cognito (remetente no-reply do verificationemail.com, 50 por dia). Ligado, sai pelo SES com o remetente do
+   * dominio verificado. Vale para qualquer texto: os campos do User Pool ou um gatilho Custom Message.
+   */
+  cognitoEmail: { ses: boolean; from: string; fromName: string; replyTo?: string; sesRegion: string };
   cspReportOnly: boolean;
   /**
    * Versao do @mediapipe/tasks-vision do app: so /ml/<versao>/ tem cache imutavel. As pastas de modelo
@@ -85,6 +95,7 @@ export interface LibraxConfig {
 }
 
 export const PLACEHOLDER_DOMAIN = 'librax.example';
+export const COGNITO_SES_REGION = 'us-east-1';
 
 export function readConfig(node: Node): LibraxConfig {
   const str = (key: string, fallback = ''): string => {
@@ -149,6 +160,14 @@ export function readConfig(node: Node): LibraxConfig {
       enabled: bool('emailRemindersEnabled', false),
       from: str('emailFrom', `lembretes@${domainName}`),
     },
+    cognitoEmail: {
+      ses: bool('cognitoEmailSes', false),
+      from: emailAddress(str('cognitoEmailFrom', `nao-responda@${domainName}`), 'cognitoEmailFrom'),
+      fromName: str('cognitoEmailFromName', 'Librax'),
+      replyTo: str('cognitoEmailReplyTo') ? emailAddress(str('cognitoEmailReplyTo'), 'cognitoEmailReplyTo') : undefined,
+      // A identidade do SES fica na mesma regiao da stack (us-east-1)
+      sesRegion: COGNITO_SES_REGION,
+    },
     cspReportOnly: bool('cspReportOnly', false),
     mediapipeVersion: semver(str('mediapipeVersion') || appMediapipeVersion()),
     extraAdminCallbackUrls: list('extraAdminCallbackUrls'),
@@ -179,6 +198,11 @@ function fingerprint(raw: string): string {
     );
   }
   return value;
+}
+
+function emailAddress(raw: string, key: string): string {
+  if (!/^[^@\s"]+@[^@\s"]+\.[^@\s"]+$/.test(raw)) throw new Error(`librax:${key} precisa ser um e-mail (veio "${raw}")`);
+  return raw;
 }
 
 function positiveNumber(raw: string, key: string): number {
