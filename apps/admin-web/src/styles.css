@@ -446,6 +446,73 @@ a:hover { text-decoration-thickness: 2px; }
 .splash-body p { margin: 0; color: var(--lx-text-secondary); }
 .splash-title { margin: 0; font: var(--lx-typography-title); letter-spacing: var(--lx-typography-title-tracking); }
 
+/* ---------- entrar: e-mail e senha, código do autenticador, senha nova ---------- */
+
+.login-form { display: flex; flex-direction: column; align-items: stretch; gap: var(--lx-space-4); width: 100%; }
+.login-form .field { min-width: 0; }
+.login-form .field input {
+  width: 100%;
+  min-height: var(--lx-size-touch-comfort);
+  border-width: var(--lx-border-width-thick);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-bg-surface);
+  transition: border-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
+}
+.login-form .field input:focus { border-color: var(--lx-border-focus); }
+.login-form .field input[aria-invalid="true"] { border-color: var(--lx-feedback-error-strong); }
+.login-form .field input:disabled { background: var(--lx-bg-sunken); color: var(--lx-text-secondary); }
+.login-password { position: relative; }
+.login-password input { padding-right: calc(var(--lx-size-touch-min) + var(--lx-space-2)); }
+.login-toggle {
+  position: absolute;
+  top: 50%;
+  right: var(--lx-space-1);
+  transform: translateY(-50%);
+  width: var(--lx-size-touch-min);
+  height: var(--lx-size-touch-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--lx-radius-full);
+  background: transparent;
+  color: var(--lx-text-secondary);
+  cursor: pointer;
+}
+.login-toggle:hover { color: var(--lx-text-primary); }
+.login-toggle:focus-visible { outline-offset: calc(-1 * var(--lx-border-width-focus-ring)); }
+/* "Esqueci a senha": link de texto à direita, embaixo do campo, com área de toque mínima */
+.login-forgot {
+  align-self: flex-end;
+  min-height: var(--lx-size-touch-min);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--lx-space-1);
+  font: var(--lx-typography-label-sm);
+}
+.login-hint { font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); }
+.login-form .field input.login-code {
+  font: var(--lx-typography-numeric);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+.login-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lx-space-2);
+  padding: var(--lx-space-3) var(--lx-space-4);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-feedback-error-soft);
+  font: var(--lx-typography-body-sm);
+}
+.splash-body p.login-error { color: var(--lx-feedback-error-on-soft); }
+.login-error .icon { margin-top: 0.1em; }
+.login-error:focus { outline: none; }
+.login-error:focus-visible { outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus); }
+.login-submit { width: 100%; min-height: var(--lx-size-button-md); }
+.splash-body p.login-help { font: var(--lx-typography-body-sm); color: var(--lx-text-tertiary); }
+
 /* ---------- primeiro acesso: aplicativo autenticador ---------- */
 
 .mfa-steps {

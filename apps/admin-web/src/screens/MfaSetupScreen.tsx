@@ -12,7 +12,7 @@ type Step =
 
 /**
  * Primeiro acesso de admin: ligar o aplicativo autenticador da conta (a API do painel exige). Depois de
- * confirmado, o painel confere o acesso de novo (`onDone`) e o login do Cognito passa a pedir o código.
+ * confirmado, o painel confere o acesso de novo (`onDone`) e o login do painel passa a pedir o código.
  */
 export function MfaSetupScreen({ setup, onDone, onLogout }: { setup: MfaSetupApi; onDone: () => void; onLogout: () => void }) {
   const [step, setStep] = useState<Step>({ kind: 'intro' });

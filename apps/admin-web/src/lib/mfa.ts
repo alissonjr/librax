@@ -1,16 +1,16 @@
-import { currentAccessToken, currentToken, tokenClaims } from './auth';
+import { authConfig, sharedAuth, tokenClaims } from './auth';
 
 /*
  * Primeiro acesso ao painel: configurar o aplicativo autenticador (TOTP) da própria conta.
  *
  * A API do painel recusa admin sem o autenticador (403 ADMIN_MFA_REQUIRED). Aqui o painel fala direto
  * com o Cognito (cognito-idp.<região>.amazonaws.com, já liberado na CSP do painel), com o access token
- * do login, que tem o escopo aws.cognito.signin.user.admin:
+ * do login, que tem o escopo aws.cognito.signin.user.admin (todo login pela API do User Pool tem):
  *   1. AssociateSoftwareToken: o Cognito gera a chave secreta da conta;
  *   2. o painel mostra a chave e um QR code feito aqui mesmo (nada sai do navegador);
  *   3. VerifySoftwareToken: confere o primeiro código de 6 dígitos do aplicativo;
  *   4. SetUserMFAPreference: liga o autenticador como fator preferido. Daí em diante o login do
- *      Cognito pede o código.
+ *      painel pede o código (lib/auth.ts, desafio SOFTWARE_TOKEN_MFA).
  * Nunca SMS. O app do Librax não usa nada disso.
  */
 
@@ -71,19 +71,23 @@ const MESSAGES: Record<string, string> = {
   SoftwareTokenMFANotFoundException: 'A configuração começou de novo em outro lugar. Leia o QR code novo.',
 };
 
+type TokenSource = () => string | null | Promise<string | null>;
+
 export function cognitoMfaSetup({
-  idToken = () => currentToken(),
-  accessToken = () => currentAccessToken(),
+  idToken = () => sharedAuth().idToken(),
+  accessToken = () => sharedAuth().accessToken(),
+  endpoint = authConfig().endpoint,
   fetchFn = (...args: Parameters<typeof fetch>) => fetch(...args),
-}: { idToken?: () => string | null; accessToken?: () => string | null; fetchFn?: typeof fetch } = {}): MfaSetupApi {
-  function session() {
-    const id = idToken();
-    const access = accessToken();
-    const endpoint = id ? cognitoEndpoint(id) : null;
-    if (!id || !access || !endpoint) {
+}: { idToken?: TokenSource; accessToken?: TokenSource; endpoint?: string; fetchFn?: typeof fetch } = {}): MfaSetupApi {
+  async function session() {
+    const id = await idToken();
+    const access = await accessToken();
+    // O mesmo endereço do login (no ambiente local, o proxy); sem configuração, o `iss` do token
+    const origin = endpoint || (id ? cognitoEndpoint(id) : null);
+    if (!id || !access || !origin) {
       throw new MfaSetupError('NO_SESSION', 'A sessão não tem o acesso para configurar o autenticador. Saia, entre de novo e repita.');
     }
-    return { id, access, endpoint };
+    return { id, access, endpoint: origin };
   }
 
   async function call<T>(endpoint: string, target: string, body: Record<string, unknown>): Promise<T> {
@@ -105,7 +109,7 @@ export function cognitoMfaSetup({
 
   return {
     async start() {
-      const { id, access, endpoint } = session();
+      const { id, access, endpoint } = await session();
       const { SecretCode: secret } = await call<{ SecretCode?: string }>(endpoint, 'AssociateSoftwareToken', { AccessToken: access });
       if (!secret) throw new MfaSetupError('NO_SECRET', 'O Cognito não devolveu a chave. Tente de novo.');
       const claims = tokenClaims(id);
@@ -115,7 +119,7 @@ export function cognitoMfaSetup({
     async verify(raw) {
       const code = normalizeCode(raw);
       if (!code) throw new MfaSetupError('BAD_CODE', 'Digite os 6 números que aparecem no aplicativo.');
-      const { access, endpoint } = session();
+      const { access, endpoint } = await session();
       const { Status } = await call<{ Status?: string }>(endpoint, 'VerifySoftwareToken', {
         AccessToken: access,
         UserCode: code,

@@ -1,9 +1,9 @@
-import { currentToken } from './auth';
+import { sharedAuth } from './auth';
 import type { AccountSummary, Account, ContentStatus, CostView, Me, Overview, SquadRow } from './types';
 
 /*
  * Cliente das rotas /v1/admin (só leitura). O id token vai no Authorization: Bearer; a API confere
- * o grupo admin e responde 403 para os outros.
+ * o grupo admin e responde 403 para os outros. O token vencido é renovado antes (lib/auth.ts).
  */
 
 export class ApiError extends Error {
@@ -24,11 +24,11 @@ export interface AdminApi {
 
 export function httpApi({
   base = import.meta.env.VITE_API_BASE || '/api',
-  token = () => currentToken(),
+  token = () => sharedAuth().idToken(),
   fetchFn = (...args: Parameters<typeof fetch>) => fetch(...args),
-}: { base?: string; token?: () => string | null; fetchFn?: typeof fetch } = {}): AdminApi {
+}: { base?: string; token?: () => string | null | Promise<string | null>; fetchFn?: typeof fetch } = {}): AdminApi {
   async function get<T>(path: string, query?: Record<string, string | null | undefined>): Promise<T> {
-    const idToken = token();
+    const idToken = await token();
     if (!idToken) throw new ApiError(401, 'UNAUTHORIZED', 'Sessão expirada');
     const params = new URLSearchParams();
     for (const [k, v] of Object.entries(query ?? {})) if (v) params.set(k, v);

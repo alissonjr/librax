@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, Route, Routes } from 'react-router-dom';
 import { Icon } from './components/Icon';
 import { Chip } from './components/ui';
 import { ApiError, type AdminApi } from './lib/api';
+import type { AdminAuth } from './lib/auth';
 import { ApiContext } from './lib/context';
 import { cognitoMfaSetup, type MfaSetupApi } from './lib/mfa';
 import { applyTheme, loadTheme, nextTheme, THEME_LABEL, type ThemeChoice } from './lib/theme';
@@ -14,15 +15,7 @@ import { SquadsScreen } from './screens/SquadsScreen';
 import { CustoScreen } from './screens/CustoScreen';
 import { CameraScreen } from './screens/CameraScreen';
 import { MfaSetupScreen } from './screens/MfaSetupScreen';
-
-/** Sessão do painel (lib/auth.ts em produção; um falso nos testes e no modo de exemplo). */
-export interface Session {
-  hasToken(): boolean;
-  login(): void | Promise<void>;
-  logout(): void;
-  completeLogin(search: string): Promise<void>;
-  clear(): void;
-}
+import { LoginScreen } from './screens/LoginScreen';
 
 const NAV: Array<[string, string, string]> = [
   ['/', 'Operação', 'trending_up'],
@@ -33,12 +26,11 @@ const NAV: Array<[string, string, string]> = [
   ['/custo', 'Custo', 'cloud_done'],
 ];
 
-export function AdminApp({ api, session, mfa }: { api: AdminApi; session: Session; mfa?: MfaSetupApi }) {
+export function AdminApp({ api, session, mfa }: { api: AdminApi; session: AdminAuth; mfa?: MfaSetupApi }) {
   const [mfaSetup] = useState<MfaSetupApi>(() => mfa ?? cognitoMfaSetup());
   return (
     <ApiContext.Provider value={api}>
       <Routes>
-        <Route path="/auth/callback" element={<Callback session={session} />} />
         <Route path="*" element={<Gate api={api} session={session} mfa={mfaSetup} />}>
           <Route index element={<OperacaoScreen />} />
           <Route path="camera" element={<CameraScreen />} />
@@ -50,32 +42,6 @@ export function AdminApp({ api, session, mfa }: { api: AdminApi; session: Sessio
         </Route>
       </Routes>
     </ApiContext.Provider>
-  );
-}
-
-function Callback({ session }: { session: Session }) {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    session.completeLogin(location.search)
-      .then(() => navigate('/', { replace: true }))
-      .catch((err: Error) => setError(err.message));
-    // a volta do login roda uma vez
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  return (
-    <Splash>
-      {error ? (
-        <>
-          <Chip tone="error" icon="warning">Erro no login</Chip>
-          <p>{error}</p>
-          <button type="button" className="btn btn--primary" onClick={() => void session.login()}>Entrar de novo</button>
-        </>
-      ) : (
-        <p role="status"><span className="spinner" aria-hidden="true" /> Entrando...</p>
-      )}
-    </Splash>
   );
 }
 
@@ -92,12 +58,18 @@ type GateState =
  * Só abre o painel depois que a API confirma o grupo admin e o aplicativo autenticador da conta
  * (GET /v1/admin/me). Sem o autenticador, guia a configuração no primeiro acesso.
  */
-function Gate({ api, session, mfa }: { api: AdminApi; session: Session; mfa: MfaSetupApi }) {
-  const [state, setState] = useState<GateState>(() => (session.hasToken() ? { kind: 'checking' } : { kind: 'login' }));
+function Gate({ api, session, mfa }: { api: AdminApi; session: AdminAuth; mfa: MfaSetupApi }) {
+  const [state, setState] = useState<GateState>(() => (session.hasSession() ? { kind: 'checking' } : { kind: 'login' }));
   const [attempt, setAttempt] = useState(0);
+  const recheck = () => setAttempt((n) => n + 1);
+  // Sair: apaga do navegador na hora, revoga no Cognito em segundo plano e volta para a tela de entrar
+  const logout = () => {
+    void session.signOut();
+    setState({ kind: 'login' });
+  };
 
   useEffect(() => {
-    if (!session.hasToken()) {
+    if (!session.hasSession()) {
       setState({ kind: 'login' });
       return;
     }
@@ -123,11 +95,7 @@ function Gate({ api, session, mfa }: { api: AdminApi; session: Session; mfa: Mfa
   if (state.kind === 'login') {
     return (
       <Splash>
-        <h1 className="splash-title">Painel de administração</h1>
-        <p>Acesso só para contas no grupo admin, com e-mail e senha e o aplicativo autenticador no celular.</p>
-        <button type="button" className="btn btn--primary" onClick={() => void session.login()}>
-          <Icon name="login" /> Entrar
-        </button>
+        <LoginScreen auth={session} onSignedIn={recheck} />
       </Splash>
     );
   }
@@ -140,7 +108,7 @@ function Gate({ api, session, mfa }: { api: AdminApi; session: Session; mfa: Mfa
         <Chip tone="error" icon="lock">Sem acesso</Chip>
         <h1 className="splash-title">Esta conta não é de administração</h1>
         <p>O painel só abre para contas no grupo admin do Cognito. Peça acesso ao dono do projeto e entre de novo.</p>
-        <button type="button" className="btn btn--secondary" onClick={() => session.logout()}>
+        <button type="button" className="btn btn--secondary" onClick={logout}>
           <Icon name="logout" /> Sair
         </button>
       </Splash>
@@ -149,7 +117,7 @@ function Gate({ api, session, mfa }: { api: AdminApi; session: Session; mfa: Mfa
   if (state.kind === 'mfa') {
     return (
       <Splash>
-        <MfaSetupScreen setup={mfa} onDone={() => setAttempt((n) => n + 1)} onLogout={() => session.logout()} />
+        <MfaSetupScreen setup={mfa} onDone={recheck} onLogout={logout} />
       </Splash>
     );
   }
@@ -159,7 +127,7 @@ function Gate({ api, session, mfa }: { api: AdminApi; session: Session; mfa: Mfa
         <Chip tone="error" icon="lock">Sem acesso</Chip>
         <h1 className="splash-title">Entre com e-mail e senha</h1>
         <p>O painel exige o aplicativo autenticador, que só existe nas contas de e-mail e senha do Librax. Contas do Google não servem aqui. Crie uma conta de e-mail e senha só para o painel e peça ao dono do projeto para colocá-la no grupo admin.</p>
-        <button type="button" className="btn btn--secondary" onClick={() => session.logout()}>
+        <button type="button" className="btn btn--secondary" onClick={logout}>
           <Icon name="logout" /> Sair
         </button>
       </Splash>
@@ -170,11 +138,11 @@ function Gate({ api, session, mfa }: { api: AdminApi; session: Session; mfa: Mfa
       <Splash>
         <Chip tone="error" icon="warning">Erro</Chip>
         <p>{state.message}</p>
-        <button type="button" className="btn btn--primary" onClick={() => setAttempt((n) => n + 1)}>Tentar de novo</button>
+        <button type="button" className="btn btn--primary" onClick={recheck}>Tentar de novo</button>
       </Splash>
     );
   }
-  return <Shell me={state.me} session={session} />;
+  return <Shell me={state.me} onLogout={logout} />;
 }
 
 function Brand() {
@@ -196,7 +164,7 @@ function Splash({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Shell({ me, session }: { me: Me; session: Session }) {
+function Shell({ me, onLogout }: { me: Me; onLogout: () => void }) {
   const [theme, setTheme] = useState<ThemeChoice>(loadTheme);
   useEffect(() => applyTheme(theme), [theme]);
   return (
@@ -217,7 +185,7 @@ function Shell({ me, session }: { me: Me; session: Session }) {
             <button type="button" className="btn btn--ghost" onClick={() => setTheme(nextTheme(theme))} aria-label={`${THEME_LABEL[theme]}. Trocar tema`}>
               <Icon name="contrast" /> <span>{THEME_LABEL[theme]}</span>
             </button>
-            <button type="button" className="btn btn--ghost" onClick={() => session.logout()}>
+            <button type="button" className="btn btn--ghost" onClick={onLogout}>
               <Icon name="logout" /> <span>Sair</span>
             </button>
           </div>

@@ -24,7 +24,8 @@ cd apps/admin-web && npm run dev:local   # painel em http://127.0.0.1:5321/admin
 ```
 
 Na primeira vez, abra <https://127.0.0.1:5333/> e aceite o aviso de certificado: a página de login local é
-HTTPS com certificado autoassinado, porque o Amplify e o painel montam `https://<domínio>/oauth2/...` fixo.
+HTTPS com certificado autoassinado, porque o Amplify do app monta `https://<domínio>/oauth2/...` fixo. O painel
+não usa essa página: entra pela própria tela, com SRP pelo proxy do `cognito-idp` (porta 5332).
 
 | Comando (em `services/api`) | O que faz |
 |---|---|
@@ -86,7 +87,7 @@ Tudo em `127.0.0.1`. As portas 5300 e 5310 são do dono (dev do app e do painel)
 | `DynamoRepo` e `CognitoDirectory` | **reais** (AWS SDK v3), apontados para o DynamoDB Local e o moto |
 | Tabela `librax` | DynamoDB Local, com as 6 GSIs e o TTL do template |
 | Login do app (SRP, cadastro, confirmação, esqueci a senha, OAuth com PKCE) | código **real** do Amplify, contra o proxy local e a página local |
-| Login do painel (PKCE) | código **real** do `apps/admin-web/src/lib/auth.ts`; sem o segundo fator (aplicativo autenticador), que a página local não tem: a Lambda do painel roda com `mfa: false` (`local/functions.mjs`) |
+| Login do painel (tela própria, SRP) | código **real** do `apps/admin-web/src/lib/auth.ts`, contra o proxy local; sem o segundo fator (aplicativo autenticador): o moto só confere o código com uma chave fixa para todas as contas, então a Lambda do painel roda com `mfa: false` (`local/functions.mjs`) |
 | User Pool, clients, grupo `admin`, tokens e JWKS | moto, criados a partir do template |
 | O que o moto não faz como o Cognito | proxy local: confere a senha no SRP, gera e confere o código de confirmação e o da nova senha (com a política de senha do template e o limite de tentativas), roda o PostConfirmation, responde o `RevokeToken`, aplica os `ExplicitAuthFlows` do client e o `PreventUserExistenceErrors`, e no `AdminDeleteUser` apaga também o verificador SRP (refresh de conta excluída vira `NotAuthorizedException`, como no Cognito) |
 | Hosted UI e Google | página local no visual do Traço; o Google é simulado |
@@ -159,7 +160,9 @@ sobe um no próprio processo. O teste (`services/api/e2e/local.e2e.mjs`):
    não troca com o verifier errado nem duas vezes, a senha errada e o callback fora da lista;
 2. conclui uma lição pela API e confere no DynamoDB Local a tentativa (`ATTEMPT#`) e o XP do perfil; reenvio não
    soma de novo; sem token ou com token adulterado, 401;
-3. chama `/v1/admin` com a conta admin (200), com a comum (403 `ADMIN_ONLY`) e com o token do app (401);
+3. entra no client do painel por SRP pelo proxy (como a tela do painel), renova pelo refresh token e chama
+   `/v1/admin` com a conta admin (200), com a comum (403 `ADMIN_ONLY`) e com o token do app (401); o client do
+   painel não abre a página de login local (sem callback);
 4. entra por SRP pelo proxy do `cognito-idp`: senha certa entra, errada não; `USER_PASSWORD_AUTH` é recusado
    pelo client do app;
 5. troca a senha do aluno pelo esqueci a senha (código lido da caixa simulada), confere que o SRP aceita a nova e

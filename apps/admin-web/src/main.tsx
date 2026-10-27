@@ -3,25 +3,17 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import '@app/styles/tokens.css';
 import './styles.css';
-import { AdminApp, type Session } from './App';
+import { AdminApp } from './App';
 import { httpApi, type AdminApi } from './lib/api';
-import { clearToken, completeLogin, currentToken, login, logout } from './lib/auth';
+import { sharedAuth, type AdminAuth } from './lib/auth';
 import { applyTheme, loadTheme } from './lib/theme';
 
 applyTheme(loadTheme());
 
-const realSession: Session = {
-  hasToken: () => currentToken() !== null,
-  login,
-  logout,
-  completeLogin: (search) => completeLogin(search),
-  clear: clearToken,
-};
-
 async function start() {
   let api: AdminApi = httpApi();
-  let session = realSession;
-  // `npm run dev:mock`: dados de exemplo, sem login (some do build de produção)
+  let session: AdminAuth = sharedAuth();
+  // `npm run dev:mock`: dados de exemplo e login de mentira (some do build de produção)
   if (import.meta.env.MODE === 'mock') {
     const mock = await import('./dev/mock');
     api = mock.mockApi();

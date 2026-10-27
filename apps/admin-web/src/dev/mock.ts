@@ -1,7 +1,7 @@
-// Modo de exemplo (npm run dev:mock): o painel inteiro sem AWS e sem login, para desenvolver as
-// telas e tirar prints. Só é carregado com `--mode mock`.
+// Modo de exemplo (npm run dev:mock): o painel inteiro sem AWS, para desenvolver as telas e tirar
+// prints. Só é carregado com `--mode mock`.
 import type { AdminApi } from '../lib/api';
-import type { Session } from '../App';
+import { AuthError, type AdminAuth, type Challenge } from '../lib/auth';
 import { SAMPLE_USER, sampleAccount, sampleContent, sampleCost, sampleOverview, sampleSquads } from './fixtures';
 
 const wait = <T,>(value: T) => new Promise<T>((r) => setTimeout(() => r(value), 150));
@@ -19,6 +19,41 @@ export function mockApi(): AdminApi {
   };
 }
 
-export function mockSession(): Session {
-  return { hasToken: () => true, login: () => {}, logout: () => {}, completeLogin: async () => {}, clear: () => {} };
+const SIGNED_OUT_KEY = 'librax_admin_mock_saiu';
+
+/**
+ * Login de mentira, para ver as telas de entrar: abre já dentro do painel; "Sair" (ou abrir com
+ * `?entrar` na URL) leva à tela de entrar. Qualquer e-mail e senha vão para o código, com estas
+ * exceções na senha: `errada`, `muitas`, `rede` e `nova` (senha temporária). No código, `000000`
+ * não confere e `999999` faz o tempo acabar; qualquer outro entra.
+ */
+export function mockSession(): AdminAuth {
+  if (new URLSearchParams(window.location.search).has('entrar')) sessionStorage.setItem(SIGNED_OUT_KEY, '1');
+  const totp = (): Challenge => ({ kind: 'totp', session: 'sessao-de-exemplo', username: 'exemplo' });
+  return {
+    hasSession: () => sessionStorage.getItem(SIGNED_OUT_KEY) !== '1',
+    async signIn(_email, password) {
+      await wait(null);
+      if (password === 'errada') throw new AuthError('INVALID_CREDENTIALS');
+      if (password === 'muitas') throw new AuthError('TOO_MANY_ATTEMPTS');
+      if (password === 'rede') throw new AuthError('NETWORK');
+      if (password === 'nova') return { kind: 'newPassword', session: 'sessao-de-exemplo', username: 'exemplo' };
+      return totp();
+    },
+    async confirmTotp(_challenge, code) {
+      await wait(null);
+      if (code === '000000') throw new AuthError('BAD_CODE');
+      if (code === '999999') throw new AuthError('SESSION_EXPIRED');
+      sessionStorage.removeItem(SIGNED_OUT_KEY);
+      return { kind: 'done' };
+    },
+    async completeNewPassword() {
+      await wait(null);
+      return totp();
+    },
+    async signOut() {
+      sessionStorage.setItem(SIGNED_OUT_KEY, '1');
+    },
+    clear: () => sessionStorage.setItem(SIGNED_OUT_KEY, '1'),
+  };
 }

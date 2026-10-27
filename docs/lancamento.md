@@ -187,7 +187,7 @@ Authenticator, 1Password ou outro; grátis, nunca SMS). Por isso:
    bash infra/scripts/lancar-cloudshell.sh --admin seu+admin@email.com
    ```
 
-3. Abra `https://app.librax.online/admin/` e entre com essa conta. No primeiro acesso o painel mostra
+3. Abra `https://app.librax.online/admin/` e entre com o e-mail e a senha dessa conta. No primeiro acesso o painel mostra
    **Configure o aplicativo autenticador**: toque em **Começar**, leia o QR code com o aplicativo (ou digite a
    chave mostrada embaixo) e digite o código de 6 dígitos. Pronto: daí em diante, o login do painel pede o código
    do aplicativo depois da senha.
@@ -443,7 +443,8 @@ O script lê a cota (`lambda get-account-settings`, só leitura) e para antes do
 | "A cota de execuções simultâneas do Lambda nesta conta é 10" | pedir 1000 no Service Quotas (passo 5); o lançamento segue sem a concorrência reservada |
 | "Concorrência reservada pedida, mas a cota da conta é ..." | esperar a AWS liberar a cota ou rodar com `--sem-concorrencia-reservada` |
 | Painel mostra "Configure o aplicativo autenticador" | é o primeiro acesso de admin: siga o passo 10 |
-| Painel mostra "Entre com e-mail e senha" | a conta admin é do Google; use uma conta de e-mail e senha (passo 10) |
+| Painel diz "E-mail ou senha incorretos" com a senha certa | conta do Google não tem senha e não entra no painel; use uma conta de e-mail e senha (passo 10) |
+| Esqueceu a senha da conta do painel | "Esqueci a senha" na tela do painel abre o app; troque lá e entre de novo no painel |
 
 ## Revisão de segurança e custo
 

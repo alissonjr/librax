@@ -52,15 +52,15 @@ via proxy previsto na fase W4.
 
 ## 2. Acesso: três travas
 
-1. **Autorizador próprio.** O painel tem um app client só dele no Cognito (`librax-admin`, código com PKCE,
-   callbacks em `/admin/auth/callback`). As rotas `/v1/admin/*` usam um autorizador JWT que só aceita o id token
-   desse client: o token do app não abre o painel.
+1. **Autorizador próprio.** O painel tem um app client só dele no Cognito (`librax-admin`, login pela tela do
+   próprio painel, seção [Tela de entrar](#tela-de-entrar)). As rotas `/v1/admin/*` usam um autorizador JWT que só
+   aceita o id token desse client: o token do app não abre o painel.
 2. **Grupo no token.** Cada rota confere `cognito:groups` no token e responde **403 `ADMIN_ONLY`** para quem não
    está no grupo `admin` (`requireAdmin` em `handlers/_http.js`). O site esconde as telas, mas quem decide é a API.
 3. **Segundo fator obrigatório.** A conta precisa ter o aplicativo autenticador (TOTP) ligado; sem ele, toda rota
-   responde **403 `ADMIN_MFA_REQUIRED`** e o site guia a configuração. Conta do Google ou da Apple responde
-   **403 `ADMIN_MFA_FEDERATED`**: o fator do Cognito não vale para ela, então o painel pede uma conta de e-mail e
-   senha.
+   responde **403 `ADMIN_MFA_REQUIRED`** e o site guia a configuração. Conta do Google ou da Apple nem entra (o
+   client do painel só aceita e-mail e senha, e ela não tem senha); se um token dela chegasse, a API responderia
+   **403 `ADMIN_MFA_FEDERATED`**, porque o fator do Cognito não vale para ela.
 
 A Lambda do painel só **lê** a tabela (`grantReadData`) e só pode chamar `cognito-idp:ListUsers` e
 `cognito-idp:AdminGetUser` no User Pool do Librax. Cada acesso vai para o log com o sub de quem consultou e a rota
@@ -74,8 +74,8 @@ vê nada disso. O Cognito não exige MFA por grupo, e o token do User Pool não 
 
 - Ela lê a conta com `AdminGetUser` e confere se `UserMFASettingList` tem `SOFTWARE_TOKEN_MFA`
   (`directory.totpEnabled` em `adapters/cognitoDirectory.js`). Com o autenticador ligado, **todo login da conta
-  pede o código**, inclusive no login hospedado do Cognito que o painel usa (o próprio Cognito mostra a tela do
-  código depois da senha). Conferir a conta, e não o token, é o que dá para fazer de forma confiável.
+  pede o código**: o Cognito responde o desafio `SOFTWARE_TOKEN_MFA` depois da senha e a tela do painel pede os 6
+  dígitos. Conferir a conta, e não o token, é o que dá para fazer de forma confiável.
 - O "sim" fica guardado na Lambda por 5 minutos (`makeMfaGate` em `domain/admin.js`); o "não" nunca, para o
   painel abrir logo depois da configuração. Desligar o autenticador de uma conta leva até 5 minutos para valer.
 - Se o Cognito não responder, a rota dá 500: o painel nunca abre sem conferir.
@@ -83,16 +83,54 @@ vê nada disso. O Cognito não exige MFA por grupo, e o token do User Pool não 
   painel). E quem tiver a senha de um admin que ainda não configurou poderia configurar
   o próprio celular: configure logo depois do `--admin`.
 
-**Primeiro acesso** (site, `screens/MfaSetupScreen.tsx` e `lib/mfa.ts`): o login do painel pede também o escopo
-`aws.cognito.signin.user.admin`, e o access token fala direto com o Cognito: `AssociateSoftwareToken` (chave
-secreta), QR code gerado no navegador (nada sai dele), `VerifySoftwareToken` (primeiro código de 6 dígitos) e
-`SetUserMFAPreference` (autenticador ligado e preferido). Depois disso o painel confere o acesso de novo e abre.
+**Primeiro acesso** (site, `screens/MfaSetupScreen.tsx` e `lib/mfa.ts`): conta sem o autenticador entra só com a
+senha, a API responde `ADMIN_MFA_REQUIRED` e o painel guia a configuração. O access token do login pela API do User
+Pool sempre tem o escopo `aws.cognito.signin.user.admin`, e é com ele que o painel fala direto com o Cognito:
+`AssociateSoftwareToken` (chave secreta), QR code gerado no navegador (nada sai dele), `VerifySoftwareToken`
+(primeiro código de 6 dígitos) e `SetUserMFAPreference` (autenticador ligado e preferido). Depois disso o painel
+confere o acesso de novo e abre; no próximo login, pede o código.
 
 **Conta do painel separada.** Com o autenticador ligado, a conta não entra no app do Librax (o app ainda não pede o
 código e mostra erro). Use uma conta de e-mail e senha só para o painel.
 
-**Ambiente local:** o login hospedado local não tem a tela do código, então o painel local não exige o segundo
-fator (`mfa: false` em `services/api/local/functions.mjs`).
+**Ambiente local:** o painel local entra pela mesma tela, com SRP pelo proxy do `cognito-idp` local. O moto só
+confere o código do autenticador com uma chave fixa, igual para todas as contas (`MOTO_COGNITO_IDP_USER_POOL_ENABLE_TOTP`),
+e sem ela aceita qualquer código; por isso o painel local não exige o segundo fator (`mfa: false` em
+`services/api/local/functions.mjs`) e a conta admin da semente entra só com e-mail e senha.
+
+### Tela de entrar
+
+O painel tem tela de login própria, com a marca do Librax e em português (`screens/LoginScreen.tsx` e
+`lib/auth.ts`), no lugar da página hospedada do Cognito (`auth.<domínio>`, que continua no ar para o Google do
+app). Ela fala direto com a API do User Pool (`cognito-idp.<região>.amazonaws.com`), como o login de e-mail e senha
+do app, sem biblioteca:
+
+1. **E-mail e senha** por `USER_SRP_AUTH` (`lib/srp.ts`, a mesma conta do Amplify): a senha não sai do navegador.
+   Sem link de cadastro (a conta é criada no app). Erros: "E-mail ou senha incorretos." (o mesmo para conta que não
+   existe, com `PreventUserExistenceErrors`), "Muitas tentativas seguidas" (inclusive a trava de senha do Cognito)
+   e "Sem conexão com o login".
+2. **Código do autenticador** (desafio `SOFTWARE_TOKEN_MFA`): campo numérico com `autocomplete="one-time-code"`.
+   Código errado limpa o campo e deixa tentar de novo com a mesma sessão. Se a sessão do desafio vencer (3 minutos
+   no Cognito) ou já tiver sido usada, a tela volta para a senha com o aviso "O tempo para concluir o login acabou".
+3. **Senha nova** (desafio `NEW_PASSWORD_REQUIRED`), só para conta criada por um admin da AWS com senha temporária:
+   a tela pede a senha nova (mínimo de 8 caracteres) e segue o login.
+4. **"Esqueci a senha"** abre o `/entrar` do app em outra aba (mesma origem, mesmo User Pool): lá, "Esqueci a
+   senha" manda o código por e-mail e troca a senha. Depois é só voltar ao painel. Com o autenticador ligado, o app
+   avisa que não conseguiu entrar depois da troca; a senha nova vale mesmo assim.
+
+Tokens e saída:
+
+- Id token e access token no `sessionStorage` (somem ao fechar a aba). O refresh token (12 horas) fica só na
+  memória da aba: renova o id token enquanto o painel está aberto e some ao recarregar. Depois de recarregar, vale
+  o id token guardado até vencer (1 hora); aí o painel pede login de novo. Nada disso vai na URL.
+- **Sair** apaga tudo do navegador na hora e revoga no Cognito: `RevokeToken` com o refresh token ou, depois de
+  recarregar a aba, `GlobalSignOut` com o access token (encerra as sessões da conta). Sem rede, só apaga; o id
+  token já emitido vale até vencer (até 1 hora) para quem o tiver copiado.
+- A CSP do painel só libera a própria origem e o `cognito-idp` da região (sem o domínio do login hospedado).
+
+O app client do painel tem só `ALLOW_USER_SRP_AUTH` e `ALLOW_REFRESH_TOKEN_AUTH`, sem OAuth, callbacks nem Google, e
+com a revogação de token ligada. A troca do login hospedado por este foi uma atualização no lugar do mesmo client
+(mesmo `AdminClientId`; teste em `infra/test/cost-guards.test.ts`).
 
 ### Perdeu o celular do autenticador
 
@@ -242,11 +280,11 @@ npx cdk synth -c librax:alarmEmail=alertas@<domínio> -c librax:monthlyBudgetUsd
 
 ## 6. Publicar o painel
 
-Outputs do CDK usados: `AuthDomain`, `AdminClientId`, `AdminBucketName`, `AdminUrl`.
+Outputs do CDK usados: `UserPoolId`, `AdminClientId`, `AdminBucketName`, `AdminUrl`.
 
 ```bash
 cd apps/admin-web
-cp .env.example .env.local      # VITE_COGNITO_DOMAIN e VITE_COGNITO_CLIENT_ID
+cp .env.example .env.local      # VITE_COGNITO_USER_POOL_ID e VITE_COGNITO_CLIENT_ID
 npm ci && npm run build
 aws s3 sync dist s3://<AdminBucketName>/admin --delete
 ```
@@ -258,12 +296,14 @@ favicon vêm do próprio app, na mesma origem.
 
 Desenvolvimento:
 
-- `npm run dev:mock`: o painel inteiro com dados de exemplo, sem AWS e sem login (porta 5310).
-- `npm run dev:local`: contra o ambiente local que simula a AWS, com login de verdade (PKCE na página local) e os
+- `npm run dev:mock`: o painel inteiro com dados de exemplo, sem AWS (porta 5310). Abre já dentro; "Sair" ou
+  `/admin/?entrar` mostram a tela de entrar com um login de mentira (as senhas e os códigos que simulam cada erro
+  estão em `src/dev/mock.ts`).
+- `npm run dev:local`: contra o ambiente local que simula a AWS, com login de verdade (SRP pelo proxy local) e os
   dados da semente (porta 5321). Ver [`docs/ambiente-local.md`](ambiente-local.md).
-- `LIBRAX_API_ORIGIN=https://app.<domínio> npm run dev`: contra a API de verdade. Precisa do callback de dev no
-  client do painel: `-c librax:extraAdminCallbackUrls=http://localhost:5310/admin/auth/callback`,
-  `-c librax:extraAdminLogoutUrls=http://localhost:5310/admin/` e `-c librax:extraCorsOrigins=http://localhost:5310`.
+- `LIBRAX_API_ORIGIN=https://app.<domínio> npm run dev`: contra a API de verdade, com `VITE_COGNITO_USER_POOL_ID` e
+  `VITE_COGNITO_CLIENT_ID` no `.env.local`. O login fala direto com o `cognito-idp` (sem callback nem domínio);
+  `-c librax:extraCorsOrigins=http://localhost:5310` continua valendo para a API.
 
 ## 7. Custo extra estimado por mês
 

@@ -2,8 +2,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { AdminApp, type Session } from '../App';
+import { AdminApp } from '../App';
 import { ApiError, type AdminApi } from '../lib/api';
+import type { AdminAuth } from '../lib/auth';
 import { mockApi } from '../dev/mock';
 import { qrPath } from '../components/QrCode';
 import {
@@ -33,8 +34,16 @@ const ID_TOKEN = jwt({
 });
 const SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
 
-function session(over: Partial<Session> = {}): Session {
-  return { hasToken: () => true, login: vi.fn(), logout: vi.fn(), completeLogin: vi.fn(async () => {}), clear: vi.fn(), ...over };
+function session(over: Partial<AdminAuth> = {}): AdminAuth {
+  return {
+    hasSession: () => true,
+    signIn: vi.fn(),
+    confirmTotp: vi.fn(),
+    completeNewPassword: vi.fn(),
+    signOut: vi.fn(async () => {}),
+    clear: vi.fn(),
+    ...over,
+  };
 }
 
 function renderApp(api: AdminApi, mfa: MfaSetupApi, s = session()) {
@@ -93,6 +102,23 @@ describe('lib/mfa', () => {
     expect(calls[1].body).toMatchObject({ UserCode: '123456', FriendlyDeviceName: 'Painel Librax' });
     expect(calls[2].body).toEqual({ AccessToken: 'access', SoftwareTokenMfaSettings: { Enabled: true, PreferredMfa: true } });
     expect(JSON.stringify(calls)).not.toContain('SMS');
+  });
+
+  it('usa o mesmo endereço do login (proxy no ambiente local) e os tokens da sessão, mesmo renovados', async () => {
+    const urls: string[] = [];
+    const fetchFn = vi.fn(async (url: string) => {
+      urls.push(url);
+      return new Response(JSON.stringify({ SecretCode: SECRET }), { status: 200 });
+    });
+    const setup = cognitoMfaSetup({
+      idToken: async () => ID_TOKEN,
+      accessToken: async () => 'access-renovado',
+      endpoint: 'http://127.0.0.1:5332',
+      fetchFn: fetchFn as unknown as typeof fetch,
+    });
+    await setup.start();
+    expect(urls).toEqual(['http://127.0.0.1:5332/']);
+    expect(JSON.parse(String((fetchFn.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({ AccessToken: 'access-renovado' });
   });
 
   it('código errado: mensagem em português; sessão sem access token: pede para entrar de novo', async () => {
@@ -162,6 +188,6 @@ describe('primeiro acesso de admin', () => {
     const s = renderApp(api, { start: vi.fn(), verify: vi.fn() });
     expect(await screen.findByText('Entre com e-mail e senha')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /Sair/ }));
-    expect(s.logout).toHaveBeenCalled();
+    expect(s.signOut).toHaveBeenCalled();
   });
 });
