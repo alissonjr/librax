@@ -3,6 +3,7 @@
 import type { AdminApi } from '../lib/api';
 import { AuthError, type AdminAuth, type Challenge } from '../lib/auth';
 import { SAMPLE_USER, sampleAccount, sampleContent, sampleCost, sampleOverview, sampleSquads } from './fixtures';
+import { sampleFeedbackPage, sampleUsage } from './usageFixtures';
 
 const wait = <T,>(value: T) => new Promise<T>((r) => setTimeout(() => r(value), 150));
 
@@ -16,6 +17,8 @@ export function mockApi(): AdminApi {
     account: () => wait(sampleAccount),
     squads: (cursor) => wait(cursor ? { squads: squads.slice(4), cursor: null } : { squads: squads.slice(0, 4), cursor: 'c1' }),
     cost: () => wait(sampleCost),
+    usage: () => wait(sampleUsage()),
+    feedback: (opts) => wait(sampleFeedbackPage(opts)),
   };
 }
 

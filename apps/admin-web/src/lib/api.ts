@@ -1,5 +1,6 @@
 import { sharedAuth } from './auth';
 import type { AccountSummary, Account, ContentStatus, CostView, Me, Overview, SquadRow } from './types';
+import type { FeedbackPage, Usage } from './usageTypes';
 
 /*
  * Cliente das rotas /v1/admin (só leitura). O id token vai no Authorization: Bearer; a API confere
@@ -20,6 +21,10 @@ export interface AdminApi {
   account(userId: string): Promise<AccountSummary>;
   squads(cursor?: string | null): Promise<{ squads: SquadRow[]; cursor: string | null }>;
   cost(): Promise<CostView>;
+  /** Uso anônimo do app (ativos, retenção, funil, lições, notas). */
+  usage(): Promise<Usage>;
+  /** Notas do app, da mais nova para a mais velha; `rating` filtra por estrela. */
+  feedback(opts?: { rating?: number | null; cursor?: string | null }): Promise<FeedbackPage>;
 }
 
 export function httpApi({
@@ -52,5 +57,7 @@ export function httpApi({
     account: (userId) => get(`/accounts/${encodeURIComponent(userId)}`),
     squads: (cursor) => get('/squads', { cursor: cursor ?? null }),
     cost: () => get('/cost'),
+    usage: () => get('/usage'),
+    feedback: ({ rating = null, cursor = null } = {}) => get('/feedback', { rating: rating ? String(rating) : null, cursor }),
   };
 }

@@ -1,0 +1,55 @@
+/* Tela "Uso" (UsoScreen): retenção com rolagem, fatos em lista e os comentários das notas. */
+
+.uso-scroll { max-height: 360px; overflow-y: auto; }
+
+.uso-facts {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  gap: var(--lx-space-2) var(--lx-space-4);
+  margin: 0;
+  font: var(--lx-typography-body-sm);
+}
+.uso-facts dt { color: var(--lx-text-secondary); }
+.uso-facts dd { margin: 0; color: var(--lx-text-primary); }
+
+.uso-comments {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.uso-comment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+  padding: var(--lx-space-3) 0;
+  border-bottom: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+}
+.uso-comment-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--lx-space-2); }
+.uso-comment-meta { font: var(--lx-typography-caption); color: var(--lx-text-tertiary); }
+.uso-comment-text {
+  margin: 0;
+  font: var(--lx-typography-body);
+  color: var(--lx-text-primary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.uso-comment-text--empty { color: var(--lx-text-tertiary); font-style: italic; }
+
+/* Legenda só para leitor de tela */
+.uso-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 560px) {
+  .uso-facts { grid-template-columns: minmax(0, 1fr); }
+}

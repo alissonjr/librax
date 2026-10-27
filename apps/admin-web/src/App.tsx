@@ -13,12 +13,14 @@ import { ConteudoScreen } from './screens/ConteudoScreen';
 import { ContasScreen } from './screens/ContasScreen';
 import { SquadsScreen } from './screens/SquadsScreen';
 import { CustoScreen } from './screens/CustoScreen';
+import { UsoScreen } from './screens/UsoScreen';
 import { CameraScreen } from './screens/CameraScreen';
 import { MfaSetupScreen } from './screens/MfaSetupScreen';
 import { LoginScreen } from './screens/LoginScreen';
 
 const NAV: Array<[string, string, string]> = [
   ['/', 'Operação', 'trending_up'],
+  ['/uso', 'Uso', 'query_stats'],
   ['/camera', 'Câmera', 'videocam'],
   ['/conteudo', 'Conteúdo', 'sign_language'],
   ['/contas', 'Contas', 'person'],
@@ -38,6 +40,7 @@ export function AdminApp({ api, session, mfa }: { api: AdminApi; session: AdminA
           <Route path="contas" element={<ContasScreen />} />
           <Route path="squads" element={<SquadsScreen />} />
           <Route path="custo" element={<CustoScreen />} />
+          <Route path="uso" element={<UsoScreen />} />
           <Route path="*" element={<OperacaoScreen />} />
         </Route>
       </Routes>
