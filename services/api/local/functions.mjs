@@ -68,7 +68,9 @@ export function makeLocalFunctions({ plan, state, log = console.log }) {
       makeAccountHandlers({ repo, directory: accounts, log }),
       // aviso de acesso novo sem SES (como na infra com librax:cognitoEmailSes desligado): so registra
       makeDeviceHandlers({ repo, mailer: null, appUrl: URLS.app, now }),
-      // Sem o segundo fator: o login hospedado local nao tem o desafio do aplicativo autenticador
+      // Sem o segundo fator: o moto so confere o codigo do aplicativo autenticador com uma chave fixa,
+      // igual para todas as contas (MOTO_COGNITO_IDP_USER_POOL_ENABLE_TOTP), e sem ela aceita qualquer
+      // codigo. O login do painel local (SRP pelo proxy) fica so com e-mail e senha.
       (({ adminRouter }) => ({ adminRouter }))(makeAdminHandlers({ repo, directory, mfa: false, now, log })),
     ];
     const out = {};

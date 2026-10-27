@@ -77,14 +77,16 @@ export function appCsp(authOrigin: string, cognitoIdpOrigin: string): string {
 
 /**
  * CSP do painel de administracao (/admin/*, apps/admin-web). Sem terceiros: o painel so fala com a
- * propria origem (API e fontes) e com o Cognito (troca do code por tokens). Nao pode ser
- * emoldurado por nenhuma pagina.
+ * propria origem (API e fontes) e com a API do User Pool (login SRP, codigo do autenticador, renovacao
+ * e saida). Sem o dominio do Cognito: o painel nao usa o login hospedado. Nao pode ser emoldurado por
+ * nenhuma pagina.
+ * @param cognitoIdpOrigin  https://cognito-idp.<regiao>.amazonaws.com
  */
-export function adminCsp(authOrigin: string, cognitoIdpOrigin: string): string {
+export function adminCsp(cognitoIdpOrigin: string): string {
   return join({
     'default-src': ["'self'"],
     'script-src': ["'self'"],
-    'connect-src': ["'self'", authOrigin, cognitoIdpOrigin],
+    'connect-src': ["'self'", cognitoIdpOrigin],
     'img-src': ["'self'", 'data:'],
     'style-src': ["'self'", "'unsafe-inline'"],
     'font-src': ["'self'"],
@@ -138,7 +140,7 @@ export const WASM_CONTENT_TYPE_FUNCTION = `function handler(event) {
 
 /**
  * CloudFront Function (viewer-request) do painel (/admin e /admin/*): `/admin` vira `/admin/` e
- * as rotas sem extensao (/admin/contas, /admin/auth/callback) recebem o /admin/index.html do
+ * as rotas sem extensao (/admin/contas, /admin/custo) recebem o /admin/index.html do
  * bucket do painel. Arquivos com extensao seguem como estao.
  */
 export const ADMIN_SPA_REWRITE_FUNCTION = `function handler(event) {

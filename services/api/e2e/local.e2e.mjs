@@ -6,7 +6,8 @@
  *
  * 1. Login pela pagina local com PKCE (authorize, formulario, code, token), como o app faz.
  * 2. Conclui uma licao pela API e confere o progresso direto no DynamoDB Local.
- * 3. /v1/admin com a conta admin (200) e com a comum (403); o token do app nao abre (401).
+ * 3. /v1/admin com a conta admin (200) e com a comum (403), com o login do painel (SRP pelo proxy, o
+ *    mesmo da tela do apps/admin-web); o token do app nao abre (401) e o painel nao tem login hospedado.
  * 4. Login por SRP pelo proxy do cognito-idp: senha certa entra, errada nao.
  * 5. Esqueci a senha: codigo da caixa simulada, senha nova no SRP (a do aluno volta no fim).
  * 6. Exclusao de conta (DELETE /v1/users/me) de uma conta nova de e-mail e senha e de uma do
@@ -31,7 +32,6 @@ import catalog from '../src/content/catalog.js';
 const aluno = ACCOUNTS.find((a) => a.role === 'aluno');
 const admin = ACCOUNTS.find((a) => a.role === 'admin');
 const APP_CALLBACK = `${URLS.app}/auth/callback`;
-const ADMIN_CALLBACK = `${URLS.admin}/admin/auth/callback`;
 
 let state;
 let server = null;
@@ -220,24 +220,45 @@ test('conclui uma licao pela API e o progresso aparece no banco', async () => {
 });
 
 test('/v1/admin: 200 para a conta admin, 403 para a comum e 401 para o token do app', async () => {
-  const adminTokens = await loginTokens({ clientId: state.adminClientId, redirectUri: ADMIN_CALLBACK, email: admin.email, password: admin.password });
-  const me = await api('/v1/admin/me', { token: adminTokens.id_token });
+  // login do painel: SRP pelo proxy do cognito-idp, com o client do painel (apps/admin-web, lib/auth.ts)
+  const adminLogin = await attempt(admin.password, { clientId: state.adminClientId, email: admin.email });
+  assert.equal(adminLogin.status, 200, JSON.stringify(adminLogin.body));
+  const adminToken = adminLogin.body.AuthenticationResult.IdToken;
+  assert.deepEqual(claimsOf(adminToken)['cognito:groups'], ['admin']);
+  const me = await api('/v1/admin/me', { token: adminToken });
   assert.equal(me.status, 200, me.text);
   assert.deepEqual(me.json().groups, ['admin']);
-  const overview = await api('/v1/admin/overview', { token: adminTokens.id_token });
+  const overview = await api('/v1/admin/overview', { token: adminToken });
   assert.equal(overview.status, 200);
-  const search = await api(`/v1/admin/accounts?q=${encodeURIComponent('aluno@')}`, { token: adminTokens.id_token });
+  const search = await api(`/v1/admin/accounts?q=${encodeURIComponent('aluno@')}`, { token: adminToken });
   assert.equal(search.status, 200);
   assert.equal(search.json().accounts[0]?.email, aluno.email);
 
-  const commonTokens = await loginTokens({ clientId: state.adminClientId, redirectUri: ADMIN_CALLBACK, email: aluno.email, password: aluno.password });
-  const denied = await api('/v1/admin/me', { token: commonTokens.id_token });
+  // refresh token do painel renova o id token
+  const renewed = await call('InitiateAuth', {
+    AuthFlow: 'REFRESH_TOKEN_AUTH',
+    ClientId: state.adminClientId,
+    AuthParameters: { REFRESH_TOKEN: adminLogin.body.AuthenticationResult.RefreshToken },
+  });
+  assert.equal(renewed.status, 200, JSON.stringify(renewed.body));
+  assert.equal((await api('/v1/admin/me', { token: renewed.body.AuthenticationResult.IdToken })).status, 200);
+
+  const commonLogin = await attempt(aluno.password, { clientId: state.adminClientId });
+  const denied = await api('/v1/admin/me', { token: commonLogin.body.AuthenticationResult.IdToken });
   assert.equal(denied.status, 403);
   assert.equal(denied.json().error.code, 'ADMIN_ONLY');
 
   // o autorizador do painel so aceita o client do painel, mesmo para quem e admin
   const appTokens = await loginTokens({ clientId: state.appClientId, redirectUri: APP_CALLBACK, email: admin.email, password: admin.password });
   assert.equal((await api('/v1/admin/me', { token: appTokens.id_token })).status, 401);
+
+  // sem login hospedado para o painel: o client dele nao tem callback
+  const hosted = new URL(`${URLS.login}/oauth2/authorize`);
+  hosted.search = form({
+    response_type: 'code', client_id: state.adminClientId, redirect_uri: `${URLS.admin}/admin/auth/callback`,
+    scope: 'openid', state: 'x', code_challenge: 'x'.repeat(43), code_challenge_method: 'S256',
+  });
+  assert.equal((await request(hosted.toString())).status, 400);
 });
 
 /** Chamada ao proxy do cognito-idp, como o Amplify faz. */
@@ -250,10 +271,10 @@ async function call(target, body) {
   return { status: res.status, body: res.json() };
 }
 
-/** Login por USER_SRP_AUTH da conta aluno com a senha informada. */
-async function attempt(password) {
+/** Login por USER_SRP_AUTH (por padrao, da conta aluno no client do app) com a senha informada. */
+async function attempt(password, { clientId = state.appClientId, email = aluno.email } = {}) {
   const { a, A } = clientStart();
-  const init = await call('InitiateAuth', { AuthFlow: 'USER_SRP_AUTH', ClientId: state.appClientId, AuthParameters: { USERNAME: aluno.email, SRP_A: A } });
+  const init = await call('InitiateAuth', { AuthFlow: 'USER_SRP_AUTH', ClientId: clientId, AuthParameters: { USERNAME: email, SRP_A: A } });
   assert.equal(init.status, 200, JSON.stringify(init.body));
   const p = init.body.ChallengeParameters;
   const timestamp = nowString();
@@ -262,7 +283,7 @@ async function attempt(password) {
   });
   return call('RespondToAuthChallenge', {
     ChallengeName: 'PASSWORD_VERIFIER',
-    ClientId: state.appClientId,
+    ClientId: clientId,
     Session: init.body.Session,
     ChallengeResponses: { USERNAME: p.USER_ID_FOR_SRP, PASSWORD_CLAIM_SECRET_BLOCK: p.SECRET_BLOCK, TIMESTAMP: timestamp, PASSWORD_CLAIM_SIGNATURE: signature },
   });

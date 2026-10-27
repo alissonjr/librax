@@ -43,8 +43,6 @@ import { DEFAULT_ANDROID_PACKAGE, normalizeFingerprint, validPackageName } from 
  * | librax:cognitoEmailReplyTo     | (vazio)                         | endereco de resposta (opcional) |
  * | librax:cspReportOnly           | false                           | manda a CSP como Report-Only (diagnostico) |
  * | librax:mediapipeVersion        | a do apps/web-poc/package.json  | pasta /ml/<versao>/ com cache imutavel; o resto de /ml/ revalida |
- * | librax:extraAdminCallbackUrls  | (vazio)                         | callbacks extras do painel (ex.: http://localhost:5310/admin/auth/callback) |
- * | librax:extraAdminLogoutUrls    | (vazio)                         | logouts extras do painel |
  * | librax:alarmEmail              | (vazio)                         | e-mail que recebe os alarmes (SNS); sem ele o topico fica sem assinatura |
  * | librax:budgetEmail             | = alarmEmail                    | e-mail dos avisos do AWS Budget (80% e 100%) |
  * | librax:monthlyBudgetUsd        | 10                              | valor mensal do AWS Budget, em dolares |
@@ -90,8 +88,6 @@ export interface LibraxConfig {
    * sem versao no caminho (classifier, sinais, letras-mov, numeros...) revalidam a cada pedido.
    */
   mediapipeVersion?: string;
-  extraAdminCallbackUrls: string[];
-  extraAdminLogoutUrls: string[];
   alarms: { email?: string };
   budget: { email?: string; monthlyUsd: number };
   /** App Android (TWA, apps/android-twa): o que vai no /.well-known/assetlinks.json do app. */
@@ -183,8 +179,6 @@ export function readConfig(node: Node): LibraxConfig {
     },
     cspReportOnly: bool('cspReportOnly', false),
     mediapipeVersion: semver(str('mediapipeVersion') || appMediapipeVersion()),
-    extraAdminCallbackUrls: list('extraAdminCallbackUrls'),
-    extraAdminLogoutUrls: list('extraAdminLogoutUrls'),
     alarms: { email: str('alarmEmail') || undefined },
     budget: {
       email: str('budgetEmail') || str('alarmEmail') || undefined,

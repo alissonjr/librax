@@ -401,16 +401,14 @@ describe('Cognito', () => {
         const { CustomMessage, ...otherTriggers } = lc;
         expect(CustomMessage).toBeDefined();
         expect(otherTriggers).toEqual(oldLc);
-        // app clients sem mudanca nenhuma (o `locale` ja e gravavel: o client nao restringe atributos);
-        // o escopo do painel para o autenticador veio depois (teste proprio)
-        const semEscopoDoPainel = (clients: Record<string, { Properties: Record<string, unknown> }>) =>
-          Object.fromEntries(Object.entries(clients).map(([id, c]) => {
-            const { AllowedOAuthScopes: _scopes, ...props } = c.Properties;
-            return [id, { ...c, Properties: props }];
-          }));
-        expect(semEscopoDoPainel(template.findResources('AWS::Cognito::UserPoolClient'))).toEqual(
-          semEscopoDoPainel(before[`ses-${ses}`].clients),
-        );
+        // app client do app sem mudanca nenhuma (o `locale` ja e gravavel: o client nao restringe
+        // atributos); o do painel mudou depois (escopo do autenticador e login proprio, teste em
+        // cost-guards.test.ts)
+        const doApp = (clients: Record<string, { Properties: Record<string, unknown> }>) =>
+          Object.fromEntries(Object.entries(clients).filter(([, c]) => c.Properties.ClientName !== 'librax-admin'));
+        const appClients = doApp(template.findResources('AWS::Cognito::UserPoolClient'));
+        expect(Object.keys(appClients)).toHaveLength(1);
+        expect(appClients).toEqual(doApp(before[`ses-${ses}`].clients));
       }
     });
 
@@ -666,15 +664,20 @@ describe('Painel de administracao', () => {
     template.hasResourceProperties('AWS::Cognito::UserPoolGroup', { GroupName: 'admin' });
   });
 
-  test('app client proprio do painel, so OAuth code e callbacks em /admin', () => {
-    const { template } = synth({ ...withDomain, 'librax:extraAdminCallbackUrls': 'http://localhost:5310/admin/auth/callback' });
+  test('app client proprio do painel: login pela API do User Pool (SRP), sem login hospedado', () => {
+    const { template } = synth(withDomain);
     template.hasResourceProperties('AWS::Cognito::UserPoolClient', {
       ClientName: 'librax-admin',
       GenerateSecret: false,
-      AllowedOAuthFlows: ['code'],
-      ExplicitAuthFlows: ['ALLOW_REFRESH_TOKEN_AUTH'],
-      CallbackURLs: ['https://app.librax.example/admin/auth/callback', 'http://localhost:5310/admin/auth/callback'],
-      LogoutURLs: ['https://app.librax.example/admin/'],
+      ExplicitAuthFlows: ['ALLOW_USER_SRP_AUTH', 'ALLOW_REFRESH_TOKEN_AUTH'],
+      AllowedOAuthFlowsUserPoolClient: false,
+      AllowedOAuthFlows: Match.absent(),
+      CallbackURLs: Match.absent(),
+      LogoutURLs: Match.absent(),
+      SupportedIdentityProviders: ['COGNITO'],
+      PreventUserExistenceErrors: 'ENABLED',
+      EnableTokenRevocation: true,
+      RefreshTokenValidity: 720,
     });
   });
 
@@ -767,7 +770,9 @@ describe('Painel de administracao', () => {
     const csp = flat(policy.SecurityHeadersConfig.ContentSecurityPolicy.ContentSecurityPolicy);
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("script-src 'self'");
-    expect(csp).toContain('https://auth.librax.example');
+    // login pela API do User Pool: o dominio do login hospedado nao entra
+    expect(csp).toContain('https://cognito-idp.us-east-1.amazonaws.com');
+    expect(csp).not.toContain('https://auth.librax.example');
     expect(csp).not.toContain('jsdelivr');
     const robots = policy.CustomHeadersConfig.Items.find((h: { Header: string }) => h.Header === 'X-Robots-Tag');
     expect(robots.Value).toContain('noindex');

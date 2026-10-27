@@ -63,13 +63,12 @@ export const COMPOSE_PROJECT = 'librax-local';
 
 /**
  * Enderecos locais que entram na stack pelo contexto que ela ja aceita (infra/lib/config.ts):
- * callbacks e logouts do app e do painel e as origens de CORS da API.
+ * callbacks e logouts do app e as origens de CORS da API. O painel entra pela API do User Pool
+ * (SRP pelo proxy), sem callback.
  */
 export const SYNTH_CONTEXT = {
   'librax:extraCallbackUrls': `${URLS.app}/auth/callback`,
   'librax:extraLogoutUrls': `${URLS.app}/`,
-  'librax:extraAdminCallbackUrls': `${URLS.admin}/admin/auth/callback`,
-  'librax:extraAdminLogoutUrls': `${URLS.admin}/admin/`,
   'librax:extraCorsOrigins': `${URLS.app},${URLS.admin}`,
 };
 

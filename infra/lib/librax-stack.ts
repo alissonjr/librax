@@ -661,7 +661,7 @@ export class LibraxStack extends cdk.Stack {
       extra: { 'Cache-Control': NO_CACHE },
     });
     // Painel: CSP propria (sem terceiros), sem moldura e fora dos buscadores
-    const adminCspValue = adminCsp(`https://${authHost}`, `https://cognito-idp.${this.region}.amazonaws.com`);
+    const adminCspValue = adminCsp(`https://cognito-idp.${this.region}.amazonaws.com`);
     const adminShellHeaders = headerPolicy('AdminShellHeaders', 'Librax - painel admin (no-cache)', {
       csp: adminCspValue,
       extra: { 'Cache-Control': NO_CACHE, 'X-Robots-Tag': 'noindex, nofollow' },
@@ -932,32 +932,32 @@ export class LibraxStack extends cdk.Stack {
       jwtAudience: [userPoolClient.userPoolClientId],
     });
 
-    // Painel de administracao: app client proprio (callbacks em /admin) e autorizador que so
-    // aceita o id token dele. O token do app nao abre as rotas /v1/admin, e a Lambda ainda
-    // confere o grupo `admin` (cognito:groups).
+    // Painel de administracao: app client proprio e autorizador que so aceita o id token dele. O
+    // token do app nao abre as rotas /v1/admin, e a Lambda ainda confere o grupo `admin`
+    // (cognito:groups) e o autenticador da conta.
+    //
+    // Login com tela propria (apps/admin-web, lib/auth.ts): e-mail e senha por SRP direto na API do
+    // User Pool, com o desafio do autenticador (SOFTWARE_TOKEN_MFA) no mesmo fluxo. Sem login hospedado:
+    // sem OAuth, callbacks nem Google neste client (conta do Google nao passa no segundo fator). O access
+    // token de login pela API sempre tem o escopo aws.cognito.signin.user.admin, que configura o
+    // autenticador da propria conta. Tudo aqui muda no lugar (ExplicitAuthFlows, AllowedOAuth*,
+    // CallbackURLs, LogoutURLs, SupportedIdentityProviders e EnableTokenRevocation sao "No interruption").
+    // O dominio do Cognito continua: o Google do app usa.
     const adminClient = new cognito.UserPoolClient(this, 'LibraxAdminClient', {
       userPool,
       userPoolClientName: 'librax-admin',
-      authFlows: { userSrp: false, userPassword: false, custom: false, adminUserPassword: false },
-      oAuth: {
-        flows: { authorizationCodeGrant: true, implicitCodeGrant: false },
-        // aws.cognito.signin.user.admin: o access token do painel configura o autenticador da propria
-        // conta (AssociateSoftwareToken, VerifySoftwareToken, SetUserMFAPreference). AllowedOAuthScopes
-        // muda no lugar. O app client do app continua so com openid, email e profile.
-        scopes: [
-          cognito.OAuthScope.OPENID, cognito.OAuthScope.EMAIL, cognito.OAuthScope.PROFILE, cognito.OAuthScope.COGNITO_ADMIN,
-        ],
-        callbackUrls: [...origins.map((o) => `${o}/admin/auth/callback`), ...config.extraAdminCallbackUrls],
-        logoutUrls: [...origins.map((o) => `${o}/admin/`), ...config.extraAdminLogoutUrls],
-      },
-      supportedIdentityProviders: identityProviders,
+      // userSrp liga ALLOW_USER_SRP_AUTH e ALLOW_REFRESH_TOKEN_AUTH; senha em texto, nunca
+      authFlows: { userSrp: true, userPassword: false, custom: false, adminUserPassword: false },
+      disableOAuth: true,
+      supportedIdentityProviders: [cognito.UserPoolClientIdentityProvider.COGNITO],
       generateSecret: false,
       preventUserExistenceErrors: true,
+      // Sair do painel revoga o refresh token (RevokeToken)
+      enableTokenRevocation: true,
       accessTokenValidity: Duration.hours(1),
       idTokenValidity: Duration.hours(1),
       refreshTokenValidity: Duration.hours(12),
     });
-    for (const idp of idpResources) adminClient.node.addDependency(idp);
     const adminAuthorizer = new apigatewayv2authorizers.HttpJwtAuthorizer('CognitoAdminAuth', userPool.userPoolProviderUrl, {
       jwtAudience: [adminClient.userPoolClientId],
     });

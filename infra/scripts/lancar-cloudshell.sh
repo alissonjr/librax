@@ -752,9 +752,10 @@ escrever_envs() {
     echo "VITE_VAPID_PUBLIC_KEY=$vapid"
     echo "VITE_GOOGLE_ENABLED=$google"
   } >"$WEB/.env.production.local"
+  # Painel: login próprio pela API do User Pool (SRP), sem o domínio do Cognito
   {
     echo "# Gerado por infra/scripts/lancar-cloudshell.sh com os outputs da stack $STACK. Fora do git."
-    echo "VITE_COGNITO_DOMAIN=$dominio_auth"
+    echo "VITE_COGNITO_USER_POOL_ID=$(output UserPoolId)"
     echo "VITE_COGNITO_CLIENT_ID=$(output AdminClientId)"
     echo "VITE_API_BASE=/api"
   } >"$ADMIN/.env.production.local"

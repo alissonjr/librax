@@ -240,9 +240,12 @@ export async function bootstrap() {
     VITE_API_BASE: '/api',
     VITE_VAPID_PUBLIC_KEY: '',
   }, header);
+  // Painel: login proprio por SRP no proxy do cognito-idp; "Esqueci a senha" abre o app local
   writeEnv(PATHS.envAdmin, {
-    VITE_COGNITO_DOMAIN: loginHost,
+    VITE_COGNITO_USER_POOL_ID: userPoolId,
     VITE_COGNITO_CLIENT_ID: adminClientId,
+    VITE_COGNITO_ENDPOINT: URLS.api,
+    VITE_APP_ORIGIN: URLS.app,
     VITE_API_BASE: '/api',
   }, header);
   log(`pronto: pool ${userPoolId}, app ${appClientId}, painel ${adminClientId}`);

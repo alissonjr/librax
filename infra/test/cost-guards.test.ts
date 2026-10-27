@@ -61,13 +61,34 @@ describe('atualizacao no lugar (mesmo logical id, so propriedades "No interrupti
     expect(now[id].DeletionPolicy).toBe('Retain');
   });
 
-  test('app clients: o do app igual; o do painel so ganha o escopo aws.cognito.signin.user.admin', () => {
+  test('app clients: o do app igual; o do painel troca o login hospedado pelo SRP, no lugar', () => {
+    // Propriedades de AWS::Cognito::UserPoolClient com "Update requires: No interruption". So
+    // GenerateSecret e UserPoolId trocam o client (e o AdminClientId do build do painel).
+    const NO_INTERRUPTION = new Set([
+      'AllowedOAuthFlows', 'AllowedOAuthFlowsUserPoolClient', 'AllowedOAuthScopes', 'CallbackURLs', 'EnableTokenRevocation',
+      'ExplicitAuthFlows', 'LogoutURLs', 'SupportedIdentityProviders',
+    ]);
     for (const [id, old] of Object.entries(before.clients)) {
+      expect(now[id]?.Type, id).toBe('AWS::Cognito::UserPoolClient');
       const changed = changedProps(old, now[id]);
       if (old.Properties.ClientName === 'librax-admin') {
-        // AllowedOAuthScopes: "No interruption" em AWS::Cognito::UserPoolClient
-        expect(changed).toEqual(['AllowedOAuthScopes']);
-        expect(now[id].Properties.AllowedOAuthScopes).toEqual([...old.Properties.AllowedOAuthScopes, 'aws.cognito.signin.user.admin']);
+        // Login com tela propria (apps/admin-web): SRP + refresh pela API do User Pool, sem OAuth,
+        // callbacks nem Google, e com a revogacao do refresh token ao sair
+        expect(changed).toEqual([
+          'AllowedOAuthFlows', 'AllowedOAuthFlowsUserPoolClient', 'AllowedOAuthScopes', 'CallbackURLs', 'EnableTokenRevocation',
+          'ExplicitAuthFlows', 'LogoutURLs', 'SupportedIdentityProviders',
+        ]);
+        expect(changed.every((k) => NO_INTERRUPTION.has(k))).toBe(true);
+        const p = now[id].Properties;
+        expect(p.ExplicitAuthFlows).toEqual(['ALLOW_USER_SRP_AUTH', 'ALLOW_REFRESH_TOKEN_AUTH']);
+        expect(p.AllowedOAuthFlowsUserPoolClient).toBe(false);
+        expect(p.AllowedOAuthFlows ?? p.AllowedOAuthScopes ?? p.CallbackURLs ?? p.LogoutURLs).toBeUndefined();
+        expect(p.SupportedIdentityProviders).toEqual(['COGNITO']);
+        expect(p.EnableTokenRevocation).toBe(true);
+        // o que troca o client continua igual, e os prazos dos tokens tambem
+        for (const k of ['ClientName', 'GenerateSecret', 'UserPoolId', 'AccessTokenValidity', 'IdTokenValidity', 'RefreshTokenValidity', 'PreventUserExistenceErrors']) {
+          expect(p[k], k).toEqual(old.Properties[k]);
+        }
       } else {
         expect(changed).toEqual([]);
       }

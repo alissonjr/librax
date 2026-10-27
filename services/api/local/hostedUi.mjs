@@ -1,9 +1,10 @@
 /**
- * Pagina local que imita o Hosted UI do Cognito (dominio do OAuth do app e do painel).
+ * Pagina local que imita o Hosted UI do Cognito (dominio do OAuth do app). O painel nao passa por
+ * aqui: entra pela API do User Pool (SRP pelo proxy), e o client dele nao tem callback.
  *
- * O Amplify do app e o login do painel montam https://<dominio>/oauth2/authorize, /oauth2/token
- * e /logout com https:// fixo: por isso esta pagina e HTTPS, com certificado autoassinado
- * (127.0.0.1 e localhost). O codigo de PKCE do app e do painel roda sem mudanca de logica.
+ * O Amplify do app monta https://<dominio>/oauth2/authorize, /oauth2/token e /logout com https://
+ * fixo: por isso esta pagina e HTTPS, com certificado autoassinado (127.0.0.1 e localhost). O codigo
+ * de PKCE do app roda sem mudanca de logica.
  *
  * - /oauth2/authorize: confere client, redirect_uri (CallbackURLs do client), response_type e
  *   PKCE; mostra o login (e-mail e senha), o cadastro e o "Google (simulado)". Com sessao da
