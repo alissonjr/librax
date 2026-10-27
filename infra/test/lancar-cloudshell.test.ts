@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { spawnSync } from 'child_process';
-import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import * as path from 'path';
 import { IMMUTABLE, ML_REVALIDATE } from '../lib/web-headers';
@@ -120,6 +120,8 @@ function montarRepositorio(contaDoLogin: string) {
 
   const bin = path.join(base, 'bin');
   const log = path.join(base, 'aws.log');
+  const estado = path.join(base, 'estado.json');
+  writeFileSync(estado, JSON.stringify({ ssm: {}, segredos: {} }));
   mkdirSync(bin);
   const outputs = [
     ['UserPoolId', 'us-east-1_Teste'],
@@ -158,6 +160,30 @@ else if (cmd === 'ce get-anomaly-monitors') {
   }
   console.log(m === 'nenhum' ? 'None' : m);
 }
+else if (['ssm get-parameter', 'ssm put-parameter', 'secretsmanager describe-secret', 'secretsmanager create-secret'].includes(cmd)) {
+  // SSM e Secrets Manager guardados em estado.json; file:// lido como a CLI faz
+  const st = JSON.parse(fs.readFileSync(${JSON.stringify(estado)}, 'utf8'));
+  const opt = (n) => args[args.indexOf(n) + 1];
+  const valor = (v) => (v.startsWith('file://') ? fs.readFileSync(v.slice(7), 'utf8') : v);
+  const nome = opt(cmd.startsWith('ssm') ? '--name' : cmd.endsWith('describe-secret') ? '--secret-id' : '--name');
+  const guardado = cmd.startsWith('ssm') ? st.ssm : st.segredos;
+  if (cmd.endsWith('get-parameter') || cmd.endsWith('describe-secret')) {
+    if (!guardado[nome]) {
+      console.error('An error occurred (' + (cmd.startsWith('ssm') ? 'ParameterNotFound' : 'ResourceNotFoundException') + ')');
+      process.exit(254);
+    }
+    console.log(nome);
+  } else {
+    if (guardado[nome] && !args.includes('--overwrite')) {
+      console.error('An error occurred (AlreadyExists)');
+      process.exit(254);
+    }
+    guardado[nome] = cmd.startsWith('ssm')
+      ? { tipo: opt('--type'), valor: valor(opt('--value')) }
+      : { valor: valor(opt('--secret-string')) };
+    fs.writeFileSync(${JSON.stringify(estado)}, JSON.stringify(st));
+  }
+}
 else { console.error('aws falso: chamada inesperada ' + args.join(' ')); process.exit(9); }
 `,
   );
@@ -177,7 +203,13 @@ else { console.error('aws falso: chamada inesperada ' + args.join(' ')); process
     existsSync(log)
       ? readFileSync(log, 'utf8').trim().split('\n').map((l) => JSON.parse(l) as { args: string[]; profile: string | null; container: string | null; region: string | null })
       : [];
-  return { script: path.join(repo, 'infra/scripts/lancar-cloudshell.sh'), env, chamadas, repo };
+  const guardado = () =>
+    JSON.parse(readFileSync(estado, 'utf8')) as {
+      ssm: Record<string, { tipo: string; valor: string }>;
+      segredos: Record<string, { valor: string }>;
+    };
+  const guardar = (g: ReturnType<typeof guardado>) => writeFileSync(estado, JSON.stringify(g));
+  return { script: path.join(repo, 'infra/scripts/lancar-cloudshell.sh'), env, chamadas, repo, guardado, guardar };
 }
 
 describe('--admin no CloudShell (aws falso)', () => {
@@ -400,5 +432,147 @@ describe('travas de custo (aws falso, só leitura)', () => {
     const r = rodar(['--ajuda']);
     expect(r.stdout).toContain('--com-concorrencia-reservada');
     expect(r.stdout).toContain('--sem-concorrencia-reservada');
+  });
+});
+
+describe('--com-notificacoes (chaves VAPID no SSM, aws falso)', () => {
+  const PUBLICA = '/librax/vapid/public-key';
+  const PRIVADA = '/librax/vapid/private-key';
+
+  function gerar(antes?: (g: ReturnType<ReturnType<typeof montarRepositorio>['guardado']>) => void) {
+    const m = montarRepositorio(CONTA);
+    if (antes) {
+      const g = m.guardado();
+      antes(g);
+      m.guardar(g);
+    }
+    const tmp = mkdtempSync(path.join(tmpdir(), 'librax-lancar-tmp-'));
+    const r = comFuncoes('garantir_chaves_push; echo "status=$?"', { ...m.env, TMPDIR: tmp }, m.script);
+    return { ...m, r, tmp };
+  }
+
+  test('a opção existe, aparece na ajuda e não entra no modo do CodeBuild', () => {
+    expect(comFuncoes('ler_opcoes --com-notificacoes; echo "n=$OPT_NOTIFICACOES"').stdout).toContain('n=true');
+    expect(rodar(['--ajuda']).stdout).toContain('--com-notificacoes');
+    const ci = rodar(['--ci', '--com-notificacoes']);
+    expect(ci.status).toBe(2);
+    expect(ci.stderr).toContain('--com-notificacoes');
+  });
+
+  test('os nomes dos parâmetros são os padrões da stack (lib/config.ts)', () => {
+    const config = readFileSync(path.join(RAIZ, 'infra/lib/config.ts'), 'utf8');
+    const r = comFuncoes('echo "$PARAM_VAPID_PUBLICA $PARAM_VAPID_PRIVADA $PARAM_GOOGLE_ID $SEGREDO_GOOGLE"');
+    for (const nome of r.stdout.trim().split(' ')) expect(config).toContain(`'${nome}'`);
+  });
+
+  test('sem chaves: gera um par P-256 válido, privada cifrada, sem mostrar nem deixar arquivo', () => {
+    const { r, guardado, tmp, chamadas } = gerar();
+    expect(r.stderr).toBe('');
+    expect(r.stdout).toContain('status=0');
+    expect(r.stdout).toContain('chaves geradas e guardadas no SSM');
+    const { ssm } = guardado();
+    expect(ssm[PRIVADA].tipo).toBe('SecureString');
+    expect(ssm[PUBLICA].tipo).toBe('String');
+    expect(Buffer.from(ssm[PUBLICA].valor, 'base64url')).toHaveLength(65);
+    expect(Buffer.from(ssm[PUBLICA].valor, 'base64url')[0]).toBe(4);
+    expect(Buffer.from(ssm[PRIVADA].valor, 'base64url')).toHaveLength(32);
+    expect(r.stdout).not.toContain(ssm[PRIVADA].valor);
+    for (const c of chamadas()) expect(c.args.join(' ')).not.toContain(ssm[PRIVADA].valor);
+    expect(readdirSync(tmp)).toEqual([]);
+    // A privada vai antes: a pública só existe com o par completo
+    const escritas = chamadas().filter((c) => c.args[1] === 'put-parameter').map((c) => c.args[c.args.indexOf('--name') + 1]);
+    expect(escritas).toEqual([PRIVADA, PUBLICA]);
+  });
+
+  test('chaves já guardadas: ficam as mesmas, só com leituras', () => {
+    const { r, chamadas, guardado } = gerar((g) => {
+      g.ssm[PUBLICA] = { tipo: 'String', valor: 'pub-antiga' };
+      g.ssm[PRIVADA] = { tipo: 'SecureString', valor: 'priv-antiga' };
+    });
+    expect(r.stdout).toContain('chaves já guardadas no SSM; ficam as mesmas');
+    expect(chamadas().every((c) => c.args[1] === 'get-parameter')).toBe(true);
+    expect(guardado().ssm[PUBLICA].valor).toBe('pub-antiga');
+  });
+
+  test('privada solta (rodada interrompida): gera o par de novo', () => {
+    const { r, guardado } = gerar((g) => {
+      g.ssm[PRIVADA] = { tipo: 'SecureString', valor: 'priv-solta' };
+    });
+    expect(r.stdout).toContain('status=0');
+    expect(guardado().ssm[PRIVADA].valor).not.toBe('priv-solta');
+    expect(guardado().ssm[PUBLICA]).toBeDefined();
+  });
+
+  test('pública sem a privada: para e explica, sem trocar nada', () => {
+    const { r, chamadas } = gerar((g) => {
+      g.ssm[PUBLICA] = { tipo: 'String', valor: 'pub' };
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain('falta a privada');
+    expect(chamadas().some((c) => c.args[1] === 'put-parameter')).toBe(false);
+  });
+});
+
+describe('--com-google (cliente OAuth no SSM e no Secrets Manager, aws falso)', () => {
+  const ID = '123456789012-abc123def456.apps.googleusercontent.com';
+  const SEGREDO = 'GOCSPX-segredo-de-teste';
+
+  function conferir(entrada: string | null, antes?: (g: ReturnType<ReturnType<typeof montarRepositorio>['guardado']>) => void) {
+    const m = montarRepositorio(CONTA);
+    if (antes) {
+      const g = m.guardado();
+      antes(g);
+      m.guardar(g);
+    }
+    const tmp = mkdtempSync(path.join(tmpdir(), 'librax-lancar-tmp-'));
+    // Com entrada, simula o terminal (tem_terminal) e digita as linhas
+    const terminal = entrada === null ? '' : 'tem_terminal() { true; }; ';
+    const r = spawnSync('bash', ['-c', `source "${m.script}"; set +e; ${terminal}garantir_cliente_google; echo "status=$?"`], {
+      encoding: 'utf8',
+      env: { ...m.env, TMPDIR: tmp },
+      input: entrada ?? '',
+    });
+    return { ...m, r, tmp };
+  }
+
+  test('sem terminal e sem o cliente: para com o que fazer e não grava nada', () => {
+    const { r, chamadas } = conferir(null);
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain('falta o parâmetro /librax/google/client-id');
+    expect(r.stderr).toContain('--com-google (ele pede o id e o segredo)');
+    expect(chamadas().some((c) => ['put-parameter', 'create-secret'].includes(c.args[1]))).toBe(false);
+  });
+
+  test('no terminal: pede o id (confere o formato) e o segredo, grava sem mostrar o segredo', () => {
+    const { r, guardado, chamadas, tmp } = conferir(`id-errado\n${ID}\n\n${SEGREDO}\n`);
+    expect(r.stderr).toBe('');
+    expect(r.stdout).toContain('status=0');
+    expect(r.stdout).toContain('Termina com .apps.googleusercontent.com.');
+    expect(r.stdout).toContain('Cole o segredo do cliente');
+    expect(r.stdout).not.toContain(SEGREDO);
+    const g = guardado();
+    expect(g.ssm['/librax/google/client-id']).toEqual({ tipo: 'String', valor: ID });
+    expect(g.segredos['librax/google/client-secret']).toEqual({ valor: SEGREDO });
+    for (const c of chamadas()) expect(c.args.join(' ')).not.toContain(SEGREDO);
+    expect(readdirSync(tmp)).toEqual([]);
+  });
+
+  test('já guardado: só confere, sem perguntar', () => {
+    const { r, chamadas } = conferir(null, (g) => {
+      g.ssm['/librax/google/client-id'] = { tipo: 'String', valor: ID };
+      g.segredos['librax/google/client-secret'] = { valor: SEGREDO };
+    });
+    expect(r.stdout).toContain('status=0');
+    expect(r.stdout).toContain('cliente OAuth do Google guardado');
+    expect(chamadas().map((c) => c.args.slice(0, 2).join(' '))).toEqual(['ssm get-parameter', 'secretsmanager describe-secret']);
+  });
+
+  test('só falta o segredo: pede só ele', () => {
+    const { r, guardado } = conferir(`${SEGREDO}\n`, (g) => {
+      g.ssm['/librax/google/client-id'] = { tipo: 'String', valor: ID };
+    });
+    expect(r.stdout).toContain('status=0');
+    expect(r.stdout).not.toContain('Client ID guardado');
+    expect(guardado().segredos['librax/google/client-secret']).toEqual({ valor: SEGREDO });
   });
 });

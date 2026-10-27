@@ -239,6 +239,7 @@ export async function bootstrap() {
     VITE_AUTH_REDIRECT_SIGN_OUT: `${URLS.app}/`,
     VITE_API_BASE: '/api',
     VITE_VAPID_PUBLIC_KEY: '',
+    VITE_EMAIL_REMINDERS: 'false',
   }, header);
   // Painel: login proprio por SRP no proxy do cognito-idp; "Esqueci a senha" abre o app local
   writeEnv(PATHS.envAdmin, {

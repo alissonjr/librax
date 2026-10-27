@@ -1036,5 +1036,24 @@
     "policy": "See the Privacy Policy",
     "settings": "Settings",
     "close": "Close notice"
+  },
+  "reminders": {
+    "title": "Reminders",
+    "guestHint": "Create an account to get one reminder a day.",
+    "push": "Phone notification",
+    "on": "On",
+    "off": "Off",
+    "pushHint": "One reminder a day at the time you choose, only if you have not studied yet.",
+    "pushInstall": "On iPhone and iPad, add the app to your Home Screen to get notifications.",
+    "pushDenied": "Blocked in the browser. Allow notifications for this site in your browser settings.",
+    "email": "Email reminder",
+    "emailHint": "Sent to your account email when the notification does not arrive.",
+    "hour": "Reminder time",
+    "errors": {
+      "offline": "No internet. Try again when you are connected.",
+      "denied": "Notifications are blocked in the browser.",
+      "emailNotVerified": "Confirm your account email to get email reminders.",
+      "error": "Could not save the reminder. Try again."
+    }
   }
 }

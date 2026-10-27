@@ -117,6 +117,17 @@ describe('aviso de uma vez para quem já usava o app', () => {
     expect(usageNoticePending()).toBe(false);
   });
 
+  it('quem já viu a versão dos dados de uso (1.4) não vê de novo nas versões seguintes', () => {
+    localStorage.setItem('librax_policySeen', '1.4');
+    expect(usageNoticePending()).toBe(false);
+    localStorage.setItem('librax_policySeen', '1.10');
+    expect(usageNoticePending()).toBe(false);
+    localStorage.setItem('librax_policySeen', '1.3');
+    expect(usageNoticePending()).toBe(true);
+    localStorage.setItem('librax_policySeen', 'lixo');
+    expect(usageNoticePending()).toBe(true);
+  });
+
   it('quem ainda não fez as boas-vindas não vê (aceita a política nelas)', () => {
     localStorage.removeItem('librax_displayName');
     render(<MemoryRouter><UsageNotice /></MemoryRouter>);

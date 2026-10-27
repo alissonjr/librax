@@ -24,6 +24,9 @@ apps/android-twa/
                            retrato na abertura e ?origem=android também nos links que abrem o app
   app/src/main/res/        ícones, splash e cores (gerados, ver abaixo) e xml/filepaths.xml
   loja/icone-play-512.png  ícone da página da Play Store
+  loja/imagem-destaque-1024x500.png, loja/capturas/
+                           imagem de destaque e capturas de tela (1080 x 1920) da ficha
+  loja/ficha-play.md       textos da ficha (pt-BR, en, es), Segurança dos dados e classificação
   scripts/gerar-recursos.mjs
 ```
 

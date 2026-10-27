@@ -28,8 +28,10 @@ async function loadVapid() {
     new GetParametersCommand({ Names: [publicName, privateName], WithDecryption: true }),
   );
   const value = (name) => Parameters.find((p) => p.Name === name)?.Value;
-  if (!value(publicName) || !value(privateName)) throw new Error('chaves VAPID ausentes no SSM');
+  // Sem as chaves (notificacoes ainda nao ligadas): segue so com o e-mail, sem erro
+  if (!value(publicName) || !value(privateName)) return false;
   webpush.setVapidDetails(process.env.VAPID_SUBJECT, value(publicName), value(privateName));
+  return true;
 }
 
 const push = {
@@ -47,15 +49,23 @@ function makeMailer() {
 }
 
 export async function handler() {
-  vapidReady ??= loadVapid().catch((err) => {
-    vapidReady = null; // tenta de novo na proxima execucao
-    throw err;
-  });
-  await vapidReady;
+  // So o sucesso fica guardado: sem chaves ou com erro, confere de novo na proxima execucao
+  vapidReady ??= loadVapid().then(
+    (ok) => {
+      if (!ok) vapidReady = null;
+      return ok;
+    },
+    (err) => {
+      vapidReady = null;
+      throw err;
+    },
+  );
+  const pushOn = await vapidReady;
+  if (!pushOn) console.warn('[reminders] sem chaves VAPID no SSM: so e-mail (lancar-cloudshell.sh --com-notificacoes)');
 
   const report = await sendReminders(repo, {
     now: new Date(),
-    push,
+    push: pushOn ? push : null,
     mail: makeMailer(),
     appUrl: process.env.APP_URL,
     log: (msg, data) => console.warn('[reminders]', msg, data),

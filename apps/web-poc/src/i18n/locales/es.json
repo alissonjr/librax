@@ -1021,5 +1021,24 @@
     "policy": "Ver la Política de Privacidad",
     "settings": "Configuración",
     "close": "Cerrar aviso"
+  },
+  "reminders": {
+    "title": "Recordatorios",
+    "guestHint": "Crea una cuenta para recibir un recordatorio al día.",
+    "push": "Notificación en el celular",
+    "on": "Activado",
+    "off": "Desactivado",
+    "pushHint": "Un aviso al día a la hora que elijas, solo si todavía no estudiaste.",
+    "pushInstall": "En iPhone y iPad, instala la app en la pantalla de inicio para recibir notificaciones.",
+    "pushDenied": "Bloqueada en el navegador. Permite las notificaciones de este sitio en la configuración del navegador.",
+    "email": "Recordatorio por correo",
+    "emailHint": "Llega al correo de la cuenta cuando la notificación no llega.",
+    "hour": "Hora del recordatorio",
+    "errors": {
+      "offline": "Sin internet. Inténtalo de nuevo cuando te conectes.",
+      "denied": "Las notificaciones están bloqueadas en el navegador.",
+      "emailNotVerified": "Confirma el correo de la cuenta para recibir recordatorios por correo.",
+      "error": "No se pudo guardar el recordatorio. Inténtalo de nuevo."
+    }
   }
 }

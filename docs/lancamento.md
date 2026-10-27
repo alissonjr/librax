@@ -205,35 +205,48 @@ Cada item é opcional e independente. Depois de cada um, rode o script de novo c
 
 ### Google
 
-1. No Google Cloud Console, crie um cliente OAuth do tipo **Aplicativo da Web** com origem
-   `https://auth.librax.online` e URI de redirecionamento `https://auth.librax.online/oauth2/idpresponse`. Na tela
-   de consentimento, informe `https://app.librax.online/privacidade` e `https://app.librax.online/termos`.
-2. No CloudShell, guarde o id e o segredo sem que eles fiquem no histórico do terminal:
+1. No [Google Cloud Console](https://console.cloud.google.com/), crie um projeto (ex.: Librax) e abra
+   **APIs e serviços** > **Tela de consentimento OAuth** (Google Auth Platform):
+   - Tipo de usuário **Externo**; nome do app **Librax**; e-mail de suporte e de contato: o seu.
+   - Domínio autorizado: `librax.online`. Página inicial `https://librax.online`, política
+     `https://app.librax.online/privacidade` e termos `https://app.librax.online/termos`.
+   - Escopos: só os básicos (`openid`, `email`, `profile`), que não pedem verificação do Google.
+   - Em **Público-alvo**, clique em **Publicar app** (sai do modo de teste, que só deixa entrar quem estiver
+     na lista de testadores).
+2. **Credenciais** > **Criar credenciais** > **ID do cliente OAuth**, tipo **Aplicativo da Web**:
+   - Origens JavaScript autorizadas: `https://auth.librax.online`.
+   - URIs de redirecionamento autorizados: `https://auth.librax.online/oauth2/idpresponse`.
+   - **Criar**. Deixe a janela com o **ID do cliente** e a **Chave secreta do cliente** aberta.
+3. No CloudShell:
 
    ```bash
-   read -rp 'Client ID: ' ID; read -rsp 'Client secret: ' SEGREDO; echo
-   aws ssm put-parameter --name /librax/google/client-id --type String --value "$ID"
-   aws secretsmanager create-secret --name librax/google/client-secret --secret-string "$SEGREDO" --query Name
-   unset ID SEGREDO
+   cd /tmp/librax && bash infra/scripts/lancar-cloudshell.sh --com-google
    ```
 
-3. `bash infra/scripts/lancar-cloudshell.sh --com-google` (refaz o deploy e o app volta a mostrar "Continuar com
-   Google"). O segredo custa US$ 0,40 por mês.
+   O script pede o ID do cliente (confere o formato) e a chave secreta (não aparece na tela nem fica no
+   histórico), guarda o id no SSM (`/librax/google/client-id`) e a chave no Secrets Manager
+   (`librax/google/client-secret`, US$ 0,40 por mês), faz o deploy e publica o app com o botão "Continuar com
+   Google". Nas rodadas seguintes ele só confere que os dois existem.
+4. **Conferir.** No app, **Entrar** > **Continuar com Google**: entra e volta para o mapa. Quem já tinha conta
+   com o mesmo e-mail continua na mesma conta.
+
+Para desligar: `--sem-google` (o cliente e a chave continuam guardados para ligar de novo).
 
 ### Notificações (Web Push)
 
-Gera o par de chaves VAPID uma vez e guarda no SSM sem mostrar a chave privada:
+Um comando só, no CloudShell:
 
 ```bash
-cd /tmp/librax/services/api
-npx web-push generate-vapid-keys --json > /tmp/vapid.json
-aws ssm put-parameter --name /librax/vapid/public-key --type String --value "$(node -p 'require("/tmp/vapid.json").publicKey')"
-aws ssm put-parameter --name /librax/vapid/private-key --type SecureString --value "$(node -p 'require("/tmp/vapid.json").privateKey')"
-rm /tmp/vapid.json
-cd /tmp/librax && bash infra/scripts/lancar-cloudshell.sh --so-publicar
+cd /tmp/librax && bash infra/scripts/lancar-cloudshell.sh --so-publicar --com-notificacoes
 ```
 
-Trocar as chaves depois invalida as inscrições de quem já ativou as notificações.
+O script gera o par de chaves VAPID ali mesmo, grava no SSM (a pública em `/librax/vapid/public-key` e a privada
+cifrada em `/librax/vapid/private-key`), sem mostrar a privada, e publica o app com as notificações. Rodar de novo
+não troca as chaves: trocar invalidaria a inscrição de quem já ativou. Custo zero (parâmetros padrão do SSM).
+
+**Conferir.** No celular, abra o app, **Configurações** > **Lembretes** > ative e escolha um horário (no iPhone,
+só com o app instalado na tela inicial). O lembrete chega no horário escolhido, se você ainda não tiver estudado
+no dia. Sem as chaves, os lembretes por e-mail continuam saindo normalmente.
 
 ### Lembretes por e-mail (SES)
 
@@ -241,7 +254,9 @@ Trocar as chaves depois invalida as inscrições de quem já ativou as notifica�
    **Easy DKIM** e a opção de publicar os registros no Route 53.
 2. Peça a saída do sandbox (**Conta** > **Solicitar acesso de produção**). Até lá, só chegam e-mails para endereços
    verificados.
-3. `bash infra/scripts/lancar-cloudshell.sh --com-lembretes-email` (remetente `lembretes@librax.online`).
+3. `bash infra/scripts/lancar-cloudshell.sh --com-lembretes-email` (remetente `lembretes@librax.online`). O
+   mesmo deploy publica o app com a opção **Lembrete por e-mail** em **Configurações** > **Lembretes**; cada pessoa
+   liga a sua (começa desligada e vai para o e-mail confirmado da conta).
 
 ### E-mails do login pelo SES
 

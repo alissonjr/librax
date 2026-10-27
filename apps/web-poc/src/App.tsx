@@ -5,6 +5,7 @@ import { IdbRepo } from './lib/idbRepo';
 import { getUserId } from './lib/auth';
 import { startAccount, useAccount } from './lib/account';
 import { reportDevice } from './lib/device';
+import { renewPushOnOpen } from './lib/reminders';
 import { retryAccountRestore } from './lib/accountRestore';
 import { setTelemetryContext, startTelemetry } from './lib/telemetry';
 import { refreshTelemetryProgress } from './lib/telemetryProgress';
@@ -74,6 +75,12 @@ export function App() {
   useEffect(() => {
     if (account.status === 'signedIn') void reportDevice(lang);
   }, [account.status, lang]);
+
+  // Com conta e a notificação ligada: renova a inscrição deste navegador e conta a abertura do app
+  // (sem lembrete nas 3 horas seguintes; aberto pelo lembrete, conta como interação; lib/reminders.ts)
+  useEffect(() => {
+    if (account.status === 'signedIn') void renewPushOnOpen();
+  }, [account.status]);
 
   // Com conta: termina a busca do progresso da conta que falhou ao entrar (lib/accountRestore.ts)
   useEffect(() => {

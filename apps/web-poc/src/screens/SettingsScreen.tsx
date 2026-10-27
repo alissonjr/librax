@@ -20,6 +20,7 @@ import { PlacementSettingItem } from '../components/PlacementEntry';
 import { DEFAULT_DAILY_GOAL, loadDailyGoal, saveDailyGoal } from '../lib/dailyGoal';
 import { prepareDataReset } from '../lib/telemetry';
 import { UsageSettingItem } from '../components/UsageSettingItem';
+import { ReminderSettings } from '../components/ReminderSettings';
 
 interface Props {
   userId: string;
@@ -284,6 +285,9 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
             <PlacementSettingItem repo={repo} userId={userId} onOpen={onOpenPlacement} onNotice={onNotice} />
           )}
         </div>
+
+        {/* Notificação no celular e e-mail (lib/reminders.ts), quando o build tem algum ligado */}
+        <ReminderSettings signedIn={signedIn} onOpenAccount={onOpenAccount} onNotice={onNotice} />
 
         <div className="settings-group">
           <p className="settings-group-label">{t('settings.privacy')}</p>

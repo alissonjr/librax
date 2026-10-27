@@ -80,8 +80,10 @@ A CSP e os cabeçalhos do app não mudam: o TWA é o Chrome abrindo o site, com 
    ```
    Sai em `app/build/outputs/bundle/release/app-release.aab`, assinado com a chave de upload.
 8. **Enviar.** Play Console: primeiro no teste interno (instale pelo link e confira que abre sem barra de
-   endereço, com a câmera e offline), depois teste fechado e produção. Ficha da loja: ícone
-   `apps/android-twa/loja/icone-play-512.png`, imagem de destaque 1024 x 500 e capturas de tela (a fazer).
+   endereço, com a câmera e offline), depois teste fechado e produção. Ficha da loja em
+   [`apps/android-twa/loja/`](../apps/android-twa/loja/ficha-play.md): ícone `icone-play-512.png`, imagem de
+   destaque `imagem-destaque-1024x500.png`, sete capturas de tela em `capturas/` e, em `ficha-play.md`, os textos
+   em português, inglês e espanhol e os rascunhos da Segurança dos dados e da classificação do conteúdo.
 9. **Próximas versões da casca:** suba `librax.versionCode` (e `librax.versionName`), gere e envie. O site
    segue publicando como sempre, sem tocar no Android.
 

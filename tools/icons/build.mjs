@@ -47,6 +47,8 @@ const ICONS = [
   'space_bar', 'backspace',
   // nota do app (estrelas) e dados de uso anônimos (Configurações)
   'star', 'rate_review',
+  // Lembretes nas Configurações (components/ReminderSettings.tsx)
+  'notifications', 'notifications_off',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).

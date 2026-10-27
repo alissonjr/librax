@@ -18,7 +18,7 @@ import { renderEmail, normalizeLang } from '../email/render.js';
  * @param {object} repo
  * @param {object} deps
  * @param {Date}   deps.now
- * @param {{send(sub, payload): Promise<void>}} deps.push   porta de Web Push
+ * @param {{send(sub, payload): Promise<void>} | null} deps.push   porta de Web Push; null = sem chaves VAPID (so e-mail)
  * @param {{send(msg: {to, subject, html, text}): Promise<void>}} [deps.mail]  porta de e-mail (SES); omitida = desligado
  * @param {string} [deps.appUrl]  https://app.<dominio>: links e logo do e-mail (obrigatorio com `mail`)
  * @param {(msg: string, data?: object) => void} [deps.log]
@@ -47,7 +47,7 @@ export async function sendReminders(repo, { now, push, mail = null, appUrl = nul
       const message = reminderMessage(decision.kind, streak, lang);
       const payload = { ...message, url: REMINDER_URL, tag: `librax-${decision.kind}` };
       let delivered = 0;
-      for (const sub of await repo.listPushSubscriptions(userId)) {
+      for (const sub of push ? await repo.listPushSubscriptions(userId) : []) {
         try {
           await push.send(sub, payload);
           delivered += 1;

@@ -241,6 +241,8 @@ export default defineConfig(({ mode }) => {
           // recarregar). Ficam de fora a página do avatar (iframe próprio), o que não é tela do app e
           // as páginas avulsas da câmera (teste da câmera W0 e coleta), que têm HTML próprio. O painel
           // (/admin) é outro site no mesmo domínio: sem ele aqui, o service worker do app abria a trilha.
+          // Lembretes por Web Push: mostrar a notificação e abrir o app no toque (public/sw-push.js)
+          importScripts: ['sw-push.js'],
           navigateFallback: 'index.html',
           navigateFallbackDenylist: [
             /^\/admin(\/|$)/, /^\/vlibras\//, /^\/api\//, /^\/content\//, /^\/ml\//, /^\/teste-camera/, /^\/coleta/,

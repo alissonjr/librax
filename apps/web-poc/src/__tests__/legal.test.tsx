@@ -56,8 +56,8 @@ describe('textos (src/legal)', () => {
     expect(privacidadeMd).toMatch(/não usamos ferramentas de análise ou de rastreamento de terceiros/);
   });
 
-  it('a versão 1.4 conta o que vai nos dados de uso anônimos, por quanto tempo e como desligar e apagar', () => {
-    expect(LEGAL_DOCS.privacy.version).toBe('1.4');
+  it('a política conta o que vai nos dados de uso anônimos, por quanto tempo e como desligar e apagar', () => {
+    expect(LEGAL_DOCS.privacy.version).toBe('1.5');
     // o número que o app usa para o aviso de uma vez é o mesmo do texto
     expect(PRIVACY_POLICY_VERSION).toBe(LEGAL_DOCS.privacy.version);
     // a frase antiga dizia que, sem conta, nada era recebido
@@ -73,6 +73,21 @@ describe('textos (src/legal)', () => {
       '12 meses depois do último uso',
       '"Enviar dados de uso anônimos" em Configurações',
       'Não escreva dados pessoais no comentário',
+    ]) {
+      expect(privacidadeMd, fact).toContain(fact);
+    }
+  });
+
+  it('a versão 1.5 conta os lembretes: só ligados pela pessoa, o que guarda, quando sai e como parar', () => {
+    expect(privacidadeMd).not.toContain('Hoje o app não pede permissão para notificações');
+    for (const fact of [
+      'Configurações > Lembretes',
+      'Tudo começa desligado',
+      'o endereço técnico que o navegador cria para receber as notificações',
+      'Nada sai entre 22h e 7h',
+      'só quando a notificação não chega',
+      'desligue em Configurações ou bloqueie as notificações do site',
+      'enquanto o lembrete estiver ligado',
     ]) {
       expect(privacidadeMd, fact).toContain(fact);
     }

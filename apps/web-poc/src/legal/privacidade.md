@@ -1,5 +1,5 @@
 ---
-versao: 1.4
+versao: 1.5
 vigencia: 2026-10-27
 ---
 
@@ -116,7 +116,8 @@ O app guarda dados no navegador só para funcionar (item 3). A página de login 
 
 ## 8. Serviços de terceiros
 
-- **Amazon Web Services (AWS)**: hospeda o app, a conta (Amazon Cognito), o banco de dados (Amazon DynamoDB) e as funções do servidor, e envia os e-mails do Librax (Amazon Cognito e Amazon SES): o código de confirmação, o código de nova senha e o aviso de acesso num aparelho novo. A AWS trata os dados em nosso nome, seguindo nossas instruções (na LGPD, ela é a "operadora").
+- **Amazon Web Services (AWS)**: hospeda o app, a conta (Amazon Cognito), o banco de dados (Amazon DynamoDB) e as funções do servidor, e envia os e-mails do Librax (Amazon Cognito e Amazon SES): o código de confirmação, o código de nova senha, o aviso de acesso num aparelho novo e, se você ligar, o lembrete por e-mail. A AWS trata os dados em nosso nome, seguindo nossas instruções (na LGPD, ela é a "operadora").
+- **Serviço de notificações do navegador** (Google, Apple, Mozilla ou Microsoft, conforme o navegador): só se você ligar a notificação no celular. Ele entrega a mensagem cifrada, sem ver o conteúdo (item 11).
 - **Google**: só se você escolher "Continuar com Google". O login acontece na página do Google, e o que o Google faz com os seus dados segue a política de privacidade do Google.
 - **VLibras (Governo Federal)**: quando um exercício mostra o avatar que faz o sinal, o navegador baixa o player e as animações direto dos servidores do VLibras (vlibras.gov.br, que usa a rede de distribuição jsDelivr). Como em qualquer acesso a um site, esses serviços recebem o endereço IP, dados técnicos do navegador e qual sinal foi pedido. Não enviamos a eles nenhum dado da sua conta. As animações já vistas ficam guardadas no aparelho.
 
@@ -132,19 +133,23 @@ Essa transferência é necessária para prestar o serviço que você pede ao cri
 - **Totais da operação, segurança, prevenção de abuso e registros técnicos**: legítimo interesse (art. 7º, IX), sempre com o mínimo de dados e sem identificar você nos totais.
 - **Dados de uso anônimos, nota e comentário**: legítimo interesse (art. 7º, IX) em calibrar o algoritmo e os exercícios, com o mínimo de dados, sem identificar você e com a opção de desligar a qualquer momento.
 - **Lista de aparelhos da conta e aviso de acesso num aparelho novo**: legítimo interesse na segurança da sua conta (art. 7º, IX), com os dados mínimos do item 5.
-- **Lembretes por e-mail, quando existirem**: o seu consentimento (art. 7º, I), que você pode retirar a qualquer momento.
+- **Lembretes no celular e por e-mail**: o seu consentimento (art. 7º, I), dado ao ligar o lembrete nas Configurações, que você pode retirar a qualquer momento desligando.
 - **Cumprir obrigações legais e atender pedidos de autoridades**: obrigação legal (art. 7º, II).
 
 ## 11. Lembretes e notificações
 
-Hoje o app não pede permissão para notificações e não envia lembretes. O servidor já está preparado para isso.
+Com conta, você pode ligar em **Configurações > Lembretes** um lembrete por dia para estudar. Tudo começa desligado, e nada é enviado sem você ligar:
 
-Quando o recurso estiver disponível, ele só vai funcionar se você permitir as notificações no navegador ou marcar a opção de lembrete por e-mail, que começa desligada. Nesse caso guardaremos o endereço técnico que o navegador cria para as notificações, o horário preferido e o fuso horário. Esta política será atualizada antes de o recurso ser ligado.
+- **Notificação no celular**: o navegador pede a sua permissão. Guardamos, ligados à conta, o endereço técnico que o navegador cria para receber as notificações (com as chaves de criptografia dele), o horário escolhido e o fuso horário. A notificação passa pelo serviço de notificações do navegador (Google no Chrome e no Android, Apple no Safari, Mozilla no Firefox, Microsoft no Edge), que só entrega a mensagem e não vê o conteúdo, cifrado de ponta a ponta.
+- **Lembrete por e-mail**: vai para o e-mail confirmado da conta, pelo Amazon SES, só quando a notificação não chega.
+
+O lembrete sai uma vez por dia no horário escolhido, mais um aviso às 20h quando a sua sequência de 3 dias ou mais está para acabar. Nada sai entre 22h e 7h nem se você já estudou no dia, e o lembrete do horário não sai se você abriu o app nas últimas 3 horas. Se você não tocar em nenhum lembrete por 7 dias, eles param por 3 dias e voltam só no horário escolhido. Para saber isso, guardamos a data e a hora dos últimos lembretes e das últimas aberturas do app. Para parar, desligue em Configurações ou bloqueie as notificações do site no navegador; o endereço técnico de um navegador que deixou de aceitar notificações é apagado.
 
 ## 12. Por quanto tempo guardamos
 
 - **No seu aparelho**: até você apagar.
 - **Conta e progresso no servidor**: enquanto a conta existir. Hoje não apagamos contas paradas automaticamente.
+- **Lembretes (endereço técnico das notificações, horário e fuso)**: enquanto o lembrete estiver ligado e a conta existir.
 - **Lista de aparelhos da conta**: enquanto a conta existir, com no máximo 10 aparelhos; o registro dos avisos enviados vale por 24 horas.
 - **Registro de cada lição enviada**: 60 dias.
 - **Registros técnicos**: 30 dias.

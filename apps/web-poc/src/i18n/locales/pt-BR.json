@@ -1140,5 +1140,24 @@
     "policy": "Ver a Política de Privacidade",
     "settings": "Configurações",
     "close": "Fechar aviso"
+  },
+  "reminders": {
+    "title": "Lembretes",
+    "guestHint": "Crie uma conta para receber um lembrete por dia.",
+    "push": "Notificação no celular",
+    "on": "Ligado",
+    "off": "Desligado",
+    "pushHint": "Um aviso por dia no horário escolhido, só se você ainda não estudou.",
+    "pushInstall": "No iPhone e no iPad, instale o app na tela inicial para receber notificações.",
+    "pushDenied": "Bloqueada no navegador. Libere as notificações deste site nas configurações do navegador.",
+    "email": "Lembrete por e-mail",
+    "emailHint": "Vai para o e-mail da conta quando a notificação não chega.",
+    "hour": "Horário do lembrete",
+    "errors": {
+      "offline": "Sem internet. Tente de novo quando conectar.",
+      "denied": "As notificações foram bloqueadas no navegador.",
+      "emailNotVerified": "Confirme o e-mail da conta para receber lembretes por e-mail.",
+      "error": "Não deu para salvar o lembrete. Tente de novo."
+    }
   }
 }

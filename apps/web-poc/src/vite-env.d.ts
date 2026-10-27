@@ -10,7 +10,10 @@ interface ImportMetaEnv {
   /** Só no ambiente local (npm run dev:local): proxy do cognito-idp simulado. */
   readonly VITE_COGNITO_ENDPOINT?: string;
   readonly VITE_API_BASE?: string;
+  /** Chave pública VAPID (/librax/vapid/public-key): sem ela, o app não oferece notificações. */
   readonly VITE_VAPID_PUBLIC_KEY?: string;
+  /** `true` oferece o lembrete por e-mail (librax:emailRemindersEnabled, SES ligado na infra). */
+  readonly VITE_EMAIL_REMINDERS?: string;
   /** `false` esconde o "Continuar com Google" (Google desligado no Cognito, librax:googleEnabled). */
   readonly VITE_GOOGLE_ENABLED?: string;
 }

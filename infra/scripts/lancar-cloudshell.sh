@@ -6,6 +6,7 @@
 #   bash infra/scripts/lancar-cloudshell.sh --so-publicar   só build e upload do app, do painel e da landing
 #   bash infra/scripts/lancar-cloudshell.sh --admin EMAIL   coloca uma conta no grupo admin do Cognito
 #   bash infra/scripts/lancar-cloudshell.sh --configurar-ci prepara o CI/CD no CodeBuild (uma vez; docs/ci-cd.md)
+#   bash infra/scripts/lancar-cloudshell.sh --so-publicar --com-notificacoes  liga as notificações (Web Push)
 #
 # No CodeBuild (CI/CD, infra/ci/buildspec.yml) roda com --ci: sem perguntas, com os valores do
 # lançamento lidos do SSM (/librax/cdk-context, gravado aqui no fim de cada deploy pelo CloudShell).
@@ -47,6 +48,11 @@ PROJETO_CI=librax-lancamento
 CONEXAO_CI=librax-github
 REPOSITORIO_CI=alissonjr/librax
 TAMANHO_MAXIMO_PARAMETRO=4096
+# Chaves das notificações e cliente OAuth do Google (os padrões de infra/lib/config.ts; o teste confere)
+PARAM_VAPID_PUBLICA=/librax/vapid/public-key
+PARAM_VAPID_PRIVADA=/librax/vapid/private-key
+PARAM_GOOGLE_ID=/librax/google/client-id
+SEGREDO_GOOGLE=librax/google/client-secret
 
 # ---------------------------------------------------------------------------------------------
 # Opções
@@ -64,7 +70,8 @@ bootstrap (só se faltar), deploy da stack, build e upload do app, do painel e d
   --certificado ARN         certificado do ACM em us-east-1 (librax.online e *.librax.online)
   --email-alarmes EMAIL     e-mail dos alarmes e do orçamento mensal
   --orcamento DOLARES       valor do orçamento mensal (padrão 10)
-  --com-google              liga o login com Google (precisa do cliente OAuth no SSM e no Secrets Manager)
+  --com-google              liga o login com Google (precisa do cliente OAuth criado no Google Cloud; se o
+                            id e o segredo ainda não estiverem na AWS, o script pede e guarda)
   --sem-google              desliga o login com Google (padrão no primeiro lançamento)
   --com-lembretes-email     liga os lembretes por e-mail (precisa do domínio verificado no SES)
   --sem-lembretes-email     desliga os lembretes por e-mail (padrão)
@@ -74,6 +81,8 @@ bootstrap (só se faltar), deploy da stack, build e upload do app, do painel e d
   --com-concorrencia-reservada  limita quantas cópias de cada Lambda da API rodam juntas (precisa da cota
                             de concorrência do Lambda na conta em 1000; o script confere antes)
   --sem-concorrencia-reservada  sem esse limite por Lambda (padrão)
+  --com-notificacoes        liga as notificações (Web Push): gera as chaves VAPID uma vez, direto no SSM,
+                            sem mostrar a privada; chaves que já existem nunca são trocadas
   --so-publicar             pula bootstrap e deploy: só build e upload do app, do painel e da landing
   --vlibras-opcional        publica mesmo se o download do avatar VLibras falhar (cai no texto)
   --ignorar-dns             não confere se o domínio já aponta para o Route 53
@@ -98,6 +107,7 @@ OPT_GOOGLE=""
 OPT_LEMBRETES=""
 OPT_EMAIL_SES=""
 OPT_RESERVA=""
+OPT_NOTIFICACOES=false
 SO_PUBLICAR=false
 VLIBRAS_OPCIONAL=false
 IGNORAR_DNS=false
@@ -128,6 +138,7 @@ ler_opcoes() {
       --sem-email-ses) OPT_EMAIL_SES=false; shift ;;
       --com-concorrencia-reservada) OPT_RESERVA=true; shift ;;
       --sem-concorrencia-reservada) OPT_RESERVA=false; shift ;;
+      --com-notificacoes) OPT_NOTIFICACOES=true; shift ;;
       --so-publicar) SO_PUBLICAR=true; shift ;;
       --vlibras-opcional) VLIBRAS_OPCIONAL=true; shift ;;
       --ignorar-dns) IGNORAR_DNS=true; shift ;;
@@ -138,8 +149,8 @@ ler_opcoes() {
       *) echo "Opção desconhecida: $1 (veja --ajuda)." >&2; exit 2 ;;
     esac
   done
-  if [[ "$MODO_CI" == true && ( "$CONFIGURAR_CI" == true || -n "$ADMIN_EMAIL" ) ]]; then
-    echo "--ci é só o lançamento pelo CodeBuild: não combina com --configurar-ci nem com --admin." >&2
+  if [[ "$MODO_CI" == true && ( "$CONFIGURAR_CI" == true || -n "$ADMIN_EMAIL" || "$OPT_NOTIFICACOES" == true ) ]]; then
+    echo "--ci é só o lançamento pelo CodeBuild: não combina com --configurar-ci, --admin nem --com-notificacoes." >&2
     exit 2
   fi
 }
@@ -219,6 +230,8 @@ ao_falhar() {
 aws_l() { "$AWS_SH" aws "$@"; }
 
 em_cloudshell() { [[ "${AWS_EXECUTION_ENV:-}" == CloudShell* ]]; }
+# Terminal de verdade para perguntar (no teste, trocada para simular quem digita)
+tem_terminal() { [[ -t 0 ]]; }
 
 mascarar_email() {
   local email=$1
@@ -280,7 +293,7 @@ perguntar() {
     dica="Falta no $PARAM_CONTEXTO do SSM: rode o lançamento completo no CloudShell uma vez (ele atualiza o parâmetro) e rode o CI de novo."
   fi
   while true; do
-    if [[ -t 0 && "$MODO_CI" == false ]]; then
+    if tem_terminal && [[ "$MODO_CI" == false ]]; then
       read -r -p "   $texto${padrao:+ [$padrao]}: " resposta || true
       resposta=${resposta:-$padrao}
     else
@@ -292,7 +305,7 @@ perguntar() {
       printf -v "$__var" '%s' "$resposta"
       return 0
     fi
-    [[ -t 0 && "$MODO_CI" == false ]] || falha "$texto: valor ausente ou inválido. $dica"
+    { tem_terminal && [[ "$MODO_CI" == false ]]; } || falha "$texto: valor ausente ou inválido. $dica"
     aviso "Valor inválido. $dica"
   done
 }
@@ -300,6 +313,7 @@ perguntar() {
 RE_CONTA='^[0-9]{12}$'
 RE_ZONA='^Z[A-Z0-9]{5,32}$'
 RE_CERT='^arn:aws:acm:us-east-1:[0-9]{12}:certificate/[0-9a-f-]{36}$'
+RE_GOOGLE_ID='^[0-9]+-[0-9a-z]+\.apps\.googleusercontent\.com$'
 RE_EMAIL='^[^@[:space:]"]+@[^@[:space:]"]+\.[^@[:space:]"]+$'
 RE_EMAIL_OU_VAZIO='^$|^[^@[:space:]"]+@[^@[:space:]"]+\.[^@[:space:]"]+$'
 RE_DOLARES='^[0-9]+(\.[0-9]+)?$'
@@ -563,11 +577,7 @@ conferir_pre_requisitos() {
   fi
 
   if [[ "$GOOGLE" == true ]]; then
-    aws_l ssm get-parameter --name /librax/google/client-id --query Parameter.Name --output text >/dev/null 2>&1 ||
-      falha "Google ligado, mas falta o parâmetro /librax/google/client-id no SSM (docs/lancamento.md, Google). Ou rode com --sem-google."
-    aws_l secretsmanager describe-secret --secret-id librax/google/client-secret --query Name --output text >/dev/null 2>&1 ||
-      falha "Google ligado, mas falta o segredo librax/google/client-secret no Secrets Manager. Ou rode com --sem-google."
-    ok "cliente OAuth do Google guardado (SSM e Secrets Manager)"
+    garantir_cliente_google
   fi
   if [[ "$LEMBRETES" == true ]]; then
     local verificado
@@ -582,6 +592,98 @@ conferir_pre_requisitos() {
   if [[ "$EMAIL_SES" == true ]]; then
     conferir_ses_do_login
   fi
+}
+
+# Cliente OAuth do Google (--com-google): o id vai para o SSM e o segredo para o Secrets Manager. O que
+# faltar o script pede no terminal (o segredo sem aparecer na tela nem no histórico) e grava por arquivo
+# temporário, para o valor não passar pela linha de comando. No CI, ou sem terminal, só confere.
+garantir_cliente_google() {
+  local tem_id=false tem_segredo=false id segredo tmp
+  aws_l ssm get-parameter --name "$PARAM_GOOGLE_ID" --query Parameter.Name --output text >/dev/null 2>&1 && tem_id=true
+  aws_l secretsmanager describe-secret --secret-id "$SEGREDO_GOOGLE" --query Name --output text >/dev/null 2>&1 &&
+    tem_segredo=true
+  if [[ "$tem_id" == false || "$tem_segredo" == false ]]; then
+    if [[ "$MODO_CI" == true ]] || ! tem_terminal; then
+      [[ "$tem_id" == true ]] ||
+        falha "Google ligado, mas falta o parâmetro $PARAM_GOOGLE_ID no SSM. Rode no CloudShell com --com-google (ele pede o id e o segredo) ou com --sem-google."
+      falha "Google ligado, mas falta o segredo $SEGREDO_GOOGLE no Secrets Manager. Rode no CloudShell com --com-google (ele pede o segredo) ou com --sem-google."
+    fi
+    info "Dados do cliente OAuth do Google (Google Cloud Console > APIs e serviços > Credenciais > o cliente;"
+    info "passo a passo em docs/lancamento.md, Google)."
+  fi
+  if [[ "$tem_id" == false ]]; then
+    perguntar id "Client ID" "" "$RE_GOOGLE_ID" "Termina com .apps.googleusercontent.com."
+    aws_l ssm put-parameter --name "$PARAM_GOOGLE_ID" --type String \
+      --description "Client ID do OAuth do Google (login do Librax)" --value "$id" >/dev/null
+    ok "Client ID guardado em $PARAM_GOOGLE_ID"
+  fi
+  if [[ "$tem_segredo" == false ]]; then
+    while true; do
+      read -r -s -p "   Client secret (não aparece na tela): " segredo || true
+      echo
+      [[ -z "$segredo" || "$segredo" =~ [[:space:]] ]] || break
+      aviso "Cole o segredo do cliente (Client secret), sem espaços."
+    done
+    tmp=$(mktemp)
+    chmod 600 "$tmp"
+    printf '%s' "$segredo" >"$tmp"
+    unset segredo
+    if ! aws_l secretsmanager create-secret --name "$SEGREDO_GOOGLE" \
+      --description "Client secret do OAuth do Google (login do Librax)" \
+      --secret-string "file://$tmp" --query Name --output text >/dev/null; then
+      rm -f "$tmp"
+      falha "Não consegui guardar o segredo em $SEGREDO_GOOGLE no Secrets Manager."
+    fi
+    rm -f "$tmp"
+    ok "Client secret guardado em $SEGREDO_GOOGLE (0,40 dólar por mês)"
+  fi
+  ok "cliente OAuth do Google guardado (SSM e Secrets Manager)"
+}
+
+# Chaves VAPID das notificações (--com-notificacoes), geradas no próprio CloudShell com o crypto do Node
+# (P-256, o mesmo formato do web-push: pública com 65 bytes e privada com 32, em base64url) e gravadas
+# por arquivo temporário, sem a privada passar pela tela nem pela linha de comando. Chaves que já
+# existem ficam: trocar invalida as inscrições de quem já ativou as notificações. Sem a pública nenhum
+# aparelho se inscreveu, então uma privada solta (rodada interrompida) pode ser trocada.
+garantir_chaves_push() {
+  passo "Chaves das notificações (Web Push)"
+  local tem_publica=false tem_privada=false tmp
+  aws_l ssm get-parameter --name "$PARAM_VAPID_PUBLICA" --query Parameter.Name --output text >/dev/null 2>&1 &&
+    tem_publica=true
+  aws_l ssm get-parameter --name "$PARAM_VAPID_PRIVADA" --query Parameter.Name --output text >/dev/null 2>&1 &&
+    tem_privada=true
+  if [[ "$tem_publica" == true && "$tem_privada" == true ]]; then
+    ok "chaves já guardadas no SSM; ficam as mesmas"
+    return 0
+  fi
+  if [[ "$tem_publica" == true ]]; then
+    falha "Há a chave pública ($PARAM_VAPID_PUBLICA) mas falta a privada ($PARAM_VAPID_PRIVADA). Para gerar um par novo, apague a pública no SSM e rode de novo; quem já tinha ativado as notificações precisa ativar outra vez."
+  fi
+  tmp=$(mktemp -d)
+  chmod 700 "$tmp"
+  if ! node -e '
+    const { createECDH } = require("crypto");
+    const fs = require("fs");
+    const path = require("path");
+    const dir = process.argv[1];
+    const ecdh = createECDH("prime256v1");
+    ecdh.generateKeys();
+    const tamanho = (b, n) => Buffer.concat([Buffer.alloc(Math.max(0, n - b.length)), b]);
+    fs.writeFileSync(path.join(dir, "publica"), tamanho(ecdh.getPublicKey(), 65).toString("base64url"), { mode: 0o600 });
+    fs.writeFileSync(path.join(dir, "privada"), tamanho(ecdh.getPrivateKey(), 32).toString("base64url"), { mode: 0o600 });' "$tmp"; then
+    rm -rf "$tmp"
+    falha "Não consegui gerar as chaves VAPID."
+  fi
+  # A privada primeiro: a pública no SSM é o sinal de que o par está completo
+  if ! aws_l ssm put-parameter --name "$PARAM_VAPID_PRIVADA" --type SecureString --overwrite \
+    --description "Chave privada VAPID das notificacoes do Librax" --value "file://$tmp/privada" >/dev/null ||
+    ! aws_l ssm put-parameter --name "$PARAM_VAPID_PUBLICA" --type String \
+      --description "Chave publica VAPID das notificacoes do Librax (vai no app)" --value "file://$tmp/publica" >/dev/null; then
+    rm -rf "$tmp"
+    falha "Não consegui gravar as chaves VAPID no SSM. Rode de novo com --com-notificacoes."
+  fi
+  rm -rf "$tmp"
+  ok "chaves geradas e guardadas no SSM ($PARAM_VAPID_PUBLICA e $PARAM_VAPID_PRIVADA, a privada cifrada)"
 }
 
 # Remetente dos códigos do login: librax:cognitoEmailFrom ou o padrão da stack (infra/lib/config.ts)
@@ -844,13 +946,16 @@ escrever_envs() {
   passo "Variáveis de build do app e do painel (a partir dos outputs da stack)"
   ler_outputs AppUrl AdminUrl LandingUrl UserPoolId UserPoolClientId AuthDomain AdminClientId \
     WebBucketName ContentBucketName AdminBucketName
-  local dominio_auth vapid google
+  local dominio_auth vapid google lembretes
   dominio_auth=$(output AuthDomain)
   dominio_auth=${dominio_auth#https://}
-  vapid=$(aws_l ssm get-parameter --name /librax/vapid/public-key --query Parameter.Value --output text 2>/dev/null || true)
+  vapid=$(aws_l ssm get-parameter --name "$PARAM_VAPID_PUBLICA" --query Parameter.Value --output text 2>/dev/null || true)
   [[ "$vapid" == None ]] && vapid=""
   google=$(contexto googleEnabled)
   [[ "$google" == false ]] || google=true
+  # O app só oferece o lembrete por e-mail com o envio ligado na infra
+  lembretes=$(contexto emailRemindersEnabled)
+  [[ "$lembretes" == true ]] || lembretes=false
 
   {
     echo "# Gerado por infra/scripts/lancar-cloudshell.sh com os outputs da stack $STACK. Fora do git."
@@ -860,6 +965,7 @@ escrever_envs() {
     echo "VITE_API_BASE=/api"
     echo "VITE_VAPID_PUBLIC_KEY=$vapid"
     echo "VITE_GOOGLE_ENABLED=$google"
+    echo "VITE_EMAIL_REMINDERS=$lembretes"
   } >"$WEB/.env.production.local"
   # Painel: login próprio pela API do User Pool (SRP), sem o domínio do Cognito
   {
@@ -869,10 +975,12 @@ escrever_envs() {
     echo "VITE_API_BASE=/api"
   } >"$ADMIN/.env.production.local"
   ok "apps/web-poc/.env.production.local e apps/admin-web/.env.production.local"
+  NOTIFICACOES=false
   if [[ -n "$vapid" ]]; then
+    NOTIFICACOES=true
     ok "chave pública VAPID incluída (Web Push)"
   else
-    aviso "Sem /librax/vapid/public-key no SSM: o app sai sem Web Push (docs/lancamento.md, Depois do lançamento)."
+    aviso "Sem $PARAM_VAPID_PUBLICA no SSM: o app sai sem notificações. Para ligar: --com-notificacoes."
   fi
   [[ "$google" == true ]] || info "Login com Google desligado: o app mostra só e-mail e senha."
 }
@@ -988,7 +1096,10 @@ resumo() {
     info "- Alerta de anomalia de custo desligado: ative o Cost Explorer e rode o lançamento de novo."
   fi
   if [[ "$(contexto googleEnabled)" != true ]]; then
-    info "- Login com Google desligado. Para ligar: cliente OAuth no Google e depois --com-google."
+    info "- Login com Google desligado. Para ligar: cliente OAuth no Google e depois --com-google (o script pede o id e o segredo)."
+  fi
+  if [[ "$NOTIFICACOES" != true ]]; then
+    info "- Notificações desligadas. Para ligar: bash infra/scripts/lancar-cloudshell.sh --so-publicar --com-notificacoes"
   fi
   if [[ "$(contexto emailRemindersEnabled)" != true ]]; then
     info "- Lembretes por e-mail desligados. Para ligar: domínio no SES e depois --com-lembretes-email."
@@ -1122,6 +1233,7 @@ CERT=""
 GOOGLE=false
 LEMBRETES=false
 EMAIL_SES=false
+NOTIFICACOES=false
 ALARM_EMAIL=""
 OUTPUTS=""
 ESTADO_STACK=""
@@ -1169,6 +1281,9 @@ main() {
     conferir_pre_requisitos
     conferir_travas_de_custo
     publicar_stack
+  fi
+  if [[ "$OPT_NOTIFICACOES" == true ]]; then
+    garantir_chaves_push
   fi
   escrever_envs
   construir

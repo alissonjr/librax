@@ -108,6 +108,18 @@ test('sem push, usa e-mail so com opt-in e se o envio de e-mail estiver ligado',
   assert.equal(semMail.sent, 0);
 });
 
+test('sem chaves VAPID (push null): o e-mail sai igual e as inscricoes ficam', async () => {
+  const repo = new InMemoryRepo();
+  await seedUser(repo, 'ana', { notif: { emailOptIn: true, email: 'ana@exemplo.com' } });
+  const mail = fakeMail();
+
+  const r = await sendReminders(repo, { now, push: null, mail, appUrl: 'https://app.librax.example' });
+
+  assert.equal(r.sent, 1);
+  assert.equal(mail.sent.length, 1);
+  assert.equal((await repo.listPushSubscriptions('ana')).length, 1);
+});
+
 test('fusos diferentes recebem cada um no seu horario', async () => {
   const repo = new InMemoryRepo();
   await seedUser(repo, 'sp');
