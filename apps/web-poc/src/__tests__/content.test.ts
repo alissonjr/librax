@@ -511,6 +511,32 @@ describe('sinais com movimento avaliados pelo modelo de sinais (/ml/sinais/)', (
     expect(ex.filter((e) => e.type === 'mirror_practice').map((e) => e.signId)).toEqual(['sinal-OI']);
   });
 
+  it('modelo publicado: camera_signs pela soma de 8 divisões dos canais (70% e 8 canais); TRISTE ganha a câmera e HOSPITAL volta para a prática livre', () => {
+    type Heldout = Record<string, { certas: number; total: number; canais: number }>;
+    const [published] = Object.values(import.meta.glob<{
+      labels: string[]; camera_signs: string[]; camera_seeds: number; camera_min_heldout: number;
+      camera_min_channels: number; heldout: Heldout;
+    }>('../../public/ml/sinais/model.json', { eager: true, import: 'default' }));
+    expect(published.camera_seeds).toBe(8);
+    for (const g of published.camera_signs) {
+      const h = published.heldout[g];
+      expect(h.certas / h.total, g).toBeGreaterThanOrEqual(published.camera_min_heldout);
+      expect(h.canais, g).toBeGreaterThanOrEqual(published.camera_min_channels);
+    }
+    setSignModelForTests({ model: fakeModel(published.labels), cameraSigns: published.camera_signs });
+    const produced = (lessonId: string) => {
+      const ex = resolveExercises(BUNDLE[lessonId], course.lessonsMap[lessonId].signIds, { canEvaluate: () => false });
+      return {
+        camera: ex.filter((e) => e.type === 'perform_sign').map((e) => e.signId),
+        free: ex.filter((e) => e.type === 'mirror_practice').map((e) => e.signId),
+      };
+    };
+    // U7 L1: TRISTE passou (70,1% na soma); FELIZ acerta 95% com pessoas novas, mas só 1 de 4 vídeos de dicionário
+    expect(produced('u7-l1')).toEqual({ camera: ['sinal-TRISTE'], free: ['sinal-FELIZ'] });
+    // U11 L3: HOSPITAL ficou em 68,8% na soma (tinha passado nas duas divisões da regra antiga)
+    expect(produced('u11-l3')).toEqual({ camera: [], free: ['sinal-ESCOLA', 'sinal-HOSPITAL'] });
+  });
+
   it('letra avaliada continua com o classificador das letras, mesmo se o modelo de sinais tiver a glosa', () => {
     setSignModelForTests({ model: fakeModel(['A', 'OI', '_']) });
     const ex = resolveExercises(bundleFor(['letra-A', 'sinal-OI'], map), ['letra-A', 'sinal-OI'], {
