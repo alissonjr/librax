@@ -837,6 +837,20 @@ main:focus { outline: none; }
 .project { display: grid; gap: var(--lx-space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
 .project .card { display: flex; flex-direction: column; gap: var(--lx-space-3); }
 .project li:nth-child(2) .feature-icon { background: var(--lx-game-hand-soft); color: var(--lx-game-hand-text); }
+.author { display: grid; gap: var(--lx-space-5); margin-top: var(--lx-space-6); align-items: start; }
+.author-photo {
+  width: 120px; height: 120px; border-radius: var(--lx-radius-full); object-fit: cover;
+  background: var(--lx-bg-sunken); border: var(--lx-border-width-thick) solid var(--lx-action-primary-bg);
+}
+.author-body { display: flex; flex-direction: column; gap: var(--lx-space-2); max-width: 68ch; }
+.author-kicker { font: var(--lx-typography-label-sm); color: var(--lx-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+.author h3 { font-size: var(--lx-typography-title-size); line-height: var(--lx-typography-title-line-height); font-weight: var(--lx-font-weight-heavy); }
+.author-role { color: var(--lx-text-secondary); font-weight: var(--lx-font-weight-bold); }
+.author-body > p:not(.author-kicker):not(.author-role) { color: var(--lx-text-secondary); }
+.author-links { display: flex; flex-wrap: wrap; gap: var(--lx-space-2); margin-top: var(--lx-space-2); }
+.author-links .chip { background: var(--lx-bg-surface); color: var(--lx-text-primary); border: var(--lx-border-width-thin) solid var(--lx-border-default); text-decoration: none; min-height: 36px; }
+.author-links .chip:hover { border-color: var(--lx-text-secondary); }
+@media (min-width: 600px) { .author { grid-template-columns: auto 1fr; } }
 
 /* ---------- dúvidas ---------- */
 .faq { display: grid; gap: var(--lx-space-3); max-width: 860px; }

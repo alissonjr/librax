@@ -17,6 +17,7 @@ export const en: Copy = {
     numbers: 'Numbers',
     install: 'Install',
     faq: 'FAQ',
+    about: 'About',
     open: 'Open the app',
     home: 'Librax, home',
   },
@@ -218,13 +219,22 @@ export const en: Copy = {
     soon: 'Coming soon',
   },
   project: {
-    title: 'An open project',
-    lead: 'Made with care, with honest numbers and credit to those who built the pieces.',
+    title: 'About Librax',
+    lead: 'Librax was born to make the first step into Libras simple, free and possible on anyone\'s phone. Made with care, with honest numbers and credit to those who built the pieces.',
     items: [
       { title: 'Honest measurement', text: 'The app is tested with people who were never part of training.' },
       { title: 'Tested', text: '{testes} automated tests check the app on every change.' },
       { title: 'Built on open pieces', text: 'The VLibras avatar from the Brazilian government, hand recognition from Google and the Anybody and Figtree fonts, all open.' },
     ],
+    author: {
+      title: 'Who makes it',
+      name: 'Alisson Júnior',
+      role: 'Tech Lead and career mentor',
+      bio: 'I have worked in tech for over 10 years, from junior developer to architect and Tech Lead, and today I am also a career mentor. I built Librax to bring together two things I believe in: technology that works on anyone\'s phone, even offline, and Libras being more present in the everyday life of hearing people.',
+      photoAlt: 'Photo of Alisson Júnior, smiling',
+      links: 'Links of Alisson Júnior',
+      site: 'Website',
+    },
   },
   faq: {
     title: 'Frequently asked questions',

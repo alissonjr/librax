@@ -17,6 +17,7 @@ export const es: Copy = {
     numbers: 'Números',
     install: 'Instalar',
     faq: 'Preguntas',
+    about: 'Acerca de',
     open: 'Abrir la app',
     home: 'Librax, inicio',
   },
@@ -218,13 +219,22 @@ export const es: Copy = {
     soon: 'Próximamente',
   },
   project: {
-    title: 'Un proyecto abierto',
-    lead: 'Hecho con cuidado, con números honestos y con crédito a quienes hicieron las piezas.',
+    title: 'Acerca de Librax',
+    lead: 'Librax nació para que el primer paso en Libras sea simple, gratis y posible en el celular de cualquier persona. Hecho con cuidado, con números honestos y con crédito a quienes hicieron las piezas.',
     items: [
       { title: 'Medición honesta', text: 'La app se prueba con personas que nunca formaron parte del entrenamiento.' },
       { title: 'Probado', text: '{testes} pruebas automáticas revisan la app en cada cambio.' },
       { title: 'Hecho con piezas abiertas', text: 'El avatar VLibras del Gobierno de Brasil, el reconocimiento de manos de Google y las fuentes Anybody y Figtree, todos abiertos.' },
     ],
+    author: {
+      title: 'Quién lo hace',
+      name: 'Alisson Júnior',
+      role: 'Tech Lead y mentor de carrera',
+      bio: 'Trabajo en tecnología hace más de 10 años, de desarrollador junior a arquitecto y Tech Lead, y hoy también soy mentor de carrera. Creé Librax para unir dos cosas en las que creo: tecnología que funciona en el celular de cualquier persona, incluso sin internet, y una Libras más presente en el día a día de quienes oyen.',
+      photoAlt: 'Foto de Alisson Júnior, sonriendo',
+      links: 'Enlaces de Alisson Júnior',
+      site: 'Sitio web',
+    },
   },
   faq: {
     title: 'Preguntas frecuentes',

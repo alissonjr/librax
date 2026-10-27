@@ -15,6 +15,13 @@ import { appLink } from './config';
 import { PLATFORMS } from './install';
 import { HERO_LETTERS, bonesPath, handViewBox, type Pose } from './hands';
 
+/** Links do autor na seção Sobre ('site' usa o texto traduzido). */
+const AUTHOR_LINKS: [string, string][] = [
+  ['LinkedIn', 'https://www.linkedin.com/in/alissonjunior'],
+  ['site', 'https://alissonjr.github.io/'],
+  ['Instagram', 'https://www.instagram.com/alissoncarreiratech/'],
+];
+
 type IconName = keyof typeof SYMBOLS;
 
 const esc = (s: string | number) =>
@@ -137,6 +144,7 @@ export function renderPage(locale: Locale): string {
     ['offline', c.nav.offline],
     ['numeros', c.nav.numbers],
     ['instalar', c.nav.install],
+    ['sobre', c.nav.about],
     ['duvidas', c.nav.faq],
   ];
 
@@ -437,15 +445,27 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
   </div>
 </section>
 
-<section class="section" id="projeto" aria-labelledby="projeto-title">
+<section class="section" id="sobre" aria-labelledby="sobre-title">
   <div class="wrap">
     <header class="section-head">
-      <h2 id="projeto-title">${esc(c.project.title)}</h2>
+      <h2 id="sobre-title">${esc(c.project.title)}</h2>
       <p class="lead">${esc(c.project.lead)}</p>
     </header>
     <ul class="project" role="list">
       ${c.project.items.map((it, i) => `<li class="card"><span class="feature-icon">${icon((['check_circle', 'shield', 'description'] as IconName[])[i], { filled: true })}</span><h3>${esc(it.title)}</h3><p>${f(it.text)}</p></li>`).join('')}
     </ul>
+    <article class="card author" aria-labelledby="autor-nome">
+      <img class="author-photo" src="/img/autor/alisson-240.webp" srcset="/img/autor/alisson-240.webp 1x, /img/autor/alisson-480.webp 2x" width="120" height="120" alt="${esc(c.project.author.photoAlt)}" loading="lazy" decoding="async">
+      <div class="author-body">
+        <p class="author-kicker">${esc(c.project.author.title)}</p>
+        <h3 id="autor-nome">${esc(c.project.author.name)}</h3>
+        <p class="author-role">${esc(c.project.author.role)}</p>
+        <p>${esc(c.project.author.bio)}</p>
+        <ul class="author-links" role="list" aria-label="${esc(c.project.author.links)}">
+          ${AUTHOR_LINKS.map(([label, href]) => `<li><a class="chip" href="${href}" target="_blank" rel="noopener noreferrer">${esc(label === 'site' ? c.project.author.site : label)}</a></li>`).join('')}
+        </ul>
+      </div>
+    </article>
   </div>
 </section>
 
