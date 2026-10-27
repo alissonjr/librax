@@ -26,7 +26,8 @@ LANDING="$RAIZ/apps/landing"
 API="$RAIZ/services/api"
 REGIAO=us-east-1
 STACK=LibraxStack
-NODE_MINIMO=20
+# 22, a mesma versão das Lambdas e do CodeBuild: o Node 20 do CloudShell saiu do suporte em 2026-04-30
+NODE_MINIMO=22
 NODE_VERSAO=22.20.0
 NODE_DIR=${LIBRAX_NODE_DIR:-/tmp/librax-node}
 ESPACO_MINIMO_MB=2500

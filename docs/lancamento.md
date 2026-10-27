@@ -132,7 +132,7 @@ O script mostra cada passo com a hora e para no primeiro erro, dizendo o que faz
 Depois, sem perguntar mais nada:
 
 1. Confere o ambiente: CloudShell, região us-east-1, espaço livre, cache do npm em `/tmp`.
-2. Usa o Node do CloudShell se for a versão 20 ou mais nova; se não for, baixa o Node 22 para `/tmp/librax-node`
+2. Usa o Node do CloudShell se for a versão 22 ou mais nova (a mesma das Lambdas; o Node 20 saiu do suporte); se não for, baixa o Node 22 para `/tmp/librax-node`
    (conferido pelo SHA-256 publicado).
 3. Instala as dependências (`npm ci`) de `infra`, `services/api`, `apps/web-poc`, `apps/admin-web` e
    `apps/landing`, só onde ainda não estão instaladas.
