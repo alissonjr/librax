@@ -144,7 +144,8 @@ Depois, sem perguntar mais nada:
    baixa) e se o Cost Explorer já responde, para ligar o alerta de anomalia de custo
    ([Travas de custo](#travas-de-custo)).
 8. Faz o build da landing (o deploy calcula dele a CSP), o bootstrap do CDK (só na primeira vez) e o deploy da
-   stack `LibraxStack` (de 15 a 40 minutos na primeira vez).
+   stack `LibraxStack` (de 15 a 40 minutos na primeira vez). Depois do deploy, grava uma cópia dos valores no SSM
+   (`/librax/cdk-context`, cifrada e grátis), de onde o [CI/CD](ci-cd.md) lê.
 9. Lê os outputs da stack e grava as variáveis de build do app e do painel (`.env.production.local`).
 10. Faz o build do app (baixa os modelos de ML e o avatar VLibras na primeira vez) e do painel.
 11. Envia o app para o bucket do app, os modelos de ML (`/ml/`) para o bucket de conteúdo, o painel para
@@ -325,7 +326,17 @@ topo do arquivo e publique (próxima seção). Edite no repositório, não no Cl
 
 ## Publicar atualizações
 
-Depois que a mudança estiver no `main` do GitHub: CloudShell, token novo se o anterior venceu, e
+**Com o CI/CD (recomendado):** configure uma vez com `bash infra/scripts/lancar-cloudshell.sh --configurar-ci` e,
+daí em diante, publique do seu computador com uma tag de versão. A AWS roda todos os testes e só publica se todos
+passarem; o resultado chega no e-mail dos alarmes. Passo a passo, custo, logs e como voltar uma versão em
+[`ci-cd.md`](ci-cd.md):
+
+```bash
+git tag v1.0.0 && git push origin v1.0.0
+```
+
+**Pelo CloudShell (sem CI/CD, ou para mudar os valores do lançamento):** depois que a mudança estiver no `main` do
+GitHub: CloudShell, token novo se o anterior venceu, e
 
 ```bash
 cd /tmp && rm -rf librax && git clone --depth 1 https://github.com/alissonjr/librax.git && cd librax
@@ -369,6 +380,7 @@ Preços de us-east-1. No piloto, o esperado é de US$ 1 a US$ 3 por mês, quase 
 | SES (se ligar os e-mails do login ou os lembretes) | US$ 0,10 por mil e-mails |
 | CloudFront, Lambda, DynamoDB, S3, Cognito, CloudWatch | centavos no piloto (free tier permanente do CloudFront, da Lambda e do Cognito) |
 | Certificado do ACM, AWS Budget, SNS por e-mail | grátis |
+| CI/CD no CodeBuild (se configurar) | grátis até 100 minutos de build, cerca de 5 versões; US$ 0,40 com 10 versões e US$ 1,30 com 20 ([`ci-cd.md`](ci-cd.md#quanto-custa)) |
 
 O domínio é pago à parte, na GoDaddy. O **AWS Budget** `librax-mensal-<resumo>` avisa por e-mail ao passar de 80%
 e de 100% de US$ 10 por mês e quando a previsão do mês passa de 100% (mude o valor com `--orcamento 20`; a previsão
