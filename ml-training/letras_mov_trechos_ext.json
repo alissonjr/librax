@@ -1,0 +1,538 @@
+{
+ "_sobre": "Trechos das letras com movimento nos vídeos de data/letras_mov/fontes_externas.json (video/rotular_xz.py), no formato do letras_mov_trechos.json; o train_letras_mov.py soma os dois. ok=false fica fora. A revisão a olho das folhas fica em letras_mov_conferencia_ext.json.",
+ "trechos": [
+  {
+   "id": "ext-pedal-cedilha-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "letra": "Ç",
+   "ini": 0.3,
+   "fim": 2.3,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 2.63,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-cedilha-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "letra": "Ç",
+   "ini": 0.0,
+   "fim": 2.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 5.58,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-cedilha-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "letra": "Ç",
+   "ini": 0.0,
+   "fim": 1.401,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 3.05,
+   "ocr": "C",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-h-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "letra": "H",
+   "ini": 0.0,
+   "fim": 1.902,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 3.82,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-h-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "letra": "H",
+   "ini": 0.0,
+   "fim": 1.902,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 3.31,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-h-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "letra": "H",
+   "ini": 0.1,
+   "fim": 2.1,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 3.74,
+   "ocr": "K",
+   "ok": false,
+   "motivo": "tela mostra K"
+  },
+  {
+   "id": "ext-pedal-j-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "letra": "J",
+   "ini": 0.0,
+   "fim": 2.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 7.06,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-j-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "letra": "J",
+   "ini": 1.9,
+   "fim": 3.9,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 12.93,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-j-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "letra": "J",
+   "ini": 0.0,
+   "fim": 2.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 12.71,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-k-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "letra": "K",
+   "ini": 0.0,
+   "fim": 1.768,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 4.09,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-k-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "letra": "K",
+   "ini": 0.0,
+   "fim": 2.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 2.44,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-k-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "letra": "K",
+   "ini": 0.0,
+   "fim": 2.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 4.62,
+   "ocr": "K",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-luz",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 1.202,
+   "fim": 2.469,
+   "como": "propria",
+   "parada": [
+    2.002,
+    2.469
+   ],
+   "energia": 4.81,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-luzes",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "alfabeto",
+   "letra": "Z",
+   "ini": 1.936,
+   "fim": 3.803,
+   "como": "propria",
+   "parada": [
+    2.736,
+    3.003
+   ],
+   "energia": 3.91,
+   "ocr": "",
+   "ok": false,
+   "motivo": "conferência: o trecho começa no L e no U e termina no E; o Z ocupa só o meio"
+  },
+  {
+   "id": "ext-pedal-x-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "letra": "X",
+   "ini": 0.0,
+   "fim": 1.768,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 3.54,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-x-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "letra": "X",
+   "ini": 0.0,
+   "fim": 2.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 6.11,
+   "ocr": "M",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-x-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "letra": "X",
+   "ini": 0.0,
+   "fim": 1.735,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 3.25,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-z-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "letra": "Z",
+   "ini": 0.0,
+   "fim": 2.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 16.38,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-z-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "letra": "Z",
+   "ini": 0.0,
+   "fim": 2.0,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 7.29,
+   "ocr": "",
+   "ok": true
+  },
+  {
+   "id": "ext-pedal-z-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "letra": "Z",
+   "ini": 0.0,
+   "fim": 1.768,
+   "como": "maior energia",
+   "parada": null,
+   "energia": 9.62,
+   "ocr": "S",
+   "ok": true
+  }
+ ],
+ "ines": [],
+ "videos": [
+  {
+   "id": "ext-pedal-azeite",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "alfabeto",
+   "inicio": 0.067,
+   "fim": 8.475,
+   "paradas": [
+    {
+     "letra": "E",
+     "ini": 4.271,
+     "fim": 4.872
+    },
+    {
+     "letra": "I",
+     "ini": 5.205,
+     "fim": 5.739
+    },
+    {
+     "letra": "E",
+     "ini": 7.207,
+     "fim": 8.475
+    }
+   ]
+  },
+  {
+   "id": "ext-pedal-cedilha-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-cedilha-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-cedilha-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-h-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-h-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-h-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-j-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-j-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-j-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-k-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-k-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-k-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-luz",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "alfabeto",
+   "inicio": 0.067,
+   "fim": 2.469,
+   "paradas": [
+    {
+     "letra": "L",
+     "ini": 0.067,
+     "fim": 0.734
+    }
+   ]
+  },
+  {
+   "id": "ext-pedal-luzes",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "alfabeto",
+   "inicio": 0.067,
+   "fim": 5.405,
+   "paradas": [
+    {
+     "letra": "L",
+     "ini": 0.067,
+     "fim": 1.869
+    },
+    {
+     "letra": "S",
+     "ini": 4.671,
+     "fim": 5.405
+    }
+   ]
+  },
+  {
+   "id": "ext-pedal-taxi",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "alfabeto",
+   "inicio": 0.067,
+   "fim": 3.203,
+   "paradas": [
+    {
+     "letra": "T",
+     "ini": 0.067,
+     "fim": 0.868
+    },
+    {
+     "letra": "I",
+     "ini": 2.336,
+     "fim": 3.203
+    }
+   ]
+  },
+  {
+   "id": "ext-pedal-x-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-x-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-x-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-z-1",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-verde",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-z-2",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-roxo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  },
+  {
+   "id": "ext-pedal-z-3",
+   "canal": "pedal",
+   "channel_id": "ext-pedal-amarelo",
+   "fonte": "letra",
+   "inicio": null,
+   "fim": null,
+   "paradas": []
+  }
+ ]
+}

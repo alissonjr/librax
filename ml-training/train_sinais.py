@@ -36,6 +36,7 @@ Uso:
         --rotulos data/sinais15/rotulos [--passos 8] [--ocultas 256,128] [--congeladas 2] [--salvar res.json]
         (vídeos de outra lista: --landmarks com mais uma pasta e --fontes-extra data/sinais15/fontes_extra.json,
         para o canal deles valer na divisão dos grupos)
+        (--so-treino ext-: os vídeos externos de video/baixar_externas.py só no treino, o teste fica o do YouTube)
     python train_sinais.py treinar --out PASTA (mesmas opções) [--resultados res.json ...]
         com --resultados (o --salvar do avaliar), o model.json leva em camera_signs só os sinais que
         passaram na validação cruzada e no dicionário (MIN_ACERTO_CAMERA); com mais de um arquivo
@@ -215,7 +216,9 @@ def congelar(X, y, n, rng):
 
 def equilibrar(X, y, rng, max_nenhum=MAX_NENHUM):
     """Repete as janelas dos sinais até cada um ter a média deles; "_" fica com até max_nenhum x os sinais."""
-    idx = {c: np.where(y == c)[0] for c in set(y)}
+    # em ordem: com o set direto, a ordem dos sorteios mudava com o PYTHONHASHSEED de cada execução e o
+    # mesmo treino dava outro resultado (até 4 vídeos a mais ou a menos por sinal na mesma divisão)
+    idx = {c: np.where(y == c)[0] for c in sorted(set(y))}
     sinais = [c for c in idx if c != NENHUM]
     alvo = int(np.mean([len(idx[c]) for c in sinais])) if sinais else 0
     pega = []
@@ -598,7 +601,10 @@ def avaliar(args):
     rots = carregar_rotulos(args.rotulos, set(glosas), fontes)
     pastas = preparar_ao_vivo({r["id"] for r in rots}, args.landmarks, args.processos)
     dic_win = np.array([p.startswith(DICIONARIO) for p in pessoa])
-    yt_rots = [r for r in rots if not r["id"].startswith(DICIONARIO)]
+    # --so-treino: canais que ficam sempre no treino e nunca no teste (como os dicionários, mas fora do
+    # teste do dicionário), para medir o efeito de mais dados no mesmo conjunto de teste
+    so_treino = tuple(args.so_treino)
+    yt_rots = [r for r in rots if not r["id"].startswith(DICIONARIO) and not (so_treino and r["canal"].startswith(so_treino))]
     dic_rots = [r for r in rots if r["id"].startswith(DICIONARIO)]
     E = movimento(compactar(X, cfg["passos"]), cfg["passos"])
 
@@ -812,6 +818,8 @@ def main():
                    help="outras listas no formato do fontes_sinais.json (canal dos vídeos novos)")
     a.add_argument("--rotulos", default=os.path.join(DATA, "rotulos_sinais"))
     a.add_argument("--grupos", type=int, default=5)
+    a.add_argument("--so-treino", nargs="*", default=[],
+                   help="prefixos de canal sempre no treino e nunca no teste (ex.: ext- dos vídeos externos)")
     a.add_argument("--processos", type=int, default=4)
     a.add_argument("--salvar", default="")
     a.add_argument("--probs", default="", help="guarda as probabilidades (pickle) para o varrer")

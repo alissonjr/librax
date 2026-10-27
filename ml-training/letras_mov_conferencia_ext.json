@@ -1,0 +1,6 @@
+{
+ "_sobre": "Revisão a olho das folhas dos vídeos do PEdAL da UFRGS (data/letras_mov/fontes_externas.json, data/letras_mov/conferir_ext/letra-<L>.jpg, video/rotular_xz.py --lista ... --folhas) em 2026-10-26: trechos que não mostram a letra ficam de fora do treino. Vídeos de uma letra: 3 pessoas (fundo verde, roxo e amarelo); palavras soletradas: só o Z de AZEITE, AZUL, LUZ, LUZES e PAZ e o X de TÁXI.",
+ "fora": [
+  {"id": "ext-pedal-luzes", "letra": "Z", "motivo": "o trecho começa no L e no U e termina no E; o Z ocupa só o meio"}
+ ]
+}

@@ -2,9 +2,9 @@
  * Soletração letra a letra pela câmera (spec-03 5.4 e 11.8).
  *
  * Cada passo da palavra tem quem o lê (SpellReader): as letras paradas, o classificador das letras;
- * H, J, K, X e Ç, o reconhecedor das letras com movimento (janelas de movimento, a letra vale com
- * duas avaliações seguidas iguais); os dígitos, o modelo dos números. O passo sem câmera (o Z hoje,
- * os dígitos fora de camera_numbers) é prática livre dentro da palavra: a pessoa faz o sinal e toca
+ * as de camera_letters (H, J, K, X, Z e Ç), o reconhecedor das letras com movimento (janelas de movimento, a
+ * letra vale com duas avaliações seguidas iguais); os dígitos, o modelo dos números. O passo sem câmera (a
+ * letra com movimento fora de camera_letters, os dígitos fora de camera_numbers) é prática livre dentro da palavra: a pessoa faz o sinal e toca
  * em "Fiz" (confirmFreeStep), sem nota e sem avanço automático por tempo.
  *
  * `index` é a letra da vez. Depois de confirmar uma letra, `waitingRelease` fica ligado até a
@@ -116,7 +116,7 @@ export const OWN_NAME_MAX = 8;
  * caixa alta, sem acento (Á vira A, mas Ç continua Ç) e só letras. Nome vazio, de uma letra ou com
  * mais de OWN_NAME_MAX letras dá null, e a lição usa a palavra de reserva do bundle. J, Ç e as
  * outras letras com movimento entram: cada letra tem o seu leitor (resolveExercises) e a que não
- * tem câmera (o Z hoje) é prática livre dentro do nome.
+ * tem câmera (fora de camera_letters) é prática livre dentro do nome.
  */
 export function ownNameLetters(displayName: string | null | undefined): string[] | null {
   const first = (displayName ?? '').trim().split(/\s+/)[0];

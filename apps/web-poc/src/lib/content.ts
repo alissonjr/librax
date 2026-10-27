@@ -346,7 +346,7 @@ export function cameraRecognizerFor(sign: Sign | undefined, opts: ResolveOptions
  *   repetida do mesmo sinal sai;
  * - fingerspell ganha o leitor de cada letra (spellReadersFor): letras paradas com o classificador
  *   delas, letras com movimento com o modelo das letras com movimento, digitos com o dos numeros e,
- *   sem camera para a letra com movimento (o Z) ou para o digito, pratica livre dentro da palavra.
+ *   sem camera para a letra com movimento (fora de camera_letters) ou para o digito, pratica livre dentro da palavra.
  *   Letra parada que a camera nao avalia, ou palavra sem nenhum passo avaliado, vira
  *   order_sequence com as letras (a pessoa poe as letras na ordem). No "soletre seu nome"
  *   (`own_name`), a palavra e o primeiro nome do perfil (ownNameLetters); se o nome nao da, fica a
@@ -471,9 +471,9 @@ export function resolveExercises(items: BundleExercise[], lessonSignIds: string[
 
 /**
  * Quem lê cada passo de uma soletração, ou null quando a câmera não serve (vira order_sequence).
- * - Letra: o modelo das letras com movimento quando ele a avalia (H, J, K, X e Ç, como no
- *   perform_sign); senão o classificador das letras paradas; senão, se é letra com movimento
- *   (recognition dynamic, o Z), prática livre. Letra parada que a câmera não avalia: null.
+ * - Letra: o modelo das letras com movimento quando ele a avalia (camera_letters: H, J, K, X, Z e Ç, como
+ *   no perform_sign); senão o classificador das letras paradas; senão, se é letra com movimento
+ *   (recognition dynamic, o Z sem o modelo), prática livre. Letra parada que a câmera não avalia: null.
  * - Dígito: o modelo dos números quando ele o avalia (camera_numbers); senão prática livre.
  * Sem nenhum passo avaliado (todos livres): null.
  */
