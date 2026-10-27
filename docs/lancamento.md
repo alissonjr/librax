@@ -74,7 +74,12 @@ O certificado é gratuito e renova sozinho enquanto os registros de validação 
 
 - **Nada é obrigatório.** Lambda, DynamoDB, Cognito, S3 e CloudFront já vêm ligados.
 - **Cost Explorer (recomendado):** Console > **Faturamento e Gerenciamento de Custos** > **Cost Explorer** >
-  ativar. Os dados aparecem em cerca de 24 horas. Sem ele, a tela Custo do painel fica vazia.
+  ativar. Os dados aparecem em cerca de 24 horas. Sem ele, a tela Custo do painel fica vazia e o alerta de
+  anomalia de custo fica para a próxima rodada do script ([Travas de custo](#travas-de-custo)).
+- **Cota de concorrência do Lambda (recomendado):** conta nova costuma vir com 10 execuções simultâneas, o que
+  derruba o app num pico de acesso. Peça 1000 (grátis): **Service Quotas** > **Serviços da AWS** > **AWS Lambda** >
+  **Concurrent executions** (código `L-B99A9384`) > **Solicitar aumento no nível da conta** > `1000`. A AWS costuma
+  responder de horas a 2 dias. O script confere a cota (só leitura) e lembra disso enquanto estiver baixa.
 - **Conta nova:** algumas contas novas precisam de verificação para criar CloudFront. Se o deploy parar com uma
   mensagem sobre "account must be verified", abra um caso no **Support Center** pedindo a liberação do CloudFront
   e rode o script de novo quando responderem.
@@ -135,11 +140,14 @@ Depois, sem perguntar mais nada:
 5. Trava da conta: confere que o login do CloudShell é da conta informada; se não for, para.
 6. Confere a zona, o certificado (emitido, cobrindo `librax.online`, `www`, `app` e `auth`) e se o domínio já
    responde pelos servidores do Route 53.
-7. Faz o build da landing (o deploy calcula dele a CSP), o bootstrap do CDK (só na primeira vez) e o deploy da
+7. Confere as travas de custo, só lendo a conta: a cota de concorrência do Lambda (recomenda pedir 1000 se estiver
+   baixa) e se o Cost Explorer já responde, para ligar o alerta de anomalia de custo
+   ([Travas de custo](#travas-de-custo)).
+8. Faz o build da landing (o deploy calcula dele a CSP), o bootstrap do CDK (só na primeira vez) e o deploy da
    stack `LibraxStack` (de 15 a 40 minutos na primeira vez).
-8. Lê os outputs da stack e grava as variáveis de build do app e do painel (`.env.production.local`).
-9. Faz o build do app (baixa os modelos de ML e o avatar VLibras na primeira vez) e do painel.
-10. Envia o app para o bucket do app, os modelos de ML (`/ml/`) para o bucket de conteúdo, o painel para
+9. Lê os outputs da stack e grava as variáveis de build do app e do painel (`.env.production.local`).
+10. Faz o build do app (baixa os modelos de ML e o avatar VLibras na primeira vez) e do painel.
+11. Envia o app para o bucket do app, os modelos de ML (`/ml/`) para o bucket de conteúdo, o painel para
     `admin/` e publica a landing. Cada pasta de `/ml/` sobe com o `Cache-Control` certo (ver
     [Modelos de ML nos apps instalados](#modelos-de-ml-nos-apps-instalados)).
 
@@ -166,15 +174,27 @@ os valores voltam da cópia em `~/.librax/`.
 
 ## Passo 10. Virar admin do painel
 
-Com a conta já criada no app (passo 9), no CloudShell:
+O painel exige o segundo fator: um aplicativo autenticador no celular (Google Authenticator, Microsoft
+Authenticator, 1Password ou outro; grátis, nunca SMS). Por isso:
 
-```bash
-cd /tmp/librax
-bash infra/scripts/lancar-cloudshell.sh --admin seu@email.com
-```
+1. Crie no app uma conta de **e-mail e senha só para o painel** (por exemplo, `seu+admin@email.com`). Com o
+   autenticador ligado, essa conta não entra no app do Librax (o app ainda não pede o código), e conta do Google
+   não serve (o segundo fator dela fica no Google, fora do Cognito).
+2. No CloudShell:
 
-Saia do painel e entre de novo: o grupo só entra no login seguinte. Os comandos equivalentes, para tirar o acesso
-ou dar a outra pessoa, estão em [`painel-admin.md`](painel-admin.md#como-dar-acesso-de-admin-a-alguém).
+   ```bash
+   cd /tmp/librax
+   bash infra/scripts/lancar-cloudshell.sh --admin seu+admin@email.com
+   ```
+
+3. Abra `https://app.librax.online/admin/` e entre com essa conta. No primeiro acesso o painel mostra
+   **Configure o aplicativo autenticador**: toque em **Começar**, leia o QR code com o aplicativo (ou digite a
+   chave mostrada embaixo) e digite o código de 6 dígitos. Pronto: daí em diante, o login do painel pede o código
+   do aplicativo depois da senha.
+
+Se já estava no painel, saia e entre de novo: o grupo só entra no login seguinte. Perdeu o celular: veja
+[`painel-admin.md`](painel-admin.md#perdeu-o-celular-do-autenticador). Os comandos equivalentes, para tirar o
+acesso ou dar a outra pessoa, estão em [`painel-admin.md`](painel-admin.md#como-dar-acesso-de-admin-a-alguém).
 
 Fim do lançamento: `rm -rf /tmp/librax` e apague o token do GitHub (passo 6).
 
@@ -350,9 +370,37 @@ Preços de us-east-1. No piloto, o esperado é de US$ 1 a US$ 3 por mês, quase 
 | CloudFront, Lambda, DynamoDB, S3, Cognito, CloudWatch | centavos no piloto (free tier permanente do CloudFront, da Lambda e do Cognito) |
 | Certificado do ACM, AWS Budget, SNS por e-mail | grátis |
 
-O domínio é pago à parte, na GoDaddy. O **AWS Budget** `librax-mensal` avisa por e-mail ao passar de 80% e de 100%
-de US$ 10 por mês (mude com `--orcamento 20`). Ele só avisa, não bloqueia gasto. Detalhe dos custos do painel em
+O domínio é pago à parte, na GoDaddy. O **AWS Budget** `librax-mensal-<resumo>` avisa por e-mail ao passar de 80%
+e de 100% de US$ 10 por mês e quando a previsão do mês passa de 100% (mude o valor com `--orcamento 20`; a previsão
+só aparece depois de algumas semanas de uso). Ele só avisa, não bloqueia gasto. Detalhe dos custos do painel em
 [`painel-admin.md`](painel-admin.md#7-custo-extra-estimado-por-mês).
+
+### Travas de custo
+
+O risco do Librax é mais de conta alta e de app fora do ar do que de invasão. Estas travas são de graça e ficam na
+stack (valores em `infra/lib/cost-guards.ts`); todas mudam no lugar, sem recriar recurso:
+
+| Trava | O que faz |
+|---|---|
+| Limite por rota da API | `POST /v1/guest/migrate` 1 por segundo (rajada 5), `lesson/complete` e `practice/review` 20 (rajada 40), `squads/join` 5 (10), criar squad 2 (5), excluir conta 1 (5). Acima disso a API responde 429 e o app tenta de novo depois. O limite geral continua 50 por segundo, com rajada de 200 (antes 100) para o pico da hora do lembrete |
+| Teto da tabela | o DynamoDB sob demanda aceita até 500 leituras e 200 escritas por segundo; acima disso recusa em vez de cobrar, e o alarme `librax-dynamodb-throttles` avisa |
+| Versões antigas no S3 | os quatro buckets apagam versões antigas depois de 30 dias e envios incompletos depois de 7 |
+| Alarme de download | `librax-app-download` avisa quando o CloudFront do app entrega mais de 5 GB numa hora (uma instalação nova baixa de 30 a 45 MB); mude com `-c librax:appDownloadAlarmGbPerHour=10` |
+| Previsão do orçamento | o AWS Budget também avisa quando a previsão do mês passa do valor |
+| Anomalia de custo | resumo diário por e-mail (o dos alarmes) de gasto fora do padrão acima de 20% do orçamento (US$ 2 com o padrão). Só cabe um monitor de serviços por conta e a AWS costuma criar um ao ativar o Cost Explorer: o script usa o que existir ou cria (`librax:costAnomalyAlerts`). Com o Cost Explorer desligado, fica para a próxima rodada |
+| User Pool protegido | o User Pool (as contas) não pode ser apagado nem pelo CloudFormation nem pelo console sem antes desligar a proteção |
+| Concorrência reservada (opcional) | cada Lambda da API ganha um teto de cópias simultâneas (2 para o `guest/migrate`, de 5 a 20 para as outras, 169 no total) e um abuso numa rota não toma a conta inteira |
+
+**Concorrência reservada.** Fica desligada por padrão: com a cota de 10 de uma conta nova, qualquer reserva faz o
+deploy falhar (a AWS exige 100 execuções sem reserva). Depois que a AWS liberar a cota de 1000
+([passo 5](#passo-5-o-que-ligar-na-conta)), ligue com:
+
+```bash
+bash infra/scripts/lancar-cloudshell.sh --com-concorrencia-reservada
+```
+
+O script lê a cota (`lambda get-account-settings`, só leitura) e para antes do deploy se ela não bastar.
+`--sem-concorrencia-reservada` desliga de novo.
 
 ## Desfazer
 
@@ -377,7 +425,8 @@ de US$ 10 por mês (mude com `--orcamento 20`). Ele só avisa, não bloqueia gas
   ```
 
   A tabela `librax`, o User Pool `librax-users` e os quatro buckets ficam (proteção contra apagar dados por
-  engano): apague à mão se quiser mesmo. Depois a stack `CDKToolkit` e o bucket dela, o certificado, os registros e
+  engano): apague à mão se quiser mesmo. O User Pool tem proteção contra exclusão: desligue em **Cognito** >
+  `librax-users` > **Configurações** > **Proteção contra exclusão** antes de apagar. Depois a stack `CDKToolkit` e o bucket dela, o certificado, os registros e
   a zona do Route 53 e, na GoDaddy, volte para **Servidores de nomes padrão da GoDaddy**.
 
 ## Problemas comuns
@@ -391,3 +440,43 @@ de US$ 10 por mês (mude com `--orcamento 20`). Ele só avisa, não bloqueia gas
 | Build parado com "Killed" ou "heap out of memory" | `export NODE_OPTIONS=--max-old-space-size=1536` e rodar de novo |
 | Sessão do CloudShell fechou | abrir de novo e rodar o mesmo comando (passo 8) |
 | "account must be verified" no CloudFront | caso no Support Center (passo 5) |
+| "A cota de execuções simultâneas do Lambda nesta conta é 10" | pedir 1000 no Service Quotas (passo 5); o lançamento segue sem a concorrência reservada |
+| "Concorrência reservada pedida, mas a cota da conta é ..." | esperar a AWS liberar a cota ou rodar com `--sem-concorrencia-reservada` |
+| Painel mostra "Configure o aplicativo autenticador" | é o primeiro acesso de admin: siga o passo 10 |
+| Painel mostra "Entre com e-mail e senha" | a conta admin é do Google; use uma conta de e-mail e senha (passo 10) |
+
+## Revisão de segurança e custo
+
+Revisão feita antes do lançamento (outubro de 2026). Conclusão: o risco é mais de custo e de disponibilidade do que
+de invasão. A API só aceita o token do Cognito, as Lambdas têm o mínimo de permissão, os buckets são privados e o
+site sai com CSP, HSTS e sem moldura.
+
+**Corrigido nesta rodada** (todas as mudanças são atualização no lugar, sem recriar User Pool, tabela, buckets ou
+estágio da API):
+
+- limite por rota na API, teto de vazão da tabela, versões antigas do S3 expirando, alarme de download do
+  CloudFront, previsão no AWS Budget e alerta de anomalia de custo ([Travas de custo](#travas-de-custo));
+- concorrência reservada das Lambdas como opção, ligada só depois de a cota da conta subir para 1000;
+- User Pool com proteção contra exclusão;
+- painel de administração com segundo fator obrigatório (aplicativo autenticador, TOTP; nunca SMS): o Cognito fica
+  com MFA opcional, o app continua sem MFA para quem usa o Librax e a Lambda do painel recusa admin sem o
+  autenticador ligado ([`painel-admin.md`](painel-admin.md#2-acesso-três-travas));
+- CSP do app sem `cdn.jsdelivr.net` e `storage.googleapis.com` (o MediaPipe já vem de `/ml/`);
+- validação do `squadId` no caminho das rotas de squad e do `today` da fila diária.
+
+**Fica para depois** (nada disso bloqueia o lançamento):
+
+- **Abuso de download:** sem WAF, o CloudFront entrega tudo o que pedirem e cobra a transferência acima do 1 TB
+  grátis por mês. O alarme `librax-app-download` avisa; a proteção de verdade é paga: AWS WAF com limite por IP no
+  CloudFront (cerca de US$ 6 a 10 por mês) ou um dos planos de preço fixo do CloudFront, que já incluem WAF e
+  não cobram por excesso.
+- **WAF no Cognito:** limitar tentativas de login e de cadastro por IP (pago, mesmo WAF acima).
+- **Logs de acesso** do CloudFront e da API (CloudWatch Logs ou S3): ajudam a investigar abuso, com custo pequeno
+  de armazenamento.
+- **Anti-trapaça do jogo:** o servidor já valida pontuação, datas e idempotência, mas XP e ligas ainda confiam no
+  app para o resultado de cada exercício; ranking com prêmio exigiria conferência no servidor.
+- **Node 24 nas Lambdas** antes do fim do suporte do Node 22 (abril de 2027).
+- **Dependências de desenvolvimento** com versões novas (Vite, Vitest, esbuild e afins): atualizar com calma, fora
+  do caminho do lançamento.
+- **App com o código do autenticador:** se um dia o app do Librax tiver MFA para quem quiser, a conta do painel
+  poderá ser a mesma do app.

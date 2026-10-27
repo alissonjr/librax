@@ -86,7 +86,7 @@ Tudo em `127.0.0.1`. As portas 5300 e 5310 são do dono (dev do app e do painel)
 | `DynamoRepo` e `CognitoDirectory` | **reais** (AWS SDK v3), apontados para o DynamoDB Local e o moto |
 | Tabela `librax` | DynamoDB Local, com as 6 GSIs e o TTL do template |
 | Login do app (SRP, cadastro, confirmação, esqueci a senha, OAuth com PKCE) | código **real** do Amplify, contra o proxy local e a página local |
-| Login do painel (PKCE) | código **real** do `apps/admin-web/src/lib/auth.ts` |
+| Login do painel (PKCE) | código **real** do `apps/admin-web/src/lib/auth.ts`; sem o segundo fator (aplicativo autenticador), que a página local não tem: a Lambda do painel roda com `mfa: false` (`local/functions.mjs`) |
 | User Pool, clients, grupo `admin`, tokens e JWKS | moto, criados a partir do template |
 | O que o moto não faz como o Cognito | proxy local: confere a senha no SRP, gera e confere o código de confirmação e o da nova senha (com a política de senha do template e o limite de tentativas), roda o PostConfirmation, responde o `RevokeToken`, aplica os `ExplicitAuthFlows` do client e o `PreventUserExistenceErrors`, e no `AdminDeleteUser` apaga também o verificador SRP (refresh de conta excluída vira `NotAuthorizedException`, como no Cognito) |
 | Hosted UI e Google | página local no visual do Traço; o Google é simulado |

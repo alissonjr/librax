@@ -50,21 +50,64 @@ Limites conhecidos: o convidado joga 100% no aparelho e só entra nos números q
 soma as lições dele nos dias em que foram feitas). Para análise de produto mais fina continua valendo o PostHog
 via proxy previsto na fase W4.
 
-## 2. Acesso: duas travas
+## 2. Acesso: três travas
 
 1. **Autorizador próprio.** O painel tem um app client só dele no Cognito (`librax-admin`, código com PKCE,
    callbacks em `/admin/auth/callback`). As rotas `/v1/admin/*` usam um autorizador JWT que só aceita o id token
    desse client: o token do app não abre o painel.
 2. **Grupo no token.** Cada rota confere `cognito:groups` no token e responde **403 `ADMIN_ONLY`** para quem não
    está no grupo `admin` (`requireAdmin` em `handlers/_http.js`). O site esconde as telas, mas quem decide é a API.
+3. **Segundo fator obrigatório.** A conta precisa ter o aplicativo autenticador (TOTP) ligado; sem ele, toda rota
+   responde **403 `ADMIN_MFA_REQUIRED`** e o site guia a configuração. Conta do Google ou da Apple responde
+   **403 `ADMIN_MFA_FEDERATED`**: o fator do Cognito não vale para ela, então o painel pede uma conta de e-mail e
+   senha.
 
-A Lambda do painel só **lê** a tabela (`grantReadData`) e só pode chamar `cognito-idp:ListUsers` no User Pool
-do Librax. Cada acesso vai para o log com o sub de quem consultou e a rota (trilha para a LGPD), sem o termo
-buscado.
+A Lambda do painel só **lê** a tabela (`grantReadData`) e só pode chamar `cognito-idp:ListUsers` e
+`cognito-idp:AdminGetUser` no User Pool do Librax. Cada acesso vai para o log com o sub de quem consultou e a rota
+(trilha para a LGPD), sem o termo buscado; acesso recusado pelo segundo fator também (`denied`).
+
+### Segundo fator (aplicativo autenticador)
+
+O User Pool tem MFA **opcional, só por aplicativo autenticador** (TOTP; SMS nunca). Quem usa o app do Librax não
+vê nada disso. O Cognito não exige MFA por grupo, e o token do User Pool não diz como a pessoa entrou (não tem
+`amr`), então a trava fica na Lambda do painel:
+
+- Ela lê a conta com `AdminGetUser` e confere se `UserMFASettingList` tem `SOFTWARE_TOKEN_MFA`
+  (`directory.totpEnabled` em `adapters/cognitoDirectory.js`). Com o autenticador ligado, **todo login da conta
+  pede o código**, inclusive no login hospedado do Cognito que o painel usa (o próprio Cognito mostra a tela do
+  código depois da senha). Conferir a conta, e não o token, é o que dá para fazer de forma confiável.
+- O "sim" fica guardado na Lambda por 5 minutos (`makeMfaGate` em `domain/admin.js`); o "não" nunca, para o
+  painel abrir logo depois da configuração. Desligar o autenticador de uma conta leva até 5 minutos para valer.
+- Se o Cognito não responder, a rota dá 500: o painel nunca abre sem conferir.
+- Limite conhecido: um token emitido antes da configuração continua valendo até expirar (1 hora, o id token do
+  painel). E quem tiver a senha de um admin que ainda não configurou poderia configurar
+  o próprio celular: configure logo depois do `--admin`.
+
+**Primeiro acesso** (site, `screens/MfaSetupScreen.tsx` e `lib/mfa.ts`): o login do painel pede também o escopo
+`aws.cognito.signin.user.admin`, e o access token fala direto com o Cognito: `AssociateSoftwareToken` (chave
+secreta), QR code gerado no navegador (nada sai dele), `VerifySoftwareToken` (primeiro código de 6 dígitos) e
+`SetUserMFAPreference` (autenticador ligado e preferido). Depois disso o painel confere o acesso de novo e abre.
+
+**Conta do painel separada.** Com o autenticador ligado, a conta não entra no app do Librax (o app ainda não pede o
+código e mostra erro). Use uma conta de e-mail e senha só para o painel.
+
+**Ambiente local:** o login hospedado local não tem a tela do código, então o painel local não exige o segundo
+fator (`mfa: false` em `services/api/local/functions.mjs`).
+
+### Perdeu o celular do autenticador
+
+Quem tem acesso à conta AWS desliga o autenticador da conta; no próximo acesso o painel pede a configuração de
+novo:
+
+```bash
+aws cognito-idp admin-set-user-mfa-preference --user-pool-id "$POOL" --username <Username> \
+  --software-token-mfa-settings Enabled=false,PreferredMfa=false
+```
 
 ### Como dar acesso de admin a alguém
 
-A pessoa precisa ter conta no Librax (e-mail ou Google). Depois, quem tem acesso à conta AWS:
+A pessoa precisa ter uma conta de **e-mail e senha** no Librax (conta do Google não passa no segundo fator) e,
+de preferência, só para o painel. Depois, quem tem acesso à conta AWS:
 
 ```bash
 POOL=<UserPoolId>            # output UserPoolId do CDK
@@ -80,8 +123,9 @@ aws cognito-idp admin-add-user-to-group --user-pool-id "$POOL" --username <Usern
 aws cognito-idp admin-list-groups-for-user --user-pool-id "$POOL" --username <Username>
 ```
 
-O grupo entra no id token na hora do login: a pessoa precisa **sair do painel e entrar de novo**. Para tirar o
-acesso, `admin-remove-user-from-group` com os mesmos parâmetros; o token que ela já tem vale até expirar (1 hora).
+O grupo entra no id token na hora do login: a pessoa precisa **sair do painel e entrar de novo**. No primeiro
+acesso o painel guia a configuração do aplicativo autenticador. Para tirar o acesso, `admin-remove-user-from-group`
+com os mesmos parâmetros; o token que ela já tem vale até expirar (1 hora).
 
 ## 3. Como os números são guardados (sem Scan)
 
@@ -173,16 +217,24 @@ voltar ao normal.
 | `librax-api-lambda-duration` | p95 da `IntegrationLatency` do estágio `api` (duração das Lambdas da API) | acima de 5 s em 2 de 3 períodos de 5 min |
 | `librax-api-5xx` | `5xx` do estágio `api` | 3 ou mais em 5 min |
 | `librax-close-league-duration`, `librax-reminders-duration`, `librax-ops-daily-duration` | duração máxima do job | acima de 80% do timeout |
-| `librax-dynamodb-throttles` | `ReadThrottleEvents + WriteThrottleEvents` da tabela | 1 ou mais em 5 min |
+| `librax-dynamodb-throttles` | `ReadThrottleEvents + WriteThrottleEvents` da tabela (inclui o teto de 500 leituras e 200 escritas por segundo) | 1 ou mais em 5 min |
+| `librax-app-download` | `AWS/CloudFront BytesDownloaded` do CloudFront do app (`Region=Global`) | mais de 5 GB em 1 hora (`librax:appDownloadAlarmGbPerHour`) |
 
-São 8 alarmes e 9 métricas, dentro dos 10 alarmes grátis do CloudWatch. Por isso erros e duração das Lambdas
+São 9 alarmes e 10 métricas, no limite dos 10 alarmes grátis do CloudWatch: um alarme novo passa a custar cerca de
+US$ 0,10 por mês. Por isso erros e duração das Lambdas
 são agregados (um alarme por função seriam uns 30, cerca de US$ 3 por mês); o detalhe por função fica no painel.
 Os handlers da API devolvem 500 em erro não tratado sem falhar a Lambda, então esse caso aparece no alarme de
 5xx, e o de erros das Lambdas pega quedas, timeouts e jobs.
 
-**AWS Budget** `librax-mensal`: custo real do mês, aviso por e-mail ao passar de 80% e de 100% do valor de
-`librax:monthlyBudgetUsd` (padrão 10 dólares). O e-mail é `librax:budgetEmail` ou, sem ele, o dos alarmes; sem
-nenhum e-mail o orçamento não é criado (e o synth avisa).
+**AWS Budget** `librax-mensal-<resumo>`: custo real do mês, aviso por e-mail ao passar de 80% e de 100% do valor
+de `librax:monthlyBudgetUsd` (padrão 10 dólares) e quando a previsão do mês passa de 100%. O e-mail é
+`librax:budgetEmail` ou, sem ele, o dos alarmes; sem nenhum e-mail o orçamento não é criado (e o synth avisa). O
+nome leva um resumo dos avisos e do e-mail: o CloudFormation só troca os avisos recriando o orçamento, e com nome
+fixo o deploy travaria; com o resumo, ele cria o novo e apaga o velho.
+
+**Anomalia de custo** (`librax:costAnomalyAlerts`, desligada por padrão): resumo diário por e-mail das anomalias
+acima de 20% do orçamento. `create` cria o monitor de serviços; um ARN usa o monitor que a conta já tem (só cabe
+um por conta). O script de lançamento escolhe sozinho, só lendo a conta ([`lancamento.md`](lancamento.md#travas-de-custo)).
 
 ```bash
 npx cdk synth -c librax:alarmEmail=alertas@<domínio> -c librax:monthlyBudgetUsd=15
