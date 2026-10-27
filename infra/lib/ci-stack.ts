@@ -42,6 +42,7 @@ export const CI_TAG_REF_PATTERN = '^refs/tags/v[0-9]+\\.[0-9]+\\.[0-9]+$';
 export const CI_TIMEOUT_MINUTES = 60;
 /** Contexto do CDK do lancamento, gravado pelo script do CloudShell e lido pelo CI. */
 export const CI_CONTEXT_PARAM = '/librax/cdk-context';
+const CONNECTION_SID = 'UsarConexaoGithub';
 /** Nome fixo do topico de alarmes da LibraxStack (lib/librax-stack.ts); o teste confere. */
 export const ALARM_TOPIC_NAME = 'librax-alarms';
 /** A stack que o CI publica. Nunca a propria. */
@@ -99,13 +100,20 @@ export class LibraxCiStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    // O CodeBuild confere, ao criar o projeto, se o papel ja pode usar a conexao ("User is not authorized to
+    // access connection", visto no primeiro --configurar-ci): essa permissao vai dentro do proprio papel,
+    // que o projeto ja espera. A politica com as demais nao pode vir antes: ela cita o proprio projeto.
+    const statements = ciPolicyStatements(this, config.qualifier, connection.attrConnectionArn);
     const role = new iam.Role(this, 'BuildRole', {
       assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com', {
         conditions: { StringEquals: { 'aws:SourceAccount': this.account } },
       }),
       description: 'CodeBuild do Librax: testa e publica a LibraxStack e os sites (docs/ci-cd.md)',
+      inlinePolicies: {
+        ConexaoGithub: new iam.PolicyDocument({ statements: statements.filter((st) => st.sid === CONNECTION_SID) }),
+      },
     });
-    for (const statement of ciPolicyStatements(this, config.qualifier, connection.attrConnectionArn)) {
+    for (const statement of statements.filter((st) => st.sid !== CONNECTION_SID)) {
       role.addToPolicy(statement);
     }
 
@@ -281,8 +289,8 @@ export function ciPolicyStatements(stack: Stack, qualifier: string, connectionAr
     }),
     // Clone do repositorio pela conexao (GitHub App)
     new iam.PolicyStatement({
-      sid: 'UsarConexaoGithub',
-      actions: ['codeconnections:GetConnectionToken', 'codeconnections:GetConnection'],
+      sid: CONNECTION_SID,
+      actions: ['codeconnections:GetConnectionToken', 'codeconnections:GetConnection', 'codeconnections:UseConnection'],
       resources: [connectionArn],
     }),
   ];

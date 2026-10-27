@@ -121,7 +121,10 @@ describe('papel do CodeBuild (menor privilegio)', () => {
     const roles = Object.values(template.findResources('AWS::IAM::Role'));
     expect(roles).toHaveLength(1);
     expect(JSON.stringify(roles[0].Properties.ManagedPolicyArns ?? [])).not.toContain('AdministratorAccess');
-    const acoes = statements(template, 'AWS::IAM::Policy').flatMap((s) => lista(s.Action));
+    const inline = (roles[0].Properties.Policies as Array<{ PolicyDocument: { Statement: Statement[] } }>).flatMap(
+      (p) => p.PolicyDocument.Statement,
+    );
+    const acoes = [...statements(template, 'AWS::IAM::Policy'), ...inline].flatMap((s) => lista(s.Action));
     for (const acao of acoes) {
       expect(acao, acao).not.toMatch(/\*$/);
       expect(acao, acao).not.toMatch(/^iam:/);
@@ -150,6 +153,24 @@ describe('papel do CodeBuild (menor privilegio)', () => {
     expect(resto).not.toContain('ssm:PutParameter');
     expect(resto).not.toContain('cloudformation:CreateStack');
     expect(resto).not.toContain('cloudformation:UpdateStack');
+  });
+
+  test('conexao com o GitHub: permissao dentro do proprio papel, pronta antes do projeto', () => {
+    // Primeiro --configurar-ci real: o CodeBuild recusou criar o projeto ("User is not authorized to access
+    // connection") porque a politica com a conexao ainda nao estava no papel
+    const template = synth();
+    const [role] = Object.values(template.findResources('AWS::IAM::Role'));
+    const inline = (role.Properties.Policies as Array<{ PolicyDocument: { Statement: Statement[] } }>).flatMap(
+      (p) => p.PolicyDocument.Statement,
+    );
+    const conexao = inline.find((st) => lista(st.Action).includes('codeconnections:GetConnectionToken'));
+    expect(conexao).toBeDefined();
+    expect(lista(conexao!.Action)).toEqual(
+      expect.arrayContaining(['codeconnections:GetConnection', 'codeconnections:UseConnection']),
+    );
+    // o projeto cita o papel, entao o CloudFormation so cria o projeto com o papel (e esta permissao) pronto
+    const [project] = Object.values(template.findResources('AWS::CodeBuild::Project'));
+    expect(JSON.stringify(project.Properties.ServiceRole)).toContain(Object.keys(template.findResources('AWS::IAM::Role'))[0]);
   });
 
   test('confianca so do CodeBuild da propria conta', () => {
