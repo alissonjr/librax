@@ -100,6 +100,16 @@ if (args.includes('LibraxCiStack')) fs.writeFileSync(${JSON.stringify(estadoCi)}
   );
   chmodSync(path.join(bin, 'aws'), 0o755);
   chmodSync(path.join(bin, 'npx'), 0o755);
+  // O script exige o Node 22 e baixaria o Node se a máquina do teste tiver um mais velho: este `node`
+  // responde 22 à conferência da versão e repassa o resto ao Node de verdade
+  writeFileSync(
+    path.join(bin, 'node'),
+    `#!/bin/sh
+if [ "$1" = "-p" ] && [ "$2" = 'process.versions.node.split(".")[0]' ]; then echo 22; exit 0; fi
+exec "${process.execPath}" "$@"
+`,
+  );
+  chmodSync(path.join(bin, 'node'), 0o755);
 
   const ler = (arquivo: string) =>
     existsSync(arquivo) ? readFileSync(arquivo, 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l)) : [];
@@ -121,6 +131,8 @@ function ambienteCloudShell(m: ReturnType<typeof montar>, extra: Record<string, 
     AWS_EXECUTION_ENV: 'CloudShell',
     AWS_CONTAINER_CREDENTIALS_FULL_URI: 'http://localhost:1338/latest/meta-data/container/security-credentials',
     AWS_REGION: 'us-east-1',
+    // pasta vazia para o Node baixado: um /tmp/librax-node de verdade na máquina passaria na frente do npx falso
+    LIBRAX_NODE_DIR: path.join(m.HOME, 'librax-node'),
     ...extra,
   };
 }
@@ -133,6 +145,8 @@ function ambienteCodeBuild(m: ReturnType<typeof montar>, extra: Record<string, s
     CODEBUILD_BUILD_NUMBER: '7',
     AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: '/v2/credentials/abc',
     AWS_REGION: 'us-east-1',
+    // pasta vazia para o Node baixado: um /tmp/librax-node de verdade na máquina passaria na frente do npx falso
+    LIBRAX_NODE_DIR: path.join(m.HOME, 'librax-node'),
     ...extra,
   };
 }
