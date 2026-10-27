@@ -118,6 +118,10 @@ MIN_CANAIS = 8
 SEMENTES_CAMERA = 8
 GRUPOS_CAMERA = 5
 MIN_DIC = 3
+# Sinais dispensados do teste do dicionário por decisão de produto (2026-10-26): FELIZ acerta 94,6% com
+# pessoas novas na soma das divisões, mas confirma só 1 de 4 vídeos de dicionário. Ainda precisam passar
+# em MIN_ACERTO_CAMERA e MIN_CANAIS.
+SEM_TESTE_DIC = {"FELIZ"}
 MIN_ACERTO_DIC = 0.5
 
 
@@ -854,7 +858,7 @@ def sinais_camera(soma, canais, dic):
         if canais.get(g, 0) < MIN_CANAIS or not b or a / b < MIN_ACERTO_CAMERA:
             continue
         d = dic.get(g, {}).get("video", [0, 0])
-        if d[1] >= MIN_DIC and d[0] / d[1] < MIN_ACERTO_DIC:
+        if g not in SEM_TESTE_DIC and d[1] >= MIN_DIC and d[0] / d[1] < MIN_ACERTO_DIC:
             continue
         out.append(g)
     return sorted(out)
@@ -918,7 +922,8 @@ def treinar(args):
                   f"{cfg_json(cfg)} e {regras_de(args)}")
         if chave["dataset"] != os.path.abspath(args.dataset):
             print(f"aviso: {args.camera} foi medido no dataset {chave['dataset']}")
-        camera = [g for g in res["camera"] if g in labels]
+        # decide de novo com o salvo, para valer a regra atual (SEM_TESTE_DIC) sem medir de novo
+        camera = [g for g in sinais_camera(res["soma"], res["canais"], res["dic"]) if g in labels]
         extra.update({
             "camera_signs": camera, "camera_min_heldout": MIN_ACERTO_CAMERA, "camera_min_channels": MIN_CANAIS,
             "camera_seeds": res["sementes"], "camera_folds": chave["grupos"],

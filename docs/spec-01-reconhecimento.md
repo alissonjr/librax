@@ -172,7 +172,8 @@ OBRIGADO, POR-FAVOR, PRAZER, PREOCUPADO e TRISTE (IDADE com 69,9%); com as fonte
 publicado) 53,5%, câmera em 16 sinais: ACORDAR (70,4%), ARROZ (78,6%), CAMA (73,3%), CANSADO (81,7%), FAMÍLIA
 (92,0%), FEIJÃO (79,8%), HOMEM (75,7%), IDADE (80,9%), JUNHO (85,5%), LARANJA (74,3%), MÃE (82,0%), OBRIGADO (89,7%),
 POR-FAVOR (87,5%), PRAZER (86,2%), PREOCUPADO (100%) e TRISTE (70,1%). HOSPITAL (68,8%) e ONTEM (69,9%) ficam logo
-abaixo; FELIZ acerta 94,6% com pessoas novas, mas confirma só 1 de 4 vídeos de dicionário. Alarmes, média das 8
+abaixo. FELIZ acerta 94,6% com pessoas novas, mas confirma só 1 de 4 vídeos de dicionário: ganhou a câmera
+por exceção (`SEM_TESTE_DIC` no train_sinais.py, decisão de 2026-10-26), totalizando 17 sinais. Alarmes, média das 8
 divisões, antes e depois: janela "_" lida como sinal 10,4% e 11,9%, janela de mão parada 9,7% e 9,9%, trecho
 parado de 2 s com leitura confirmada 18/376 e 19/376.
 

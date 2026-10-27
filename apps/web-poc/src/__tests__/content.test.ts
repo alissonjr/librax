@@ -531,8 +531,10 @@ describe('sinais com movimento avaliados pelo modelo de sinais (/ml/sinais/)', (
         free: ex.filter((e) => e.type === 'mirror_practice').map((e) => e.signId),
       };
     };
-    // U7 L1: TRISTE passou (70,1% na soma); FELIZ acerta 95% com pessoas novas, mas só 1 de 4 vídeos de dicionário
-    expect(produced('u7-l1')).toEqual({ camera: ['sinal-TRISTE'], free: ['sinal-FELIZ'] });
+    // U7 L1: TRISTE passou (70,1% na soma); FELIZ (94,6%) entra por exceção ao teste do dicionário (SEM_TESTE_DIC)
+    const u7l1 = produced('u7-l1');
+    expect([...u7l1.camera].sort()).toEqual(['sinal-FELIZ', 'sinal-TRISTE']);
+    expect(u7l1.free).toEqual([]);
     // U11 L3: HOSPITAL ficou em 68,8% na soma (tinha passado nas duas divisões da regra antiga)
     expect(produced('u11-l3')).toEqual({ camera: [], free: ['sinal-ESCOLA', 'sinal-HOSPITAL'] });
   });
