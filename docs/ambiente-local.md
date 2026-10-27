@@ -91,7 +91,7 @@ Tudo em `127.0.0.1`. As portas 5300 e 5310 são do dono (dev do app e do painel)
 | User Pool, clients, grupo `admin`, tokens e JWKS | moto, criados a partir do template |
 | O que o moto não faz como o Cognito | proxy local: confere a senha no SRP, gera e confere o código de confirmação e o da nova senha (com a política de senha do template e o limite de tentativas), roda o PostConfirmation, responde o `RevokeToken`, aplica os `ExplicitAuthFlows` do client e o `PreventUserExistenceErrors`, e no `AdminDeleteUser` apaga também o verificador SRP (refresh de conta excluída vira `NotAuthorizedException`, como no Cognito) |
 | Hosted UI e Google | página local no visual do Traço; o Google é simulado |
-| API Gateway | imitação local: estágio `api`, rotas, autorizador JWT com as regras da HTTP API (inclusive `/v1/admin` só com o client do painel), CORS do template, evento 2.0 |
+| API Gateway | imitação local: estágio `api`, rotas, autorizador JWT com as regras da HTTP API (inclusive `/v1/admin` só com o client do painel), rotas públicas sem autorizador (uso anônimo e nota do app: `/v1/telemetry` e `/v1/feedback`), CORS do template, evento 2.0 |
 | CloudFront | o proxy de `/api` do Vite |
 | EventBridge Scheduler | não roda sozinho: `npm run local:jobs` |
 | CloudWatch e Cost Explorer (job diário) | **falsos** explícitos (`local/fakes.mjs`), números estáveis por dia |

@@ -13,6 +13,7 @@ Código:
 | Site | `apps/admin-web` (Vite, React, TypeScript) |
 | Rotas `/v1/admin/*` | `services/api/src/handlers/admin.js`, `usecases/admin.js`, `domain/admin.js` |
 | Contadores | `services/api/src/domain/opsMetrics.js` e `usecases/opsMetrics.js` |
+| Uso anônimo e notas do app | `services/api/src/domain/telemetry.js`, `domain/feedback.js`, `usecases/telemetry.js`, `handlers/telemetry.js`; no app, `apps/web-poc/src/lib/telemetry.ts` |
 | Job diário (CloudWatch e Cost Explorer) | `services/api/src/handlers/opsDaily.js` e `usecases/collectDailyOps.js` |
 | Infra (bucket, rotas, grupo, alarmes, orçamento) | `infra/lib/librax-stack.ts` |
 
@@ -21,6 +22,7 @@ Código:
 | Tela | O que tem | De onde vem |
 |---|---|---|
 | **Operação** | pessoas ativas por dia (30 dias), semana (12) e mês (12); contas novas; lições concluídas; lições onde mais desistem e mais erram; lições puladas pelo nivelamento (por lição, com as desfeitas); erros por tipo de exercício; sinais mais errados; erros do servidor por dia e por Lambda | contadores agregados (seção 3) e o job diário |
+| **Uso** | dados de uso anônimos de todo mundo, com e sem conta: ativos por dia, semana e mês separados em sem conta e com conta; D1 e D7 por dia de chegada; funil (abriu, boas-vindas, 1a lição, 5 lições, conta); lições mais abertas, onde saem (e em que exercício); até onde chegam no curso; aparelhos; idioma e meta das boas-vindas; prática; notas do app (média, por estrela, por semana e os comentários paginados, com filtro por nota) | itens `TELAGG` e `FBLIST` (seção 3a), `GET /v1/admin/usage` e `GET /v1/admin/feedback` |
 | **Câmera** | letras e sinais do mais difícil para o mais fácil nos mesmos 30 dias (taxa de pulo, depois média de tentativas até acertar), com nível, filtro de letras ou sinais e as leituras trocadas mais comuns (K lida como H) | item `CAMERA` do dia (seção 3), pela mesma rota da Operação |
 | **Conteúdo** | as 14 unidades e os 255 sinais: validado (`validated`), origem (`source`), vídeo, avatar e o que falta em cada sinal, com filtros | `services/api/src/content/contentStatus.js`, gerado do bundle do app por `npm run catalog` |
 | **Contas** | busca pelo começo do e-mail ou pelo id; resumo com perfil, progresso (lição concluída ou "pulada pelo nivelamento"), liga, squads e última atividade | Cognito (`ListUsers`) e a partição `USER#<id>` |
@@ -46,9 +48,22 @@ Definições usadas nas telas:
   atenção a partir de 20% de pulos ou 2 tentativas (a mesma regra da tela "Desempenho da câmera" do app). A
   lista esconde, por padrão, quem tem menos de 5 vezes no período.
 
-Limites conhecidos: o convidado joga 100% no aparelho e só entra nos números quando cria conta (a migração
-soma as lições dele nos dias em que foram feitas). Para análise de produto mais fina continua valendo o PostHog
-via proxy previsto na fase W4.
+Limites conhecidos: na Operação, o convidado só entra nos números quando cria conta (a migração soma as lições
+dele nos dias em que foram feitas). A tela **Uso** cobre todo mundo pelos dados de uso anônimos (seção 3a).
+
+Definições da tela Uso:
+
+- **Ativo**: o app mandou algum evento naquele dia (o dia do aparelho), semana ou mês. A conta é por código
+  anônimo, que é um por navegador: a mesma pessoa em dois aparelhos conta duas vezes. "Com conta" é o que valia
+  no lote.
+- **Coorte, D1 e D7**: códigos que chegaram com o app zerado (sem lição, XP nem conta) no dia; D1 = abriu o app no
+  dia seguinte, D7 = sete dias depois. Quem já usava o app quando os dados de uso começaram não entra na coorte nem
+  no funil (entra nos ativos).
+- **Funil**: dos códigos que chegaram zerados nos 30 dias, quantos já terminaram as boas-vindas, concluíram 1 e 5
+  lições e têm conta (criada ou entrada). Nada sai do app antes das boas-vindas (o aceite da política), então quem
+  desiste antes delas não aparece.
+- **Até onde chegam**: códigos que já concluíram cada lição, desde que os dados de uso começaram.
+- **Nota**: uma por código; quem manda de novo troca a anterior (totais descontados). Comentário é texto simples.
 
 ## 2. Acesso: três travas
 
@@ -205,6 +220,30 @@ Escolhas e porquês:
 - **Conteúdo** não toca o banco: é um arquivo gerado do mesmo `course.json` e `signs.json` do app, empacotado só
   na Lambda do painel. O teste `test/catalog.test.js` falha se ficar defasado.
 
+### 3a. Dados de uso anônimos e notas (`TELAGG`, `TEL#`, `FBLIST`)
+
+Via de mão única: o app manda (`POST /v1/telemetry`, rota pública, em lotes no fim da lição e quando sai da
+tela), o servidor soma e nada volta. O progresso local continua guiando o curso; conta e migração do convidado
+não mudam. Código anônimo próprio do navegador, separado da conta, do código do aparelho e do id local; sem nome,
+e-mail, IP nem User-Agent. A pessoa desliga em Configurações (apaga a cópia pelo `DELETE /v1/telemetry/{id}`).
+
+| Item | PK / SK | O que tem | TTL |
+|---|---|---|---|
+| Código | `TEL#<id>` / `META` | primeiro e último dia, contagem por evento, lições abertas e concluídas, marcos do funil, retrato e `hasAccount`; `rev` para a trava otimista | 12 meses depois do último lote |
+| Nota | `TEL#<id>` / `FEEDBACK` | nota, comentário, lições, lição atual, conta sim ou não, versão, idioma e aparelho | 12 meses depois de enviada |
+| Lista de notas | `FBLIST` e `FBLIST#R<n>` / `<ISO>#<aleatório>` | a mesma nota, sem o código, para listar da mais nova à mais velha e por estrela | 12 meses |
+| Dia | `TELAGG` / `DAY#<dia>` | `active_guest`, `active_account`, `newIds`, `ev:<evento>`, `plat:<aparelho>:<como>`, `lang:`, `goal:`, prática, nivelamento, `fb_*`; na coorte: `f_open`, `ret1`, `ret7`, `f_onboarding`, `f_lesson1`, `f_lesson5`, `f_account` | 400 dias |
+| Lição do dia | `TELAGG` / `DAY#<dia>#L#<lição>` | `open`, `done`, `abandon`, `sec`, `timed`, `score`, `at:<exercício>` | 400 dias |
+| Semana e mês | `TELAGG` / `WEEK#`, `MONTH#` | ativos por tipo e `fb_*` | 800 dias e sem TTL |
+| Alcance | `TELAGG` / `REACH` | `done:<lição>`: códigos que já concluíram a lição | sem TTL (1 item) |
+| Notas no total | `TELAGG` / `FEEDBACK` | `fb_n`, `fb_sum`, `fb_r1`..`fb_r5` | sem TTL (1 item) |
+
+O TTL é o atributo `expiresAt` que a tabela já usa (nenhuma mudança na tabela). Cada lote faz 1 leitura e 1
+`PutItem` condicional no código (trava otimista: dois lotes ao mesmo tempo do mesmo aparelho não contam duas
+vezes) e de 1 a 4 `ADD` pequenos (1 WRU cada); a tela lê uma Query na faixa de 38 dias, duas nas semanas e meses e
+duas leituras por chave. A Lambda pública `librax-telemetry` só pode ler e gravar as chaves `TEL#*`, `TELAGG` e
+`FBLIST*` (`dynamodb:LeadingKeys`).
+
 ### Telemetria nova no app
 
 Para "onde erram ou desistem" o app passou a mandar duas coisas, só com conta:
@@ -323,6 +362,20 @@ Preços de us-east-1, sem contar o free tier da conta nova, a não ser onde ele 
 
 **Total: cerca de US$ 0,40 por mês no piloto**, chegando perto de US$ 1,70 com 100 mil lições por mês numa conta
 que já gaste os 10 alarmes grátis. O maior item fixo é o Cost Explorer.
+
+**Dados de uso anônimos e notas, com 10 mil pessoas por dia e 3 lições cada** (cerca de 5 lotes por pessoa por
+dia, 1,5 milhão de chamadas por mês):
+
+| Item | Conta | Por mês |
+|---|---|---|
+| API Gateway (HTTP API) | 1,5 milhão de chamadas, US$ 1 por milhão | US$ 1,50 |
+| Lambda `librax-telemetry` | 1,5 milhão de execuções de cerca de 40 ms em 256 MB ARM | US$ 0,50 (menos com o free tier) |
+| DynamoDB escrita | cerca de 20 WRU por pessoa por dia (lote do fim da lição: 2 do código, 1 do dia, 1 da lição; lote ao sair: 3), 6 milhões de WRU | US$ 3,70 |
+| DynamoDB leitura e armazenamento | 0,5 RRU por lote; cerca de 1,5 KB por código ativo nos últimos 12 meses | US$ 0,15 |
+| Logs da Lambda | cerca de 0,5 GB por mês | US$ 0,25 |
+
+**Cerca de US$ 6 por mês nessa escala**, proporcional ao uso (US$ 0,60 com mil pessoas por dia). As notas são
+poucas e não mudam a conta.
 
 ## 8. Segunda etapa (ações que mudam dados, não implementadas)
 

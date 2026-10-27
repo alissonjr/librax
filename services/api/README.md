@@ -23,7 +23,7 @@ npm ci
 npm test            # node --test (Node 20+)
 ```
 
-431 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
+457 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
 o `DynamoRepo` com um client falso que só registra os comandos; nenhum teste chama a AWS.
 
 ## Ambiente local (AWS simulada)
@@ -62,6 +62,8 @@ services/api/
 │   │   ├── reminders.js         regras de horário dos lembretes (SPEC 05 12.2 e 12.3)
 │   │   ├── admin.js             grupo admin no token (cognito:groups) e busca de conta
 │   │   ├── opsMetrics.js        contadores agregados do painel e a tela de operação
+│   │   ├── telemetry.js         dados de uso anônimos: validação do lote, somas na escrita e a tela Uso
+│   │   ├── feedback.js          nota do app: validação, limpeza do comentário e somas
 │   │   └── costReport.js        janela do Cost Explorer e projeção do mês
 │   ├── lib/dates.js   aritmética de datas-calendário
 │   ├── email/
@@ -86,6 +88,7 @@ services/api/
 │   │   ├── squads.js             rotas de escrita de squad (SPEC 04 seção 2)
 │   │   ├── deleteAccount.js      exclusão de conta (LGPD): squads, ligas, USER#<id> e o Cognito
 │   │   ├── opsMetrics.js         contadores do painel (lição, prática, saída, conta nova)
+│   │   ├── telemetry.js          lote de uso, nota, apagar o código, tela Uso e lista de notas
 │   │   ├── admin.js              leituras do painel (operação, conta, squads, custo)
 │   │   └── collectDailyOps.js    job diário: CloudWatch e Cost Explorer na tabela
 │   ├── adapters/
@@ -110,6 +113,7 @@ services/api/
 │       ├── reminders.js     Lambda do Scheduler: lembretes (web-push + VAPID do SSM)
 │       ├── closeLeague.js   Lambda do Scheduler: fechar as ligas e zerar as squads da semana
 │       ├── admin.js         rotas /v1/admin (uma Lambda, pelo routeKey), só grupo admin
+│       ├── telemetry.js     rotas públicas do uso anônimo e da nota (uma Lambda, pelo routeKey)
 │       ├── opsDaily.js      Lambda do Scheduler: erros do dia e custo do mês para o painel
 │       ├── postConfirmation.js  gatilho do Cognito: conta nova nos contadores
 │       └── customMessage.js gatilho do Cognito: e-mails de código em HTML, no idioma da pessoa
@@ -118,7 +122,7 @@ services/api/
 
 Cada handler exporta uma fábrica (`makeLessonHandlers`, `makeGuestHandlers`,
 `makePushHandlers`, `makeSquadHandlers`, `makeLeagueHandlers`, `makeAccountHandlers`, `makeCloseLeagueHandler`,
-`makeAdminHandlers`, `makeOpsDailyHandler`, `makePostConfirmationHandler`, `makeDeviceHandlers`,
+`makeAdminHandlers`, `makeTelemetryHandlers`, `makeOpsDailyHandler`, `makePostConfirmationHandler`, `makeDeviceHandlers`,
 `makeCustomMessageHandler`) que recebe o repositório
 (e o catálogo, quando usa), mais as instâncias de produção já ligadas ao DynamoDB. Os testes
 usam as fábricas.
@@ -126,7 +130,7 @@ usam as fábricas.
 ## Endpoints
 
 Todos sob `/api` no domínio do app (CloudFront repassa `/api/*` para o estágio `api` da
-HTTP API) e com o autorizador JWT do Cognito. O app manda o **id token** no
+HTTP API) e com o autorizador JWT do Cognito, menos as três rotas públicas do uso anônimo e da nota (abaixo). O app manda o **id token** no
 `Authorization: Bearer`. Não há Identity Pool: o convidado é 100% local e só chama a API
 depois de criar conta (`POST /v1/guest/migrate`).
 
@@ -155,6 +159,38 @@ depois de criar conta (`POST /v1/guest/migrate`).
 | DELETE | `/v1/users/me` | exclui a conta de quem chama: dados na tabela e o usuário no Cognito (LGPD); idempotente |
 | POST | `/v1/users/me/devices` | `{ deviceId, lang?, timezone? }` depois de entrar e ao trocar o idioma: registra o aparelho e o idioma; aparelho novo num login recente manda o aviso por e-mail (ver abaixo) |
 
+### Uso anônimo e nota do app (públicas, sem login)
+
+Via de mão única (detalhes e custo em [`docs/painel-admin.md`](../../docs/painel-admin.md), seção 3a). Uma
+Lambda (`librax-telemetry`, `telemetryRouter`), limite baixo por rota (`infra/lib/cost-guards.ts`) e permissão só
+nas chaves `TEL#*`, `TELAGG` e `FBLIST*`. Não guarda IP nem User-Agent. A resposta nunca traz dado para o app.
+
+| Método | Rota | O que faz |
+|---|---|---|
+| POST | `/v1/telemetry` | lote `{ v: 1, id, tz, snapshot, events }`; resposta `{ accepted, dropped }` |
+| DELETE | `/v1/telemetry/{id}` | apaga o código (`TEL#<id>`: item e nota) e as cópias da nota na lista; idempotente |
+| POST | `/v1/feedback` | nota `{ id, rating, text?, snapshot }`; uma por código, a nova substitui |
+
+Validação (`domain/telemetry.js`, `domain/feedback.js`):
+
+- `id`: UUID v4 em minúsculas (o próprio código é o segredo do DELETE). `tz`: `getTimezoneOffset` entre -840 e
+  840. Corpo até 16 KB (nota: 8 KB), de 1 a 50 eventos.
+- Eventos só desta lista, cada um com os seus campos: `app_open`; `onboarding_done` (`lang`, `dailyGoal` 1 a 200);
+  `lesson_open` (`lessonId`); `lesson_complete` (`lessonId`, `score` 0 a 1, `xp` 0 a 1000, `durationSec` 0 a 6 h
+  opcional); `lesson_abandon` (`lessonId`, `exerciseIndex` menor que `exerciseCount`, até 200);
+  `daily_goal_met`; `placement_started` (`camera`); `placement_done` (`placed` 0 a 200); `practice_done`
+  (`mode` review ou free, `items` 1 a 100, `correct` até `items`); `account_created`. Lição só do catálogo;
+  `at` (epoch ms) entre 30 dias atrás e 1 dia à frente. Evento fora disso sai sozinho; o resto do lote vale.
+- `snapshot` (obrigatório e conferido): `lessonsCompleted`, `xpTotal`, `streak`, `currentLessonId` (do catálogo ou
+  null), `hasAccount` (booleano), `appVersion`, `lang` (pt-BR, en, es), `platform` (android, ios, desktop, other),
+  `installed` (browser, pwa, twa). Campo a mais é ignorado e nunca gravado.
+- Nota: `rating` inteiro de 1 a 5; `text` até 1000 caracteres depois de tirar caracteres de controle,
+  invisíveis e de direção de texto.
+
+Erros: 400 com o código da validação (`BAD_ID`, `BAD_SNAPSHOT`, `TOO_MANY_EVENTS`, `BAD_RATING`,
+`TEXT_TOO_LONG`...), 413 corpo grande, 409 `TELEMETRY_BUSY` (lotes simultâneos do mesmo código), 429 do
+estágio. O app trata 400 e 413 como descarte e o resto como "tenta depois".
+
 ### Painel de administração (`/v1/admin`, só leitura)
 
 Detalhes, escolhas de custo e como dar acesso: [`docs/painel-admin.md`](../../docs/painel-admin.md).
@@ -174,6 +210,8 @@ Uma Lambda só (`librax-admin`, `adminRouter`) atende todas, pelo `routeKey`, e 
 | GET | `/v1/admin/accounts/{userId}` | resumo da conta: perfil, progresso, SRS, conquistas, liga, squads, atividade |
 | GET | `/v1/admin/squads?cursor=&limit=` | squads da mais nova para a mais velha (até 50 por página) |
 | GET | `/v1/admin/cost` | último custo guardado pelo job diário e até 6 meses |
+| GET | `/v1/admin/usage` | uso anônimo: ativos com e sem conta, D1 e D7, funil, lições, alcance no curso, aparelhos e notas |
+| GET | `/v1/admin/feedback?rating=&cursor=&limit=` | notas do app, da mais nova para a mais velha (até 50 por página), filtro por estrela |
 
 A conclusão de lição aceita também `exerciseStats` (`{ "<tipo>": { "attempted", "wrong" } }`, tipos do app):
 é telemetria do painel, e formato errado é descartado sem recusar a conclusão.
@@ -441,6 +479,9 @@ Além dos da SPEC 02 seção 3 e SPEC 04 seção 1:
 | Custo do mês | `OPS` | `COST#<AAAA-MM>` | total, projeção e gasto por serviço (job diário) |
 | Atividade | `USER#<id>` | `ACTIVITY` | `lastDay`, `lastWeek`, `lastMonth` contados no painel |
 | Registro de squads | `SQUADINDEX` | `SQUAD#<createdAt>#<squadId>` | lista do painel sem Scan; apagado ao dissolver |
+| Código anônimo | `TEL#<id>` | `META`, `FEEDBACK` | uso e nota de um navegador; TTL `expiresAt` de 12 meses |
+| Uso agregado | `TELAGG` | `DAY#<dia>`, `DAY#<dia>#L#<lição>`, `WEEK#`, `MONTH#`, `REACH`, `FEEDBACK` | `ADD`; tela Uso do painel |
+| Lista de notas | `FBLIST`, `FBLIST#R<n>` | `<ISO>#<aleatório>` | nota sem o código, da mais nova para a mais velha; TTL de 12 meses |
 
 `leagueId` segue o formato do app: `<tier>-<ano>-w<semana ISO>` (ex.: `bronze-2026-w43`), com
 `-g<n>` a partir do 2o grupo de 30 da mesma liga e semana.

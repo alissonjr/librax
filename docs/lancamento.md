@@ -323,6 +323,11 @@ contas); o idioma vai no atributo padrão `locale`, sem atributo novo.
 Os textos ficam em `apps/web-poc/src/legal/privacidade.md` e `termos.md`. Mudou o texto, suba a versão e a data no
 topo do arquivo e publique (próxima seção). Edite no repositório, não no CloudShell, que perde o que for editado.
 
+A política 1.4 trouxe os dados de uso anônimos e a nota do app. A versão que o app mostra no aviso de uma vez
+fica em `apps/web-poc/src/lib/usageNotice.ts` (`PRIVACY_POLICY_VERSION`, conferida pelo teste da política): quem já
+usava o app vê o aviso curto no mapa uma vez; quem chega aceita nas boas-vindas. Publique a infra (rota nova) e o
+app juntos, na rodada completa.
+
 ## Publicar atualizações
 
 Depois que a mudança estiver no `main` do GitHub: CloudShell, token novo se o anterior venceu, e
@@ -370,6 +375,9 @@ Preços de us-east-1. No piloto, o esperado é de US$ 1 a US$ 3 por mês, quase 
 | CloudFront, Lambda, DynamoDB, S3, Cognito, CloudWatch | centavos no piloto (free tier permanente do CloudFront, da Lambda e do Cognito) |
 | Certificado do ACM, AWS Budget, SNS por e-mail | grátis |
 
+Os dados de uso anônimos crescem com o uso: cerca de US$ 0,60 por mês com mil pessoas por dia e US$ 6 com 10 mil
+([`painel-admin.md`](painel-admin.md#7-custo-extra-estimado-por-mês)); nessa escala, suba o orçamento.
+
 O domínio é pago à parte, na GoDaddy. O **AWS Budget** `librax-mensal-<resumo>` avisa por e-mail ao passar de 80%
 e de 100% de US$ 10 por mês e quando a previsão do mês passa de 100% (mude o valor com `--orcamento 20`; a previsão
 só aparece depois de algumas semanas de uso). Ele só avisa, não bloqueia gasto. Detalhe dos custos do painel em
@@ -382,14 +390,14 @@ stack (valores em `infra/lib/cost-guards.ts`); todas mudam no lugar, sem recriar
 
 | Trava | O que faz |
 |---|---|
-| Limite por rota da API | `POST /v1/guest/migrate` 1 por segundo (rajada 5), `lesson/complete` e `practice/review` 20 (rajada 40), `squads/join` 5 (10), criar squad 2 (5), excluir conta 1 (5). Acima disso a API responde 429 e o app tenta de novo depois. O limite geral continua 50 por segundo, com rajada de 200 (antes 100) para o pico da hora do lembrete |
+| Limite por rota da API | `POST /v1/guest/migrate` 1 por segundo (rajada 5), `lesson/complete` e `practice/review` 20 (rajada 40), `squads/join` 5 (10), criar squad 2 (5), excluir conta 1 (5); as rotas públicas do uso anônimo: `POST /v1/telemetry` 10 (30), apagar o código e mandar a nota 1 (5). Acima disso a API responde 429 e o app tenta de novo depois. O limite geral continua 50 por segundo, com rajada de 200 (antes 100) para o pico da hora do lembrete |
 | Teto da tabela | o DynamoDB sob demanda aceita até 500 leituras e 200 escritas por segundo; acima disso recusa em vez de cobrar, e o alarme `librax-dynamodb-throttles` avisa |
 | Versões antigas no S3 | os quatro buckets apagam versões antigas depois de 30 dias e envios incompletos depois de 7 |
 | Alarme de download | `librax-app-download` avisa quando o CloudFront do app entrega mais de 5 GB numa hora (uma instalação nova baixa de 30 a 45 MB); mude com `-c librax:appDownloadAlarmGbPerHour=10` |
 | Previsão do orçamento | o AWS Budget também avisa quando a previsão do mês passa do valor |
 | Anomalia de custo | resumo diário por e-mail (o dos alarmes) de gasto fora do padrão acima de 20% do orçamento (US$ 2 com o padrão). Só cabe um monitor de serviços por conta e a AWS costuma criar um ao ativar o Cost Explorer: o script usa o que existir ou cria (`librax:costAnomalyAlerts`). Com o Cost Explorer desligado, fica para a próxima rodada |
 | User Pool protegido | o User Pool (as contas) não pode ser apagado nem pelo CloudFormation nem pelo console sem antes desligar a proteção |
-| Concorrência reservada (opcional) | cada Lambda da API ganha um teto de cópias simultâneas (2 para o `guest/migrate`, de 5 a 20 para as outras, 169 no total) e um abuso numa rota não toma a conta inteira |
+| Concorrência reservada (opcional) | cada Lambda da API ganha um teto de cópias simultâneas (2 para o `guest/migrate`, de 5 a 20 para as outras, 174 no total) e um abuso numa rota não toma a conta inteira |
 
 **Concorrência reservada.** Fica desligada por padrão: com a cota de 10 de uma conta nova, qualquer reserva faz o
 deploy falhar (a AWS exige 100 execuções sem reserva). Depois que a AWS liberar a cota de 1000
