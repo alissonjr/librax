@@ -6,6 +6,7 @@
   "labels": [
     "ACORDAR",
     "ALMOÇO",
+    "AMARELO",
     "AMIGO",
     "ARROZ",
     "BEBER",
@@ -26,10 +27,13 @@
     "FEIJÃO",
     "FELIZ",
     "FEVEREIRO",
+    "FILHO",
     "FRUTA",
+    "HOJE",
     "HOMEM",
     "HOSPITAL",
     "IDADE",
+    "IR",
     "IRMÃO",
     "JANEIRO",
     "JUNHO",
@@ -83,14 +87,14 @@
     },
     {
       "in": 128,
-      "out": 65,
+      "out": 69,
       "activation": "softmax"
     }
   ],
   "weights": {
     "file": "weights.bin",
     "dtype": "float32",
-    "byte_length": 1313028
+    "byte_length": 1315092
   },
   "kind": "sinais",
   "frames": 8,
@@ -101,7 +105,7 @@
     1.5,
     2.0
   ],
-  "people": 276,
+  "people": 284,
   "source": "scikit-learn",
   "reading_rules": {
     "min_probability": 0.6,
@@ -110,276 +114,357 @@
     "max_none_probability": 1.0
   },
   "camera_signs": [
+    "ACORDAR",
     "ARROZ",
+    "CAMA",
     "CANSADO",
     "FAMÍLIA",
     "FEIJÃO",
     "HOMEM",
-    "HOSPITAL",
     "IDADE",
     "JUNHO",
+    "LARANJA",
     "MÃE",
     "OBRIGADO",
     "POR-FAVOR",
-    "PREOCUPADO"
+    "PRAZER",
+    "PREOCUPADO",
+    "TRISTE"
   ],
   "camera_min_heldout": 0.7,
+  "camera_min_channels": 8,
+  "camera_seeds": 8,
+  "camera_folds": 5,
   "heldout": {
     "ACORDAR": {
-      "certas": 14,
-      "total": 19
+      "certas": 107,
+      "total": 152,
+      "canais": 17
     },
     "ALMOÇO": {
-      "certas": 3,
-      "total": 6
+      "certas": 18,
+      "total": 48,
+      "canais": 6
     },
     "AMIGO": {
-      "certas": 8,
-      "total": 14
+      "certas": 75,
+      "total": 112,
+      "canais": 13
     },
     "ARROZ": {
-      "certas": 17,
-      "total": 21
+      "certas": 132,
+      "total": 168,
+      "canais": 19
     },
     "BEBER": {
-      "certas": 2,
-      "total": 14
+      "certas": 27,
+      "total": 112,
+      "canais": 10
     },
     "BRANCO": {
-      "certas": 1,
-      "total": 14
+      "certas": 6,
+      "total": 112,
+      "canais": 14
     },
     "CAMA": {
-      "certas": 10,
-      "total": 15
+      "certas": 88,
+      "total": 120,
+      "canais": 15
     },
     "CANSADO": {
-      "certas": 13,
-      "total": 15
+      "certas": 98,
+      "total": 120,
+      "canais": 13
     },
     "CASA": {
-      "certas": 6,
-      "total": 9
+      "certas": 43,
+      "total": 72,
+      "canais": 9
     },
     "COMER": {
-      "certas": 5,
-      "total": 8
+      "certas": 41,
+      "total": 64,
+      "canais": 8
     },
     "COMUNIDADE": {
-      "certas": 3,
-      "total": 10
+      "certas": 24,
+      "total": 80,
+      "canais": 9
     },
     "CULTURA": {
-      "certas": 2,
-      "total": 7
+      "certas": 13,
+      "total": 56,
+      "canais": 6
     },
     "DOENTE": {
-      "certas": 4,
-      "total": 11
+      "certas": 31,
+      "total": 88,
+      "canais": 11
     },
     "DORMIR": {
-      "certas": 5,
-      "total": 13
+      "certas": 46,
+      "total": 104,
+      "canais": 11
     },
     "ENCONTRAR": {
-      "certas": 5,
-      "total": 9
+      "certas": 42,
+      "total": 72,
+      "canais": 9
     },
     "ESCOLA": {
-      "certas": 1,
-      "total": 8
+      "certas": 31,
+      "total": 64,
+      "canais": 8
     },
     "ESTUDAR": {
-      "certas": 3,
-      "total": 7
+      "certas": 17,
+      "total": 56,
+      "canais": 7
     },
     "FAMÍLIA": {
-      "certas": 10,
-      "total": 11
+      "certas": 81,
+      "total": 88,
+      "canais": 10
     },
     "FARMÁCIA": {
-      "certas": 9,
-      "total": 31
+      "certas": 76,
+      "total": 248,
+      "canais": 23
     },
     "FEIJÃO": {
-      "certas": 15,
-      "total": 21
+      "certas": 134,
+      "total": 168,
+      "canais": 19
     },
     "FELIZ": {
-      "certas": 14,
-      "total": 14
+      "certas": 106,
+      "total": 112,
+      "canais": 14
     },
     "FEVEREIRO": {
-      "certas": 5,
-      "total": 15
+      "certas": 77,
+      "total": 120,
+      "canais": 15
     },
     "FRUTA": {
-      "certas": 0,
-      "total": 10
+      "certas": 3,
+      "total": 80,
+      "canais": 8
+    },
+    "HOJE": {
+      "certas": 1,
+      "total": 40,
+      "canais": 5
     },
     "HOMEM": {
-      "certas": 14,
-      "total": 19
+      "certas": 115,
+      "total": 152,
+      "canais": 17
     },
     "HOSPITAL": {
-      "certas": 11,
-      "total": 14
+      "certas": 77,
+      "total": 112,
+      "canais": 14
     },
     "IDADE": {
-      "certas": 12,
-      "total": 17
+      "certas": 110,
+      "total": 136,
+      "canais": 16
+    },
+    "IR": {
+      "certas": 5,
+      "total": 40,
+      "canais": 5
     },
     "IRMÃO": {
-      "certas": 10,
-      "total": 19
+      "certas": 91,
+      "total": 152,
+      "canais": 17
     },
     "JANEIRO": {
-      "certas": 1,
-      "total": 7
+      "certas": 3,
+      "total": 56,
+      "canais": 7
     },
     "JUNHO": {
-      "certas": 22,
-      "total": 25
+      "certas": 171,
+      "total": 200,
+      "canais": 25
     },
     "LARANJA": {
-      "certas": 14,
-      "total": 19
+      "certas": 113,
+      "total": 152,
+      "canais": 17
     },
     "MAIO": {
-      "certas": 8,
-      "total": 16
+      "certas": 61,
+      "total": 128,
+      "canais": 15
     },
     "MANHÃ": {
-      "certas": 9,
-      "total": 12
+      "certas": 62,
+      "total": 96,
+      "canais": 12
     },
     "MEIO-DIA": {
-      "certas": 3,
-      "total": 6
+      "certas": 15,
+      "total": 48,
+      "canais": 6
     },
     "MESA": {
-      "certas": 5,
-      "total": 17
+      "certas": 41,
+      "total": 136,
+      "canais": 17
     },
     "MORAR": {
-      "certas": 1,
-      "total": 8
+      "certas": 13,
+      "total": 64,
+      "canais": 8
     },
     "MÃE": {
-      "certas": 12,
-      "total": 16
+      "certas": 105,
+      "total": 128,
+      "canais": 16
     },
     "NERVOSO": {
-      "certas": 5,
-      "total": 19
+      "certas": 39,
+      "total": 152,
+      "canais": 17
     },
     "OBRIGADO": {
-      "certas": 14,
-      "total": 17
+      "certas": 122,
+      "total": 136,
+      "canais": 16
     },
     "OI": {
-      "certas": 11,
-      "total": 16
+      "certas": 78,
+      "total": 128,
+      "canais": 15
     },
     "ONTEM": {
-      "certas": 11,
-      "total": 17
+      "certas": 95,
+      "total": 136,
+      "canais": 17
     },
     "OUTUBRO": {
-      "certas": 5,
-      "total": 16
+      "certas": 74,
+      "total": 128,
+      "canais": 16
     },
     "OVO": {
-      "certas": 10,
-      "total": 16
+      "certas": 77,
+      "total": 128,
+      "canais": 16
     },
     "PAGAR": {
-      "certas": 3,
-      "total": 16
+      "certas": 6,
+      "total": 128,
+      "canais": 14
     },
     "PERGUNTAR": {
-      "certas": 2,
-      "total": 8
+      "certas": 24,
+      "total": 64,
+      "canais": 8
     },
     "POR-FAVOR": {
-      "certas": 11,
-      "total": 13
+      "certas": 91,
+      "total": 104,
+      "canais": 11
     },
     "PRAZER": {
-      "certas": 13,
-      "total": 19
+      "certas": 131,
+      "total": 152,
+      "canais": 18
     },
     "PREOCUPADO": {
-      "certas": 8,
-      "total": 8
+      "certas": 64,
+      "total": 64,
+      "canais": 8
     },
     "QUARTO": {
-      "certas": 5,
-      "total": 11
+      "certas": 42,
+      "total": 88,
+      "canais": 10
     },
     "RESPONDER": {
-      "certas": 4,
-      "total": 12
+      "certas": 34,
+      "total": 96,
+      "canais": 12
     },
     "RESTAURANTE": {
-      "certas": 6,
-      "total": 11
+      "certas": 39,
+      "total": 88,
+      "canais": 11
     },
     "SEGUNDA-FEIRA": {
-      "certas": 10,
-      "total": 16
+      "certas": 70,
+      "total": 128,
+      "canais": 16
     },
     "SEMANA": {
-      "certas": 6,
-      "total": 10
+      "certas": 49,
+      "total": 80,
+      "canais": 10
     },
     "SETEMBRO": {
-      "certas": 1,
-      "total": 16
+      "certas": 7,
+      "total": 128,
+      "canais": 16
     },
     "SIM": {
-      "certas": 1,
-      "total": 12
+      "certas": 21,
+      "total": 96,
+      "canais": 12
     },
     "SINAL": {
-      "certas": 1,
-      "total": 8
+      "certas": 15,
+      "total": 64,
+      "canais": 6
     },
     "TCHAU": {
-      "certas": 8,
-      "total": 16
+      "certas": 49,
+      "total": 128,
+      "canais": 14
     },
     "TERÇA-FEIRA": {
-      "certas": 8,
-      "total": 17
+      "certas": 74,
+      "total": 136,
+      "canais": 16
     },
     "TIA": {
-      "certas": 3,
-      "total": 14
+      "certas": 58,
+      "total": 112,
+      "canais": 13
     },
     "TIO": {
-      "certas": 3,
-      "total": 12
+      "certas": 23,
+      "total": 96,
+      "canais": 11
     },
     "TRABALHAR": {
-      "certas": 1,
-      "total": 6
+      "certas": 11,
+      "total": 48,
+      "canais": 6
     },
     "TRISTE": {
-      "certas": 16,
-      "total": 23
+      "certas": 129,
+      "total": 184,
+      "canais": 22
     },
     "TUDO-BEM": {
-      "certas": 2,
-      "total": 7
+      "certas": 27,
+      "total": 56,
+      "canais": 7
     },
     "VERDE": {
-      "certas": 4,
-      "total": 14
+      "certas": 30,
+      "total": 112,
+      "canais": 14
     },
     "VIR": {
-      "certas": 1,
-      "total": 8
+      "certas": 13,
+      "total": 64,
+      "canais": 8
     }
   },
   "dictionary": {
@@ -391,6 +476,10 @@
       "certas": 0,
       "total": 2
     },
+    "AMARELO": {
+      "certas": 0,
+      "total": 1
+    },
     "AMIGO": {
       "certas": 0,
       "total": 2
@@ -436,11 +525,11 @@
       "total": 2
     },
     "DORMIR": {
-      "certas": 0,
+      "certas": 1,
       "total": 2
     },
     "ENCONTRAR": {
-      "certas": 1,
+      "certas": 2,
       "total": 2
     },
     "ESCOLA": {
@@ -448,11 +537,11 @@
       "total": 2
     },
     "ESTUDAR": {
-      "certas": 1,
+      "certas": 0,
       "total": 2
     },
     "FAMÍLIA": {
-      "certas": 0,
+      "certas": 1,
       "total": 2
     },
     "FARMÁCIA": {
@@ -471,9 +560,17 @@
       "certas": 1,
       "total": 2
     },
+    "FILHO": {
+      "certas": 1,
+      "total": 1
+    },
     "FRUTA": {
       "certas": 0,
       "total": 2
+    },
+    "HOJE": {
+      "certas": 0,
+      "total": 3
     },
     "HOMEM": {
       "certas": 0,
@@ -487,12 +584,16 @@
       "certas": 1,
       "total": 2
     },
+    "IR": {
+      "certas": 0,
+      "total": 1
+    },
     "IRMÃO": {
       "certas": 0,
       "total": 2
     },
     "JANEIRO": {
-      "certas": 1,
+      "certas": 0,
       "total": 2
     },
     "JUNHO": {
@@ -500,7 +601,7 @@
       "total": 2
     },
     "LARANJA": {
-      "certas": 1,
+      "certas": 2,
       "total": 3
     },
     "MAIO": {
@@ -596,7 +697,7 @@
       "total": 2
     },
     "SIM": {
-      "certas": 1,
+      "certas": 0,
       "total": 1
     },
     "SINAL": {
@@ -604,7 +705,7 @@
       "total": 2
     },
     "TCHAU": {
-      "certas": 1,
+      "certas": 0,
       "total": 2
     },
     "TERÇA-FEIRA": {
@@ -632,7 +733,7 @@
       "total": 2
     },
     "VERDE": {
-      "certas": 0,
+      "certas": 1,
       "total": 2
     },
     "VIR": {

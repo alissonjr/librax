@@ -142,6 +142,40 @@ só com as mãos (os vídeos do alfabeto não têm corpo e as letras não precis
   o Z está em cerca de 70% nos dois e quem o tirou de 33 foram os alfabetos z2. A câmera avalia H, J, K, X, Z e Ç
   (o Z na U1 L6, com o C, o Ç e o X).
 
+### 3.4 Sinais com movimento (palavras): quais ganham a câmera
+O modelo dos sinais (`ml-training/train_sinais.py`, `public/ml/sinais/`) conhece todas as glosas com pelo menos 6
+canais, mas a câmera só dá nota às de `camera_signs` no `model.json`; as outras ficam como prática livre
+(`mirror_practice`). A lista sai do subcomando `train_sinais.py camera` (regra de 2026-10-26, a mesma ideia do
+`SEMENTES_CAMERA` das letras com movimento):
+
+- Validação cruzada por canal: GroupKFold em 5 grupos (`GRUPOS_CAMERA`) pelos canais do YouTube, repetida em 8
+  divisões diferentes (`SEMENTES_CAMERA`; divisão 0 sem sorteio, divisões 1 a 7 sorteadas), cada grupo com a sua
+  semente de treino (divisão x 5 + grupo). Nenhum canal fica no treino e no teste do mesmo grupo. Os dicionários e
+  as fontes externas de estúdio (V-LIBRASIL, Signbank, MINDS, canais `ext-`, `--so-treino ext-`) ficam sempre no
+  treino e nunca no teste.
+- Por sinal, soma dos vídeos deixados de fora confirmados no trecho do sinal nas 8 divisões. Ganha a câmera com
+  pelo menos 70% na soma (`MIN_ACERTO_CAMERA`), vídeos de pelo menos 8 canais diferentes no teste (`MIN_CANAIS`) e,
+  quando há pelo menos 3 vídeos de dicionário, pelo menos metade deles confirmada (o teste do dicionário de
+  antes: modelo treinado sem os dicionários). O menor acerto de uma divisão sozinha sai no relatório, só para
+  informação.
+- Antes, o sinal precisava de 70% sozinho em cada uma de duas divisões (sementes 0 e 1, com pelo menos 8 vídeos).
+  Com 10 a 20 vídeos por sinal, um vídeo muda 5 a 10 pontos, e um sinal no limite decidia a publicação sozinho (o
+  HOMEM foi de 79% a 58% só trocando a divisão).
+- `camera --salvar camera.json` guarda cada divisão ao terminar (com a mesma configuração, a próxima execução
+  continua de onde parou); `treinar --camera camera.json` grava `camera_signs`, `camera_seeds`, `camera_folds`,
+  `camera_min_channels` e, em `heldout`, a soma de cada sinal com os canais. O treino se repete com o mesmo número
+  de threads do BLAS (`OMP_NUM_THREADS`): com 2 e 4 threads, a mesma divisão dá 484 e 477 de 885 vídeos.
+
+Resultado de 2026-10-26 (8 divisões, 4 threads), no trecho somado: com a configuração publicada antes (dataset r8,
+sem fontes externas) 52,5%, câmera em ARROZ, CANSADO, FAMÍLIA, FEIJÃO, HOMEM, HOSPITAL, JUNHO, LARANJA, MÃE,
+OBRIGADO, POR-FAVOR, PRAZER, PREOCUPADO e TRISTE (IDADE com 69,9%); com as fontes externas só no treino (dataset r11,
+publicado) 53,5%, câmera em 16 sinais: ACORDAR (70,4%), ARROZ (78,6%), CAMA (73,3%), CANSADO (81,7%), FAMÍLIA
+(92,0%), FEIJÃO (79,8%), HOMEM (75,7%), IDADE (80,9%), JUNHO (85,5%), LARANJA (74,3%), MÃE (82,0%), OBRIGADO (89,7%),
+POR-FAVOR (87,5%), PRAZER (86,2%), PREOCUPADO (100%) e TRISTE (70,1%). HOSPITAL (68,8%) e ONTEM (69,9%) ficam logo
+abaixo; FELIZ acerta 94,6% com pessoas novas, mas confirma só 1 de 4 vídeos de dicionário. Alarmes, média das 8
+divisões, antes e depois: janela "_" lida como sinal 10,4% e 11,9%, janela de mão parada 9,7% e 9,9%, trecho
+parado de 2 s com leitura confirmada 18/376 e 19/376.
+
 ## 4. Dados de treino (quantificado)
 
 Referência da literatura: dataset de Libras com **~27 mil amostras para 26 classes (~1.000/classe)** atingiu ~97% em tarefa estática controlada. Tradução para nosso plano:

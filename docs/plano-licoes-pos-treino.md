@@ -116,8 +116,8 @@ O app já avalia sinais quando existe `public/ml/sinais/model.json` (componente
   OBRIGADO, POR-FAVOR e PREOCUPADO, mas ACORDAR (14/19 e 11/19), LARANJA (14/19 e 11/19) e OVO (10/16 e 10/16)
   ficam abaixo de 70%. Não foi publicado: a regra é não tirar a câmera de sinal publicado. Com quatro divisões,
   antes e depois: ACORDAR 56/76 e 54/76, LARANJA 56/76 e 54/76, OVO 41/60 e 40/64 (já abaixo antes), MÃE 18/24 e
-  50/64, FAMÍLIA 27/28 e 39/44, OBRIGADO 51/68 e 58/68, HOMEM 41/64 e 58/76. Falta decidir se a câmera passa a
-  usar a média de mais divisões (a de duas oscila 2 a 3 vídeos por sinal).
+  50/64, FAMÍLIA 27/28 e 39/44, OBRIGADO 51/68 e 58/68, HOMEM 41/64 e 58/76. Depois a câmera passou a usar a
+  soma de 8 divisões (a de duas oscila 2 a 3 vídeos por sinal; ver abaixo).
 - Fontes de fora do YouTube (2026-10-26, `video/baixar_externas.py`, lista `data/fontes_externas.json`): V-LIBRASIL
   (UFPE, 3 pessoas por sinal, 41 glosas do treino), Signbank da UFSC (espelho no Kaggle, 59 glosas, uma entrada por
   sinal) e MINDS-Libras (UFMG, 8 pessoas com 5 repetições, só FILHO e AMARELO do curso). Achado no caminho: o treino
@@ -128,6 +128,17 @@ O app já avalia sinais quando existe `public/ml/sinais/model.json` (componente
   (79% na outra); sem o MINDS, o HOMEM fica em 68% e 74%. Com os externos também no teste (como canais novos), eles
   acertam só cerca de 40% (estúdio, enquadramento e ritmo diferentes) e HOMEM, HOSPITAL, FAMÍLIA ou POR-FAVOR caem
   conforme a variante. Não foi publicado (a regra é não tirar a câmera de sinal publicado); a câmera segue nos 12.
+- (Feito) Câmera pela soma de várias divisões (2026-10-26, decisão do dono, `train_sinais.py camera`; detalhes na
+  spec-01, seção 3.4): validação cruzada por canal em 5 grupos repetida em 8 divisões dos canais, cada uma com os
+  seus treinos, e o sinal ganha a câmera com pelo menos 70% somando as 8, vídeos de pelo menos 8 canais no teste e
+  o teste do dicionário de antes. Substitui a regra de passar sozinho em cada uma de duas divisões (e a de não
+  tirar a câmera de sinal publicado). Publicado o modelo com as fontes externas só no treino (dataset r11): a
+  câmera vai de 12 para 16 sinais. Entram ACORDAR (107/152, 70,4%), CAMA (88/120, 73,3%), LARANJA (113/152,
+  74,3%), PRAZER (131/152, 86,2%) e TRISTE (129/184, 70,1%); sai HOSPITAL (77/112, 68,8%; na regra antiga já caía
+  para 57% numa divisão). HOMEM fica com 115/152 (75,7%). FELIZ (106/112, 94,6%) segue sem câmera porque confirma só
+  1 de 4 vídeos de dicionário. Com a configuração publicada antes (r8, sem externos), a soma daria 14 sinais (sem
+  CAMA, ACORDAR e IDADE, com HOSPITAL); o r11 ganhou no geral (53,5% contra 52,5% no trecho somado) com os alarmes
+  quase iguais (janela de mão parada 9,9% e 9,7%, trechos parados com leitura 19/376 e 18/376).
 - (Feito) Exigir duas leituras seguidas da mesma glosa antes de mostrar "Vimos X", porque no teste ao vivo
   apareceram leituras passageiras erradas antes do acerto.
 - (Feito) Mão dominante calculada por janela também no treino, como o app (buffer de 2,5 s).
