@@ -12,7 +12,8 @@ import { DAY_RETENTION_DAYS, WEEK_RETENTION_DAYS, freshPeriods, opsExpiry, perio
 //   TEL#<id> / FEEDBACK        a nota e o comentario (domain/feedback.js), mesmo TTL
 //   TELAGG / DAY#<dia>         somas do dia: ativos por tipo (convidado ou conta), eventos, codigos
 //                              novos e, no dia do primeiro acesso (coorte), D1, D7 e o funil
-//   TELAGG / DAY#<dia>#LESSON  por licao: aberturas, conclusoes, saidas, tempo, nota e onde saiu
+//   TELAGG / DAY#<dia>#L#<licao>  aberturas, conclusoes, saidas, tempo, nota e onde saiu (um item
+//                              pequeno por licao e dia: cada soma custa 1 unidade de escrita)
 //   TELAGG / WEEK#<semana>     ativos por tipo na semana (ISO, a mesma das ligas)
 //   TELAGG / MONTH#<mes>       ativos por tipo no mes
 //   TELAGG / REACH             quantos codigos ja concluiram cada licao (ate onde chegam no curso)
@@ -37,7 +38,7 @@ export const TELEMETRY_PK = 'TELAGG';
 export const telKey = {
   id: (id) => `TEL#${id}`,
   day: (day) => `DAY#${day}`,
-  lessons: (day) => `DAY#${day}#LESSON`,
+  lesson: (day, lessonId) => `DAY#${day}#L#${lessonId}`,
   week: (week) => `WEEK#${week}`,
   month: (month) => `MONTH#${month}`,
   reach: 'REACH',
@@ -190,7 +191,7 @@ const MILESTONES = ['onboarding', 'lesson1', 'lesson5', 'account'];
  * - Codigo novo: `newIds` no dia do primeiro evento; se comecou do zero (`fresh`), entra na coorte
  *   desse dia (`f_open`) e conta para o D1 e o D7 (`ret1`, `ret7`: ativo 1 ou 7 dias depois) e
  *   para o funil (`f_onboarding`, `f_lesson1`, `f_lesson5`, `f_account`), uma vez cada.
- * - Licoes: por dia em `DAY#<dia>#LESSON`; a primeira conclusao de cada licao pelo codigo soma em
+ * - Licoes: por dia e licao em `DAY#<dia>#L#<licao>`; a primeira conclusao de cada licao pelo codigo soma em
  *   `REACH`.
  *
  * @param {object} input { old: item atual ou null, batch: parseTelemetryBatch().value, now: Date }
@@ -227,7 +228,7 @@ export function planTelemetry({ old, batch, now }) {
     writes.set(key, w);
   };
   const addDay = (day, name, n = 1) => add(telKey.day(day), name, n, opsExpiry(day, DAY_RETENTION_DAYS));
-  const addLesson = (day, name, n = 1) => add(telKey.lessons(day), name, n, opsExpiry(day, DAY_RETENTION_DAYS));
+  const addLesson = (day, lessonId, name, n = 1) => add(telKey.lesson(day, lessonId), name, n, opsExpiry(day, DAY_RETENTION_DAYS));
   const cohort = item.fresh ? item.firstDay : null;
 
   if (!old) {
@@ -260,15 +261,15 @@ export function planTelemetry({ old, batch, now }) {
     addDay(e.day, `ev:${e.type}`);
     switch (e.type) {
       case 'lesson_open':
-        addLesson(e.day, `open:${e.lessonId}`);
+        addLesson(e.day, e.lessonId, 'open');
         if (!item.opened.includes(e.lessonId)) item.opened.push(e.lessonId);
         break;
       case 'lesson_complete':
-        addLesson(e.day, `done:${e.lessonId}`);
-        addLesson(e.day, `score:${e.lessonId}`, Math.round(e.score * 100));
+        addLesson(e.day, e.lessonId, 'done');
+        addLesson(e.day, e.lessonId, 'score', Math.round(e.score * 100));
         if (e.durationSec != null) {
-          addLesson(e.day, `sec:${e.lessonId}`, e.durationSec);
-          addLesson(e.day, `timed:${e.lessonId}`);
+          addLesson(e.day, e.lessonId, 'sec', e.durationSec);
+          addLesson(e.day, e.lessonId, 'timed');
         }
         if (!item.completed.includes(e.lessonId)) {
           item.completed.push(e.lessonId);
@@ -276,8 +277,8 @@ export function planTelemetry({ old, batch, now }) {
         }
         break;
       case 'lesson_abandon':
-        addLesson(e.day, `abandon:${e.lessonId}`);
-        addLesson(e.day, `at:${e.lessonId}:${e.exerciseIndex}`);
+        addLesson(e.day, e.lessonId, 'abandon');
+        addLesson(e.day, e.lessonId, `at:${e.exerciseIndex}`);
         break;
       case 'onboarding_done':
         addDay(e.day, `lang:${e.lang}`);
@@ -324,7 +325,7 @@ export function planTelemetry({ old, batch, now }) {
 // Leitura: a tela "Uso" do painel
 // ---------------------------------------------------------------------------
 
-const DAY_KEY_RE = /^DAY#(\d{4}-\d{2}-\d{2})(#LESSON)?$/;
+const DAY_KEY_RE = /^DAY#(\d{4}-\d{2}-\d{2})(?:#L#(.+))?$/;
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
 const ratio = (a, b) => (b > 0 ? Math.round((a / b) * 1000) / 1000 : null);
 const avg = (sum, n) => (n > 0 ? Math.round((sum / n) * 100) / 100 : null);
@@ -353,7 +354,7 @@ export function feedbackStats(item) {
 /**
  * Tela "Uso" (GET /v1/admin/usage).
  * @param {object} input
- *   dayItems:   DAY#... de readFrom ate hoje (com `key`), inclusive os #LESSON
+ *   dayItems:   DAY#... de readFrom ate hoje (com `key`), inclusive os de licao (#L#<licao>)
  *   weekItems, monthItems: WEEK#..., MONTH#...
  *   reachItem:  REACH (ou null); feedbackItem: FEEDBACK (ou null)
  *   today, days, labels: { lessons: { [id]: { title, unitId, unitTitle } } } na ordem do curso
@@ -367,23 +368,13 @@ export function buildUsage({ dayItems = [], weekItems = [], monthItems = [], rea
     if (!m || m[1] < readFrom || m[1] > today) continue;
     if (!m[2]) totalsByDay.set(m[1], item);
     else if (m[1] >= from) {
-      for (const metric of ['open', 'done', 'abandon', 'sec', 'timed', 'score']) {
-        const into = {};
-        sumPrefixed(item, metric, into);
-        for (const [lessonId, n] of Object.entries(into)) {
-          lessons[lessonId] ??= { at: {} };
-          lessons[lessonId][metric] = (lessons[lessonId][metric] ?? 0) + n;
-        }
-      }
+      const lesson = (lessons[m[2]] ??= { at: {} });
+      for (const metric of ['open', 'done', 'abandon', 'sec', 'timed', 'score']) lesson[metric] = (lesson[metric] ?? 0) + num(item[metric]);
       const at = {};
       sumPrefixed(item, 'at', at);
-      for (const [rest, n] of Object.entries(at)) {
-        const i = rest.lastIndexOf(':');
-        const lessonId = rest.slice(0, i);
-        const index = Number(rest.slice(i + 1));
-        if (!lessonId || !Number.isInteger(index)) continue;
-        lessons[lessonId] ??= { at: {} };
-        lessons[lessonId].at[index] = (lessons[lessonId].at[index] ?? 0) + n;
+      for (const [index, n] of Object.entries(at)) {
+        if (!/^\d+$/.test(index)) continue;
+        lesson.at[index] = (lesson.at[index] ?? 0) + n;
       }
     }
   }

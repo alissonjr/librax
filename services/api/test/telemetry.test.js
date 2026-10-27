@@ -164,9 +164,7 @@ test('mesmo dia de novo: nao conta como ativo outra vez; licoes, alcance e funil
   assert.equal(day.active_guest, undefined);
   assert.equal(day['ev:lesson_complete'], 2);
   assert.equal(day.f_lesson1, 1);
-  assert.deepEqual(counters(state.writes, 'DAY#2026-10-27#LESSON'), {
-    'open:u1-l1': 2, 'done:u1-l1': 2, 'score:u1-l1': 160, 'sec:u1-l1': 240, 'timed:u1-l1': 2,
-  });
+  assert.deepEqual(counters(state.writes, 'DAY#2026-10-27#L#u1-l1'), { open: 2, done: 2, score: 160, sec: 240, timed: 2 });
   assert.deepEqual(counters(state.writes, 'REACH'), { 'done:u1-l1': 1 });
   assert.deepEqual(state.item.completed, ['u1-l1']);
   assert.equal(state.item.rev, 2);
@@ -364,7 +362,8 @@ test('buildUsage: ativos por tipo, retencao, funil, licoes, alcance na ordem do 
     { key: 'DAY#2026-10-27', active_guest: 3, active_account: 1, 'ev:lesson_open': 4, 'ev:lesson_complete': 3, 'plat:android:twa': 2, 'plat:desktop:browser': 2, 'lang:en': 1, 'goal:20': 1, fb_n: 2, fb_sum: 9 },
     { key: 'DAY#2026-10-19', f_open: 10, ret1: 4, ret7: 2, f_onboarding: 9, f_lesson1: 7, f_lesson5: 3, f_account: 1 },
     { key: 'DAY#2026-10-26', f_open: 5, ret1: 0 },
-    { key: 'DAY#2026-10-27#LESSON', 'open:u1-l1': 4, 'done:u1-l1': 3, 'abandon:u1-l1': 1, 'sec:u1-l1': 300, 'timed:u1-l1': 3, 'score:u1-l1': 240, 'at:u1-l1:3': 1 },
+    { key: 'DAY#2026-10-27#L#u1-l1', open: 3, done: 2, abandon: 1, sec: 200, timed: 2, score: 160, 'at:3': 1 },
+    { key: 'DAY#2026-10-26#L#u1-l1', open: 1, done: 1, sec: 100, timed: 1, score: 80 },
     { key: 'DAY#2026-09-01', active_guest: 99 }, // fora da janela
   ];
   const u = buildUsage({
