@@ -4,6 +4,7 @@ import { Icon } from './components/Icon';
 import { Chip } from './components/ui';
 import { ApiError, type AdminApi } from './lib/api';
 import { ApiContext } from './lib/context';
+import { cognitoMfaSetup, type MfaSetupApi } from './lib/mfa';
 import { applyTheme, loadTheme, nextTheme, THEME_LABEL, type ThemeChoice } from './lib/theme';
 import type { Me } from './lib/types';
 import { OperacaoScreen } from './screens/OperacaoScreen';
@@ -12,6 +13,7 @@ import { ContasScreen } from './screens/ContasScreen';
 import { SquadsScreen } from './screens/SquadsScreen';
 import { CustoScreen } from './screens/CustoScreen';
 import { CameraScreen } from './screens/CameraScreen';
+import { MfaSetupScreen } from './screens/MfaSetupScreen';
 
 /** Sessão do painel (lib/auth.ts em produção; um falso nos testes e no modo de exemplo). */
 export interface Session {
@@ -31,12 +33,13 @@ const NAV: Array<[string, string, string]> = [
   ['/custo', 'Custo', 'cloud_done'],
 ];
 
-export function AdminApp({ api, session }: { api: AdminApi; session: Session }) {
+export function AdminApp({ api, session, mfa }: { api: AdminApi; session: Session; mfa?: MfaSetupApi }) {
+  const [mfaSetup] = useState<MfaSetupApi>(() => mfa ?? cognitoMfaSetup());
   return (
     <ApiContext.Provider value={api}>
       <Routes>
         <Route path="/auth/callback" element={<Callback session={session} />} />
-        <Route path="*" element={<Gate api={api} session={session} />}>
+        <Route path="*" element={<Gate api={api} session={session} mfa={mfaSetup} />}>
           <Route index element={<OperacaoScreen />} />
           <Route path="camera" element={<CameraScreen />} />
           <Route path="conteudo" element={<ConteudoScreen />} />
@@ -76,10 +79,20 @@ function Callback({ session }: { session: Session }) {
   );
 }
 
-type GateState = { kind: 'login' } | { kind: 'checking' } | { kind: 'denied' } | { kind: 'error'; message: string } | { kind: 'ok'; me: Me };
+type GateState =
+  | { kind: 'login' }
+  | { kind: 'checking' }
+  | { kind: 'denied' }
+  | { kind: 'mfa' }
+  | { kind: 'federated' }
+  | { kind: 'error'; message: string }
+  | { kind: 'ok'; me: Me };
 
-/** Só abre o painel depois que a API confirma o grupo admin (GET /v1/admin/me). */
-function Gate({ api, session }: { api: AdminApi; session: Session }) {
+/**
+ * Só abre o painel depois que a API confirma o grupo admin e o aplicativo autenticador da conta
+ * (GET /v1/admin/me). Sem o autenticador, guia a configuração no primeiro acesso.
+ */
+function Gate({ api, session, mfa }: { api: AdminApi; session: Session; mfa: MfaSetupApi }) {
   const [state, setState] = useState<GateState>(() => (session.hasToken() ? { kind: 'checking' } : { kind: 'login' }));
   const [attempt, setAttempt] = useState(0);
 
@@ -94,7 +107,9 @@ function Gate({ api, session }: { api: AdminApi; session: Session }) {
       .then((me) => alive && setState({ kind: 'ok', me }))
       .catch((err: unknown) => {
         if (!alive) return;
-        if (err instanceof ApiError && err.status === 403) setState({ kind: 'denied' });
+        if (err instanceof ApiError && err.code === 'ADMIN_MFA_REQUIRED') setState({ kind: 'mfa' });
+        else if (err instanceof ApiError && err.code === 'ADMIN_MFA_FEDERATED') setState({ kind: 'federated' });
+        else if (err instanceof ApiError && err.status === 403) setState({ kind: 'denied' });
         else if (err instanceof ApiError && err.status === 401) {
           session.clear();
           setState({ kind: 'login' });
@@ -109,7 +124,7 @@ function Gate({ api, session }: { api: AdminApi; session: Session }) {
     return (
       <Splash>
         <h1 className="splash-title">Painel de administração</h1>
-        <p>Acesso só para contas no grupo admin. Use a mesma conta do Librax.</p>
+        <p>Acesso só para contas no grupo admin, com e-mail e senha e o aplicativo autenticador no celular.</p>
         <button type="button" className="btn btn--primary" onClick={() => void session.login()}>
           <Icon name="login" /> Entrar
         </button>
@@ -125,6 +140,25 @@ function Gate({ api, session }: { api: AdminApi; session: Session }) {
         <Chip tone="error" icon="lock">Sem acesso</Chip>
         <h1 className="splash-title">Esta conta não é de administração</h1>
         <p>O painel só abre para contas no grupo admin do Cognito. Peça acesso ao dono do projeto e entre de novo.</p>
+        <button type="button" className="btn btn--secondary" onClick={() => session.logout()}>
+          <Icon name="logout" /> Sair
+        </button>
+      </Splash>
+    );
+  }
+  if (state.kind === 'mfa') {
+    return (
+      <Splash>
+        <MfaSetupScreen setup={mfa} onDone={() => setAttempt((n) => n + 1)} onLogout={() => session.logout()} />
+      </Splash>
+    );
+  }
+  if (state.kind === 'federated') {
+    return (
+      <Splash>
+        <Chip tone="error" icon="lock">Sem acesso</Chip>
+        <h1 className="splash-title">Entre com e-mail e senha</h1>
+        <p>O painel exige o aplicativo autenticador, que só existe nas contas de e-mail e senha do Librax. Contas do Google não servem aqui. Crie uma conta de e-mail e senha só para o painel e peça ao dono do projeto para colocá-la no grupo admin.</p>
         <button type="button" className="btn btn--secondary" onClick={() => session.logout()}>
           <Icon name="logout" /> Sair
         </button>

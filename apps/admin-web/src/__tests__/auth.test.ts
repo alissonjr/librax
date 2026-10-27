@@ -32,7 +32,7 @@ describe('PKCE e login', () => {
     expect(url.searchParams.get('response_type')).toBe('code');
     expect(url.searchParams.get('code_challenge_method')).toBe('S256');
     expect(url.searchParams.get('redirect_uri')).toBe('https://librax.example/admin/auth/callback');
-    expect(url.searchParams.get('scope')).toBe('openid email profile');
+    expect(url.searchParams.get('scope')).toBe('openid email profile aws.cognito.signin.user.admin');
     expect(url.searchParams.get('state')).toBeTruthy();
   });
 

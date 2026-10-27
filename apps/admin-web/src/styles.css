@@ -446,6 +446,47 @@ a:hover { text-decoration-thickness: 2px; }
 .splash-body p { margin: 0; color: var(--lx-text-secondary); }
 .splash-title { margin: 0; font: var(--lx-typography-title); letter-spacing: var(--lx-typography-title-tracking); }
 
+/* ---------- primeiro acesso: aplicativo autenticador ---------- */
+
+.mfa-steps {
+  margin: 0;
+  padding-left: var(--lx-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-2);
+  color: var(--lx-text-secondary);
+  font: var(--lx-typography-body-sm);
+}
+.mfa-form { display: flex; flex-direction: column; align-items: stretch; gap: var(--lx-space-4); width: 100%; }
+.mfa-form .btn { align-self: flex-start; }
+.mfa-qr { display: flex; justify-content: center; }
+/* QR sempre escuro no claro, nos dois temas: é o que os leitores entendem */
+.qr {
+  width: 208px;
+  height: 208px;
+  border-radius: var(--lx-radius-md);
+  border: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+}
+.qr-bg { fill: var(--lx-color-grafite-0); }
+.qr-fg { fill: var(--lx-color-grafite-1000); }
+.mfa-secret { font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); }
+.mfa-secret summary { cursor: pointer; color: var(--lx-text-brand); min-height: var(--lx-size-touch-min); display: flex; align-items: center; }
+.mfa-secret code {
+  display: block;
+  margin-top: var(--lx-space-2);
+  padding: var(--lx-space-3);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-bg-sunken);
+  color: var(--lx-text-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.08em;
+  word-break: break-all;
+  user-select: all;
+}
+.mfa-hint { display: block; margin-top: var(--lx-space-1); color: var(--lx-text-tertiary); }
+.mfa-error { color: var(--lx-feedback-error-on-soft); background: var(--lx-feedback-error-soft); padding: var(--lx-space-2) var(--lx-space-3); border-radius: var(--lx-radius-md); }
+.splash-body p.mfa-error { color: var(--lx-feedback-error-on-soft); }
+
 /* ---------- telas médias e celular ---------- */
 
 @media (max-width: 1180px) {

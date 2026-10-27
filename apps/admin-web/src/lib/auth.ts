@@ -3,7 +3,9 @@
  * com o app client próprio do painel. Sem biblioteca: o painel só precisa entrar, guardar o id
  * token e sair.
  *
- * - O id token fica no sessionStorage: some ao fechar a aba e não é lido por outras origens.
+ * - O id token fica no sessionStorage: some ao fechar a aba e não é lido por outras origens. O access
+ *   token fica junto só para configurar o aplicativo autenticador da própria conta (lib/mfa.ts): o
+ *   escopo aws.cognito.signin.user.admin deixa ele falar com o Cognito em nome da pessoa.
  * - Expirou (1 hora): o painel manda entrar de novo; o Cognito lembra a sessão e volta direto.
  * - Quem decide o acesso é a API (403 sem o grupo admin). O que o token diz aqui só serve para
  *   mostrar o e-mail na tela.
@@ -34,6 +36,9 @@ export function authConfig(): AuthConfig {
 
 const redirectUri = (c: AuthConfig) => `${c.origin}${CALLBACK_PATH}`;
 
+/** Escopos do login: o último deixa o access token configurar o autenticador (lib/mfa.ts). */
+export const LOGIN_SCOPES = 'openid email profile aws.cognito.signin.user.admin';
+
 function base64url(bytes: Uint8Array): string {
   let bin = '';
   for (const b of bytes) bin += String.fromCharCode(b);
@@ -59,7 +64,7 @@ export async function loginUrl(c: AuthConfig = authConfig()): Promise<string> {
     response_type: 'code',
     client_id: c.clientId,
     redirect_uri: redirectUri(c),
-    scope: 'openid email profile',
+    scope: LOGIN_SCOPES,
     state,
     code_challenge: await pkceChallenge(verifier),
     code_challenge_method: 'S256',
@@ -97,24 +102,44 @@ export async function completeLogin(search: string, c: AuthConfig = authConfig()
     }).toString(),
   });
   if (!res.ok) throw new AuthCallbackError('O Cognito não aceitou o login. Entre de novo.');
-  const { id_token: idToken, expires_in: expiresIn } = (await res.json()) as { id_token?: string; expires_in?: number };
+  const { id_token: idToken, access_token: accessToken, expires_in: expiresIn } = (await res.json()) as {
+    id_token?: string;
+    access_token?: string;
+    expires_in?: number;
+  };
   if (!idToken) throw new AuthCallbackError('O Cognito não devolveu o token.');
-  saveToken(idToken, Date.now() + (expiresIn ?? 3600) * 1000);
+  saveToken(idToken, Date.now() + (expiresIn ?? 3600) * 1000, accessToken);
 }
 
-export function saveToken(idToken: string, expiresAt: number): void {
-  sessionStorage.setItem(TOKEN_KEY, JSON.stringify({ idToken, expiresAt }));
+interface SavedTokens {
+  idToken: string;
+  accessToken?: string;
+  expiresAt: number;
+}
+
+export function saveToken(idToken: string, expiresAt: number, accessToken?: string): void {
+  const saved: SavedTokens = { idToken, expiresAt, ...(accessToken ? { accessToken } : {}) };
+  sessionStorage.setItem(TOKEN_KEY, JSON.stringify(saved));
+}
+
+function savedTokens(now: number): SavedTokens | null {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(TOKEN_KEY) ?? 'null') as SavedTokens | null;
+    if (!saved || saved.expiresAt - EXPIRY_MARGIN_MS <= now) return null;
+    return saved;
+  } catch {
+    return null;
+  }
 }
 
 /** Id token ainda válido, ou null. */
 export function currentToken(now = Date.now()): string | null {
-  try {
-    const saved = JSON.parse(sessionStorage.getItem(TOKEN_KEY) ?? 'null') as { idToken: string; expiresAt: number } | null;
-    if (!saved || saved.expiresAt - EXPIRY_MARGIN_MS <= now) return null;
-    return saved.idToken;
-  } catch {
-    return null;
-  }
+  return savedTokens(now)?.idToken ?? null;
+}
+
+/** Access token ainda válido (só para configurar o autenticador), ou null. */
+export function currentAccessToken(now = Date.now()): string | null {
+  return savedTokens(now)?.accessToken ?? null;
 }
 
 export function clearToken(): void {
