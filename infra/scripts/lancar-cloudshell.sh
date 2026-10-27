@@ -29,6 +29,12 @@ ESPACO_MINIMO_MB=2500
 # Cache-Control dos arquivos de ML no S3 (os mesmos de infra/lib/web-headers.ts: IMMUTABLE e ML_REVALIDATE)
 CACHE_IMUTAVEL='public, max-age=31536000, immutable'
 CACHE_REVALIDA='no-cache'
+# Soma da concorrência reservada das Lambdas da API com librax:lambdaReservedConcurrency ligado
+# (RESERVED_CONCURRENCY_TOTAL em infra/lib/cost-guards.ts; o teste confere que os dois batem). A AWS
+# exige 100 execuções sem reserva na conta, então a cota precisa ser pelo menos a soma mais 100.
+RESERVA_LAMBDA=169
+LAMBDA_SEM_RESERVA=100
+COTA_LAMBDA_PEDIR=1000
 
 # ---------------------------------------------------------------------------------------------
 # Opções
@@ -53,6 +59,9 @@ bootstrap (só se faltar), deploy da stack, build e upload do app, do painel e d
   --com-email-ses           códigos do login (cadastro e nova senha) pelo SES do domínio, sem o limite
                             de 50 e-mails por dia do Cognito (precisa do domínio verificado no SES)
   --sem-email-ses           códigos do login pelo envio padrão do Cognito (padrão)
+  --com-concorrencia-reservada  limita quantas cópias de cada Lambda da API rodam juntas (precisa da cota
+                            de concorrência do Lambda na conta em 1000; o script confere antes)
+  --sem-concorrencia-reservada  sem esse limite por Lambda (padrão)
   --so-publicar             pula bootstrap e deploy: só build e upload do app, do painel e da landing
   --vlibras-opcional        publica mesmo se o download do avatar VLibras falhar (cai no texto)
   --ignorar-dns             não confere se o domínio já aponta para o Route 53
@@ -72,6 +81,7 @@ OPT_ORCAMENTO=""
 OPT_GOOGLE=""
 OPT_LEMBRETES=""
 OPT_EMAIL_SES=""
+OPT_RESERVA=""
 SO_PUBLICAR=false
 VLIBRAS_OPCIONAL=false
 IGNORAR_DNS=false
@@ -98,6 +108,8 @@ ler_opcoes() {
       --sem-lembretes-email) OPT_LEMBRETES=false; shift ;;
       --com-email-ses) OPT_EMAIL_SES=true; shift ;;
       --sem-email-ses) OPT_EMAIL_SES=false; shift ;;
+      --com-concorrencia-reservada) OPT_RESERVA=true; shift ;;
+      --sem-concorrencia-reservada) OPT_RESERVA=false; shift ;;
       --so-publicar) SO_PUBLICAR=true; shift ;;
       --vlibras-opcional) VLIBRAS_OPCIONAL=true; shift ;;
       --ignorar-dns) IGNORAR_DNS=true; shift ;;
@@ -564,6 +576,82 @@ conferir_ses_do_login() {
   fi
 }
 
+# Cota de execuções simultâneas do Lambda (só leitura) e a opção librax:lambdaReservedConcurrency.
+# Conta nova costuma vir com 10: reservar qualquer coisa faria o deploy falhar (a AWS exige 100 sem
+# reserva) e, mesmo sem reserva, 10 cópias juntas seguram pouca gente. Ligar só depois de a AWS liberar.
+conferir_concorrencia() {
+  local cota reserva necessario
+  reserva=${OPT_RESERVA:-$(contexto lambdaReservedConcurrency)}
+  [[ "$reserva" == true ]] || reserva=false
+  necessario=$((RESERVA_LAMBDA + LAMBDA_SEM_RESERVA))
+  cota=$(aws_l lambda get-account-settings --region "$REGIAO" --query 'AccountLimit.ConcurrentExecutions' --output text 2>/dev/null || true)
+  if [[ ! "$cota" =~ ^[0-9]+$ ]]; then
+    aviso "Não consegui ler a cota de concorrência do Lambda (lambda get-account-settings)."
+    [[ "$reserva" == false ]] ||
+      falha "Concorrência reservada ligada, mas sem conferir a cota o deploy pode falhar. Rode de novo ou use --sem-concorrencia-reservada."
+    gravar_contexto "lambdaReservedConcurrency=false"
+    return 0
+  fi
+  if ((cota < COTA_LAMBDA_PEDIR)); then
+    aviso "A cota de execuções simultâneas do Lambda nesta conta é $cota (o normal é $COTA_LAMBDA_PEDIR; conta nova costuma vir com 10)."
+    info "Com $cota, um pico de acesso ou um abuso faz as chamadas do app falharem. Peça o aumento (grátis):"
+    info "Service Quotas > Serviços da AWS > AWS Lambda > Concurrent executions (código L-B99A9384) >"
+    info "Solicitar aumento no nível da conta > $COTA_LAMBDA_PEDIR."
+    info "Quando a AWS liberar (costuma levar de horas a 2 dias), rode de novo com --com-concorrencia-reservada."
+  fi
+  if [[ "$reserva" == true ]] && ((cota < necessario)); then
+    falha "Concorrência reservada pedida, mas a cota da conta é $cota e precisa de pelo menos $necessario ($RESERVA_LAMBDA reservadas + $LAMBDA_SEM_RESERVA livres que a AWS exige). Peça $COTA_LAMBDA_PEDIR no Service Quotas (acima) ou rode com --sem-concorrencia-reservada."
+  fi
+  gravar_contexto "lambdaReservedConcurrency=$reserva"
+  if [[ "$reserva" == true ]]; then
+    ok "concorrência reservada ligada: $RESERVA_LAMBDA execuções divididas entre as Lambdas da API (cota da conta: $cota)"
+  else
+    ok "concorrência reservada desligada (cota da conta: $cota)"
+    if ((cota >= COTA_LAMBDA_PEDIR)); then
+      info "A cota já permite: para limitar cada Lambda da API, rode com --com-concorrencia-reservada."
+    fi
+  fi
+}
+
+# Alerta de anomalia de custo (só leitura): só cabe um monitor de serviços por conta, e a AWS costuma
+# criar um sozinha quando o Cost Explorer é ativado. Usa o que existir; sem nenhum, a stack cria; com o
+# Cost Explorer ainda desligado (a API recusa), fica desligado até a próxima rodada. Cada leitura da
+# API do Cost Explorer custa US$ 0,01; só acontece enquanto o alerta não está configurado.
+conferir_anomalia_de_custo() {
+  local atual monitor
+  atual=$(contexto costAnomalyAlerts)
+  if [[ -z "$ALARM_EMAIL" ]]; then
+    gravar_contexto "costAnomalyAlerts=off"
+    info "Sem e-mail dos alarmes: sem alerta de anomalia de custo."
+    return 0
+  fi
+  if [[ "$atual" == create || "$atual" == arn:aws:ce::* ]]; then
+    ok "alerta de anomalia de custo já configurado ($([[ $atual == create ]] && echo 'monitor criado pela stack' || echo 'monitor que já existia na conta'))"
+    return 0
+  fi
+  if ! monitor=$(aws_l ce get-anomaly-monitors --region "$REGIAO" \
+    --query "AnomalyMonitors[?MonitorType=='DIMENSIONAL' && MonitorDimension=='SERVICE'].MonitorArn | [0]" --output text 2>/dev/null); then
+    gravar_contexto "costAnomalyAlerts=off"
+    aviso "O Cost Explorer ainda não está ativo nesta conta: o alerta de anomalia de custo fica para depois."
+    info "Ative em Faturamento e Gerenciamento de Custos > Cost Explorer (grátis; os dados aparecem em até 24 h) e rode o lançamento de novo."
+    return 0
+  fi
+  if [[ "$monitor" == arn:aws:ce::* ]]; then
+    gravar_contexto "costAnomalyAlerts=$monitor"
+    ok "alerta de anomalia de custo: usa o monitor de serviços que a conta já tem"
+  else
+    gravar_contexto "costAnomalyAlerts=create"
+    ok "alerta de anomalia de custo: a stack cria o monitor de serviços"
+  fi
+  info "O resumo diário das anomalias vai para $(mascarar_email "$ALARM_EMAIL")."
+}
+
+conferir_travas_de_custo() {
+  passo "Travas de custo (cota do Lambda e alerta de anomalia)"
+  conferir_concorrencia
+  conferir_anomalia_de_custo
+}
+
 # Estado de uma stack do CloudFormation, ou NAO_EXISTE
 estado_stack() {
   local saida
@@ -762,6 +850,11 @@ dar_admin() {
     aws_l cognito-idp admin-add-user-to-group --user-pool-id "$pool" --username "$usuario" --group-name admin
   done
   ok "$(mascarar_email "$ADMIN_EMAIL") no grupo admin. Saia do painel e entre de novo para o acesso valer."
+  info "O painel exige o segundo fator (aplicativo autenticador). No primeiro acesso a $(output AppUrl)/admin/,"
+  info "tenha no celular um app como Google Authenticator, Microsoft Authenticator ou 1Password: o painel mostra"
+  info "um QR code, você lê com o app e digita o código de 6 dígitos. Daí em diante o login pede esse código."
+  info "Use uma conta de e-mail e senha só para o painel: com o autenticador ligado, o app do Librax ainda não"
+  info "pede o código e não entra com ela. Conta do Google não serve (o segundo fator fica no Google)."
 }
 
 resumo() {
@@ -775,7 +868,14 @@ resumo() {
   if [[ "$SO_PUBLICAR" == false && -n "${ALARM_EMAIL:-}" ]]; then
     info "- Confirmar as assinaturas no e-mail $(mascarar_email "$ALARM_EMAIL") (alarmes e orçamento)."
   fi
-  info "- Criar a sua conta no app e rodar: bash infra/scripts/lancar-cloudshell.sh --admin <seu e-mail>"
+  info "- Criar a conta do painel no app (e-mail e senha, só para isso) e rodar: bash infra/scripts/lancar-cloudshell.sh --admin <e-mail>"
+  info "  No primeiro acesso ao painel, configure o aplicativo autenticador (o painel guia)."
+  if [[ "$SO_PUBLICAR" == false && "$(contexto lambdaReservedConcurrency)" != true ]]; then
+    info "- Concorrência reservada desligada. Com a cota do Lambda em $COTA_LAMBDA_PEDIR, rode de novo com --com-concorrencia-reservada."
+  fi
+  if [[ "$SO_PUBLICAR" == false && -n "${ALARM_EMAIL:-}" && "$(contexto costAnomalyAlerts)" == off ]]; then
+    info "- Alerta de anomalia de custo desligado: ative o Cost Explorer e rode o lançamento de novo."
+  fi
   if [[ "$(contexto googleEnabled)" != true ]]; then
     info "- Login com Google desligado. Para ligar: cliente OAuth no Google e depois --com-google."
   fi
@@ -824,8 +924,8 @@ main() {
   instalar_dependencias
   conferir_conta
   if [[ "$SO_PUBLICAR" == true ]]; then
-    if [[ -n "$OPT_ZONA$OPT_CERT$OPT_EMAIL$OPT_ORCAMENTO$OPT_GOOGLE$OPT_LEMBRETES$OPT_EMAIL_SES" ]]; then
-      aviso "Com --so-publicar a stack não muda: --zona, --certificado, --email-alarmes, --orcamento, --com/--sem-google, --com/--sem-lembretes-email e --com/--sem-email-ses ficam para o lançamento completo."
+    if [[ -n "$OPT_ZONA$OPT_CERT$OPT_EMAIL$OPT_ORCAMENTO$OPT_GOOGLE$OPT_LEMBRETES$OPT_EMAIL_SES$OPT_RESERVA" ]]; then
+      aviso "Com --so-publicar a stack não muda: --zona, --certificado, --email-alarmes, --orcamento, --com/--sem-google, --com/--sem-lembretes-email, --com/--sem-email-ses e --com/--sem-concorrencia-reservada ficam para o lançamento completo."
     fi
     passo "Stack publicada"
     esperar_stack
@@ -834,6 +934,7 @@ main() {
   else
     ler_contexto_do_lancamento
     conferir_pre_requisitos
+    conferir_travas_de_custo
     publicar_stack
   fi
   escrever_envs

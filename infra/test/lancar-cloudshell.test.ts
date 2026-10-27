@@ -4,6 +4,7 @@ import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSy
 import { tmpdir } from 'os';
 import * as path from 'path';
 import { IMMUTABLE, ML_REVALIDATE } from '../lib/web-headers';
+import { LAMBDA_UNRESERVED_MINIMUM, RESERVED_CONCURRENCY_TOTAL } from '../lib/cost-guards';
 
 // scripts/lancar-cloudshell.sh sem AWS: as funções puras pelo `source` e o caminho do --admin com um
 // `aws` falso no PATH (responde STS, CloudFormation e Cognito e anota cada chamada).
@@ -147,6 +148,16 @@ else if (cmd === 'sesv2 get-email-identity') {
   console.log(ses.split(' ').join('\t'));
 }
 else if (cmd === 'sesv2 get-account') console.log(e.LIBRAX_TESTE_SES_PRODUCAO ?? 'False');
+else if (cmd === 'lambda get-account-settings') console.log(e.LIBRAX_TESTE_COTA ?? '1000');
+else if (cmd === 'ce get-anomaly-monitors') {
+  // LIBRAX_TESTE_ANOMALIA: "desligado" (Cost Explorer inativo), "nenhum" ou o ARN do monitor
+  const m = e.LIBRAX_TESTE_ANOMALIA ?? 'nenhum';
+  if (m === 'desligado') {
+    console.error('An error occurred (AccessDeniedException) when calling the GetAnomalyMonitors operation: User not enabled for cost explorer access');
+    process.exit(254);
+  }
+  console.log(m === 'nenhum' ? 'None' : m);
+}
 else { console.error('aws falso: chamada inesperada ' + args.join(' ')); process.exit(9); }
 `,
   );
@@ -300,5 +311,94 @@ describe('--com-email-ses (códigos do login pelo SES)', () => {
     expect(r.stdout).toContain('os códigos do login saem de contas@mail.librax.online');
     const identidade = chamadas[0].args;
     expect(identidade[identidade.indexOf('--email-identity') + 1]).toBe('mail.librax.online');
+  });
+});
+
+describe('travas de custo (aws falso, só leitura)', () => {
+  const MONITOR = `arn:aws:ce::${CONTA}:anomalymonitor/0a1b2c3d-1234-4abc-8def-0123456789ab`;
+
+  test('a soma da concorrência reservada no script é a da stack (lib/cost-guards.ts)', () => {
+    const r = comFuncoes('printf "%s|%s" "$RESERVA_LAMBDA" "$LAMBDA_SEM_RESERVA"');
+    expect(r.stdout).toBe(`${RESERVED_CONCURRENCY_TOTAL}|${LAMBDA_UNRESERVED_MINIMUM}`);
+  });
+
+  function travas(opcoes: string, env: Record<string, string>, contexto?: Record<string, unknown>) {
+    const repo = montarRepositorio(CONTA);
+    if (contexto) writeFileSync(path.join(repo.repo, 'infra/cdk.context.json'), JSON.stringify(contexto));
+    const r = comFuncoes(
+      `ler_opcoes ${opcoes}; ALARM_EMAIL=alertas@exemplo.com; conferir_travas_de_custo; echo "status=$?"`,
+      { ...repo.env, ...env },
+      repo.script,
+    );
+    const arquivo = path.join(repo.repo, 'infra/cdk.context.json');
+    const ctx = () => (existsSync(arquivo) ? JSON.parse(readFileSync(arquivo, 'utf8')) : {});
+    return { r, ctx, chamadas: repo.chamadas().map((c) => c.args.slice(0, 2).join(' ')) };
+  }
+
+  test('cota 10 (conta nova): recomenda pedir 1000 no Service Quotas e deixa a reserva desligada', () => {
+    const { r, ctx, chamadas } = travas('', { LIBRAX_TESTE_COTA: '10' });
+    expect(r.stderr).toBe('');
+    expect(r.stdout).toContain('status=0');
+    expect(r.stdout).toContain('A cota de execuções simultâneas do Lambda nesta conta é 10');
+    expect(r.stdout).toContain('Service Quotas > Serviços da AWS > AWS Lambda > Concurrent executions');
+    expect(r.stdout).toContain('--com-concorrencia-reservada');
+    expect(ctx()['librax:lambdaReservedConcurrency']).toBe(false);
+    // só leituras
+    expect(chamadas).toEqual(['lambda get-account-settings', 'ce get-anomaly-monitors']);
+  });
+
+  test('reserva pedida com a cota baixa: para antes do deploy', () => {
+    const { r, ctx } = travas('--com-concorrencia-reservada', { LIBRAX_TESTE_COTA: '10' });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain(`precisa de pelo menos ${RESERVED_CONCURRENCY_TOTAL + LAMBDA_UNRESERVED_MINIMUM}`);
+    expect(ctx()['librax:lambdaReservedConcurrency']).toBeUndefined();
+  });
+
+  test('cota 1000: liga a reserva quando pedida e mantém nas rodadas seguintes', () => {
+    const { r, ctx } = travas('--com-concorrencia-reservada', { LIBRAX_TESTE_COTA: '1000' });
+    expect(r.stdout).toContain('concorrência reservada ligada');
+    expect(r.stdout).not.toContain('ATENÇÃO');
+    expect(ctx()['librax:lambdaReservedConcurrency']).toBe(true);
+    const deNovo = travas('', { LIBRAX_TESTE_COTA: '1000' }, { 'librax:lambdaReservedConcurrency': true });
+    expect(deNovo.ctx()['librax:lambdaReservedConcurrency']).toBe(true);
+    const sem = travas('', { LIBRAX_TESTE_COTA: '1000' });
+    expect(sem.r.stdout).toContain('A cota já permite');
+    expect(sem.ctx()['librax:lambdaReservedConcurrency']).toBe(false);
+  });
+
+  test('anomalia: usa o monitor de serviços que a conta já tem', () => {
+    const { r, ctx } = travas('', { LIBRAX_TESTE_ANOMALIA: MONITOR });
+    expect(r.stdout).toContain('usa o monitor de serviços que a conta já tem');
+    expect(r.stdout).not.toContain('alertas@exemplo.com'); // e-mail mascarado
+    expect(ctx()['librax:costAnomalyAlerts']).toBe(MONITOR);
+  });
+
+  test('anomalia: sem monitor, a stack cria; já configurado, nem consulta de novo', () => {
+    expect(travas('', { LIBRAX_TESTE_ANOMALIA: 'nenhum' }).ctx()['librax:costAnomalyAlerts']).toBe('create');
+    const { r, chamadas } = travas('', {}, { 'librax:costAnomalyAlerts': 'create' });
+    expect(r.stdout).toContain('já configurado');
+    expect(chamadas).toEqual(['lambda get-account-settings']);
+  });
+
+  test('anomalia: Cost Explorer inativo deixa desligado e explica como ativar, sem parar', () => {
+    const { r, ctx } = travas('', { LIBRAX_TESTE_ANOMALIA: 'desligado' });
+    expect(r.stdout).toContain('status=0');
+    expect(r.stdout).toContain('O Cost Explorer ainda não está ativo nesta conta');
+    expect(ctx()['librax:costAnomalyAlerts']).toBe('off');
+  });
+
+  test('--admin explica o aplicativo autenticador do primeiro acesso ao painel', () => {
+    const { script, env } = montarRepositorio(CONTA);
+    const r = rodar(['--conta', CONTA, '--admin', 'dona@exemplo.com'], env, script);
+    expect(r.status).toBe(0);
+    expect(r.stdout).toContain('O painel exige o segundo fator (aplicativo autenticador)');
+    expect(r.stdout).toContain('QR code');
+    expect(r.stdout).toContain('Use uma conta de e-mail e senha só para o painel');
+  });
+
+  test('--ajuda mostra as opções da concorrência reservada', () => {
+    const r = rodar(['--ajuda']);
+    expect(r.stdout).toContain('--com-concorrencia-reservada');
+    expect(r.stdout).toContain('--sem-concorrencia-reservada');
   });
 });
