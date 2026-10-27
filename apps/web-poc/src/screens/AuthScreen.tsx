@@ -44,7 +44,11 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
   const { t, lang } = useT();
   const account = useAccount();
   const ids = useId();
-  const [step, setStep] = useState<Step>('form');
+  // /entrar?esqueci abre direto a troca de senha (o "Esqueci a senha" do painel admin aponta para cá)
+  const [step, setStep] = useState<Step>(() =>
+    mode === 'login' && new URLSearchParams(window.location.search).has('esqueci') ? 'forgot' : 'form',
+  );
+  const firstMode = useRef(true);
   const [name, setName] = useState(() => getDisplayName() ?? '');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,6 +65,11 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
 
   // Trocar de Entrar para Criar conta (ou o contrário) volta ao formulário, sem erro antigo
   useEffect(() => {
+    // Na montagem fica o passo inicial (pode ser a troca de senha, pelo ?esqueci)
+    if (firstMode.current) {
+      firstMode.current = false;
+      return;
+    }
     setStep('form');
     setError(null);
     setNotice(null);

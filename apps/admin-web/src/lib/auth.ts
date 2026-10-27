@@ -39,11 +39,11 @@ export function authConfig(env: Env = import.meta.env as Env): AuthConfig {
 }
 
 /**
- * "Esqueci a senha": a troca é a do app (mesmo User Pool), em /entrar. Em produção o app e o painel
+ * "Esqueci a senha": a troca é a do app (mesmo User Pool), em /entrar?esqueci, que já abre na troca. Em produção o app e o painel
  * estão na mesma origem; no ambiente local o app fica em outra porta (VITE_APP_ORIGIN).
  */
 export function resetPasswordUrl(env: Env = import.meta.env as Env): string {
-  return `${(env.VITE_APP_ORIGIN ?? '').replace(/\/+$/, '')}/entrar`;
+  return `${(env.VITE_APP_ORIGIN ?? '').replace(/\/+$/, '')}/entrar?esqueci`;
 }
 
 export type AuthErrorCode =

@@ -359,3 +359,22 @@ describe('Termos e Política no Entrar', () => {
     expect(within(consent).getByRole('link', { name: 'Política de Privacidade' })).toHaveAttribute('href', '/privacidade');
   });
 });
+
+describe('/entrar?esqueci (link do painel admin)', () => {
+  afterEach(() => window.history.replaceState(null, '', '/'));
+
+  it('abre direto na troca de senha', () => {
+    cognitoEnv();
+    window.history.replaceState(null, '', '/entrar?esqueci');
+    renderAuth('login');
+    expect(screen.getByRole('heading', { name: 'Recuperar a senha' })).toBeInTheDocument();
+  });
+
+  it('sem o parâmetro, abre no formulário de entrar', () => {
+    cognitoEnv();
+    window.history.replaceState(null, '', '/entrar');
+    renderAuth('login');
+    expect(screen.queryByRole('heading', { name: 'Recuperar a senha' })).not.toBeInTheDocument();
+    expect(screen.getByLabelText('E-mail')).toBeInTheDocument();
+  });
+});

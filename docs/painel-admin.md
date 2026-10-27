@@ -129,8 +129,8 @@ do app, sem biblioteca:
    no Cognito) ou já tiver sido usada, a tela volta para a senha com o aviso "O tempo para concluir o login acabou".
 3. **Senha nova** (desafio `NEW_PASSWORD_REQUIRED`), só para conta criada por um admin da AWS com senha temporária:
    a tela pede a senha nova (mínimo de 8 caracteres) e segue o login.
-4. **"Esqueci a senha"** abre o `/entrar` do app em outra aba (mesma origem, mesmo User Pool): lá, "Esqueci a
-   senha" manda o código por e-mail e troca a senha. Depois é só voltar ao painel. Com o autenticador ligado, o app
+4. **"Esqueci a senha"** abre o `/entrar?esqueci` do app em outra aba (mesma origem, mesmo User Pool), que já começa
+   na troca de senha: o app manda o código por e-mail e troca a senha. Depois é só voltar ao painel. Com o autenticador ligado, o app
    avisa que não conseguiu entrar depois da troca; a senha nova vale mesmo assim.
 
 Tokens e saída:

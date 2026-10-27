@@ -188,9 +188,9 @@ describe('configuração', () => {
     expect(fetchFn).not.toHaveBeenCalled();
   });
 
-  it('"Esqueci a senha" abre o /entrar do app (mesma origem em produção)', () => {
-    expect(resetPasswordUrl({})).toBe('/entrar');
-    expect(resetPasswordUrl({ VITE_APP_ORIGIN: 'http://127.0.0.1:5320/' })).toBe('http://127.0.0.1:5320/entrar');
+  it('"Esqueci a senha" abre a troca de senha do app (mesma origem em produção)', () => {
+    expect(resetPasswordUrl({})).toBe('/entrar?esqueci');
+    expect(resetPasswordUrl({ VITE_APP_ORIGIN: 'http://127.0.0.1:5320/' })).toBe('http://127.0.0.1:5320/entrar?esqueci');
   });
 });
 
