@@ -36,7 +36,7 @@ import { DEFAULT_ANDROID_PACKAGE, normalizeFingerprint, validPackageName } from 
  * | librax:vapidSubject            | mailto:contato@<domainName>     | contato VAPID |
  * | librax:emailRemindersEnabled   | false                           | liga o lembrete por e-mail (SES) |
  * | librax:emailFrom               | lembretes@<domainName>          | remetente verificado no SES |
- * | librax:cognitoEmailSes         | false                           | codigos do login (cadastro e nova senha) saem pelo SES, nao pelo envio padrao do Cognito (50 por dia) |
+ * | librax:cognitoEmailSes         | false                           | codigos do login (cadastro e nova senha) saem pelo SES, nao pelo envio padrao do Cognito (50 por dia); liga tambem o aviso de acesso num aparelho novo |
  * | librax:cognitoEmailFrom        | nao-responda@<domainName>       | remetente desses codigos; o dominio dele precisa estar verificado no SES (us-east-1) |
  * | librax:cognitoEmailFromName    | Librax                          | nome que aparece como remetente |
  * | librax:cognitoEmailReplyTo     | (vazio)                         | endereco de resposta (opcional) |

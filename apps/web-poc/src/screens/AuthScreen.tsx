@@ -4,8 +4,8 @@ import { Icon } from '../components/Icon';
 import { BusyLabel } from '../components/BusyLabel';
 import { LegalConsent } from '../components/LegalLinks';
 import {
-  authErrorCode, confirmEmailCode, confirmPasswordReset, getDisplayName, requestPasswordReset, signInWithEmail,
-  googleEnabled, signInWithGoogle, signUpWithEmail,
+  authErrorCode, confirmEmailCode, confirmPasswordReset, getDisplayName, requestPasswordReset, resendSignUpCode,
+  signInWithEmail, googleEnabled, signInWithGoogle, signUpWithEmail,
 } from '../lib/auth';
 import { authAvailable, authErrorKey, refreshAccount, useAccount } from '../lib/account';
 import { flushOutbox } from '../lib/sync';
@@ -39,7 +39,8 @@ type Step = 'form' | 'confirm' | 'forgot' | 'reset';
  * entra com ela como o cadastro faz depois do código.
  */
 export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
-  const { t } = useT();
+  // `lang` vai para o Cognito: os e-mails de código saem no idioma da tela
+  const { t, lang } = useT();
   const account = useAccount();
   const ids = useId();
   const [step, setStep] = useState<Step>('form');
@@ -110,7 +111,7 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
     setBusy('email');
     try {
       if (isRegister) {
-        const r = await signUpWithEmail(email.trim(), password, name.trim() || undefined);
+        const r = await signUpWithEmail(email.trim(), password, name.trim() || undefined, lang);
         if (r.needsConfirmation) setStep('confirm');
         else await signIn();
       } else {
@@ -150,7 +151,7 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
     setError(null);
     setBusy('email');
     try {
-      await requestPasswordReset(email.trim());
+      await requestPasswordReset(email.trim(), lang);
       setCode('');
       setPassword('');
       setStep('reset');
@@ -167,8 +168,23 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
     setNotice(null);
     setBusy('resend');
     try {
-      await requestPasswordReset(email.trim());
+      await requestPasswordReset(email.trim(), lang);
       setNotice(t('account.reset.resent'));
+    } catch (err) {
+      fail(err);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleResendSignUp() {
+    if (busy) return;
+    setError(null);
+    setNotice(null);
+    setBusy('resend');
+    try {
+      await resendSignUpCode(email.trim(), lang);
+      setNotice(t('account.confirmResent'));
     } catch (err) {
       fail(err);
     } finally {
@@ -248,6 +264,12 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
       <form className="auth-form" onSubmit={handleConfirm} noValidate>
         <h2 className="auth-card-title">{t('account.confirmTitle')}</h2>
         <p className="auth-lead">{t('account.confirmSub', { email: email.trim() })}</p>
+        {notice && (
+          <p className="auth-notice" role="status">
+            <Icon name="mail" />
+            <span>{notice}</span>
+          </p>
+        )}
         <div className="auth-field">
           <label className="auth-label" htmlFor={`${ids}-code`}>{t('account.codeLabel')}</label>
           <input
@@ -272,7 +294,11 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
         <button type="submit" className="btn btn-primary" disabled={!codeOk || locked} aria-busy={busy === 'code' || undefined}>
           {busy === 'code' ? <BusyLabel text={t('account.sending')} /> : t('account.confirm')}
         </button>
-        <button type="button" className="btn-text" onClick={() => { setStep('form'); setError(null); }} disabled={locked}>
+        <p className="auth-hint">{t('account.reset.notReceived')}</p>
+        <button type="button" className="btn-text" onClick={handleResendSignUp} disabled={locked} aria-busy={busy === 'resend' || undefined}>
+          {busy === 'resend' ? <BusyLabel text={t('account.sending')} /> : t('account.reset.resend')}
+        </button>
+        <button type="button" className="btn-text" onClick={() => { setStep('form'); setError(null); setNotice(null); }} disabled={locked}>
           {t('account.changeEmail')}
         </button>
       </form>

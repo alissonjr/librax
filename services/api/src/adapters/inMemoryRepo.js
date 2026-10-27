@@ -39,6 +39,7 @@ export class InMemoryRepo {
     this._notif = new Map(); // userId -> preferencias + estado de lembrete (+ balde de fuso)
     this._ops = new Map(); // chave do painel (DAY#..., WEEK#..., COST#...) -> item (OPS / <chave>)
     this._activity = new Map(); // userId -> { lastDay, lastWeek, lastMonth }
+    this._devices = new Map(); // userId -> aparelhos conhecidos, idioma e fuso (USER#<id> / DEVICES)
   }
 
   // --- perfil ---
@@ -507,6 +508,15 @@ export class InMemoryRepo {
     return [...this._notif.values()].filter((n) => n.bucket === bucket).map((n) => ({ ...n }));
   }
 
+  // --- aparelhos conhecidos, idioma e fuso informados pelo app (USER#<id> / DEVICES) ---
+  async getDevices(userId) {
+    const d = this._devices.get(userId);
+    return d ? structuredClone(d) : null;
+  }
+  async saveDevices(userId, record) {
+    this._devices.set(userId, structuredClone({ ...record, userId }));
+  }
+
   // --- painel de administracao: contadores agregados (OPS / <chave>) e atividade ---
   async getActivity(userId) {
     const a = this._activity.get(userId);
@@ -581,7 +591,7 @@ export class InMemoryRepo {
     this._userSquads.delete(userId);
     n += this._push.get(userId)?.size ?? 0;
     this._push.delete(userId);
-    for (const map of [this._profiles, this._leagueState, this._leagueSeen, this._notif, this._activity]) dropUser(map);
+    for (const map of [this._profiles, this._leagueState, this._leagueSeen, this._notif, this._activity, this._devices]) dropUser(map);
     this._userLeague.delete(userId); // no DynamoRepo sai com os membros da liga (GSI2)
     return n;
   }

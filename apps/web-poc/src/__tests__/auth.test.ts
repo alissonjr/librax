@@ -6,6 +6,7 @@ const amplify = vi.hoisted(() => ({
   signUp: vi.fn(),
   confirmSignUp: vi.fn(),
   resetPassword: vi.fn(),
+  resendSignUpCode: vi.fn(),
   confirmResetPassword: vi.fn(),
   signIn: vi.fn(),
   signInWithRedirect: vi.fn(),
@@ -21,6 +22,7 @@ vi.mock('aws-amplify/auth', () => ({
   signUp: amplify.signUp,
   confirmSignUp: amplify.confirmSignUp,
   resetPassword: amplify.resetPassword,
+  resendSignUpCode: amplify.resendSignUpCode,
   confirmResetPassword: amplify.confirmResetPassword,
   signIn: amplify.signIn,
   signInWithRedirect: amplify.signInWithRedirect,
@@ -35,6 +37,7 @@ import {
   confirmEmailCode,
   signInWithEmail,
   requestPasswordReset,
+  resendSignUpCode,
   confirmPasswordReset,
   signInWithGoogle,
   signOutAccount,
@@ -130,6 +133,19 @@ describe('e-mail e senha (SRP)', () => {
     });
   });
 
+  it('cadastro e reenvio levam o idioma da tela para os e-mails do Cognito (clientMetadata e locale)', async () => {
+    amplify.signUp.mockResolvedValue({ isSignUpComplete: false, nextStep: { signUpStep: 'CONFIRM_SIGN_UP' } });
+    await signUpWithEmail('ana@exemplo.com', 'segredo123', undefined, 'en');
+    expect(amplify.signUp).toHaveBeenCalledWith({
+      username: 'ana@exemplo.com',
+      password: 'segredo123',
+      options: { userAttributes: { email: 'ana@exemplo.com', locale: 'en' }, clientMetadata: { lang: 'en' } },
+    });
+    amplify.resendSignUpCode.mockResolvedValue({});
+    await resendSignUpCode('ana@exemplo.com', 'es');
+    expect(amplify.resendSignUpCode).toHaveBeenCalledWith({ username: 'ana@exemplo.com', options: { clientMetadata: { lang: 'es' } } });
+  });
+
   it('confirma o código', async () => {
     amplify.confirmSignUp.mockResolvedValue({ isSignUpComplete: true });
     expect(await confirmEmailCode('ana@exemplo.com', '123456')).toBe(true);
@@ -172,6 +188,9 @@ describe('esqueci a senha', () => {
     });
     await requestPasswordReset('ana@exemplo.com');
     expect(amplify.resetPassword).toHaveBeenCalledWith({ username: 'ana@exemplo.com' });
+    // com o idioma da tela, o e-mail do código sai nele
+    await requestPasswordReset('ana@exemplo.com', 'en');
+    expect(amplify.resetPassword).toHaveBeenLastCalledWith({ username: 'ana@exemplo.com', options: { clientMetadata: { lang: 'en' } } });
   });
 
   it('erro que contaria se a conta existe vira sucesso; os outros sobem', async () => {

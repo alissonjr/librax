@@ -3,7 +3,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { getDb } from './lib/db';
 import { IdbRepo } from './lib/idbRepo';
 import { getUserId } from './lib/auth';
-import { startAccount } from './lib/account';
+import { startAccount, useAccount } from './lib/account';
+import { reportDevice } from './lib/device';
 import { evaluateAppOpen, preloadAppOpen } from './lib/appOpen';
 import { setSplashLabel, splashStep } from './lib/splash';
 import type { LeagueResult } from './lib/leagueLocal';
@@ -51,13 +52,20 @@ async function boot(): Promise<Boot> {
 }
 
 export function App() {
-  const { t } = useT();
+  const { t, lang } = useT();
+  const account = useAccount();
   const [state, setState] = useState<Boot | null>(null);
   const [router] = useState(() => createBrowserRouter(routes, { future: ROUTER_FUTURE }));
 
   useEffect(() => {
     boot().then(setState);
   }, []);
+
+  // Com conta: avisa o servidor deste aparelho e do idioma (aviso de acesso novo e idioma dos e-mails,
+  // lib/device.ts), ao entrar e quando o idioma muda
+  useEffect(() => {
+    if (account.status === 'signedIn') void reportDevice(lang);
+  }, [account.status, lang]);
 
   // A barra da abertura é anunciada no idioma do app (o index.html sai em pt-BR)
   useEffect(() => { setSplashLabel(t('splash.label'), t('brand.betaAria')); }, [t]);

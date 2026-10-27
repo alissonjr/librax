@@ -1,5 +1,5 @@
 ---
-versao: 1.2
+versao: 1.3
 vigencia: 2026-10-26
 ---
 
@@ -30,6 +30,7 @@ Enquanto você usa o Librax sem conta, os dados abaixo ficam guardados no navega
 - o desempenho da câmera: quantas tentativas e quantos pulos cada letra ou sinal teve nos exercícios com câmera e qual letra ou sinal a câmera leu no lugar. São só números, sem imagem, e você vê e apaga tudo em Configurações, "Desempenho da câmera". Se você tiver conta, os números de cada lição também vão para o servidor junto com ela (item 5); apagar no aparelho não muda os totais já somados lá, que não identificam você;
 - suas preferências: idioma, tema, sons e avisos que você já viu;
 - um código aleatório criado pelo app para separar os dados deste aparelho, que não identifica você;
+- se você tiver conta, outro código aleatório deste navegador, usado só para reconhecer os aparelhos em que a conta já entrou (item 5, "Aparelhos e segurança da conta"). Ele não é tirado de nenhuma característica do aparelho;
 - as lições concluídas que ainda vão ser enviadas, se você tiver ou criar uma conta;
 - os arquivos do próprio app, do modelo de reconhecimento e das animações do avatar, guardados para o app funcionar sem internet.
 
@@ -55,6 +56,18 @@ A conta é opcional. Ao criar uma, guardamos os dados abaixo.
 - O nome que você informou no cadastro ou, se entrar com o Google, o seu primeiro nome na conta Google.
 - A senha, se você usar e-mail e senha. Ela não é enviada nem guardada como texto: o login usa um protocolo seguro (SRP), e o servidor guarda só um verificador.
 - Se você entrar com o Google, o vínculo com a sua conta Google. Do Google guardamos só o e-mail, a confirmação de que ele é válido, o primeiro nome e o identificador da conta.
+
+### Aparelhos e segurança da conta
+
+Para avisar você quando a conta entrar num aparelho novo, guardamos, ligados à conta:
+
+- para cada aparelho ou navegador em que a conta entrou (até 10; o usado há mais tempo sai da lista): um resumo do código aleatório do item 3, que não pode ser revertido, o tipo de aparelho (celular, tablet ou computador), o sistema (por exemplo Android ou iOS), o navegador (por exemplo Chrome ou Safari) e as datas da primeira e da última vez que ele foi visto;
+- o idioma e o fuso horário do app, para os e-mails saírem no seu idioma e com a hora certa;
+- a data e a hora dos últimos avisos enviados, para não mandar mais de 3 por dia.
+
+Não guardamos o endereço IP nem o identificador completo do navegador (User-Agent): dele, o servidor tira só o tipo de aparelho, o sistema e o navegador. O país aproximado da conexão, que a rede de entrega do site informa, aparece só no e-mail de aviso e não é guardado.
+
+Quando a conta entra num aparelho que ainda não estava na lista, enviamos um e-mail para o endereço da conta com o tipo de aparelho, o navegador, a hora aproximada e o que fazer se não foi você. O primeiro aparelho da conta não gera aviso.
 
 ### Progresso
 
@@ -86,7 +99,7 @@ O app guarda dados no navegador só para funcionar (item 3). A página de login 
 
 ## 8. Serviços de terceiros
 
-- **Amazon Web Services (AWS)**: hospeda o app, a conta (Amazon Cognito), o banco de dados (Amazon DynamoDB) e as funções do servidor, e envia o código de confirmação por e-mail. A AWS trata os dados em nosso nome, seguindo nossas instruções (na LGPD, ela é a "operadora").
+- **Amazon Web Services (AWS)**: hospeda o app, a conta (Amazon Cognito), o banco de dados (Amazon DynamoDB) e as funções do servidor, e envia os e-mails do Librax (Amazon Cognito e Amazon SES): o código de confirmação, o código de nova senha e o aviso de acesso num aparelho novo. A AWS trata os dados em nosso nome, seguindo nossas instruções (na LGPD, ela é a "operadora").
 - **Google**: só se você escolher "Continuar com Google". O login acontece na página do Google, e o que o Google faz com os seus dados segue a política de privacidade do Google.
 - **VLibras (Governo Federal)**: quando um exercício mostra o avatar que faz o sinal, o navegador baixa o player e as animações direto dos servidores do VLibras (vlibras.gov.br, que usa a rede de distribuição jsDelivr). Como em qualquer acesso a um site, esses serviços recebem o endereço IP, dados técnicos do navegador e qual sinal foi pedido. Não enviamos a eles nenhum dado da sua conta. As animações já vistas ficam guardadas no aparelho.
 
@@ -100,6 +113,7 @@ Essa transferência é necessária para prestar o serviço que você pede ao cri
 
 - **Criar e manter a sua conta, guardar e sincronizar o progresso, calcular XP, sequência e liga, e enviar o código de confirmação**: execução do contrato que são os Termos de Uso (art. 7º, V, da LGPD).
 - **Totais da operação, segurança, prevenção de abuso e registros técnicos**: legítimo interesse (art. 7º, IX), sempre com o mínimo de dados e sem identificar você nos totais.
+- **Lista de aparelhos da conta e aviso de acesso num aparelho novo**: legítimo interesse na segurança da sua conta (art. 7º, IX), com os dados mínimos do item 5.
 - **Lembretes por e-mail, quando existirem**: o seu consentimento (art. 7º, I), que você pode retirar a qualquer momento.
 - **Cumprir obrigações legais e atender pedidos de autoridades**: obrigação legal (art. 7º, II).
 
@@ -113,6 +127,7 @@ Quando o recurso estiver disponível, ele só vai funcionar se você permitir as
 
 - **No seu aparelho**: até você apagar.
 - **Conta e progresso no servidor**: enquanto a conta existir. Hoje não apagamos contas paradas automaticamente.
+- **Lista de aparelhos da conta**: enquanto a conta existir, com no máximo 10 aparelhos; o registro dos avisos enviados vale por 24 horas.
 - **Registro de cada lição enviada**: 60 dias.
 - **Registros técnicos**: 30 dias.
 - **Cópias de segurança do banco de dados**: até 35 dias. Depois de uma exclusão, o dado ainda pode existir nessas cópias por até 35 dias, sem uso, até ser descartado.
@@ -134,7 +149,7 @@ Pela LGPD (art. 18), você pode pedir:
 Os pedidos são feitos no próprio app:
 
 - **Exportar meus dados** (Configurações) baixa um arquivo com o perfil, as revisões e o desempenho da câmera guardados neste aparelho.
-- **Excluir conta e dados** (Configurações) apaga, na hora e para sempre, a sua conta, o seu login e tudo o que está guardado no servidor (perfil, progresso, revisões, XP, conquistas e participação em ligas), além dos dados deste aparelho. Se faltar internet ou o servidor falhar, nada é apagado e o app pede para tentar de novo.
+- **Excluir conta e dados** (Configurações) apaga, na hora e para sempre, a sua conta, o seu login e tudo o que está guardado no servidor (perfil, progresso, revisões, XP, conquistas, participação em ligas e a lista de aparelhos), além dos dados deste aparelho. Se faltar internet ou o servidor falhar, nada é apagado e o app pede para tentar de novo.
 
 Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD), em [gov.br/anpd](https://www.gov.br/anpd).
 
@@ -142,6 +157,7 @@ Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD)
 
 - A conexão com o Librax é sempre criptografada (HTTPS), e os dados ficam criptografados nos servidores da AWS.
 - A senha é verificada sem trafegar pela rede (protocolo SRP).
+- Quando a conta entra num aparelho novo, avisamos por e-mail (item 5).
 - O acesso de administração é restrito às pessoas autorizadas da equipe, e cada consulta fica registrada.
 - Nenhum sistema é totalmente seguro. Se acontecer um incidente que possa trazer risco ou dano relevante, avisaremos você e a ANPD, como manda a LGPD.
 

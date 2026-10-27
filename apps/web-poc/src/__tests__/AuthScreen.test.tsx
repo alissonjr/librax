@@ -7,6 +7,7 @@ const auth = vi.hoisted(() => ({
   signUpWithEmail: vi.fn(),
   confirmEmailCode: vi.fn(),
   requestPasswordReset: vi.fn(),
+  resendSignUpCode: vi.fn(),
   confirmPasswordReset: vi.fn(),
   signInWithGoogle: vi.fn(),
   getSession: vi.fn(async () => null),
@@ -148,7 +149,7 @@ describe('esqueci a senha', () => {
     auth.requestPasswordReset.mockResolvedValue(undefined);
     await openForgot('ninguem@librax.example');
     await askCode();
-    expect(auth.requestPasswordReset).toHaveBeenCalledWith('ninguem@librax.example');
+    expect(auth.requestPasswordReset).toHaveBeenCalledWith('ninguem@librax.example', 'pt-BR');
     expect(screen.getByText(/Se houver uma conta com senha para ninguem@librax.example/)).toBeInTheDocument();
   });
 
@@ -274,7 +275,7 @@ describe('criar conta (spec-02 12.3)', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Criar conta' }));
 
     expect(await screen.findByText(/Enviamos um código para ana@librax.example/)).toBeInTheDocument();
-    expect(auth.signUpWithEmail).toHaveBeenCalledWith('ana@librax.example', 'segredo123', 'Ana');
+    expect(auth.signUpWithEmail).toHaveBeenCalledWith('ana@librax.example', 'segredo123', 'Ana', 'pt-BR');
 
     // Código errado primeiro
     auth.confirmEmailCode.mockRejectedValueOnce(cognitoError('CodeMismatchException'));
@@ -287,6 +288,24 @@ describe('criar conta (spec-02 12.3)', () => {
     await userEvent.type(code, '123456');
     await userEvent.click(screen.getByRole('button', { name: 'Confirmar' }));
     await waitFor(() => expect(props.onDone).toHaveBeenCalled());
+  });
+
+  it('no código do cadastro, "Reenviar código" pede outro no idioma da tela', async () => {
+    auth.signUpWithEmail.mockResolvedValue({ needsConfirmation: true });
+    auth.resendSignUpCode.mockResolvedValue(undefined);
+    renderAuth('register');
+    await userEvent.type(screen.getByLabelText('E-mail'), 'ana@librax.example');
+    await userEvent.type(screen.getByLabelText('Senha'), 'segredo123');
+    await userEvent.click(screen.getByRole('button', { name: 'Criar conta' }));
+    await screen.findByText(/Enviamos um código para ana@librax.example/);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reenviar código' }));
+    expect(await screen.findByRole('status')).toHaveTextContent('Mandamos outro código. Use o mais recente.');
+    expect(auth.resendSignUpCode).toHaveBeenCalledWith('ana@librax.example', 'pt-BR');
+
+    auth.resendSignUpCode.mockRejectedValueOnce(cognitoError('LimitExceededException'));
+    await userEvent.click(screen.getByRole('button', { name: 'Reenviar código' }));
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
   });
 
   it('o link troca para Entrar', async () => {

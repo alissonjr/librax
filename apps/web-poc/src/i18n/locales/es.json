@@ -981,5 +981,14 @@
       "pedidoParado": "{what} no tiene movimiento",
       "outroMovimento": "{what} tiene otro movimiento"
     }
+  },
+  "account": {
+    "confirmResent": "Enviamos otro código. Usa el más reciente.",
+    "signIn": "Entrar",
+    "reset": {
+      "link": "Olvidé mi contraseña",
+      "notReceived": "¿No llegó en unos minutos? Revisa la carpeta de spam o pide otro código.",
+      "resend": "Reenviar código"
+    }
   }
 }

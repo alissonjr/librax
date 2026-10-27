@@ -15,12 +15,18 @@ import { LibraxConfig } from './config';
  * de quem aplica a mudanca, no caso o papel de execucao do CloudFormation do bootstrap do CDK, que
  * tem iam:CreateServiceLinkedRole. Por isso a stack nao cria papel nem politica para isso.
  *
- * Texto. O Cognito usa a mesma "mensagem de verificacao" para o codigo de cadastro e para o de nova
- * senha (ForgotPassword), e ela tem um idioma so: portugues, o publico principal. Um gatilho Custom
- * Message pode trocar o texto por idioma depois sem mexer no envio: os dois sao independentes.
+ * Texto. O gatilho Custom Message (services/api/src/handlers/customMessage.js, Lambda
+ * librax-custom-message) troca o texto do codigo de cadastro, do reenvio e da nova senha por e-mails em
+ * HTML com a identidade do Librax, em pt-BR, en ou es: o idioma vem do clientMetadata que o app manda
+ * (`lang`) ou do atributo padrao `locale` gravado no cadastro. Atributo padrao, nao `custom:`: nada muda
+ * no Schema do User Pool, e o gatilho entra no LambdaConfig, que e "No interruption" no CloudFormation.
+ * O gatilho funciona com os dois envios (padrao do Cognito ou SES), que continuam independentes do texto.
+ *
+ * Os campos abaixo ficam como texto padrao, em portugues: valem se o gatilho falhar (ele devolve o
+ * evento sem mudanca) e para mensagens que o gatilho nao trata.
  */
 
-/** Assunto e corpo do codigo (cadastro e nova senha). Texto corrido, sem HTML: le bem em qualquer cliente. */
+/** Texto padrao do codigo (cadastro e nova senha), sem HTML: fallback do gatilho Custom Message. */
 export const COGNITO_CODE_EMAIL = {
   subject: 'Seu código do Librax',
   body:
@@ -42,7 +48,7 @@ export function cognitoUserPoolEmail(config: LibraxConfig): cognito.UserPoolEmai
   });
 }
 
-/** `userVerification` do User Pool: codigo (nao link) com o texto em portugues. */
+/** `userVerification` do User Pool: codigo (nao link) com o texto padrao em portugues. */
 export const COGNITO_USER_VERIFICATION: cognito.UserVerificationConfig = {
   emailStyle: cognito.VerificationEmailStyle.CODE,
   emailSubject: COGNITO_CODE_EMAIL.subject,

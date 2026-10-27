@@ -153,7 +153,8 @@ os valores voltam da cópia em `~/.librax/`.
 
 - `https://librax.online` abre a landing; `https://www.librax.online` redireciona para ela.
 - `https://app.librax.online` abre o app. Crie uma conta com e-mail e senha: o código chega por e-mail, de
-  `no-reply@verificationemail.com`, com o assunto "Seu código do Librax". O Cognito manda até 50 e-mails por dia
+  `no-reply@verificationemail.com`, com o assunto "Confirme seu e-mail no Librax" (no idioma do app; ver
+  [Os e-mails do Librax](#os-e-mails-do-librax)). O Cognito manda até 50 e-mails por dia
   sem SES, o que basta para o começo; para passar disso, veja
   [E-mails do login pelo SES](#e-mails-do-login-pelo-ses).
 - `https://app.librax.online/privacidade` e `/termos` abrem sem login.
@@ -244,8 +245,9 @@ vez só e servem também para os lembretes por e-mail.
 
      > Librax (https://librax.online) is a free app for learning Brazilian Sign Language (Libras). We use Amazon
      > SES for transactional e-mail sent by Amazon Cognito: the sign-up verification code and the password reset
-     > code, from nao-responda@librax.online. Later we will also send study reminders that users turn on in the
-     > app, each with a link to turn them off. We never buy or import address lists: every recipient created
+     > code, from nao-responda@librax.online. From the same address we send a security notice when an account
+     > signs in on a new device (at most 3 per day per account). Later we will also send study reminders that
+     > users turn on in the app, each with a link to turn them off. We never buy or import address lists: every recipient created
      > their own account and confirmed the address. The domain uses Easy DKIM and has a DMARC record. Bounces and
      > complaints are handled by the SES account-level suppression list, and we watch the bounce and complaint
      > rates in the SES account dashboard. Expected volume at launch: under 1,000 e-mails per day.
@@ -261,15 +263,40 @@ vez só e servem também para os lembretes por e-mail.
    está verificado (se não, para e diz o que falta) e avisa se a conta ainda estiver no sandbox. Depois faz o
    deploy. A troca só atualiza o User Pool: as contas, as senhas e o login continuam iguais.
 5. **Conferir.** Crie uma conta de teste no app ou peça "Esqueci a senha": o e-mail chega de
-   `Librax <nao-responda@librax.online>`.
+   `Librax <nao-responda@librax.online>`. Entre na mesma conta em outro navegador: chega o aviso "Novo acesso à
+   sua conta do Librax".
 
 Para voltar ao envio padrão do Cognito: `bash infra/scripts/lancar-cloudshell.sh --sem-email-ses`. Outro remetente
 (do mesmo domínio verificado) ou um endereço de resposta: `librax:cognitoEmailFrom`, `librax:cognitoEmailFromName` e
 `librax:cognitoEmailReplyTo` no `infra/cdk.context.json` (`infra/lib/config.ts`).
 
-O texto do e-mail é um só para o cadastro e para a nova senha, em português (o Cognito não escolhe idioma por
-pessoa nesses campos): "Olá! Seu código do Librax é 123456. Digite esse código no app para confirmar seu e-mail ou
-criar uma nova senha. Se não foi você que pediu, é só ignorar esta mensagem. Bons estudos em Libras!"
+### Os e-mails do Librax
+
+São quatro, todos com a identidade visual do app (logo, cores, botão em pílula), em HTML com versão em texto, e no
+idioma que a pessoa escolheu no app (português, inglês ou espanhol). O texto fica em
+`services/api/src/email/` e as prévias saem com `npm run emails:previa -- <pasta>` (em `services/api`).
+
+| E-mail | Quando sai | Por onde |
+|---|---|---|
+| Código do cadastro | criar conta e "Reenviar código" | Cognito (envio padrão ou SES), gatilho Custom Message |
+| Código de nova senha, com "não foi você?" | "Esqueci a senha" | Cognito (envio padrão ou SES), gatilho Custom Message |
+| Lembrete de estudo, com a sequência e o botão para o app | horário do lembrete, sem notificação entregue | SES, só com `--com-lembretes-email` |
+| Aviso de acesso num aparelho novo | a conta entra num navegador ou aparelho que ela ainda não tinha | SES, só com `--com-email-ses` |
+
+Não há nada novo para configurar: os dois primeiros funcionam com e sem SES, e os outros dois seguem as opções
+que já existem. O idioma vem do app (no cadastro, no reenvio e no "esqueci a senha"; e, com conta, a cada login e
+troca de idioma). Sem idioma conhecido, sai em português. O logo dos e-mails é `https://app.librax.online/email/logo.png`,
+publicado junto com o app. Se o gatilho falhar, o Cognito manda o texto padrão em português: "Olá! Seu código do
+Librax é 123456. Digite esse código no app para confirmar seu e-mail ou criar uma nova senha. Se não foi você que
+pediu, é só ignorar esta mensagem. Bons estudos em Libras!"
+
+O aviso de acesso novo é feito pelo Librax, sem o plano pago do Cognito: o app avisa a API depois de entrar, com
+um código aleatório do navegador, e a API guarda só um resumo desse código, o tipo de aparelho, o sistema e o
+navegador (sem IP). O primeiro aparelho da conta não gera aviso, sessões antigas também não, e cada conta recebe
+no máximo 3 avisos por dia. Com o SES desligado, os aparelhos são registrados e nenhum e-mail sai.
+
+A troca no User Pool é só o gatilho Custom Message (atualização no lugar, sem recriar o User Pool nem mexer nas
+contas); o idioma vai no atributo padrão `locale`, sem atributo novo.
 
 ### Política e Termos
 
