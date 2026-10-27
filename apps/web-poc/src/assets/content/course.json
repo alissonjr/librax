@@ -119,7 +119,7 @@
           "order": 6,
           "xpReward": 10,
           "signIds": ["letra-C","letra-Ç","letra-J","letra-X","letra-Z"],
-          "produce": ["letra-C","letra-Ç","letra-X"],
+          "produce": ["letra-C","letra-Ç","letra-X","letra-Z"],
           "spellWords": ["CAÇA", "JOIA"]
         },
         {

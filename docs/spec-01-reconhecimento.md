@@ -128,6 +128,19 @@ só com as mãos (os vídeos do alfabeto não têm corpo e as letras não precis
   39/56, Ç 32/32 e 30/32; parada de letra parada lida como letra com movimento 98/792 e 73/792. Câmera igual (H, J,
   K, X e Ç): o Z fica no limite (39 ou 40 de 56 conforme o treino; só com o Z novo, sem o X, ele passa com 40/56
   mas o X cai para 33/48).
+- Fontes de fora do YouTube (2026-10-26, `video/baixar_externas.py`, lista `data/letras_mov/fontes_externas.json`):
+  o PEdAL da UFRGS (Plataforma Educacional do Alfabeto LIBRAS) tem H, J, K, X, Z e Ç em 3 vídeos cada, de 3 pessoas
+  (só a mão, fundo de uma cor por pessoa), e palavras soletradas; entram as letras e as palavras com Z no meio ou no
+  fim. Trechos em `letras_mov_trechos_ext.json` (revisão em `letras_mov_conferencia_ext.json`: sai o Z de LUZES) e
+  do treino só o X e o Z deles (`LM_EXT_LETRAS`, padrão XZ no publicado; `LM_SEM_EXT=1` deixa de fora). Antes, a
+  mesma configuração dava números diferentes a cada execução (o `equilibrar` sorteava na ordem de um set, que muda
+  com o PYTHONHASHSEED; o Z ia de 38 a 40 de 56 sem mudar nada); agora sorteia em ordem e repete. Canais separados +
+  INES, soma de 8 sementes: configuração do modelo publicado antes (sem os alfabetos z2 e sem o PEdAL) H 56/56,
+  J 48/48, K 46/56, X 35/48, Z 33/56, Ç 32/32, alarme nas paradas 49/792; com os z2 e sem o PEdAL Z 39/56, X 36/48,
+  alarme 31/792; com os z2 e o X e o Z do PEdAL (publicado) H 56/56, J 48/48, K 48/56, X 38/48, Z 40/56, Ç 31/32,
+  alarme 35/792. Nas sementes 8 a 15 (outra amostra da mesma medida) o Z fica em 40/56 sem o PEdAL e 39/56 com ele:
+  o Z está em cerca de 70% nos dois e quem o tirou de 33 foram os alfabetos z2. A câmera avalia H, J, K, X, Z e Ç
+  (o Z na U1 L6, com o C, o Ç e o X).
 
 ## 4. Dados de treino (quantificado)
 

@@ -33,7 +33,9 @@ U1 L2; o Ç ganhou a U1 L6, "Letra Ç", depois do Z, com o C, o J, o X e o Z de 
 (nos vídeos a mão não se mexe). Depois, com 54 vídeos novos do YouTube (alfabetos curtos e vídeos de uma letra), o alfabeto do
 Spread the Sign e alfabetos antigos que o rotular.py tinha deixado de fora (`video/baixar_xz.py` e
 `video/rotular_xz.py`), o X passou (38/48, soma de 8 sementes) e ganhou câmera na U1 L6 (a U1 L5 mantém U, V, W e Y
-com câmera); o Z ficou em 38/56 (68%) e segue como prática livre.
+com câmera); o Z ficou em 38/56 (68%) e segue como prática livre. Em 2026-10-26, com os alfabetos de canais
+novos (fontes_z2.json), o X e o Z do PEdAL da UFRGS (3 pessoas) e o treino sem sorteio dependente do PYTHONHASHSEED,
+o Z chegou a 40/56 (71%) e ganhou câmera na U1 L6 (spec-01 seção 3.3).
 
 Feito: C, D, E, H, I, O, S, W e Y ganharam câmera (`produce` de cada lição da U1). M, N, R, T e X
 esperam passar de 80%. F (3/4), Q (4/6) e U (1/3) já tinham câmera e continuam, mas estão abaixo de
@@ -112,6 +114,16 @@ O app já avalia sinais quando existe `public/ml/sinais/model.json` (componente
   antes e depois: ACORDAR 56/76 e 54/76, LARANJA 56/76 e 54/76, OVO 41/60 e 40/64 (já abaixo antes), MÃE 18/24 e
   50/64, FAMÍLIA 27/28 e 39/44, OBRIGADO 51/68 e 58/68, HOMEM 41/64 e 58/76. Falta decidir se a câmera passa a
   usar a média de mais divisões (a de duas oscila 2 a 3 vídeos por sinal).
+- Fontes de fora do YouTube (2026-10-26, `video/baixar_externas.py`, lista `data/fontes_externas.json`): V-LIBRASIL
+  (UFPE, 3 pessoas por sinal, 41 glosas do treino), Signbank da UFSC (espelho no Kaggle, 59 glosas, uma entrada por
+  sinal) e MINDS-Libras (UFMG, 8 pessoas com 5 repetições, só FILHO e AMARELO do curso). Achado no caminho: o treino
+  dos sinais não se repetia (o `equilibrar` sorteava na ordem de um set, que muda com o PYTHONHASHSEED; a mesma
+  avaliação mudava até 4 vídeos por sinal, PRAZER de 13/19 a 17/19); agora repete. Com o mesmo teste do r8 (os
+  externos só no treino, `avaliar --so-treino ext-`), o acerto no trecho dos vídeos do YouTube vai de 53,8% e 51,9%
+  para 54,7% e 52,8%, e FELIZ, PRAZER, CAMA e SEMANA passam nas duas divisões, mas o HOMEM cai para 58% numa delas
+  (79% na outra); sem o MINDS, o HOMEM fica em 68% e 74%. Com os externos também no teste (como canais novos), eles
+  acertam só cerca de 40% (estúdio, enquadramento e ritmo diferentes) e HOMEM, HOSPITAL, FAMÍLIA ou POR-FAVOR caem
+  conforme a variante. Não foi publicado (a regra é não tirar a câmera de sinal publicado); a câmera segue nos 12.
 - (Feito) Exigir duas leituras seguidas da mesma glosa antes de mostrar "Vimos X", porque no teste ao vivo
   apareceram leituras passageiras erradas antes do acerto.
 - (Feito) Mão dominante calculada por janela também no treino, como o app (buffer de 2,5 s).
