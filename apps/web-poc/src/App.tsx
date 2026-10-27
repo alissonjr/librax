@@ -45,8 +45,9 @@ async function boot(): Promise<Boot> {
   // qualquer redirecionamento) e startSync(). Sem as VITE_COGNITO_*, segue só como convidado.
   startAccount();
 
-  // Dados de uso anônimos (lib/telemetry.ts): só mandam; nada volta nem muda o progresso local
-  await refreshTelemetryProgress(repo, userId);
+  // Dados de uso anônimos (lib/telemetry.ts): só mandam; nada volta nem muda o progresso local. O
+  // retrato do progresso é lido sem segurar a abertura (o primeiro envio é no fim da lição ou ao sair)
+  void refreshTelemetryProgress(repo, userId);
   startTelemetry();
 
   // AppOpenFlow (spec-02 12.10): resultado da liga e sequência quebrada, nessa ordem
