@@ -298,8 +298,13 @@ describe('Cognito', () => {
         From: 'Librax <nao-responda@librax.example>',
         SourceArn: 'arn:{AWS::Partition}:ses:us-east-1:111111111111:identity/librax.example',
       });
-      // O Cognito usa o papel vinculado ao servico que ele mesmo cria; a stack nao ganha permissao de SES
-      expect(JSON.stringify(template.findResources('AWS::IAM::Policy'))).not.toContain('ses:');
+      // O Cognito usa o papel vinculado ao servico que ele mesmo cria. A unica permissao de SES da stack e
+      // a do aviso de acesso novo (librax-report-device), so SendEmail e so na identidade do dominio
+      const comSes = Object.entries(template.findResources('AWS::IAM::Policy')).filter(([, r]) => JSON.stringify(r).includes('ses:'));
+      expect(comSes.map(([id]) => id)).toEqual([expect.stringMatching(/^ReportDeviceFn/)]);
+      const sesStmt = comSes[0][1].Properties.PolicyDocument.Statement.find((st: { Action: unknown }) => JSON.stringify(st.Action).includes('ses:'));
+      expect(sesStmt.Action).toBe('ses:SendEmail');
+      expect(flat(sesStmt.Resource)).toBe('arn:{AWS::Partition}:ses:us-east-1:111111111111:identity/librax.example');
     });
 
     test('remetente, nome e resposta por contexto; dominio do remetente e a identidade do SES', () => {
@@ -337,6 +342,65 @@ describe('Cognito', () => {
       // Texto corrido: sem HTML, sem travessao nem meia-risca, sem emoji
       expect(tpl.EmailMessage).not.toMatch(/[<>\u2013\u2014]|\p{Extended_Pictographic}/u);
       expect(tpl.EmailMessage.length).toBeLessThan(300);
+    });
+
+    const fn = (template: Template, name: string) =>
+      Object.entries(template.findResources('AWS::Lambda::Function')).find(([, r]) => r.Properties.FunctionName === name)!;
+
+    test('gatilho Custom Message: e-mails de codigo com a identidade do Librax, por idioma', () => {
+      const { template } = synth(withDomain);
+      const { props } = pool(template);
+      const [msgId, msgFn] = fn(template, 'librax-custom-message');
+      const [postId] = fn(template, 'librax-post-confirmation');
+      expect(props.LambdaConfig).toEqual({
+        CustomMessage: { 'Fn::GetAtt': [msgId, 'Arn'] },
+        PostConfirmation: { 'Fn::GetAtt': [postId, 'Arn'] },
+      });
+      expect(msgFn.Properties.Handler).toBe('index.handler');
+      expect(msgFn.Properties.Environment.Variables.APP_URL).toBe('https://app.librax.example');
+      expect(msgFn.Properties.Timeout).toBe(5);
+      template.hasResourceProperties('AWS::Lambda::Permission', {
+        FunctionName: { 'Fn::GetAtt': [msgId, 'Arn'] },
+        Principal: 'cognito-idp.amazonaws.com',
+      });
+      // o texto padrao (portugues) continua no User Pool: vale se o gatilho falhar
+      expect((props.VerificationMessageTemplate as Record<string, string>).EmailMessage).toContain('{####}');
+    });
+
+    test('aviso de acesso novo: rota POST /v1/users/me/devices; e-mail so com o SES ligado, pelo remetente dos codigos', () => {
+      const off = synth(withDomain).template;
+      const [, offFn] = fn(off, 'librax-report-device');
+      expect(offFn.Properties.Environment.Variables.LOGIN_ALERT_FROM).toBeUndefined();
+      expect(offFn.Properties.Environment.Variables.APP_URL).toBe('https://app.librax.example');
+      expect(JSON.stringify(off.findResources('AWS::IAM::Policy'))).not.toContain('ses:');
+      off.hasResourceProperties('AWS::ApiGatewayV2::Route', { RouteKey: 'POST /v1/users/me/devices', AuthorizationType: 'JWT' });
+
+      const on = synth({ ...withDomain, 'librax:cognitoEmailSes': 'true', 'librax:cognitoEmailFromName': 'Equipe Librax' }).template;
+      const [, onFn] = fn(on, 'librax-report-device');
+      expect(onFn.Properties.Environment.Variables.LOGIN_ALERT_FROM).toBe('Equipe Librax <nao-responda@librax.example>');
+    });
+
+    test('atualizacao no lugar: o User Pool e os app clients do main so ganham o gatilho (LambdaConfig, "No interruption")', () => {
+      // Recursos do Cognito sintetizados no main, antes dos e-mails (test/fixtures). Nada de Schema novo:
+      // o idioma vai no atributo padrao `locale` e no clientMetadata, que nao mudam o User Pool.
+      const before = JSON.parse(readFileSync(path.join(__dirname, 'fixtures', 'cognito-antes-dos-emails.json'), 'utf8'));
+      for (const ses of ['false', 'true']) {
+        const { template } = synth({ ...withDomain, 'librax:cognitoEmailSes': ses });
+        const now = pool(template);
+        const [oldId, oldPool] = Object.entries(before[`ses-${ses}`].pool)[0] as [string, { Properties: Record<string, unknown> }];
+        expect(now.id).toBe(oldId);
+        expect(now.recurso.DeletionPolicy).toBe('Retain');
+        expect(now.recurso.UpdateReplacePolicy).toBe('Retain');
+        expect(now.props.Schema).toBeUndefined();
+        const { LambdaConfig: lc, ...rest } = now.props as { LambdaConfig: Record<string, unknown> };
+        const { LambdaConfig: oldLc, ...oldRest } = oldPool.Properties as { LambdaConfig: Record<string, unknown> };
+        expect(rest).toEqual(oldRest);
+        const { CustomMessage, ...otherTriggers } = lc;
+        expect(CustomMessage).toBeDefined();
+        expect(otherTriggers).toEqual(oldLc);
+        // app clients sem mudanca nenhuma (o `locale` ja e gravavel: o client nao restringe atributos)
+        expect(template.findResources('AWS::Cognito::UserPoolClient')).toEqual(before[`ses-${ses}`].clients);
+      }
     });
 
     test('ligar o SES muda so o envio: mesmo User Pool (mesmo id, sem troca de propriedade imutavel)', () => {

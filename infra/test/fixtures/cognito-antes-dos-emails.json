@@ -1,0 +1,310 @@
+{
+  "ses-false": {
+    "pool": {
+      "LibraxUserPool82797A76": {
+        "Type": "AWS::Cognito::UserPool",
+        "Properties": {
+          "AccountRecoverySetting": {
+            "RecoveryMechanisms": [
+              {
+                "Name": "verified_email",
+                "Priority": 1
+              }
+            ]
+          },
+          "AdminCreateUserConfig": {
+            "AllowAdminCreateUserOnly": false
+          },
+          "AutoVerifiedAttributes": [
+            "email"
+          ],
+          "EmailVerificationMessage": "Olá! Seu código do Librax é {####}. Digite esse código no app para confirmar seu e-mail ou criar uma nova senha. Se não foi você que pediu, é só ignorar esta mensagem. Bons estudos em Libras!",
+          "EmailVerificationSubject": "Seu código do Librax",
+          "LambdaConfig": {
+            "PostConfirmation": {
+              "Fn::GetAtt": [
+                "PostConfirmationFnE0D8EF4F",
+                "Arn"
+              ]
+            }
+          },
+          "Policies": {
+            "PasswordPolicy": {
+              "MinimumLength": 8,
+              "RequireLowercase": false,
+              "RequireNumbers": false,
+              "RequireSymbols": false,
+              "RequireUppercase": false
+            }
+          },
+          "SmsVerificationMessage": "The verification code to your new account is {####}",
+          "UserPoolName": "librax-users",
+          "UserPoolTier": "LITE",
+          "UsernameAttributes": [
+            "email"
+          ],
+          "VerificationMessageTemplate": {
+            "DefaultEmailOption": "CONFIRM_WITH_CODE",
+            "EmailMessage": "Olá! Seu código do Librax é {####}. Digite esse código no app para confirmar seu e-mail ou criar uma nova senha. Se não foi você que pediu, é só ignorar esta mensagem. Bons estudos em Libras!",
+            "EmailSubject": "Seu código do Librax",
+            "SmsMessage": "The verification code to your new account is {####}"
+          }
+        },
+        "UpdateReplacePolicy": "Retain",
+        "DeletionPolicy": "Retain"
+      }
+    },
+    "clients": {
+      "LibraxAppClientC7EEF40A": {
+        "Type": "AWS::Cognito::UserPoolClient",
+        "Properties": {
+          "AccessTokenValidity": 60,
+          "AllowedOAuthFlows": [
+            "code"
+          ],
+          "AllowedOAuthFlowsUserPoolClient": true,
+          "AllowedOAuthScopes": [
+            "openid",
+            "email",
+            "profile"
+          ],
+          "CallbackURLs": [
+            "https://app.librax.example/auth/callback"
+          ],
+          "ExplicitAuthFlows": [
+            "ALLOW_USER_SRP_AUTH",
+            "ALLOW_REFRESH_TOKEN_AUTH"
+          ],
+          "GenerateSecret": false,
+          "IdTokenValidity": 60,
+          "LogoutURLs": [
+            "https://app.librax.example/"
+          ],
+          "PreventUserExistenceErrors": "ENABLED",
+          "RefreshTokenValidity": 43200,
+          "SupportedIdentityProviders": [
+            "COGNITO",
+            "Google"
+          ],
+          "TokenValidityUnits": {
+            "AccessToken": "minutes",
+            "IdToken": "minutes",
+            "RefreshToken": "minutes"
+          },
+          "UserPoolId": {
+            "Ref": "LibraxUserPool82797A76"
+          }
+        },
+        "DependsOn": [
+          "GoogleIdP776058BD"
+        ]
+      },
+      "LibraxAdminClientAEAD15B7": {
+        "Type": "AWS::Cognito::UserPoolClient",
+        "Properties": {
+          "AccessTokenValidity": 60,
+          "AllowedOAuthFlows": [
+            "code"
+          ],
+          "AllowedOAuthFlowsUserPoolClient": true,
+          "AllowedOAuthScopes": [
+            "openid",
+            "email",
+            "profile"
+          ],
+          "CallbackURLs": [
+            "https://app.librax.example/admin/auth/callback"
+          ],
+          "ClientName": "librax-admin",
+          "ExplicitAuthFlows": [
+            "ALLOW_REFRESH_TOKEN_AUTH"
+          ],
+          "GenerateSecret": false,
+          "IdTokenValidity": 60,
+          "LogoutURLs": [
+            "https://app.librax.example/admin/"
+          ],
+          "PreventUserExistenceErrors": "ENABLED",
+          "RefreshTokenValidity": 720,
+          "SupportedIdentityProviders": [
+            "COGNITO",
+            "Google"
+          ],
+          "TokenValidityUnits": {
+            "AccessToken": "minutes",
+            "IdToken": "minutes",
+            "RefreshToken": "minutes"
+          },
+          "UserPoolId": {
+            "Ref": "LibraxUserPool82797A76"
+          }
+        },
+        "DependsOn": [
+          "GoogleIdP776058BD"
+        ]
+      }
+    }
+  },
+  "ses-true": {
+    "pool": {
+      "LibraxUserPool82797A76": {
+        "Type": "AWS::Cognito::UserPool",
+        "Properties": {
+          "AccountRecoverySetting": {
+            "RecoveryMechanisms": [
+              {
+                "Name": "verified_email",
+                "Priority": 1
+              }
+            ]
+          },
+          "AdminCreateUserConfig": {
+            "AllowAdminCreateUserOnly": false
+          },
+          "AutoVerifiedAttributes": [
+            "email"
+          ],
+          "EmailConfiguration": {
+            "EmailSendingAccount": "DEVELOPER",
+            "From": "Librax <nao-responda@librax.example>",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":ses:us-east-1:111111111111:identity/librax.example"
+                ]
+              ]
+            }
+          },
+          "EmailVerificationMessage": "Olá! Seu código do Librax é {####}. Digite esse código no app para confirmar seu e-mail ou criar uma nova senha. Se não foi você que pediu, é só ignorar esta mensagem. Bons estudos em Libras!",
+          "EmailVerificationSubject": "Seu código do Librax",
+          "LambdaConfig": {
+            "PostConfirmation": {
+              "Fn::GetAtt": [
+                "PostConfirmationFnE0D8EF4F",
+                "Arn"
+              ]
+            }
+          },
+          "Policies": {
+            "PasswordPolicy": {
+              "MinimumLength": 8,
+              "RequireLowercase": false,
+              "RequireNumbers": false,
+              "RequireSymbols": false,
+              "RequireUppercase": false
+            }
+          },
+          "SmsVerificationMessage": "The verification code to your new account is {####}",
+          "UserPoolName": "librax-users",
+          "UserPoolTier": "LITE",
+          "UsernameAttributes": [
+            "email"
+          ],
+          "VerificationMessageTemplate": {
+            "DefaultEmailOption": "CONFIRM_WITH_CODE",
+            "EmailMessage": "Olá! Seu código do Librax é {####}. Digite esse código no app para confirmar seu e-mail ou criar uma nova senha. Se não foi você que pediu, é só ignorar esta mensagem. Bons estudos em Libras!",
+            "EmailSubject": "Seu código do Librax",
+            "SmsMessage": "The verification code to your new account is {####}"
+          }
+        },
+        "UpdateReplacePolicy": "Retain",
+        "DeletionPolicy": "Retain"
+      }
+    },
+    "clients": {
+      "LibraxAppClientC7EEF40A": {
+        "Type": "AWS::Cognito::UserPoolClient",
+        "Properties": {
+          "AccessTokenValidity": 60,
+          "AllowedOAuthFlows": [
+            "code"
+          ],
+          "AllowedOAuthFlowsUserPoolClient": true,
+          "AllowedOAuthScopes": [
+            "openid",
+            "email",
+            "profile"
+          ],
+          "CallbackURLs": [
+            "https://app.librax.example/auth/callback"
+          ],
+          "ExplicitAuthFlows": [
+            "ALLOW_USER_SRP_AUTH",
+            "ALLOW_REFRESH_TOKEN_AUTH"
+          ],
+          "GenerateSecret": false,
+          "IdTokenValidity": 60,
+          "LogoutURLs": [
+            "https://app.librax.example/"
+          ],
+          "PreventUserExistenceErrors": "ENABLED",
+          "RefreshTokenValidity": 43200,
+          "SupportedIdentityProviders": [
+            "COGNITO",
+            "Google"
+          ],
+          "TokenValidityUnits": {
+            "AccessToken": "minutes",
+            "IdToken": "minutes",
+            "RefreshToken": "minutes"
+          },
+          "UserPoolId": {
+            "Ref": "LibraxUserPool82797A76"
+          }
+        },
+        "DependsOn": [
+          "GoogleIdP776058BD"
+        ]
+      },
+      "LibraxAdminClientAEAD15B7": {
+        "Type": "AWS::Cognito::UserPoolClient",
+        "Properties": {
+          "AccessTokenValidity": 60,
+          "AllowedOAuthFlows": [
+            "code"
+          ],
+          "AllowedOAuthFlowsUserPoolClient": true,
+          "AllowedOAuthScopes": [
+            "openid",
+            "email",
+            "profile"
+          ],
+          "CallbackURLs": [
+            "https://app.librax.example/admin/auth/callback"
+          ],
+          "ClientName": "librax-admin",
+          "ExplicitAuthFlows": [
+            "ALLOW_REFRESH_TOKEN_AUTH"
+          ],
+          "GenerateSecret": false,
+          "IdTokenValidity": 60,
+          "LogoutURLs": [
+            "https://app.librax.example/admin/"
+          ],
+          "PreventUserExistenceErrors": "ENABLED",
+          "RefreshTokenValidity": 720,
+          "SupportedIdentityProviders": [
+            "COGNITO",
+            "Google"
+          ],
+          "TokenValidityUnits": {
+            "AccessToken": "minutes",
+            "IdToken": "minutes",
+            "RefreshToken": "minutes"
+          },
+          "UserPoolId": {
+            "Ref": "LibraxUserPool82797A76"
+          }
+        },
+        "DependsOn": [
+          "GoogleIdP776058BD"
+        ]
+      }
+    }
+  }
+}

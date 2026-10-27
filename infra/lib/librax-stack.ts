@@ -58,7 +58,8 @@ const API_DIR = path.join(__dirname, '..', '..', 'services', 'api');
  * Recursos criados:
  * - DynamoDB single-table `librax` com GSI1-GSI6 e TTL
  * - Cognito User Pool com dominio proprio, OAuth code + PKCE, Google (e Apple opcional) e codigos
- *   por e-mail pelo envio padrao do Cognito ou, opcional, pelo SES do dominio
+ *   por e-mail (gatilho Custom Message: HTML em pt-BR, en ou es) pelo envio padrao do Cognito ou,
+ *   opcional, pelo SES do dominio, que tambem manda o aviso de acesso num aparelho novo
  * - Lambda functions (Node 22, empacotadas com esbuild) para cada endpoint
  * - API Gateway HTTP API (autorizador JWT Cognito) no estagio `api`
  * - CloudFront do app em app.<dominio>, tudo na mesma origem: `/` app, `/content/*`, `/ml/*`, `/api/*`
@@ -215,7 +216,8 @@ export class LibraxStack extends cdk.Stack {
       // docs/spec-02-backend-gestao-engajamento.md, secao 2)
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       email: cognitoUserPoolEmail(config),
-      // Texto do codigo em portugues; vale para o cadastro e para "esqueci a senha"
+      // Texto padrao do codigo em portugues; o gatilho Custom Message (abaixo) manda o e-mail com a
+      // identidade do Librax no idioma da pessoa e cai neste texto se falhar
       userVerification: COGNITO_USER_VERIFICATION,
       removalPolicy: RemovalPolicy.RETAIN,
     });
@@ -420,6 +422,27 @@ export class LibraxStack extends cdk.Stack {
       timeout: Duration.seconds(5),
     });
     userPool.addTrigger(cognito.UserPoolOperation.POST_CONFIRMATION, postConfirmationFn);
+    // E-mails de codigo (cadastro, reenvio e nova senha) com a identidade do Librax, em HTML e no idioma
+    // da pessoa (lib/cognito-email.ts). Gatilho no LambdaConfig: atualizacao do User Pool no lugar.
+    const customMessageFn = makeFn('CustomMessageFn', 'customMessage.js', 'handler', {
+      functionName: 'librax-custom-message',
+      description: 'E-mails de codigo do Cognito com a identidade do Librax, em pt-BR, en ou es',
+      timeout: Duration.seconds(5),
+      environment: { APP_URL: appUrl },
+    });
+    userPool.addTrigger(cognito.UserPoolOperation.CUSTOM_MESSAGE, customMessageFn);
+
+    // Aparelhos conhecidos da conta e o aviso de acesso novo por e-mail (feito por nos, sem o plano
+    // pago do Cognito). O e-mail so sai com o SES ligado para o Cognito (librax:cognitoEmailSes), pelo
+    // mesmo remetente dos codigos; desligado, a rota so registra o aparelho.
+    const loginAlertFrom = config.cognitoEmail.ses
+      ? `${config.cognitoEmail.fromName} <${config.cognitoEmail.from}>`
+      : undefined;
+    const reportDeviceFn = makeFn('ReportDeviceFn', 'devices.js', 'reportDeviceHandler', {
+      functionName: 'librax-report-device',
+      description: 'Aparelho da conta (hash, classe do navegador), idioma do app e aviso de acesso novo',
+      environment: { APP_URL: appUrl, ...(loginAlertFrom ? { LOGIN_ALERT_FROM: loginAlertFrom } : {}) },
+    });
 
     // Permissoes DynamoDB (principio do menor privilegio)
     const allLambdas = [
@@ -429,7 +452,7 @@ export class LibraxStack extends cdk.Stack {
       transferOwnershipFn, regenerateInviteFn,
       getLeagueFn, leagueResultSeenFn,
       subscribePushFn, unsubscribePushFn, notificationPrefsFn,
-      deleteAccountFn,
+      deleteAccountFn, reportDeviceFn,
     ];
     for (const fn of allLambdas) {
       table.grantReadWriteData(fn);
@@ -471,6 +494,19 @@ export class LibraxStack extends cdk.Stack {
       reminderFn.addToRolePolicy(new iam.PolicyStatement({
         actions: ['ses:SendEmail'],
         resources: [this.formatArn({ service: 'ses', resource: 'identity', resourceName: fromDomain })],
+      }));
+    }
+
+    // Aviso de acesso novo: so SendEmail, so a identidade do dominio do remetente dos codigos
+    if (config.cognitoEmail.ses) {
+      reportDeviceFn.addToRolePolicy(new iam.PolicyStatement({
+        actions: ['ses:SendEmail'],
+        resources: [this.formatArn({
+          service: 'ses',
+          region: config.cognitoEmail.sesRegion,
+          resource: 'identity',
+          resourceName: config.cognitoEmail.from.split('@')[1],
+        })],
       }));
     }
 
@@ -895,6 +931,7 @@ export class LibraxStack extends cdk.Stack {
     addRoute(M.POST,   '/v1/squads/{squadId}/invite-code/regenerate', regenerateInviteFn);
     addRoute(M.GET,    '/v1/users/me/squads',                         listMySquadsFn);
     addRoute(M.DELETE, '/v1/users/me',                                deleteAccountFn);
+    addRoute(M.POST,   '/v1/users/me/devices',                        reportDeviceFn);
     addRoute(M.GET,    '/v1/league/current',                          getLeagueFn);
     addRoute(M.POST,   '/v1/league/result-seen',                      leagueResultSeenFn);
     addRoute(M.POST,   '/v1/push/subscriptions',                      subscribePushFn);
@@ -981,7 +1018,7 @@ export class LibraxStack extends cdk.Stack {
     // mes (Cost Explorer, US$ 0,01 por chamada). Sem nova tentativa: cada uma pagaria de novo; o
     // alarme de erros avisa se falhar, e da para refazer o dia a mao ({ "day": "AAAA-MM-DD" }).
     const opsDailyName = 'librax-ops-daily';
-    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, postConfirmationFn];
+    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, postConfirmationFn, customMessageFn];
     const opsDailyFn = makeFn('OpsDailyFn', 'opsDaily.js', 'handler', {
       functionName: opsDailyName,
       timeout: Duration.minutes(2),
