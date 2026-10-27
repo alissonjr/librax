@@ -1,0 +1,39 @@
+# CI/CD do Librax no CodeBuild (projeto librax-lancamento, infra/lib/ci-stack.ts; guia em docs/ci-cd.md).
+#
+# Roda só com o push de uma tag de versão (v1.2.3). Ordem: confere a tag, instala as dependências,
+# roda todas as suítes de teste e, só se todas passarem, publica com o mesmo script do CloudShell
+# (lancar-cloudshell.sh --ci: deploy da LibraxStack, build e upload do app, do painel e da landing).
+# Se uma fase falha, as seguintes não rodam: teste vermelho nunca chega ao deploy.
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    CI: "true"
+    # general1.small tem 4 GiB; o build do app e o synth da stack cabem com folga em 3 GiB
+    NODE_OPTIONS: "--max-old-space-size=3072"
+    npm_config_update_notifier: "false"
+    npm_config_fund: "false"
+    npm_config_audit: "false"
+    CDK_DISABLE_CLI_TELEMETRY: "true"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+      - bash infra/ci/ci.sh conferir-tag
+      - bash infra/ci/ci.sh instalar
+  pre_build:
+    commands:
+      - bash infra/ci/ci.sh testar
+  build:
+    commands:
+      - bash infra/scripts/lancar-cloudshell.sh --ci
+
+# Cache local do CodeBuild (grátis): só vale quando a AWS reaproveita a mesma máquina pouco depois;
+# entre versões espaçadas quase sempre começa vazio, e tudo funciona igual sem ele.
+cache:
+  paths:
+    - /root/.npm/**/*
+    - apps/web-poc/.cache/**/*
