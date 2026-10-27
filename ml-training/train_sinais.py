@@ -25,7 +25,10 @@ guardadas pelo avaliar --probs, sem treinar de novo.
 - Validação cruzada por canal (GroupKFold nos canais do YouTube; os dicionários ficam sempre no
   treino). Por vídeo deixado de fora: "no trecho" quando a glosa é confirmada perto da janela que
   o rotular_sinais escolheu (vídeos aceitos) e "no vídeo" quando é confirmada em qualquer ponto
-  (todos os vídeos da glosa que passaram no filtro de título, aceitos ou não).
+  (todos os vídeos da glosa que passaram no filtro de título, aceitos ou não). A divisão --semente
+  N treina o grupo k com a semente N * grupos + k: cada divisão também tem os seus treinos.
+- Câmera (subcomando camera): soma o "no trecho" de SEMENTES_CAMERA divisões (cada uma com os seus
+  treinos) e decide por sinal com a soma (ver sinais_camera).
 - Teste nos dicionários: treina só no YouTube e roda nos vídeos de dicionário (só o sinal):
   acerto quando a glosa é confirmada no vídeo.
 - Alarmes: janelas "_" e "parada" lidas como sinal (janela a janela) e, nos vídeos, trechos de mão
@@ -37,13 +40,17 @@ Uso:
         (vídeos de outra lista: --landmarks com mais uma pasta e --fontes-extra data/sinais15/fontes_extra.json,
         para o canal deles valer na divisão dos grupos)
         (--so-treino ext-: os vídeos externos de video/baixar_externas.py só no treino, o teste fica o do YouTube)
-    python train_sinais.py treinar --out PASTA (mesmas opções) [--resultados res.json ...]
-        com --resultados (o --salvar do avaliar), o model.json leva em camera_signs só os sinais que
-        passaram na validação cruzada e no dicionário (MIN_ACERTO_CAMERA); com mais de um arquivo
-        (avaliar --semente N muda a divisão dos canais), só os que passaram em todos
+    python train_sinais.py camera (mesmas opções do avaliar) --salvar camera.json [--sementes 8]
+        validação cruzada por canal em SEMENTES_CAMERA divisões (sementes 0 a 7, cada uma com
+        GRUPOS_CAMERA grupos e os seus treinos), o teste no dicionário e a decisão por sinal com a
+        soma; o --salvar guarda cada divisão ao terminar e, com a mesma configuração, a próxima
+        execução continua de onde parou
+    python train_sinais.py treinar --out PASTA (mesmas opções) [--camera camera.json]
+        com --camera (o --salvar do camera), o model.json leva em camera_signs só os sinais que
+        passaram na soma das divisões e no dicionário (sinais_camera)
     python train_sinais.py avaliar ... --probs probs.pkl [--min-movimento 0.17]
     python train_sinais.py varrer probs-s0.pkl probs-s1.pkl --min-movimento 0 0.15 0.17 [--por-sinal A,B]
-        uma linha por regra: acerto no trecho, alarmes e a câmera (sinais que passam em todas as divisões)
+        uma linha por regra: acerto no trecho, alarmes e a câmera (soma das divisões, sinais_camera)
     python train_sinais.py regras --modelo PASTA --min-movimento 0.17
         grava as regras de leitura no model.json de um modelo já exportado (os pesos ficam)
     (LIBRAX_DATA=/caminho/data aponta para a pasta de dados)
@@ -98,11 +105,18 @@ MAX_NENHUM = 3.0
 PESO_FORMA = 1.0
 MIN_MOVIMENTO = 0.17
 
-# Sinal só ganha câmera no app com pelo menos esta fração certa nos vídeos deixados de fora da
-# validação cruzada (no trecho, com pelo menos MIN_TESTE vídeos) e, quando há pelo menos
-# MIN_DIC vídeos de dicionário, pelo menos MIN_ACERTO_DIC neles
+# Sinal só ganha câmera no app com pelo menos MIN_ACERTO_CAMERA certa nos vídeos deixados de fora
+# da validação cruzada (no trecho), somando SEMENTES_CAMERA divisões dos canais em GRUPOS_CAMERA
+# grupos (cada divisão com os seus treinos), com vídeos de pelo menos MIN_CANAIS canais diferentes
+# no teste e, quando há pelo menos MIN_DIC vídeos de dicionário, pelo menos MIN_ACERTO_DIC neles.
+# Antes (até 2026-10-26) o sinal precisava passar sozinho em cada uma de duas divisões (sementes 0 e
+# 1, com pelo menos 8 vídeos): com 10 a 20 vídeos por sinal, um vídeo a mais ou a menos muda 5 a 10
+# pontos e um sinal no limite (o HOMEM com 15/19 e 11/19) segurava ou derrubava a decisão sozinho.
+# A soma é a regra das letras com movimento (train_letras_mov.py, SEMENTES_CAMERA).
 MIN_ACERTO_CAMERA = 0.7
-MIN_TESTE = 8
+MIN_CANAIS = 8
+SEMENTES_CAMERA = 8
+GRUPOS_CAMERA = 5
 MIN_DIC = 3
 MIN_ACERTO_DIC = 0.5
 
@@ -584,69 +598,91 @@ def relatorio(sim, regras, imprime=True):
             "videos_cv": res_cv, "videos_dic": res_dic}
 
 
-def avaliar(args):
-    import pickle
-
-    from sklearn.model_selection import GroupKFold
+def contexto(args):
+    """O que o avaliar e o camera usam: dataset, rótulos por vídeo, cache das janelas ao vivo."""
+    import types
 
     cfg = cfg_de(args)
-    regras = regras_de(args)
     X, y, pessoa, video, tipo = carregar(args.dataset, args.min_pessoas)
     classes = sorted(set(y))
     glosas = [c for c in classes if c != NENHUM]
-    print(f"config: {cfg} | regras: {regras}")
+    print(f"config: {cfg} | regras: {regras_de(args)}")
     print(f"janelas: {len(y)} ({collections.Counter(tipo).most_common()}) | glosas: {len(glosas)} | "
           f"canais: {len(set(pessoa))}")
     fontes = rq.carregar_fontes(args.fontes_extra)
     rots = carregar_rotulos(args.rotulos, set(glosas), fontes)
     pastas = preparar_ao_vivo({r["id"] for r in rots}, args.landmarks, args.processos)
-    dic_win = np.array([p.startswith(DICIONARIO) for p in pessoa])
     # --so-treino: canais que ficam sempre no treino e nunca no teste (como os dicionários, mas fora do
     # teste do dicionário), para medir o efeito de mais dados no mesmo conjunto de teste
     so_treino = tuple(args.so_treino)
-    yt_rots = [r for r in rots if not r["id"].startswith(DICIONARIO) and not (so_treino and r["canal"].startswith(so_treino))]
-    dic_rots = [r for r in rots if r["id"].startswith(DICIONARIO)]
-    E = movimento(compactar(X, cfg["passos"]), cfg["passos"])
+    return types.SimpleNamespace(
+        cfg=cfg, X=X, y=y, pessoa=pessoa, tipo=tipo, classes=classes, glosas=glosas, rots=rots, pastas=pastas,
+        dic_win=np.array([p.startswith(DICIONARIO) for p in pessoa]),
+        yt_rots=[r for r in rots if not r["id"].startswith(DICIONARIO)
+                 and not (so_treino and r["canal"].startswith(so_treino))],
+        dic_rots=[r for r in rots if r["id"].startswith(DICIONARIO)],
+        E=movimento(compactar(X, cfg["passos"]), cfg["passos"]))
 
-    def extras(rots_treino, seed):
-        """Negativas da mão parada ao vivo dos vídeos de treino (--negativas-paradas)."""
-        if cfg["negativas_paradas"] <= 0:
-            return None
-        return janelas_paradas_ao_vivo(rots_treino, pastas, cfg["negativas_paradas"], np.random.default_rng(1000 + seed))
 
-    # Validação cruzada por canal do YouTube (os dicionários ficam sempre no treino)
-    canais = np.array([r["canal"] for r in yt_rots])
+def _extras(c, rots_treino, seed):
+    """Negativas da mão parada ao vivo dos vídeos de treino (--negativas-paradas)."""
+    if c.cfg["negativas_paradas"] <= 0:
+        return None
+    return janelas_paradas_ao_vivo(rots_treino, c.pastas, c.cfg["negativas_paradas"], np.random.default_rng(1000 + seed))
+
+
+def validacao_por_canal(c, grupos, semente):
+    """
+    Validação cruzada por canal do YouTube (os dicionários e os canais do --so-treino ficam sempre no
+    treino), na divisão `semente` (0: a do GroupKFold sem sorteio; N: sorteada com N). O grupo k
+    treina com a semente semente * grupos + k. Devolve (probabilidades ao vivo por vídeo, probs das
+    janelas do dataset, janelas testadas).
+    """
+    from sklearn.model_selection import GroupKFold
+
+    canais = np.array([r["canal"] for r in c.yt_rots])
     pv = {}
-    probs = np.zeros((len(y), len(classes)))
-    testado = np.zeros(len(y), dtype=bool)
-    # --semente: outra divisão dos canais em grupos (confere se o acerto por sinal se repete)
-    gk = GroupKFold(args.grupos, shuffle=True, random_state=args.semente) if args.semente else GroupKFold(args.grupos)
+    probs = np.zeros((len(c.y), len(c.classes)))
+    testado = np.zeros(len(c.y), dtype=bool)
+    gk = GroupKFold(grupos, shuffle=True, random_state=semente) if semente else GroupKFold(grupos)
     for k, (_, te) in enumerate(gk.split(canais, groups=canais)):
         fora = set(canais[te])
-        tr = np.array([p not in fora for p in pessoa])
-        treino_rots = [r for r in rots if r["canal"] not in fora]
-        prever = ajustar(X[tr], y[tr], cfg, seed=k, extra=extras(treino_rots, k))
-        labels, p = prever(compactar(X[~tr], cfg["passos"]))
-        cols = [classes.index(c) for c in labels]
+        tr = np.array([p not in fora for p in c.pessoa])
+        treino_rots = [r for r in c.rots if r["canal"] not in fora]
+        seed = semente * grupos + k
+        prever = ajustar(c.X[tr], c.y[tr], c.cfg, seed=seed, extra=_extras(c, treino_rots, seed))
+        labels, p = prever(compactar(c.X[~tr], c.cfg["passos"]))
         idx = np.where(~tr)[0]
-        probs[np.ix_(idx, cols)] = p
+        probs[np.ix_(idx, [c.classes.index(g) for g in labels])] = p
         testado[idx] = True
         for i in te:
-            pv[yt_rots[i]["id"]] = probs_ao_vivo(yt_rots[i]["id"], pastas, prever, cfg["passos"])
-        print(f"  grupo {k + 1}/{args.grupos}: {len(te)} vídeos", flush=True)
-    m = testado & ~dic_win
+            pv[c.yt_rots[i]["id"]] = probs_ao_vivo(c.yt_rots[i]["id"], c.pastas, prever, c.cfg["passos"])
+        print(f"  divisão {semente}, grupo {k + 1}/{grupos}: {len(te)} vídeos", flush=True)
+    return pv, probs, testado & ~c.dic_win
 
-    # Dicionários: treina só no YouTube
-    prever = ajustar(X[~dic_win], y[~dic_win], cfg, seed=99, extra=extras(yt_rots, 99))
-    labels, p = prever(compactar(X[dic_win], cfg["passos"]))
-    pd = np.zeros((dic_win.sum(), len(classes)))
-    pd[:, [classes.index(c) for c in labels]] = p
-    pv_dic = {r["id"]: probs_ao_vivo(r["id"], pastas, prever, cfg["passos"]) for r in dic_rots}
 
-    sim = {"classes": classes, "glosas": glosas, "grupos": args.grupos, "cfg": cfg, "dataset": args.dataset,
-           "y": y[m], "tipo": tipo[m], "probs": probs[m].astype(np.float32), "E": E[m],
-           "y_dic": y[dic_win], "probs_dic": pd.astype(np.float32), "E_dic": E[dic_win],
-           "rots_cv": yt_rots, "pv": pv, "rots_dic": dic_rots, "pv_dic": pv_dic}
+def teste_dicionario(c):
+    """Dicionários: treina só no YouTube (e nos externos) e roda nos vídeos de dicionário."""
+    prever = ajustar(c.X[~c.dic_win], c.y[~c.dic_win], c.cfg, seed=99, extra=_extras(c, c.yt_rots, 99))
+    labels, p = prever(compactar(c.X[c.dic_win], c.cfg["passos"]))
+    pd = np.zeros((c.dic_win.sum(), len(c.classes)))
+    pd[:, [c.classes.index(g) for g in labels]] = p
+    pv_dic = {r["id"]: probs_ao_vivo(r["id"], c.pastas, prever, c.cfg["passos"]) for r in c.dic_rots}
+    return pd, pv_dic
+
+
+def avaliar(args):
+    import pickle
+
+    regras = regras_de(args)
+    c = contexto(args)
+    # --semente: outra divisão dos canais em grupos (confere se o acerto por sinal se repete)
+    pv, probs, m = validacao_por_canal(c, args.grupos, args.semente)
+    pd, pv_dic = teste_dicionario(c)
+    sim = {"classes": c.classes, "glosas": c.glosas, "grupos": args.grupos, "cfg": c.cfg, "dataset": args.dataset,
+           "y": c.y[m], "tipo": c.tipo[m], "probs": probs[m].astype(np.float32), "E": c.E[m],
+           "y_dic": c.y[c.dic_win], "probs_dic": pd.astype(np.float32), "E_dic": c.E[c.dic_win],
+           "rots_cv": c.yt_rots, "pv": pv, "rots_dic": c.dic_rots, "pv_dic": pv_dic}
     if args.probs:
         with open(args.probs, "wb") as f:
             pickle.dump(sim, f, protocol=pickle.HIGHEST_PROTOCOL)
@@ -654,8 +690,116 @@ def avaliar(args):
     rel = relatorio(sim, regras)
     if args.salvar:
         with open(args.salvar, "w") as f:
-            json.dump({"cfg": {k: list(v) if isinstance(v, tuple) else v for k, v in cfg.items()}, "regras": regras,
-                       "dataset": args.dataset, "glosas": glosas, **rel}, f, ensure_ascii=False)
+            json.dump({"cfg": cfg_json(c.cfg), "regras": regras, "dataset": args.dataset, "glosas": c.glosas, **rel},
+                      f, ensure_ascii=False)
+        print(f"resultados em {args.salvar}")
+
+
+def cfg_json(cfg):
+    return {k: list(v) if isinstance(v, tuple) else v for k, v in cfg.items()}
+
+
+def canais_por_glosa(rots):
+    """Canais diferentes com vídeo no teste "no trecho" (aceito e com o trecho do sinal) por glosa."""
+    por = collections.defaultdict(set)
+    for r in rots:
+        if r.get("aceito") and r.get("sinal"):
+            por[r["glosa"]].add(r["canal"])
+    return {g: len(v) for g, v in sorted(por.items())}
+
+
+def somar_divisoes(cvs):
+    """Soma por glosa o "cv" de várias divisões (o do relatorio): trecho, vídeo e o trecho de cada uma."""
+    soma = {}
+    for cv in cvs:
+        for g, v in cv.items():
+            s = soma.setdefault(g, {"trecho": [0, 0], "video": [0, 0], "divisoes": []})
+            for k in ("trecho", "video"):
+                s[k][0] += v[k][0]
+                s[k][1] += v[k][1]
+            s["divisoes"].append(list(v["trecho"]))
+    return dict(sorted(soma.items()))
+
+
+def avaliar_camera(args):
+    """
+    A decisão da câmera: a validação cruzada por canal em --sementes divisões (0 a N-1, cada uma com
+    os seus treinos), somadas por sinal, e o teste no dicionário. Com --salvar, cada divisão fica
+    guardada ao terminar e uma execução com a mesma configuração continua de onde parou.
+    """
+    regras = regras_de(args)
+    c = contexto(args)
+    chave = {"cfg": cfg_json(c.cfg), "regras": regras, "dataset": os.path.abspath(args.dataset),
+             "rotulos": os.path.abspath(args.rotulos), "so_treino": list(args.so_treino), "grupos": args.grupos,
+             "min_pessoas": args.min_pessoas, "glosas": c.glosas}
+    salvo = {}
+    if args.salvar and os.path.exists(args.salvar):
+        with open(args.salvar) as f:
+            salvo = json.load(f)
+        if salvo.get("chave") != chave:
+            print(f"{args.salvar} é de outra configuração: começa do zero")
+            salvo = {}
+    salvo["chave"] = chave
+    divisoes = salvo.setdefault("divisoes", {})
+
+    def guardar():
+        if args.salvar:
+            tmp = args.salvar + ".tmp"
+            with open(tmp, "w") as f:
+                json.dump(salvo, f, ensure_ascii=False)
+            os.replace(tmp, args.salvar)
+
+    for s in range(args.sementes):
+        if str(s) in divisoes:
+            continue
+        pv, probs, m = validacao_por_canal(c, args.grupos, s)
+        acerto, al_outro, al_parada = medir_janelas(c.y[m], c.tipo[m], probs[m], c.classes, c.E[m], regras)
+        res = [medir_video(r, pv[r["id"]], regras) for r in c.yt_rots]
+        por, al = resumo_videos(res, "", set(c.glosas), imprime=False)
+        divisoes[str(s)] = {"cv": por, "alarmes": al,
+                            "janela": {"acerto": acerto, "alarme_outro": al_outro, "alarme_parada": al_parada}}
+        a = sum(v["trecho"][0] for v in por.values())
+        b = sum(v["trecho"][1] for v in por.values())
+        print(f"divisão {s}: no trecho {a}/{b} ({a / max(b, 1):.1%}) | janela: alarme em \"_\" {al_outro:.1%}, "
+              f"mão parada {al_parada:.1%} | trechos parados com leitura {al['alarmes_parada']}/{al['paradas']}",
+              flush=True)
+        guardar()
+    if "dic" not in salvo:
+        pd, pv_dic = teste_dicionario(c)
+        res = [medir_video(r, pv_dic[r["id"]], regras) for r in c.dic_rots]
+        salvo["dic"], salvo["dic_alarmes"] = resumo_videos(res, "", set(c.glosas), imprime=False)
+        guardar()
+
+    usadas = [divisoes[str(s)] for s in range(args.sementes)]
+    soma = somar_divisoes([d["cv"] for d in usadas])
+    canais = canais_por_glosa(c.yt_rots)
+    escolhidos = sinais_camera(soma, canais, salvo["dic"])
+    salvo.update({"sementes": args.sementes, "soma": soma, "canais": canais, "camera": escolhidos})
+    guardar()
+
+    def media(f):
+        return float(np.mean([f(d) for d in usadas]))
+
+    a = sum(v["trecho"][0] for v in soma.values())
+    b = sum(v["trecho"][1] for v in soma.values())
+    par = sum(d["alarmes"]["alarmes_parada"] for d in usadas)
+    npar = sum(d["alarmes"]["paradas"] for d in usadas)
+    print(f"== soma de {args.sementes} divisões em {args.grupos} grupos ({c.cfg} | {regras})")
+    print(f"no trecho {a}/{b} ({a / max(b, 1):.1%}) | janela (média): alarme em \"_\" "
+          f"{media(lambda d: d['janela']['alarme_outro']):.1%}, mão parada {media(lambda d: d['janela']['alarme_parada']):.1%}"
+          f" | trechos parados com leitura {par}/{npar} | vídeos com leitura de outro sinal "
+          f"{media(lambda d: d['alarmes']['videos_com_outro'] / max(d['alarmes']['videos'], 1)):.1%}")
+    print(f"{'sinal':14} {'soma':>9} {'%':>6} {'menor':>6} {'canais':>6} {'dic':>5}  câmera")
+    for g in sorted(soma, key=lambda g: -soma[g]["trecho"][0] / max(soma[g]["trecho"][1], 1)):
+        sa, sb = soma[g]["trecho"]
+        if not sb:
+            continue
+        menor = min(x / y for x, y in soma[g]["divisoes"] if y)
+        d = salvo["dic"].get(g, {}).get("video", [0, 0])
+        print(f"{g:14} {sa:>4}/{sb:<4} {sa / sb:6.1%} {menor:6.0%} {canais.get(g, 0):6} {d[0]:>2}/{d[1]:<2}  "
+              f"{'sim' if g in escolhidos else ''}")
+    print(f"câmera ({len(escolhidos)}): {' '.join(escolhidos) or 'nenhum'}")
+    if args.salvar:
         print(f"resultados em {args.salvar}")
 
 
@@ -663,7 +807,7 @@ def varrer(args):
     """
     Varre as regras de leitura do app (limiar, portão de movimento, teto do "_") sobre as
     probabilidades guardadas pelo avaliar --probs, sem treinar de novo. Com mais de um arquivo
-    (divisões diferentes dos canais), a câmera é a dos sinais que passam em todos.
+    (divisões diferentes dos canais), a câmera é a da soma deles (sinais_camera).
     """
     import itertools
     import pickle
@@ -677,9 +821,8 @@ def varrer(args):
     for min_p, mm, mx in grade:
         regras = {"min_p": min_p, "min_movimento": mm, "max_p_nenhum": mx}
         rels = [relatorio(s, regras, imprime=False) for s in sims]
-        camera = set(sinais_camera(rels[0]))
-        for r in rels[1:]:
-            camera &= set(sinais_camera(r))
+        camera = sinais_camera(somar_divisoes([r["cv"] for r in rels]), canais_por_glosa(sims[0]["rots_cv"]),
+                               rels[0]["dic"])
 
         def media(f):
             return np.mean([f(r) for r in rels])
@@ -700,14 +843,17 @@ def varrer(args):
                 print(f"      {g}: " + " ".join(f"{a}/{b}" for a, b in vals) + f" | dic {d[0]}/{d[1]}")
 
 
-def sinais_camera(resultados):
-    """Glosas que passam: no trecho >= MIN_ACERTO_CAMERA com >= MIN_TESTE vídeos e, com dicionário, >= MIN_ACERTO_DIC."""
+def sinais_camera(soma, canais, dic):
+    """
+    Glosas que passam: no trecho, somando as divisões (somar_divisoes), >= MIN_ACERTO_CAMERA, com
+    vídeos de >= MIN_CANAIS canais no teste (canais_por_glosa) e, com dicionário, >= MIN_ACERTO_DIC.
+    """
     out = []
-    for g, v in resultados["cv"].items():
+    for g, v in soma.items():
         a, b = v["trecho"]
-        if b < MIN_TESTE or a / b < MIN_ACERTO_CAMERA:
+        if canais.get(g, 0) < MIN_CANAIS or not b or a / b < MIN_ACERTO_CAMERA:
             continue
-        d = resultados["dic"].get(g, {}).get("video", [0, 0])
+        d = dic.get(g, {}).get("video", [0, 0])
         if d[1] >= MIN_DIC and d[0] / d[1] < MIN_ACERTO_DIC:
             continue
         out.append(g)
@@ -762,21 +908,22 @@ def treinar(args):
         "people": int(len({p for p in pessoa if not p.startswith(DICIONARIO)})), "source": "scikit-learn",
         "reading_rules": regras_json(regras_de(args)),
     }
-    if args.resultados:
-        # com mais de um arquivo (divisões diferentes dos canais), o sinal precisa passar em todos
-        todos = []
-        for path in args.resultados:
-            with open(path) as f:
-                todos.append(json.load(f))
-            # resultados de antes das regras de leitura: só o limiar, sem portão
-            medido = todos[-1].get("regras", {"min_p": MIN_P, "min_movimento": 0.0, "max_p_nenhum": 1.0})
-            if medido != regras_de(args):
-                print(f"aviso: {path} foi medido com as regras {medido}, o modelo sai com {regras_de(args)}")
-        res = todos[0]
-        camera = [g for g in sinais_camera(res) if g in labels and all(g in sinais_camera(r) for r in todos[1:])]
+    if args.camera:
+        # a decisão do subcomando camera (soma das divisões dos canais e dicionário)
+        with open(args.camera) as f:
+            res = json.load(f)
+        chave = res["chave"]
+        if chave["regras"] != regras_de(args) or chave["cfg"] != cfg_json(cfg):
+            print(f"aviso: {args.camera} foi medido com {chave['cfg']} e {chave['regras']}, o modelo sai com "
+                  f"{cfg_json(cfg)} e {regras_de(args)}")
+        if chave["dataset"] != os.path.abspath(args.dataset):
+            print(f"aviso: {args.camera} foi medido no dataset {chave['dataset']}")
+        camera = [g for g in res["camera"] if g in labels]
         extra.update({
-            "camera_signs": camera, "camera_min_heldout": MIN_ACERTO_CAMERA,
-            "heldout": {g: {"certas": v["trecho"][0], "total": v["trecho"][1]} for g, v in sorted(res["cv"].items())},
+            "camera_signs": camera, "camera_min_heldout": MIN_ACERTO_CAMERA, "camera_min_channels": MIN_CANAIS,
+            "camera_seeds": res["sementes"], "camera_folds": chave["grupos"],
+            "heldout": {g: {"certas": v["trecho"][0], "total": v["trecho"][1], "canais": res["canais"].get(g, 0)}
+                        for g, v in res["soma"].items()},
             "dictionary": {g: {"certas": v["video"][0], "total": v["video"][1]} for g, v in sorted(res["dic"].items())},
         })
         print(f"câmera: {' '.join(camera) or 'nenhum'}")
@@ -794,7 +941,7 @@ def treinar(args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for nome in ("avaliar", "treinar"):
+    for nome in ("avaliar", "camera", "treinar"):
         a = sub.add_parser(nome)
         a.add_argument("--dataset", default=DATASET)
         a.add_argument("--min-pessoas", type=int, default=MIN_PESSOAS)
@@ -811,22 +958,26 @@ def main():
                        help="portão de movimento do app (0 desliga)")
         a.add_argument("--max-p-nenhum", type=float, default=1.0,
                        help="sem leitura quando p(\"_\") passa disto (1 desliga)")
+    for nome in ("avaliar", "camera"):
+        a = sub.choices[nome]
+        a.add_argument("--landmarks", nargs="+", default=[os.path.join(DATA, "landmarks_sinais")],
+                       help="pastas dos landmarks (os vídeos de --fontes-extra ficam em outra pasta)")
+        a.add_argument("--fontes-extra", nargs="*", default=[],
+                       help="outras listas no formato do fontes_sinais.json (canal dos vídeos novos)")
+        a.add_argument("--rotulos", default=os.path.join(DATA, "rotulos_sinais"))
+        a.add_argument("--grupos", type=int, default=GRUPOS_CAMERA)
+        a.add_argument("--so-treino", nargs="*", default=[],
+                       help="prefixos de canal sempre no treino e nunca no teste (ex.: ext- dos vídeos externos)")
+        a.add_argument("--processos", type=int, default=4)
+        a.add_argument("--salvar", default="")
     a = sub.choices["avaliar"]
-    a.add_argument("--landmarks", nargs="+", default=[os.path.join(DATA, "landmarks_sinais")],
-                   help="pastas dos landmarks (os vídeos de --fontes-extra ficam em outra pasta)")
-    a.add_argument("--fontes-extra", nargs="*", default=[],
-                   help="outras listas no formato do fontes_sinais.json (canal dos vídeos novos)")
-    a.add_argument("--rotulos", default=os.path.join(DATA, "rotulos_sinais"))
-    a.add_argument("--grupos", type=int, default=5)
-    a.add_argument("--so-treino", nargs="*", default=[],
-                   help="prefixos de canal sempre no treino e nunca no teste (ex.: ext- dos vídeos externos)")
-    a.add_argument("--processos", type=int, default=4)
-    a.add_argument("--salvar", default="")
     a.add_argument("--probs", default="", help="guarda as probabilidades (pickle) para o varrer")
     a.add_argument("--semente", type=int, default=0, help="divisão sorteada dos canais nos grupos")
+    sub.choices["camera"].add_argument("--sementes", type=int, default=SEMENTES_CAMERA,
+                                       help="divisões dos canais (0 a N-1) somadas para decidir camera_signs")
     t = sub.choices["treinar"]
     t.add_argument("--out", required=True)
-    t.add_argument("--resultados", nargs="*", default=[], help="o --salvar do avaliar (um ou mais)")
+    t.add_argument("--camera", default="", help="o --salvar do camera (decide camera_signs)")
     r = sub.add_parser("regras", help="grava as regras de leitura no model.json de um modelo exportado")
     r.add_argument("--modelo", required=True, help="pasta com o model.json")
     r.add_argument("--min-p", type=float, default=MIN_P)
@@ -841,6 +992,8 @@ def main():
     args = ap.parse_args()
     if args.cmd == "avaliar":
         avaliar(args)
+    elif args.cmd == "camera":
+        avaliar_camera(args)
     elif args.cmd == "varrer":
         varrer(args)
     elif args.cmd == "regras":
