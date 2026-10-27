@@ -19,7 +19,9 @@
       "save": "Save new password",
       "sendCode": "Send code",
       "title": "Recover password"
-    }
+    },
+    "confirmResent": "We sent another code. Use the latest one.",
+    "signIn": "Sign in"
   },
   "achievementsScreen": {
     "ach_cameraEstreante_desc": "First sign recognized by the camera",

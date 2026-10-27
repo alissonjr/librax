@@ -144,15 +144,32 @@ async function amplifyAuth() {
   return import('aws-amplify/auth');
 }
 
-/** Cria a conta; o Cognito manda um código por e-mail (confirmEmailCode). */
-export async function signUpWithEmail(email: string, password: string, name?: string) {
+/**
+ * Idioma dos e-mails do Cognito (gatilho Custom Message, services/api/src/handlers/customMessage.js):
+ * vai como `clientMetadata.lang` no cadastro, no reenvio do código e no "esqueci a senha", com o idioma
+ * da tela naquele momento, e como o atributo padrão `locale` no cadastro (vale quando não há
+ * clientMetadata). Sem idioma, o e-mail sai em português.
+ */
+const langMetadata = (lang?: string) => (lang ? { clientMetadata: { lang } } : {});
+
+/** Cria a conta; o Cognito manda um código por e-mail (confirmEmailCode) no idioma `lang`. */
+export async function signUpWithEmail(email: string, password: string, name?: string, lang?: string) {
   const { signUp } = await amplifyAuth();
   const r = await signUp({
     username: email,
     password,
-    options: { userAttributes: { email, ...(name ? { given_name: name } : {}) } },
+    options: {
+      userAttributes: { email, ...(name ? { given_name: name } : {}), ...(lang ? { locale: lang } : {}) },
+      ...langMetadata(lang),
+    },
   });
   return { needsConfirmation: !r.isSignUpComplete };
+}
+
+/** Manda de novo o código do cadastro (conta ainda não confirmada). */
+export async function resendSignUpCode(email: string, lang?: string): Promise<void> {
+  const { resendSignUpCode: resend } = await amplifyAuth();
+  await resend({ username: email, options: langMetadata(lang) });
 }
 
 export async function confirmEmailCode(email: string, code: string): Promise<boolean> {
@@ -179,10 +196,10 @@ const HIDDEN_RESET_ERRORS = ['UserNotFoundException', 'NotAuthorizedException', 
  * Os erros que ainda poderiam contar se a conta existe (client sem essa opção) também viram
  * sucesso aqui, para a tela nunca saber.
  */
-export async function requestPasswordReset(email: string): Promise<void> {
+export async function requestPasswordReset(email: string, lang?: string): Promise<void> {
   const { resetPassword } = await amplifyAuth();
   try {
-    await resetPassword({ username: email });
+    await resetPassword({ username: email, ...(lang ? { options: langMetadata(lang) } : {}) });
   } catch (err) {
     const name = (err as { name?: string } | null)?.name ?? '';
     if (!HIDDEN_RESET_ERRORS.includes(name)) throw err;
