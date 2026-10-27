@@ -24,8 +24,18 @@ import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as budgets from 'aws-cdk-lib/aws-budgets';
+import * as ce from 'aws-cdk-lib/aws-ce';
 import { Annotations, Duration, RemovalPolicy, SecretValue } from 'aws-cdk-lib';
 import { readConfig, PLACEHOLDER_DOMAIN } from './config';
+import {
+  anomalyThresholdUsd,
+  budgetName,
+  API_STAGE_THROTTLE,
+  DYNAMO_MAX_READ_UNITS,
+  DYNAMO_MAX_WRITE_UNITS,
+  RESERVED_CONCURRENCY,
+  ROUTE_THROTTLES,
+} from './cost-guards';
 import { assetLinks, assetLinksFunction } from './assetlinks';
 import { cognitoUserPoolEmail, COGNITO_USER_VERIFICATION } from './cognito-email';
 import {
@@ -49,6 +59,19 @@ import {
   LANDING_SHORT_CACHE,
 } from './landing';
 
+/**
+ * Buckets versionados: cada publicacao (sync --delete) deixa a versao anterior de cada arquivo como
+ * "nao atual", e ela seria cobrada para sempre. Apaga as versoes antigas depois de 30 dias (tempo de
+ * sobra para desfazer uma publicacao) e os envios em partes que nunca terminaram depois de 7 dias.
+ */
+const VERSIONED_BUCKET_LIFECYCLE: s3.LifecycleRule[] = [
+  {
+    id: 'versoes-antigas-30-dias',
+    noncurrentVersionExpiration: Duration.days(30),
+    abortIncompleteMultipartUploadAfter: Duration.days(7),
+  },
+];
+
 /** Raiz do backend (services/api): codigo das Lambdas, package-lock e node_modules. */
 const API_DIR = path.join(__dirname, '..', '..', 'services', 'api');
 
@@ -68,7 +91,10 @@ const API_DIR = path.join(__dirname, '..', '..', 'services', 'api');
  * - EventBridge Scheduler: fechar liga semanal, lembretes (Web Push e e-mail opcional) e o job
  *   diario do painel de administracao (CloudWatch e Cost Explorer)
  * - Painel de administracao em /admin (bucket proprio), so para o grupo `admin` do Cognito
- * - Alarmes do CloudWatch com aviso por e-mail (SNS) e AWS Budget mensal (80% e 100%)
+ * - Alarmes do CloudWatch com aviso por e-mail (SNS), AWS Budget mensal (80% e 100% do gasto e 100%
+ *   da previsao) e, opcional, alerta de anomalia de custo (Cost Anomaly Detection)
+ * - Travas de custo gratuitas (lib/cost-guards.ts): limite por rota da API, teto de vazao da tabela,
+ *   concorrencia reservada opcional e alarme de download do CloudFront
  *
  * Parametros de contexto: ver lib/config.ts. O dominio padrao (librax.example) e placeholder.
  */
@@ -105,6 +131,11 @@ export class LibraxStack extends cdk.Stack {
       billingMode:  dynamodb.BillingMode.PAY_PER_REQUEST,  // free tier + escala automaticamente
       timeToLiveAttribute: 'expiresAt',  // ATTEMPT# (idempotencia) expira em 60 dias
       pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
+      // Teto de vazao sob demanda (OnDemandThroughput, muda no lugar): acima disso o DynamoDB recusa em
+      // vez de cobrar, e o alarme librax-dynamodb-throttles avisa. Vale para a tabela; os indices so
+      // recebem escrita derivada dela e as leituras deles passam pelo limite da API.
+      maxReadRequestUnits: DYNAMO_MAX_READ_UNITS,
+      maxWriteRequestUnits: DYNAMO_MAX_WRITE_UNITS,
       removalPolicy: RemovalPolicy.RETAIN,  // nunca apagar dado de producao via CDK
     });
 
@@ -162,6 +193,7 @@ export class LibraxStack extends cdk.Stack {
       encryption: s3.BucketEncryption.S3_MANAGED,
       enforceSSL: true,
       versioned: true,
+      lifecycleRules: VERSIONED_BUCKET_LIFECYCLE,
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
@@ -171,6 +203,7 @@ export class LibraxStack extends cdk.Stack {
       encryption: s3.BucketEncryption.S3_MANAGED,
       enforceSSL: true,
       versioned: true,
+      lifecycleRules: VERSIONED_BUCKET_LIFECYCLE,
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
@@ -181,6 +214,7 @@ export class LibraxStack extends cdk.Stack {
       encryption: s3.BucketEncryption.S3_MANAGED,
       enforceSSL: true,
       versioned: true,
+      lifecycleRules: VERSIONED_BUCKET_LIFECYCLE,
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
@@ -190,6 +224,7 @@ export class LibraxStack extends cdk.Stack {
       encryption: s3.BucketEncryption.S3_MANAGED,
       enforceSSL: true,
       versioned: true,
+      lifecycleRules: VERSIONED_BUCKET_LIFECYCLE,
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
@@ -219,6 +254,13 @@ export class LibraxStack extends cdk.Stack {
       // Texto padrao do codigo em portugues; o gatilho Custom Message (abaixo) manda o e-mail com a
       // identidade do Librax no idioma da pessoa e cai neste texto se falhar
       userVerification: COGNITO_USER_VERIFICATION,
+      // Segundo fator opcional e so por aplicativo autenticador (TOTP, gratis; nunca SMS). Quem usa o
+      // app nao ve nada disso; o painel exige o fator de quem e admin (handlers/admin.js) e guia a
+      // configuracao no primeiro acesso (apps/admin-web). MfaConfiguration e EnabledMfas mudam no lugar.
+      mfa: cognito.Mfa.OPTIONAL,
+      mfaSecondFactor: { otp: true, sms: false },
+      // Nem o CloudFormation nem o console apagam o User Pool (e as contas) por engano
+      deletionProtection: true,
       removalPolicy: RemovalPolicy.RETAIN,
     });
 
@@ -290,6 +332,14 @@ export class LibraxStack extends cdk.Stack {
       NODE_OPTIONS: '--enable-source-maps',
     };
 
+    // Concorrencia reservada (librax:lambdaReservedConcurrency, desligada por padrao): cada Lambda da
+    // API tem o seu teto (lib/cost-guards.ts), e um abuso numa rota nao toma a conta inteira. Com a cota
+    // da conta em 10 (conta nova) a reserva faz o deploy falhar: o script de lancamento confere antes.
+    const reserved = (functionName?: string) =>
+      config.lambdaReservedConcurrency && functionName && RESERVED_CONCURRENCY[functionName] !== undefined
+        ? { reservedConcurrentExecutions: RESERVED_CONCURRENCY[functionName] }
+        : {};
+
     const makeFn = (
       id: string,
       file: string,
@@ -315,6 +365,7 @@ export class LibraxStack extends cdk.Stack {
           minify: true,
           externalModules: ['@aws-sdk/*'],  // ja vem no runtime Node 22
         },
+        ...reserved(extra.functionName),
         ...extra,
         environment: { ...lambdaEnv, ...extra.environment },
       });
@@ -462,9 +513,10 @@ export class LibraxStack extends cdk.Stack {
     table.grantReadData(adminFn);          // o painel so le
     table.grantWriteData(postConfirmationFn);
 
-    // Busca de conta pelo e-mail: so ListUsers, so neste User Pool
+    // Busca de conta pelo e-mail (ListUsers) e conferencia do segundo fator de quem abre o painel
+    // (AdminGetUser: UserMFASettingList), so neste User Pool
     adminFn.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['cognito-idp:ListUsers'],
+      actions: ['cognito-idp:ListUsers', 'cognito-idp:AdminGetUser'],
       resources: [userPool.userPoolArn],
     }));
 
@@ -539,7 +591,8 @@ export class LibraxStack extends cdk.Stack {
       httpApi,
       stageName: 'api',
       autoDeploy: true,
-      throttle: { rateLimit: 50, burstLimit: 100 },
+      // Limite global (lib/cost-guards.ts); as rotas pesadas tem limite proprio, ver addRoute abaixo
+      throttle: API_STAGE_THROTTLE,
     });
 
     // -----------------------------------------------------------------------
@@ -888,7 +941,12 @@ export class LibraxStack extends cdk.Stack {
       authFlows: { userSrp: false, userPassword: false, custom: false, adminUserPassword: false },
       oAuth: {
         flows: { authorizationCodeGrant: true, implicitCodeGrant: false },
-        scopes: [cognito.OAuthScope.OPENID, cognito.OAuthScope.EMAIL, cognito.OAuthScope.PROFILE],
+        // aws.cognito.signin.user.admin: o access token do painel configura o autenticador da propria
+        // conta (AssociateSoftwareToken, VerifySoftwareToken, SetUserMFAPreference). AllowedOAuthScopes
+        // muda no lugar. O app client do app continua so com openid, email e profile.
+        scopes: [
+          cognito.OAuthScope.OPENID, cognito.OAuthScope.EMAIL, cognito.OAuthScope.PROFILE, cognito.OAuthScope.COGNITO_ADMIN,
+        ],
         callbackUrls: [...origins.map((o) => `${o}/admin/auth/callback`), ...config.extraAdminCallbackUrls],
         logoutUrls: [...origins.map((o) => `${o}/admin/`), ...config.extraAdminLogoutUrls],
       },
@@ -904,13 +962,14 @@ export class LibraxStack extends cdk.Stack {
       jwtAudience: [adminClient.userPoolClientId],
     });
 
+    const routesByKey = new Map<string, apigatewayv2.HttpRoute>();
     const addRoute = (
       method: apigatewayv2.HttpMethod,
       routePath: string,
       fn: lambda.IFunction,
       routeAuthorizer: apigatewayv2.IHttpRouteAuthorizer = authorizer,
-    ) =>
-      httpApi.addRoutes({
+    ) => {
+      const routes = httpApi.addRoutes({
         path: routePath,
         methods: [method],
         integration: new apigatewayv2integrations.HttpLambdaIntegration(
@@ -919,6 +978,9 @@ export class LibraxStack extends cdk.Stack {
         ),
         authorizer: routeAuthorizer,
       });
+      routesByKey.set(`${method} ${routePath}`, routes[0]);
+      return routes;
+    };
 
     const M = apigatewayv2.HttpMethod;
 
@@ -956,6 +1018,17 @@ export class LibraxStack extends cdk.Stack {
     ]) {
       addRoute(M.GET, routePath, adminFn, adminAuthorizer);
     }
+
+    // Limite por rota (RouteSettings do estagio; o HttpStage do CDK so tem o global). O estagio
+    // depende das rotas: o API Gateway recusa RouteSettings de rota que ainda nao existe.
+    const routeSettings: Record<string, { ThrottlingRateLimit: number; ThrottlingBurstLimit: number }> = {};
+    for (const [routeKey, limit] of Object.entries(ROUTE_THROTTLES)) {
+      const route = routesByKey.get(routeKey);
+      if (!route) throw new Error(`lib/cost-guards.ts: limite para a rota ${routeKey}, que nao existe na API`);
+      routeSettings[routeKey] = { ThrottlingRateLimit: limit.rateLimit, ThrottlingBurstLimit: limit.burstLimit };
+      apiStage.node.addDependency(route);
+    }
+    (apiStage.node.defaultChild as apigatewayv2.CfnStage).routeSettings = routeSettings;
 
     // -----------------------------------------------------------------------
     // 8. DNS (opcional): A/AAAA da landing (apex e www), do app e do dominio do Cognito
@@ -1052,10 +1125,11 @@ export class LibraxStack extends cdk.Stack {
     // 10. Alarmes (CloudWatch + SNS por e-mail) e AWS Budget
     // -----------------------------------------------------------------------
 
-    // Alarmes agregados, para caber nos 10 alarmes gratis do CloudWatch (9 metricas aqui): erros
+    // Alarmes agregados, para caber nos 10 alarmes gratis do CloudWatch (10 metricas aqui): erros
     // e throttling de todas as Lambdas da conta, duracao das Lambdas da API pela latencia de
-    // integracao do estagio, duracao maxima dos jobs perto do timeout, 5xx da API e throttling
-    // do DynamoDB. O detalhe por funcao fica no painel (job diario).
+    // integracao do estagio, duracao maxima dos jobs perto do timeout, 5xx da API, throttling
+    // do DynamoDB (inclui o teto de vazao) e download do CloudFront do app. O detalhe por funcao
+    // fica no painel (job diario).
     const alarmTopic = new sns.Topic(this, 'AlarmTopic', {
       topicName: 'librax-alarms',
       displayName: 'Librax - alertas',
@@ -1139,33 +1213,94 @@ export class LibraxStack extends cdk.Stack {
       threshold: 1,
       evaluationPeriods: 1,
     });
+    // Download do CloudFront do app (metrica padrao do CloudFront, gratis). A primeira instalacao baixa
+    // de 30 a 45 MB; o limite (librax:appDownloadAlarmGbPerHour) fica bem acima do uso esperado e avisa
+    // cedo de um abuso que gasta transferencia (sem WAF, o CloudFront nao barra sozinho).
+    alarm('AppDownloadAlarm', {
+      alarmName: 'librax-app-download',
+      alarmDescription:
+        `CloudFront do app entregou mais de ${config.appDownloadAlarmGbPerHour} GB em 1 hora (instalacao nova: 30 a 45 MB). ` +
+        'Confira em CloudFront > Relatorios quem esta baixando.',
+      // As metricas do CloudFront ficam em us-east-1 com DistributionId e Region=Global; sem a regiao
+      // o alarme nunca recebe dado (o metricBytesDownloaded do CDK so poe o DistributionId)
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/CloudFront',
+        metricName: 'BytesDownloaded',
+        dimensionsMap: { DistributionId: distribution.distributionId, Region: 'Global' },
+        statistic: 'Sum',
+        period: Duration.hours(1),
+      }),
+      threshold: config.appDownloadAlarmGbPerHour * 1024 ** 3,
+      evaluationPeriods: 1,
+    });
 
-    // Orcamento mensal com aviso por e-mail em 80% e 100% do gasto real (valor em
-    // librax:monthlyBudgetUsd). Budgets sem acoes nao sao cobrados.
+    // Orcamento mensal com aviso por e-mail em 80% e 100% do gasto real e em 100% da previsao do mes
+    // (valor em librax:monthlyBudgetUsd). Budgets sem acoes nao sao cobrados. A previsao so aparece
+    // depois de algumas semanas de uso.
     const budgetEmail = config.budget.email;
     if (budgetEmail) {
+      const notificationsWithSubscribers: budgets.CfnBudget.NotificationWithSubscribersProperty[] = [
+        ...[80, 100].map((threshold) => ({ type: 'ACTUAL', threshold })),
+        { type: 'FORECASTED', threshold: 100 },
+      ].map(({ type, threshold }) => ({
+        notification: {
+          notificationType: type,
+          comparisonOperator: 'GREATER_THAN',
+          threshold,
+          thresholdType: 'PERCENTAGE',
+        },
+        subscribers: [{ subscriptionType: 'EMAIL', address: budgetEmail }],
+      }));
       new budgets.CfnBudget(this, 'MonthlyBudget', {
         budget: {
-          budgetName: 'librax-mensal',
+          // Nome com o resumo dos avisos: trocar o e-mail ou um aviso substitui o orcamento sem
+          // travar o deploy (lib/cost-guards.ts, budgetName)
+          budgetName: budgetName(notificationsWithSubscribers),
           budgetType: 'COST',
           timeUnit: 'MONTHLY',
           budgetLimit: { amount: config.budget.monthlyUsd, unit: 'USD' },
         },
-        notificationsWithSubscribers: [80, 100].map((threshold) => ({
-          notification: {
-            notificationType: 'ACTUAL',
-            comparisonOperator: 'GREATER_THAN',
-            threshold,
-            thresholdType: 'PERCENTAGE',
-          },
-          subscribers: [{ subscriptionType: 'EMAIL', address: budgetEmail }],
-        })),
+        notificationsWithSubscribers,
       });
     } else {
       Annotations.of(this).addWarningV2(
         'librax:no-budget-email',
         'Sem librax:budgetEmail (ou librax:alarmEmail): o AWS Budget mensal nao e criado.',
       );
+    }
+
+    // Alerta de anomalia de custo (Cost Anomaly Detection, gratis), por e-mail num resumo diario.
+    // Opcional (librax:costAnomalyAlerts): a API do Cost Explorer so responde depois que ele e ativado
+    // na conta, e so cabe um monitor de servicos por conta (a AWS costuma criar um sozinha). O script
+    // de lancamento le a conta e escolhe: usar o monitor que ja existe (ARN) ou criar um.
+    if (config.costAnomaly.mode !== 'off') {
+      if (!budgetEmail) {
+        Annotations.of(this).addWarningV2(
+          'librax:no-anomaly-email',
+          'librax:costAnomalyAlerts ligado, mas sem e-mail (librax:budgetEmail ou librax:alarmEmail): o alerta nao e criado.',
+        );
+      } else {
+        const monitorArn = config.costAnomaly.mode === 'existing'
+          ? config.costAnomaly.monitorArn
+          : new ce.CfnAnomalyMonitor(this, 'CostAnomalyMonitor', {
+              monitorName: 'librax-servicos',
+              monitorType: 'DIMENSIONAL',
+              monitorDimension: 'SERVICE',
+            }).attrMonitorArn;
+        new ce.CfnAnomalySubscription(this, 'CostAnomalySubscription', {
+          subscriptionName: 'librax-anomalias',
+          frequency: 'DAILY',
+          monitorArnList: [monitorArn],
+          subscribers: [{ type: 'EMAIL', address: budgetEmail }],
+          thresholdExpression: JSON.stringify({
+            Dimensions: {
+              Key: 'ANOMALY_TOTAL_IMPACT_ABSOLUTE',
+              MatchOptions: ['GREATER_THAN_OR_EQUAL'],
+              Values: [String(anomalyThresholdUsd(config.budget.monthlyUsd))],
+            },
+          }),
+        });
+      }
     }
 
     // -----------------------------------------------------------------------

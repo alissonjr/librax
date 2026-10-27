@@ -1,0 +1,454 @@
+{
+  "pool": {
+    "LibraxUserPool82797A76": {
+      "Type": "AWS::Cognito::UserPool",
+      "Properties": {
+        "AccountRecoverySetting": {
+          "RecoveryMechanisms": [
+            {
+              "Name": "verified_email",
+              "Priority": 1
+            }
+          ]
+        },
+        "AdminCreateUserConfig": {
+          "AllowAdminCreateUserOnly": false
+        },
+        "AutoVerifiedAttributes": [
+          "email"
+        ],
+        "EmailVerificationMessage": "Olá! Seu código do Librax é {####}. Digite esse código no app para confirmar seu e-mail ou criar uma nova senha. Se não foi você que pediu, é só ignorar esta mensagem. Bons estudos em Libras!",
+        "EmailVerificationSubject": "Seu código do Librax",
+        "LambdaConfig": {
+          "CustomMessage": {
+            "Fn::GetAtt": [
+              "CustomMessageFn82DE5B2C",
+              "Arn"
+            ]
+          },
+          "PostConfirmation": {
+            "Fn::GetAtt": [
+              "PostConfirmationFnE0D8EF4F",
+              "Arn"
+            ]
+          }
+        },
+        "Policies": {
+          "PasswordPolicy": {
+            "MinimumLength": 8,
+            "RequireLowercase": false,
+            "RequireNumbers": false,
+            "RequireSymbols": false,
+            "RequireUppercase": false
+          }
+        },
+        "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "UserPoolName": "librax-users",
+        "UserPoolTier": "LITE",
+        "UsernameAttributes": [
+          "email"
+        ],
+        "VerificationMessageTemplate": {
+          "DefaultEmailOption": "CONFIRM_WITH_CODE",
+          "EmailMessage": "Olá! Seu código do Librax é {####}. Digite esse código no app para confirmar seu e-mail ou criar uma nova senha. Se não foi você que pediu, é só ignorar esta mensagem. Bons estudos em Libras!",
+          "EmailSubject": "Seu código do Librax",
+          "SmsMessage": "The verification code to your new account is {####}"
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain"
+    }
+  },
+  "clients": {
+    "LibraxAppClientC7EEF40A": {
+      "Type": "AWS::Cognito::UserPoolClient",
+      "Properties": {
+        "AccessTokenValidity": 60,
+        "AllowedOAuthFlows": [
+          "code"
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthScopes": [
+          "openid",
+          "email",
+          "profile"
+        ],
+        "CallbackURLs": [
+          "https://app.librax.example/auth/callback"
+        ],
+        "ExplicitAuthFlows": [
+          "ALLOW_USER_SRP_AUTH",
+          "ALLOW_REFRESH_TOKEN_AUTH"
+        ],
+        "GenerateSecret": false,
+        "IdTokenValidity": 60,
+        "LogoutURLs": [
+          "https://app.librax.example/"
+        ],
+        "PreventUserExistenceErrors": "ENABLED",
+        "RefreshTokenValidity": 43200,
+        "SupportedIdentityProviders": [
+          "COGNITO",
+          "Google"
+        ],
+        "TokenValidityUnits": {
+          "AccessToken": "minutes",
+          "IdToken": "minutes",
+          "RefreshToken": "minutes"
+        },
+        "UserPoolId": {
+          "Ref": "LibraxUserPool82797A76"
+        }
+      },
+      "DependsOn": [
+        "GoogleIdP776058BD"
+      ]
+    },
+    "LibraxAdminClientAEAD15B7": {
+      "Type": "AWS::Cognito::UserPoolClient",
+      "Properties": {
+        "AccessTokenValidity": 60,
+        "AllowedOAuthFlows": [
+          "code"
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthScopes": [
+          "openid",
+          "email",
+          "profile"
+        ],
+        "CallbackURLs": [
+          "https://app.librax.example/admin/auth/callback"
+        ],
+        "ClientName": "librax-admin",
+        "ExplicitAuthFlows": [
+          "ALLOW_REFRESH_TOKEN_AUTH"
+        ],
+        "GenerateSecret": false,
+        "IdTokenValidity": 60,
+        "LogoutURLs": [
+          "https://app.librax.example/admin/"
+        ],
+        "PreventUserExistenceErrors": "ENABLED",
+        "RefreshTokenValidity": 720,
+        "SupportedIdentityProviders": [
+          "COGNITO",
+          "Google"
+        ],
+        "TokenValidityUnits": {
+          "AccessToken": "minutes",
+          "IdToken": "minutes",
+          "RefreshToken": "minutes"
+        },
+        "UserPoolId": {
+          "Ref": "LibraxUserPool82797A76"
+        }
+      },
+      "DependsOn": [
+        "GoogleIdP776058BD"
+      ]
+    }
+  },
+  "table": {
+    "LibraxTable460BCCB2": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "PK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "SK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI1PK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI1SK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI2PK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI2SK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI3PK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI3SK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI4PK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI4SK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI5PK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI5SK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI6PK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "GSI6SK",
+            "AttributeType": "S"
+          }
+        ],
+        "BillingMode": "PAY_PER_REQUEST",
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "GSI1",
+            "KeySchema": [
+              {
+                "AttributeName": "GSI1PK",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "GSI1SK",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            }
+          },
+          {
+            "IndexName": "GSI2",
+            "KeySchema": [
+              {
+                "AttributeName": "GSI2PK",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "GSI2SK",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            }
+          },
+          {
+            "IndexName": "GSI3",
+            "KeySchema": [
+              {
+                "AttributeName": "GSI3PK",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "GSI3SK",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            }
+          },
+          {
+            "IndexName": "GSI4",
+            "KeySchema": [
+              {
+                "AttributeName": "GSI4PK",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "GSI4SK",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            }
+          },
+          {
+            "IndexName": "GSI5",
+            "KeySchema": [
+              {
+                "AttributeName": "GSI5PK",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "GSI5SK",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            }
+          },
+          {
+            "IndexName": "GSI6",
+            "KeySchema": [
+              {
+                "AttributeName": "GSI6PK",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "GSI6SK",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            }
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "PK",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "SK",
+            "KeyType": "RANGE"
+          }
+        ],
+        "PointInTimeRecoverySpecification": {
+          "PointInTimeRecoveryEnabled": true
+        },
+        "TableName": "librax",
+        "TimeToLiveSpecification": {
+          "AttributeName": "expiresAt",
+          "Enabled": true
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain"
+    }
+  },
+  "stage": {
+    "LibraxApiStage3DEE3262": {
+      "Type": "AWS::ApiGatewayV2::Stage",
+      "Properties": {
+        "ApiId": {
+          "Ref": "LibraxApiF6EB225E"
+        },
+        "AutoDeploy": true,
+        "DefaultRouteSettings": {
+          "ThrottlingBurstLimit": 100,
+          "ThrottlingRateLimit": 50
+        },
+        "StageName": "api"
+      }
+    }
+  },
+  "buckets": {
+    "LibraxWebBucketBFABC5A8": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain"
+    },
+    "LibraxContentBucketAF49EF4E": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain"
+    },
+    "LibraxAdminBucket2099A00D": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain"
+    },
+    "LibraxLandingBucket05FCF4DB": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      },
+      "UpdateReplacePolicy": "Retain",
+      "DeletionPolicy": "Retain"
+    }
+  }
+}

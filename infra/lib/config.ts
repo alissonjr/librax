@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { existsSync, readFileSync } from 'fs';
 import { Node } from 'constructs';
+import { APP_DOWNLOAD_ALARM_GB_PER_HOUR } from './cost-guards';
 import { DEFAULT_ANDROID_PACKAGE, normalizeFingerprint, validPackageName } from './assetlinks';
 
 /**
@@ -49,6 +50,9 @@ import { DEFAULT_ANDROID_PACKAGE, normalizeFingerprint, validPackageName } from 
  * | librax:monthlyBudgetUsd        | 10                              | valor mensal do AWS Budget, em dolares |
  * | librax:androidPackageName      | br.com.librax.app               | pacote do app Android (TWA) no assetlinks.json |
  * | librax:androidCertFingerprints | (vazio)                         | SHA-256 dos certificados do app Android, separados por virgula (upload e Play App Signing) |
+ * | librax:lambdaReservedConcurrency | false                         | reserva concorrencia por Lambda da API (lib/cost-guards.ts); so ligue com a cota da conta em 1000 |
+ * | librax:costAnomalyAlerts       | off                             | alerta de anomalia de custo por e-mail: off, create (cria o monitor) ou o ARN de um monitor que ja existe |
+ * | librax:appDownloadAlarmGbPerHour | 5                             | alarme de download do CloudFront do app, em GB por hora |
  *
  * Os e-mails nunca ficam no codigo: passe por contexto (`-c librax:alarmEmail=...`) ou no
  * cdk.context.json local, que nao vai para o repositorio.
@@ -92,6 +96,15 @@ export interface LibraxConfig {
   budget: { email?: string; monthlyUsd: number };
   /** App Android (TWA, apps/android-twa): o que vai no /.well-known/assetlinks.json do app. */
   android: { packageName: string; certFingerprints: string[] };
+  /** Concorrencia reservada nas Lambdas da API (lib/cost-guards.ts). Desligada por padrao. */
+  lambdaReservedConcurrency: boolean;
+  /**
+   * Cost Anomaly Detection: `off` (padrao), `create` (a stack cria o monitor de servicos) ou o ARN de um
+   * monitor que ja existe na conta (a AWS cria um sozinha quando o Cost Explorer e ativado, e so cabe
+   * um monitor de servicos por conta). O script de lancamento escolhe sozinho, so lendo a conta.
+   */
+  costAnomaly: { mode: 'off' } | { mode: 'create' } | { mode: 'existing'; monitorArn: string };
+  appDownloadAlarmGbPerHour: number;
 }
 
 export const PLACEHOLDER_DOMAIN = 'librax.example';
@@ -181,7 +194,21 @@ export function readConfig(node: Node): LibraxConfig {
       packageName: androidPackage(str('androidPackageName', DEFAULT_ANDROID_PACKAGE)),
       certFingerprints: [...new Set(list('androidCertFingerprints').map(fingerprint))],
     },
+    lambdaReservedConcurrency: bool('lambdaReservedConcurrency', false),
+    costAnomaly: costAnomaly(str('costAnomalyAlerts', 'off')),
+    appDownloadAlarmGbPerHour: positiveNumber(str('appDownloadAlarmGbPerHour', String(APP_DOWNLOAD_ALARM_GB_PER_HOUR)), 'appDownloadAlarmGbPerHour'),
   };
+}
+
+const ANOMALY_MONITOR_ARN = /^arn:aws:ce::\d{12}:anomalymonitor\/[0-9a-f-]{36}$/;
+
+function costAnomaly(raw: string): LibraxConfig['costAnomaly'] {
+  if (raw === 'off' || raw === 'false') return { mode: 'off' };
+  if (raw === 'create' || raw === 'true') return { mode: 'create' };
+  if (ANOMALY_MONITOR_ARN.test(raw)) return { mode: 'existing', monitorArn: raw };
+  throw new Error(
+    `librax:costAnomalyAlerts deve ser off, create ou o ARN de um monitor (arn:aws:ce::<conta>:anomalymonitor/<id>); veio "${raw}"`,
+  );
 }
 
 function androidPackage(name: string): string {

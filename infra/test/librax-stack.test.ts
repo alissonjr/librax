@@ -392,14 +392,25 @@ describe('Cognito', () => {
         expect(now.recurso.DeletionPolicy).toBe('Retain');
         expect(now.recurso.UpdateReplacePolicy).toBe('Retain');
         expect(now.props.Schema).toBeUndefined();
-        const { LambdaConfig: lc, ...rest } = now.props as { LambdaConfig: Record<string, unknown> };
+        // MFA e protecao contra exclusao vieram depois (revisao de custo e seguranca, teste proprio)
+        const {
+          LambdaConfig: lc, MfaConfiguration: _mfa, EnabledMfas: _mfas, DeletionProtection: _del, ...rest
+        } = now.props as { LambdaConfig: Record<string, unknown> } & Record<string, unknown>;
         const { LambdaConfig: oldLc, ...oldRest } = oldPool.Properties as { LambdaConfig: Record<string, unknown> };
         expect(rest).toEqual(oldRest);
         const { CustomMessage, ...otherTriggers } = lc;
         expect(CustomMessage).toBeDefined();
         expect(otherTriggers).toEqual(oldLc);
-        // app clients sem mudanca nenhuma (o `locale` ja e gravavel: o client nao restringe atributos)
-        expect(template.findResources('AWS::Cognito::UserPoolClient')).toEqual(before[`ses-${ses}`].clients);
+        // app clients sem mudanca nenhuma (o `locale` ja e gravavel: o client nao restringe atributos);
+        // o escopo do painel para o autenticador veio depois (teste proprio)
+        const semEscopoDoPainel = (clients: Record<string, { Properties: Record<string, unknown> }>) =>
+          Object.fromEntries(Object.entries(clients).map(([id, c]) => {
+            const { AllowedOAuthScopes: _scopes, ...props } = c.Properties;
+            return [id, { ...c, Properties: props }];
+          }));
+        expect(semEscopoDoPainel(template.findResources('AWS::Cognito::UserPoolClient'))).toEqual(
+          semEscopoDoPainel(before[`ses-${ses}`].clients),
+        );
       }
     });
 
@@ -769,8 +780,9 @@ describe('Alarmes e orcamento', () => {
     const alarms = Object.values(template.findResources('AWS::CloudWatch::Alarm')).map((r) => r.Properties);
     const names = alarms.map((a) => a.AlarmName).sort();
     expect(names).toEqual([
-      'librax-api-5xx', 'librax-api-lambda-duration', 'librax-close-league-duration', 'librax-dynamodb-throttles',
-      'librax-lambda-errors', 'librax-lambda-throttles', 'librax-ops-daily-duration', 'librax-reminders-duration',
+      'librax-api-5xx', 'librax-api-lambda-duration', 'librax-app-download', 'librax-close-league-duration',
+      'librax-dynamodb-throttles', 'librax-lambda-errors', 'librax-lambda-throttles', 'librax-ops-daily-duration',
+      'librax-reminders-duration',
     ]);
     const byName = Object.fromEntries(alarms.map((a) => [a.AlarmName, a]));
     expect(byName['librax-lambda-errors']).toMatchObject({ Namespace: 'AWS/Lambda', MetricName: 'Errors', Threshold: 1 });
@@ -806,14 +818,14 @@ describe('Alarmes e orcamento', () => {
     }
   });
 
-  test('AWS Budget mensal com aviso em 80% e 100% e valor configuravel', () => {
+  test('AWS Budget mensal com aviso em 80% e 100% do gasto, 100% da previsao e valor configuravel', () => {
     const { template } = synth({
       ...withDomain, 'librax:alarmEmail': 'alertas@exemplo.com', 'librax:budgetEmail': 'financeiro@exemplo.com', 'librax:monthlyBudgetUsd': '25',
     });
     const [budget] = Object.values(template.findResources('AWS::Budgets::Budget')).map((r) => r.Properties);
     expect(budget.Budget).toMatchObject({ BudgetType: 'COST', TimeUnit: 'MONTHLY', BudgetLimit: { Amount: 25, Unit: 'USD' } });
     expect(budget.NotificationsWithSubscribers.map((n: { Notification: { Threshold: number; NotificationType: string } }) =>
-      [n.Notification.NotificationType, n.Notification.Threshold])).toEqual([['ACTUAL', 80], ['ACTUAL', 100]]);
+      [n.Notification.NotificationType, n.Notification.Threshold])).toEqual([['ACTUAL', 80], ['ACTUAL', 100], ['FORECASTED', 100]]);
     for (const n of budget.NotificationsWithSubscribers) {
       expect(n.Subscribers).toEqual([{ SubscriptionType: 'EMAIL', Address: 'financeiro@exemplo.com' }]);
     }

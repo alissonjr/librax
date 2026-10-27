@@ -2,10 +2,9 @@
  * Cabecalhos de seguranca do app web servido pelo CloudFront (plano mobile web, decisao 14).
  *
  * Tudo na mesma origem (`/`, `/content/`, `/ml/`, `/api/`), entao a CSP parte de 'self'.
- * As excecoes abaixo existem porque o app ainda usa arquivos de terceiros; cada uma sai
- * quando o arquivo passar a ser servido por nos:
- * - MediaPipe: WASM e loader no jsDelivr e modelo no storage.googleapis.com (plano 1.2 item 3;
- *   destino: /ml/<versao>/);
+ * O MediaPipe (WASM, loader e modelos) ja vem de /ml/<versao>/ (scripts/ml-assets.mjs baixa no build),
+ * entao jsDelivr e storage.googleapis.com sairam da CSP. A unica excecao que resta sai quando o
+ * arquivo passar a ser servido por nos:
  * - videos de referencia de sinais em dicionarios publicos (destino: /content/);
  *
  * O VLibras (player e animacoes) e servido pelo proprio app em /vlibras/ (scripts/vlibras-assets.mjs
@@ -19,9 +18,6 @@ export const EXTERNAL_MEDIA_HOSTS = [
   'https://videos.nals.cce.ufsc.br',
   'https://media.spreadthesign.com',
 ];
-
-/** Arquivos do MediaPipe ainda em CDN de terceiros (useCameraRecognizer.ts). */
-export const EXTERNAL_ML_HOSTS = ['https://cdn.jsdelivr.net', 'https://storage.googleapis.com'];
 
 /** Recursos do navegador: so a camera, e so na propria origem (reconhecimento de sinais). */
 export const PERMISSIONS_POLICY =
@@ -53,7 +49,7 @@ export function appCsp(authOrigin: string, cognitoIdpOrigin: string): string {
   return join({
     'default-src': ["'self'"],
     // wasm-unsafe-eval: compilar o WASM do MediaPipe; sem 'unsafe-eval' nem inline
-    'script-src': ["'self'", "'wasm-unsafe-eval'", 'https://cdn.jsdelivr.net'],
+    'script-src': ["'self'", "'wasm-unsafe-eval'"],
     'worker-src': ["'self'", 'blob:'],
     // blob:: a textura (mapa de normais) que vem dentro do modelo da mao em 3D das letras e dos
     // numeros (apps/web-poc/src/mao3d); o descompressor dele e WebAssembly (wasm-unsafe-eval acima)
@@ -62,7 +58,6 @@ export function appCsp(authOrigin: string, cognitoIdpOrigin: string): string {
       'blob:',
       cognitoIdpOrigin,
       authOrigin,
-      ...EXTERNAL_ML_HOSTS,
       ...EXTERNAL_MEDIA_HOSTS,
     ],
     'img-src': ["'self'", 'data:', 'blob:'],
