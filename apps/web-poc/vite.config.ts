@@ -239,10 +239,11 @@ export default defineConfig(({ mode }) => {
           globIgnores: ['ml/**', 'vlibras/v*/**', 'vlibras/sinais/**'],
           // Navegação para qualquer rota do app abre o index.html do precache (funciona offline e ao
           // recarregar). Ficam de fora a página do avatar (iframe próprio), o que não é tela do app e
-          // as páginas avulsas da câmera (teste da câmera W0 e coleta), que têm HTML próprio.
+          // as páginas avulsas da câmera (teste da câmera W0 e coleta), que têm HTML próprio. O painel
+          // (/admin) é outro site no mesmo domínio: sem ele aqui, o service worker do app abria a trilha.
           navigateFallback: 'index.html',
           navigateFallbackDenylist: [
-            /^\/vlibras\//, /^\/api\//, /^\/content\//, /^\/ml\//, /^\/teste-camera/, /^\/coleta/,
+            /^\/admin(\/|$)/, /^\/vlibras\//, /^\/api\//, /^\/content\//, /^\/ml\//, /^\/teste-camera/, /^\/coleta/,
           ],
           runtimeCaching: [
             // Arquivos de ML (/ml/): com versão no caminho, CacheFirst; pastas de modelo sem versão
