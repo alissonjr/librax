@@ -23,7 +23,7 @@ npm ci
 npm test            # node --test (Node 20+)
 ```
 
-363 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
+431 testes no momento (`test/`). Os handlers são testados com o `InMemoryRepo` injetado e
 o `DynamoRepo` com um client falso que só registra os comandos; nenhum teste chama a AWS.
 
 ## Ambiente local (AWS simulada)
@@ -58,11 +58,15 @@ services/api/
 │   │   ├── lessonCompletion.js  validação e limites das conclusões vindas do cliente
 │   │   ├── practiceReview.js    validação das respostas da prática diária
 │   │   ├── push.js              inscrição Web Push e preferências de lembrete
+│   │   ├── devices.js           aparelhos conhecidos da conta e regras do aviso de acesso novo
 │   │   ├── reminders.js         regras de horário dos lembretes (SPEC 05 12.2 e 12.3)
 │   │   ├── admin.js             grupo admin no token (cognito:groups) e busca de conta
 │   │   ├── opsMetrics.js        contadores agregados do painel e a tela de operação
 │   │   └── costReport.js        janela do Cost Explorer e projeção do mês
 │   ├── lib/dates.js   aritmética de datas-calendário
+│   ├── email/
+│   │   ├── render.js            os quatro e-mails (códigos, lembrete, acesso novo): um layout, HTML e texto
+│   │   └── strings.js           textos por idioma (pt-BR, en, es)
 │   ├── content/
 │   │   ├── catalogFromCourse.js catálogo mínimo (XP, sinais por lição, conquistas)
 │   │   ├── catalog.js           GERADO, empacotado nas Lambdas (npm run catalog)
@@ -88,6 +92,7 @@ services/api/
 │   │   ├── inMemoryRepo.js  porta em memória (testes e dev local)
 │   │   ├── dynamoRepo.js    porta sobre a tabela single-table `librax`
 │   │   ├── cognitoDirectory.js  busca de conta (ListUsers) e exclusão (AdminDeleteUser) no Cognito
+│   │   ├── sesMailer.js         envio pelo SES (HTML e texto na mesma mensagem)
 │   │   ├── cloudWatchMetrics.js soma diária do GetMetricData
 │   │   └── costExplorer.js      gasto por serviço (GetCostAndUsage)
 │   └── handlers/      Lambdas (API Gateway HTTP API, payload 2.0)
@@ -101,17 +106,20 @@ services/api/
 │       ├── squads.js        rotas de squad (SPEC 04)
 │       ├── league.js        GET /v1/league/current, POST /v1/league/result-seen
 │       ├── account.js       DELETE /v1/users/me (exclusão de conta)
+│       ├── devices.js       POST /v1/users/me/devices (aparelho, idioma e aviso de acesso novo)
 │       ├── reminders.js     Lambda do Scheduler: lembretes (web-push + VAPID do SSM)
 │       ├── closeLeague.js   Lambda do Scheduler: fechar as ligas e zerar as squads da semana
 │       ├── admin.js         rotas /v1/admin (uma Lambda, pelo routeKey), só grupo admin
 │       ├── opsDaily.js      Lambda do Scheduler: erros do dia e custo do mês para o painel
-│       └── postConfirmation.js  gatilho do Cognito: conta nova nos contadores
+│       ├── postConfirmation.js  gatilho do Cognito: conta nova nos contadores
+│       └── customMessage.js gatilho do Cognito: e-mails de código em HTML, no idioma da pessoa
 └── test/              um arquivo por módulo; testes escritos antes do código
 ```
 
 Cada handler exporta uma fábrica (`makeLessonHandlers`, `makeGuestHandlers`,
 `makePushHandlers`, `makeSquadHandlers`, `makeLeagueHandlers`, `makeAccountHandlers`, `makeCloseLeagueHandler`,
-`makeAdminHandlers`, `makeOpsDailyHandler`, `makePostConfirmationHandler`) que recebe o repositório
+`makeAdminHandlers`, `makeOpsDailyHandler`, `makePostConfirmationHandler`, `makeDeviceHandlers`,
+`makeCustomMessageHandler`) que recebe o repositório
 (e o catálogo, quando usa), mais as instâncias de produção já ligadas ao DynamoDB. Os testes
 usam as fábricas.
 
@@ -145,6 +153,7 @@ depois de criar conta (`POST /v1/guest/migrate`).
 | GET | `/v1/league/current` | liga da semana, ranking, tempo até o fechamento e o resultado anterior não visto |
 | POST | `/v1/league/result-seen` | marca o LeagueResultSheet da semana `{ period }` como visto |
 | DELETE | `/v1/users/me` | exclui a conta de quem chama: dados na tabela e o usuário no Cognito (LGPD); idempotente |
+| POST | `/v1/users/me/devices` | `{ deviceId, lang?, timezone? }` depois de entrar e ao trocar o idioma: registra o aparelho e o idioma; aparelho novo num login recente manda o aviso por e-mail (ver abaixo) |
 
 ### Painel de administração (`/v1/admin`, só leitura)
 
@@ -595,3 +604,26 @@ Para trocar:
 - `completedAt` e `today` vêm do aparelho; um relógio errado pode deslocar a ofensiva de um
   convidado migrado (limitado a 365 dias atrás e 1 dia à frente). A semana da liga e das
   squads já usa o relógio do servidor.
+
+## E-mails
+
+Quatro e-mails com a identidade visual do Librax, em pt-BR, en e es, montados por `src/email/render.js` a partir de
+um layout só (logo em `<app>/email/logo.png`, card, código ou botão, rodapé com Política, Termos e o domínio), com
+versão em texto. Todo dado de fora (nome, código, aparelho) é escapado. Prévias: `npm run emails:previa -- <pasta>`.
+
+| E-mail | Quem manda | Idioma |
+|---|---|---|
+| código do cadastro e do reenvio | gatilho Custom Message do Cognito (`customMessage.js`) | `clientMetadata.lang` do app, senão o atributo `locale`, senão pt-BR |
+| código de nova senha | gatilho Custom Message do Cognito | o mesmo |
+| lembrete de estudo | Lambda de lembretes (`reminders.js`), SES com `EMAIL_REMINDERS_ENABLED` | `lang` em `USER#<id> / DEVICES` |
+| aviso de acesso novo | `POST /v1/users/me/devices`, SES com `LOGIN_ALERT_FROM` | o `lang` que a conta já tinha |
+
+O gatilho segue o contrato do Cognito: o código não passa por ele, só o marcador `event.request.codeParameter`
+(`{####}`), que precisa estar na mensagem (até 20 mil caracteres). Erro na montagem devolve o evento sem mudança e
+o Cognito usa o texto padrão do User Pool. Funciona com o envio padrão do Cognito e com o SES.
+
+Aviso de acesso novo (`domain/devices.js`): o app manda um código aleatório do navegador; a tabela guarda só o hash
+dele com a conta, a classe do User-Agent (tipo, sistema e navegador) e as datas, até 10 aparelhos, além do idioma,
+do fuso e da hora dos avisos. Sem IP. Avisa só aparelho novo com `auth_time` do token de até 15 minutos, nunca o
+primeiro aparelho da conta, e no máximo 3 vezes em 24 horas. O país aproximado (cabeçalho do CloudFront) vai só no
+e-mail. Sem SES, registra e não manda nada.

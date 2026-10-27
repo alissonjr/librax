@@ -101,19 +101,45 @@ export function candidateBuckets(now) {
   return out;
 }
 
-const plural = (n) => (n === 1 ? 'dia' : 'dias');
+/**
+ * Copy da SPEC 05 12.2 (corpo com no maximo 60 caracteres), no idioma da pessoa (pt-BR, en, es).
+ * O mesmo texto vai no push e no e-mail de lembrete.
+ */
+const REMINDER_COPY = {
+  'pt-BR': {
+    days: (n) => `${n} ${n === 1 ? 'dia' : 'dias'}`,
+    riskTitle: 'Sua sequência vai até meia-noite',
+    riskBody: (d) => `${d} não se perdem hoje. Você chega em 5 min.`,
+    dailyTitle: 'Libras te espera',
+    dailyStreak: (d) => `São só 5 minutinhos. Sua sequência de ${d} agradece.`,
+    dailyNoStreak: 'São só 5 minutinhos. Seus sinais te esperam.',
+  },
+  en: {
+    days: (n) => `${n} ${n === 1 ? 'day' : 'days'}`,
+    riskTitle: 'Your streak ends at midnight',
+    riskBody: (d) => `Do not lose ${d} today. It takes 5 min.`,
+    dailyTitle: 'Libras is waiting for you',
+    dailyStreak: (d) => `Just 5 minutes. Your streak of ${d} thanks you.`,
+    dailyNoStreak: 'Just 5 minutes. Your signs are waiting.',
+  },
+  es: {
+    days: (n) => `${n} ${n === 1 ? 'día' : 'días'}`,
+    riskTitle: 'Tu racha dura hasta medianoche',
+    riskBody: (d) => `No pierdas tus ${d} hoy. Te toma 5 min.`,
+    dailyTitle: 'Libras te espera',
+    dailyStreak: (d) => `Solo 5 minutos. Tu racha de ${d} te lo agradece.`,
+    dailyNoStreak: 'Solo 5 minutos. Tus señas te esperan.',
+  },
+};
 
-/** Copy da SPEC 05 12.2 (corpo com no maximo 60 caracteres). */
-export function reminderMessage(kind, streak = 0) {
+export function reminderMessage(kind, streak = 0, lang = 'pt-BR') {
+  const c = REMINDER_COPY[lang] ?? REMINDER_COPY['pt-BR'];
   if (kind === 'streak_risk') {
-    return { title: 'Sua sequência vai até meia-noite', body: `${streak} ${plural(streak)} não se perdem hoje. Você chega em 5 min.` };
+    return { title: c.riskTitle, body: c.riskBody(c.days(streak)) };
   }
   return {
-    title: 'Libras te espera',
-    body:
-      streak > 0
-        ? `São só 5 minutinhos. Sua sequência de ${streak} ${plural(streak)} agradece.`
-        : 'São só 5 minutinhos. Seus sinais te esperam.',
+    title: c.dailyTitle,
+    body: streak > 0 ? c.dailyStreak(c.days(streak)) : c.dailyNoStreak,
   };
 }
 

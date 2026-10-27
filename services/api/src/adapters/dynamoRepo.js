@@ -1401,6 +1401,28 @@ export class DynamoRepo {
   }
 
   // -----------------------------------------------------------------------
+  // APARELHOS CONHECIDOS (aviso de acesso novo), IDIOMA E FUSO INFORMADOS PELO APP
+  // USER#<id> / DEVICES: { devices: [{ id (hash), kind, os, browser, firstSeenAt, lastSeenAt }],
+  //   lang, timezone, alertsSentAt, updatedAt }
+  // -----------------------------------------------------------------------
+
+  async getDevices(userId) {
+    const { Item } = await this._db.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `USER#${userId}`, SK: 'DEVICES' } }),
+    );
+    return Item ? this._stripKeys(Item) : null;
+  }
+
+  async saveDevices(userId, record) {
+    await this._db.send(
+      new PutCommand({
+        TableName: TABLE,
+        Item: { ...record, PK: `USER#${userId}`, SK: 'DEVICES', userId },
+      }),
+    );
+  }
+
+  // -----------------------------------------------------------------------
   // PAINEL DE ADMINISTRACAO - CONTADORES E ATIVIDADE
   // OPS / DAY#<dia>[#LESSON|#EXERCISE|#SIGN], WEEK#<semana>, MONTH#<mes>, COST#<mes>
   // USER#<id> / ACTIVITY (ultimo dia, semana e mes em que a pessoa contou como ativa)

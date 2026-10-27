@@ -93,12 +93,16 @@ test('sem push, usa e-mail so com opt-in e se o envio de e-mail estiver ligado',
   await seedUser(repo, 'sem-optin', { push: false });
   const mail = fakeMail();
 
-  const r = await sendReminders(repo, { now, push: fakePush(), mail });
+  const r = await sendReminders(repo, { now, push: fakePush(), mail, appUrl: 'https://app.librax.example' });
 
   assert.equal(r.sent, 1);
   assert.equal(mail.sent.length, 1);
   assert.equal(mail.sent[0].to, 'ana@exemplo.com');
   assert.equal(mail.sent[0].subject, 'Libras te espera');
+  // HTML e texto: a sequencia, o botao de volta ao app e o link para desligar
+  assert.match(mail.sent[0].html, /4 dias/);
+  assert.match(mail.sent[0].html, /href="https:\/\/app\.librax\.example\/\?origem=lembrete"/);
+  assert.match(mail.sent[0].text, /https:\/\/app\.librax\.example\/configuracoes/);
 
   const semMail = await sendReminders(new InMemoryRepo(), { now, push: fakePush() });
   assert.equal(semMail.sent, 0);
@@ -124,4 +128,32 @@ test('inicio de pausa e gravado mesmo sem envio', async () => {
   const state = await repo.getNotifState('u1');
   assert.equal(state.dailyOnly, true);
   assert.equal(state.pausedUntil, '2026-10-26T22:00:00.000Z');
+});
+
+test('lembrete no idioma que o app informou (push e e-mail); sem idioma, pt-BR', async () => {
+  const repo = new InMemoryRepo();
+  await seedUser(repo, 'en-push');
+  await repo.saveDevices('en-push', { devices: [], lang: 'en', timezone: 'America/Sao_Paulo' });
+  await seedUser(repo, 'es-mail', { push: false, notif: { emailOptIn: true, email: 'eva@exemplo.com' } });
+  await repo.saveDevices('es-mail', { devices: [], lang: 'es', timezone: 'America/Sao_Paulo' });
+  const push = fakePush();
+  const mail = fakeMail();
+
+  await sendReminders(repo, { now, push, mail, appUrl: 'https://app.librax.example' });
+
+  assert.equal(push.sent[0].payload.title, 'Libras is waiting for you');
+  assert.match(push.sent[0].payload.body, /streak of 4 days/);
+  assert.equal(mail.sent[0].subject, 'Libras te espera');
+  assert.match(mail.sent[0].html, /lang="es"/);
+  assert.match(mail.sent[0].html, /Hacer una lección/);
+  assert.match(mail.sent[0].text, /racha de 4 días/);
+});
+
+test('sem appUrl o e-mail falha sem derrubar a rodada', async () => {
+  const repo = new InMemoryRepo();
+  await seedUser(repo, 'x', { push: false, notif: { emailOptIn: true, email: 'x@exemplo.com' } });
+  const logs = [];
+  const r = await sendReminders(repo, { now, push: fakePush(), mail: fakeMail(), log: (m) => logs.push(m) });
+  assert.equal(r.sent, 0);
+  assert.deepEqual(logs, ['e-mail falhou']);
 });

@@ -9,12 +9,14 @@
  *   VAPID_SUBJECT            mailto: ou https: de contato exigido pelos servicos de push
  *
  * E-mail via SES so com EMAIL_REMINDERS_ENABLED=true e EMAIL_FROM (identidade verificada);
- * cada pessoa precisa ter feito opt-in (PUT /v1/notifications/preferences).
+ * cada pessoa precisa ter feito opt-in (PUT /v1/notifications/preferences). O e-mail sai em HTML e
+ * texto, no idioma da pessoa (email/render.js), com o link para desligar em APP_URL/configuracoes.
  */
 
 import webpush from 'web-push';
 import { sendReminders } from '../usecases/sendReminders.js';
 import { repo } from './_repo.js';
+import { makeSesMailer, withSenderName } from '../adapters/sesMailer.js';
 
 let vapidReady = null;
 
@@ -41,26 +43,7 @@ const push = {
 
 function makeMailer() {
   if (process.env.EMAIL_REMINDERS_ENABLED !== 'true' || !process.env.EMAIL_FROM) return null;
-  let client;
-  return {
-    async send({ to, subject, text }) {
-      const { SESv2Client, SendEmailCommand } = await import('@aws-sdk/client-sesv2');
-      client ??= new SESv2Client({});
-      const footer = `\n\nPara parar de receber, desligue o lembrete por e-mail em ${process.env.APP_URL ?? ''}/configuracoes.`;
-      await client.send(
-        new SendEmailCommand({
-          FromEmailAddress: process.env.EMAIL_FROM,
-          Destination: { ToAddresses: [to] },
-          Content: {
-            Simple: {
-              Subject: { Data: subject, Charset: 'UTF-8' },
-              Body: { Text: { Data: text + footer, Charset: 'UTF-8' } },
-            },
-          },
-        }),
-      );
-    },
-  };
+  return makeSesMailer({ from: withSenderName(process.env.EMAIL_FROM) });
 }
 
 export async function handler() {
@@ -74,6 +57,7 @@ export async function handler() {
     now: new Date(),
     push,
     mail: makeMailer(),
+    appUrl: process.env.APP_URL,
     log: (msg, data) => console.warn('[reminders]', msg, data),
   });
   console.log('[reminders]', JSON.stringify(report));

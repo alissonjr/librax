@@ -1,5 +1,6 @@
 import { newProfile } from '../domain/profile.js';
-import { decideReminder, candidateBuckets, REMINDER_URL } from '../domain/reminders.js';
+import { decideReminder, candidateBuckets, reminderMessage, REMINDER_URL } from '../domain/reminders.js';
+import { renderEmail, normalizeLang } from '../email/render.js';
 
 /**
  * Rodada de lembretes (Lambda disparada de hora em hora pelo EventBridge Scheduler).
@@ -7,17 +8,22 @@ import { decideReminder, candidateBuckets, REMINDER_URL } from '../domain/remind
  * 1. Lista os candidatos dos baldes de fuso que estao fora do silencio agora (GSI6).
  * 2. decideReminder aplica as regras da SPEC 05 12.3 com o fuso exato de cada um.
  * 3. Entrega por Web Push em todas as inscricoes; inscricao expirada (404/410) e apagada.
- * 4. Sem push entregue: e-mail, so com opt-in e com o envio de e-mail ligado (`mail`).
+ * 4. Sem push entregue: e-mail, so com opt-in e com o envio de e-mail ligado (`mail`), em HTML e
+ *    texto (email/render.js), com a sequencia e o botao de volta ao app.
  * 5. Grava o estado so quando entregou (ou quando comecou uma pausa).
+ *
+ * Idioma: o que o app informou por ultimo (`lang` em USER#<id> / DEVICES, POST /v1/users/me/devices);
+ * sem ele, pt-BR. Vale para o push e para o e-mail.
  *
  * @param {object} repo
  * @param {object} deps
  * @param {Date}   deps.now
  * @param {{send(sub, payload): Promise<void>}} deps.push   porta de Web Push
- * @param {{send(msg): Promise<void>}} [deps.mail]          porta de e-mail (SES); omitida = desligado
+ * @param {{send(msg: {to, subject, html, text}): Promise<void>}} [deps.mail]  porta de e-mail (SES); omitida = desligado
+ * @param {string} [deps.appUrl]  https://app.<dominio>: links e logo do e-mail (obrigatorio com `mail`)
  * @param {(msg: string, data?: object) => void} [deps.log]
  */
-export async function sendReminders(repo, { now, push, mail = null, log = () => {} }) {
+export async function sendReminders(repo, { now, push, mail = null, appUrl = null, log = () => {} }) {
   const report = { evaluated: 0, sent: 0, skipped: {} };
   const skip = (reason) => {
     report.skipped[reason] = (report.skipped[reason] ?? 0) + 1;
@@ -36,7 +42,10 @@ export async function sendReminders(repo, { now, push, mail = null, log = () => 
         continue;
       }
 
-      const payload = { ...decision.message, url: REMINDER_URL, tag: `librax-${decision.kind}` };
+      const lang = normalizeLang((await repo.getDevices(userId))?.lang);
+      const streak = profile.streak ?? 0;
+      const message = reminderMessage(decision.kind, streak, lang);
+      const payload = { ...message, url: REMINDER_URL, tag: `librax-${decision.kind}` };
       let delivered = 0;
       for (const sub of await repo.listPushSubscriptions(userId)) {
         try {
@@ -53,7 +62,15 @@ export async function sendReminders(repo, { now, push, mail = null, log = () => 
 
       if (delivered === 0 && mail && notif.emailOptIn && notif.email) {
         try {
-          await mail.send({ to: notif.email, subject: payload.title, text: payload.body });
+          const email = renderEmail('reminder', {
+            lang,
+            appUrl,
+            message,
+            streak,
+            name: profile.displayName,
+            url: REMINDER_URL,
+          });
+          await mail.send({ to: notif.email, ...email });
           delivered += 1;
         } catch (err) {
           log('e-mail falhou', { userId, name: err.name });
