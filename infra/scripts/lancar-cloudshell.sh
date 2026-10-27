@@ -5,6 +5,10 @@
 #   bash infra/scripts/lancar-cloudshell.sh                 primeiro lançamento (pergunta o que faltar)
 #   bash infra/scripts/lancar-cloudshell.sh --so-publicar   só build e upload do app, do painel e da landing
 #   bash infra/scripts/lancar-cloudshell.sh --admin EMAIL   coloca uma conta no grupo admin do Cognito
+#   bash infra/scripts/lancar-cloudshell.sh --configurar-ci prepara o CI/CD no CodeBuild (uma vez; docs/ci-cd.md)
+#
+# No CodeBuild (CI/CD, infra/ci/buildspec.yml) roda com --ci: sem perguntas, com os valores do
+# lançamento lidos do SSM (/librax/cdk-context, gravado aqui no fim de cada deploy pelo CloudShell).
 #
 # Pode rodar de novo quantas vezes precisar: cada passo confere o que já está feito e segue dali.
 # Usa o login do próprio CloudShell (infra/scripts/aws.sh) e a trava da conta
@@ -35,6 +39,13 @@ CACHE_REVALIDA='no-cache'
 RESERVA_LAMBDA=169
 LAMBDA_SEM_RESERVA=100
 COTA_LAMBDA_PEDIR=1000
+# CI/CD (infra/lib/ci-stack.ts; o teste confere que os nomes batem)
+PARAM_CONTEXTO=/librax/cdk-context
+STACK_CI=LibraxCiStack
+PROJETO_CI=librax-lancamento
+CONEXAO_CI=librax-github
+REPOSITORIO_CI=alissonjr/librax
+TAMANHO_MAXIMO_PARAMETRO=4096
 
 # ---------------------------------------------------------------------------------------------
 # Opções
@@ -66,10 +77,14 @@ bootstrap (só se faltar), deploy da stack, build e upload do app, do painel e d
   --vlibras-opcional        publica mesmo se o download do avatar VLibras falhar (cai no texto)
   --ignorar-dns             não confere se o domínio já aponta para o Route 53
   --admin EMAIL             só coloca a conta (já criada no app) no grupo admin e sai
+  --configurar-ci           prepara o CI/CD (CodeBuild a cada tag v1.2.3): conexão com o GitHub, projeto
+                            e aviso por e-mail; uma vez, depois do primeiro lançamento (docs/ci-cd.md)
+  --ci                      modo do CodeBuild: sem perguntas, valores do SSM; não use no CloudShell
   --ajuda                   mostra esta ajuda
 
 Os valores ficam em infra/cdk.context.json (local, fora do git). Numa segunda rodada o script
-usa o que já está lá e só pergunta o que faltar.
+usa o que já está lá e só pergunta o que faltar. Depois de cada deploy da stack, uma cópia vai
+para o SSM (/librax/cdk-context), de onde o CI/CD lê.
 FIM
 }
 
@@ -86,6 +101,8 @@ SO_PUBLICAR=false
 VLIBRAS_OPCIONAL=false
 IGNORAR_DNS=false
 ADMIN_EMAIL=""
+MODO_CI=false
+CONFIGURAR_CI=false
 
 valor_da_opcao() {
   if [[ $# -lt 2 || -z "$2" || "$2" == --* ]]; then
@@ -114,10 +131,16 @@ ler_opcoes() {
       --vlibras-opcional) VLIBRAS_OPCIONAL=true; shift ;;
       --ignorar-dns) IGNORAR_DNS=true; shift ;;
       --admin) valor_da_opcao "$@"; ADMIN_EMAIL=$2; shift 2 ;;
+      --ci) MODO_CI=true; shift ;;
+      --configurar-ci) CONFIGURAR_CI=true; shift ;;
       -h | --ajuda | --help) ajuda; exit 0 ;;
       *) echo "Opção desconhecida: $1 (veja --ajuda)." >&2; exit 2 ;;
     esac
   done
+  if [[ "$MODO_CI" == true && ( "$CONFIGURAR_CI" == true || -n "$ADMIN_EMAIL" ) ]]; then
+    echo "--ci é só o lançamento pelo CodeBuild: não combina com --configurar-ci nem com --admin." >&2
+    exit 2
+  fi
 }
 
 # ---------------------------------------------------------------------------------------------
@@ -154,9 +177,17 @@ parar_ticker() {
 demorado() {
   local rotulo=$1 inicio status=0
   shift
+  # No CodeBuild ninguém precisa mexer no terminal: roda direto, sem o lembrete
+  if [[ "$MODO_CI" == true ]]; then
+    "$@" || status=$?
+    return "$status"
+  fi
   inicio=$(date +%s)
   (
-    while sleep 120; do
+    # O sleep fica em segundo plano para o kill do parar_ticker encerrar também ele: sem isso, o sleep
+    # órfão segura a saída do terminal por até 2 minutos depois do passo
+    trap 'kill "$espera" 2>/dev/null; exit 0' TERM
+    while sleep 120 & espera=$! && wait "$espera"; do
       printf '   ... ainda em "%s" (%d min). Clique no terminal ou aperte Shift de vez em quando para o CloudShell não fechar.\n' \
         "$rotulo" $((($(date +%s) - inicio) / 60))
     done
@@ -173,6 +204,11 @@ ao_falhar() {
   # Com set -E o trap também vale nos subshells; a mensagem sai uma vez só, no script principal
   [[ "$BASHPID" == "$PID_PRINCIPAL" ]] || return 0
   parar_ticker
+  if [[ "$MODO_CI" == true ]]; then
+    printf '\n   Parou no passo "%s" (código %d). Veja a mensagem acima e docs/ci-cd.md (Quando falha).\n' \
+      "$PASSO_ATUAL" "$status" >&2
+    return 0
+  fi
   printf '\n   Parou no passo "%s" (código %d). Corrija o que a mensagem acima diz e rode o script de novo:\n' \
     "$PASSO_ATUAL" "$status" >&2
   printf '   ele confere o que já foi feito e continua dali.\n' >&2
@@ -236,11 +272,14 @@ restaurar_contexto() {
   fi
 }
 
-# perguntar VAR "texto" "padrão" "regex" "dica"; sem terminal, usa o padrão ou para
+# perguntar VAR "texto" "padrão" "regex" "dica"; sem terminal (ou no CI), usa o padrão ou para
 perguntar() {
   local __var=$1 texto=$2 padrao=$3 regex=$4 dica=$5 resposta
+  if [[ "$MODO_CI" == true ]]; then
+    dica="Falta no $PARAM_CONTEXTO do SSM: rode o lançamento completo no CloudShell uma vez (ele atualiza o parâmetro) e rode o CI de novo."
+  fi
   while true; do
-    if [[ -t 0 ]]; then
+    if [[ -t 0 && "$MODO_CI" == false ]]; then
       read -r -p "   $texto${padrao:+ [$padrao]}: " resposta || true
       resposta=${resposta:-$padrao}
     else
@@ -252,7 +291,7 @@ perguntar() {
       printf -v "$__var" '%s' "$resposta"
       return 0
     fi
-    [[ -t 0 ]] || falha "$texto: valor ausente ou inválido. $dica"
+    [[ -t 0 && "$MODO_CI" == false ]] || falha "$texto: valor ausente ou inválido. $dica"
     aviso "Valor inválido. $dica"
   done
 }
@@ -270,7 +309,12 @@ RE_DOLARES='^[0-9]+(\.[0-9]+)?$'
 
 conferir_ambiente() {
   passo "Conferindo o ambiente"
-  if em_cloudshell; then
+  if [[ "$MODO_CI" == true ]]; then
+    # O CI só roda no CodeBuild do Librax: login pelo papel do projeto, sem perguntas
+    [[ -n "${CODEBUILD_BUILD_ID:-}" ]] ||
+      falha "--ci é o modo do CodeBuild (infra/ci/buildspec.yml). No CloudShell, rode sem --ci."
+    ok "AWS CodeBuild (build ${CODEBUILD_BUILD_NUMBER:-?}): usa o papel do projeto $PROJETO_CI"
+  elif em_cloudshell; then
     ok "AWS CloudShell: usa o login do console (credenciais do contêiner)"
     [[ -n "${AWS_CONTAINER_CREDENTIALS_FULL_URI:-}" ]] ||
       falha "O CloudShell está sem as credenciais do contêiner. Feche a aba e abra o CloudShell de novo."
@@ -388,6 +432,7 @@ conferir_conta() {
 # Zona do Route 53 com o nome do domínio, se existir (só leitura)
 sugerir_zona() {
   local linha
+  [[ "$MODO_CI" == false ]] || return 0 # no CI não há quem aceite a sugestão: falta o valor e para
   linha=$(aws_l route53 list-hosted-zones-by-name --dns-name "$DOMINIO" --max-items 1 \
     --query 'HostedZones[0].[Id, Name]' --output text 2>/dev/null || true)
   if [[ "$linha" == */hostedzone/*"$DOMINIO." ]]; then
@@ -398,6 +443,7 @@ sugerir_zona() {
 
 # Certificado emitido para o domínio na conta, se existir (só leitura)
 sugerir_certificado() {
+  [[ "$MODO_CI" == false ]] || return 0
   aws_l acm list-certificates --region "$REGIAO" --certificate-statuses ISSUED \
     --query "CertificateSummaryList[?DomainName=='$DOMINIO'].CertificateArn | [0]" --output text 2>/dev/null |
     grep -E "$RE_CERT" || true
@@ -629,6 +675,13 @@ conferir_anomalia_de_custo() {
     ok "alerta de anomalia de custo já configurado ($([[ $atual == create ]] && echo 'monitor criado pela stack' || echo 'monitor que já existia na conta'))"
     return 0
   fi
+  # No CI a consulta ao Cost Explorer (US$ 0,01 por chamada) fica de fora: vale a escolha gravada pela
+  # última rodada no CloudShell, e sem escolha o alerta fica desligado
+  if [[ "$MODO_CI" == true ]]; then
+    gravar_contexto "costAnomalyAlerts=${atual:-off}"
+    info "Alerta de anomalia de custo: ${atual:-off}, como na última rodada do CloudShell (o CI não consulta o Cost Explorer, que cobra por chamada)."
+    return 0
+  fi
   if ! monitor=$(aws_l ce get-anomaly-monitors --region "$REGIAO" \
     --query "AnomalyMonitors[?MonitorType=='DIMENSIONAL' && MonitorDimension=='SERVICE'].MonitorArn | [0]" --output text 2>/dev/null); then
     gravar_contexto "costAnomalyAlerts=off"
@@ -697,6 +750,9 @@ publicar_stack() {
       ok "conta já preparada para o CDK ($estado)"
       ;;
     *)
+      # O papel do CI não cria o bootstrap (precisa de IAM): só o primeiro lançamento, no CloudShell
+      [[ "$MODO_CI" == false ]] ||
+        falha "A conta não tem o bootstrap do CDK (CDKToolkit em $estado). Faça o lançamento completo pelo CloudShell (docs/lancamento.md)."
       info "Preparando a conta para o CDK (stack CDKToolkit, uma vez só)."
       (cd "$INFRA" && demorado "bootstrap do CDK" "$AWS_SH" npx cdk bootstrap "aws://$CONTA/$REGIAO")
       ok "bootstrap feito"
@@ -710,9 +766,61 @@ publicar_stack() {
   else
     info "Atualizando a stack (estava em $ESTADO_STACK). Os eventos aparecem abaixo."
   fi
-  (cd "$INFRA" && demorado "deploy da stack" npm run deploy)
+  (cd "$INFRA" && demorado "deploy da stack" deploy_da_stack)
   esperar_stack
   ok "stack publicada ($ESTADO_STACK)"
+  # Os valores que acabaram de ir para a stack ficam no SSM para o CI/CD publicar igual
+  [[ "$MODO_CI" == true ]] || sincronizar_contexto
+}
+
+# Deploy só da LibraxStack. No CloudShell, o npm run deploy de sempre (o app CDK do bin/librax.ts só tem
+# ela); no CI, com o nome explícito: o CI nunca publica a própria stack (LibraxCiStack, outro app CDK).
+deploy_da_stack() {
+  if [[ "$MODO_CI" == true ]]; then
+    "$AWS_SH" node scripts/conferir-conta.mjs
+    "$AWS_SH" npx cdk deploy "$STACK" --require-approval never --ci
+  else
+    npm run deploy
+  fi
+}
+
+# Cópia do infra/cdk.context.json no SSM (SecureString, nível padrão: grátis), de onde o CI lê. Não
+# tem segredo (o do Google fica no Secrets Manager e a chave privada do VAPID no SSM, fora daqui), mas
+# tem o e-mail dos alarmes, por isso vai cifrado.
+sincronizar_contexto() {
+  passo "Valores do lançamento no SSM para o CI/CD ($PARAM_CONTEXTO)"
+  [[ -f "$CONTEXTO" ]] || falha "Sem infra/cdk.context.json para copiar."
+  local tamanho
+  tamanho=$(wc -c <"$CONTEXTO")
+  ((tamanho <= TAMANHO_MAXIMO_PARAMETRO)) ||
+    falha "infra/cdk.context.json tem $tamanho bytes e o parâmetro padrão do SSM aceita até $TAMANHO_MAXIMO_PARAMETRO."
+  aws_l ssm put-parameter --name "$PARAM_CONTEXTO" --type SecureString --tier Standard --overwrite \
+    --description "Contexto do CDK do Librax (lancar-cloudshell.sh); o CI/CD le daqui" \
+    --value "file://$CONTEXTO" >/dev/null
+  ok "$PARAM_CONTEXTO atualizado (SecureString; o CI/CD publica com estes valores)"
+}
+
+# No CI os valores vêm do SSM (gravados pela última rodada no CloudShell). O conteúdo nunca vai para o
+# log: só o resultado da conferência.
+baixar_contexto() {
+  passo "Valores do lançamento ($PARAM_CONTEXTO no SSM)"
+  local tmp="$CONTEXTO.baixando"
+  rm -f "$tmp"
+  if ! (umask 077 && aws_l ssm get-parameter --name "$PARAM_CONTEXTO" --with-decryption \
+    --query Parameter.Value --output text >"$tmp" 2>/dev/null); then
+    rm -f "$tmp"
+    falha "Não consegui ler $PARAM_CONTEXTO no SSM. Rode o lançamento completo no CloudShell uma vez (ele grava o parâmetro) e confira o --configurar-ci (docs/ci-cd.md)."
+  fi
+  if ! node -e '
+    const fs = require("fs");
+    let json;
+    try { json = JSON.parse(fs.readFileSync(process.argv[1], "utf8")); } catch { process.exit(3); }
+    if (!json || typeof json !== "object" || Array.isArray(json)) process.exit(3);' "$tmp"; then
+    rm -f "$tmp"
+    falha "$PARAM_CONTEXTO não é um JSON válido. Rode o lançamento completo no CloudShell para gravar de novo."
+  fi
+  mv "$tmp" "$CONTEXTO"
+  ok "valores lidos do SSM (o conteúdo não aparece no log)"
 }
 
 # ler_outputs CHAVE...: guarda os outputs da stack e confere os que o passo usa
@@ -864,6 +972,7 @@ resumo() {
   info "App:     $(output AppUrl)"
   info "Painel:  $(output AdminUrl)"
   info "Android: $(output AppUrl)/.well-known/assetlinks.json"
+  [[ "$MODO_CI" == false ]] || return 0
   echo
   info "Falta fazer (docs/lancamento.md, Depois do lançamento):"
   if [[ "$SO_PUBLICAR" == false && -n "${ALARM_EMAIL:-}" ]]; then
@@ -891,6 +1000,119 @@ resumo() {
 }
 
 # ---------------------------------------------------------------------------------------------
+# CI/CD (--configurar-ci): stack LibraxCiStack, com app CDK próprio (infra/bin/librax-ci.ts)
+# ---------------------------------------------------------------------------------------------
+
+# deploy_ci true|false: false cria só a conexão com o GitHub (o webhook do projeto precisa dela aprovada)
+deploy_ci() {
+  (
+    cd "$INFRA"
+    "$AWS_SH" node scripts/conferir-conta.mjs
+    demorado "deploy do CI/CD" "$AWS_SH" npx cdk deploy "$STACK_CI" \
+      --app "npx ts-node --prefer-ts-exts bin/librax-ci.ts" \
+      --require-approval never -c "librax:ciCreateProject=$1"
+  )
+}
+
+# Output da LibraxCiStack (vazio se a stack ou o output não existir)
+output_ci() {
+  local saida
+  saida=$(aws_l cloudformation describe-stacks --stack-name "$STACK_CI" \
+    --query "Stacks[0].Outputs[?OutputKey=='$1'].OutputValue | [0]" --output text 2>/dev/null || true)
+  [[ "$saida" == None ]] || printf '%s' "$saida"
+}
+
+# PENDING, AVAILABLE ou ERROR (só leitura)
+status_da_conexao() {
+  aws_l codeconnections get-connection --connection-arn "$1" --query Connection.ConnectionStatus --output text 2>/dev/null ||
+    aws_l codestar-connections get-connection --connection-arn "$1" --query Connection.ConnectionStatus --output text 2>/dev/null ||
+    true
+}
+
+instrucoes_da_conexao() {
+  info "A conexão $CONEXAO_CI com o GitHub está criada, mas pendente. Aprove uma vez no console (2 minutos):"
+  info "1. Abra https://console.aws.amazon.com/codesuite/settings/connections?region=$REGIAO"
+  info "   (Ferramentas do desenvolvedor > Configurações > Conexões; em inglês: Developer Tools > Settings > Connections)."
+  info "2. Clique em $CONEXAO_CI (status Pendente / Pending) e em Atualizar conexão pendente (Update pending connection)."
+  info "3. Na janela do GitHub que abre: Authorize AWS Connector for GitHub."
+  info "4. Em Aplicativos do GitHub (GitHub Apps): Instalar um novo aplicativo (Install a new app) > a conta"
+  info "   ${REPOSITORIO_CI%%/*} > Only select repositories > $REPOSITORIO_CI > Install."
+  info "   Se o app já estiver instalado, escolha a instalação que aparece na lista."
+  info "5. De volta na AWS: Conectar (Connect). O status vira Disponível (Available)."
+}
+
+# Espera a aprovação no console; sem terminal, para e pede para rodar de novo
+esperar_conexao() {
+  local arn=$1 status resposta
+  while true; do
+    status=$(status_da_conexao "$arn")
+    if [[ "$status" == AVAILABLE ]]; then
+      ok "conexão $CONEXAO_CI disponível"
+      return 0
+    fi
+    [[ "$status" != ERROR ]] ||
+      falha "A conexão $CONEXAO_CI está em ERRO. Apague-a no console (Configurações > Conexões), apague a stack $STACK_CI no CloudFormation e rode --configurar-ci de novo."
+    instrucoes_da_conexao
+    [[ -t 0 ]] ||
+      falha "Conexão ainda ${status:-desconhecida}. Aprove no console (acima) e rode de novo: bash infra/scripts/lancar-cloudshell.sh --configurar-ci"
+    read -r -p "   Depois de clicar em Conectar, aperte Enter para conferir (Ctrl+C para sair): " resposta || true
+  done
+}
+
+# A assinatura do e-mail no tópico de alarmes da LibraxStack, que recebe o resultado de cada build
+conferir_assinatura_alarmes() {
+  local topico assinaturas
+  ler_outputs AlarmTopicArn
+  topico=$(output AlarmTopicArn)
+  assinaturas=$(aws_l sns list-subscriptions-by-topic --topic-arn "$topico" \
+    --query "Subscriptions[?Protocol=='email'].SubscriptionArn" --output text 2>/dev/null || true)
+  if [[ -z "$assinaturas" || "$assinaturas" == None ]]; then
+    aviso "O tópico de alarmes não tem e-mail: o resultado dos builds não avisa ninguém. Rode o lançamento completo com --email-alarmes."
+  elif [[ "$assinaturas" == *PendingConfirmation* ]]; then
+    aviso "A assinatura do e-mail dos alarmes ainda não foi confirmada: procure o e-mail \"AWS Notification - Subscription Confirmation\" e clique em Confirm subscription."
+  else
+    ok "e-mail dos alarmes confirmado: o resultado de cada build chega nele"
+  fi
+}
+
+configurar_ci() {
+  passo "Dependências da infra"
+  local rel=${INFRA#"$RAIZ"/}
+  if [[ -f "$INFRA/node_modules/.package-lock.json" && ! "$INFRA/package-lock.json" -nt "$INFRA/node_modules/.package-lock.json" ]]; then
+    ok "$rel em dia"
+  else
+    demorado "npm ci em $rel" npm_ci_em "$INFRA"
+    ok "$rel instalado"
+  fi
+  conferir_conta
+
+  passo "LibraxStack no ar (o CI/CD publica nela e avisa no tópico de alarmes dela)"
+  esperar_stack
+  [[ "$ESTADO_STACK" != NAO_EXISTE ]] ||
+    falha "A stack $STACK ainda não existe: faça o primeiro lançamento (docs/lancamento.md) antes do CI/CD."
+  ok "stack em $ESTADO_STACK"
+  conferir_assinatura_alarmes
+  sincronizar_contexto
+
+  passo "Conexão com o GitHub ($CONEXAO_CI)"
+  local conexao
+  conexao=$(output_ci ConexaoGithubArn)
+  if [[ -z "$conexao" ]]; then
+    info "Criando a conexão (fica pendente até a aprovação no console)."
+    deploy_ci false
+    conexao=$(output_ci ConexaoGithubArn)
+    [[ -n "$conexao" ]] || falha "A stack $STACK_CI não devolveu a conexão (output ConexaoGithubArn)."
+  fi
+  esperar_conexao "$conexao"
+
+  passo "Projeto do CodeBuild ($PROJETO_CI), webhook das tags e aviso por e-mail"
+  deploy_ci true
+  ok "CI/CD pronto"
+  info "Para publicar uma versão: git tag v1.2.3 && git push origin v1.2.3 (docs/ci-cd.md)."
+  info "Builds e logs: $(output_ci HistoricoDosBuilds)"
+}
+
+# ---------------------------------------------------------------------------------------------
 
 DOMINIO=""
 CONTA=""
@@ -911,9 +1133,18 @@ main() {
   printf 'Lançamento do Librax (%s)\n' "$RAIZ"
   conferir_ambiente
   garantir_node
-  restaurar_contexto
+  if [[ "$MODO_CI" == true ]]; then
+    baixar_contexto
+  else
+    restaurar_contexto
+  fi
   DOMINIO=$(contexto domainName)
   [[ -n "$DOMINIO" && "$DOMINIO" != librax.example ]] || falha "Defina librax:domainName em infra/cdk.json."
+
+  if [[ "$CONFIGURAR_CI" == true ]]; then
+    configurar_ci
+    return 0
+  fi
 
   if [[ -n "$ADMIN_EMAIL" ]]; then
     [[ "$ADMIN_EMAIL" =~ $RE_EMAIL ]] || falha "--admin precisa de um e-mail válido."

@@ -72,6 +72,7 @@ describe('scripts/aws.sh', () => {
     expect(origemDoLogin({ AWS_EXECUTION_ENV: 'CloudShell' })).toBe('CloudShell');
     expect(origemDoLogin({ AWS_EXECUTION_ENV: 'AWS_Lambda_nodejs22.x' })).toBe('perfil librax');
     expect(origemDoLogin({})).toBe('perfil librax');
+    expect(origemDoLogin({ CODEBUILD_BUILD_ID: 'librax-lancamento:1' })).toBe('CodeBuild');
   });
 });
 

@@ -24,9 +24,14 @@ export function contaFixada(dir = infraDir) {
   return '';
 }
 
-/** De onde vem o login: o contêiner do AWS CloudShell ou o perfil librax (IAM Identity Center). */
+/**
+ * De onde vem o login: o contêiner do AWS CloudShell, o papel do projeto no CodeBuild (CI/CD) ou o
+ * perfil librax (IAM Identity Center).
+ */
 export function origemDoLogin(env = process.env) {
-  return String(env.AWS_EXECUTION_ENV ?? '').startsWith('CloudShell') ? 'CloudShell' : 'perfil librax';
+  if (String(env.AWS_EXECUTION_ENV ?? '').startsWith('CloudShell')) return 'CloudShell';
+  if (env.CODEBUILD_BUILD_ID) return 'CodeBuild';
+  return 'perfil librax';
 }
 
 /** Devolve a mensagem de erro, ou null quando a conta do login é a fixada. */
@@ -52,10 +57,11 @@ function contaDoLogin() {
     return JSON.parse(saida).Account;
   } catch (err) {
     const detalhe = String(err.stderr ?? err.message).trim();
-    const dica =
-      origemDoLogin() === 'CloudShell'
-        ? 'Sem login válido no CloudShell: feche a aba e abra o CloudShell de novo pelo console.'
-        : 'Sem login válido no perfil librax. Rode: npm run aws:entrar (em infra)';
+    const dicas = {
+      CloudShell: 'Sem login válido no CloudShell: feche a aba e abra o CloudShell de novo pelo console.',
+      CodeBuild: 'Sem credenciais do papel do projeto no CodeBuild (confira o papel em LibraxCiStack).',
+    };
+    const dica = dicas[origemDoLogin()] ?? 'Sem login válido no perfil librax. Rode: npm run aws:entrar (em infra)';
     console.error(`${dica}\n${detalhe}`);
     process.exit(1);
   }
