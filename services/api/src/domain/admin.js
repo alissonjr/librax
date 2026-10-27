@@ -53,3 +53,36 @@ export function parseAccountQuery(raw) {
 export function isUserId(value) {
   return typeof value === 'string' && SUB_RE.test(value);
 }
+
+// --- segundo fator de quem abre o painel ---------------------------------------------------------
+//
+// O Cognito nao exige MFA por grupo, e o token do User Pool nao diz como a pessoa entrou (nao tem
+// `amr`). O que da para conferir com seguranca e a conta: com o aplicativo autenticador ligado
+// (UserMFASettingList tem SOFTWARE_TOKEN_MFA), todo login dela pede o codigo, inclusive no login
+// hospedado do Cognito que o painel usa. A Lambda le isso com AdminGetUser e guarda so o "sim" por
+// alguns minutos; o "nao" nunca fica guardado, para o painel abrir logo depois da configuracao.
+
+/** Conta federada (Google, Apple): o id token traz `identities`. O fator do Cognito nao vale para ela. */
+export function isFederated(claims = {}) {
+  const raw = claims.identities;
+  return raw !== undefined && raw !== null && raw !== '' && raw !== '[]';
+}
+
+/** Por quanto tempo o "autenticador ligado" fica guardado na Lambda (desligar leva ate isso para valer). */
+export const MFA_CACHE_MS = 5 * 60 * 1000;
+
+/**
+ * @param {(username: string) => Promise<boolean>} check  le a conta (AdminGetUser)
+ * @returns {(username: string) => Promise<boolean>}
+ */
+export function makeMfaGate(check, { ttlMs = MFA_CACHE_MS, now = () => Date.now() } = {}) {
+  const enabledUntil = new Map();
+  return async (username) => {
+    const until = enabledUntil.get(username);
+    if (until !== undefined && until > now()) return true;
+    const enabled = await check(username);
+    if (enabled) enabledUntil.set(username, now() + ttlMs);
+    else enabledUntil.delete(username);
+    return enabled;
+  };
+}

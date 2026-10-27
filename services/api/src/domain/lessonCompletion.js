@@ -153,6 +153,12 @@ export function parseCameraStats(raw, glosses = {}) {
 /** Acoes do teste de nivelamento que chegam pela fila de conclusoes. */
 export const PLACEMENT_ACTIONS = ['skip', 'undo'];
 
+/**
+ * Dia mandado pelo cliente (o "hoje" no fuso dele): data real e dentro da janela aceita (ate 1 dia a
+ * frente do servidor, pelo fuso, e ate 1 ano atras). Devolve o codigo do erro ou null.
+ */
+export const checkClientDay = (day, serverToday) => checkDay(day, serverToday);
+
 const checkDay = (day, today) => {
   if (!isRealDate(day)) return 'BAD_DATE';
   const age = daysBetween(today, day);

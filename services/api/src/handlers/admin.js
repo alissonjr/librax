@@ -9,18 +9,24 @@
  * GET /v1/admin/squads?cursor=&limit= squads da mais nova para a mais velha
  * GET /v1/admin/cost                  custo do mes (guardado uma vez por dia pelo job opsDaily)
  *
- * Duas travas: o autorizador JWT so aceita o id token do app client do painel, e cada handler
- * confere o grupo `admin` no token (`requireAdmin`, 403 para os outros). Cada acesso vai para o
+ * Tres travas: o autorizador JWT so aceita o id token do app client do painel, cada handler
+ * confere o grupo `admin` no token (`requireAdmin`, 403 para os outros) e a conta precisa ter o
+ * aplicativo autenticador ligado (403 ADMIN_MFA_REQUIRED, que o painel usa para guiar a
+ * configuracao; conta federada: 403 ADMIN_MFA_FEDERATED). O Cognito nao exige MFA por grupo nem diz
+ * no token como a pessoa entrou, entao a Lambda le a conta (AdminGetUser, domain/admin.js,
+ * makeMfaGate): com o autenticador ligado, todo login dela pede o codigo. Cada acesso vai para o
  * log com o sub de quem consultou (trilha para a LGPD), sem o termo buscado.
  *
  * Em producao as rotas sao servidas por uma Lambda so (`adminRouter`, pelo `routeKey`): o painel
  * e pouco usado, entao uma funcao quente atende todas as abas, e a permissao de leitura do Cognito
- * fica numa funcao so. `makeAdminHandlers({ repo, directory, content, now })` recebe as
- * dependencias (testes usam InMemoryRepo e um diretorio falso).
+ * fica numa funcao so. `makeAdminHandlers({ repo, directory, mfa, content, now })` recebe as
+ * dependencias (testes usam InMemoryRepo e um diretorio falso). `mfa` e a conferencia do
+ * autenticador (`(username) => Promise<boolean>`) ou `false` so no ambiente local, cujo login
+ * hospedado nao tem o desafio do codigo.
  */
 
 import { opsOverview, accountSummary, listSquads, costView } from '../usecases/admin.js';
-import { isUserId, parseAccountQuery, groupsOf } from '../domain/admin.js';
+import { isUserId, parseAccountQuery, groupsOf, isFederated, makeMfaGate } from '../domain/admin.js';
 import { labelsFromReport } from '../content/contentReport.js';
 import contentStatus from '../content/contentStatus.js';
 import { claims, ok, fail, ApiError, wrap, requireAdmin } from './_http.js';
@@ -40,15 +46,33 @@ export function decodeCursor(raw) {
   }
 }
 
-export function makeAdminHandlers({ repo, directory, content = contentStatus, now = () => new Date(), log = console.log }) {
+export function makeAdminHandlers({ repo, directory, mfa, content = contentStatus, now = () => new Date(), log = console.log }) {
+  if (mfa !== false && typeof mfa !== 'function') {
+    throw new Error('makeAdminHandlers: passe `mfa` (conferencia do autenticador) ou `false` (so no ambiente local)');
+  }
   const labels = labelsFromReport(content);
   const totalLessons = content.totals?.lessons ?? null;
   const query = (event) => event.queryStringParameters ?? {};
 
-  /** Envelope comum: confere o grupo, registra o acesso e serializa. */
+  /** Segundo fator: a conta de quem chama precisa ter o aplicativo autenticador ligado. */
+  async function requireAdminMfa(event, adminId, route) {
+    if (mfa === false) return;
+    const c = claims(event);
+    if (isFederated(c)) {
+      log('[admin]', JSON.stringify({ adminId, route, denied: 'mfa-federated' }));
+      throw new ApiError(403, 'ADMIN_MFA_FEDERATED', 'O painel exige o aplicativo autenticador, que contas do Google ou da Apple nao tem aqui. Entre com uma conta de e-mail e senha.');
+    }
+    if (!(await mfa(String(c['cognito:username'] ?? adminId)))) {
+      log('[admin]', JSON.stringify({ adminId, route, denied: 'mfa' }));
+      throw new ApiError(403, 'ADMIN_MFA_REQUIRED', 'Configure o aplicativo autenticador para abrir o painel.');
+    }
+  }
+
+  /** Envelope comum: confere o grupo e o segundo fator, registra o acesso e serializa. */
   const admin = (route, fn) =>
     wrap(async (event) => {
       const adminId = requireAdmin(event);
+      await requireAdminMfa(event, adminId, route);
       log('[admin]', JSON.stringify({ adminId, route }));
       return ok(await fn(event, adminId));
     });
@@ -124,7 +148,10 @@ export function makeAdminHandlers({ repo, directory, content = contentStatus, no
   };
 }
 
+const directory = new CognitoDirectory(makeCognitoClient(), process.env.USER_POOL_ID);
+
 export const { adminRouter } = makeAdminHandlers({
   repo: dynamoRepo,
-  directory: new CognitoDirectory(makeCognitoClient(), process.env.USER_POOL_ID),
+  directory,
+  mfa: makeMfaGate((username) => directory.totpEnabled(username)),
 });

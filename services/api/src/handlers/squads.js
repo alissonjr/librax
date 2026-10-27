@@ -55,9 +55,13 @@ const SQUAD_ERRORS = {
 /** Semana corrente (mesma da liga): o XP semanal mostrado e o dela. */
 const currentPeriod = (date) => periodKey(periodStartOf(date.getTime()));
 
+/** Id de squad no caminho: o randomUUID da criacao (letras, numeros, hifen e sublinhado, ate 64). */
+const SQUAD_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
+
 function squadId(event) {
   const id = event.pathParameters?.squadId;
   if (!id) throw new ApiError(400, 'MISSING_SQUAD_ID', 'squadId obrigatorio na URL');
+  if (!SQUAD_ID_RE.test(id)) throw new ApiError(400, 'BAD_SQUAD_ID', 'squadId invalido');
   return id;
 }
 
@@ -83,6 +87,9 @@ export function makeSquadHandlers({ repo, now = () => new Date(), genId = random
   const joinSquadHandler = wrap(async (event) => {
     const uid = userId(event);
     const { inviteCode, squadId: sid } = body(event);
+    if (sid !== undefined && sid !== null && !(typeof sid === 'string' && SQUAD_ID_RE.test(sid))) {
+      throw new ApiError(400, 'BAD_SQUAD_ID', 'squadId invalido');
+    }
     const squad = await callUsecase(squadUsecases.joinSquad, repo, {
       userId: uid, isGuest: false, code: inviteCode, squadId: sid, now: now().toISOString(),
     });

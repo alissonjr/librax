@@ -330,3 +330,28 @@ test('closeLeague: periodStart explicito permite refazer uma semana antiga', asy
   assert.equal(report.closed, 1);
   await assert.rejects(() => handler({ periodStart: '2026-10-21' }), /INVALID_PERIOD/);
 });
+
+// --- GET /v1/lesson/queue ---
+
+test('lesson/queue: `today` so com data real perto do dia do servidor (400 nos outros)', async () => {
+  const { getDailyQueueHandler } = makeLessonHandlers({ repo: new InMemoryRepo(), catalog, now });
+  const queue = (today) => getDailyQueueHandler({
+    ...event(),
+    queryStringParameters: today === undefined ? undefined : { today },
+  });
+  assert.equal((await queue(undefined)).statusCode, 200); // cliente antigo: dia do servidor
+  assert.equal((await queue('2026-10-24')).statusCode, 200); // fuso a frente
+  assert.equal((await queue('2026-10-22')).statusCode, 200);
+  for (const [today, code] of [
+    ['ontem', 'BAD_DATE'],
+    ['2026-02-31', 'BAD_DATE'],
+    ['2026-10-23T00:00:00Z', 'BAD_DATE'],
+    ['x'.repeat(5000), 'BAD_DATE'],
+    ['2026-10-26', 'DATE_OUT_OF_RANGE'],
+    ['2020-01-01', 'DATE_OUT_OF_RANGE'],
+  ]) {
+    const res = await queue(today);
+    assert.equal(res.statusCode, 400, today.slice(0, 30));
+    assert.equal(parse(res).error.code, code, today.slice(0, 30));
+  }
+});

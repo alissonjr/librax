@@ -5,12 +5,14 @@
  * ListUsers com filtro: `email ^= "<comeco>"` ou `sub = "<id>"`. O ListUsers nao e cobrado (o
  * Cognito cobra por usuario ativo no mes) e o painel so chama quando alguem busca.
  *
- * Requer `cognito-idp:ListUsers` no User Pool. A exclusao de conta (DELETE /v1/users/me) usa so
- * `deleteUser`, com `cognito-idp:AdminDeleteUser` numa Lambda propria.
+ * Requer `cognito-idp:ListUsers` no User Pool, e `cognito-idp:AdminGetUser` para `totpEnabled` (o
+ * painel exige o aplicativo autenticador de quem e admin). A exclusao de conta (DELETE /v1/users/me)
+ * usa so `deleteUser`, com `cognito-idp:AdminDeleteUser` numa Lambda propria.
  */
 
 import {
   AdminDeleteUserCommand,
+  AdminGetUserCommand,
   CognitoIdentityProviderClient,
   ListUsersCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
@@ -67,6 +69,21 @@ export class CognitoDirectory {
   async get(userId) {
     const [account] = await this.search({ kind: 'sub', term: userId }, { limit: 1 });
     return account ?? null;
+  }
+
+  /**
+   * A conta tem o aplicativo autenticador (TOTP) ligado? `username` e o `cognito:username` do id token.
+   * Com ele ligado, o Cognito pede o codigo em todo login da conta. Conta que nao existe: nao.
+   * @returns {Promise<boolean>}
+   */
+  async totpEnabled(username) {
+    try {
+      const out = await this._client.send(new AdminGetUserCommand({ UserPoolId: this._userPoolId, Username: username }));
+      return (out.UserMFASettingList ?? []).includes('SOFTWARE_TOKEN_MFA');
+    } catch (e) {
+      if (e?.name === 'UserNotFoundException') return false;
+      throw e;
+    }
   }
 
   /**

@@ -91,7 +91,7 @@ services/api/
 │   ├── adapters/
 │   │   ├── inMemoryRepo.js  porta em memória (testes e dev local)
 │   │   ├── dynamoRepo.js    porta sobre a tabela single-table `librax`
-│   │   ├── cognitoDirectory.js  busca de conta (ListUsers) e exclusão (AdminDeleteUser) no Cognito
+│   │   ├── cognitoDirectory.js  busca de conta (ListUsers), autenticador do admin (AdminGetUser) e exclusão (AdminDeleteUser) no Cognito
 │   │   ├── sesMailer.js         envio pelo SES (HTML e texto na mesma mensagem)
 │   │   ├── cloudWatchMetrics.js soma diária do GetMetricData
 │   │   └── costExplorer.js      gasto por serviço (GetCostAndUsage)
@@ -161,6 +161,8 @@ Detalhes, escolhas de custo e como dar acesso: [`docs/painel-admin.md`](../../do
 
 As rotas usam um autorizador JWT próprio, que só aceita o id token do app client do painel (`librax-admin`), e a
 Lambda confere o grupo no token (`cognito:groups`): quem não está no grupo `admin` recebe **403 `ADMIN_ONLY`**.
+Depois, a conta precisa ter o aplicativo autenticador ligado (lido com `AdminGetUser`): sem ele, **403
+`ADMIN_MFA_REQUIRED`** (o site guia a configuração); conta do Google ou da Apple, **403 `ADMIN_MFA_FEDERATED`**.
 Uma Lambda só (`librax-admin`, `adminRouter`) atende todas, pelo `routeKey`, e só lê a tabela.
 
 | Método | Rota | O que faz |

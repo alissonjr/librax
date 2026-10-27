@@ -20,7 +20,7 @@ import { completeLesson } from '../usecases/completeLesson.js';
 import { completeLessonOnce } from '../usecases/completeLessonOnce.js';
 import { getDailyQueue } from '../usecases/getDailyQueue.js';
 import { applyPlacementOnce } from '../usecases/placement.js';
-import { parseCompletionEntry, parseLessonAbandon } from '../domain/lessonCompletion.js';
+import { parseCompletionEntry, parseLessonAbandon, checkClientDay } from '../domain/lessonCompletion.js';
 import { quietly, recordLessonAbandon, recordLessonCompleted } from '../usecases/opsMetrics.js';
 import { userId, body, ok, ApiError, wrap } from './_http.js';
 import { repo as dynamoRepo } from './_repo.js';
@@ -66,7 +66,11 @@ export function makeLessonHandlers({ repo, catalog, now = () => new Date() }) {
   /** GET /v1/lesson/queue */
   const getDailyQueueHandler = wrap(async (event) => {
     const uid = userId(event);
-    const today = event.queryStringParameters?.today ?? utcDay(now());
+    const serverDay = utcDay(now());
+    const today = event.queryStringParameters?.today ?? serverDay;
+    // dia do usuario (fuso dele): data real, no maximo 1 dia a frente e 1 ano atras do servidor
+    const dayError = checkClientDay(today, serverDay);
+    if (dayError) throw new ApiError(400, dayError, 'today deve ser uma data AAAA-MM-DD perto de hoje');
 
     const queue = await getDailyQueue(repo, catalog, { userId: uid, today });
     return ok({ queue });

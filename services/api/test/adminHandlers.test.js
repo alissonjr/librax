@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { makeAdminHandlers, encodeCursor } from '../src/handlers/admin.js';
-import { groupsOf, isAdmin, parseAccountQuery } from '../src/domain/admin.js';
+import { groupsOf, isAdmin, parseAccountQuery, isFederated, makeMfaGate, MFA_CACHE_MS } from '../src/domain/admin.js';
 import { CognitoDirectory, accountFromCognito } from '../src/adapters/cognitoDirectory.js';
 import { InMemoryRepo } from '../src/adapters/inMemoryRepo.js';
 import { recordLessonCompleted } from '../src/usecases/opsMetrics.js';
@@ -15,8 +15,8 @@ const ADMIN = '11111111-1111-4111-8111-111111111111';
 const PERSON = '22222222-2222-4222-8222-222222222222';
 const now = () => new Date('2026-10-23T15:00:00Z');
 
-function event({ routeKey, sub = ADMIN, groups = '[admin]', email = 'dono@librax.example', query, pathParameters } = {}) {
-  const claims = { sub, email, ...(groups === null ? {} : { 'cognito:groups': groups }) };
+function event({ routeKey, sub = ADMIN, groups = '[admin]', email = 'dono@librax.example', query, pathParameters, extraClaims = {} } = {}) {
+  const claims = { sub, email, ...(groups === null ? {} : { 'cognito:groups': groups }), ...extraClaims };
   return {
     routeKey,
     requestContext: { authorizer: sub ? { jwt: { claims } } : undefined },
@@ -40,9 +40,9 @@ function fakeDirectory(accounts = []) {
   };
 }
 
-function setup({ repo = new InMemoryRepo(), accounts = [], logs = [] } = {}) {
+function setup({ repo = new InMemoryRepo(), accounts = [], logs = [], mfa = async () => true } = {}) {
   const directory = fakeDirectory(accounts);
-  const h = makeAdminHandlers({ repo, directory, now, log: (...args) => logs.push(args.join(' ')) });
+  const h = makeAdminHandlers({ repo, directory, mfa, now, log: (...args) => logs.push(args.join(' ')) });
   return { ...h, repo, directory, logs };
 }
 
@@ -324,4 +324,102 @@ test('CognitoDirectory.deleteUser apaga pelo username (Google tambem); ja apagad
 
   const down = new CognitoDirectory({ send: async () => { throw Object.assign(new Error('x'), { name: 'InternalErrorException' }); } }, 'p');
   await assert.rejects(() => down.deleteUser('u1'), /x/);
+});
+
+// --- segundo fator (aplicativo autenticador) ---
+
+test('admin sem o autenticador ligado: 403 ADMIN_MFA_REQUIRED em toda rota, e a conferencia usa o cognito:username', async () => {
+  const asked = [];
+  const { adminRouter, routeKeys, logs } = setup({ mfa: async (username) => { asked.push(username); return false; } });
+  for (const routeKey of routeKeys) {
+    const res = await adminRouter(event({
+      routeKey, query: { q: 'ana' }, pathParameters: { userId: PERSON }, extraClaims: { 'cognito:username': 'nome-de-usuario' },
+    }));
+    assert.equal(res.statusCode, 403, routeKey);
+    assert.equal(parse(res).error.code, 'ADMIN_MFA_REQUIRED');
+  }
+  assert.ok(asked.every((u) => u === 'nome-de-usuario'));
+  assert.ok(logs.every((l) => l.includes('"denied":"mfa"')));
+  // sem cognito:username no token: o sub
+  await adminRouter(event({ routeKey: 'GET /v1/admin/me' }));
+  assert.equal(asked.at(-1), ADMIN);
+});
+
+test('quem nao e admin nem chega a conferir o autenticador (403 ADMIN_ONLY)', async () => {
+  let calls = 0;
+  const { adminRouter } = setup({ mfa: async () => { calls += 1; return true; } });
+  const res = await adminRouter(event({ routeKey: 'GET /v1/admin/me', groups: '[]' }));
+  assert.equal(parse(res).error.code, 'ADMIN_ONLY');
+  assert.equal(calls, 0);
+});
+
+test('conta do Google no grupo admin: 403 ADMIN_MFA_FEDERATED (o fator do Cognito nao vale para ela)', async () => {
+  const { adminRouter } = setup({ mfa: async () => true });
+  const res = await adminRouter(event({
+    routeKey: 'GET /v1/admin/me',
+    extraClaims: { identities: '[{"providerName":"Google","userId":"123"}]', 'cognito:username': 'google_123' },
+  }));
+  assert.equal(res.statusCode, 403);
+  assert.equal(parse(res).error.code, 'ADMIN_MFA_FEDERATED');
+  assert.equal(isFederated({}), false);
+  assert.equal(isFederated({ identities: '[]' }), false);
+});
+
+test('falha ao ler a conta no Cognito: 500 (nunca abre o painel sem conferir)', async () => {
+  const { adminRouter } = setup({ mfa: async () => { throw new Error('cognito fora'); } });
+  const original = console.error;
+  console.error = () => {};
+  try {
+    assert.equal((await adminRouter(event({ routeKey: 'GET /v1/admin/me' }))).statusCode, 500);
+  } finally {
+    console.error = original;
+  }
+});
+
+test('mfa e obrigatorio na fabrica: so `false` desliga (ambiente local)', () => {
+  assert.throws(() => makeAdminHandlers({ repo: new InMemoryRepo(), directory: fakeDirectory() }), /mfa/);
+  const { adminRouter } = makeAdminHandlers({ repo: new InMemoryRepo(), directory: fakeDirectory(), mfa: false, now, log: () => {} });
+  return adminRouter(event({ routeKey: 'GET /v1/admin/me' })).then((res) => assert.equal(res.statusCode, 200));
+});
+
+test('makeMfaGate guarda so o "sim", por alguns minutos; o "nao" e conferido de novo na hora', async () => {
+  let t = 0;
+  let enabled = false;
+  let reads = 0;
+  const gate = makeMfaGate(async () => { reads += 1; return enabled; }, { now: () => t });
+  assert.equal(await gate('u'), false);
+  enabled = true;
+  assert.equal(await gate('u'), true); // logo depois de configurar: abre
+  assert.equal(reads, 2);
+  enabled = false;
+  t += MFA_CACHE_MS - 1;
+  assert.equal(await gate('u'), true); // guardado
+  assert.equal(reads, 2);
+  t += 2;
+  assert.equal(await gate('u'), false); // venceu: le de novo
+  assert.equal(reads, 3);
+});
+
+test('CognitoDirectory.totpEnabled le o UserMFASettingList pelo AdminGetUser', async () => {
+  const calls = [];
+  const users = {
+    'com-app': { UserMFASettingList: ['SOFTWARE_TOKEN_MFA'], PreferredMfaSetting: 'SOFTWARE_TOKEN_MFA' },
+    'sem-nada': {},
+  };
+  const client = {
+    async send(cmd) {
+      calls.push({ name: cmd.constructor.name, input: cmd.input });
+      const u = users[cmd.input.Username];
+      if (!u) throw Object.assign(new Error('User does not exist.'), { name: 'UserNotFoundException' });
+      return u;
+    },
+  };
+  const dir = new CognitoDirectory(client, 'us-east-1_pool');
+  assert.equal(await dir.totpEnabled('com-app'), true);
+  assert.equal(await dir.totpEnabled('sem-nada'), false);
+  assert.equal(await dir.totpEnabled('nao-existe'), false);
+  assert.equal(calls[0].name, 'AdminGetUserCommand');
+  assert.deepEqual(calls[0].input, { UserPoolId: 'us-east-1_pool', Username: 'com-app' });
+  const down = new CognitoDirectory({ send: async () => { throw Object.assign(new Error('x'), { name: 'InternalErrorException' }); } }, 'p');
+  await assert.rejects(() => down.totpEnabled('u1'), /x/);
 });

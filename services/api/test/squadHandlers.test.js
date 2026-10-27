@@ -269,3 +269,24 @@ test('erro de infraestrutura continua 500 sem vazar a mensagem interna', async (
   assert.equal(res.statusCode, 500);
   assert.equal(parse(res).error.code, 'INTERNAL_ERROR');
 });
+
+// --- formato do squadId no caminho ---
+
+test('squadId fora do formato (espaco, barra, longo demais): 400 BAD_SQUAD_ID antes de ir a tabela', async () => {
+  const { h } = await setup();
+  for (const squadId of ['abc d', 'a/b', 'SQUAD#s1', 'x'.repeat(65), '../s1']) {
+    const res = await h.getSquadHandler(event({ pathParameters: { squadId } }));
+    assert.equal(res.statusCode, 400, squadId);
+    assert.equal(parse(res).error.code, 'BAD_SQUAD_ID', squadId);
+  }
+  // o id real (randomUUID na criacao) e os curtos dos testes continuam valendo
+  assert.equal((await h.getSquadHandler(event({ pathParameters: { squadId: 's1' } }))).statusCode, 200);
+  const uuid = await h.getSquadHandler(event({ pathParameters: { squadId: '0a1b2c3d-1234-4abc-8def-0123456789ab' } }));
+  assert.equal(uuid.statusCode, 404);
+  // entrar por squadId no corpo segue a mesma regra
+  for (const squadId of ['a b', 42, { $ne: 1 }]) {
+    const res = await h.joinSquadHandler(event({ sub: 'u3', body: { squadId } }));
+    assert.equal(res.statusCode, 400, String(squadId));
+    assert.equal(parse(res).error.code, 'BAD_SQUAD_ID');
+  }
+});

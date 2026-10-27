@@ -68,7 +68,8 @@ export function makeLocalFunctions({ plan, state, log = console.log }) {
       makeAccountHandlers({ repo, directory: accounts, log }),
       // aviso de acesso novo sem SES (como na infra com librax:cognitoEmailSes desligado): so registra
       makeDeviceHandlers({ repo, mailer: null, appUrl: URLS.app, now }),
-      (({ adminRouter }) => ({ adminRouter }))(makeAdminHandlers({ repo, directory, now, log })),
+      // Sem o segundo fator: o login hospedado local nao tem o desafio do aplicativo autenticador
+      (({ adminRouter }) => ({ adminRouter }))(makeAdminHandlers({ repo, directory, mfa: false, now, log })),
     ];
     const out = {};
     for (const group of groups) {
