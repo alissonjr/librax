@@ -638,7 +638,7 @@
     "unsupported": "This browser does not keep files for offline use."
   },
   "onboarding": {
-    "cameraDisclaimer": "You can turn the camera on or off at any time in Settings.",
+    "cameraDisclaimer": "You can skip any camera exercise, and remove the permission at any time in your browser settings.",
     "cameraSub": "Librax evaluates your signs through the camera - only the hand points, never the image.",
     "cameraTitle": "Gesture recognition",
     "metaCasual": "Casual",

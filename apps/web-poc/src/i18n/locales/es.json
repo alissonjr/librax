@@ -613,7 +613,7 @@
     "unsupported": "Este navegador no guarda los archivos para usar sin conexión."
   },
   "onboarding": {
-    "cameraDisclaimer": "Puedes activar o desactivar la cámara en cualquier momento en Configuración.",
+    "cameraDisclaimer": "Puedes saltar cualquier ejercicio con cámara y quitar el permiso cuando quieras en la configuración del navegador.",
     "cameraSub": "Librax evalúa tus señas con la cámara - solo los puntos de la mano, nunca la imagen.",
     "cameraTitle": "Reconocimiento de gestos",
     "metaCasual": "Casual",

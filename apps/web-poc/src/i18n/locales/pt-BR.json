@@ -734,7 +734,7 @@
     "unsupported": "Este navegador não guarda os arquivos para usar offline."
   },
   "onboarding": {
-    "cameraDisclaimer": "Você pode ativar ou desativar a câmera a qualquer momento nas Configurações.",
+    "cameraDisclaimer": "Você pode pular qualquer exercício com câmera, e tirar a permissão quando quiser nas configurações do navegador.",
     "cameraSub": "O Librax avalia seus sinais pela câmera - apenas os pontos da mão, nunca a imagem.",
     "cameraTitle": "Reconhecimento de gestos",
     "metaCasual": "Casual",
