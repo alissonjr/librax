@@ -623,13 +623,6 @@
     "metaSub": "Puedes cambiar esto en cualquier momento.",
     "metaTitle": "¿Cuánto tiempo al día?",
     "metaXpPerDay": "{xp} XP al día",
-    "motivoFamiliar": "Tengo un familiar o amigo sordo",
-    "motivoInteresse": "Interés personal / curiosidad cultural",
-    "motivoOutro": "Otro motivo",
-    "motivoSub": "Ayuda a personalizar tu experiencia.",
-    "motivoSurdo": "Soy sordo(a) o tengo pérdida auditiva",
-    "motivoTitle": "¿Por qué quieres aprender Libras?",
-    "motivoTrabalho": "Trabajo o voluntariado",
     "namePlaceholder": "¿Cómo puedo llamarte?",
     "noAccount": "No necesitas cuenta. Tus datos quedan solo en este navegador.",
     "notNow": "Ahora no",
@@ -645,7 +638,20 @@
     "placementFromStartSub": "Aprender las letras desde la A",
     "placementTest": "¿Ya sabes el alfabeto? Hacer una prueba rápida",
     "placementTestSub": "Unos 2 minutos con la cámara",
-    "placementLater": "Puedes hacer la prueba después, desde el mapa o en Configuración."
+    "placementLater": "Puedes hacer la prueba después, desde el mapa o en Configuración.",
+    "langTitle": "¿En qué idioma quieres usar Librax?",
+    "langSub": "La app sigue el idioma de tu dispositivo. Toca otro para cambiar; puedes cambiarlo después en Configuración.",
+    "cameraAsking": "Permite el acceso a la cámara en el aviso del navegador.",
+    "cameraDenied": "Está bien, la cámara quedó bloqueada. Puedes aprender sin ella y permitirla después en la configuración del navegador.",
+    "cameraUnavailable": "No encontramos una cámara disponible en este dispositivo. Puedes seguir sin ella y volver a intentarlo en las lecciones.",
+    "cameraModelLoading": "Preparando la lectura de la mano. La primera vez puede tardar un poco.",
+    "cameraModelError": "La lectura de la mano no cargó ahora. Lo intentará de nuevo en las lecciones.",
+    "cameraShowHand": "Muestra la mano a la cámara",
+    "cameraHandFound": "¡Mano encontrada! Así Librax sigue tus señas.",
+    "soundTitle": "Sonidos de la app",
+    "soundSub": "Sonidos cortos refuerzan aciertos y logros. Todo también aparece en pantalla, y puedes cambiarlo después en Configuración.",
+    "soundOn": "Con sonido",
+    "soundOff": "Sin sonido"
   },
   "placement": {
     "applied": "¡Listo! Se saltaron las lecciones que ya sabes.",
@@ -799,7 +805,8 @@
     "themeSystem": "Seguir el sistema",
     "title": "Configuración",
     "version": "Versión",
-    "versionDev": "Desarrollo"
+    "versionDev": "Desarrollo",
+    "goalSaveError": "No se pudo guardar la meta. Inténtalo de nuevo."
   },
   "signDemo": {
     "avatarLabel": "Avatar VLibras haciendo la seña {gloss}",
@@ -989,6 +996,7 @@
       "link": "Olvidé mi contraseña",
       "notReceived": "¿No llegó en unos minutos? Revisa la carpeta de spam o pide otro código.",
       "resend": "Reenviar código"
-    }
+    },
+    "haveAccountSignIn": "Ya tengo cuenta: entrar"
   }
 }

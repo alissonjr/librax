@@ -37,9 +37,9 @@ export function SoundSettingItem() {
 }
 
 /**
- * Pergunta do onboarding (design system, "Decisões aplicadas" item 4: perguntar junto com a tela
- * de motivo, sem presumir nada pela resposta "sou surdo(a)"). Nada vem marcado; sem escolha, o som
- * fica desligado e pode ser ligado depois em Configurações.
+ * Pergunta do onboarding (design system, "Decisões aplicadas" item 4), no passo da meta diária
+ * (a pergunta do motivo saiu). Nada vem marcado; sem escolha, o som fica desligado e pode ser
+ * ligado depois em Configurações.
  */
 export function SoundOnboardingChoice() {
   const { t } = useT();

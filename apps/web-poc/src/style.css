@@ -814,42 +814,15 @@ h1[tabindex="-1"]:focus { outline: none; }
 .onboarding-brand { align-self: flex-start; }
 .onboarding-field { width: 100%; }
 
-.onboarding-lang {
-  display: flex;
-  gap: var(--lx-space-2);
-  justify-content: center;
-  flex-wrap: wrap;
+/* Passo do idioma: bandeira e marca de selecionado (além da borda) */
+.onboarding-lang-flag { font-size: var(--lx-typography-title-size); line-height: 1; }
+.onboarding-choice-check {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: var(--lx-size-icon-md);
+  height: var(--lx-size-icon-md);
+  color: var(--lx-border-focus);
 }
-.onboarding-lang-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--lx-space-2);
-  min-height: var(--lx-size-button-sm);
-  padding: 0 var(--lx-space-3);
-  border: var(--lx-border-width-thin) solid var(--lx-border-default);
-  border-radius: var(--lx-radius-full);
-  background: var(--lx-bg-surface);
-  color: var(--lx-text-secondary);
-  font: var(--lx-typography-label-sm);
-  cursor: pointer;
-  transition:
-    border-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard),
-    color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard),
-    background-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
-}
-/* área de toque de 48 px */
-.onboarding-lang-btn::after {
-  content: '';
-  position: absolute;
-  inset: calc((var(--lx-size-button-sm) - var(--lx-size-touch-min)) / 2) 0;
-}
-.onboarding-lang-btn--active {
-  border-color: var(--lx-border-focus);
-  color: var(--lx-text-brand);
-  background: var(--lx-feedback-info-soft);
-}
-.onboarding-lang-flag { font-size: var(--lx-typography-body-size); line-height: 1; }
 
 .onboarding-dots {
   display: flex;
@@ -993,6 +966,58 @@ h1[tabindex="-1"]:focus { outline: none; }
   gap: var(--lx-space-3);
   width: 100%;
 }
+
+/* Prévia da câmera do passo 4: vídeo e esqueleto espelhados, os dois cortados do mesmo jeito */
+.onboarding-camera {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--lx-radius-lg);
+  overflow: hidden;
+  background: var(--lx-stage-bg);
+}
+.onboarding-camera .camera-video,
+.onboarding-camera .camera-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Estado da leitura sobre o vídeo: pílula do palco (mesmas cores nos dois temas) */
+.onboarding .onboarding-camera-pill {
+  position: absolute;
+  left: var(--lx-space-3);
+  right: var(--lx-space-3);
+  bottom: var(--lx-space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-2);
+  padding: var(--lx-space-2) var(--lx-space-3);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-stage-pill);
+  color: var(--lx-stage-text);
+  font: var(--lx-typography-label-sm);
+}
+.onboarding-camera-pill .icon { flex-shrink: 0; width: var(--lx-size-icon-md); height: var(--lx-size-icon-md); }
+.onboarding-camera-pill--ok .icon { color: var(--lx-stage-landmark-correct); }
+
+/* Pedindo a permissão, recusada ou sem câmera: texto com ícone, sem bloquear o Continuar */
+.onboarding .onboarding-camera-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lx-space-3);
+  width: 100%;
+  font: var(--lx-typography-body-sm);
+  color: var(--lx-text-secondary);
+}
+.onboarding-camera-msg .icon { flex-shrink: 0; width: var(--lx-size-icon-lg); height: var(--lx-size-icon-lg); }
+.onboarding .onboarding-camera-msg--off {
+  padding: var(--lx-space-4);
+  border: var(--lx-border-width-thin) solid var(--lx-border-default);
+  border-radius: var(--lx-radius-lg);
+  background: var(--lx-bg-surface);
+  color: var(--lx-text-primary);
+}
+.onboarding-camera-msg--off .icon { color: var(--lx-text-secondary); }
 
 /* =========================================================
    MAPA DO CURSO (seção 11.3 e 11.4)

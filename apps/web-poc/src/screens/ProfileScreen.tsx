@@ -7,6 +7,7 @@ import type { IdbRepo } from '../lib/idbRepo';
 import { Icon } from '../components/Icon';
 import { LeagueShortcut } from '../components/LeagueShortcut';
 import { useAccount } from '../lib/account';
+import { dailyGoalOf } from '../lib/dailyGoal';
 
 interface Props {
   userId: string;
@@ -58,7 +59,7 @@ export function ProfileScreen({
       const profile = await repo.getProfile(userId) as Record<string, unknown> | null;
       const xpTotal = (profile?.xpTotal as number) ?? 0;
       const streak = (profile?.streak as number) ?? 0;
-      const dailyGoalXp = (profile?.dailyGoalXp as number) ?? 20;
+      const dailyGoalXp = dailyGoalOf(profile);
       const achievements = (profile?.achievements as string[]) ?? [];
       const dayXp = await repo.getDayXp(userId, today);
 

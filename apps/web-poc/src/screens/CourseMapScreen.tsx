@@ -15,6 +15,7 @@ import { CameraPrepChip } from '../components/CameraPrepChip';
 import { InstallBanner } from '../components/InstallBanner';
 import { PlacementInvite } from '../components/PlacementEntry';
 import { isPlacementDone } from '../lib/placement';
+import { dailyGoalOf } from '../lib/dailyGoal';
 
 interface MapState {
   xpTotal: number;
@@ -68,7 +69,7 @@ export function CourseMapScreen({
       const profile = await repo.getProfile(userId) as Record<string, unknown> | null;
       const xpTotal = (profile?.xpTotal as number) ?? 0;
       const streak = (profile?.streak as number) ?? 0;
-      const dailyGoalXp = (profile?.dailyGoalXp as number) ?? 20;
+      const dailyGoalXp = dailyGoalOf(profile);
       const achievements = (profile?.achievements as string[]) ?? [];
       const dayXp = await repo.getDayXp(userId, today);
       // Mesma regra de desbloqueio da guarda de /licao/:id (lib/progress.ts)

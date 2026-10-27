@@ -21,7 +21,8 @@
       "title": "Recover password"
     },
     "confirmResent": "We sent another code. Use the latest one.",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "haveAccountSignIn": "I already have an account: sign in"
   },
   "achievementsScreen": {
     "ach_cameraEstreante_desc": "First sign recognized by the camera",
@@ -647,13 +648,6 @@
     "metaSub": "You can change this at any time.",
     "metaTitle": "How much time per day?",
     "metaXpPerDay": "{xp} XP per day",
-    "motivoFamiliar": "I have a deaf family member or friend",
-    "motivoInteresse": "Personal interest / cultural curiosity",
-    "motivoOutro": "Another reason",
-    "motivoSub": "Helps us personalize your experience.",
-    "motivoSurdo": "I am deaf or hard of hearing",
-    "motivoTitle": "Why do you want to learn Libras?",
-    "motivoTrabalho": "Work or volunteering",
     "namePlaceholder": "What should I call you?",
     "noAccount": "No account needed. Your data stays only in this browser.",
     "notNow": "Not now",
@@ -669,7 +663,20 @@
     "placementFromStartSub": "Learn the letters starting with A",
     "placementTest": "Already know the alphabet? Take a quick test",
     "placementTestSub": "About 2 minutes with the camera",
-    "placementLater": "You can take the test later, from the map or in Settings."
+    "placementLater": "You can take the test later, from the map or in Settings.",
+    "langTitle": "Which language do you want to use Librax in?",
+    "langSub": "The app follows your device language. Tap another one to switch; you can change it later in Settings.",
+    "cameraAsking": "Allow camera access in the browser prompt.",
+    "cameraDenied": "That's fine, the camera is blocked. You can learn without it and allow it later in your browser settings.",
+    "cameraUnavailable": "We couldn't find an available camera on this device. You can continue without it and try again in the lessons.",
+    "cameraModelLoading": "Getting hand tracking ready. The first time may take a moment.",
+    "cameraModelError": "Hand tracking didn't load right now. It will try again in the lessons.",
+    "cameraShowHand": "Show your hand to the camera",
+    "cameraHandFound": "Hand found! This is how Librax follows your signs.",
+    "soundTitle": "App sounds",
+    "soundSub": "Short sounds reinforce correct answers and achievements. Everything also shows on screen, and you can change this later in Settings.",
+    "soundOn": "With sound",
+    "soundOff": "No sound"
   },
   "placement": {
     "applied": "Done! The lessons you already know were skipped.",
@@ -823,7 +830,8 @@
     "themeSystem": "Follow system",
     "title": "Settings",
     "version": "Version",
-    "versionDev": "Development"
+    "versionDev": "Development",
+    "goalSaveError": "Couldn't save your goal. Try again."
   },
   "signDemo": {
     "avatarLabel": "VLibras avatar signing {gloss}",

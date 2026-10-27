@@ -164,6 +164,8 @@ describe('rotas /privacidade e /termos', () => {
 
   it('as boas-vindas abrem os Termos e o voltar retorna a elas', async () => {
     const router = await renderAt(['/boas-vindas']);
+    // Os links ficam no passo do nome, depois do idioma
+    await userEvent.click(await screen.findByRole('button', { name: /Continuar/ }));
     await userEvent.click(await screen.findByRole('link', { name: 'Termos de Uso' }));
     expect(await screen.findByRole('heading', { level: 1, name: 'Termos de Uso' })).toBeInTheDocument();
     expect(path(router)).toBe('/termos');

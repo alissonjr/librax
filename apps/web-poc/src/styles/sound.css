@@ -39,7 +39,7 @@
   .sound-switch, .sound-switch-thumb { transition: none; }
 }
 
-/* Pergunta do onboarding (passo do motivo) */
+/* Pergunta do onboarding (passo da meta diária) */
 .sound-choice {
   width: 100%;
   display: flex;

@@ -303,9 +303,12 @@ function FreeModeRoute() {
 
 function OnboardingRoute() {
   const navigate = useNavigate();
+  const { repo, userId } = useSession();
   if (isOnboarded()) return <Navigate to={ROUTES.learn} replace />;
   return (
     <OnboardingScreen
+      repo={repo}
+      userId={userId}
       onDone={next => {
         navigate(ROUTES.learn, { replace: true });
         // Convite aceito: o teste abre por cima do mapa (voltar dele leva ao mapa)

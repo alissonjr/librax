@@ -9,6 +9,9 @@ import { keepScreenOn, type WakeLockHandle } from '../platform/wakeLock';
 
 export type CamStatus = 'idle' | 'loading' | 'active' | 'denied' | 'error';
 
+/** Landmarker da sessão visto por quem usa o hook: carregando, pronto ou sem conseguir carregar. */
+export type ModelStatus = 'idle' | 'loading' | 'ready' | 'error';
+
 /** Como a mao detectada e visualizada. */
 export type RenderMode = '2d' | '3d';
 
@@ -24,6 +27,13 @@ export interface UseCameraRecognizerOptions {
    * números de 0 a 9 (/ml/numeros/, src/recognition/numberModel.ts), carregado ao ligar a câmera.
    */
   classifier?: 'letras' | 'numeros';
+  /**
+   * Pede a câmera antes de esperar o modelo (boas-vindas): o pedido de permissão aparece na hora,
+   * o vídeo fica 'active' assim que toca e o esqueleto começa quando o landmarker fica pronto
+   * (`modelStatus`). Se o modelo não carregar, o vídeo continua, só sem esqueleto. Padrão: false,
+   * os exercícios esperam o modelo antes de abrir a câmera.
+   */
+  cameraFirst?: boolean;
 }
 
 export interface UseCameraRecognizerReturn {
@@ -32,6 +42,7 @@ export interface UseCameraRecognizerReturn {
   /** Ultimos 21 landmarks (ou null se nenhuma mao). Atualizado por frame, sem re-render. */
   landmarksRef: React.RefObject<Lm[] | null>;
   status: CamStatus;
+  modelStatus: ModelStatus;
   rawGesture: string | null;
   stableGesture: string | null;
   handPresent: boolean;
@@ -91,11 +102,13 @@ export function useStableGesture(raw: string | null, holdMs = 400) {
 export function useCameraRecognizer(
   options: UseCameraRecognizerOptions = {},
 ): UseCameraRecognizerReturn {
-  const { render = '2d', classifier = 'letras' } = options;
+  const { render = '2d', classifier = 'letras', cameraFirst = false } = options;
   const renderRef = useRef<RenderMode>(render);
   renderRef.current = render;
   const classifierKindRef = useRef(classifier);
   classifierKindRef.current = classifier;
+  const cameraFirstRef = useRef(cameraFirst);
+  cameraFirstRef.current = cameraFirst;
   /** Classificador dos números, depois do loadNumberClassifier (null até lá ou nas letras). */
   const numberClassifierRef = useRef<Classifier | null>(null);
 
@@ -112,6 +125,7 @@ export function useCameraRecognizer(
   const startIdRef = useRef(0);
 
   const [status, setStatus] = useState<CamStatus>('idle');
+  const [modelStatus, setModelStatus] = useState<ModelStatus>('idle');
   const [reading, setReading] = useState<Reading>(NO_HAND);
 
   const stableGesture = useStableGesture(reading.rawGesture);
@@ -183,8 +197,22 @@ export function useCameraRecognizer(
         loadClassifier();
       }
       // Landmarker da sessao: na maioria das vezes ja esta pronto (aquecido ao abrir a licao)
-      await getHandLandmarker();
-      if (cancelled()) return;
+      const landmarker = getHandLandmarker();
+      if (!peekHandLandmarker()) setModelStatus('loading');
+      if (cameraFirstRef.current) {
+        // Sem esperar: o laco de quadros so desenha quando o landmarker existir (peekHandLandmarker)
+        landmarker.then(
+          () => { if (mountedRef.current) setModelStatus('ready'); },
+          (err) => {
+            console.warn('[useCameraRecognizer] modelo da mao indisponivel', err);
+            if (mountedRef.current) setModelStatus('error');
+          },
+        );
+      } else {
+        await landmarker;
+        if (cancelled()) return;
+        setModelStatus('ready');
+      }
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
@@ -234,6 +262,7 @@ export function useCameraRecognizer(
     canvasRef: canvasRef as React.RefObject<HTMLCanvasElement>,
     landmarksRef: landmarksRef as React.RefObject<Lm[] | null>,
     status,
+    modelStatus,
     rawGesture: reading.rawGesture,
     stableGesture,
     handPresent: reading.handPresent,

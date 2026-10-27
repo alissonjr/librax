@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getDisplayName, signOutAccount } from '../lib/auth';
 import { refreshAccount, useAccount } from '../lib/account';
 import { clearOutbox, deleteAccountOnServer } from '../lib/sync';
@@ -17,6 +17,7 @@ import { ROUTES } from '../lib/routes';
 import { listCameraStats } from '../lib/cameraStats';
 import { BUILD, formatVersion } from '../lib/appVersion';
 import { PlacementSettingItem } from '../components/PlacementEntry';
+import { DEFAULT_DAILY_GOAL, loadDailyGoal, saveDailyGoal } from '../lib/dailyGoal';
 
 interface Props {
   userId: string;
@@ -45,7 +46,9 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
   const signedIn = account.status === 'signedIn';
   const [confirmSignOut, setConfirmSignOut] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
-  const [dailyGoal, setDailyGoal] = useState(20);
+  const [dailyGoal, setDailyGoal] = useState(DEFAULT_DAILY_GOAL);
+  /** A pessoa já mexeu na meta: a leitura do perfil que chegar depois não desfaz a escolha. */
+  const goalTouchedRef = useRef(false);
   const [theme, setTheme] = useState<ThemePref>(getThemePref);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState('');
@@ -55,6 +58,21 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
   const [showInstall, setShowInstall] = useState(false);
   const name = getDisplayName() ?? t('common.defaultName');
   const deleteKeyword = t('settings.deleteKeyword');
+
+  // Meta diária guardada no perfil (escolhida nas boas-vindas ou aqui)
+  useEffect(() => {
+    let alive = true;
+    loadDailyGoal(repo, userId)
+      .then(goal => { if (alive && !goalTouchedRef.current) setDailyGoal(goal); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [repo, userId]);
+
+  function changeDailyGoal(goal: number) {
+    goalTouchedRef.current = true;
+    setDailyGoal(goal);
+    saveDailyGoal(repo, userId, goal).catch(() => onNotice?.('settings.goalSaveError'));
+  }
 
   async function handleExport() {
     const profile = await repo.getProfile(userId);
@@ -230,7 +248,8 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
             <select
               className="settings-select"
               value={dailyGoal}
-              onChange={e => setDailyGoal(Number(e.target.value))}
+              onChange={e => changeDailyGoal(Number(e.target.value))}
+              aria-label={t('settings.dailyGoal')}
             >
               {GOAL_OPTIONS.map(o => (
                 <option key={o.value} value={o.value}>{t(o.key, { xp: o.value })}</option>

@@ -237,3 +237,56 @@ describe('useCameraRecognizer: laco de quadros', () => {
     expect(lastGesture).toBe('C');
   });
 });
+
+describe('useCameraRecognizer: cameraFirst (boas-vindas)', () => {
+  let lastModel = 'idle';
+
+  /** Liga a camera ao montar, sem esperar o modelo da mao. */
+  function CameraFirstProbe() {
+    const { videoRef, canvasRef, status, modelStatus, start } = useCameraRecognizer({ cameraFirst: true });
+    lastStatus = status;
+    lastModel = modelStatus;
+    useEffect(() => { start(); }, [start]);
+    return (
+      <>
+        <video ref={videoRef} />
+        <canvas ref={canvasRef} />
+      </>
+    );
+  }
+
+  beforeEach(() => { lastModel = 'idle'; });
+
+  it('pede a camera antes de o modelo ficar pronto e avisa quando ele chega', async () => {
+    getUserMedia.mockResolvedValue(fakeStream().stream);
+    play.mockResolvedValue(undefined);
+    const { HandLandmarker } = await import('@mediapipe/tasks-vision');
+    const model = deferred<unknown>();
+    vi.mocked(HandLandmarker.createFromOptions).mockReturnValueOnce(model.promise as never);
+
+    render(<CameraFirstProbe />);
+    await waitFor(() => expect(lastStatus).toBe('active'));
+    expect(getUserMedia).toHaveBeenCalledOnce();
+    expect(lastModel).toBe('loading');
+
+    await act(async () => { model.resolve({ close: landmarkerClose, detectForVideo: vi.fn() }); });
+    await waitFor(() => expect(lastModel).toBe('ready'));
+  });
+
+  it('modelo que falha nao derruba a camera', async () => {
+    getUserMedia.mockResolvedValue(fakeStream().stream);
+    play.mockResolvedValue(undefined);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { HandLandmarker } = await import('@mediapipe/tasks-vision');
+    // Falha na GPU e depois na CPU (o landmarker tenta as duas)
+    vi.mocked(HandLandmarker.createFromOptions)
+      .mockRejectedValueOnce(new Error('sem rede'))
+      .mockRejectedValueOnce(new Error('sem rede'));
+
+    render(<CameraFirstProbe />);
+    await waitFor(() => expect(lastModel).toBe('error'));
+    expect(lastStatus).toBe('active');
+    expect(consoleError).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+});

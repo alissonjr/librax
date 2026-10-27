@@ -3,27 +3,26 @@ import { setDisplayName } from '../lib/auth';
 import { useT, LANGUAGES } from '../i18n';
 import { Icon } from '../components/Icon';
 import { SoundOnboardingChoice } from '../components/SoundPreference';
+import { OnboardingCamera } from '../components/OnboardingCamera';
 import { authAvailable } from '../lib/account';
+import { DEFAULT_DAILY_GOAL, saveDailyGoal, type ProfileStore } from '../lib/dailyGoal';
 import { WelcomeIllustration, Wordmark } from '../components/Brand';
 import { LegalConsent } from '../components/LegalLinks';
 import '../styles/placement.css';
 
 interface Props {
+  /** Perfil local (IdbRepo): a meta diária escolhida fica gravada nele. */
+  repo: ProfileStore;
+  userId: string;
   /** Fim das boas-vindas; `'placement'` quando a pessoa aceitou o convite do teste de nivelamento. */
   onDone: (next?: 'placement') => void;
   /** Link "Entrar" das boas-vindas (spec-02 12.1), só quando o login existe neste ambiente. */
   onLogin?: () => void;
 }
 
-type Step = 1 | 2 | 3 | 4 | 5;
-
-const MOTIVOS = [
-  { id: 'familiar', key: 'onboarding.motivoFamiliar' },
-  { id: 'interesse', key: 'onboarding.motivoInteresse' },
-  { id: 'trabalho', key: 'onboarding.motivoTrabalho' },
-  { id: 'surdo', key: 'onboarding.motivoSurdo' },
-  { id: 'outro', key: 'onboarding.motivoOutro' },
-];
+/** Ordem dos passos: idioma, nome, meta (com o som), câmera e o convite do nivelamento. */
+const STEPS = ['idioma', 'nome', 'meta', 'camera', 'nivelamento'] as const;
+type Step = typeof STEPS[number];
 
 const METAS = [
   { value: 5,  subKey: 'onboarding.metaCasual' },
@@ -32,19 +31,30 @@ const METAS = [
   { value: 50, subKey: 'onboarding.metaIntensivo' },
 ];
 
-export function OnboardingScreen({ onDone, onLogin }: Props) {
+export function OnboardingScreen({ repo, userId, onDone, onLogin }: Props) {
   const { t, lang, setLang } = useT();
-  const [step, setStep] = useState<Step>(1);
+  const [step, setStep] = useState<Step>('idioma');
   const [name, setName] = useState('');
-  const [motivo, setMotivo] = useState('');
-  const [meta, setMeta] = useState(20);
+  const [meta, setMeta] = useState(DEFAULT_DAILY_GOAL);
+  const [finishing, setFinishing] = useState(false);
+  const stepIndex = STEPS.indexOf(step);
 
   function advance() {
-    setStep(s => Math.min(5, s + 1) as Step);
+    setStep(STEPS[Math.min(STEPS.length - 1, stepIndex + 1)]);
   }
 
-  // O nome só é gravado no fim: com ele gravado, o onboarding conta como feito (isOnboarded)
-  function handleFinish(next?: 'placement') {
+  /** O idioma vem do aparelho já marcado; o Continuar grava a escolha (vale também a detectada). */
+  function confirmLang() {
+    setLang(lang);
+    advance();
+  }
+
+  // O nome só é gravado no fim: com ele gravado, o onboarding conta como feito (isOnboarded).
+  // A meta vai antes, para o mapa já abrir com ela; se o banco local falhar, segue com a padrão.
+  async function handleFinish(next?: 'placement') {
+    if (finishing) return;
+    setFinishing(true);
+    await saveDailyGoal(repo, userId, meta).catch(() => {});
     const trimmed = name.trim() || t('common.defaultName');
     setDisplayName(trimmed);
     onDone(next);
@@ -52,32 +62,49 @@ export function OnboardingScreen({ onDone, onLogin }: Props) {
 
   return (
     <div className="onboarding">
-      {/* Language selector */}
-      <div className="onboarding-lang" role="group" aria-label={t('language.select')}>
-        {LANGUAGES.map(l => (
-          <button
-            key={l.code}
-            className={`onboarding-lang-btn${lang === l.code ? ' onboarding-lang-btn--active' : ''}`}
-            onClick={() => setLang(l.code)}
-            aria-pressed={lang === l.code}
-          >
-            <span className="onboarding-lang-flag">{l.flag}</span>
-            <span>{l.label}</span>
-          </button>
-        ))}
-      </div>
-
       {/* Progress dots */}
-      <div className="onboarding-dots">
-        {([1, 2, 3, 4, 5] as Step[]).map(s => (
-          <div key={s} className={`onboarding-dot${step >= s ? ' onboarding-dot--active' : ''}`} />
+      <div className="onboarding-dots" aria-hidden="true">
+        {STEPS.map((s, i) => (
+          <div key={s} className={`onboarding-dot${stepIndex >= i ? ' onboarding-dot--active' : ''}`} />
         ))}
       </div>
 
-      {/* Step 1: Nome */}
-      {step === 1 && (
+      {/* Passo 1: idioma (o do aparelho vem marcado; a tela troca de idioma na hora) */}
+      {step === 'idioma' && (
         <div className="onboarding-step animate__animated animate__fadeInRight">
           <Wordmark size={28} className="onboarding-brand" />
+          <h1>{t('onboarding.langTitle')}</h1>
+          <p className="onboarding-sub">{t('onboarding.langSub')}</p>
+          <div className="onboarding-choices" role="group" aria-label={t('language.select')}>
+            {LANGUAGES.map((l, i) => (
+              <button
+                key={l.code}
+                lang={l.code}
+                className={`onboarding-choice onboarding-choice--goal animate__animated animate__fadeInUp${lang === l.code ? ' onboarding-choice--selected' : ''}`}
+                style={{ animationDelay: `${100 + i * 70}ms` }}
+                onClick={() => setLang(l.code)}
+                aria-pressed={lang === l.code}
+              >
+                <span className="onboarding-lang-flag" aria-hidden="true">{l.flag}</span>
+                <span className="goal-label">{l.label}</span>
+                {lang === l.code && <Icon name="check_circle" filled className="onboarding-choice-check" />}
+              </button>
+            ))}
+          </div>
+          <button className="btn btn-primary" onClick={confirmLang}>
+            {t('common.continue')} <Icon name="arrow_forward" />
+          </button>
+          {onLogin && authAvailable() && (
+            <button className="btn-text" onClick={onLogin}>
+              {t('account.haveAccountSignIn')}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Passo 2: nome */}
+      {step === 'nome' && (
+        <div className="onboarding-step animate__animated animate__fadeInRight">
           <div className="onboarding-hero animate__animated animate__fadeIn">
             <WelcomeIllustration />
           </div>
@@ -105,43 +132,11 @@ export function OnboardingScreen({ onDone, onLogin }: Props) {
             {t('onboarding.noAccount')}
           </p>
           <LegalConsent messageKey="legal.onboardingConsent" />
-          {onLogin && authAvailable() && (
-            <button className="btn-text" onClick={onLogin}>
-              {t('account.haveAccountSignIn')}
-            </button>
-          )}
         </div>
       )}
 
-      {/* Step 2: Motivo */}
-      {step === 2 && (
-        <div className="onboarding-step animate__animated animate__fadeInRight">
-          <div className="onboarding-step-icon animate__animated animate__bounceIn">
-            <Icon name="local_fire_department" filled />
-          </div>
-          <h2>{t('onboarding.motivoTitle')}</h2>
-          <p className="onboarding-sub">{t('onboarding.motivoSub')}</p>
-          <div className="onboarding-choices">
-            {MOTIVOS.map((m, i) => (
-              <button
-                key={m.id}
-                className={`onboarding-choice animate__animated animate__fadeInUp${motivo === m.id ? ' onboarding-choice--selected' : ''}`}
-                style={{ animationDelay: `${100 + i * 70}ms` }}
-                onClick={() => setMotivo(m.id)}
-              >
-                {t(m.key)}
-              </button>
-            ))}
-          </div>
-          <SoundOnboardingChoice />
-          <button className="btn btn-primary" onClick={advance} disabled={!motivo}>
-            {t('common.continue')} <Icon name="arrow_forward" />
-          </button>
-        </div>
-      )}
-
-      {/* Step 3: Meta diária */}
-      {step === 3 && (
+      {/* Passo 3: meta diária e sons do app */}
+      {step === 'meta' && (
         <div className="onboarding-step animate__animated animate__fadeInRight">
           <div className="onboarding-step-icon animate__animated animate__bounceIn">
             <Icon name="flag" />
@@ -155,6 +150,7 @@ export function OnboardingScreen({ onDone, onLogin }: Props) {
                 className={`onboarding-choice onboarding-choice--goal animate__animated animate__fadeInUp${meta === m.value ? ' onboarding-choice--selected' : ''}`}
                 style={{ animationDelay: `${100 + i * 70}ms` }}
                 onClick={() => setMeta(m.value)}
+                aria-pressed={meta === m.value}
               >
                 <Icon name="bolt" filled className="goal-icon" />
                 <div>
@@ -165,44 +161,18 @@ export function OnboardingScreen({ onDone, onLogin }: Props) {
               </button>
             ))}
           </div>
+          <SoundOnboardingChoice />
           <button className="btn btn-primary" onClick={advance}>
             {t('common.continue')} <Icon name="arrow_forward" />
           </button>
         </div>
       )}
 
-      {/* Step 4: Câmera + LGPD */}
-      {step === 4 && (
-        <div className="onboarding-step animate__animated animate__fadeInRight">
-          <div className="onboarding-step-icon onboarding-step-icon--hand wow-glow animate__animated animate__bounceIn">
-            <Icon name="videocam" />
-          </div>
-          <h2>{t('onboarding.cameraTitle')}</h2>
-          <p className="onboarding-sub">
-            {t('onboarding.cameraSub')}
-          </p>
-          <div className="onboarding-privacy-card">
-            <Icon name="shield" className="privacy-icon" />
-            <p>
-              <strong>{t('onboarding.privacyStrong')}</strong> {t('onboarding.privacyText')}
-            </p>
-          </div>
-          <div className="onboarding-camera-actions">
-            <button className="btn btn-primary" onClick={advance}>
-              <Icon name="videocam" /> {t('onboarding.useCamera')}
-            </button>
-            <button className="btn btn-ghost" onClick={advance}>
-              {t('onboarding.notNow')}
-            </button>
-          </div>
-          <p className="onboarding-disclaimer">
-            {t('onboarding.cameraDisclaimer')}
-          </p>
-        </div>
-      )}
+      {/* Passo 4: câmera de verdade (permissão e prévia da mão) e privacidade */}
+      {step === 'camera' && <OnboardingCamera onNext={advance} />}
 
-      {/* Step 5: convite do teste de nivelamento. Duas escolhas do mesmo peso; nenhuma é a padrão. */}
-      {step === 5 && (
+      {/* Passo 5: convite do teste de nivelamento. Duas escolhas do mesmo peso; nenhuma é a padrão. */}
+      {step === 'nivelamento' && (
         <div className="onboarding-step animate__animated animate__fadeInRight">
           <div className="onboarding-step-icon onboarding-step-icon--hand animate__animated animate__bounceIn">
             <Icon name="sign_language" />
@@ -210,14 +180,14 @@ export function OnboardingScreen({ onDone, onLogin }: Props) {
           <h2>{t('onboarding.placementTitle')}</h2>
           <p className="onboarding-sub">{t('onboarding.placementSub')}</p>
           <div className="onboarding-choices">
-            <button className="onboarding-choice onboarding-choice--goal" onClick={() => handleFinish()}>
+            <button className="onboarding-choice onboarding-choice--goal" onClick={() => handleFinish()} disabled={finishing}>
               <Icon name="play_arrow" filled className="placement-choice-icon" />
               <div>
                 <div className="goal-label">{t('onboarding.placementFromStart')}</div>
                 <div className="goal-sub">{t('onboarding.placementFromStartSub')}</div>
               </div>
             </button>
-            <button className="onboarding-choice onboarding-choice--goal" onClick={() => handleFinish('placement')}>
+            <button className="onboarding-choice onboarding-choice--goal" onClick={() => handleFinish('placement')} disabled={finishing}>
               <Icon name="skip_next" className="placement-choice-icon" />
               <div>
                 <div className="goal-label">{t('onboarding.placementTest')}</div>

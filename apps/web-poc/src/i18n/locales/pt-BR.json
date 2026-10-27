@@ -744,13 +744,6 @@
     "metaSub": "Você pode mudar isso a qualquer momento.",
     "metaTitle": "Quanto tempo por dia?",
     "metaXpPerDay": "{xp} XP por dia",
-    "motivoFamiliar": "Tenho familiar ou amigo surdo",
-    "motivoInteresse": "Interesse pessoal / curiosidade cultural",
-    "motivoOutro": "Outro motivo",
-    "motivoSub": "Ajuda a personalizar sua experiência.",
-    "motivoSurdo": "Sou surdo(a) ou tenho perda auditiva",
-    "motivoTitle": "Por que você quer aprender Libras?",
-    "motivoTrabalho": "Trabalho ou voluntariado",
     "namePlaceholder": "Como posso te chamar?",
     "noAccount": "Nenhuma conta necessária. Dados ficam só neste navegador.",
     "notNow": "Agora não",
@@ -770,7 +763,16 @@
     "placementFromStartSub": "Aprender as letras desde o A",
     "placementTest": "Já sei o alfabeto? Fazer um teste rápido",
     "placementTestSub": "Uns 2 minutos com a câmera",
-    "placementLater": "Você pode fazer o teste depois, pelo mapa ou nas Configurações."
+    "placementLater": "Você pode fazer o teste depois, pelo mapa ou nas Configurações.",
+    "langTitle": "Em qual idioma você quer usar o Librax?",
+    "langSub": "O app está no idioma do seu aparelho. Toque em outro para trocar; dá para mudar depois nas Configurações.",
+    "cameraAsking": "Permita o acesso à câmera no aviso do navegador.",
+    "cameraDenied": "Tudo bem, a câmera ficou bloqueada. Dá para aprender sem ela, e você pode liberar depois nas configurações do navegador.",
+    "cameraUnavailable": "Não encontramos uma câmera disponível neste aparelho. Você pode seguir sem ela e tentar de novo nas lições.",
+    "cameraModelLoading": "Preparando a leitura da mão. Na primeira vez pode demorar um pouco.",
+    "cameraModelError": "A leitura da mão não carregou agora. Ela tenta de novo nas lições.",
+    "cameraShowHand": "Mostre a mão para a câmera",
+    "cameraHandFound": "Mão encontrada! É assim que o Librax acompanha seus sinais."
   },
   "placement": {
     "applied": "Pronto! As lições que você já sabe foram puladas.",
@@ -932,7 +934,8 @@
     "soundOn": "Ligados",
     "soundOff": "Desligados",
     "soundHint": "Tudo o que o som reforça também aparece na tela.",
-    "versionDev": "Desenvolvimento"
+    "versionDev": "Desenvolvimento",
+    "goalSaveError": "Não deu para salvar a meta. Tente de novo."
   },
   "signDemo": {
     "avatarLabel": "Avatar VLibras fazendo o sinal {gloss}",

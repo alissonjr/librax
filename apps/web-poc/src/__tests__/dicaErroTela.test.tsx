@@ -21,6 +21,7 @@ const camera = {
   canvasRef: { current: null },
   landmarksRef: { current: null },
   status: 'active' as const,
+  modelStatus: 'ready' as const,
   rawGesture: null,
   stableGesture: null as string | null,
   handPresent: true,

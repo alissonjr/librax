@@ -21,6 +21,7 @@ const letterBase: UseCameraRecognizerReturn = {
   canvasRef: { current: null },
   landmarksRef: { current: null },
   status: 'active',
+  modelStatus: 'ready',
   rawGesture: null,
   stableGesture: null,
   handPresent: true,

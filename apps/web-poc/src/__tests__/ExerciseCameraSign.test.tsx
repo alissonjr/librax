@@ -12,6 +12,7 @@ const defaultHookReturn = {
   canvasRef: { current: null },
   landmarksRef: { current: null },
   status: 'idle' as const,
+  modelStatus: 'ready' as const,
   rawGesture: null,
   stableGesture: null,
   handPresent: false,
