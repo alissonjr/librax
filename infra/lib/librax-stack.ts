@@ -775,6 +775,12 @@ export class LibraxStack extends cdk.Stack {
         landingRequestFunction(config.landing.domainName, config.landing.redirectDomainNames, appOrigin),
       ),
     });
+    // A API do CloudFront recusa várias Functions criadas ao mesmo tempo ("Rate exceeded", visto no
+    // primeiro deploy): uma depende da outra, para o CloudFormation criar em sequência
+    [spaRewrite, wasmContentType, adminRewrite, assetLinksResponse, landingRequest].reduce((anterior, atual) => {
+      atual.node.addDependency(anterior);
+      return atual;
+    });
     const landingOrigin = cloudfrontOrigins.S3BucketOrigin.withOriginAccessControl(landingBucket);
 
     const landingDistribution = new cloudfront.Distribution(this, 'LibraxLandingCDN', {
