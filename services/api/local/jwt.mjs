@@ -17,14 +17,23 @@ const decodePart = (part) => JSON.parse(Buffer.from(part, 'base64url').toString(
 export function makeJwtVerifier({ issuer, jwksUrl, fetchImpl = (...a) => fetch(...a), now = () => Date.now() }) {
   let keys = null;
   let lastFetch = 0;
+  // Busca do JWKS em andamento: chamadas juntas (logo depois do login) esperam a mesma busca em vez
+  // de verem o mapa ainda vazio e responderem 401
+  let loading = null;
+
+  async function load() {
+    const res = await fetchImpl(jwksUrl);
+    if (!res.ok) throw new Error(`JWKS indisponivel (HTTP ${res.status})`);
+    const { keys: list = [] } = await res.json();
+    keys = new Map(list.map((jwk) => [jwk.kid, createPublicKey({ key: jwk, format: 'jwk' })]));
+  }
 
   async function keyFor(kid) {
+    if (loading) await loading;
     if (!keys?.has(kid) && now() - lastFetch > 10_000) {
       lastFetch = now();
-      const res = await fetchImpl(jwksUrl);
-      if (!res.ok) throw new Error(`JWKS indisponivel (HTTP ${res.status})`);
-      const { keys: list = [] } = await res.json();
-      keys = new Map(list.map((jwk) => [jwk.kid, createPublicKey({ key: jwk, format: 'jwk' })]));
+      loading = load().finally(() => { loading = null; });
+      await loading;
     }
     return keys?.get(kid) ?? null;
   }

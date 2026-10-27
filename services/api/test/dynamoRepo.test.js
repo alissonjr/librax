@@ -438,3 +438,15 @@ test('deleteSquad apaga o META por ultimo (queda entre lotes deixa a squad achav
   const items = db.calls.find((c) => c.name === 'TransactWriteCommand').input.TransactItems;
   assert.deepEqual(items.at(-1).Delete.Key, { PK: 'SQUAD#s1', SK: 'META' });
 });
+
+test('listDayXp le todas as paginas de USER#<id> / DAY#<dia>', async () => {
+  let page = 0;
+  const db = fakeClient(() => (page++ === 0
+    ? { Items: [{ PK: 'USER#u1', SK: 'DAY#2026-10-20', xp: 30 }], LastEvaluatedKey: { PK: 'USER#u1', SK: 'DAY#2026-10-20' } }
+    : { Items: [{ PK: 'USER#u1', SK: 'DAY#2026-10-21' }] }));
+  const days = await new DynamoRepo(db).listDayXp('u1');
+  assert.deepEqual(days, [{ day: '2026-10-20', xp: 30 }, { day: '2026-10-21', xp: 0 }]);
+  assert.equal(db.calls.length, 2);
+  assert.equal(db.calls[0].input.ExpressionAttributeValues[':prefix'], 'DAY#');
+  assert.deepEqual(db.calls[1].input.ExclusiveStartKey, { PK: 'USER#u1', SK: 'DAY#2026-10-20' });
+});

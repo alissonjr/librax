@@ -18,7 +18,7 @@ interface Props {
   /** Troca entre "Entrar" e "Criar conta" sem perder o que foi digitado no e-mail. */
   onSwitchMode: (mode: AuthMode) => void;
   /** Conta conectada (login, cadastro confirmado). */
-  onDone: () => void;
+  onDone: () => void | Promise<void>;
   onBack: () => void;
 }
 
@@ -99,7 +99,7 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
     await refreshAccount();
     // Leva o progresso do convidado para a conta (POST /v1/guest/migrate) sem esperar
     void flushOutbox().catch(() => {});
-    onDone();
+    await onDone();
   }
 
   async function signIn() {

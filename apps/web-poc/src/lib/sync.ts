@@ -391,6 +391,54 @@ export async function reportLessonAbandon(input: LessonAbandonInput): Promise<bo
   }
 }
 
+/** Progresso da conta (GET /v1/users/me/progress; services/api usecases/exportProgress.js). */
+export interface AccountProgress {
+  profile: {
+    displayName: string | null;
+    xpTotal: number;
+    streak: number;
+    lastActiveDay: string | null;
+    freezes: number;
+    signsLearned: number;
+    lessonsCompleted: number;
+    alphabetComplete: boolean;
+  };
+  /** `placement`: pulada pelo teste de nivelamento (no aparelho, concluída com `placement: true`). */
+  lessons: { lessonId: string; status: 'completed' | 'placement'; bestScore?: number | null; completedAt: string | null }[];
+  srs: ({ signId: string } & Record<string, unknown>)[];
+  days: { day: string; xp: number }[];
+  achievements: string[];
+}
+
+/** Espera do progresso da conta: passou disso, a pessoa entra sem ele (o mapa fica como está). */
+export const ACCOUNT_PROGRESS_TIMEOUT_MS = 10_000;
+
+/**
+ * Busca o progresso da conta. Antes, espera a fila sair (o log do convidado entra na conta), para a
+ * resposta já trazer o que foi feito neste aparelho. Sem conta, sem rede ou com erro: null.
+ */
+export async function fetchAccountProgress(): Promise<AccountProgress | null> {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return null;
+  await flushOutbox().catch(() => {});
+  const session = await deps.getSession();
+  if (!session) return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ACCOUNT_PROGRESS_TIMEOUT_MS);
+  try {
+    const res = await deps.fetch(`${deps.apiBase}/v1/users/me/progress`, {
+      headers: { Authorization: `Bearer ${session.token}` },
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as AccountProgress;
+    return data && typeof data === 'object' && data.profile && Array.isArray(data.lessons) ? data : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /** Resultado da exclusão no servidor; só `deleted` libera a limpeza do aparelho. */
 export type DeleteAccountOutcome = 'deleted' | 'offline' | 'error';
 

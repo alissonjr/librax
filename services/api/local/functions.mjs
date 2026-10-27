@@ -24,6 +24,7 @@ import { makeLeagueHandlers } from '../src/handlers/league.js';
 import { makePushHandlers } from '../src/handlers/push.js';
 import { makeAdminHandlers } from '../src/handlers/admin.js';
 import { makeAccountHandlers } from '../src/handlers/account.js';
+import { makeProgressHandlers } from '../src/handlers/progress.js';
 import { makeDeviceHandlers } from '../src/handlers/devices.js';
 import { makeTelemetryHandlers } from '../src/handlers/telemetry.js';
 import { makePostConfirmationHandler } from '../src/handlers/postConfirmation.js';
@@ -67,6 +68,7 @@ export function makeLocalFunctions({ plan, state, log = console.log }) {
       makeLeagueHandlers({ repo, now }),
       makePushHandlers({ repo, now }),
       makeAccountHandlers({ repo, directory: accounts, log }),
+      makeProgressHandlers({ repo }),
       // aviso de acesso novo sem SES (como na infra com librax:cognitoEmailSes desligado): so registra
       makeDeviceHandlers({ repo, mailer: null, appUrl: URLS.app, now }),
       // dados de uso anonimos e nota do app: rotas publicas, sem autorizador

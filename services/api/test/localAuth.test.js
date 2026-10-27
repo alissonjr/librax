@@ -85,6 +85,14 @@ test('JWT: id token do client certo passa; chaves vem do moto, nunca do iss', as
   assert.equal((await v.check(sign({ ...base, client_id: 'app', token_use: 'access' }), ['app'])).ok, true);
 });
 
+test('JWT: chamadas juntas logo depois do login esperam a mesma busca das chaves (nada de 401)', async () => {
+  const { v, calls } = verifier();
+  const token = `Bearer ${sign({ ...base, aud: 'app' })}`;
+  const results = await Promise.all([v.check(token, ['app']), v.check(token, ['app']), v.check(token, ['app'])]);
+  assert.deepEqual(results.map((r) => r.ok), [true, true, true]);
+  assert.equal(calls.length, 1);
+});
+
 test('JWT: outro client, emissor, validade, assinatura ou alg recusados', async () => {
   const { v } = verifier();
   const reason = async (token, aud = ['admin']) => (await v.check(`Bearer ${token}`, aud)).reason;

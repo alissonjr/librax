@@ -409,7 +409,7 @@ stack (valores em `infra/lib/cost-guards.ts`); todas mudam no lugar, sem recriar
 | Previsão do orçamento | o AWS Budget também avisa quando a previsão do mês passa do valor |
 | Anomalia de custo | resumo diário por e-mail (o dos alarmes) de gasto fora do padrão acima de 20% do orçamento (US$ 2 com o padrão). Só cabe um monitor de serviços por conta e a AWS costuma criar um ao ativar o Cost Explorer: o script usa o que existir ou cria (`librax:costAnomalyAlerts`). Com o Cost Explorer desligado, fica para a próxima rodada |
 | User Pool protegido | o User Pool (as contas) não pode ser apagado nem pelo CloudFormation nem pelo console sem antes desligar a proteção |
-| Concorrência reservada (opcional) | cada Lambda da API ganha um teto de cópias simultâneas (2 para o `guest/migrate`, de 5 a 20 para as outras, 174 no total) e um abuso numa rota não toma a conta inteira |
+| Concorrência reservada (opcional) | cada Lambda da API ganha um teto de cópias simultâneas (2 para o `guest/migrate`, de 5 a 20 para as outras, 179 no total) e um abuso numa rota não toma a conta inteira |
 
 **Concorrência reservada.** Fica desligada por padrão: com a cota de 10 de uma conta nova, qualquer reserva faz o
 deploy falhar (a AWS exige 100 execuções sem reserva). Depois que a AWS liberar a cota de 1000

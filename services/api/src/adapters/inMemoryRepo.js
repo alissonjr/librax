@@ -115,6 +115,15 @@ export class InMemoryRepo {
   async hasDayLog(userId, day) {
     return this._daysLogged.has(`${userId}#${day}`);
   }
+  /** Todos os dias com XP da pessoa (progresso da conta para o app). */
+  async listDayXp(userId) {
+    const prefix = `${userId}#`;
+    const out = [];
+    for (const key of this._daysLogged) {
+      if (key.startsWith(prefix)) out.push({ day: key.slice(prefix.length), xp: this._dayXp.get(key) ?? 0 });
+    }
+    return out.sort((a, b) => a.day.localeCompare(b.day));
+  }
 
   // --- conquistas ---
   async listEarnedAchievements(userId) {

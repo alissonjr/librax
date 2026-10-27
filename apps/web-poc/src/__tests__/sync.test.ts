@@ -27,6 +27,7 @@ import {
   MIGRATE_BATCH,
   reportLessonAbandon,
   deleteAccountOnServer,
+  fetchAccountProgress,
   __resetSyncForTests,
 } from '../lib/sync';
 
@@ -538,5 +539,46 @@ describe('exclusão de conta no servidor', () => {
     Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
     guest();
     expect(await deleteAccountOnServer()).toBe('error');
+  });
+});
+
+describe('progresso da conta (ao entrar)', () => {
+  const data = { profile: { xpTotal: 10 }, lessons: [], srs: [], days: [], achievements: [] };
+
+  it('manda a fila primeiro e depois busca GET /v1/users/me/progress com o token', async () => {
+    signedIn();
+    await enqueueLessonCompletion(lesson());
+    const order: string[] = [];
+    configureSync({
+      fetch: (async (url: string, init: RequestInit) => {
+        order.push(`${init.method ?? 'GET'} ${url} ${(init.headers as Record<string, string>).Authorization}`);
+        return reply(200, url.endsWith('/progress') ? data : { duplicate: false });
+      }) as unknown as typeof fetch,
+    });
+    expect(await fetchAccountProgress()).toEqual(data);
+    expect(order).toEqual([
+      'POST /api/v1/lesson/complete Bearer jwt.id',
+      'GET /api/v1/users/me/progress Bearer jwt.id',
+    ]);
+  });
+
+  it('sem sessão, sem rede, erro do servidor ou resposta estranha: null', async () => {
+    const fetchFn = vi.fn(async () => reply(200, data));
+    configureSync({ fetch: fetchFn as unknown as typeof fetch });
+    auth.getSession.mockResolvedValue(null);
+    expect(await fetchAccountProgress()).toBeNull();
+
+    signedIn();
+    Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
+    expect(await fetchAccountProgress()).toBeNull();
+    Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
+    expect(fetchFn).not.toHaveBeenCalled();
+
+    configureSync({ fetch: (async () => reply(500)) as unknown as typeof fetch });
+    expect(await fetchAccountProgress()).toBeNull();
+    configureSync({ fetch: (async () => reply(200, { nada: true })) as unknown as typeof fetch });
+    expect(await fetchAccountProgress()).toBeNull();
+    configureSync({ fetch: (async () => { throw new TypeError('rede'); }) as unknown as typeof fetch });
+    expect(await fetchAccountProgress()).toBeNull();
   });
 });

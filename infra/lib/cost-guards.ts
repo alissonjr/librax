@@ -70,6 +70,7 @@ export const RESERVED_CONCURRENCY: Record<string, number> = {
   'librax-notification-prefs': 5,
   'librax-delete-account': 2,
   'librax-report-device': 5,
+  'librax-get-progress': 5,
   'librax-admin': 5,
   'librax-telemetry': 5,
 };

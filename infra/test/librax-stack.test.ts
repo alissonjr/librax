@@ -489,6 +489,28 @@ describe('API', () => {
   });
 });
 
+describe('Progresso da conta (entrar no comeco do app ou num aparelho novo)', () => {
+  test('GET /v1/users/me/progress no autorizador do app, Lambda propria que so le a tabela', () => {
+    const { template } = synth(withDomain);
+    const authorizers = template.findResources('AWS::ApiGatewayV2::Authorizer');
+    const [appAuthId] = Object.entries(authorizers).find(([, r]) => r.Properties.Name === 'CognitoAuth')!;
+    const route = Object.values(template.findResources('AWS::ApiGatewayV2::Route'))
+      .map((r) => r.Properties)
+      .find((r) => r.RouteKey === 'GET /v1/users/me/progress');
+    expect(route.AuthorizationType).toBe('JWT');
+    expect(route.AuthorizerId).toEqual({ Ref: appAuthId });
+    template.hasResourceProperties('AWS::Lambda::Function', {
+      FunctionName: 'librax-get-progress',
+      Handler: 'index.getProgressHandler',
+    });
+    const actions = policyActionsOf(template, 'librax-get-progress');
+    expect(actions).toEqual(expect.arrayContaining(['dynamodb:GetItem', 'dynamodb:Query']));
+    for (const write of ['dynamodb:PutItem', 'dynamodb:UpdateItem', 'dynamodb:DeleteItem', 'dynamodb:BatchWriteItem']) {
+      expect(actions).not.toContain(write);
+    }
+  });
+});
+
 describe('Exclusao de conta (LGPD)', () => {
   test('DELETE /v1/users/me com o autorizador JWT do app, Lambda propria e o User Pool no ambiente', () => {
     const { template } = synth(withDomain);

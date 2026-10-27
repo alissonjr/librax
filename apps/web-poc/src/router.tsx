@@ -4,6 +4,7 @@ import {
   type RouteObject,
 } from 'react-router-dom';
 import { isOnboarded } from './lib/auth';
+import { enterWithAccount } from './lib/accountRestore';
 import { shouldOfferAccount, useAccount } from './lib/account';
 import { Flags } from './lib/flags';
 import { getToday } from './lib/today';
@@ -328,6 +329,8 @@ function AuthRoute({ mode }: { mode: AuthMode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const nav = useAppNavigation();
+  const { repo, userId } = useSession();
+  const { t } = useT();
   const returnTo = (location.state as { returnTo?: string } | null)?.returnTo;
   const leave = () => (returnTo ? nav.backTo(returnTo) : nav.back(ROUTES.home));
   return (
@@ -337,7 +340,11 @@ function AuthRoute({ mode }: { mode: AuthMode }) {
         replace: true,
         state: location.state,
       })}
-      onDone={leave}
+      onDone={async () => {
+        // Traz o progresso da conta; vindo das boas-vindas, elas terminam aqui e o voltar abre o mapa
+        await enterWithAccount(repo, userId, () => t('common.defaultName'));
+        leave();
+      }}
       onBack={leave}
     />
   );
@@ -346,9 +353,14 @@ function AuthRoute({ mode }: { mode: AuthMode }) {
 /** /auth/callback: conclui a volta do Google antes de qualquer redirecionamento, depois vai ao mapa. */
 function AuthCallbackRoute() {
   const navigate = useNavigate();
+  const { repo, userId } = useSession();
+  const { t } = useT();
   return (
     <AuthCallbackScreen
-      onDone={() => navigate(ROUTES.learn, { replace: true })}
+      onDone={async () => {
+        await enterWithAccount(repo, userId, () => t('common.defaultName'));
+        navigate(ROUTES.learn, { replace: true });
+      }}
       onRetry={() => navigate(ROUTES.login, { replace: true })}
     />
   );

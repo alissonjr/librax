@@ -5,6 +5,7 @@ import { IdbRepo } from './lib/idbRepo';
 import { getUserId } from './lib/auth';
 import { startAccount, useAccount } from './lib/account';
 import { reportDevice } from './lib/device';
+import { retryAccountRestore } from './lib/accountRestore';
 import { setTelemetryContext, startTelemetry } from './lib/telemetry';
 import { refreshTelemetryProgress } from './lib/telemetryProgress';
 import { evaluateAppOpen, preloadAppOpen } from './lib/appOpen';
@@ -73,6 +74,11 @@ export function App() {
   useEffect(() => {
     if (account.status === 'signedIn') void reportDevice(lang);
   }, [account.status, lang]);
+
+  // Com conta: termina a busca do progresso da conta que falhou ao entrar (lib/accountRestore.ts)
+  useEffect(() => {
+    if (account.status === 'signedIn' && state) void retryAccountRestore(state.repo, state.userId);
+  }, [account.status, state]);
 
   // Dados de uso anônimos: só se há conta (sim ou não, nunca qual) e o idioma do app
   useEffect(() => {

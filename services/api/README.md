@@ -78,6 +78,7 @@ services/api/
 │   │   ├── completeLesson.js     XP + streak + SRS + conquistas + fan-out (SPEC 02/04)
 │   │   ├── completeLessonOnce.js o mesmo, idempotente por lessonAttemptId
 │   │   ├── migrateGuest.js       reexecuta o log do convidado (POST /v1/guest/migrate)
+│   │   ├── exportProgress.js     progresso da conta para o app (GET /v1/users/me/progress)
 │   │   ├── getDailyQueue.js      monta a fila do dia
 │   │   ├── reviewSigns.js        prática diária: resposta vai para o SRS (sem XP); versão idempotente
 │   │   ├── sendReminders.js      rodada de lembretes (Web Push e e-mail opcional)
@@ -110,6 +111,7 @@ services/api/
 │       ├── league.js        GET /v1/league/current, POST /v1/league/result-seen
 │       ├── account.js       DELETE /v1/users/me (exclusão de conta)
 │       ├── devices.js       POST /v1/users/me/devices (aparelho, idioma e aviso de acesso novo)
+│       ├── progress.js      GET /v1/users/me/progress (progresso da conta para o aparelho)
 │       ├── reminders.js     Lambda do Scheduler: lembretes (web-push + VAPID do SSM)
 │       ├── closeLeague.js   Lambda do Scheduler: fechar as ligas e zerar as squads da semana
 │       ├── admin.js         rotas /v1/admin (uma Lambda, pelo routeKey), só grupo admin
@@ -158,6 +160,7 @@ depois de criar conta (`POST /v1/guest/migrate`).
 | POST | `/v1/league/result-seen` | marca o LeagueResultSheet da semana `{ period }` como visto |
 | DELETE | `/v1/users/me` | exclui a conta de quem chama: dados na tabela e o usuário no Cognito (LGPD); idempotente |
 | POST | `/v1/users/me/devices` | `{ deviceId, lang?, timezone? }` depois de entrar e ao trocar o idioma: registra o aparelho e o idioma; aparelho novo num login recente manda o aviso por e-mail (ver abaixo) |
+| GET | `/v1/users/me/progress` | progresso da conta para o app gravar no aparelho ao entrar (começo do app ou aparelho novo): lições concluídas e puladas pelo teste, revisões, XP por dia, conquistas e o resumo do perfil, com o nome do perfil ou do token (`given_name`); só lê, sem a meta diária |
 
 ### Uso anônimo e nota do app (públicas, sem login)
 

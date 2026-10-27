@@ -18,7 +18,7 @@ interface Props {
   userId: string;
   /** Fim das boas-vindas; `'placement'` quando a pessoa aceitou o convite do teste de nivelamento. */
   onDone: (next?: 'placement') => void;
-  /** Link "Entrar" das boas-vindas (spec-02 12.1), só quando o login existe neste ambiente. */
+  /** "Já tenho conta" da primeira tela (spec-02 12.1), só quando o login existe neste ambiente. */
   onLogin?: () => void;
 }
 
@@ -99,9 +99,10 @@ export function OnboardingScreen({ repo, userId, onDone, onLogin }: Props) {
           <button className="btn btn-primary" onClick={confirmLang}>
             {t('common.continue')} <Icon name="arrow_forward" />
           </button>
+          {/* Quem já tem conta entra aqui: o progresso da conta vem para o aparelho e as perguntas são puladas */}
           {onLogin && authAvailable() && (
-            <button className="btn-text" onClick={onLogin}>
-              {t('account.haveAccountSignIn')}
+            <button className="btn btn-secondary" onClick={onLogin}>
+              <Icon name="login" /> {t('account.haveAccountSignIn')}
             </button>
           )}
         </div>

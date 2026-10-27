@@ -436,6 +436,12 @@ export class LibraxStack extends cdk.Stack {
       environment: { USER_POOL_ID: userPool.userPoolId },
     });
 
+    // Progresso da conta para o app gravar no aparelho (entrar no comeco do app ou num aparelho novo)
+    const getProgressFn = makeFn('GetProgressFn', 'progress.js', 'getProgressHandler', {
+      functionName: 'librax-get-progress',
+      description: 'Progresso da conta (licoes, revisoes, XP por dia e conquistas) para o app; so le',
+    });
+
     const closeLeagueFn = makeFn('CloseLeagueFn', 'closeLeague.js', 'handler', {
       functionName: 'librax-close-league',
       timeout: Duration.minutes(5),  // operacao batch pode demorar mais
@@ -518,6 +524,7 @@ export class LibraxStack extends cdk.Stack {
     table.grantReadWriteData(closeLeagueFn);
     table.grantReadWriteData(reminderFn);
     table.grantReadData(adminFn);          // o painel so le
+    table.grantReadData(getProgressFn);    // o progresso da conta so e lido
     // Rota publica: so os itens do uso anonimo (dynamodb:LeadingKeys), sem Query nem Scan
     telemetryFn.addToRolePolicy(new iam.PolicyStatement({
       actions: ['dynamodb:GetItem', 'dynamodb:PutItem', 'dynamodb:UpdateItem', 'dynamodb:DeleteItem'],
@@ -1013,6 +1020,7 @@ export class LibraxStack extends cdk.Stack {
     addRoute(M.GET,    '/v1/users/me/squads',                         listMySquadsFn);
     addRoute(M.DELETE, '/v1/users/me',                                deleteAccountFn);
     addRoute(M.POST,   '/v1/users/me/devices',                        reportDeviceFn);
+    addRoute(M.GET,    '/v1/users/me/progress',                       getProgressFn);
     addRoute(M.GET,    '/v1/league/current',                          getLeagueFn);
     addRoute(M.POST,   '/v1/league/result-seen',                      leagueResultSeenFn);
     addRoute(M.POST,   '/v1/push/subscriptions',                      subscribePushFn);
@@ -1119,7 +1127,7 @@ export class LibraxStack extends cdk.Stack {
     // mes (Cost Explorer, US$ 0,01 por chamada). Sem nova tentativa: cada uma pagaria de novo; o
     // alarme de erros avisa se falhar, e da para refazer o dia a mao ({ "day": "AAAA-MM-DD" }).
     const opsDailyName = 'librax-ops-daily';
-    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, postConfirmationFn, customMessageFn, telemetryFn];
+    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, postConfirmationFn, customMessageFn, telemetryFn, getProgressFn];
     const opsDailyFn = makeFn('OpsDailyFn', 'opsDaily.js', 'handler', {
       functionName: opsDailyName,
       timeout: Duration.minutes(2),

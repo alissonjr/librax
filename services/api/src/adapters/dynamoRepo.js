@@ -236,6 +236,15 @@ export class DynamoRepo {
     return Item != null;
   }
 
+  /** Todos os dias com XP da pessoa (progresso da conta para o app), em ordem de data. */
+  async listDayXp(userId) {
+    const items = await this._queryAll({
+      KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
+      ExpressionAttributeValues: { ':pk': `USER#${userId}`, ':prefix': 'DAY#' },
+    });
+    return items.map((i) => ({ day: i.SK.slice(4), xp: i.xp ?? 0 }));
+  }
+
   // -----------------------------------------------------------------------
   // CONQUISTAS
   // -----------------------------------------------------------------------
