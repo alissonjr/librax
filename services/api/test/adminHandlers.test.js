@@ -50,7 +50,7 @@ function setup({ repo = new InMemoryRepo(), accounts = [], logs = [], mfa = asyn
 
 test('toda rota do painel responde 403 para quem nao e admin', async () => {
   const { adminRouter, routeKeys } = setup();
-  assert.equal(routeKeys.length, 7);
+  assert.equal(routeKeys.length, 9);
   for (const routeKey of routeKeys) {
     for (const groups of [null, '[]', '[editores]', 'administradores', '["editores"]']) {
       const res = await adminRouter(event({

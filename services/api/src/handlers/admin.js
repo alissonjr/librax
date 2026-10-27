@@ -8,6 +8,8 @@
  * GET /v1/admin/accounts/{userId}     resumo da conta: perfil, progresso, liga e squads
  * GET /v1/admin/squads?cursor=&limit= squads da mais nova para a mais velha
  * GET /v1/admin/cost                  custo do mes (guardado uma vez por dia pelo job opsDaily)
+ * GET /v1/admin/usage                 uso anonimo: ativos, retencao, funil, licoes e notas (TELAGG)
+ * GET /v1/admin/feedback?rating=&cursor=&limit=  notas do app, da mais nova para a mais velha
  *
  * Tres travas: o autorizador JWT so aceita o id token do app client do painel, cada handler
  * confere o grupo `admin` no token (`requireAdmin`, 403 para os outros) e a conta precisa ter o
@@ -26,6 +28,7 @@
  */
 
 import { opsOverview, accountSummary, listSquads, costView } from '../usecases/admin.js';
+import { usageOverview, feedbackPage } from '../usecases/telemetry.js';
 import { isUserId, parseAccountQuery, groupsOf, isFederated, makeMfaGate } from '../domain/admin.js';
 import { labelsFromReport } from '../content/contentReport.js';
 import contentStatus from '../content/contentStatus.js';
@@ -118,6 +121,27 @@ export function makeAdminHandlers({ repo, directory, mfa, content = contentStatu
 
   const adminCostHandler = admin('cost', () => costView(repo));
 
+  const adminUsageHandler = admin('usage', () => usageOverview(repo, { now: now(), labels }));
+
+  const adminFeedbackHandler = admin('feedback', async (event) => {
+    const q = query(event);
+    const limit = q.limit === undefined ? 20 : Number(q.limit);
+    if (!Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE) {
+      throw new ApiError(400, 'BAD_LIMIT', `limit entre 1 e ${MAX_PAGE}`);
+    }
+    const rating = q.rating === undefined || q.rating === '' ? null : Number(q.rating);
+    if (rating !== null && !(Number.isInteger(rating) && rating >= 1 && rating <= 5)) {
+      throw new ApiError(400, 'BAD_RATING', 'rating entre 1 e 5');
+    }
+    const cursor = decodeCursor(q.cursor);
+    // so a SK de uma entrada da lista (ISO + sufixo)
+    if (cursor !== null && !(typeof cursor === 'string' && /^\d{4}-\d{2}-\d{2}T[\d:.]+Z#[0-9a-f]{1,32}$/.test(cursor))) {
+      throw new ApiError(400, 'BAD_CURSOR', 'cursor invalido');
+    }
+    const page = await feedbackPage(repo, { rating, limit, cursor });
+    return { items: page.items, cursor: encodeCursor(page.cursor) };
+  });
+
   const routes = {
     'GET /v1/admin/me': adminMeHandler,
     'GET /v1/admin/overview': adminOverviewHandler,
@@ -126,6 +150,8 @@ export function makeAdminHandlers({ repo, directory, mfa, content = contentStatu
     'GET /v1/admin/accounts/{userId}': adminAccountHandler,
     'GET /v1/admin/squads': adminSquadsHandler,
     'GET /v1/admin/cost': adminCostHandler,
+    'GET /v1/admin/usage': adminUsageHandler,
+    'GET /v1/admin/feedback': adminFeedbackHandler,
   };
 
   /** Uma Lambda para todas as rotas do painel (pelo `routeKey` do API Gateway). */
@@ -143,6 +169,8 @@ export function makeAdminHandlers({ repo, directory, mfa, content = contentStatu
     adminAccountHandler,
     adminSquadsHandler,
     adminCostHandler,
+    adminUsageHandler,
+    adminFeedbackHandler,
     adminRouter,
     routeKeys: Object.keys(routes),
   };

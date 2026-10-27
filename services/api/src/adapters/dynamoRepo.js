@@ -1464,6 +1464,10 @@ export class DynamoRepo {
 
   /** Soma os contadores com ADD (nomes planos, ver domain/opsMetrics.js); TTL so na criacao. */
   async addOpsCounters(key, counters, { expiresAt = null } = {}) {
+    await this._addCounters(OPS_PK, key, counters, expiresAt);
+  }
+
+  async _addCounters(pk, key, counters, expiresAt) {
     const entries = Object.entries(counters);
     if (entries.length === 0) return;
     const names = {};
@@ -1481,7 +1485,7 @@ export class DynamoRepo {
     await this._db.send(
       new UpdateCommand({
         TableName: TABLE,
-        Key: { PK: OPS_PK, SK: key },
+        Key: { PK: pk, SK: key },
         UpdateExpression: expr,
         ExpressionAttributeNames: names,
         ExpressionAttributeValues: values,
@@ -1520,20 +1524,28 @@ export class DynamoRepo {
 
   /** Itens com chave entre `from` e `to` (inclusive): uma Query na particao OPS, nunca Scan. */
   async listOpsRange(from, to) {
-    const items = await this._queryAll({
-      KeyConditionExpression: 'PK = :pk AND SK BETWEEN :from AND :to',
-      ExpressionAttributeValues: { ':pk': OPS_PK, ':from': from, ':to': to },
-    });
-    return items.map((i) => this._opsItem(i));
+    return this._listRange(OPS_PK, from, to);
   }
 
   /** Os `limit` itens mais recentes com o prefixo (WEEK#, MONTH#, COST#). */
   async listOpsLatest(prefix, limit) {
+    return this._listLatest(OPS_PK, prefix, limit);
+  }
+
+  async _listRange(pk, from, to) {
+    const items = await this._queryAll({
+      KeyConditionExpression: 'PK = :pk AND SK BETWEEN :from AND :to',
+      ExpressionAttributeValues: { ':pk': pk, ':from': from, ':to': to },
+    });
+    return items.map((i) => this._opsItem(i));
+  }
+
+  async _listLatest(pk, prefix, limit) {
     const { Items = [] } = await this._db.send(
       new QueryCommand({
         TableName: TABLE,
         KeyConditionExpression: 'PK = :pk AND begins_with(SK, :prefix)',
-        ExpressionAttributeValues: { ':pk': OPS_PK, ':prefix': prefix },
+        ExpressionAttributeValues: { ':pk': pk, ':prefix': prefix },
         ScanIndexForward: false,
         Limit: limit,
       }),
@@ -1544,6 +1556,98 @@ export class DynamoRepo {
   _opsItem(item) {
     const { PK, SK, expiresAt, ...rest } = item;
     return { key: SK, ...rest };
+  }
+
+  // -----------------------------------------------------------------------
+  // DADOS DE USO ANONIMOS E NOTA DO APP (domain/telemetry.js e domain/feedback.js)
+  // TEL#<id> / META e FEEDBACK, TELAGG / <chave>, FBLIST[#R<n>] / <ISO>#<aleatorio>
+  // -----------------------------------------------------------------------
+
+  async getTelemetryMeta(id) {
+    const { Item } = await this._db.send(new GetCommand({ TableName: TABLE, Key: { PK: `TEL#${id}`, SK: 'META' } }));
+    return Item ? this._stripKeys(Item) : null;
+  }
+
+  /**
+   * Grava o item do codigo inteiro, com trava otimista: `expectedRev` null so cria (nao existia) e
+   * um numero so grava se o item ainda estiver nessa revisao. Dois lotes ao mesmo tempo do mesmo
+   * aparelho nao contam a mesma coisa duas vezes: quem perde le de novo.
+   * @returns {Promise<boolean>} false se outra gravacao chegou antes
+   */
+  async putTelemetryMeta(id, item, { expectedRev = null } = {}) {
+    try {
+      await this._db.send(
+        new PutCommand({
+          TableName: TABLE,
+          Item: { ...item, PK: `TEL#${id}`, SK: 'META' },
+          ...(expectedRev == null
+            ? { ConditionExpression: 'attribute_not_exists(PK)' }
+            : { ConditionExpression: '#rev = :rev', ExpressionAttributeNames: { '#rev': 'rev' }, ExpressionAttributeValues: { ':rev': expectedRev } }),
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (isConditionFailure(e)) return false;
+      throw e;
+    }
+  }
+
+  async getFeedback(id) {
+    const { Item } = await this._db.send(new GetCommand({ TableName: TABLE, Key: { PK: `TEL#${id}`, SK: 'FEEDBACK' } }));
+    return Item ? this._stripKeys(Item) : null;
+  }
+
+  async putFeedback(id, item) {
+    await this._db.send(new PutCommand({ TableName: TABLE, Item: { ...item, PK: `TEL#${id}`, SK: 'FEEDBACK' } }));
+  }
+
+  /** Apaga o item do codigo e a nota (os dois unicos itens de TEL#<id>). */
+  async deleteTelemetryItems(id) {
+    await Promise.all(['META', 'FEEDBACK'].map((SK) =>
+      this._db.send(new DeleteCommand({ TableName: TABLE, Key: { PK: `TEL#${id}`, SK } }))));
+  }
+
+  async putFeedbackEntry(pk, sk, entry, expiresAt) {
+    await this._db.send(new PutCommand({ TableName: TABLE, Item: { ...entry, PK: pk, SK: sk, expiresAt } }));
+  }
+
+  async deleteFeedbackEntry(pk, sk) {
+    await this._db.send(new DeleteCommand({ TableName: TABLE, Key: { PK: pk, SK: sk } }));
+  }
+
+  /** Uma pagina da lista de notas, da mais nova para a mais velha (`cursor` = SK da ultima). */
+  async listFeedbackEntries(pk, { limit = 20, cursor = null } = {}) {
+    const { Items = [], LastEvaluatedKey } = await this._db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk',
+        ExpressionAttributeValues: { ':pk': pk },
+        ScanIndexForward: false,
+        Limit: limit,
+        ...(cursor ? { ExclusiveStartKey: { PK: pk, SK: cursor } } : {}),
+      }),
+    );
+    return {
+      entries: Items.map(({ PK, SK, expiresAt, ...rest }) => rest),
+      cursor: LastEvaluatedKey?.SK ?? null,
+    };
+  }
+
+  async addTelemetryCounters(key, counters, { expiresAt = null } = {}) {
+    await this._addCounters('TELAGG', key, counters, expiresAt);
+  }
+
+  async listTelemetryRange(from, to) {
+    return this._listRange('TELAGG', from, to);
+  }
+
+  async listTelemetryLatest(prefix, limit) {
+    return this._listLatest('TELAGG', prefix, limit);
+  }
+
+  async getTelemetryAgg(key) {
+    const { Item } = await this._db.send(new GetCommand({ TableName: TABLE, Key: { PK: 'TELAGG', SK: key } }));
+    return Item ? this._opsItem(Item) : null;
   }
 
   // -----------------------------------------------------------------------

@@ -40,6 +40,10 @@ export class InMemoryRepo {
     this._ops = new Map(); // chave do painel (DAY#..., WEEK#..., COST#...) -> item (OPS / <chave>)
     this._activity = new Map(); // userId -> { lastDay, lastWeek, lastMonth }
     this._devices = new Map(); // userId -> aparelhos conhecidos, idioma e fuso (USER#<id> / DEVICES)
+    this._telMeta = new Map(); // codigo anonimo -> item (TEL#<id> / META)
+    this._feedback = new Map(); // codigo anonimo -> nota (TEL#<id> / FEEDBACK)
+    this._feedbackList = new Map(); // `${pk}|${sk}` -> entrada da lista do painel (FBLIST[#R<n>])
+    this._telAgg = new Map(); // chave (DAY#..., WEEK#..., REACH, FEEDBACK) -> item (TELAGG / <chave>)
   }
 
   // --- perfil ---
@@ -562,6 +566,69 @@ export class InMemoryRepo {
       .sort((a, b) => (a.key < b.key ? 1 : -1))
       .slice(0, limit)
       .map(opsView);
+  }
+
+  // --- dados de uso anonimos e nota do app (domain/telemetry.js, domain/feedback.js) ---
+  async getTelemetryMeta(id) {
+    const item = this._telMeta.get(id);
+    return item ? structuredClone(item) : null;
+  }
+  /** Trava otimista como no DynamoRepo: null so cria; numero so grava na mesma revisao. */
+  async putTelemetryMeta(id, item, { expectedRev = null } = {}) {
+    const current = this._telMeta.get(id);
+    if (expectedRev == null ? current : current?.rev !== expectedRev) return false;
+    this._telMeta.set(id, structuredClone(item));
+    return true;
+  }
+  async getFeedback(id) {
+    const item = this._feedback.get(id);
+    return item ? structuredClone(item) : null;
+  }
+  async putFeedback(id, item) {
+    this._feedback.set(id, structuredClone(item));
+  }
+  async deleteTelemetryItems(id) {
+    this._telMeta.delete(id);
+    this._feedback.delete(id);
+  }
+  async putFeedbackEntry(pk, sk, entry, expiresAt) {
+    this._feedbackList.set(`${pk}|${sk}`, { pk, sk, entry: structuredClone(entry), expiresAt });
+  }
+  async deleteFeedbackEntry(pk, sk) {
+    this._feedbackList.delete(`${pk}|${sk}`);
+  }
+  async listFeedbackEntries(pk, { limit = 20, cursor = null } = {}) {
+    const rows = [...this._feedbackList.values()]
+      .filter((r) => r.pk === pk && (cursor == null || r.sk < cursor))
+      .sort((a, b) => (a.sk < b.sk ? 1 : -1));
+    const page = rows.slice(0, limit);
+    return {
+      entries: page.map((r) => structuredClone(r.entry)),
+      cursor: rows.length > limit ? page.at(-1).sk : null,
+    };
+  }
+  async addTelemetryCounters(key, counters, { expiresAt = null } = {}) {
+    const item = this._telAgg.get(key) ?? { key };
+    for (const [name, n] of Object.entries(counters)) item[name] = (item[name] ?? 0) + n;
+    if (expiresAt != null && item.expiresAt == null) item.expiresAt = expiresAt;
+    this._telAgg.set(key, item);
+  }
+  async listTelemetryRange(from, to) {
+    return [...this._telAgg.values()]
+      .filter((i) => i.key >= from && i.key <= to)
+      .sort((a, b) => (a.key < b.key ? -1 : 1))
+      .map(opsView);
+  }
+  async listTelemetryLatest(prefix, limit) {
+    return [...this._telAgg.values()]
+      .filter((i) => i.key.startsWith(prefix))
+      .sort((a, b) => (a.key < b.key ? 1 : -1))
+      .slice(0, limit)
+      .map(opsView);
+  }
+  async getTelemetryAgg(key) {
+    const item = this._telAgg.get(key);
+    return item ? opsView(item) : null;
   }
 
   // --- exclusao de conta: tudo o que o DynamoRepo guarda em USER#<id> ---

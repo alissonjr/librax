@@ -495,6 +495,13 @@ export class LibraxStack extends cdk.Stack {
       environment: { APP_URL: appUrl, ...(loginAlertFrom ? { LOGIN_ALERT_FROM: loginAlertFrom } : {}) },
     });
 
+    // Dados de uso anonimos e nota do app: rotas publicas (sem login), uma Lambda para as tres. So
+    // escreve nas chaves TEL#<id>, TELAGG e FBLIST (politica abaixo), nunca na conta nem no progresso.
+    const telemetryFn = makeFn('TelemetryFn', 'telemetry.js', 'telemetryRouter', {
+      functionName: 'librax-telemetry',
+      description: 'Uso anonimo e nota do app (rotas publicas): soma na escrita, apaga pelo codigo anonimo',
+    });
+
     // Permissoes DynamoDB (principio do menor privilegio)
     const allLambdas = [
       completeLessonFn, getDailyQueueFn, abandonLessonFn, reviewSignsFn, migrateGuestFn,
@@ -511,6 +518,12 @@ export class LibraxStack extends cdk.Stack {
     table.grantReadWriteData(closeLeagueFn);
     table.grantReadWriteData(reminderFn);
     table.grantReadData(adminFn);          // o painel so le
+    // Rota publica: so os itens do uso anonimo (dynamodb:LeadingKeys), sem Query nem Scan
+    telemetryFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['dynamodb:GetItem', 'dynamodb:PutItem', 'dynamodb:UpdateItem', 'dynamodb:DeleteItem'],
+      resources: [table.tableArn],
+      conditions: { 'ForAllValues:StringLike': { 'dynamodb:LeadingKeys': ['TEL#*', 'TELAGG', 'FBLIST', 'FBLIST#*'] } },
+    }));
     table.grantWriteData(postConfirmationFn);
 
     // Busca de conta pelo e-mail (ListUsers) e conferencia do segundo fator de quem abre o painel
@@ -1006,6 +1019,13 @@ export class LibraxStack extends cdk.Stack {
     addRoute(M.DELETE, '/v1/push/subscriptions/{subscriptionId}',     unsubscribePushFn);
     addRoute(M.PUT,    '/v1/notifications/preferences',               notificationPrefsFn);
 
+    // Uso anonimo e nota do app: publicas (o convidado nao tem token). O codigo anonimo e o segredo
+    // do DELETE; limite baixo por rota em lib/cost-guards.ts.
+    const publicRoute = new apigatewayv2.HttpNoneAuthorizer();
+    addRoute(M.POST,   '/v1/telemetry',                               telemetryFn, publicRoute);
+    addRoute(M.DELETE, '/v1/telemetry/{id}',                          telemetryFn, publicRoute);
+    addRoute(M.POST,   '/v1/feedback',                                telemetryFn, publicRoute);
+
     // Painel de administracao (so leitura): mesma Lambda, autorizador do app client do painel
     for (const routePath of [
       '/v1/admin/me',
@@ -1015,6 +1035,8 @@ export class LibraxStack extends cdk.Stack {
       '/v1/admin/accounts/{userId}',
       '/v1/admin/squads',
       '/v1/admin/cost',
+      '/v1/admin/usage',
+      '/v1/admin/feedback',
     ]) {
       addRoute(M.GET, routePath, adminFn, adminAuthorizer);
     }
@@ -1097,7 +1119,7 @@ export class LibraxStack extends cdk.Stack {
     // mes (Cost Explorer, US$ 0,01 por chamada). Sem nova tentativa: cada uma pagaria de novo; o
     // alarme de erros avisa se falhar, e da para refazer o dia a mao ({ "day": "AAAA-MM-DD" }).
     const opsDailyName = 'librax-ops-daily';
-    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, postConfirmationFn, customMessageFn];
+    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, postConfirmationFn, customMessageFn, telemetryFn];
     const opsDailyFn = makeFn('OpsDailyFn', 'opsDaily.js', 'handler', {
       functionName: opsDailyName,
       timeout: Duration.minutes(2),

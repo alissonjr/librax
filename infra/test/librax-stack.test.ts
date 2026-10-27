@@ -695,7 +695,7 @@ describe('Painel de administracao', () => {
     const admin = routes.filter((r) => r.RouteKey.startsWith('GET /v1/admin/'));
     expect(admin.map((r) => r.RouteKey).sort()).toEqual([
       'GET /v1/admin/accounts', 'GET /v1/admin/accounts/{userId}', 'GET /v1/admin/content', 'GET /v1/admin/cost',
-      'GET /v1/admin/me', 'GET /v1/admin/overview', 'GET /v1/admin/squads',
+      'GET /v1/admin/feedback', 'GET /v1/admin/me', 'GET /v1/admin/overview', 'GET /v1/admin/squads', 'GET /v1/admin/usage',
     ]);
     for (const r of admin) {
       expect(r.AuthorizationType).toBe('JWT');

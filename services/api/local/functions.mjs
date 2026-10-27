@@ -25,6 +25,7 @@ import { makePushHandlers } from '../src/handlers/push.js';
 import { makeAdminHandlers } from '../src/handlers/admin.js';
 import { makeAccountHandlers } from '../src/handlers/account.js';
 import { makeDeviceHandlers } from '../src/handlers/devices.js';
+import { makeTelemetryHandlers } from '../src/handlers/telemetry.js';
 import { makePostConfirmationHandler } from '../src/handlers/postConfirmation.js';
 import { makeCloseLeagueHandler } from '../src/handlers/closeLeague.js';
 import { makeOpsDailyHandler } from '../src/handlers/opsDaily.js';
@@ -68,6 +69,8 @@ export function makeLocalFunctions({ plan, state, log = console.log }) {
       makeAccountHandlers({ repo, directory: accounts, log }),
       // aviso de acesso novo sem SES (como na infra com librax:cognitoEmailSes desligado): so registra
       makeDeviceHandlers({ repo, mailer: null, appUrl: URLS.app, now }),
+      // dados de uso anonimos e nota do app: rotas publicas, sem autorizador
+      (({ telemetryRouter }) => ({ telemetryRouter }))(makeTelemetryHandlers({ repo, catalog, now, log })),
       // Sem o segundo fator: o moto so confere o codigo do aplicativo autenticador com uma chave fixa,
       // igual para todas as contas (MOTO_COGNITO_IDP_USER_POOL_ENABLE_TOTP), e sem ela aceita qualquer
       // codigo. O login do painel local (SRP pelo proxy) fica so com e-mail e senha.

@@ -24,7 +24,11 @@ export const API_STAGE_THROTTLE = { rateLimit: 50, burstLimit: 200 };
  * - guest/migrate: ate 200 conclusoes por envio, Lambda de 30 s e 512 MB (a rota mais cara);
  * - lesson/complete e practice/review: as escritas do dia a dia;
  * - squads/join: tentativa de codigo de convite (forca bruta);
- * - criar squad e excluir conta: raras e com varias escritas.
+ * - criar squad e excluir conta: raras e com varias escritas;
+ * - dados de uso anonimos e nota do app: rotas publicas (sem login). O lote de uso vai no fim da licao e
+ *   quando o app sai da tela (uns 5 por pessoa por dia; 10 mil pessoas por dia dao menos de 1 por
+ *   segundo na media); apagar a copia e mandar a nota sao raros. 429 so adia: o app guarda e tenta
+ *   depois.
  */
 export const ROUTE_THROTTLES: Record<string, { rateLimit: number; burstLimit: number }> = {
   'POST /v1/guest/migrate': { rateLimit: 1, burstLimit: 5 },
@@ -33,6 +37,9 @@ export const ROUTE_THROTTLES: Record<string, { rateLimit: number; burstLimit: nu
   'POST /v1/squads/join': { rateLimit: 5, burstLimit: 10 },
   'POST /v1/squads': { rateLimit: 2, burstLimit: 5 },
   'DELETE /v1/users/me': { rateLimit: 1, burstLimit: 5 },
+  'POST /v1/telemetry': { rateLimit: 10, burstLimit: 30 },
+  'DELETE /v1/telemetry/{id}': { rateLimit: 1, burstLimit: 5 },
+  'POST /v1/feedback': { rateLimit: 1, burstLimit: 5 },
 };
 
 /**
@@ -64,6 +71,7 @@ export const RESERVED_CONCURRENCY: Record<string, number> = {
   'librax-delete-account': 2,
   'librax-report-device': 5,
   'librax-admin': 5,
+  'librax-telemetry': 5,
 };
 
 /** Soma das reservas (o script de lancamento confere a cota da conta com este numero). */
