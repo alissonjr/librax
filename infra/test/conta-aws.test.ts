@@ -101,6 +101,7 @@ describe('trava da conta', () => {
       'librax:accountId', 'librax:hostedZoneId', 'librax:hostedZoneName', 'librax:certificateArn',
       'librax:alarmEmail', 'librax:budgetEmail', 'librax:monthlyBudgetUsd', 'librax:googleEnabled',
       'librax:emailRemindersEnabled', 'librax:emailFrom', 'librax:androidCertFingerprints',
+      'librax:cognitoEmailSes', 'librax:cognitoEmailFrom', 'librax:cognitoEmailFromName', 'librax:cognitoEmailReplyTo',
     ]) {
       expect(ctx, chave).not.toHaveProperty([chave]);
     }

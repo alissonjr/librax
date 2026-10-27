@@ -276,6 +276,80 @@ describe('Cognito', () => {
     expect(Object.keys(template.toJSON().Outputs ?? {})).not.toContain('IdentityPoolId');
   });
 
+  describe('e-mails do Cognito (SES opcional)', () => {
+    const pool = (template: Template) => {
+      const pools = template.findResources('AWS::Cognito::UserPool');
+      expect(Object.keys(pools)).toHaveLength(1);
+      const [id, recurso] = Object.entries(pools)[0];
+      return { id, props: recurso.Properties as Record<string, unknown>, recurso };
+    };
+
+    test('desligado (padrao): envio do Cognito, sem EmailConfiguration', () => {
+      const { template } = synth(withDomain);
+      expect(pool(template).props.EmailConfiguration).toBeUndefined();
+      expect(JSON.stringify(template.toJSON())).not.toContain('"DEVELOPER"');
+    });
+
+    test('ligado: SES em us-east-1 com o dominio verificado, remetente Librax e sem papel extra', () => {
+      const { template } = synth({ ...withDomain, 'librax:cognitoEmailSes': 'true' });
+      const cfg = pool(template).props.EmailConfiguration as Record<string, unknown>;
+      expect({ ...cfg, SourceArn: flat(cfg.SourceArn) }).toEqual({
+        EmailSendingAccount: 'DEVELOPER',
+        From: 'Librax <nao-responda@librax.example>',
+        SourceArn: 'arn:{AWS::Partition}:ses:us-east-1:111111111111:identity/librax.example',
+      });
+      // O Cognito usa o papel vinculado ao servico que ele mesmo cria; a stack nao ganha permissao de SES
+      expect(JSON.stringify(template.findResources('AWS::IAM::Policy'))).not.toContain('ses:');
+    });
+
+    test('remetente, nome e resposta por contexto; dominio do remetente e a identidade do SES', () => {
+      const { template } = synth({
+        ...withDomain,
+        'librax:cognitoEmailSes': true,
+        'librax:cognitoEmailFrom': 'contas@mail.librax.example',
+        'librax:cognitoEmailFromName': 'Equipe Librax',
+        'librax:cognitoEmailReplyTo': 'contato@librax.example',
+      });
+      const cfg = pool(template).props.EmailConfiguration as Record<string, unknown>;
+      expect({ ...cfg, SourceArn: flat(cfg.SourceArn) }).toEqual({
+        EmailSendingAccount: 'DEVELOPER',
+        From: 'Equipe Librax <contas@mail.librax.example>',
+        ReplyToEmailAddress: 'contato@librax.example',
+        SourceArn: 'arn:{AWS::Partition}:ses:us-east-1:111111111111:identity/mail.librax.example',
+      });
+    });
+
+    test('remetente invalido para o synth com mensagem clara', () => {
+      expect(() => synth({ ...withDomain, 'librax:cognitoEmailSes': 'true', 'librax:cognitoEmailFrom': 'librax' })).toThrow(
+        /librax:cognitoEmailFrom precisa ser um e-mail/,
+      );
+    });
+
+    test('codigo de cadastro e de nova senha em portugues, com o nome do app e o codigo', () => {
+      const { props } = pool(synth(withDomain).template);
+      const tpl = props.VerificationMessageTemplate as Record<string, string>;
+      expect(tpl.DefaultEmailOption).toBe('CONFIRM_WITH_CODE');
+      expect(tpl.EmailSubject).toBe('Seu código do Librax');
+      expect(tpl.EmailMessage).toContain('Seu código do Librax é {####}.');
+      expect(tpl.EmailMessage).toContain('criar uma nova senha');
+      expect(props.EmailVerificationSubject).toBe(tpl.EmailSubject);
+      expect(props.EmailVerificationMessage).toBe(tpl.EmailMessage);
+      // Texto corrido: sem HTML, sem travessao nem meia-risca, sem emoji
+      expect(tpl.EmailMessage).not.toMatch(/[<>\u2013\u2014]|\p{Extended_Pictographic}/u);
+      expect(tpl.EmailMessage.length).toBeLessThan(300);
+    });
+
+    test('ligar o SES muda so o envio: mesmo User Pool (mesmo id, sem troca de propriedade imutavel)', () => {
+      const desligado = pool(synth(withDomain).template);
+      const ligado = pool(synth({ ...withDomain, 'librax:cognitoEmailSes': 'true' }).template);
+      expect(ligado.id).toBe(desligado.id);
+      expect(ligado.recurso.DeletionPolicy).toBe('Retain');
+      const { EmailConfiguration, ...resto } = ligado.props;
+      expect(EmailConfiguration).toBeDefined();
+      expect(resto).toEqual(desligado.props);
+    });
+  });
+
   test('User Pool no plano Lite (custo por MAU mais baixo)', () => {
     const { template } = synth(withDomain);
     template.hasResourceProperties('AWS::Cognito::UserPool', { UserPoolTier: 'LITE' });
@@ -662,7 +736,7 @@ describe('Alarmes e orcamento', () => {
     template.resourceCountIs('AWS::SNS::Topic', 1);
     Annotations.fromStack(stack).hasWarning('*', Match.stringLikeRegexp('librax:alarmEmail'));
     // nenhum e-mail fixo no codigo da infra (so os modelos com o dominio, como contato@${...})
-    for (const file of ['librax-stack.ts', 'config.ts']) {
+    for (const file of ['librax-stack.ts', 'config.ts', 'cognito-email.ts']) {
       const code = readFileSync(path.join(__dirname, '..', 'lib', file), 'utf8');
       expect(code).not.toMatch(/[a-z0-9._-]+@[a-z0-9-]+\.[a-z]{2,}/i);
     }

@@ -15,8 +15,9 @@ No fim, ficam no ar:
 | `https://auth.librax.online` | página de login do Cognito (usada pelo app) |
 
 Tempo: cerca de 1 hora de trabalho, mais a espera do DNS (de minutos a algumas horas). O primeiro lançamento sai
-com o login por e-mail e senha; o login com Google, os lembretes por e-mail e as notificações (Web Push) ficam
-desligados e podem ser ligados depois (seção [Depois do lançamento](#depois-do-lançamento)).
+com o login por e-mail e senha; o login com Google, os lembretes por e-mail, as notificações (Web Push) e o envio
+dos códigos do login pelo SES ficam desligados e podem ser ligados depois (seção
+[Depois do lançamento](#depois-do-lançamento)).
 
 ## Passo 1. Conta AWS e região
 
@@ -151,8 +152,10 @@ os valores voltam da cópia em `~/.librax/`.
 ## Passo 9. Conferir
 
 - `https://librax.online` abre a landing; `https://www.librax.online` redireciona para ela.
-- `https://app.librax.online` abre o app. Crie uma conta com e-mail e senha: o código chega por e-mail (o Cognito
-  manda até 50 e-mails por dia sem SES, o que basta para o começo).
+- `https://app.librax.online` abre o app. Crie uma conta com e-mail e senha: o código chega por e-mail, de
+  `no-reply@verificationemail.com`, com o assunto "Seu código do Librax". O Cognito manda até 50 e-mails por dia
+  sem SES, o que basta para o começo; para passar disso, veja
+  [E-mails do login pelo SES](#e-mails-do-login-pelo-ses).
 - `https://app.librax.online/privacidade` e `/termos` abrem sem login.
 - `https://app.librax.online/admin/` pede login e, sem o grupo admin, recusa (passo 10).
 - `https://app.librax.online/.well-known/assetlinks.json` responde `[]` até o app Android ter as impressões
@@ -218,6 +221,56 @@ Trocar as chaves depois invalida as inscrições de quem já ativou as notifica�
    verificados.
 3. `bash infra/scripts/lancar-cloudshell.sh --com-lembretes-email` (remetente `lembretes@librax.online`).
 
+### E-mails do login pelo SES
+
+Sem isso, o código de cadastro e o de "esqueci a senha" saem pelo envio padrão do Cognito, limitado a 50 e-mails
+por dia. Com o SES, saem de `Librax <nao-responda@librax.online>`, sem esse limite. Os passos 1 e 3 são feitos uma
+vez só e servem também para os lembretes por e-mail.
+
+1. **Identidade do domínio.** Console > **Amazon SES** (região us-east-1) > **Identidades** > **Criar identidade**:
+   - Tipo: **Domínio**, `librax.online`.
+   - Em "Verificar seu domínio", deixe **Easy DKIM** com **RSA_2048_BIT** e marque **Publicar registros DNS no
+     Route 53** (Publish DNS records to Route 53). As assinaturas DKIM ficam ativadas.
+   - **Criar identidade.** O SES grava os 3 registros CNAME do DKIM na zona e a identidade passa a **Verificado**
+     em alguns minutos (no máximo 72 horas).
+2. **DMARC (opcional, recomendado).** Route 53 > **Zonas hospedadas** > `librax.online` > **Criar registro**:
+   nome `_dmarc`, tipo **TXT**, valor `"v=DMARC1; p=none;"`. Com `p=none` nada é bloqueado; o registro só melhora
+   a entrega no Gmail e no Outlook.
+3. **Acesso de produção.** Toda conta começa no sandbox do SES, que só entrega para endereços verificados: com o
+   envio pelo SES ligado no sandbox, quem criar conta não recebe o código. Console > **Amazon SES** > **Painel da
+   conta** (Account dashboard) > **Solicitar acesso de produção** (Request production access):
+   - Tipo de e-mail: **Transacional**. URL do site: `https://librax.online`. Idioma de contato: inglês.
+   - Descrição sugerida (em inglês, que é o idioma da análise):
+
+     > Librax (https://librax.online) is a free app for learning Brazilian Sign Language (Libras). We use Amazon
+     > SES for transactional e-mail sent by Amazon Cognito: the sign-up verification code and the password reset
+     > code, from nao-responda@librax.online. Later we will also send study reminders that users turn on in the
+     > app, each with a link to turn them off. We never buy or import address lists: every recipient created
+     > their own account and confirmed the address. The domain uses Easy DKIM and has a DMARC record. Bounces and
+     > complaints are handled by the SES account-level suppression list, and we watch the bounce and complaint
+     > rates in the SES account dashboard. Expected volume at launch: under 1,000 e-mails per day.
+
+   A AWS costuma responder em até 24 horas, por e-mail e no Support Center.
+4. **Ligar.** No CloudShell:
+
+   ```bash
+   cd /tmp/librax && bash infra/scripts/lancar-cloudshell.sh --com-email-ses
+   ```
+
+   O script grava `librax:cognitoEmailSes` no `infra/cdk.context.json`, confere no SES que `librax.online` existe e
+   está verificado (se não, para e diz o que falta) e avisa se a conta ainda estiver no sandbox. Depois faz o
+   deploy. A troca só atualiza o User Pool: as contas, as senhas e o login continuam iguais.
+5. **Conferir.** Crie uma conta de teste no app ou peça "Esqueci a senha": o e-mail chega de
+   `Librax <nao-responda@librax.online>`.
+
+Para voltar ao envio padrão do Cognito: `bash infra/scripts/lancar-cloudshell.sh --sem-email-ses`. Outro remetente
+(do mesmo domínio verificado) ou um endereço de resposta: `librax:cognitoEmailFrom`, `librax:cognitoEmailFromName` e
+`librax:cognitoEmailReplyTo` no `infra/cdk.context.json` (`infra/lib/config.ts`).
+
+O texto do e-mail é um só para o cadastro e para a nova senha, em português (o Cognito não escolhe idioma por
+pessoa nesses campos): "Olá! Seu código do Librax é 123456. Digite esse código no app para confirmar seu e-mail ou
+criar uma nova senha. Se não foi você que pediu, é só ignorar esta mensagem. Bons estudos em Libras!"
+
 ### Política e Termos
 
 Os textos ficam em `apps/web-poc/src/legal/privacidade.md` e `termos.md`. Mudou o texto, suba a versão e a data no
@@ -266,6 +319,7 @@ Preços de us-east-1. No piloto, o esperado é de US$ 1 a US$ 3 por mês, quase 
 | Zona do Route 53 | US$ 0,50, mais centavos por consulta |
 | Cost Explorer (uma consulta por dia do painel) | US$ 0,31 |
 | Segredo do Google (se ligar) | US$ 0,40 |
+| SES (se ligar os e-mails do login ou os lembretes) | US$ 0,10 por mil e-mails |
 | CloudFront, Lambda, DynamoDB, S3, Cognito, CloudWatch | centavos no piloto (free tier permanente do CloudFront, da Lambda e do Cognito) |
 | Certificado do ACM, AWS Budget, SNS por e-mail | grátis |
 
