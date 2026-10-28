@@ -5,6 +5,7 @@ import { BusyLabel } from './BusyLabel';
 import { useCloseOnBack } from '../hooks/useCloseOnBack';
 import { authErrorCode, googleEnabled, signInWithGoogle } from '../lib/auth';
 import { authAvailable, authErrorKey } from '../lib/account';
+import { GoogleMark } from './GoogleMark';
 
 interface Props {
   /** "Criar conta com e-mail": abre /criar-conta. */
@@ -88,7 +89,7 @@ export function ConvertAccountSheet({ onCreateWithEmail, onSkip, onClose, firstL
             </button>
             {google && (
               <button className="btn btn-ghost" onClick={handleGoogle} disabled={busy} aria-busy={busy || undefined}>
-                {busy ? <BusyLabel text={t('account.openingGoogle')} /> : t('account.continueWithGoogle')}
+                {busy ? <BusyLabel text={t('account.openingGoogle')} /> : <><GoogleMark /> {t('account.continueWithGoogle')}</>}
               </button>
             )}
             {error && <p className="auth-error" role="alert">{error}</p>}

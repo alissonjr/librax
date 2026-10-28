@@ -10,6 +10,7 @@ import {
 import { authAvailable, authErrorKey, refreshAccount, useAccount } from '../lib/account';
 import { flushOutbox } from '../lib/sync';
 import { track } from '../lib/telemetry';
+import { GoogleMark } from '../components/GoogleMark';
 
 export type AuthMode = 'login' | 'register';
 
@@ -368,7 +369,7 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
               disabled={locked}
               aria-busy={busy === 'google' || undefined}
             >
-              {busy === 'google' ? <BusyLabel text={t('account.openingGoogle')} /> : t('account.continueWithGoogle')}
+              {busy === 'google' ? <BusyLabel text={t('account.openingGoogle')} /> : <><GoogleMark /> {t('account.continueWithGoogle')}</>}
             </button>
           </>
         )}
@@ -465,7 +466,7 @@ export function AuthScreen({ mode, onSwitchMode, onDone, onBack }: Props) {
               disabled={locked}
               aria-busy={busy === 'google' || undefined}
             >
-              {busy === 'google' ? <BusyLabel text={t('account.openingGoogle')} /> : t('account.continueWithGoogle')}
+              {busy === 'google' ? <BusyLabel text={t('account.openingGoogle')} /> : <><GoogleMark /> {t('account.continueWithGoogle')}</>}
             </button>
 
             <p className="auth-divider" role="separator"><span>{t('account.or')}</span></p>
