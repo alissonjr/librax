@@ -210,6 +210,7 @@ Uma Lambda só (`librax-admin`, `adminRouter`) atende todas, pelo `routeKey`, e 
 | GET | `/v1/admin/overview` | 30 dias, 12 semanas e 12 meses de ativos, contas novas, lições, saídas e erros; rankings por lição, exercício e sinal; desempenho da câmera (`camera`) |
 | GET | `/v1/admin/content` | unidades e sinais com `validated`, `source`, vídeo, avatar e `missing` |
 | GET | `/v1/admin/accounts?q=` | busca por começo do e-mail ou pelo sub (Cognito `ListUsers`), até 10 |
+| GET | `/v1/admin/accounts?cursor=&limit=` | sem `q`: todas as contas, uma página por chamada (Cognito `ListUsers` sem filtro, `limit` até 50, padrão 25); não lê a tabela, e o `ListUsers` não é cobrado |
 | GET | `/v1/admin/accounts/{userId}` | resumo da conta: perfil, progresso, SRS, conquistas, liga, squads, atividade |
 | GET | `/v1/admin/squads?cursor=&limit=` | squads da mais nova para a mais velha (até 50 por página) |
 | GET | `/v1/admin/cost` | último custo guardado pelo job diário e até 6 meses |

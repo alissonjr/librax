@@ -34,6 +34,12 @@ function fakeDirectory(accounts = []) {
       calls.push({ q, opts });
       return accounts.filter((a) => (q.kind === 'sub' ? a.userId === q.term : a.email.startsWith(q.term)));
     },
+    async list(opts) {
+      calls.push({ list: opts });
+      const start = opts.cursor ? Number(opts.cursor.slice(1)) : 0;
+      const next = start + opts.limit;
+      return { accounts: accounts.slice(start, next), cursor: next < accounts.length ? `p${next}` : null };
+    },
     async get(userId) {
       return accounts.find((a) => a.userId === userId) ?? null;
     },
@@ -176,11 +182,34 @@ test('busca de conta por e-mail ou sub, com validacao do termo', async () => {
   await adminRouter(event({ routeKey: 'GET /v1/admin/accounts', query: { q: PERSON } }));
   assert.deepEqual(directory.calls[1].q, { kind: 'sub', term: PERSON });
 
-  for (const q of [undefined, 'ab', 'x'.repeat(200)]) {
+  for (const q of ['ab', 'x'.repeat(200)]) {
     const r = await adminRouter(event({ routeKey: 'GET /v1/admin/accounts', query: q === undefined ? {} : { q } }));
     assert.equal(r.statusCode, 400);
   }
   assert.deepEqual(parseAccountQuery('"ana"\\').value, { kind: 'email', term: 'ana' });
+});
+
+test('sem termo: lista todas as contas em paginas, so pelo Cognito', async () => {
+  const contas = Array.from({ length: 30 }, (_, i) => ({ ...ana, userId: `id-${i}`, email: `c${i}@exemplo.com` }));
+  const { adminRouter, directory, logs } = setup({ accounts: contas });
+
+  const r1 = parse(await adminRouter(event({ routeKey: 'GET /v1/admin/accounts', query: {} })));
+  assert.equal(r1.accounts.length, 25);
+  assert.equal(typeof r1.cursor, 'string');
+  assert.deepEqual(directory.calls[0], { list: { limit: 25, cursor: null } });
+
+  const r2 = parse(await adminRouter(event({ routeKey: 'GET /v1/admin/accounts', query: { q: '  ', cursor: r1.cursor } })));
+  assert.equal(r2.accounts.length, 5);
+  assert.equal(r2.cursor, null);
+  assert.deepEqual(directory.calls[1], { list: { limit: 25, cursor: 'p25' } });
+  assert.ok(logs.some((l) => l.includes('accounts.list')));
+
+  const r3 = parse(await adminRouter(event({ routeKey: 'GET /v1/admin/accounts', query: { limit: '10' } })));
+  assert.equal(r3.accounts.length, 10);
+
+  for (const query of [{ limit: '0' }, { limit: '51' }, { limit: 'x' }, { cursor: '%%%' }, { cursor: Buffer.from('{"a":1}').toString('base64url') }]) {
+    assert.equal((await adminRouter(event({ routeKey: 'GET /v1/admin/accounts', query }))).statusCode, 400, JSON.stringify(query));
+  }
 });
 
 test('resumo da conta: perfil, progresso, liga, squads e atividade', async () => {
@@ -302,6 +331,12 @@ test('CognitoDirectory filtra por comeco do e-mail ou por sub e nao devolve atri
   });
   await dir.get(PERSON);
   assert.equal(calls[1].input.Filter, `sub = "${PERSON}"`);
+  const page = await dir.list({ limit: 25, cursor: 'tok' });
+  assert.deepEqual(calls[2].input, { UserPoolId: 'us-east-1_pool', Limit: 25, PaginationToken: 'tok' });
+  assert.equal(page.accounts.length, 1);
+  assert.equal(page.cursor, null);
+  await dir.list();
+  assert.deepEqual(calls[3].input, { UserPoolId: 'us-east-1_pool', Limit: 25 });
   assert.equal(accountFromCognito({ Attributes: [] }).provider, 'email');
 });
 

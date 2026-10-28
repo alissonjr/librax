@@ -142,6 +142,7 @@ describe('Contas', () => {
     const api = mockApi();
     const account = vi.spyOn(api, 'account');
     withApi(api, <ContasScreen />);
+    await screen.findByRole('list', { name: 'Contas' });
     await userEvent.type(screen.getByRole('searchbox'), 'ana');
     await userEvent.click(screen.getByRole('button', { name: /Buscar/ }));
     await userEvent.click(await screen.findByRole('button', { name: /ana@exemplo.com/ }));
@@ -158,10 +159,46 @@ describe('Contas', () => {
     expect(labels.some((l) => /excluir|apagar|validar|editar|banir/i.test(l))).toBe(false);
   });
 
+  it('abre com todas as contas em páginas, sem precisar buscar', async () => {
+    const api = mockApi();
+    const list = vi.spyOn(api, 'listAccounts');
+    withApi(api, <ContasScreen />);
+    const lista = await screen.findByRole('list', { name: 'Contas' });
+    expect(within(lista).getAllByRole('button')).toHaveLength(25);
+    expect(screen.getByText('Página 1')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Anterior' })).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Próxima' }));
+    expect(await screen.findByText('Página 2')).toBeInTheDocument();
+    expect(within(screen.getByRole('list', { name: 'Contas' })).getAllByRole('button')).toHaveLength(7);
+    expect(screen.getByRole('button', { name: 'Próxima' })).toBeDisabled();
+    expect(list).toHaveBeenLastCalledWith('25');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Anterior' }));
+    expect(await screen.findByText('Página 1')).toBeInTheDocument();
+    expect(list).toHaveBeenLastCalledWith(null);
+    // uma chamada por página aberta, nada além disso
+    expect(list).toHaveBeenCalledTimes(3);
+  });
+
+  it('a busca troca a lista e "Ver todas as contas" volta para a primeira página', async () => {
+    withApi(mockApi(), <ContasScreen />);
+    await screen.findByRole('list', { name: 'Contas' });
+    await userEvent.type(screen.getByRole('searchbox'), 'ana');
+    await userEvent.click(screen.getByRole('button', { name: /Buscar/ }));
+    const achadas = await screen.findByRole('list', { name: 'Contas encontradas' });
+    expect(within(achadas).getAllByRole('button')).toHaveLength(1);
+    expect(screen.queryByRole('navigation', { name: 'Páginas de contas' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Ver todas as contas' }));
+    expect(await screen.findByText('Página 1')).toBeInTheDocument();
+    expect(screen.getByRole('searchbox')).toHaveValue('');
+  });
+
   it('termo curto: mensagem clara', async () => {
     const { ApiError } = await import('../lib/api');
     const api = { ...mockApi(), searchAccounts: () => Promise.reject(new ApiError(400, 'BAD_QUERY', 'x')) };
     withApi(api, <ContasScreen />);
+    await screen.findByRole('list', { name: 'Contas' });
     await userEvent.type(screen.getByRole('searchbox'), 'an');
     await userEvent.click(screen.getByRole('button', { name: /Buscar/ }));
     expect(await screen.findByRole('alert')).toHaveTextContent('pelo menos 3 letras');

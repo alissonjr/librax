@@ -2,8 +2,10 @@
  * Diretorio de contas sobre o User Pool do Cognito (painel de administracao, tela Contas).
  *
  * O e-mail so existe no Cognito (a tabela guarda o perfil pelo sub), entao a busca usa o
- * ListUsers com filtro: `email ^= "<comeco>"` ou `sub = "<id>"`. O ListUsers nao e cobrado (o
- * Cognito cobra por usuario ativo no mes) e o painel so chama quando alguem busca.
+ * ListUsers com filtro: `email ^= "<comeco>"` ou `sub = "<id>"`, e a listagem usa o ListUsers sem
+ * filtro, uma pagina por chamada (PaginationToken). O ListUsers nao e cobrado (o Cognito cobra por
+ * usuario ativo no mes) e o painel so chama quando alguem abre a tela, busca ou troca de pagina.
+ * A ordem da listagem e a do Cognito (ele nao ordena por data).
  *
  * Requer `cognito-idp:ListUsers` no User Pool, e `cognito-idp:AdminGetUser` para `totpEnabled` (o
  * painel exige o aplicativo autenticador de quem e admin). A exclusao de conta (DELETE /v1/users/me)
@@ -64,6 +66,17 @@ export class CognitoDirectory {
       new ListUsersCommand({ UserPoolId: this._userPoolId, Filter, Limit: limit }),
     );
     return Users.map(accountFromCognito);
+  }
+
+  /**
+   * Uma pagina de contas, sem filtro. `cursor` e o PaginationToken da pagina anterior.
+   * @returns {Promise<{accounts: object[], cursor: string|null}>}
+   */
+  async list({ limit = 25, cursor = null } = {}) {
+    const out = await this._client.send(
+      new ListUsersCommand({ UserPoolId: this._userPoolId, Limit: limit, ...(cursor ? { PaginationToken: cursor } : {}) }),
+    );
+    return { accounts: (out.Users ?? []).map(accountFromCognito), cursor: out.PaginationToken ?? null };
   }
 
   async get(userId) {

@@ -2,7 +2,7 @@
 // prints. Só é carregado com `--mode mock`.
 import type { AdminApi } from '../lib/api';
 import { AuthError, type AdminAuth, type Challenge } from '../lib/auth';
-import { SAMPLE_USER, sampleAccount, sampleContent, sampleCost, sampleOverview, sampleSquads } from './fixtures';
+import { SAMPLE_USER, sampleAccount, sampleAccountList, sampleContent, sampleCost, sampleOverview, sampleSquads } from './fixtures';
 import { sampleFeedbackPage, sampleUsage } from './usageFixtures';
 
 const wait = <T,>(value: T) => new Promise<T>((r) => setTimeout(() => r(value), 150));
@@ -14,6 +14,12 @@ export function mockApi(): AdminApi {
     overview: () => wait(sampleOverview()),
     content: () => wait(sampleContent),
     searchAccounts: (q) => wait({ accounts: 'ana@exemplo.com'.startsWith(q.toLowerCase()) || q === SAMPLE_USER ? [sampleAccount.account!] : [] }),
+    listAccounts: (cursor) => {
+      const all = sampleAccountList();
+      const start = cursor ? Number(cursor) : 0;
+      const next = start + 25;
+      return wait({ accounts: all.slice(start, next), cursor: next < all.length ? String(next) : null });
+    },
     account: () => wait(sampleAccount),
     squads: (cursor) => wait(cursor ? { squads: squads.slice(4), cursor: null } : { squads: squads.slice(0, 4), cursor: 'c1' }),
     cost: () => wait(sampleCost),

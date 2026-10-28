@@ -1,7 +1,7 @@
 // Dados de exemplo do painel (npm run dev:mock e testes). Mesmo formato das rotas /v1/admin; o
 // conteúdo é o de verdade, gerado do bundle do app (services/api/src/content/contentStatus.js).
 import contentStatus from '../../../../services/api/src/content/contentStatus.js';
-import type { AccountSummary, CameraSignRow, CameraView, ContentStatus, CostView, Overview, SquadRow } from '../lib/types';
+import type { Account, AccountSummary, CameraSignRow, CameraView, ContentStatus, CostView, Overview, SquadRow } from '../lib/types';
 
 /** Números estáveis (sem Math.random), para os prints e os testes saírem sempre iguais. */
 function seeded(seed: number) {
@@ -155,6 +155,22 @@ export function sampleOverview(today = '2026-10-23'): Overview {
 export const sampleContent = contentStatus as unknown as ContentStatus;
 
 export const SAMPLE_USER = '22222222-2222-4222-8222-222222222222';
+
+/** Listagem de contas (32 = duas páginas): a Ana primeiro e contas de exemplo depois. */
+export function sampleAccountList(): Account[] {
+  const nomes = ['bruno', 'carla', 'davi', 'elisa', 'fabio', 'gabi', 'hugo', 'iara'];
+  const outras = Array.from({ length: 31 }, (_, i): Account => ({
+    userId: `33333333-3333-4333-8333-${String(i).padStart(12, '0')}`,
+    email: `${nomes[i % nomes.length]}${i + 1}@exemplo.com`,
+    emailVerified: i % 5 !== 0,
+    name: null,
+    provider: i % 3 === 0 ? 'Google' : 'email',
+    status: i % 3 === 0 ? 'EXTERNAL_PROVIDER' : 'CONFIRMED',
+    enabled: i !== 7,
+    createdAt: new Date(Date.UTC(2026, 9, 26) - i * 86_400_000).toISOString(),
+  }));
+  return [sampleAccount.account!, ...outras];
+}
 
 export const sampleAccount: AccountSummary = {
   userId: SAMPLE_USER,

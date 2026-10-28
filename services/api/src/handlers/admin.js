@@ -5,6 +5,7 @@
  * GET /v1/admin/overview              operacao: ativos, contas novas, licoes, erros e desistencias
  * GET /v1/admin/content               unidades e sinais: validado, fonte, video, avatar, o que falta
  * GET /v1/admin/accounts?q=<termo>    busca por e-mail (comeco) ou sub
+ * GET /v1/admin/accounts?cursor=&limit=  sem `q`: todas as contas, uma pagina por vez (so Cognito)
  * GET /v1/admin/accounts/{userId}     resumo da conta: perfil, progresso, liga e squads
  * GET /v1/admin/squads?cursor=&limit= squads da mais nova para a mais velha
  * GET /v1/admin/cost                  custo do mes (guardado uma vez por dia pelo job opsDaily)
@@ -37,6 +38,8 @@ import { repo as dynamoRepo } from './_repo.js';
 import { CognitoDirectory, makeCognitoClient } from '../adapters/cognitoDirectory.js';
 
 const MAX_PAGE = 50;
+/** Contas por pagina na listagem (o ListUsers aceita ate 60). */
+const ACCOUNTS_PAGE = 25;
 
 /** Cursor de pagina opaco para o cliente: o LastEvaluatedKey em base64url. */
 export const encodeCursor = (cursor) => (cursor == null ? null : Buffer.from(JSON.stringify(cursor)).toString('base64url'));
@@ -90,11 +93,32 @@ export function makeAdminHandlers({ repo, directory, mfa, content = contentStatu
 
   const adminContentHandler = admin('content', () => content);
 
-  const adminSearchAccountsHandler = admin('accounts.search', async (event) => {
+  const searchAccounts = admin('accounts.search', async (event) => {
     const parsed = parseAccountQuery(query(event).q);
     if (!parsed.ok) throw new ApiError(400, parsed.error, 'Busque por pelo menos 3 letras do e-mail ou pelo id');
     return { accounts: await directory.search(parsed.value, { limit: 10 }) };
   });
+
+  // Sem termo: a lista inteira em paginas. Le so o Cognito (nada da tabela por conta), uma chamada
+  // do ListUsers por pagina.
+  const listAccounts = admin('accounts.list', async (event) => {
+    const q = query(event);
+    const limit = q.limit === undefined ? ACCOUNTS_PAGE : Number(q.limit);
+    if (!Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE) {
+      throw new ApiError(400, 'BAD_LIMIT', `limit entre 1 e ${MAX_PAGE}`);
+    }
+    const cursor = decodeCursor(q.cursor);
+    if (cursor !== null && (typeof cursor !== 'string' || cursor.length > 4096)) {
+      throw new ApiError(400, 'BAD_CURSOR', 'cursor invalido');
+    }
+    const page = await directory.list({ limit, cursor });
+    return { accounts: page.accounts, cursor: encodeCursor(page.cursor) };
+  });
+
+  const adminSearchAccountsHandler = (event) => {
+    const term = query(event).q;
+    return typeof term === 'string' && term.trim() !== '' ? searchAccounts(event) : listAccounts(event);
+  };
 
   const adminAccountHandler = admin('accounts.get', async (event) => {
     const uid = event.pathParameters?.userId;

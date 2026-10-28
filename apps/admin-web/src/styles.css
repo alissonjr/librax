@@ -162,6 +162,8 @@ a:hover { text-decoration-thickness: 2px; }
 .stat-hint { font: var(--lx-typography-caption); color: var(--lx-text-tertiary); }
 
 .note, .count { margin: 0; font: var(--lx-typography-body-sm); color: var(--lx-text-tertiary); }
+/* Anterior / Página N / Próxima embaixo da lista de contas */
+.pager { display: flex; align-items: center; justify-content: space-between; gap: var(--lx-space-3); margin-top: var(--lx-space-4); }
 .empty { margin: 0; color: var(--lx-text-secondary); }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--lx-typography-body-sm-size); overflow-wrap: anywhere; }
 

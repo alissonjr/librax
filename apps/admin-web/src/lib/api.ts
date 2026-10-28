@@ -18,6 +18,8 @@ export interface AdminApi {
   overview(): Promise<Overview>;
   content(): Promise<ContentStatus>;
   searchAccounts(q: string): Promise<{ accounts: Account[] }>;
+  /** Todas as contas, uma página por vez (ordem do Cognito); `cursor` vem da página anterior. */
+  listAccounts(cursor?: string | null): Promise<{ accounts: Account[]; cursor: string | null }>;
   account(userId: string): Promise<AccountSummary>;
   squads(cursor?: string | null): Promise<{ squads: SquadRow[]; cursor: string | null }>;
   cost(): Promise<CostView>;
@@ -54,6 +56,7 @@ export function httpApi({
     overview: () => get('/overview'),
     content: () => get('/content'),
     searchAccounts: (q) => get('/accounts', { q }),
+    listAccounts: (cursor) => get('/accounts', { cursor: cursor ?? null }),
     account: (userId) => get(`/accounts/${encodeURIComponent(userId)}`),
     squads: (cursor) => get('/squads', { cursor: cursor ?? null }),
     cost: () => get('/cost'),

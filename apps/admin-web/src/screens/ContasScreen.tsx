@@ -1,10 +1,13 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Card, Chip, Loaded, PageHeader, StatTile, useLoad } from '../components/ui';
 import { Icon } from '../components/Icon';
 import { useApi } from '../lib/context';
 import { fmtDate, fmtDay, fmtInt, fmtPct } from '../lib/format';
 import { ApiError } from '../lib/api';
 import type { Account, AccountSummary } from '../lib/types';
+
+/** Contas por página (o padrão da rota: services/api/src/handlers/admin.js). */
+const ACCOUNTS_PER_PAGE = 25;
 
 const TIERS: Record<string, string> = {
   bronze: 'Bronze', prata: 'Prata', ouro: 'Ouro', safira: 'Safira', rubi: 'Rubi', ametista: 'Ametista', diamante: 'Diamante',
@@ -13,29 +16,79 @@ const TIERS: Record<string, string> = {
 export function ContasScreen() {
   const api = useApi();
   const [q, setQ] = useState('');
+  /** Termo da busca em vigor; null = listagem de todas as contas. */
+  const [searched, setSearched] = useState<string | null>(null);
   const [results, setResults] = useState<Account[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<'list' | 'search' | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  // Listagem: o Cognito só anda para a frente (PaginationToken), então guardamos o cursor de cada
+  // página já vista para o "Anterior". pages[i] = cursor que abre a página i (a primeira é null).
+  const [pages, setPages] = useState<(string | null)[]>([null]);
+  const [page, setPage] = useState(0);
+  const [next, setNext] = useState<string | null>(null);
+
+  async function loadPage(index: number, cursor: string | null) {
+    setError(null);
+    setSelected(null);
+    setBusy('list');
+    try {
+      const res = await api.listAccounts(cursor);
+      setResults(res.accounts);
+      setNext(res.cursor);
+      setPage(index);
+      setPages((prev) => [...prev.slice(0, index), cursor]);
+      setSearched(null);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  // Com a página cheia, o resumo abre longe da conta clicada: rola até ele
+  const detailRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (selected) detailRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+  }, [selected]);
+
+  useEffect(() => {
+    void loadPage(0, null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function search(e: FormEvent) {
     e.preventDefault();
+    const term = q.trim();
+    if (!term) {
+      await loadPage(0, null);
+      return;
+    }
     setError(null);
     setSelected(null);
-    setBusy(true);
+    setBusy('search');
     try {
-      setResults((await api.searchAccounts(q.trim())).accounts);
+      setResults((await api.searchAccounts(term)).accounts);
+      setSearched(term);
     } catch (err) {
       setResults(null);
       setError(err instanceof ApiError && err.status === 400 ? 'Digite pelo menos 3 letras do e-mail ou o id da conta.' : (err as Error).message);
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
+  }
+
+  function clearSearch() {
+    setQ('');
+    void loadPage(0, null);
   }
 
   return (
     <>
-      <PageHeader title="Contas">Busque pelo começo do e-mail ou pelo id (sub do Cognito). Só leitura.</PageHeader>
+      <PageHeader title="Contas">
+        Todas as contas, {ACCOUNTS_PER_PAGE} por página, na ordem do Cognito. Para achar uma conta, busque pelo começo do
+        e-mail ou pelo id (sub do Cognito). Só leitura.
+      </PageHeader>
       <div className="stack">
         <Card>
           <form className="search" role="search" onSubmit={search}>
@@ -43,14 +96,21 @@ export function ContasScreen() {
               <span className="field-label">E-mail ou id</span>
               <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="ana@exemplo.com" autoComplete="off" />
             </label>
-            <button type="submit" className="btn btn--primary" disabled={busy}>
-              <Icon name="visibility" /> {busy ? 'Buscando...' : 'Buscar'}
+            <button type="submit" className="btn btn--primary" disabled={busy !== null}>
+              <Icon name="visibility" /> {busy === 'search' ? 'Buscando...' : 'Buscar'}
             </button>
           </form>
+          {busy === 'list' && !results && <p className="state" role="status"><span className="spinner" aria-hidden="true" /> Carregando...</p>}
           {error && <p className="state state--error" role="alert"><Chip tone="error" icon="warning">Erro</Chip> {error}</p>}
-          {results && results.length === 0 && <p className="empty">Nenhuma conta encontrada.</p>}
+          {searched !== null && (
+            <p className="count" role="status">
+              Busca por "{searched}": {fmtInt(results?.length ?? 0)} {results?.length === 1 ? 'conta' : 'contas'}.{' '}
+              <button type="button" className="btn btn--secondary" onClick={clearSearch} disabled={busy !== null}>Ver todas as contas</button>
+            </p>
+          )}
+          {results && results.length === 0 && <p className="empty">{searched !== null ? 'Nenhuma conta encontrada.' : 'Nenhuma conta criada ainda.'}</p>}
           {results && results.length > 0 && (
-            <ul className="results" aria-label="Contas encontradas">
+            <ul className="results" aria-label={searched !== null ? 'Contas encontradas' : 'Contas'}>
               {results.map((a) => (
                 <li key={a.userId ?? a.email}>
                   <button
@@ -67,8 +127,19 @@ export function ContasScreen() {
               ))}
             </ul>
           )}
+          {searched === null && results && (page > 0 || next) && (
+            <nav className="pager" aria-label="Páginas de contas">
+              <button type="button" className="btn btn--secondary" disabled={busy !== null || page === 0} onClick={() => void loadPage(page - 1, pages[page - 1] ?? null)}>
+                Anterior
+              </button>
+              <span className="count" role="status">Página {fmtInt(page + 1)}</span>
+              <button type="button" className="btn btn--secondary" disabled={busy !== null || !next} onClick={() => void loadPage(page + 1, next)}>
+                Próxima
+              </button>
+            </nav>
+          )}
         </Card>
-        {selected && <AccountDetail key={selected} userId={selected} />}
+        {selected && <div ref={detailRef}><AccountDetail key={selected} userId={selected} /></div>}
       </div>
     </>
   );
