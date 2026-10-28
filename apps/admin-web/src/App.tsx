@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, Route, Routes } from 'react-router-dom';
+import { NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { Icon } from './components/Icon';
 import { Chip } from './components/ui';
 import { ApiError, type AdminApi } from './lib/api';
@@ -187,37 +187,54 @@ function Splash({ children }: { children: React.ReactNode }) {
 function Shell({ me, onLogout }: { me: Me; onLogout: () => void }) {
   const [theme, setTheme] = useState<ThemeChoice>(loadTheme);
   useEffect(() => applyTheme(theme), [theme]);
+  // No celular a barra vira um menu sanduíche: abre por cima da tela e fecha ao trocar de seção ou no Esc
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+  useEffect(() => setMenuOpen(false), [pathname]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
   return (
     <div className="shell">
-      <aside className="side">
+      <aside className={`side${menuOpen ? ' is-open' : ''}`}>
         <Brand />
-        <nav className="nav" aria-label="Seções do painel">
-          {NAV.map((group) => (
-            <div key={group.title} className="nav-group" role="group" aria-labelledby={`nav-${group.title}`}>
-              <span className="nav-title" id={`nav-${group.title}`}>{group.title}</span>
-              {group.items.map(([to, label, icon]) => (
-                <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => `nav-item${isActive ? ' is-on' : ''}`}>
-                  {({ isActive }) => (
-                    <>
-                      {/* No celular, como no app: ícone preenchido sobre a pílula na aba aberta */}
-                      <span className="nav-ico"><Icon name={icon} filled={isActive} /></span> <span className="nav-label">{label}</span>
-                    </>
-                  )}
-                </NavLink>
-              ))}
+        <button
+          type="button"
+          className="btn btn--ghost menu-btn"
+          aria-expanded={menuOpen}
+          aria-controls="menu-painel"
+          aria-label={menuOpen ? 'Fechar o menu' : 'Abrir o menu'}
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          <Icon name={menuOpen ? 'close' : 'menu'} size="24px" />
+        </button>
+        <div className="side-panel" id="menu-painel">
+          <nav className="nav" aria-label="Seções do painel">
+            {NAV.map((group) => (
+              <div key={group.title} className="nav-group" role="group" aria-labelledby={`nav-${group.title}`}>
+                <span className="nav-title" id={`nav-${group.title}`}>{group.title}</span>
+                {group.items.map(([to, label, icon]) => (
+                  <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => `nav-item${isActive ? ' is-on' : ''}`}>
+                    <Icon name={icon} /> <span>{label}</span>
+                  </NavLink>
+                ))}
+              </div>
+            ))}
+          </nav>
+          <div className="side-foot">
+            <Chip tone="info" icon="shield">admin com autenticador</Chip>
+            <span className="who" title={me.email ?? me.userId}>{me.email ?? me.userId}</span>
+            <div className="side-actions">
+              <button type="button" className="btn btn--ghost" onClick={() => setTheme(nextTheme(theme))} aria-label={`${THEME_LABEL[theme]}. Trocar tema`}>
+                <Icon name="contrast" /> <span>{THEME_LABEL[theme]}</span>
+              </button>
+              <button type="button" className="btn btn--ghost" onClick={onLogout}>
+                <Icon name="logout" /> <span>Sair</span>
+              </button>
             </div>
-          ))}
-        </nav>
-        <div className="side-foot">
-          <Chip tone="info" icon="shield">admin com autenticador</Chip>
-          <span className="who" title={me.email ?? me.userId}>{me.email ?? me.userId}</span>
-          <div className="side-actions">
-            <button type="button" className="btn btn--ghost" onClick={() => setTheme(nextTheme(theme))} aria-label={`${THEME_LABEL[theme]}. Trocar tema`}>
-              <Icon name="contrast" /> <span>{THEME_LABEL[theme]}</span>
-            </button>
-            <button type="button" className="btn btn--ghost" onClick={onLogout}>
-              <Icon name="logout" /> <span>Sair</span>
-            </button>
           </div>
         </div>
       </aside>

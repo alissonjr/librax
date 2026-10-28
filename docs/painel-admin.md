@@ -20,7 +20,7 @@ Código:
 
 ## 1. O que cada tela mostra
 
-A barra lateral separa o que se acompanha (Operação, Uso, Câmera, Custo) do que se gerencia (Contas, Conteúdo). No celular as mesmas seções vão para a barra de abas no rodapé, como no app; o topo fica só com a marca, o tema e sair.
+A barra lateral separa o que se acompanha (Operação, Uso, Câmera, Custo) do que se gerencia (Contas, Conteúdo). No celular a barra vira um menu sanduíche no topo: o botão abre as mesmas seções, o tema e sair, e o menu fecha ao escolher a seção ou no Esc.
 
 | Tela | O que tem | De onde vem |
 |---|---|---|

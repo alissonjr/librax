@@ -111,6 +111,19 @@ describe('acesso', () => {
     expect(screen.getByText('dono@exemplo.com')).toBeInTheDocument();
   });
 
+  it('celular: o menu sanduíche abre, fecha no Esc e ao escolher uma seção', async () => {
+    renderApp(mockApi(), session());
+    const menu = await screen.findByRole('button', { name: 'Abrir o menu' });
+    expect(menu).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(menu);
+    expect(screen.getByRole('button', { name: 'Fechar o menu' })).toHaveAttribute('aria-expanded', 'true');
+    await userEvent.keyboard('{Escape}');
+    expect(screen.getByRole('button', { name: 'Abrir o menu' })).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(screen.getByRole('button', { name: 'Abrir o menu' }));
+    await userEvent.click(screen.getByRole('link', { name: /Custo/ }));
+    expect(await screen.findByRole('button', { name: 'Abrir o menu' })).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('troca de tema: sistema, claro, escuro', async () => {
     renderApp(mockApi(), session());
     const button = await screen.findByRole('button', { name: /Tema do sistema/ });

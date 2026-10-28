@@ -49,8 +49,8 @@ const ICONS = [
   'star', 'rate_review',
   // Lembretes nas Configurações (components/ReminderSettings.tsx)
   'notifications', 'notifications_off',
-  // Custo no painel admin (apps/admin-web)
-  'payments',
+  // painel admin (apps/admin-web): Custo e o menu do celular
+  'payments', 'menu',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).

@@ -1,8 +1,8 @@
 /*
  * Painel de administração com o design system Traço (docs/design-system.md). Todas as cores,
  * tamanhos, raios e durações vêm de apps/web-poc/src/styles/tokens.css (importado no main.tsx);
- * nenhum valor de cor é escrito aqui. Tela larga primeiro (barra lateral), e no celular as seções
- * vão para a barra de abas no rodapé, como no app.
+ * nenhum valor de cor é escrito aqui. Tela larga primeiro (barra lateral), e no celular a barra
+ * vira um menu sanduíche no topo.
  *
  * Regra do Traço: nada de faixa colorida lateral ou no topo de card. Estado vai em selo (.chip).
  */
@@ -108,7 +108,9 @@ a:hover { text-decoration-thickness: 2px; }
   transition: background var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
 }
 .nav-item:hover { background: var(--lx-bg-sunken); color: var(--lx-text-primary); }
-.nav-ico { display: inline-flex; }
+/* Na tela larga o painel do menu não existe como caixa: a navegação e o rodapé ficam direto na barra */
+.side-panel { display: contents; }
+.side .menu-btn { display: none; }
 .nav-item.is-on { background: var(--lx-feedback-info-soft); color: var(--lx-feedback-info-on-soft); }
 
 .side-foot { margin-top: auto; display: flex; flex-direction: column; gap: var(--lx-space-2); align-items: flex-start; }
@@ -587,65 +589,36 @@ a:hover { text-decoration-thickness: 2px; }
 }
 
 @media (max-width: 860px) {
+  :root { --admin-top: 64px; }
   .shell { grid-template-columns: minmax(0, 1fr); background: none; }
-  /* No celular o topo fica só com a marca, o tema e sair; as seções vão para o rodapé */
+  /* No celular: topo com a marca e o botão do menu; o menu abre por cima da tela, com tudo da barra */
   .side {
-    position: static;
-    height: auto;
+    position: sticky;
+    z-index: var(--lx-z-index-nav);
+    height: var(--admin-top);
     flex-direction: row;
-    flex-wrap: wrap;
     align-items: center;
-    gap: var(--lx-space-2) var(--lx-space-3);
-    padding: var(--lx-space-3) var(--lx-space-4);
+    justify-content: space-between;
+    gap: var(--lx-space-3);
+    padding: 0 var(--lx-space-2) 0 var(--lx-space-4);
     border-right: 0;
     border-bottom: var(--lx-border-width-thin) solid var(--lx-border-subtle);
   }
-  /* Barra de abas no rodapé, igual à do app: ícone sobre o rótulo, pílula atrás do ícone da aba aberta */
-  .nav {
+  .side .menu-btn { display: inline-flex; width: var(--lx-size-touch-min); min-height: var(--lx-size-touch-min); padding: 0; justify-content: center; }
+  .side-panel { display: none; }
+  .side.is-open .side-panel {
     position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: var(--lx-z-index-nav);
-    flex-direction: row;
-    gap: 0;
-    height: calc(var(--lx-size-tab-bar) + env(safe-area-inset-bottom, 0px));
-    padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
-    background: var(--lx-bg-surface);
-    border-top: var(--lx-border-width-thin) solid var(--lx-border-subtle);
-    box-shadow: var(--lx-elevation-2);
-  }
-  .nav-group { display: contents; }
-  .nav-title { display: none; }
-  /* Seis abas: a largura acompanha o rótulo, para Operação e Conteúdo caberem até em 360 px */
-  .nav-item {
-    flex: 1 1 auto;
-    min-width: 0;
+    top: var(--admin-top);
+    left: 0; right: 0; bottom: 0;
+    display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: var(--lx-space-1);
-    padding: var(--lx-space-1) 0 0;
-    border-radius: 0;
-    font: var(--lx-typography-label-sm);
-    letter-spacing: var(--lx-typography-label-sm-tracking);
+    gap: var(--lx-space-6);
+    padding: var(--lx-space-4) var(--lx-space-4) calc(var(--lx-space-6) + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--lx-bg-surface);
   }
-  .nav-item:hover, .nav-item.is-on { background: none; }
-  .nav-item.is-on { color: var(--lx-text-brand); }
-  .nav-ico {
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: calc(var(--lx-size-icon-lg) + var(--lx-space-2));
-    border-radius: var(--lx-radius-full);
-    transition: background-color var(--lx-motion-duration-fast) var(--lx-motion-easing-standard);
-  }
-  .nav-ico .icon { width: var(--lx-size-icon-lg); height: var(--lx-size-icon-lg); }
-  .nav-item.is-on .nav-ico { background: var(--lx-feedback-info-soft); color: var(--lx-feedback-info-on-soft); }
-  .nav-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1; }
-  .side-foot { margin: 0 0 0 auto; flex-direction: row; align-items: center; }
-  .side-foot .chip, .who { display: none; }
-  .side-actions { flex-direction: row; width: auto; }
-  .side-actions .btn--ghost { width: auto; min-height: var(--lx-size-touch-min); }
-  .side-actions .btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .main { padding: var(--lx-space-6) var(--lx-space-4) calc(var(--lx-space-12) + var(--lx-size-tab-bar) + env(safe-area-inset-bottom, 0px)); }
+  .main { padding: var(--lx-space-6) var(--lx-space-4) var(--lx-space-12); }
   .card { padding: var(--lx-space-4); }
   .table-wrap { margin: 0 calc(-1 * var(--lx-space-4)); padding: 0 var(--lx-space-4); }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
