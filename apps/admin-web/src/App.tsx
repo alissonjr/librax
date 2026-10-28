@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, Route, Routes } from 'react-router-dom';
 import { Icon } from './components/Icon';
 import { Chip } from './components/ui';
 import { ApiError, type AdminApi } from './lib/api';
@@ -187,11 +187,6 @@ function Splash({ children }: { children: React.ReactNode }) {
 function Shell({ me, onLogout }: { me: Me; onLogout: () => void }) {
   const [theme, setTheme] = useState<ThemeChoice>(loadTheme);
   useEffect(() => applyTheme(theme), [theme]);
-  // No celular a barra vira uma faixa de abas que rola: a aba da tela aberta fica sempre à vista
-  const { pathname } = useLocation();
-  useEffect(() => {
-    document.querySelector('.nav-item.is-on')?.scrollIntoView?.({ block: 'nearest', inline: 'center' });
-  }, [pathname]);
   return (
     <div className="shell">
       <aside className="side">
@@ -202,7 +197,12 @@ function Shell({ me, onLogout }: { me: Me; onLogout: () => void }) {
               <span className="nav-title" id={`nav-${group.title}`}>{group.title}</span>
               {group.items.map(([to, label, icon]) => (
                 <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => `nav-item${isActive ? ' is-on' : ''}`}>
-                  <Icon name={icon} /> <span>{label}</span>
+                  {({ isActive }) => (
+                    <>
+                      {/* No celular, como no app: ícone preenchido sobre a pílula na aba aberta */}
+                      <span className="nav-ico"><Icon name={icon} filled={isActive} /></span> <span className="nav-label">{label}</span>
+                    </>
+                  )}
                 </NavLink>
               ))}
             </div>

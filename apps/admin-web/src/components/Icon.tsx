@@ -1,7 +1,7 @@
 import { SYMBOLS } from '@app/icons/symbols';
 
 /** Mesmos Material Symbols Rounded do app (apps/web-poc/src/icons/symbols.ts, gerado). */
-export function Icon({ name, label, size = '1.25em' }: { name: string; label?: string; size?: string }) {
+export function Icon({ name, label, size = '1.25em', filled = false }: { name: string; label?: string; size?: string; filled?: boolean }) {
   const symbol = SYMBOLS[name];
   if (!symbol) return null;
   return (
@@ -16,7 +16,7 @@ export function Icon({ name, label, size = '1.25em' }: { name: string; label?: s
       role={label ? 'img' : undefined}
       aria-label={label}
     >
-      <path d={symbol.outline} />
+      <path d={filled ? symbol.fill ?? symbol.outline : symbol.outline} />
     </svg>
   );
 }
