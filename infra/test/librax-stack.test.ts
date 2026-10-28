@@ -352,9 +352,11 @@ describe('Cognito', () => {
       const { props } = pool(template);
       const [msgId, msgFn] = fn(template, 'librax-custom-message');
       const [postId] = fn(template, 'librax-post-confirmation');
+      const [preId] = fn(template, 'librax-pre-signup');
       expect(props.LambdaConfig).toEqual({
         CustomMessage: { 'Fn::GetAtt': [msgId, 'Arn'] },
         PostConfirmation: { 'Fn::GetAtt': [postId, 'Arn'] },
+        PreSignUp: { 'Fn::GetAtt': [preId, 'Arn'] },
       });
       expect(msgFn.Properties.Handler).toBe('index.handler');
       expect(msgFn.Properties.Environment.Variables.APP_URL).toBe('https://app.librax.example');
@@ -398,8 +400,10 @@ describe('Cognito', () => {
         } = now.props as { LambdaConfig: Record<string, unknown> } & Record<string, unknown>;
         const { LambdaConfig: oldLc, ...oldRest } = oldPool.Properties as { LambdaConfig: Record<string, unknown> };
         expect(rest).toEqual(oldRest);
-        const { CustomMessage, ...otherTriggers } = lc;
+        // CustomMessage (e-mails) e PreSignUp (uma pessoa, uma conta) vieram depois, no mesmo LambdaConfig
+        const { CustomMessage, PreSignUp, ...otherTriggers } = lc;
         expect(CustomMessage).toBeDefined();
+        expect(PreSignUp).toBeDefined();
         expect(otherTriggers).toEqual(oldLc);
         // app client do app sem mudanca nenhuma (o `locale` ja e gravavel: o client nao restringe
         // atributos); o do painel mudou depois (escopo do autenticador e login proprio, teste em
@@ -742,6 +746,25 @@ describe('Painel de administracao', () => {
     }
     const listUsers = statementsOf(template, 'librax-admin').find((st) => [st.Action].flat().includes('cognito-idp:ListUsers'));
     expect(JSON.stringify(listUsers.Resource)).toContain('LibraxUserPool');
+  });
+
+  test('uma pessoa, uma conta: gatilho PreSignUp so lista e liga contas, sem outra acao do Cognito', () => {
+    const { template } = synth();
+    const [preId, preFn] = Object.entries(template.findResources('AWS::Lambda::Function'))
+      .find(([, r]) => r.Properties.FunctionName === 'librax-pre-signup')!;
+    expect(preFn.Properties.Timeout).toBe(5);
+    template.hasResourceProperties('AWS::Lambda::Permission', {
+      FunctionName: { 'Fn::GetAtt': [preId, 'Arn'] },
+      Principal: 'cognito-idp.amazonaws.com',
+    });
+    const roleId = preFn.Properties.Role['Fn::GetAtt'][0];
+    const statements = Object.values(template.findResources('AWS::IAM::Policy'))
+      .filter((p) => p.Properties.Roles.some((r: { Ref: string }) => r.Ref === roleId))
+      .flatMap((p) => p.Properties.PolicyDocument.Statement);
+    const cognito = statements.filter((st: { Action: string | string[] }) => [st.Action].flat().some((a) => a.startsWith('cognito-idp:')));
+    expect(cognito).toHaveLength(1);
+    expect([cognito[0].Action].flat().sort()).toEqual(['cognito-idp:AdminLinkProviderForUser', 'cognito-idp:ListUsers']);
+    expect(JSON.stringify(cognito[0].Resource)).toContain(':userpool/*');
   });
 
   test('conta nova: gatilho PostConfirmation conta no painel', () => {

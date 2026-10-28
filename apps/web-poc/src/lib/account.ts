@@ -27,8 +27,14 @@ export interface AccountState {
  */
 const launchParams = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
 
-export function oauthReturn(): { hasCode: boolean; error: string | null } {
-  return { hasCode: launchParams.has('code'), error: launchParams.get('error') };
+export function oauthReturn(): { hasCode: boolean; error: string | null; linked: boolean } {
+  return {
+    hasCode: launchParams.has('code'),
+    error: launchParams.get('error'),
+    // O Google acabou de ser ligado à conta de e-mail com o mesmo endereço (gatilho PreSignUp,
+    // services/api/src/handlers/preSignUp.js): repetir o login entra na conta ligada
+    linked: /LIBRAX_CONTA_LIGADA/.test(launchParams.get('error_description') ?? ''),
+  };
 }
 
 const listeners = new Set<() => void>();
@@ -56,6 +62,7 @@ export function authErrorKey(code: AuthErrorCode): string {
     BAD_CODE: 'account.errors.badCode',
     TOO_MANY_ATTEMPTS: 'account.errors.tooManyAttempts',
     NETWORK: 'account.errors.network',
+    GOOGLE_ACCOUNT: 'account.errors.googleAccount',
     UNKNOWN: 'account.errors.unknown',
   };
   return keys[code];

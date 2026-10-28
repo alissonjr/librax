@@ -57,7 +57,7 @@ A conta é opcional. Ao criar uma, guardamos os dados abaixo.
 - O e-mail e a confirmação de que ele é seu.
 - O nome que você informou no cadastro ou, se entrar com o Google, o seu primeiro nome na conta Google.
 - A senha, se você usar e-mail e senha. Ela não é enviada nem guardada como texto: o login usa um protocolo seguro (SRP), e o servidor guarda só um verificador.
-- Se você entrar com o Google, o vínculo com a sua conta Google. Do Google guardamos só o e-mail, a confirmação de que ele é válido, o primeiro nome e o identificador da conta.
+- Se você entrar com o Google, o vínculo com a sua conta Google. Do Google guardamos só o e-mail, a confirmação de que ele é válido, o primeiro nome e o identificador da conta. Se você já tinha conta com e-mail e senha confirmada no mesmo endereço, o Google passa a entrar nessa mesma conta, sem criar outra.
 
 ### Aparelhos e segurança da conta
 

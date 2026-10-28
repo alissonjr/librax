@@ -56,8 +56,9 @@ describe('atualizacao no lugar (mesmo logical id, so propriedades "No interrupti
     const [[id, old]] = Object.entries(before.pool);
     expect(now[id]?.Type).toBe('AWS::Cognito::UserPool');
     expect(ofType(template, 'AWS::Cognito::UserPool')).toHaveLength(1);
-    // As tres sao "Update requires: No interruption" em AWS::Cognito::UserPool
-    expect(changedProps(old, now[id])).toEqual(['DeletionProtection', 'EnabledMfas', 'MfaConfiguration']);
+    // As quatro sao "Update requires: No interruption" em AWS::Cognito::UserPool (LambdaConfig: o
+    // gatilho PreSignUp, uma pessoa, uma conta)
+    expect(changedProps(old, now[id])).toEqual(['DeletionProtection', 'EnabledMfas', 'LambdaConfig', 'MfaConfiguration']);
     expect(now[id].DeletionPolicy).toBe('Retain');
   });
 
@@ -153,7 +154,7 @@ describe('Lambda: concorrencia reservada opcional', () => {
     const r = reservas(template);
     expect(r).toEqual(RESERVED_CONCURRENCY);
     expect(r['librax-migrate-guest']).toBe(2);
-    for (const name of ['librax-post-confirmation', 'librax-custom-message', 'librax-close-league', 'librax-reminders', 'librax-ops-daily']) {
+    for (const name of ['librax-post-confirmation', 'librax-custom-message', 'librax-pre-signup', 'librax-close-league', 'librax-reminders', 'librax-ops-daily']) {
       expect(r[name]).toBeUndefined();
     }
     // toda Lambda com reserva existe na stack (nome errado no mapa nao passa calado)

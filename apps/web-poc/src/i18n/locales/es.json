@@ -1057,7 +1057,8 @@
       "signOut": "No se pudo cerrar sesión ahora. Inténtalo de nuevo.",
       "tooManyAttempts": "Demasiados intentos seguidos. Espera unos minutos e inténtalo de nuevo.",
       "unknown": "No se pudo terminar ahora. Inténtalo de nuevo.",
-      "weakPassword": "Contraseña muy corta. Usa al menos 8 caracteres."
+      "weakPassword": "Contraseña muy corta. Usa al menos 8 caracteres.",
+      "googleAccount": "Este correo ya entra con Google. Toca Continuar con Google."
     },
     "haveAccount": "¿Ya tienes cuenta?",
     "hidePassword": "Ocultar contraseña",
@@ -1087,7 +1088,8 @@
     "statusSignedInAs": "Cuenta: {email}",
     "unavailableShort": "El inicio de sesión no está disponible en este entorno. Tu progreso sigue guardado en este dispositivo.",
     "unavailableText": "Puedes seguir usando Librax como invitado. Tu progreso queda guardado en este dispositivo.",
-    "unavailableTitle": "Inicio de sesión no disponible en este entorno"
+    "unavailableTitle": "Inicio de sesión no disponible en este entorno",
+    "callbackLinked": "Vinculamos Google a tu cuenta. Toca Intentar de nuevo y elige Continuar con Google."
   },
   "usageNotice": {
     "title": "Datos de uso anónimos",

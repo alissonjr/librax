@@ -488,6 +488,22 @@ export class LibraxStack extends cdk.Stack {
       environment: { APP_URL: appUrl },
     });
     userPool.addTrigger(cognito.UserPoolOperation.CUSTOM_MESSAGE, customMessageFn);
+    // Uma pessoa, uma conta (handlers/preSignUp.js): o primeiro login pelo Google entra na conta de
+    // e-mail e senha confirmada com o mesmo e-mail, e cadastro com senha de e-mail do Google e recusado.
+    // Gatilho no LambdaConfig: atualizacao do User Pool no lugar, sem mexer nas contas.
+    const preSignUpFn = makeFn('PreSignUpFn', 'preSignUp.js', 'handler', {
+      functionName: 'librax-pre-signup',
+      description: 'Liga o login do Google a conta de e-mail com o mesmo e-mail confirmado',
+      timeout: Duration.seconds(5),
+    });
+    userPool.addTrigger(cognito.UserPoolOperation.PRE_SIGN_UP, preSignUpFn);
+    // So as duas acoes, so em User Pools desta conta e regiao. O ARN do proprio User Pool criaria uma
+    // dependencia circular (o User Pool aponta para o gatilho), entao vai o curinga; o id certo vem no
+    // evento do Cognito.
+    preSignUpFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['cognito-idp:ListUsers', 'cognito-idp:AdminLinkProviderForUser'],
+      resources: [`arn:aws:cognito-idp:${this.region}:${this.account}:userpool/*`],
+    }));
 
     // Aparelhos conhecidos da conta e o aviso de acesso novo por e-mail (feito por nos, sem o plano
     // pago do Cognito). O e-mail so sai com o SES ligado para o Cognito (librax:cognitoEmailSes), pelo
@@ -1127,7 +1143,7 @@ export class LibraxStack extends cdk.Stack {
     // mes (Cost Explorer, US$ 0,01 por chamada). Sem nova tentativa: cada uma pagaria de novo; o
     // alarme de erros avisa se falhar, e da para refazer o dia a mao ({ "day": "AAAA-MM-DD" }).
     const opsDailyName = 'librax-ops-daily';
-    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, postConfirmationFn, customMessageFn, telemetryFn, getProgressFn];
+    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, postConfirmationFn, customMessageFn, preSignUpFn, telemetryFn, getProgressFn];
     const opsDailyFn = makeFn('OpsDailyFn', 'opsDaily.js', 'handler', {
       functionName: opsDailyName,
       timeout: Duration.minutes(2),

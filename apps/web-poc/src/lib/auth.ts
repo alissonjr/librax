@@ -66,6 +66,8 @@ export type AuthErrorCode =
   | 'BAD_CODE'
   | 'TOO_MANY_ATTEMPTS'
   | 'NETWORK'
+  /** O e-mail já entra pelo Google (gatilho PreSignUp do Cognito, LIBRAX_EMAIL_DO_GOOGLE). */
+  | 'GOOGLE_ACCOUNT'
   | 'UNKNOWN';
 
 type Env = Partial<Record<string, string>>;
@@ -272,6 +274,9 @@ export function authErrorCode(err: unknown): AuthErrorCode {
       return 'TOO_MANY_ATTEMPTS';
     case 'NetworkError':
       return 'NETWORK';
+    case 'UserLambdaValidationException':
+      // services/api/src/handlers/preSignUp.js recusa cadastro com senha de e-mail do Google
+      return /LIBRAX_EMAIL_DO_GOOGLE/.test((err as { message?: string }).message ?? '') ? 'GOOGLE_ACCOUNT' : 'UNKNOWN';
     default:
       return 'UNKNOWN';
   }

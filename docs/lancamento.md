@@ -227,8 +227,13 @@ Cada item é opcional e independente. Depois de cada um, rode o script de novo c
    histórico), guarda o id no SSM (`/librax/google/client-id`) e a chave no Secrets Manager
    (`librax/google/client-secret`, US$ 0,40 por mês), faz o deploy e publica o app com o botão "Continuar com
    Google". Nas rodadas seguintes ele só confere que os dois existem.
-4. **Conferir.** No app, **Entrar** > **Continuar com Google**: entra e volta para o mapa. Quem já tinha conta
-   com o mesmo e-mail continua na mesma conta.
+4. **Conferir.** No app, **Entrar** > **Continuar com Google**: entra e volta para o mapa.
+
+Uma pessoa, uma conta (gatilho `librax-pre-signup`, `services/api/src/handlers/preSignUp.js`): quem já tinha
+conta de e-mail e senha confirmada e entra pela primeira vez pelo Google com o mesmo e-mail cai nessa conta, com o
+progresso (o app repete o login sozinho uma vez, porque o Cognito recusa a primeira volta depois de ligar). E quem
+tenta criar conta com senha usando um e-mail que já entra pelo Google recebe o aviso para usar "Continuar com
+Google".
 
 Para desligar: `--sem-google` (o cliente e a chave continuam guardados para ligar de novo).
 

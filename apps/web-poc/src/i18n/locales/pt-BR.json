@@ -26,7 +26,8 @@
       "signOut": "Não foi possível sair da conta agora. Tente de novo.",
       "tooManyAttempts": "Muitas tentativas seguidas. Espere alguns minutos e tente de novo.",
       "unknown": "Não foi possível concluir agora. Tente de novo.",
-      "weakPassword": "Senha muito curta. Use pelo menos 8 caracteres."
+      "weakPassword": "Senha muito curta. Use pelo menos 8 caracteres.",
+      "googleAccount": "Este e-mail já entra pelo Google. Toque em Continuar com Google."
     },
     "haveAccount": "Já tem conta?",
     "haveAccountSignIn": "Já tenho conta: entrar",
@@ -76,7 +77,8 @@
     "unavailableShort": "Login indisponível neste ambiente. Seu progresso continua salvo neste aparelho.",
     "unavailableText": "Você pode continuar usando o Librax como convidado. Seu progresso fica salvo neste aparelho.",
     "unavailableTitle": "Login indisponível neste ambiente",
-    "confirmResent": "Mandamos outro código. Use o mais recente."
+    "confirmResent": "Mandamos outro código. Use o mais recente.",
+    "callbackLinked": "Ligamos o Google à sua conta. Toque em Tentar de novo e escolha Continuar com Google."
   },
   "achievementsScreen": {
     "ach_cameraEstreante_desc": "Primeiro sinal reconhecido pela câmera",

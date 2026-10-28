@@ -9,7 +9,8 @@
       "notConfirmed": "Confirm your email with the code we sent.",
       "signOut": "Could not sign out right now. Try again.",
       "unknown": "Could not finish right now. Try again.",
-      "weakPassword": "Password too short. Use at least 8 characters."
+      "weakPassword": "Password too short. Use at least 8 characters.",
+      "googleAccount": "This email already signs in with Google. Tap Continue with Google."
     },
     "reset": {
       "backToSignIn": "Back to sign in",
@@ -76,7 +77,8 @@
     "statusSignedInAs": "Account: {email}",
     "unavailableShort": "Sign-in is not available in this environment. Your progress is still saved on this device.",
     "unavailableText": "You can keep using Librax as a guest. Your progress is saved on this device.",
-    "unavailableTitle": "Sign-in not available in this environment"
+    "unavailableTitle": "Sign-in not available in this environment",
+    "callbackLinked": "We linked Google to your account. Tap Try again and choose Continue with Google."
   },
   "achievementsScreen": {
     "ach_cameraEstreante_desc": "First sign recognized by the camera",
