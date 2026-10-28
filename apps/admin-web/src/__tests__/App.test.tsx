@@ -101,10 +101,12 @@ describe('acesso', () => {
     expect(screen.getByRole('heading', { name: 'Entrar no painel' })).toBeInTheDocument();
   });
 
-  it('admin: barra com as sete seções e selo do acesso', async () => {
+  it('admin: barra em dois grupos (Squads fora até abrirem) e selo do acesso', async () => {
     renderApp(mockApi(), session());
     const nav = await screen.findByRole('navigation', { name: 'Seções do painel' });
-    expect(within(nav).getAllByRole('link').map((a) => a.textContent?.trim())).toEqual(['Operação', 'Uso', 'Câmera', 'Conteúdo', 'Contas', 'Squads', 'Custo']);
+    const links = (name: string) => within(within(nav).getByRole('group', { name })).getAllByRole('link').map((a) => a.textContent?.trim());
+    expect(links('Acompanhar')).toEqual(['Operação', 'Uso', 'Câmera', 'Custo']);
+    expect(links('Gerenciar')).toEqual(['Contas', 'Conteúdo']);
     expect(screen.getByText('admin com autenticador')).toBeInTheDocument();
     expect(screen.getByText('dono@exemplo.com')).toBeInTheDocument();
   });

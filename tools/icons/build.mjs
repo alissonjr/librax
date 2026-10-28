@@ -49,6 +49,8 @@ const ICONS = [
   'star', 'rate_review',
   // Lembretes nas Configurações (components/ReminderSettings.tsx)
   'notifications', 'notifications_off',
+  // Custo no painel admin (apps/admin-web)
+  'payments',
 ];
 
 // Ícones que também precisam da variante preenchida (aba ativa e ícones de jogo em destaque).

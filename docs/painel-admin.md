@@ -20,6 +20,8 @@ Código:
 
 ## 1. O que cada tela mostra
 
+A barra lateral separa o que se acompanha (Operação, Uso, Câmera, Custo) do que se gerencia (Contas, Conteúdo).
+
 | Tela | O que tem | De onde vem |
 |---|---|---|
 | **Operação** | no topo, **o que pede atenção** (avaliações de 1 ou 2 estrelas não lidas, erros do servidor no último dia trazido do CloudWatch, custo previsto a partir de 80% do orçamento, lição com 30% ou mais de saídas, letras e sinais difíceis na câmera, lembretes que falharam na semana) ou "Tudo certo"; período de 7, 30 ou 90 dias, com a variação contra o mesmo tanto de dias antes (média de ativas por dia, contas novas, lições); pessoas ativas por dia, semana (12) e mês (12); **lembretes** (pessoas com lembrete ligado e com e-mail, enviados e falhas por dia); contas novas; lições concluídas; lições onde mais desistem e mais erram; lições puladas pelo nivelamento (por lição, com as desfeitas); erros por tipo de exercício; sinais mais errados; erros do servidor por dia e por Lambda | contadores agregados (seção 3) e o job diário |
@@ -27,7 +29,7 @@ Código:
 | **Câmera** | letras e sinais do mais difícil para o mais fácil nos mesmos 30 dias (taxa de pulo, depois média de tentativas até acertar), com nível, filtro de letras ou sinais e as leituras trocadas mais comuns (K lida como H) | item `CAMERA` do dia (seção 3), pela mesma rota da Operação |
 | **Conteúdo** | as 14 unidades e os 255 sinais: validado (`validated`), origem (`source`), vídeo, avatar e o que falta em cada sinal, com filtros | `services/api/src/content/contentStatus.js`, gerado do bundle do app por `npm run catalog` |
 | **Contas** | todas as contas, 25 por página (Anterior e Próxima, na ordem do Cognito, que não ordena por data), e busca pelo começo do e-mail ou pelo id; resumo com perfil, progresso (lição concluída ou "pulada pelo nivelamento"), liga, squads e última atividade; ações de desativar, reativar e excluir (seção 1a) | Cognito (`ListUsers`) e a partição `USER#<id>` |
-| **Squads** | nome, tipo, tamanho e criação, da mais nova para a mais velha | registro `SQUADINDEX` e o META de cada squad |
+| **Squads** | nome, tipo, tamanho e criação, da mais nova para a mais velha. Fora da barra lateral até as squads abrirem no app (`SQUADS_OPEN` em `apps/admin-web/src/App.tsx`); a tela continua em `/admin/squads` | registro `SQUADINDEX` e o META de cada squad |
 | **Custo** | gasto estimado do mês, o orçamento mensal (o mesmo do AWS Budget) e quanto a previsão usa dele; o detalhe por serviço; meses anteriores | Cost Explorer, uma vez por dia; orçamento de `librax:monthlyBudgetUsd` |
 
 Definições usadas nas telas:

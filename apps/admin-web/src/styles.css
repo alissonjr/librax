@@ -87,7 +87,14 @@ a:hover { text-decoration-thickness: 2px; }
   border-right: var(--lx-border-width-thin) solid var(--lx-border-subtle);
 }
 
-.nav { display: flex; flex-direction: column; gap: var(--lx-space-1); }
+.nav { display: flex; flex-direction: column; gap: var(--lx-space-5); }
+.nav-group { display: flex; flex-direction: column; gap: var(--lx-space-1); }
+.nav-title {
+  padding: 0 var(--lx-space-4);
+  margin-bottom: var(--lx-space-1);
+  font: var(--lx-typography-label-sm);
+  color: var(--lx-text-tertiary);
+}
 .nav-item {
   display: flex;
   align-items: center;
@@ -600,8 +607,12 @@ a:hover { text-decoration-thickness: 2px; }
     padding: 0 var(--lx-space-4) var(--lx-space-2);
     overflow-x: auto;
     scrollbar-width: none;
+    gap: var(--lx-space-1);
   }
   .nav-item { flex: 0 0 auto; padding: 0 var(--lx-space-3); }
+  /* No celular a barra vira uma faixa de abas: os grupos ficam lado a lado e os títulos somem */
+  .nav-group { display: contents; }
+  .nav-title { display: none; }
   .side-foot { margin: 0 0 0 auto; flex-direction: row; align-items: center; }
   .side-foot .chip, .who { display: none; }
   .side-actions { flex-direction: row; width: auto; }

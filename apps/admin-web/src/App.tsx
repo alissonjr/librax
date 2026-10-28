@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, Route, Routes } from 'react-router-dom';
+import { NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { Icon } from './components/Icon';
 import { Chip } from './components/ui';
 import { ApiError, type AdminApi } from './lib/api';
@@ -18,14 +18,31 @@ import { CameraScreen } from './screens/CameraScreen';
 import { MfaSetupScreen } from './screens/MfaSetupScreen';
 import { LoginScreen } from './screens/LoginScreen';
 
-const NAV: Array<[string, string, string]> = [
-  ['/', 'Operação', 'trending_up'],
-  ['/uso', 'Uso', 'query_stats'],
-  ['/camera', 'Câmera', 'videocam'],
-  ['/conteudo', 'Conteúdo', 'sign_language'],
-  ['/contas', 'Contas', 'person'],
-  ['/squads', 'Squads', 'group'],
-  ['/custo', 'Custo', 'cloud_done'],
+/**
+ * As squads ainda não abriram no app: a aba fica fora da barra até lá (a tela continua em /squads).
+ * Quando abrirem, é só trocar para true.
+ */
+export const SQUADS_OPEN = false;
+
+/** Barra lateral em dois grupos: o que se acompanha (números) e o que se gerencia. */
+const NAV: Array<{ title: string; items: Array<[string, string, string]> }> = [
+  {
+    title: 'Acompanhar',
+    items: [
+      ['/', 'Operação', 'trending_up'],
+      ['/uso', 'Uso', 'query_stats'],
+      ['/camera', 'Câmera', 'videocam'],
+      ['/custo', 'Custo', 'payments'],
+    ],
+  },
+  {
+    title: 'Gerenciar',
+    items: [
+      ['/contas', 'Contas', 'person'],
+      ['/conteudo', 'Conteúdo', 'sign_language'],
+      ...(SQUADS_OPEN ? [['/squads', 'Squads', 'group'] as [string, string, string]] : []),
+    ],
+  },
 ];
 
 export function AdminApp({ api, session, mfa }: { api: AdminApi; session: AdminAuth; mfa?: MfaSetupApi }) {
@@ -170,15 +187,25 @@ function Splash({ children }: { children: React.ReactNode }) {
 function Shell({ me, onLogout }: { me: Me; onLogout: () => void }) {
   const [theme, setTheme] = useState<ThemeChoice>(loadTheme);
   useEffect(() => applyTheme(theme), [theme]);
+  // No celular a barra vira uma faixa de abas que rola: a aba da tela aberta fica sempre à vista
+  const { pathname } = useLocation();
+  useEffect(() => {
+    document.querySelector('.nav-item.is-on')?.scrollIntoView?.({ block: 'nearest', inline: 'center' });
+  }, [pathname]);
   return (
     <div className="shell">
       <aside className="side">
         <Brand />
         <nav className="nav" aria-label="Seções do painel">
-          {NAV.map(([to, label, icon]) => (
-            <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => `nav-item${isActive ? ' is-on' : ''}`}>
-              <Icon name={icon} /> <span>{label}</span>
-            </NavLink>
+          {NAV.map((group) => (
+            <div key={group.title} className="nav-group" role="group" aria-labelledby={`nav-${group.title}`}>
+              <span className="nav-title" id={`nav-${group.title}`}>{group.title}</span>
+              {group.items.map(([to, label, icon]) => (
+                <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => `nav-item${isActive ? ' is-on' : ''}`}>
+                  <Icon name={icon} /> <span>{label}</span>
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
         <div className="side-foot">
