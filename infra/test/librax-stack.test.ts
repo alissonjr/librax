@@ -396,10 +396,12 @@ describe('Cognito', () => {
         expect(now.props.Schema).toBeUndefined();
         // MFA e protecao contra exclusao vieram depois (revisao de custo e seguranca, teste proprio)
         const {
-          LambdaConfig: lc, MfaConfiguration: _mfa, EnabledMfas: _mfas, DeletionProtection: _del, ...rest
+          LambdaConfig: lc, MfaConfiguration: _mfa, EnabledMfas: _mfas, DeletionProtection: _del, UserPoolTags: tags, ...rest
         } = now.props as { LambdaConfig: Record<string, unknown> } & Record<string, unknown>;
         const { LambdaConfig: oldLc, ...oldRest } = oldPool.Properties as { LambdaConfig: Record<string, unknown> };
         expect(rest).toEqual(oldRest);
+        // a etiqueta do projeto (UserPoolTags, "No interruption") veio depois
+        expect(tags).toEqual({ project: 'librax' });
         // CustomMessage (e-mails) e PreSignUp (uma pessoa, uma conta) vieram depois, no mesmo LambdaConfig
         const { CustomMessage, PreSignUp, ...otherTriggers } = lc;
         expect(CustomMessage).toBeDefined();

@@ -8,6 +8,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
+import { tagProject } from './tags';
 
 /**
  * CI/CD do Librax dentro da AWS (docs/ci-cd.md): um projeto do CodeBuild, sem CodePipeline, que roda
@@ -72,6 +73,7 @@ export function readCiConfig(node: Construct['node']): CiConfig {
 export class LibraxCiStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
+    tagProject(this);
     const config = readCiConfig(this.node);
 
     // Conexao com o GitHub pelo app "AWS Connector for GitHub". O CloudFormation cria PENDENTE; o dono

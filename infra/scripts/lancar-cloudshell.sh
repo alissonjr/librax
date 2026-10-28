@@ -54,6 +54,10 @@ PARAM_VAPID_PUBLICA=/librax/vapid/public-key
 PARAM_VAPID_PRIVADA=/librax/vapid/private-key
 PARAM_GOOGLE_ID=/librax/google/client-id
 SEGREDO_GOOGLE=librax/google/client-secret
+# Etiqueta do projeto no que o script cria fora da stack (a mesma da stack: infra/lib/tags.ts, PROJECT_TAG;
+# o teste confere que as duas batem)
+ETIQUETA_CHAVE=project
+ETIQUETA_VALOR=librax
 
 # ---------------------------------------------------------------------------------------------
 # Opções
@@ -620,6 +624,7 @@ garantir_cliente_google() {
     perguntar id "Client ID" "" "$RE_GOOGLE_ID" "Termina com .apps.googleusercontent.com."
     aws_l ssm put-parameter --name "$PARAM_GOOGLE_ID" --type String \
       --description "Client ID do OAuth do Google (login do Librax)" --value "$id" >/dev/null
+    etiquetar_parametro "$PARAM_GOOGLE_ID"
     ok "Client ID guardado em $PARAM_GOOGLE_ID"
   fi
   if [[ "$tem_segredo" == false ]]; then
@@ -635,6 +640,7 @@ garantir_cliente_google() {
     unset segredo
     if ! aws_l secretsmanager create-secret --name "$SEGREDO_GOOGLE" \
       --description "Client secret do OAuth do Google (login do Librax)" \
+      --tags "Key=$ETIQUETA_CHAVE,Value=$ETIQUETA_VALOR" \
       --secret-string "file://$tmp" --query Name --output text >/dev/null; then
       rm -f "$tmp"
       falha "Não consegui guardar o segredo em $SEGREDO_GOOGLE no Secrets Manager."
@@ -643,6 +649,31 @@ garantir_cliente_google() {
     ok "Client secret guardado em $SEGREDO_GOOGLE (0,40 dólar por mês)"
   fi
   ok "cliente OAuth do Google guardado (SSM e Secrets Manager)"
+}
+
+# Etiqueta do projeto (ETIQUETA_*) num parâmetro do SSM ou num segredo. O put-parameter com --overwrite não
+# aceita etiquetas, então vai depois, à parte; repetir não muda nada.
+etiquetar_parametro() {
+  aws_l ssm add-tags-to-resource --resource-type Parameter --resource-id "$1" \
+    --tags "Key=$ETIQUETA_CHAVE,Value=$ETIQUETA_VALOR" >/dev/null
+}
+etiquetar_segredo() {
+  aws_l secretsmanager tag-resource --secret-id "$1" --tags "Key=$ETIQUETA_CHAVE,Value=$ETIQUETA_VALOR" >/dev/null
+}
+
+# O que o script já criou fora da stack em rodadas antigas, antes da etiqueta: parâmetros do SSM e o segredo
+# do Google que existirem. Só no CloudShell (o papel do CI não etiqueta). Uma falha só avisa.
+etiquetar_de_fora() {
+  passo "Etiqueta $ETIQUETA_CHAVE=$ETIQUETA_VALOR no que fica fora da stack"
+  local nome feitos=0
+  for nome in "$PARAM_CONTEXTO" "$PARAM_VAPID_PUBLICA" "$PARAM_VAPID_PRIVADA" "$PARAM_GOOGLE_ID"; do
+    aws_l ssm get-parameter --name "$nome" --query Parameter.Name --output text >/dev/null 2>&1 || continue
+    if etiquetar_parametro "$nome"; then feitos=$((feitos + 1)); else aviso "Não consegui etiquetar $nome no SSM."; fi
+  done
+  if aws_l secretsmanager describe-secret --secret-id "$SEGREDO_GOOGLE" --query Name --output text >/dev/null 2>&1; then
+    if etiquetar_segredo "$SEGREDO_GOOGLE"; then feitos=$((feitos + 1)); else aviso "Não consegui etiquetar $SEGREDO_GOOGLE."; fi
+  fi
+  ok "$feitos recurso(s) de fora da stack com a etiqueta"
 }
 
 # Chaves VAPID das notificações (--com-notificacoes), geradas no próprio CloudShell com o crypto do Node
@@ -688,6 +719,8 @@ garantir_chaves_push() {
     falha "Não consegui gravar as chaves VAPID no SSM. Rode de novo com --com-notificacoes."
   fi
   rm -rf "$tmp"
+  etiquetar_parametro "$PARAM_VAPID_PRIVADA"
+  etiquetar_parametro "$PARAM_VAPID_PUBLICA"
   ok "chaves geradas e guardadas no SSM ($PARAM_VAPID_PUBLICA e $PARAM_VAPID_PRIVADA, a privada cifrada)"
 }
 
@@ -814,6 +847,12 @@ conferir_travas_de_custo() {
 }
 
 # Estado de uma stack do CloudFormation, ou NAO_EXISTE
+# Valor da etiqueta do projeto numa stack (vazio sem ela ou sem a stack)
+etiqueta_da_stack() {
+  aws_l cloudformation describe-stacks --stack-name "$1" \
+    --query "Stacks[0].Tags[?Key=='$ETIQUETA_CHAVE'].Value | [0]" --output text 2>/dev/null | grep -v '^None$' || true
+}
+
 estado_stack() {
   local saida
   if saida=$(aws_l cloudformation describe-stacks --stack-name "$1" --query 'Stacks[0].StackStatus' --output text 2>&1); then
@@ -856,13 +895,19 @@ publicar_stack() {
   case "$estado" in
     CREATE_COMPLETE | UPDATE_COMPLETE | UPDATE_ROLLBACK_COMPLETE | IMPORT_COMPLETE)
       ok "conta já preparada para o CDK ($estado)"
+      # Bootstrap de antes da etiqueta: refeito com ela (só a etiqueta muda; o CloudFormation a repassa ao
+      # bucket, aos papéis e ao repositório do CDK). No CI não: o papel dele não mexe no bootstrap.
+      if [[ "$MODO_CI" == false && "$(etiqueta_da_stack CDKToolkit)" != "$ETIQUETA_VALOR" ]]; then
+        (cd "$INFRA" && demorado "etiqueta no bootstrap do CDK" "$AWS_SH" npx cdk bootstrap --tags "$ETIQUETA_CHAVE=$ETIQUETA_VALOR" "aws://$CONTA/$REGIAO")
+        ok "bootstrap do CDK com a etiqueta $ETIQUETA_CHAVE=$ETIQUETA_VALOR"
+      fi
       ;;
     *)
       # O papel do CI não cria o bootstrap (precisa de IAM): só o primeiro lançamento, no CloudShell
       [[ "$MODO_CI" == false ]] ||
         falha "A conta não tem o bootstrap do CDK (CDKToolkit em $estado). Faça o lançamento completo pelo CloudShell (docs/lancamento.md)."
       info "Preparando a conta para o CDK (stack CDKToolkit, uma vez só)."
-      (cd "$INFRA" && demorado "bootstrap do CDK" "$AWS_SH" npx cdk bootstrap "aws://$CONTA/$REGIAO")
+      (cd "$INFRA" && demorado "bootstrap do CDK" "$AWS_SH" npx cdk bootstrap --tags "$ETIQUETA_CHAVE=$ETIQUETA_VALOR" "aws://$CONTA/$REGIAO")
       ok "bootstrap feito"
       ;;
   esac
@@ -905,6 +950,7 @@ sincronizar_contexto() {
   aws_l ssm put-parameter --name "$PARAM_CONTEXTO" --type SecureString --tier Standard --overwrite \
     --description "Contexto do CDK do Librax (lancar-cloudshell.sh); o CI/CD le daqui" \
     --value "file://$CONTEXTO" >/dev/null
+  etiquetar_parametro "$PARAM_CONTEXTO"
   ok "$PARAM_CONTEXTO atualizado (SecureString; o CI/CD publica com estes valores)"
 }
 
@@ -1281,6 +1327,7 @@ main() {
 
   instalar_dependencias
   conferir_conta
+  [[ "$MODO_CI" == true ]] || etiquetar_de_fora
   if [[ "$SO_PUBLICAR" == true ]]; then
     if [[ -n "$OPT_ZONA$OPT_CERT$OPT_EMAIL$OPT_ORCAMENTO$OPT_GOOGLE$OPT_LEMBRETES$OPT_EMAIL_SES$OPT_RESERVA" ]]; then
       aviso "Com --so-publicar a stack não muda: --zona, --certificado, --email-alarmes, --orcamento, --com/--sem-google, --com/--sem-lembretes-email, --com/--sem-email-ses e --com/--sem-concorrencia-reservada ficam para o lançamento completo."

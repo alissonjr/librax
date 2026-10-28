@@ -121,7 +121,7 @@ function montarRepositorio(contaDoLogin: string) {
   const bin = path.join(base, 'bin');
   const log = path.join(base, 'aws.log');
   const estado = path.join(base, 'estado.json');
-  writeFileSync(estado, JSON.stringify({ ssm: {}, segredos: {} }));
+  writeFileSync(estado, JSON.stringify({ ssm: {}, segredos: {}, etiquetas: {} }));
   mkdirSync(bin);
   const outputs = [
     ['UserPoolId', 'us-east-1_Teste'],
@@ -160,6 +160,18 @@ else if (cmd === 'ce get-anomaly-monitors') {
   }
   console.log(m === 'nenhum' ? 'None' : m);
 }
+else if (cmd === 'ssm add-tags-to-resource' || cmd === 'secretsmanager tag-resource') {
+  // etiqueta guardada em estado.json pelo nome (Key=...,Value=...)
+  const st = JSON.parse(fs.readFileSync(${JSON.stringify(estado)}, 'utf8'));
+  const opt = (n) => args[args.indexOf(n) + 1];
+  const nome = opt(cmd.startsWith('ssm') ? '--resource-id' : '--secret-id');
+  if (!(cmd.startsWith('ssm') ? st.ssm : st.segredos)[nome]) {
+    console.error('An error occurred (InvalidResourceId)');
+    process.exit(254);
+  }
+  st.etiquetas[nome] = opt('--tags');
+  fs.writeFileSync(${JSON.stringify(estado)}, JSON.stringify(st));
+}
 else if (['ssm get-parameter', 'ssm put-parameter', 'secretsmanager describe-secret', 'secretsmanager create-secret'].includes(cmd)) {
   // SSM e Secrets Manager guardados em estado.json; file:// lido como a CLI faz
   const st = JSON.parse(fs.readFileSync(${JSON.stringify(estado)}, 'utf8'));
@@ -181,6 +193,7 @@ else if (['ssm get-parameter', 'ssm put-parameter', 'secretsmanager describe-sec
     guardado[nome] = cmd.startsWith('ssm')
       ? { tipo: opt('--type'), valor: valor(opt('--value')) }
       : { valor: valor(opt('--secret-string')) };
+    if (args.includes('--tags')) st.etiquetas[nome] = opt('--tags');
     fs.writeFileSync(${JSON.stringify(estado)}, JSON.stringify(st));
   }
 }
@@ -496,6 +509,8 @@ describe('--com-notificacoes (chaves VAPID no SSM, aws falso)', () => {
     // A privada vai antes: a pública só existe com o par completo
     const escritas = chamadas().filter((c) => c.args[1] === 'put-parameter').map((c) => c.args[c.args.indexOf('--name') + 1]);
     expect(escritas).toEqual([PRIVADA, PUBLICA]);
+    // as duas com a etiqueta do projeto
+    expect(guardado().etiquetas).toEqual({ [PRIVADA]: 'Key=project,Value=librax', [PUBLICA]: 'Key=project,Value=librax' });
   });
 
   test('chaves já guardadas: ficam as mesmas, só com leituras', () => {
@@ -567,6 +582,10 @@ describe('--com-google (cliente OAuth no SSM e no Secrets Manager, aws falso)', 
     const g = guardado();
     expect(g.ssm['/librax/google/client-id']).toEqual({ tipo: 'String', valor: ID });
     expect(g.segredos['librax/google/client-secret']).toEqual({ valor: SEGREDO });
+    expect(g.etiquetas).toEqual({
+      '/librax/google/client-id': 'Key=project,Value=librax',
+      'librax/google/client-secret': 'Key=project,Value=librax',
+    });
     for (const c of chamadas()) expect(c.args.join(' ')).not.toContain(SEGREDO);
     expect(readdirSync(tmp)).toEqual([]);
   });
@@ -588,5 +607,37 @@ describe('--com-google (cliente OAuth no SSM e no Secrets Manager, aws falso)', 
     expect(r.stdout).toContain('status=0');
     expect(r.stdout).not.toContain('Client ID guardado');
     expect(guardado().segredos['librax/google/client-secret']).toEqual({ valor: SEGREDO });
+  });
+});
+
+describe('etiqueta project=librax no que fica fora da stack (aws falso)', () => {
+  test('a mesma etiqueta da stack (lib/tags.ts)', () => {
+    const tags = readFileSync(path.join(RAIZ, 'infra/lib/tags.ts'), 'utf8');
+    const r = comFuncoes('echo "$ETIQUETA_CHAVE $ETIQUETA_VALOR"');
+    const [chave, valor] = r.stdout.trim().split(' ');
+    expect(tags).toContain(`key: '${chave}', value: '${valor}'`);
+  });
+
+  test('rodadas antigas: etiqueta os parâmetros e o segredo que existem, e só eles', () => {
+    const m = montarRepositorio(CONTA);
+    const g = m.guardado();
+    g.ssm['/librax/cdk-context'] = { tipo: 'SecureString', valor: '{}' };
+    g.ssm['/librax/vapid/public-key'] = { tipo: 'String', valor: 'pub' };
+    g.ssm['/librax/vapid/private-key'] = { tipo: 'SecureString', valor: 'priv' };
+    g.segredos['librax/google/client-secret'] = { valor: 'x' };
+    m.guardar(g);
+    const r = comFuncoes('etiquetar_de_fora; echo "status=$?"', m.env, m.script);
+    expect(r.stderr).toBe('');
+    expect(r.stdout).toContain('4 recurso(s) de fora da stack com a etiqueta');
+    expect(Object.keys(m.guardado().etiquetas).sort()).toEqual([
+      '/librax/cdk-context', '/librax/vapid/private-key', '/librax/vapid/public-key', 'librax/google/client-secret',
+    ]);
+  });
+
+  test('bootstrap do CDK novo já nasce com a etiqueta', () => {
+    const script = readFileSync(path.join(RAIZ, 'infra/scripts/lancar-cloudshell.sh'), 'utf8');
+    const bootstraps = script.split('\n').filter((l) => l.includes('cdk bootstrap'));
+    expect(bootstraps.length).toBeGreaterThan(0);
+    for (const l of bootstraps) expect(l).toContain('--tags "$ETIQUETA_CHAVE=$ETIQUETA_VALOR"');
   });
 });

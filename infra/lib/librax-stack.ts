@@ -37,6 +37,7 @@ import {
   ROUTE_THROTTLES,
 } from './cost-guards';
 import { assetLinks, assetLinksFunction } from './assetlinks';
+import { PROJECT_TAG, tagProject } from './tags';
 import { cognitoUserPoolEmail, COGNITO_USER_VERIFICATION } from './cognito-email';
 import {
   adminCsp,
@@ -101,6 +102,7 @@ const API_DIR = path.join(__dirname, '..', '..', 'services', 'api');
 export class LibraxStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+    tagProject(this);
 
     const config = readConfig(this.node);
     const certificate = config.certificateArn
@@ -1349,6 +1351,8 @@ export class LibraxStack extends cdk.Stack {
           budgetLimit: { amount: config.budget.monthlyUsd, unit: 'USD' },
         },
         notificationsWithSubscribers,
+        // o CfnBudget nao recebe o Tags.of (lib/tags.ts): a etiqueta vai aqui ("No interruption")
+        resourceTags: [{ key: PROJECT_TAG.key, value: PROJECT_TAG.value }],
       });
     } else {
       Annotations.of(this).addWarningV2(

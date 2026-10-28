@@ -52,13 +52,13 @@ describe('atualizacao no lugar (mesmo logical id, so propriedades "No interrupti
   const { template } = synth();
   const now = resources(template);
 
-  test('User Pool: so MfaConfiguration, EnabledMfas e DeletionProtection mudam', () => {
+  test('User Pool: so MfaConfiguration, EnabledMfas, DeletionProtection, o gatilho e a etiqueta mudam', () => {
     const [[id, old]] = Object.entries(before.pool);
     expect(now[id]?.Type).toBe('AWS::Cognito::UserPool');
     expect(ofType(template, 'AWS::Cognito::UserPool')).toHaveLength(1);
-    // As quatro sao "Update requires: No interruption" em AWS::Cognito::UserPool (LambdaConfig: o
-    // gatilho PreSignUp, uma pessoa, uma conta)
-    expect(changedProps(old, now[id])).toEqual(['DeletionProtection', 'EnabledMfas', 'LambdaConfig', 'MfaConfiguration']);
+    // Todas "Update requires: No interruption" em AWS::Cognito::UserPool (LambdaConfig: o gatilho
+    // PreSignUp, uma pessoa, uma conta; UserPoolTags: a etiqueta do projeto, lib/tags.ts)
+    expect(changedProps(old, now[id])).toEqual(['DeletionProtection', 'EnabledMfas', 'LambdaConfig', 'MfaConfiguration', 'UserPoolTags']);
     expect(now[id].DeletionPolicy).toBe('Retain');
   });
 
@@ -96,20 +96,20 @@ describe('atualizacao no lugar (mesmo logical id, so propriedades "No interrupti
     }
   });
 
-  test('tabela: so OnDemandThroughput muda', () => {
+  test('tabela: so OnDemandThroughput e a etiqueta mudam', () => {
     const [[id, old]] = Object.entries(before.table);
-    expect(changedProps(old, now[id])).toEqual(['OnDemandThroughput']);
+    expect(changedProps(old, now[id])).toEqual(['OnDemandThroughput', 'Tags']);
     expect(now[id].DeletionPolicy).toBe('Retain');
   });
 
-  test('estagio da API: so o limite padrao e os limites por rota mudam', () => {
+  test('estagio da API: so os limites e a etiqueta mudam', () => {
     const [[id, old]] = Object.entries(before.stage);
-    expect(changedProps(old, now[id])).toEqual(['DefaultRouteSettings', 'RouteSettings']);
+    expect(changedProps(old, now[id])).toEqual(['DefaultRouteSettings', 'RouteSettings', 'Tags']);
   });
 
-  test('buckets: so a regra de ciclo de vida muda', () => {
+  test('buckets: so a regra de ciclo de vida e a etiqueta mudam', () => {
     for (const [id, old] of Object.entries(before.buckets)) {
-      expect(changedProps(old, now[id])).toEqual(['LifecycleConfiguration']);
+      expect(changedProps(old, now[id])).toEqual(['LifecycleConfiguration', 'Tags']);
     }
   });
 });

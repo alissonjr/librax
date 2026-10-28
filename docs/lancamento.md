@@ -419,6 +419,27 @@ e de 100% de US$ 10 por mês e quando a previsão do mês passa de 100% (mude o 
 só aparece depois de algumas semanas de uso). Ele só avisa, não bloqueia gasto. Detalhe dos custos do painel em
 [`painel-admin.md`](painel-admin.md#7-custo-extra-estimado-por-mês).
 
+### Etiqueta dos recursos
+
+Tudo o que o Librax cria na AWS leva a etiqueta **`project=librax`**, para achar e somar os recursos do projeto:
+
+- **Na stack** (`infra/lib/tags.ts`): Lambdas, tabela, buckets, CloudFront, User Pool, API, alarmes, tópico,
+  papéis, logs, o orçamento e, na stack do CI, a conexão com o GitHub e o projeto do CodeBuild. O próximo deploy
+  (pela tag de versão) põe a etiqueta nos que já existem, sem recriar nada.
+- **Fora da stack** (o script, no CloudShell): os parâmetros do SSM (`/librax/...`), o segredo do Google e o
+  bootstrap do CDK (stack `CDKToolkit`). Recursos criados em rodadas antigas ganham a etiqueta na próxima rodada
+  do script no CloudShell (qualquer uma, inclusive `--so-publicar`).
+
+Ficam sem etiqueta só os tipos que a AWS não deixa etiquetar (rotas da API, app clients e grupos do Cognito,
+agendamentos, políticas) e o monitor e o aviso de anomalia de custo: neles a AWS só aceita etiqueta ao criar, e
+acrescentar depois recriaria o monitor (que é um só por conta).
+
+Para ver o gasto do projeto por etiqueta no Cost Explorer, ative uma vez a etiqueta em **Faturamento e
+Gerenciamento de Custos > Etiquetas de alocação de custos** (Billing and Cost Management > Cost allocation tags):
+marque `project` e clique em **Ativar**. É de graça e vale para os gastos dali em diante (leva até 24 horas para
+aparecer). Para listar os recursos: **Resource Groups & Tag Editor > Tag Editor**, região us-east-1 e todos os
+tipos, com a etiqueta `project` = `librax`.
+
 ### Travas de custo
 
 O risco do Librax é mais de conta alta e de app fora do ar do que de invasão. Estas travas são de graça e ficam na

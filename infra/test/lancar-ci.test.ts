@@ -69,6 +69,7 @@ else if (cmd === 'ssm get-parameter') {
   console.log(p);
 }
 else if (cmd === 'ssm put-parameter') {}
+else if (cmd === 'ssm add-tags-to-resource') {}
 else if (cmd === 'cloudformation describe-stacks') {
   const nome = valor('--stack-name');
   const query = valor('--query');
@@ -283,6 +284,10 @@ describe('contexto no SSM (CloudShell)', () => {
     expect(c.args).toContain('--overwrite');
     expect(opcao('--value')).toBe(`file://${m.contexto}`);
     expect(c.conteudo).toEqual(CONTEXTO);
+    // e a etiqueta do projeto, à parte (o put-parameter com --overwrite não aceita --tags)
+    const etiqueta = m.chamadas()[1].args;
+    expect(etiqueta.slice(0, 2)).toEqual(['ssm', 'add-tags-to-resource']);
+    expect(etiqueta).toEqual(expect.arrayContaining(['/librax/cdk-context', 'Key=project,Value=librax']));
   });
 
   test('contexto maior que o limite do parâmetro padrão: para antes de chamar a AWS', () => {
