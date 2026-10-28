@@ -5,6 +5,7 @@
 #   bash infra/scripts/lancar-cloudshell.sh                 primeiro lançamento (pergunta o que faltar)
 #   bash infra/scripts/lancar-cloudshell.sh --so-publicar   só build e upload do app, do painel e da landing
 #   bash infra/scripts/lancar-cloudshell.sh --admin EMAIL   coloca uma conta no grupo admin do Cognito
+#   bash infra/scripts/lancar-cloudshell.sh --dono EMAIL    admin e dono do painel (promove outros admins)
 #   bash infra/scripts/lancar-cloudshell.sh --configurar-ci prepara o CI/CD no CodeBuild (uma vez; docs/ci-cd.md)
 #   bash infra/scripts/lancar-cloudshell.sh --so-publicar --com-notificacoes  liga as notificações (Web Push)
 #
@@ -87,6 +88,8 @@ bootstrap (só se faltar), deploy da stack, build e upload do app, do painel e d
   --vlibras-opcional        publica mesmo se o download do avatar VLibras falhar (cai no texto)
   --ignorar-dns             não confere se o domínio já aponta para o Route 53
   --admin EMAIL             só coloca a conta (já criada no app) no grupo admin e sai
+  --dono EMAIL              como --admin, e a conta vira a dona do painel: só ela torna outras contas
+                            admin ou tira do admin, pela tela Contas do painel
   --configurar-ci           prepara o CI/CD (CodeBuild a cada tag v1.2.3): conexão com o GitHub, projeto
                             e aviso por e-mail; uma vez, depois do primeiro lançamento (docs/ci-cd.md)
   --ci                      modo do CodeBuild: sem perguntas, valores do SSM; não use no CloudShell
@@ -112,6 +115,7 @@ SO_PUBLICAR=false
 VLIBRAS_OPCIONAL=false
 IGNORAR_DNS=false
 ADMIN_EMAIL=""
+DONO=false
 MODO_CI=false
 CONFIGURAR_CI=false
 
@@ -143,6 +147,7 @@ ler_opcoes() {
       --vlibras-opcional) VLIBRAS_OPCIONAL=true; shift ;;
       --ignorar-dns) IGNORAR_DNS=true; shift ;;
       --admin) valor_da_opcao "$@"; ADMIN_EMAIL=$2; shift 2 ;;
+      --dono) valor_da_opcao "$@"; ADMIN_EMAIL=$2; DONO=true; shift 2 ;;
       --ci) MODO_CI=true; shift ;;
       --configurar-ci) CONFIGURAR_CI=true; shift ;;
       -h | --ajuda | --help) ajuda; exit 0 ;;
@@ -150,7 +155,7 @@ ler_opcoes() {
     esac
   done
   if [[ "$MODO_CI" == true && ( "$CONFIGURAR_CI" == true || -n "$ADMIN_EMAIL" || "$OPT_NOTIFICACOES" == true ) ]]; then
-    echo "--ci é só o lançamento pelo CodeBuild: não combina com --configurar-ci, --admin nem --com-notificacoes." >&2
+    echo "--ci é só o lançamento pelo CodeBuild: não combina com --configurar-ci, --admin, --dono nem --com-notificacoes." >&2
     exit 2
   fi
 }
@@ -1056,7 +1061,7 @@ publicar_sites() {
 
 dar_admin() {
   passo "Grupo admin do Cognito"
-  [[ "$ADMIN_EMAIL" =~ $RE_EMAIL ]] || falha "--admin precisa de um e-mail válido."
+  [[ "$ADMIN_EMAIL" =~ $RE_EMAIL ]] || falha "--admin e --dono precisam de um e-mail válido."
   ler_outputs UserPoolId AppUrl
   local pool usuarios usuario
   pool=$(output UserPoolId)
@@ -1066,8 +1071,16 @@ dar_admin() {
     falha "Nenhuma conta com $(mascarar_email "$ADMIN_EMAIL"). Crie a conta no app ($(output AppUrl)/criar-conta) e rode de novo."
   for usuario in $usuarios; do
     aws_l cognito-idp admin-add-user-to-group --user-pool-id "$pool" --username "$usuario" --group-name admin
+    if [[ "$DONO" == true ]]; then
+      aws_l cognito-idp admin-add-user-to-group --user-pool-id "$pool" --username "$usuario" --group-name owner
+    fi
   done
-  ok "$(mascarar_email "$ADMIN_EMAIL") no grupo admin. Saia do painel e entre de novo para o acesso valer."
+  if [[ "$DONO" == true ]]; then
+    ok "$(mascarar_email "$ADMIN_EMAIL") é admin e dona do painel. Saia do painel e entre de novo para o acesso valer."
+    info "Só a conta dona torna outras contas admin ou tira do admin (painel, tela Contas, na conta aberta)."
+  else
+    ok "$(mascarar_email "$ADMIN_EMAIL") no grupo admin. Saia do painel e entre de novo para o acesso valer."
+  fi
   info "O painel exige o segundo fator (aplicativo autenticador). No primeiro acesso a $(output AppUrl)/admin/,"
   info "tenha no celular um app como Google Authenticator, Microsoft Authenticator ou 1Password: o painel mostra"
   info "um QR code, você lê com o app e digita o código de 6 dígitos. Daí em diante o login pede esse código."
@@ -1087,7 +1100,7 @@ resumo() {
   if [[ "$SO_PUBLICAR" == false && -n "${ALARM_EMAIL:-}" ]]; then
     info "- Confirmar as assinaturas no e-mail $(mascarar_email "$ALARM_EMAIL") (alarmes e orçamento)."
   fi
-  info "- Criar a conta do painel no app (e-mail e senha, só para isso) e rodar: bash infra/scripts/lancar-cloudshell.sh --admin <e-mail>"
+  info "- Criar a conta do painel no app (e-mail e senha, só para isso) e rodar: bash infra/scripts/lancar-cloudshell.sh --dono <e-mail>"
   info "  No primeiro acesso ao painel, configure o aplicativo autenticador (o painel guia)."
   if [[ "$SO_PUBLICAR" == false && "$(contexto lambdaReservedConcurrency)" != true ]]; then
     info "- Concorrência reservada desligada. Com a cota do Lambda em $COTA_LAMBDA_PEDIR, rode de novo com --com-concorrencia-reservada."
@@ -1260,7 +1273,7 @@ main() {
   fi
 
   if [[ -n "$ADMIN_EMAIL" ]]; then
-    [[ "$ADMIN_EMAIL" =~ $RE_EMAIL ]] || falha "--admin precisa de um e-mail válido."
+    [[ "$ADMIN_EMAIL" =~ $RE_EMAIL ]] || falha "--admin e --dono precisam de um e-mail válido."
     conferir_conta
     dar_admin
     return 0

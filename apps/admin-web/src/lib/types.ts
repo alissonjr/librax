@@ -170,6 +170,8 @@ export interface Account {
   status: string | null;
   enabled: boolean;
   createdAt: string | null;
+  /** Grupos de agora (admin, owner): no resumo da conta e na lista só de admins. */
+  groups?: string[];
 }
 
 export interface AccountSummary {

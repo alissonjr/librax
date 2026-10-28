@@ -78,11 +78,12 @@ export const MOTO_RANDOM_SEED = 4242;
 /**
  * Contas de teste (senhas so de desenvolvimento, documentadas em docs/ambiente-local.md).
  * `role: 'aluno'` e `role: 'admin'` sao as do dia a dia; as outras so dao vida as ligas, as
- * squads e aos numeros do painel.
+ * squads e aos numeros do painel. A admin tambem e a dona do painel (grupo `owner`): promove e tira
+ * outras contas do admin.
  */
 export const ACCOUNTS = [
   { key: 'aluno', role: 'aluno', email: 'aluno@librax.example', password: 'aluno-local-123', name: 'Ana', admin: false },
-  { key: 'admin', role: 'admin', email: 'admin@librax.example', password: 'admin-local-123', name: 'Duda', admin: true },
+  { key: 'admin', role: 'admin', email: 'admin@librax.example', password: 'admin-local-123', name: 'Duda', admin: true, owner: true },
   { key: 'bia', email: 'bia@librax.example', password: 'figurante-local-123', name: 'Bia', admin: false },
   { key: 'caio', email: 'caio@librax.example', password: 'figurante-local-123', name: 'Caio', admin: false },
   { key: 'davi', email: 'davi@librax.example', password: 'figurante-local-123', name: 'Davi', admin: false },

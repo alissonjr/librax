@@ -177,6 +177,19 @@ a:hover { text-decoration-thickness: 2px; }
 .account-confirm { display: flex; flex-direction: column; gap: var(--lx-space-3); }
 .account-confirm p { margin: 0; }
 .account-confirm .field { flex: none; max-width: 480px; }
+/* Acesso ao painel (só o dono vê): separado das ações da conta por uma linha */
+.account-admin {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lx-space-2);
+  margin-top: var(--lx-space-5);
+  padding-top: var(--lx-space-4);
+  border-top: var(--lx-border-width-thin) solid var(--lx-border-subtle);
+}
+.account-admin-title { margin: 0; font: var(--lx-typography-label); color: var(--lx-text-secondary); }
+.account-admin .note { margin: 0; }
+.card > .segmented { margin-bottom: var(--lx-space-4); }
 .attention { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--lx-space-3); }
 .attention li { display: flex; align-items: center; gap: var(--lx-space-3); flex-wrap: wrap; }
 .attention a { color: var(--lx-text-primary); }

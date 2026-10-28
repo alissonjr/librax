@@ -319,8 +319,16 @@ export class LibraxStack extends cdk.Stack {
     new cognito.CfnUserPoolGroup(this, 'AdminGroup', {
       userPoolId: userPool.userPoolId,
       groupName: 'admin',
-      description: 'Painel de administracao (/admin), so leitura',
+      description: 'Painel de administracao (/admin)',
       precedence: 0,
+    });
+    // Dono do painel (alem do admin): so ele promove ou tira alguem do admin. Entra pelo script
+    // (lancar-cloudshell.sh --dono), nunca pelo painel.
+    new cognito.CfnUserPoolGroup(this, 'OwnerGroup', {
+      userPoolId: userPool.userPoolId,
+      groupName: 'owner',
+      description: 'Dono do painel: muda quem e admin',
+      precedence: 1,
     });
 
     // -----------------------------------------------------------------------
@@ -477,7 +485,7 @@ export class LibraxStack extends cdk.Stack {
     // do painel com escrita; a de leitura (adminFn) continua so lendo
     const adminActionsFn = makeFn('AdminActionsFn', 'admin.js', 'adminActionsRouter', {
       functionName: 'librax-admin-actions',
-      description: 'Painel: desativar, reativar e excluir conta (grupo admin, com o autenticador)',
+      description: 'Painel: desativar, reativar e excluir conta, e o dono muda quem e admin (com o autenticador)',
       timeout: Duration.seconds(30),  // excluir conta grande: varias paginas de SRS e tentativas
       environment: { USER_POOL_ID: userPool.userPoolId },
     });
@@ -558,20 +566,23 @@ export class LibraxStack extends cdk.Stack {
     }));
     table.grantWriteData(postConfirmationFn);
 
-    // Busca de conta pelo e-mail (ListUsers) e conferencia do segundo fator de quem abre o painel
-    // (AdminGetUser: UserMFASettingList), so neste User Pool
+    // Busca de conta pelo e-mail (ListUsers), conferencia do segundo fator de quem abre o painel
+    // (AdminGetUser: UserMFASettingList), os grupos de agora (AdminListGroupsForUser) e a lista de
+    // admins (ListUsersInGroup), so neste User Pool
     adminFn.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['cognito-idp:ListUsers', 'cognito-idp:AdminGetUser'],
+      actions: ['cognito-idp:ListUsers', 'cognito-idp:AdminGetUser', 'cognito-idp:AdminListGroupsForUser', 'cognito-idp:ListUsersInGroup'],
       resources: [userPool.userPoolArn],
     }));
 
-    // Acoes do painel: as mesmas leituras da busca e do segundo fator, mais desativar, reativar,
-    // encerrar sessoes e excluir, so neste User Pool; na tabela, o mesmo que a exclusao de conta
+    // Acoes do painel: as mesmas leituras da busca, do segundo fator e dos grupos, mais desativar,
+    // reativar, encerrar sessoes, excluir e por ou tirar do grupo (so o dono, conferido na Lambda),
+    // so neste User Pool; na tabela, o mesmo que a exclusao de conta
     table.grantReadWriteData(adminActionsFn);
     adminActionsFn.addToRolePolicy(new iam.PolicyStatement({
       actions: [
         'cognito-idp:ListUsers', 'cognito-idp:AdminGetUser', 'cognito-idp:AdminDisableUser',
         'cognito-idp:AdminEnableUser', 'cognito-idp:AdminUserGlobalSignOut', 'cognito-idp:AdminDeleteUser',
+        'cognito-idp:AdminListGroupsForUser', 'cognito-idp:AdminAddUserToGroup', 'cognito-idp:AdminRemoveUserFromGroup',
       ],
       resources: [userPool.userPoolArn],
     }));
@@ -1087,6 +1098,8 @@ export class LibraxStack extends cdk.Stack {
     addRoute(M.POST,   '/v1/admin/accounts/{userId}/disable', adminActionsFn, adminAuthorizer);
     addRoute(M.POST,   '/v1/admin/accounts/{userId}/enable',  adminActionsFn, adminAuthorizer);
     addRoute(M.DELETE, '/v1/admin/accounts/{userId}',         adminActionsFn, adminAuthorizer);
+    addRoute(M.POST,   '/v1/admin/accounts/{userId}/admin',   adminActionsFn, adminAuthorizer);
+    addRoute(M.DELETE, '/v1/admin/accounts/{userId}/admin',   adminActionsFn, adminAuthorizer);
 
     // Limite por rota (RouteSettings do estagio; o HttpStage do CDK so tem o global). O estagio
     // depende das rotas: o API Gateway recusa RouteSettings de rota que ainda nao existe.

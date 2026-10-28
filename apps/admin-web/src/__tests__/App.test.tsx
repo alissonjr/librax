@@ -32,7 +32,7 @@ function renderApp(api: AdminApi, s: AdminAuth, path = '/') {
 
 const forbidden = (): AdminApi => {
   const err = () => Promise.reject(new ApiError(403, 'ADMIN_ONLY', 'Acesso restrito ao grupo admin'));
-  return { me: err, overview: err, content: err, searchAccounts: err, listAccounts: err, account: err, disableAccount: err, enableAccount: err, deleteAccount: err, squads: err, cost: err, usage: err, feedback: err };
+  return { me: err, overview: err, content: err, searchAccounts: err, listAccounts: err, account: err, disableAccount: err, enableAccount: err, deleteAccount: err, grantAdmin: err, revokeAdmin: err, squads: err, cost: err, usage: err, feedback: err };
 };
 
 describe('acesso', () => {

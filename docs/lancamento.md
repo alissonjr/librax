@@ -185,8 +185,12 @@ Authenticator, 1Password ou outro; grátis, nunca SMS). Por isso:
 
    ```bash
    cd /tmp/librax
-   bash infra/scripts/lancar-cloudshell.sh --admin seu+admin@email.com
+   bash infra/scripts/lancar-cloudshell.sh --dono seu+admin@email.com
    ```
+
+   `--dono` deixa a conta admin e dona do painel: só ela torna outras contas admin ou tira do admin, pela tela
+   **Contas** do painel. Quem já rodou `--admin` roda `--dono` uma vez com o mesmo e-mail (depois do deploy que
+   cria o grupo `owner`).
 
 3. Abra `https://app.librax.online/admin/` e entre com o e-mail e a senha dessa conta. No primeiro acesso o painel mostra
    **Configure o aplicativo autenticador**: toque em **Começar**, leia o QR code com o aplicativo (ou digite a

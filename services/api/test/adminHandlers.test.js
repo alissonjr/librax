@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { makeAdminHandlers, encodeCursor } from '../src/handlers/admin.js';
-import { groupsOf, isAdmin, parseAccountQuery, isFederated, makeMfaGate, MFA_CACHE_MS } from '../src/domain/admin.js';
+import { groupsOf, isAdmin, parseAccountQuery, isFederated, makeMfaGate, MFA_CACHE_MS, makeGroupsGate, GROUPS_CACHE_MS } from '../src/domain/admin.js';
 import { CognitoDirectory, accountFromCognito } from '../src/adapters/cognitoDirectory.js';
 import { InMemoryRepo } from '../src/adapters/inMemoryRepo.js';
 import { recordLessonCompleted } from '../src/usecases/opsMetrics.js';
@@ -43,12 +43,19 @@ function fakeDirectory(accounts = []) {
     async get(userId) {
       return accounts.find((a) => a.userId === userId) ?? null;
     },
+    async groupsFor(username) {
+      return accounts.find((a) => a.username === username)?.groups ?? [];
+    },
+    async listGroup(group, opts) {
+      calls.push({ listGroup: group, opts });
+      return { accounts: accounts.filter((a) => (a.groups ?? []).includes(group)), cursor: null };
+    },
   };
 }
 
-function setup({ repo = new InMemoryRepo(), accounts = [], logs = [], mfa = async () => true, budgetUsd = null } = {}) {
+function setup({ repo = new InMemoryRepo(), accounts = [], logs = [], mfa = async () => true, budgetUsd = null, liveGroups = false } = {}) {
   const directory = fakeDirectory(accounts);
-  const h = makeAdminHandlers({ repo, directory, mfa, now, budgetUsd, log: (...args) => logs.push(args.join(' ')) });
+  const h = makeAdminHandlers({ repo, directory, mfa, liveGroups, now, budgetUsd, log: (...args) => logs.push(args.join(' ')) });
   return { ...h, repo, directory, logs };
 }
 
@@ -444,7 +451,8 @@ test('falha ao ler a conta no Cognito: 500 (nunca abre o painel sem conferir)', 
 
 test('mfa e obrigatorio na fabrica: so `false` desliga (ambiente local)', () => {
   assert.throws(() => makeAdminHandlers({ repo: new InMemoryRepo(), directory: fakeDirectory() }), /mfa/);
-  const { adminRouter } = makeAdminHandlers({ repo: new InMemoryRepo(), directory: fakeDirectory(), mfa: false, now, log: () => {} });
+  assert.throws(() => makeAdminHandlers({ repo: new InMemoryRepo(), directory: fakeDirectory(), mfa: false }), /liveGroups/);
+  const { adminRouter } = makeAdminHandlers({ repo: new InMemoryRepo(), directory: fakeDirectory(), mfa: false, liveGroups: false, now, log: () => {} });
   return adminRouter(event({ routeKey: 'GET /v1/admin/me' })).then((res) => assert.equal(res.statusCode, 200));
 });
 
@@ -501,16 +509,27 @@ function actionDirectory(accounts) {
     async disableUser(username) { done.push(['disable', username]); },
     async enableUser(username) { done.push(['enable', username]); },
     async deleteUser(username) { done.push(['delete', username]); return true; },
+    async addToGroup(username, group) {
+      done.push(['addToGroup', username, group]);
+      const a = accounts.find((x) => x.username === username);
+      a.groups = [...new Set([...(a.groups ?? []), group])];
+    },
+    async removeFromGroup(username, group) {
+      done.push(['removeFromGroup', username, group]);
+      const a = accounts.find((x) => x.username === username);
+      a.groups = (a.groups ?? []).filter((g) => g !== group);
+    },
   };
 }
 
-function actions({ accounts = [], repo = new InMemoryRepo(), adminSub = ADMIN } = {}) {
+/** Acoes: por padrao quem chama e o dono (admin e owner no token). */
+function actions({ accounts = [], repo = new InMemoryRepo(), adminSub = ADMIN, groups = '[admin owner]', liveGroups = false } = {}) {
   const directory = actionDirectory(accounts);
   const logs = [];
-  const h = makeAdminHandlers({ repo, directory, mfa: async () => true, now, log: (...a) => logs.push(a.join(' ')) });
-  const call = (routeKey, userId, bodyObj) =>
+  const h = makeAdminHandlers({ repo, directory, mfa: async () => true, liveGroups, now, log: (...a) => logs.push(a.join(' ')) });
+  const call = (routeKey, userId, bodyObj, callerGroups = groups) =>
     h.adminActionsRouter({
-      ...event({ routeKey, pathParameters: { userId }, sub: adminSub }),
+      ...event({ routeKey, pathParameters: { userId }, sub: adminSub, groups: callerGroups }),
       body: bodyObj === undefined ? undefined : JSON.stringify(bodyObj),
     });
   return { ...h, directory, logs, call, repo };
@@ -563,4 +582,152 @@ test('acoes: nunca na propria conta, conta inexistente e quem nao e admin', asyn
   });
   assert.equal(semGrupo.statusCode, 403);
   assert.deepEqual(h.directory.done, []);
+});
+
+// --- quem e admin: so o dono muda ---
+
+const GRANT = 'POST /v1/admin/accounts/{userId}/admin';
+const REVOKE = 'DELETE /v1/admin/accounts/{userId}/admin';
+const OTHER = '33333333-3333-4333-8333-333333333333';
+const deEmail = () => ({ userId: PERSON, username: PERSON, email: 'bia@exemplo.com', provider: 'email', status: 'CONFIRMED', enabled: true, groups: [] });
+
+test('tornar admin: so o dono, com o e-mail da conta digitado, e fica no registro', async () => {
+  const bia = deEmail();
+  const { call, directory, logs } = actions({ accounts: [bia] });
+
+  const semDono = await call(GRANT, PERSON, { confirm: 'bia@exemplo.com' }, '[admin]');
+  assert.equal(semDono.statusCode, 403);
+  assert.equal(parse(semDono).error.code, 'OWNER_ONLY');
+
+  const errado = await call(GRANT, PERSON, { confirm: 'outra@exemplo.com' });
+  assert.equal(parse(errado).error.code, 'CONFIRM_MISMATCH');
+  assert.deepEqual(directory.done, []);
+
+  const res = await call(GRANT, PERSON, { confirm: 'Bia@Exemplo.com' });
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(parse(res), { ok: true, groups: ['admin'] });
+  assert.deepEqual(directory.done, [['addToGroup', PERSON, 'admin']]);
+  assert.ok(logs.some((l) => l.startsWith('[admin-acao]') && l.includes('"action":"admin.grant"') && !l.includes('bia@')));
+});
+
+test('tornar admin: so conta de e-mail e senha, confirmada e ativa', async () => {
+  const casos = [
+    [{ provider: 'Google', username: 'google_9' }, 'ADMIN_NEEDS_PASSWORD'],
+    [{ enabled: false }, 'ACCOUNT_DISABLED'],
+    [{ status: 'UNCONFIRMED' }, 'ACCOUNT_NOT_CONFIRMED'],
+  ];
+  for (const [extra, code] of casos) {
+    const { call, directory } = actions({ accounts: [{ ...deEmail(), ...extra }] });
+    const res = await call(GRANT, PERSON, { confirm: 'bia@exemplo.com' });
+    assert.equal(res.statusCode, 400, code);
+    assert.equal(parse(res).error.code, code);
+    assert.deepEqual(directory.done, []);
+  }
+});
+
+test('tirar do admin: so o dono; tira do grupo e encerra as sessoes', async () => {
+  const bia = { ...deEmail(), groups: ['admin'] };
+  const { call, directory, logs } = actions({ accounts: [bia] });
+  assert.equal(parse(await call(REVOKE, PERSON, undefined, '[admin]')).error.code, 'OWNER_ONLY');
+  const res = await call(REVOKE, PERSON);
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(parse(res), { ok: true, groups: [] });
+  assert.deepEqual(directory.done, [['removeFromGroup', PERSON, 'admin']]);
+  assert.ok(logs.some((l) => l.includes('"action":"admin.revoke"')));
+});
+
+test('a conta do dono nao muda pelo painel, e conta de outro admin so o dono mexe', async () => {
+  const dono = { ...deEmail(), userId: OTHER, username: OTHER, groups: ['admin', 'owner'] };
+  const outroAdmin = { ...deEmail(), groups: ['admin'] };
+  const { call, directory } = actions({ accounts: [dono, outroAdmin] });
+  for (const [routeKey, bodyObj] of [[REVOKE], ['POST /v1/admin/accounts/{userId}/disable'], ['DELETE /v1/admin/accounts/{userId}', { confirm: 'bia@exemplo.com' }]]) {
+    assert.equal(parse(await call(routeKey, OTHER, bodyObj)).error.code, 'OWNER_PROTECTED', routeKey);
+  }
+  // admin comum nao desativa nem exclui outro admin
+  assert.equal(parse(await call('POST /v1/admin/accounts/{userId}/disable', PERSON, undefined, '[admin]')).error.code, 'OWNER_ONLY');
+  assert.equal(parse(await call('DELETE /v1/admin/accounts/{userId}', PERSON, { confirm: 'bia@exemplo.com' }, '[admin]')).error.code, 'OWNER_ONLY');
+  assert.deepEqual(directory.done, []);
+  // o dono pode
+  assert.equal((await call('POST /v1/admin/accounts/{userId}/disable', PERSON)).statusCode, 200);
+});
+
+test('grupos de agora: quem saiu do admin perde o painel mesmo com o token antigo', async () => {
+  const eu = { userId: ADMIN, username: 'dono-user', groups: ['admin'] };
+  const directory = fakeDirectory([eu]);
+  const h = makeAdminHandlers({
+    repo: new InMemoryRepo(), directory, mfa: false, now, log: () => {},
+    liveGroups: makeGroupsGate((u) => directory.groupsFor(u), { ttlMs: 0 }),
+  });
+  const me = () => h.adminRouter(event({ routeKey: 'GET /v1/admin/me', extraClaims: { 'cognito:username': 'dono-user' } }));
+  assert.equal((await me()).statusCode, 200);
+  eu.groups = [];
+  const res = await me();
+  assert.equal(res.statusCode, 403);
+  assert.equal(parse(res).error.code, 'ADMIN_ONLY');
+});
+
+test('makeGroupsGate guarda so a lista com admin, por pouco tempo, e esquece quem saiu', async () => {
+  let t = 0;
+  let groups = ['admin'];
+  let reads = 0;
+  const gate = makeGroupsGate(async () => { reads += 1; return groups; }, { now: () => t });
+  assert.deepEqual(await gate.get('u'), ['admin']);
+  groups = [];
+  assert.deepEqual(await gate.get('u'), ['admin']); // guardado
+  gate.forget('u');
+  assert.deepEqual(await gate.get('u'), []); // esquecido: le de novo
+  assert.deepEqual(await gate.get('u'), []); // sem admin nao fica guardado
+  assert.equal(reads, 3);
+  groups = ['admin'];
+  await gate.get('u');
+  groups = [];
+  t += GROUPS_CACHE_MS + 1;
+  assert.deepEqual(await gate.get('u'), []); // venceu
+});
+
+test('me traz os grupos de agora; lista so de admins com o dono marcado; resumo com os grupos', async () => {
+  const dono = { userId: ADMIN, username: 'dono-user', email: 'dono@librax.example', groups: ['admin', 'owner'] };
+  const bia = { ...deEmail(), groups: ['admin'] };
+  const ana = { userId: OTHER, username: OTHER, email: 'ana@exemplo.com', groups: [] };
+  const { adminRouter, directory } = setup({ accounts: [dono, bia, ana] });
+  const lista = await adminRouter(event({ routeKey: 'GET /v1/admin/accounts', query: { group: 'admin' } }));
+  assert.equal(lista.statusCode, 200);
+  assert.deepEqual(parse(lista).accounts.map((a) => [a.email, a.groups]), [
+    ['dono@librax.example', ['admin', 'owner']],
+    ['bia@exemplo.com', ['admin']],
+  ]);
+  assert.deepEqual(directory.calls.filter((c) => c.listGroup).map((c) => c.listGroup).sort(), ['admin', 'owner']);
+  const ruim = await adminRouter(event({ routeKey: 'GET /v1/admin/accounts', query: { group: 'owner' } }));
+  assert.equal(parse(ruim).error.code, 'BAD_GROUP');
+
+  const resumo = await adminRouter(event({ routeKey: 'GET /v1/admin/accounts/{userId}', pathParameters: { userId: PERSON } }));
+  assert.deepEqual(parse(resumo).account.groups, ['admin']);
+});
+
+test('CognitoDirectory: grupos da conta, lista do grupo, entrar e sair do grupo', async () => {
+  const calls = [];
+  const client = {
+    async send(cmd) {
+      calls.push({ name: cmd.constructor.name, input: cmd.input });
+      if (cmd.constructor.name === 'AdminListGroupsForUserCommand') {
+        if (cmd.input.Username === 'sumiu') throw Object.assign(new Error('x'), { name: 'UserNotFoundException' });
+        return { Groups: [{ GroupName: 'admin' }, { GroupName: 'owner' }] };
+      }
+      if (cmd.constructor.name === 'ListUsersInGroupCommand') {
+        return { Users: [{ Username: 'u1', Attributes: [{ Name: 'sub', Value: PERSON }, { Name: 'email', Value: 'bia@exemplo.com' }] }], NextToken: 'n2' };
+      }
+      return {};
+    },
+  };
+  const dir = new CognitoDirectory(client, 'pool');
+  assert.deepEqual(await dir.groupsFor('u1'), ['admin', 'owner']);
+  assert.deepEqual(await dir.groupsFor('sumiu'), []);
+  const page = await dir.listGroup('admin', { limit: 25, cursor: 'n1' });
+  assert.equal(page.cursor, 'n2');
+  assert.equal(page.accounts[0].email, 'bia@exemplo.com');
+  assert.deepEqual(calls.find((c) => c.name === 'ListUsersInGroupCommand').input, { UserPoolId: 'pool', GroupName: 'admin', Limit: 25, NextToken: 'n1' });
+  calls.length = 0;
+  await dir.addToGroup('u1', 'admin');
+  await dir.removeFromGroup('u1', 'admin');
+  assert.deepEqual(calls.map((c) => c.name), ['AdminAddUserToGroupCommand', 'AdminRemoveUserFromGroupCommand', 'AdminUserGlobalSignOutCommand']);
 });

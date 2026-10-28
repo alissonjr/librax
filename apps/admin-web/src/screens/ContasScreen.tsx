@@ -29,14 +29,17 @@ export function ContasScreen() {
   const [pages, setPages] = useState<(string | null)[]>([null]);
   const [page, setPage] = useState(0);
   const [next, setNext] = useState<string | null>(null);
+  /** Filtro da listagem: todas as contas ou só quem é admin. */
+  const [onlyAdmins, setOnlyAdmins] = useState(false);
 
-  async function loadPage(index: number, cursor: string | null) {
+  async function loadPage(index: number, cursor: string | null, admins = onlyAdmins) {
     setError(null);
     setSelected(null);
     setBusy('list');
     try {
-      const res = await api.listAccounts(cursor);
+      const res = await api.listAccounts(cursor, admins ? { group: 'admin' } : undefined);
       setResults(res.accounts);
+      setOnlyAdmins(admins);
       setNext(res.cursor);
       setPage(index);
       setPages((prev) => [...prev.slice(0, index), cursor]);
@@ -85,14 +88,37 @@ export function ContasScreen() {
     void loadPage(0, null);
   }
 
+  // O filtro troca quando a lista nova chega (loadPage), para o título não mudar antes dela
+  function showAdmins(admins: boolean) {
+    setQ('');
+    setPages([null]);
+    void loadPage(0, null, admins);
+  }
+
   return (
     <>
       <PageHeader title="Contas">
         Todas as contas, {ACCOUNTS_PER_PAGE} por página, na ordem do Cognito. Para achar uma conta, busque pelo começo do
-        e-mail ou pelo id (sub do Cognito). Na conta aberta dá para desativar, reativar ou excluir (pedido pela LGPD).
+        e-mail ou pelo id (sub do Cognito). Na conta aberta dá para desativar, reativar ou excluir (pedido pela LGPD), e o
+        dono do painel torna a conta admin ou tira do admin.
       </PageHeader>
       <div className="stack">
         <Card>
+          <div className="segmented" role="radiogroup" aria-label="Quais contas">
+            {([[false, 'Todas as contas'], [true, 'Só admins']] as const).map(([admins, label]) => (
+              <button
+                key={label}
+                type="button"
+                role="radio"
+                aria-checked={onlyAdmins === admins && searched === null}
+                className={`segmented-item${onlyAdmins === admins && searched === null ? ' is-on' : ''}`}
+                disabled={busy !== null}
+                onClick={() => showAdmins(admins)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <form className="search" role="search" onSubmit={search}>
             <label className="field field--grow">
               <span className="field-label">E-mail ou id</span>
@@ -110,9 +136,11 @@ export function ContasScreen() {
               <button type="button" className="btn btn--secondary" onClick={clearSearch} disabled={busy !== null}>Ver todas as contas</button>
             </p>
           )}
-          {results && results.length === 0 && <p className="empty">{searched !== null ? 'Nenhuma conta encontrada.' : 'Nenhuma conta criada ainda.'}</p>}
+          {results && results.length === 0 && (
+            <p className="empty">{searched !== null ? 'Nenhuma conta encontrada.' : onlyAdmins ? 'Nenhuma conta admin.' : 'Nenhuma conta criada ainda.'}</p>
+          )}
           {results && results.length > 0 && (
-            <ul className="results" aria-label={searched !== null ? 'Contas encontradas' : 'Contas'}>
+            <ul className="results" aria-label={searched !== null ? 'Contas encontradas' : onlyAdmins ? 'Contas admin' : 'Contas'}>
               {results.map((a) => (
                 <li key={a.userId ?? a.email}>
                   <button
@@ -123,6 +151,7 @@ export function ContasScreen() {
                   >
                     <span className="result-main">{a.email ?? a.userId}</span>
                     <span className="result-sub">{providerLabel(a.provider)}, desde {fmtDate(a.createdAt)}</span>
+                    {a.groups?.includes('owner') ? <Chip tone="info" icon="shield">dono</Chip> : a.groups?.includes('admin') && <Chip tone="info" icon="shield">admin</Chip>}
                     {!a.enabled && <Chip tone="error" icon="lock">desativada</Chip>}
                   </button>
                 </li>
@@ -160,6 +189,10 @@ export function ContasScreen() {
   );
 }
 
+const CONFIRM_LABEL: Record<Exclude<Pending, null>, string> = {
+  disable: 'Desativar', enable: 'Reativar', delete: 'Excluir para sempre', grant: 'Tornar admin', revoke: 'Tirar do admin',
+};
+
 const OUTCOME: Record<string, string> = { promoted: 'subiu', relegated: 'desceu', stayed: 'ficou' };
 
 function providerLabel(p: string) {
@@ -181,11 +214,22 @@ function AccountDetail({ userId, onDeleted }: { userId: string; onDeleted: () =>
   );
 }
 
-type Pending = 'disable' | 'enable' | 'delete' | null;
+type Pending = 'disable' | 'enable' | 'delete' | 'grant' | 'revoke' | null;
+
+/** Ações que pedem o e-mail da conta digitado. */
+const TYPED: Pending[] = ['delete', 'grant'];
+
+/** Acesso ao painel pelos grupos da conta. */
+function panelAccess(groups: string[] | undefined) {
+  if (!groups) return null;
+  return groups.includes('owner') ? 'dono' : groups.includes('admin') ? 'admin' : 'sem acesso';
+}
 
 /**
- * Desativar, reativar e excluir (pedido pela LGPD). Cada uma pede confirmação; excluir pede o e-mail
- * da conta digitado. Nunca aparece na própria conta de quem está no painel (o servidor recusa também).
+ * Desativar, reativar e excluir (pedido pela LGPD), e, só para o dono do painel, tornar admin ou tirar
+ * do admin. Cada uma pede confirmação; excluir e tornar admin pedem o e-mail da conta digitado. Nunca
+ * aparece na própria conta de quem está no painel, a conta do dono não muda por aqui, e a de outro
+ * admin só o dono mexe (o servidor recusa também).
  */
 export function AccountActions({ userId, account, onChanged, onDeleted }: {
   userId: string;
@@ -202,6 +246,22 @@ export function AccountActions({ userId, account, onChanged, onDeleted }: {
   const confirmText = account.email ?? userId;
 
   if (me.state !== 'ready' || me.data.userId === userId) return null;
+  const isOwner = me.data.groups.includes('owner');
+  const groups = account.groups ?? [];
+  const targetAdmin = groups.includes('admin');
+
+  if (groups.includes('owner') || (targetAdmin && !isOwner)) {
+    return (
+      <Card title="Ações na conta">
+        <p className="note">
+          {groups.includes('owner')
+            ? 'Esta é a conta do dono do painel: ela só muda pelo script de lançamento.'
+            : 'Esta conta é admin: só o dono do painel desativa, exclui ou tira do admin.'}
+        </p>
+      </Card>
+    );
+  }
+  const canBeAdmin = account.provider === 'email' && account.enabled && account.status === 'CONFIRMED';
 
   async function run() {
     if (!pending) return;
@@ -210,6 +270,8 @@ export function AccountActions({ userId, account, onChanged, onDeleted }: {
     try {
       if (pending === 'disable') await api.disableAccount(userId);
       else if (pending === 'enable') await api.enableAccount(userId);
+      else if (pending === 'grant') await api.grantAdmin(userId, typed);
+      else if (pending === 'revoke') await api.revokeAdmin(userId);
       else await api.deleteAccount(userId, typed);
       const was = pending;
       setPending(null);
@@ -243,14 +305,38 @@ export function AccountActions({ userId, account, onChanged, onDeleted }: {
           </button>
         </div>
       )}
+      {!pending && isOwner && (
+        <div className="account-admin">
+          <h3 className="account-admin-title">Acesso ao painel</h3>
+          {targetAdmin ? (
+            <button type="button" className="btn btn--secondary" onClick={() => setPending('revoke')}>
+              <Icon name="shield" /> Tirar do admin
+            </button>
+          ) : canBeAdmin ? (
+            <button type="button" className="btn btn--secondary" onClick={() => setPending('grant')}>
+              <Icon name="shield" /> Tornar admin
+            </button>
+          ) : (
+            <p className="note">
+              {account.provider !== 'email'
+                ? 'Conta do Google não vira admin: o painel exige o aplicativo autenticador, que só contas de e-mail e senha têm.'
+                : !account.enabled
+                  ? 'Reative a conta antes de tornar admin.'
+                  : 'A conta ainda não confirmou o e-mail: só depois ela pode virar admin.'}
+            </p>
+          )}
+        </div>
+      )}
       {pending && (
         <div className="account-confirm" role="group" aria-label="Confirmar ação">
           <p>
             {pending === 'disable' && 'A pessoa não consegue mais entrar, e as sessões abertas são encerradas (o app aberto para em até 1 hora). Os dados ficam, e dá para reativar depois.'}
             {pending === 'enable' && 'A pessoa volta a entrar normalmente, com a mesma senha e o mesmo progresso.'}
             {pending === 'delete' && 'Apaga para sempre o progresso, as squads, a liga e o login desta pessoa. Use para pedidos de exclusão pela LGPD. Não dá para desfazer.'}
+            {pending === 'grant' && 'A pessoa passa a abrir o painel e ver e fazer o mesmo que um admin, menos mudar quem é admin. No primeiro acesso ela configura o aplicativo autenticador.'}
+            {pending === 'revoke' && 'A pessoa perde o acesso ao painel em até 1 minuto, e as sessões abertas dela são encerradas. A conta no app continua igual.'}
           </p>
-          {pending === 'delete' && (
+          {TYPED.includes(pending) && (
             <label className="field field--grow">
               <span className="field-label">Digite {account.email ? 'o e-mail da conta' : 'o id da conta'} para confirmar</span>
               <input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={confirmText} autoComplete="off" />
@@ -261,12 +347,12 @@ export function AccountActions({ userId, account, onChanged, onDeleted }: {
             <button type="button" className="btn btn--secondary" onClick={close} disabled={busy}>Cancelar</button>
             <button
               type="button"
-              className={pending === 'enable' ? 'btn btn--primary' : 'btn btn--danger'}
+              className={pending === 'enable' || pending === 'grant' ? 'btn btn--primary' : 'btn btn--danger'}
               onClick={() => void run()}
-              disabled={busy || (pending === 'delete' && typed.trim().toLowerCase() !== confirmText.toLowerCase())}
+              disabled={busy || (TYPED.includes(pending) && typed.trim().toLowerCase() !== confirmText.toLowerCase())}
               aria-busy={busy || undefined}
             >
-              {busy ? 'Enviando...' : pending === 'disable' ? 'Desativar' : pending === 'enable' ? 'Reativar' : 'Excluir para sempre'}
+              {busy ? 'Enviando...' : CONFIRM_LABEL[pending]}
             </button>
           </div>
         </div>
@@ -284,6 +370,7 @@ export function AccountView({ s }: { s: AccountSummary }) {
         <dl className="facts">
           <div><dt>Id</dt><dd className="mono">{s.userId}</dd></div>
           <div><dt>Entrada</dt><dd>{s.account ? providerLabel(s.account.provider) : '-'}</dd></div>
+          {panelAccess(s.account?.groups) && <div><dt>Painel</dt><dd>{panelAccess(s.account?.groups)}</dd></div>}
           <div><dt>Conta criada</dt><dd>{fmtDate(s.account?.createdAt)}</dd></div>
           <div><dt>Nome no app</dt><dd>{p?.displayName ?? '-'}</dd></div>
           <div><dt>Fuso</dt><dd>{p?.timezone ?? '-'}</dd></div>

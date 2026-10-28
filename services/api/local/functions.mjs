@@ -33,6 +33,7 @@ import { makeOpsDailyHandler } from '../src/handlers/opsDaily.js';
 import { sendReminders } from '../src/usecases/sendReminders.js';
 import { quietly, recordReminders } from '../src/usecases/opsMetrics.js';
 import { opsToday } from '../src/domain/opsMetrics.js';
+import { makeGroupsGate } from '../src/domain/admin.js';
 import { FakeCloudWatchMetrics, FakeCostExplorerCosts, FakeWebPush } from './fakes.mjs';
 import { URLS, REGION } from './config.mjs';
 
@@ -59,6 +60,7 @@ export function makeLocalFunctions({ plan, state, log = console.log }) {
   const cloud = new FakeCloudWatchMetrics({ log });
   const costs = new FakeCostExplorerCosts({ log });
   const push = new FakeWebPush({ log });
+  const liveGroups = makeGroupsGate((username) => directory.groupsFor(username));
 
   /** Handlers HTTP pelo nome exportado (o mesmo do `index.<nome>` no template). */
   function httpHandlers(now = () => new Date()) {
@@ -78,9 +80,10 @@ export function makeLocalFunctions({ plan, state, log = console.log }) {
       // Sem o segundo fator: o moto so confere o codigo do aplicativo autenticador com uma chave fixa,
       // igual para todas as contas (MOTO_COGNITO_IDP_USER_POOL_ENABLE_TOTP), e sem ela aceita qualquer
       // codigo. O login do painel local (SRP pelo proxy) fica so com e-mail e senha.
-      // As acoes (desativar, reativar, excluir) usam o mesmo diretorio do moto, que aceita os Admin*
+      // As acoes (desativar, reativar, excluir, tornar e tirar do admin) usam o mesmo diretorio do moto,
+      // que aceita os Admin*; os grupos de agora tambem vem dele, como na AWS
       (({ adminRouter, adminActionsRouter }) => ({ adminRouter, adminActionsRouter }))(
-        makeAdminHandlers({ repo, directory, mfa: false, now, log, budgetUsd: 10 }),
+        makeAdminHandlers({ repo, directory, mfa: false, liveGroups, now, log, budgetUsd: 10 }),
       ),
     ];
     const out = {};

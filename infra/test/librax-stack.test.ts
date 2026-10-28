@@ -552,18 +552,22 @@ describe('Exclusao de conta (LGPD)', () => {
     const { template } = synth(withDomain);
     const cognitoActions = policyActionsOf(template, 'librax-admin-actions').filter((a) => a.startsWith('cognito-idp:')).sort();
     expect(cognitoActions).toEqual([
-      'cognito-idp:AdminDeleteUser', 'cognito-idp:AdminDisableUser', 'cognito-idp:AdminEnableUser',
-      'cognito-idp:AdminGetUser', 'cognito-idp:AdminUserGlobalSignOut', 'cognito-idp:ListUsers',
+      'cognito-idp:AdminAddUserToGroup', 'cognito-idp:AdminDeleteUser', 'cognito-idp:AdminDisableUser',
+      'cognito-idp:AdminEnableUser', 'cognito-idp:AdminGetUser', 'cognito-idp:AdminListGroupsForUser',
+      'cognito-idp:AdminRemoveUserFromGroup', 'cognito-idp:AdminUserGlobalSignOut', 'cognito-idp:ListUsers',
     ]);
     const st = statementsOf(template, 'librax-admin-actions').find((s) => [s.Action].flat().includes('cognito-idp:AdminDisableUser'));
     expect(st.Resource).toEqual({ 'Fn::GetAtt': [expect.stringMatching(/^LibraxUserPool/), 'Arn'] });
     // a Lambda de leitura do painel continua sem escrever: nem no Cognito nem na tabela
     const leitura = policyActionsOf(template, 'librax-admin');
-    for (const a of ['cognito-idp:AdminDisableUser', 'cognito-idp:AdminEnableUser', 'cognito-idp:AdminUserGlobalSignOut']) {
+    for (const a of [
+      'cognito-idp:AdminDisableUser', 'cognito-idp:AdminEnableUser', 'cognito-idp:AdminUserGlobalSignOut',
+      'cognito-idp:AdminAddUserToGroup', 'cognito-idp:AdminRemoveUserFromGroup',
+    ]) {
       expect(leitura).not.toContain(a);
     }
     expect(leitura.filter((a) => /dynamodb:(Put|Update|Delete|BatchWrite)/.test(a))).toEqual([]);
-    // as tres rotas vao para ela, com o autorizador do painel
+    // as cinco rotas vao para ela, com o autorizador do painel
     const [actionsId] = Object.entries(template.findResources('AWS::Lambda::Function'))
       .find(([, r]) => r.Properties.FunctionName === 'librax-admin-actions')!;
     const routes = Object.values(template.findResources('AWS::ApiGatewayV2::Route'))
@@ -572,9 +576,15 @@ describe('Exclusao de conta (LGPD)', () => {
       .sort();
     expect(routes).toEqual([
       'DELETE /v1/admin/accounts/{userId}',
+      'DELETE /v1/admin/accounts/{userId}/admin',
+      'POST /v1/admin/accounts/{userId}/admin',
       'POST /v1/admin/accounts/{userId}/disable',
       'POST /v1/admin/accounts/{userId}/enable',
     ]);
+    // so a Lambda das acoes poe ou tira alguem de um grupo
+    const policies = Object.values(template.findResources('AWS::IAM::Policy'));
+    const withGroups = policies.filter((p) => /AdminAddUserToGroup|AdminRemoveUserFromGroup/.test(JSON.stringify(p.Properties.PolicyDocument)));
+    expect(withGroups).toHaveLength(1);
     expect(actionsId).toMatch(/^AdminActionsFn/);
   });
 });
@@ -716,9 +726,10 @@ describe('Ligas semanais', () => {
 });
 
 describe('Painel de administracao', () => {
-  test('grupo admin no User Pool', () => {
+  test('grupos admin e owner (dono do painel) no User Pool', () => {
     const { template } = synth(withDomain);
     template.hasResourceProperties('AWS::Cognito::UserPoolGroup', { GroupName: 'admin' });
+    template.hasResourceProperties('AWS::Cognito::UserPoolGroup', { GroupName: 'owner' });
   });
 
   test('app client proprio do painel: login pela API do User Pool (SRP), sem login hospedado', () => {

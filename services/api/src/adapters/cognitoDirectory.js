@@ -11,17 +11,23 @@
  * painel exige o aplicativo autenticador de quem e admin). A exclusao de conta (DELETE /v1/users/me)
  * usa so `deleteUser`, com `cognito-idp:AdminDeleteUser` numa Lambda propria. As acoes do painel
  * (desativar, reativar e excluir) ficam noutra Lambda, a unica com AdminDisableUser,
- * AdminEnableUser e AdminUserGlobalSignOut.
+ * AdminEnableUser e AdminUserGlobalSignOut, e com AdminAddUserToGroup e AdminRemoveUserFromGroup
+ * (o dono promove ou tira alguem do admin). Os grupos de uma conta (`groupsFor`) e a lista de um
+ * grupo (`listGroup`) usam AdminListGroupsForUser e ListUsersInGroup, tambem sem custo.
  */
 
 import {
+  AdminAddUserToGroupCommand,
   AdminDeleteUserCommand,
   AdminDisableUserCommand,
   AdminEnableUserCommand,
   AdminGetUserCommand,
+  AdminListGroupsForUserCommand,
+  AdminRemoveUserFromGroupCommand,
   AdminUserGlobalSignOutCommand,
   CognitoIdentityProviderClient,
   ListUsersCommand,
+  ListUsersInGroupCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 
 export function makeCognitoClient(options = {}) {
@@ -134,5 +140,43 @@ export class CognitoDirectory {
   /** Reativa a conta desativada: o login volta a funcionar, com a mesma senha. */
   async enableUser(username) {
     await this._client.send(new AdminEnableUserCommand({ UserPoolId: this._userPoolId, Username: username }));
+  }
+
+  /**
+   * Grupos da conta agora (nao os do token). `username` e o nome no User Pool. Conta que nao existe:
+   * nenhum grupo.
+   * @returns {Promise<string[]>}
+   */
+  async groupsFor(username) {
+    try {
+      const out = await this._client.send(
+        new AdminListGroupsForUserCommand({ UserPoolId: this._userPoolId, Username: username, Limit: 60 }),
+      );
+      return (out.Groups ?? []).map((g) => g.GroupName).filter(Boolean);
+    } catch (e) {
+      if (e?.name === 'UserNotFoundException') return [];
+      throw e;
+    }
+  }
+
+  /**
+   * Uma pagina das contas de um grupo. `cursor` e o NextToken da pagina anterior.
+   * @returns {Promise<{accounts: object[], cursor: string|null}>}
+   */
+  async listGroup(group, { limit = 25, cursor = null } = {}) {
+    const out = await this._client.send(
+      new ListUsersInGroupCommand({ UserPoolId: this._userPoolId, GroupName: group, Limit: limit, ...(cursor ? { NextToken: cursor } : {}) }),
+    );
+    return { accounts: (out.Users ?? []).map(accountFromCognito), cursor: out.NextToken ?? null };
+  }
+
+  async addToGroup(username, group) {
+    await this._client.send(new AdminAddUserToGroupCommand({ UserPoolId: this._userPoolId, Username: username, GroupName: group }));
+  }
+
+  /** Tira do grupo e encerra as sessoes, para o acesso do grupo nao seguir pelo refresh token. */
+  async removeFromGroup(username, group) {
+    await this._client.send(new AdminRemoveUserFromGroupCommand({ UserPoolId: this._userPoolId, Username: username, GroupName: group }));
+    await this._client.send(new AdminUserGlobalSignOutCommand({ UserPoolId: this._userPoolId, Username: username }));
   }
 }

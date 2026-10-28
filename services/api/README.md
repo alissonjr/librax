@@ -60,7 +60,7 @@ services/api/
 │   │   ├── push.js              inscrição Web Push e preferências de lembrete
 │   │   ├── devices.js           aparelhos conhecidos da conta e regras do aviso de acesso novo
 │   │   ├── reminders.js         regras de horário dos lembretes (SPEC 05 12.2 e 12.3)
-│   │   ├── admin.js             grupo admin no token (cognito:groups) e busca de conta
+│   │   ├── admin.js             grupos admin e owner, grupos de agora (makeGroupsGate) e busca de conta
 │   │   ├── opsMetrics.js        contadores agregados do painel e a tela de operação
 │   │   ├── telemetry.js         dados de uso anônimos: validação do lote, somas na escrita e a tela Uso
 │   │   ├── feedback.js          nota do app: validação, limpeza do comentário e somas
@@ -95,7 +95,7 @@ services/api/
 │   ├── adapters/
 │   │   ├── inMemoryRepo.js  porta em memória (testes e dev local)
 │   │   ├── dynamoRepo.js    porta sobre a tabela single-table `librax`
-│   │   ├── cognitoDirectory.js  busca de conta (ListUsers), autenticador do admin (AdminGetUser) e exclusão (AdminDeleteUser) no Cognito
+│   │   ├── cognitoDirectory.js  busca de conta (ListUsers), autenticador do admin (AdminGetUser), grupos (AdminListGroupsForUser, ListUsersInGroup, Add/RemoveUserFromGroup) e exclusão (AdminDeleteUser) no Cognito
 │   │   ├── sesMailer.js         envio pelo SES (HTML e texto na mesma mensagem)
 │   │   ├── cloudWatchMetrics.js soma diária do GetMetricData
 │   │   └── costExplorer.js      gasto por serviço (GetCostAndUsage)
@@ -211,11 +211,14 @@ Uma Lambda só (`librax-admin`, `adminRouter`) atende todas, pelo `routeKey`, e 
 | GET | `/v1/admin/content` | unidades e sinais com `validated`, `source`, vídeo, avatar e `missing` |
 | GET | `/v1/admin/accounts?q=` | busca por começo do e-mail ou pelo sub (Cognito `ListUsers`), até 10 |
 | GET | `/v1/admin/accounts?cursor=&limit=` | sem `q`: todas as contas, uma página por chamada (Cognito `ListUsers` sem filtro, `limit` até 50, padrão 25); não lê a tabela, e o `ListUsers` não é cobrado |
-| GET | `/v1/admin/accounts/{userId}` | resumo da conta: perfil, progresso, SRS, conquistas, liga, squads, atividade |
+| GET | `/v1/admin/accounts?group=admin` | só quem é admin (`ListUsersInGroup`), com os grupos de cada conta (o dono marcado) |
+| GET | `/v1/admin/accounts/{userId}` | resumo da conta: perfil, progresso, SRS, conquistas, liga, squads, atividade e os grupos de agora (`account.groups`) |
 | GET | `/v1/admin/squads?cursor=&limit=` | squads da mais nova para a mais velha (até 50 por página) |
 | GET | `/v1/admin/cost` | último custo guardado pelo job diário, até 6 meses e o orçamento mensal (`budgetUsd`) |
 | POST | `/v1/admin/accounts/{userId}/disable` e `/enable` | desativa (e encerra as sessões) ou reativa a conta; Lambda `librax-admin-actions` |
 | DELETE | `/v1/admin/accounts/{userId}` | exclui a conta e os dados, com `{ "confirm": "<e-mail da conta>" }`; Lambda `librax-admin-actions` |
+| POST | `/v1/admin/accounts/{userId}/admin` | torna admin, só o dono do painel (grupo `owner`), com `{ "confirm": "<e-mail da conta>" }`; só conta de e-mail e senha confirmada |
+| DELETE | `/v1/admin/accounts/{userId}/admin` | tira do admin e encerra as sessões, só o dono do painel |
 | GET | `/v1/admin/usage` | uso anônimo: ativos com e sem conta, D1 e D7, funil, lições, alcance no curso, aparelhos e notas |
 | GET | `/v1/admin/feedback?rating=&cursor=&limit=` | notas do app, da mais nova para a mais velha (até 50 por página), filtro por estrela |
 

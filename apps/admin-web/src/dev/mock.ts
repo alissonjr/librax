@@ -1,6 +1,7 @@
 // Modo de exemplo (npm run dev:mock): o painel inteiro sem AWS, para desenvolver as telas e tirar
 // prints. Só é carregado com `--mode mock`.
 import type { AdminApi } from '../lib/api';
+import type { Account } from '../lib/types';
 import { AuthError, type AdminAuth, type Challenge } from '../lib/auth';
 import { SAMPLE_USER, sampleAccount, sampleAccountList, sampleContent, sampleCost, sampleOverview, sampleSquads } from './fixtures';
 import { sampleFeedbackPage, sampleUsage } from './usageFixtures';
@@ -9,21 +10,40 @@ const wait = <T,>(value: T) => new Promise<T>((r) => setTimeout(() => r(value), 
 
 export function mockApi(): AdminApi {
   const squads = sampleSquads();
+  // Contas de exemplo com os grupos (a dona é quem está no painel; a carla2 já é admin)
+  const accounts = sampleAccountList();
+  const groups = new Map<string, string[]>([[accounts[2].userId!, ['admin']]]);
+  const withGroups = (a: Account): Account => ({ ...a, groups: groups.get(a.userId!) ?? [] });
+  const setGroups = (userId: string, next: string[]) => {
+    groups.set(userId, next);
+    return wait({ ok: true as const, groups: next });
+  };
   return {
-    me: () => wait({ userId: '11111111-1111-4111-8111-111111111111', email: 'dono@exemplo.com', groups: ['admin'] }),
+    me: () => wait({ userId: '11111111-1111-4111-8111-111111111111', email: 'dono@exemplo.com', groups: ['admin', 'owner'] }),
     overview: (days) => wait(sampleOverview(undefined, days ?? 30)),
     content: () => wait(sampleContent),
     searchAccounts: (q) => wait({ accounts: 'ana@exemplo.com'.startsWith(q.toLowerCase()) || q === SAMPLE_USER ? [sampleAccount.account!] : [] }),
-    listAccounts: (cursor) => {
-      const all = sampleAccountList();
+    listAccounts: (cursor, opts) => {
+      if (opts?.group === 'admin') {
+        const dona: Account = { ...sampleAccountList()[1], userId: '11111111-1111-4111-8111-111111111111', email: 'dono@exemplo.com', provider: 'email', status: 'CONFIRMED', groups: ['admin', 'owner'] };
+        return wait({ accounts: [dona, ...accounts.filter((a) => groups.get(a.userId!)?.includes('admin')).map(withGroups)], cursor: null });
+      }
+      const all = accounts;
       const start = cursor ? Number(cursor) : 0;
       const next = start + 25;
       return wait({ accounts: all.slice(start, next), cursor: next < all.length ? String(next) : null });
     },
-    account: () => wait(sampleAccount),
+    account: (userId) => {
+      const a = accounts.find((x) => x.userId === userId);
+      return wait(a && userId !== SAMPLE_USER
+        ? { ...sampleAccount, userId, account: withGroups(a), profile: null, progress: { ...sampleAccount.progress, distinctLessons: 0, lessons: [] }, squads: [] }
+        : { ...sampleAccount, account: withGroups(sampleAccount.account!) });
+    },
     disableAccount: () => wait({ ok: true as const, enabled: false }),
     enableAccount: () => wait({ ok: true as const, enabled: true }),
     deleteAccount: () => wait({ ok: true as const }),
+    grantAdmin: (userId) => setGroups(userId, ['admin']),
+    revokeAdmin: (userId) => setGroups(userId, []),
     squads: (cursor) => wait(cursor ? { squads: squads.slice(4), cursor: null } : { squads: squads.slice(0, 4), cursor: 'c1' }),
     cost: () => wait(sampleCost),
     usage: () => wait(sampleUsage()),

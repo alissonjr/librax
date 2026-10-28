@@ -245,6 +245,20 @@ describe('--admin no CloudShell (aws falso)', () => {
     expect(deNovo.stdout).toContain(`Conta ${CONTA} conferida (CloudShell)`);
   });
 
+  test('--dono: a conta entra no grupo admin e no owner (dono do painel)', () => {
+    const { script, env, chamadas } = montarRepositorio(CONTA);
+    const r = rodar(['--conta', CONTA, '--dono', 'dona@exemplo.com'], env, script);
+    expect(r.stderr).toBe('');
+    expect(r.status).toBe(0);
+    expect(r.stdout).toContain('é admin e dona do painel');
+    expect(r.stdout).not.toContain('dona@exemplo.com');
+    const grupos = chamadas()
+      .filter((c) => c.args[1] === 'admin-add-user-to-group')
+      .map((c) => `${c.args[c.args.indexOf('--username') + 1]}:${c.args[c.args.indexOf('--group-name') + 1]}`);
+    expect(grupos).toEqual(['google_111:admin', 'google_111:owner', 'user-2:admin', 'user-2:owner']);
+    expect(rodar(['--ci', '--dono', 'dona@exemplo.com'], env, script).status).toBe(2);
+  });
+
   test('login de outra conta: a trava recusa e nada é escrito na AWS', () => {
     const { script, env, chamadas } = montarRepositorio('999999999999');
     const r = rodar(['--conta', CONTA, '--admin', 'dona@exemplo.com'], env, script);

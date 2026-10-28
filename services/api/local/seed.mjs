@@ -92,7 +92,7 @@ export async function seed({ plan = loadPlan(), state = loadState(), log = (...a
         email: account.email,
         password: account.password,
         name: account.name,
-        groups: account.admin ? ['admin'] : [],
+        groups: [...(account.admin ? ['admin'] : []), ...(account.owner ? ['owner'] : [])],
       });
       const signup = new Date(now.getTime() - (PERSONAS[account.key]?.signupDaysAgo ?? 0) * DAY_MS);
       await local.postConfirmation('PostConfirmation_ConfirmSignUp', user, null, () => signup);

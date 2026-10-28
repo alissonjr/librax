@@ -6,6 +6,11 @@
 // JSON dela; todas as formas sao aceitas.
 
 export const ADMIN_GROUP = 'admin';
+/**
+ * Dono do painel: so quem esta neste grupo (alem do `admin`) promove ou tira alguem do admin, e mexe
+ * em conta de outro admin. Entra pelo script (lancar-cloudshell.sh --dono), nunca pelo painel.
+ */
+export const OWNER_GROUP = 'owner';
 
 /** Lista de grupos da claim `cognito:groups`, em qualquer das formas acima. */
 export function groupsOf(claims = {}) {
@@ -29,6 +34,34 @@ export function groupsOf(claims = {}) {
 
 export function isAdmin(claims) {
   return groupsOf(claims).includes(ADMIN_GROUP);
+}
+
+// --- grupos de agora (nao os do token) -----------------------------------------------------------
+//
+// O id token guarda os grupos de quando a pessoa entrou e vale 1 hora: tirar alguem do admin so
+// valeria quando o token vencesse. Por isso o painel le os grupos da conta no Cognito
+// (AdminListGroupsForUser) e guarda so a lista com `admin` por pouco tempo; sem `admin`, le de novo.
+
+/** Por quanto tempo os grupos de quem e admin ficam guardados na Lambda (tirar do admin vale em ate isso). */
+export const GROUPS_CACHE_MS = 60 * 1000;
+
+/**
+ * @param {(username: string) => Promise<string[]>} read  le os grupos da conta
+ * @returns {{get: (username: string) => Promise<string[]>, forget: (username: string) => void}}
+ */
+export function makeGroupsGate(read, { ttlMs = GROUPS_CACHE_MS, now = () => Date.now() } = {}) {
+  const cached = new Map();
+  return {
+    async get(username) {
+      const hit = cached.get(username);
+      if (hit && hit.until > now()) return hit.groups;
+      const groups = await read(username);
+      if (groups.includes(ADMIN_GROUP)) cached.set(username, { groups, until: now() + ttlMs });
+      else cached.delete(username);
+      return groups;
+    },
+    forget: (username) => cached.delete(username),
+  };
 }
 
 /** Busca de conta: e-mail (ou o comeco dele) ou o sub do Cognito. */

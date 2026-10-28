@@ -3,7 +3,7 @@ import type { AccountSummary, Account, ContentStatus, CostView, Me, Overview, Ov
 import type { FeedbackPage, Usage } from './usageTypes';
 
 /*
- * Cliente das rotas /v1/admin (só leitura). O id token vai no Authorization: Bearer; a API confere
+ * Cliente das rotas /v1/admin. O id token vai no Authorization: Bearer; a API confere
  * o grupo admin e responde 403 para os outros. O token vencido é renovado antes (lib/auth.ts).
  */
 
@@ -18,14 +18,21 @@ export interface AdminApi {
   overview(days?: OverviewDays): Promise<Overview>;
   content(): Promise<ContentStatus>;
   searchAccounts(q: string): Promise<{ accounts: Account[] }>;
-  /** Todas as contas, uma página por vez (ordem do Cognito); `cursor` vem da página anterior. */
-  listAccounts(cursor?: string | null): Promise<{ accounts: Account[]; cursor: string | null }>;
+  /**
+   * Todas as contas, uma página por vez (ordem do Cognito); `cursor` vem da página anterior. Com
+   * `group: 'admin'`, só quem é admin, com os grupos de cada uma.
+   */
+  listAccounts(cursor?: string | null, opts?: { group?: 'admin' }): Promise<{ accounts: Account[]; cursor: string | null }>;
   account(userId: string): Promise<AccountSummary>;
   /** Ações sobre uma conta (outra Lambda, a única do painel que escreve). */
   disableAccount(userId: string): Promise<{ ok: true; enabled: boolean }>;
   enableAccount(userId: string): Promise<{ ok: true; enabled: boolean }>;
   /** Exclui a conta e os dados; `confirm` é o e-mail da conta, digitado por quem está no painel. */
   deleteAccount(userId: string, confirm: string): Promise<{ ok: true }>;
+  /** Torna admin (só o dono do painel); `confirm` é o e-mail da conta. */
+  grantAdmin(userId: string, confirm: string): Promise<{ ok: true; groups: string[] }>;
+  /** Tira do admin e encerra as sessões da pessoa (só o dono do painel). */
+  revokeAdmin(userId: string): Promise<{ ok: true; groups: string[] }>;
   squads(cursor?: string | null): Promise<{ squads: SquadRow[]; cursor: string | null }>;
   cost(): Promise<CostView>;
   /** Uso anônimo do app (ativos, retenção, funil, lições, notas). */
@@ -72,11 +79,13 @@ export function httpApi({
     overview: (days) => get('/overview', { days: days ? String(days) : null }),
     content: () => get('/content'),
     searchAccounts: (q) => get('/accounts', { q }),
-    listAccounts: (cursor) => get('/accounts', { cursor: cursor ?? null }),
+    listAccounts: (cursor, opts) => get('/accounts', { cursor: cursor ?? null, group: opts?.group ?? null }),
     account: (userId) => get(`/accounts/${encodeURIComponent(userId)}`),
     disableAccount: (userId) => request('POST', `/accounts/${encodeURIComponent(userId)}/disable`),
     enableAccount: (userId) => request('POST', `/accounts/${encodeURIComponent(userId)}/enable`),
     deleteAccount: (userId, confirm) => request('DELETE', `/accounts/${encodeURIComponent(userId)}`, undefined, { confirm }),
+    grantAdmin: (userId, confirm) => request('POST', `/accounts/${encodeURIComponent(userId)}/admin`, undefined, { confirm }),
+    revokeAdmin: (userId) => request('DELETE', `/accounts/${encodeURIComponent(userId)}/admin`),
     squads: (cursor) => get('/squads', { cursor: cursor ?? null }),
     cost: () => get('/cost'),
     usage: () => get('/usage'),

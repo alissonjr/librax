@@ -1,8 +1,8 @@
 # Painel de administração
 
 > Status: **leitura e ações de conta** (out/2026). As telas só leem; a única escrita é desativar, reativar ou
-> excluir uma conta (pedido pela LGPD), numa Lambda própria (`librax-admin-actions`), com confirmação e registro
-> de quem fez. O deploy é do dono da conta.
+> excluir uma conta (pedido pela LGPD) e, só para o dono do painel, tornar admin ou tirar do admin, numa Lambda
+> própria (`librax-admin-actions`), com confirmação e registro de quem fez. O deploy é do dono da conta.
 
 Um lugar para ver a operação do Librax e o que o app tem na nuvem, sem abrir o console da AWS. Fica em
 `https://app.<domínio>/admin/`, no mesmo CloudFront do app, e só abre para contas no grupo `admin` do Cognito.
@@ -28,7 +28,7 @@ A barra lateral separa o que se acompanha (Operação, Uso, Câmera, Custo) do q
 | **Uso** | dados de uso anônimos de todo mundo, com e sem conta: ativos por dia, semana e mês separados em sem conta e com conta; D1 e D7 por dia de chegada; funil (abriu, boas-vindas, 1a lição, 5 lições, conta); lições mais abertas, onde saem (e em que exercício); até onde chegam no curso; aparelhos; idioma e meta das boas-vindas; prática; notas do app (média, por estrela, por semana e os comentários paginados, com filtro por nota, o selo "novo" e "Marcar como lido", guardado neste navegador) | itens `TELAGG` e `FBLIST` (seção 3a), `GET /v1/admin/usage` e `GET /v1/admin/feedback` |
 | **Câmera** | letras e sinais do mais difícil para o mais fácil nos mesmos 30 dias (taxa de pulo, depois média de tentativas até acertar), com nível, filtro de letras ou sinais e as leituras trocadas mais comuns (K lida como H) | item `CAMERA` do dia (seção 3), pela mesma rota da Operação |
 | **Conteúdo** | as 14 unidades e os 255 sinais: validado (`validated`), origem (`source`), vídeo, avatar e o que falta em cada sinal, com filtros | `services/api/src/content/contentStatus.js`, gerado do bundle do app por `npm run catalog` |
-| **Contas** | todas as contas, 25 por página (Anterior e Próxima, na ordem do Cognito, que não ordena por data), e busca pelo começo do e-mail ou pelo id; resumo com perfil, progresso (lição concluída ou "pulada pelo nivelamento"), liga, squads e última atividade; ações de desativar, reativar e excluir (seção 1a) | Cognito (`ListUsers`) e a partição `USER#<id>` |
+| **Contas** | todas as contas, 25 por página (Anterior e Próxima, na ordem do Cognito, que não ordena por data), ou **Só admins** (com o dono marcado), e busca pelo começo do e-mail ou pelo id; resumo com perfil, acesso ao painel (dono, admin ou sem acesso), progresso (lição concluída ou "pulada pelo nivelamento"), liga, squads e última atividade; ações de desativar, reativar e excluir, e tornar admin ou tirar do admin (seção 1a) | Cognito (`ListUsers`, `ListUsersInGroup`, `AdminListGroupsForUser`) e a partição `USER#<id>` |
 | **Squads** | nome, tipo, tamanho e criação, da mais nova para a mais velha. Fora da barra lateral até as squads abrirem no app (`SQUADS_OPEN` em `apps/admin-web/src/App.tsx`); a tela continua em `/admin/squads` | registro `SQUADINDEX` e o META de cada squad |
 | **Custo** | gasto estimado do mês, o orçamento mensal (o mesmo do AWS Budget) e quanto a previsão usa dele; o detalhe por serviço; meses anteriores | Cost Explorer, uma vez por dia; orçamento de `librax:monthlyBudgetUsd` |
 
@@ -79,24 +79,40 @@ Na conta aberta em **Contas**, o quadro **Ações na conta** tem:
   ligas, a partição `USER#<id>` e o usuário no Cognito). Para pedidos de exclusão pela LGPD que chegam por e-mail.
   Só libera com o e-mail da conta digitado (o servidor confere de novo).
 
-As três passam pelas mesmas travas das leituras (grupo `admin` e aplicativo autenticador), nunca valem para a
+E, só para o **dono do painel** (grupo `owner` do Cognito, além do `admin`), o bloco **Acesso ao painel**:
+
+- **Tornar admin**: só conta de e-mail e senha, confirmada e ativa (conta do Google não passa no segundo fator).
+  Só libera com o e-mail da conta digitado. A pessoa entra no painel e configura o aplicativo autenticador no
+  primeiro acesso.
+- **Tirar do admin**: tira do grupo e encerra as sessões; o painel aberto dela para em até 1 minuto.
+
+O dono entra pelo script (`lancar-cloudshell.sh --dono <e-mail>`), nunca pelo painel, e a conta dele não muda
+por aqui. Admin comum vê as contas de outros admins, mas não desativa, não exclui nem tira do admin: só o dono.
+
+Todas passam pelas mesmas travas das leituras (grupo `admin` e aplicativo autenticador), nunca valem para a
 própria conta de quem está no painel e ficam no log da Lambda `librax-admin-actions` como `[admin-acao]`, com quem
 fez, o que fez e o id da conta (sem e-mail). Só essa Lambda tem `AdminDisableUser`, `AdminEnableUser`,
-`AdminUserGlobalSignOut` e escrita na tabela; a `librax-admin` continua só lendo.
+`AdminUserGlobalSignOut`, `AdminAddUserToGroup`, `AdminRemoveUserFromGroup` e escrita na tabela; a `librax-admin`
+continua só lendo.
 
 | Método | Rota | O que faz |
 |---|---|---|
 | POST | `/v1/admin/accounts/{userId}/disable` | desativa e encerra as sessões |
 | POST | `/v1/admin/accounts/{userId}/enable` | reativa |
 | DELETE | `/v1/admin/accounts/{userId}` | exclui a conta e os dados; corpo `{ "confirm": "<e-mail da conta>" }` |
+| POST | `/v1/admin/accounts/{userId}/admin` | torna admin (só o dono); corpo `{ "confirm": "<e-mail da conta>" }` |
+| DELETE | `/v1/admin/accounts/{userId}/admin` | tira do admin e encerra as sessões (só o dono) |
 
 ## 2. Acesso: três travas
 
 1. **Autorizador próprio.** O painel tem um app client só dele no Cognito (`librax-admin`, login pela tela do
    próprio painel, seção [Tela de entrar](#tela-de-entrar)). As rotas `/v1/admin/*` usam um autorizador JWT que só
    aceita o id token desse client: o token do app não abre o painel.
-2. **Grupo no token.** Cada rota confere `cognito:groups` no token e responde **403 `ADMIN_ONLY`** para quem não
-   está no grupo `admin` (`requireAdmin` em `handlers/_http.js`). O site esconde as telas, mas quem decide é a API.
+2. **Grupo no token e na conta.** Cada rota confere `cognito:groups` no token e responde **403 `ADMIN_ONLY`** para
+   quem não está no grupo `admin` (`requireAdmin` em `handlers/_http.js`). Depois confere os grupos de agora da
+   conta (`AdminListGroupsForUser`, guardados 1 minuto só quando têm `admin`, `makeGroupsGate` em
+   `domain/admin.js`): quem sai do admin perde o painel em até 1 minuto, sem esperar o token vencer. O site
+   esconde as telas, mas quem decide é a API.
 3. **Segundo fator obrigatório.** A conta precisa ter o aplicativo autenticador (TOTP) ligado; sem ele, toda rota
    responde **403 `ADMIN_MFA_REQUIRED`** e o site guia a configuração. Conta do Google ou da Apple nem entra (o
    client do painel só aceita e-mail e senha, e ela não tem senha); se um token dela chegasse, a API responderia
@@ -184,8 +200,15 @@ aws cognito-idp admin-set-user-mfa-preference --user-pool-id "$POOL" --username 
 
 ### Como dar acesso de admin a alguém
 
-A pessoa precisa ter uma conta de **e-mail e senha** no Librax (conta do Google não passa no segundo fator) e,
-de preferência, só para o painel. Depois, quem tem acesso à conta AWS:
+O jeito normal é pelo painel: o dono abre a conta em **Contas** e usa **Tornar admin** (seção 1a). O dono é
+definido uma vez pelo script, no CloudShell:
+
+```bash
+bash infra/scripts/lancar-cloudshell.sh --dono seu+admin@email.com
+```
+
+Sem o painel (por exemplo, para definir outro dono), pela AWS. A pessoa precisa ter uma conta de **e-mail e
+senha** no Librax (conta do Google não passa no segundo fator) e, de preferência, só para o painel:
 
 ```bash
 POOL=<UserPoolId>            # output UserPoolId do CDK
@@ -203,7 +226,7 @@ aws cognito-idp admin-list-groups-for-user --user-pool-id "$POOL" --username <Us
 
 O grupo entra no id token na hora do login: a pessoa precisa **sair do painel e entrar de novo**. No primeiro
 acesso o painel guia a configuração do aplicativo autenticador. Para tirar o acesso, `admin-remove-user-from-group`
-com os mesmos parâmetros; o token que ela já tem vale até expirar (1 hora).
+com os mesmos parâmetros; o painel aberto dela para em até 1 minuto (os grupos de agora são conferidos na conta).
 
 ## 3. Como os números são guardados (sem Scan)
 
@@ -416,5 +439,4 @@ quem fez e teste do 403:
    pedido), fila ou Step Functions para contas grandes e um prazo de arrependimento.
 3. **Moderar squad**: renomear, tirar membro, dissolver (os usecases de squad já existem, falta o caminho de
    admin sem ser membro) e ver denúncias.
-4. Também para depois: dar e tirar o grupo admin pela própria tela, exportar os números em CSV e um aviso no
-   painel quando o job diário não rodou.
+4. Também para depois: exportar os números em CSV e um aviso no painel quando o job diário não rodou.

@@ -406,7 +406,7 @@ test('painel: GET /v1/admin/usage e /v1/admin/feedback, so admin, sem Scan', asy
   const repo = new InMemoryRepo();
   await ingestTelemetry(repo, { batch: parsed(batch([ev('app_open', '2026-10-27T12:00:00Z')])), now: NOW });
   await submitFeedback(repo, { value: parseFeedback({ id: ID, rating: 3, text: '<img src=x onerror=alert(1)>', snapshot: snapshot() }, { catalog }).value, now: NOW });
-  const { adminRouter } = makeAdminHandlers({ repo, directory: {}, mfa: false, now: () => NOW, log: () => {} });
+  const { adminRouter } = makeAdminHandlers({ repo, directory: {}, mfa: false, liveGroups: false, now: () => NOW, log: () => {} });
 
   assert.equal((await adminRouter(adminEvent('GET /v1/admin/usage', undefined, '[]'))).statusCode, 403);
   const usage = JSON.parse((await adminRouter(adminEvent('GET /v1/admin/usage'))).body);

@@ -173,11 +173,11 @@ describe('Contas', () => {
     expect(await screen.findByText('Página 2')).toBeInTheDocument();
     expect(within(screen.getByRole('list', { name: 'Contas' })).getAllByRole('button')).toHaveLength(7);
     expect(screen.getByRole('button', { name: 'Próxima' })).toBeDisabled();
-    expect(list).toHaveBeenLastCalledWith('25');
+    expect(list).toHaveBeenLastCalledWith('25', undefined);
 
     await userEvent.click(screen.getByRole('button', { name: 'Anterior' }));
     expect(await screen.findByText('Página 1')).toBeInTheDocument();
-    expect(list).toHaveBeenLastCalledWith(null);
+    expect(list).toHaveBeenLastCalledWith(null, undefined);
     // uma chamada por página aberta, nada além disso
     expect(list).toHaveBeenCalledTimes(3);
   });
