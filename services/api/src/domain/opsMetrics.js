@@ -195,6 +195,23 @@ export function newAccountWrites({ day }) {
   ];
 }
 
+/**
+ * Rodada da Lambda de lembrete (de hora em hora): notificacoes entregues, e-mails enviados e falhas,
+ * no dia de Brasilia. Rodada sem nada a contar nao escreve.
+ */
+export function reminderWrites({ day, report }) {
+  const counters = {};
+  for (const [name, field] of [['remindersPush', 'pushDelivered'], ['remindersEmail', 'emailSent'], ['remindersFailed', 'failed']]) {
+    const n = num(report?.[field]);
+    if (n > 0) counters[name] = n;
+  }
+  if (Object.keys(counters).length === 0) return [];
+  return [{ key: opsKey.day(day), counters, expiresAt: opsExpiry(day, DAY_RETENTION_DAYS) }];
+}
+
+/** Dias que a tela de operacao aceita (a comparacao usa o mesmo tanto de dias antes). */
+export const OVERVIEW_PERIODS = [7, 30, 90];
+
 // ---------------------------------------------------------------------------
 // Leitura: monta a tela de operacao a partir dos itens
 // ---------------------------------------------------------------------------
@@ -314,10 +331,23 @@ export function buildOverview({ dayItems = [], weekItems = [], monthItems = [], 
   const camera = {};
   const errorsByFunction = {};
 
+  // Periodo anterior do mesmo tamanho, so com os totais do dia (para "x% contra o periodo anterior")
+  const prevFrom = addDays(from, -days);
+  const prev = { activeUsers: 0, newAccounts: 0, lessonsCompleted: 0, lessonAbandons: 0, seen: false };
+  // Pessoas com lembrete ligado: o retrato mais recente que o job diario gravou
+  let reminders = null;
+
   for (const item of dayItems) {
     const m = DAY_KEY_RE.exec(item.key ?? '');
+    if (m && !m[2] && m[1] >= prevFrom && m[1] < from) {
+      prev.seen = true;
+      for (const field of ['activeUsers', 'newAccounts', 'lessonsCompleted', 'lessonAbandons']) prev[field] += num(item[field]);
+    }
     if (!m || m[1] < from || m[1] > today) continue;
     const [, day, part] = m;
+    if (!part && item.reminders && (!reminders || day > reminders.day)) {
+      reminders = { day, enabled: num(item.reminders.enabled), email: num(item.reminders.email) };
+    }
     if (!part) totalsByDay.set(day, item);
     else if (part === 'LESSON') unflatten(item, lessons);
     else if (part === 'EXERCISE') unflatten(item, exercises);
@@ -347,6 +377,9 @@ export function buildOverview({ dayItems = [], weekItems = [], monthItems = [], 
       api5xx: cloud ? num(cloud.api5xx) : null,
       lambdaErrors: cloud ? num(cloud.lambdaErrors) : null,
       apiRequests: cloud ? num(cloud.apiRequests) : null,
+      remindersPush: num(t.remindersPush),
+      remindersEmail: num(t.remindersEmail),
+      remindersFailed: num(t.remindersFailed),
     });
   }
 
@@ -419,7 +452,21 @@ export function buildOverview({ dayItems = [], weekItems = [], monthItems = [], 
       lessonsCompleted: sum('lessonsCompleted'),
       lessonAbandons: sum('lessonAbandons'),
       serverErrors: series.reduce((acc, d) => acc + (d.serverErrors ?? 0), 0),
+      // media de pessoas ativas por dia no periodo (comparavel entre periodos, ao contrario da soma)
+      activeAvg: days > 0 ? sum('activeUsers') / days : 0,
+      remindersSent: sum('remindersPush') + sum('remindersEmail'),
+      remindersFailed: sum('remindersFailed'),
     },
+    // Mesmos totais nos `days` dias antes do periodo; null sem nenhum dado la (inicio do app)
+    previous: prev.seen
+      ? {
+          activeAvg: prev.activeUsers / days,
+          newAccounts: prev.newAccounts,
+          lessonsCompleted: prev.lessonsCompleted,
+          lessonAbandons: prev.lessonAbandons,
+        }
+      : null,
+    reminders,
     days: series,
     weeks,
     months,

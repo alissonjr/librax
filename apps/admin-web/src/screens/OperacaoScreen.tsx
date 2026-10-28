@@ -1,20 +1,55 @@
+import { useState } from 'react';
 import { BarChart, RankList } from '../components/Chart';
+import { Attention } from '../components/Attention';
 import { Card, Chip, Loaded, PageHeader, StatTile, useLoad } from '../components/ui';
 import { useApi } from '../lib/context';
 import { EXERCISE_LABELS, fmtDay, fmtInt, fmtMonth, fmtPct, fmtWeek } from '../lib/format';
-import type { Overview } from '../lib/types';
+import type { Overview, OverviewDays } from '../lib/types';
+
+const PERIODS: OverviewDays[] = [7, 30, 90];
+
+/**
+ * Variação contra o período anterior do mesmo tamanho: "+12% contra os 30 dias antes". Sem dado
+ * antes (ou zero lá), não compara.
+ */
+export function versus(now: number, before: number | null | undefined, days: number): string | undefined {
+  if (before == null || before <= 0) return undefined;
+  const change = (now - before) / before;
+  const pctText = `${change >= 0 ? '+' : '-'}${Math.round(Math.abs(change) * 100)}%`;
+  return `${pctText} contra os ${days} dias antes`;
+}
 
 /** Amostra mínima para uma taxa entrar no ranking (menos que isso é ruído). */
 const MIN_SAMPLE = 5;
 
 export function OperacaoScreen() {
   const api = useApi();
-  const [load, reload] = useLoad(() => api.overview());
+  const [days, setDays] = useState<OverviewDays>(30);
+  const [load, reload] = useLoad(() => api.overview(days), [days]);
   return (
     <>
-      <PageHeader title="Operação">Últimos 30 dias, pelos contadores agregados (sem varrer a tabela).</PageHeader>
+      <PageHeader title="Operação">Pelos contadores agregados (sem varrer a tabela), comparando com o mesmo tanto de dias antes.</PageHeader>
+      <div className="segmented period" role="radiogroup" aria-label="Período">
+        {PERIODS.map((d) => (
+          <button
+            key={d}
+            type="button"
+            role="radio"
+            aria-checked={days === d}
+            className={`segmented-item${days === d ? ' is-on' : ''}`}
+            onClick={() => setDays(d)}
+          >
+            {d} dias
+          </button>
+        ))}
+      </div>
       <Loaded load={load} onRetry={reload}>
-        {(o) => <OperacaoView o={o} />}
+        {(o) => (
+          <div className="stack">
+            <Attention o={o} />
+            <OperacaoView o={o} />
+          </div>
+        )}
       </Loaded>
     </>
   );
@@ -22,6 +57,8 @@ export function OperacaoScreen() {
 
 export function OperacaoView({ o }: { o: Overview }) {
   const { totals } = o;
+  const period = o.days.length;
+  const prev = o.previous;
   const day = (field: 'activeUsers' | 'lessonsCompleted' | 'newAccounts') => o.days.map((d) => ({ label: fmtDay(d.day), value: d[field] }));
 
   const abandonRows = o.lessons
@@ -63,8 +100,13 @@ export function OperacaoView({ o }: { o: Overview }) {
         <StatTile label="Ativas hoje" value={fmtInt(totals.activeToday)} hint={fmtDay(o.today)} />
         <StatTile label="Ativas na semana" value={fmtInt(totals.activeWeek)} />
         <StatTile label="Ativas no mês" value={fmtInt(totals.activeMonth)} />
-        <StatTile label="Contas novas" value={fmtInt(totals.newAccounts)} hint="30 dias" />
-        <StatTile label="Lições concluídas" value={fmtInt(totals.lessonsCompleted)} hint="30 dias" />
+        <StatTile
+          label="Ativas por dia, em média"
+          value={fmtInt(Math.round(totals.activeAvg ?? 0))}
+          hint={versus(totals.activeAvg ?? 0, prev?.activeAvg, period) ?? `${period} dias`}
+        />
+        <StatTile label="Contas novas" value={fmtInt(totals.newAccounts)} hint={versus(totals.newAccounts, prev?.newAccounts, period) ?? `${period} dias`} />
+        <StatTile label="Lições concluídas" value={fmtInt(totals.lessonsCompleted)} hint={versus(totals.lessonsCompleted, prev?.lessonsCompleted, period) ?? `${period} dias`} />
         <StatTile label="Erros do servidor" value={fmtInt(totals.serverErrors)} hint={o.serverErrors.collectedThrough ? `até ${fmtDay(o.serverErrors.collectedThrough)}` : 'sem dado ainda'} />
       </div>
 
@@ -142,6 +184,25 @@ export function OperacaoView({ o }: { o: Overview }) {
           />
         </Card>
       </div>
+
+      <Card title="Lembretes">
+        <div className="stats">
+          <StatTile
+            label="Com lembrete ligado"
+            value={o.reminders ? fmtInt(o.reminders.enabled) : '-'}
+            hint={o.reminders ? `${fmtInt(o.reminders.email)} com e-mail, em ${fmtDay(o.reminders.day)}` : 'o job diário ainda não contou'}
+          />
+          <StatTile label="Lembretes enviados" value={fmtInt(totals.remindersSent ?? 0)} hint={`${period} dias, notificação e e-mail`} />
+          <StatTile label="Falhas no envio" value={fmtInt(totals.remindersFailed ?? 0)} hint={`${period} dias`} />
+        </div>
+        <BarChart
+          title="Enviados por dia"
+          measure="Lembretes enviados"
+          tone="trace"
+          data={o.days.map((d) => ({ label: fmtDay(d.day), value: (d.remindersPush ?? 0) + (d.remindersEmail ?? 0) }))}
+        />
+        <p className="note">Lembrete ligado: a pessoa escolheu um horário em Configurações. A contagem sai uma vez por dia; os enviados contam notificações entregues e e-mails, e as falhas, os envios que deram erro (inscrição vencida não conta: ela é apagada).</p>
+      </Card>
 
       <Card
         title="Erros do servidor"

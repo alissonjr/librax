@@ -31,6 +31,8 @@ import { makePostConfirmationHandler } from '../src/handlers/postConfirmation.js
 import { makeCloseLeagueHandler } from '../src/handlers/closeLeague.js';
 import { makeOpsDailyHandler } from '../src/handlers/opsDaily.js';
 import { sendReminders } from '../src/usecases/sendReminders.js';
+import { quietly, recordReminders } from '../src/usecases/opsMetrics.js';
+import { opsToday } from '../src/domain/opsMetrics.js';
 import { FakeCloudWatchMetrics, FakeCostExplorerCosts, FakeWebPush } from './fakes.mjs';
 import { URLS, REGION } from './config.mjs';
 
@@ -76,7 +78,10 @@ export function makeLocalFunctions({ plan, state, log = console.log }) {
       // Sem o segundo fator: o moto so confere o codigo do aplicativo autenticador com uma chave fixa,
       // igual para todas as contas (MOTO_COGNITO_IDP_USER_POOL_ENABLE_TOTP), e sem ela aceita qualquer
       // codigo. O login do painel local (SRP pelo proxy) fica so com e-mail e senha.
-      (({ adminRouter }) => ({ adminRouter }))(makeAdminHandlers({ repo, directory, mfa: false, now, log })),
+      // As acoes (desativar, reativar, excluir) usam o mesmo diretorio do moto, que aceita os Admin*
+      (({ adminRouter, adminActionsRouter }) => ({ adminRouter, adminActionsRouter }))(
+        makeAdminHandlers({ repo, directory, mfa: false, now, log, budgetUsd: 10 }),
+      ),
     ];
     const out = {};
     for (const group of groups) {
@@ -111,13 +116,15 @@ export function makeLocalFunctions({ plan, state, log = console.log }) {
       // handlers/reminders.js nao tem fabrica (le o VAPID do SSM ao rodar): o mesmo usecase,
       // com o Web Push falso e sem e-mail (librax:emailRemindersEnabled e false na infra)
       'librax-reminders': async () => {
+        const at = now();
         const report = await sendReminders(repo, {
-          now: now(),
+          now: at,
           push,
           mail: null,
           log: (msg, data) => log('[reminders]', msg, data ?? ''),
         });
         log('[reminders]', JSON.stringify(report));
+        await quietly('lembretes', () => recordReminders(repo, { day: opsToday(at), report }));
         return report;
       },
     };

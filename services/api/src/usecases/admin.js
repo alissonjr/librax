@@ -14,10 +14,13 @@ import { periodKey, periodStartOf } from '../domain/leagues.js';
 // do painel muda dado nesta etapa. Toda leitura e por chave ou Query numa particao conhecida
 // (OPS, USER#<id>, SQUADINDEX); nada de Scan.
 
-/** Tela de operacao: 30 dias, 12 semanas e 12 meses, com tres Querys na particao OPS. */
+/**
+ * Tela de operacao: `days` dias (7, 30 ou 90) e o mesmo tanto antes para comparar, 12 semanas e 12
+ * meses, com tres Querys na particao OPS.
+ */
 export async function opsOverview(repo, { now, labels = {}, days = OVERVIEW_DAYS }) {
   const today = opsToday(now);
-  const from = addDays(today, -(days - 1));
+  const from = addDays(today, -(2 * days - 1));
   const [dayItems, weekItems, monthItems] = await Promise.all([
     // `#~` fecha a faixa depois dos itens do proprio dia (DAY#<dia>#LESSON etc.)
     repo.listOpsRange(opsKey.day(from), `${opsKey.day(today)}#~`),
@@ -133,9 +136,12 @@ export async function listSquads(repo, { limit = 25, cursor = null, now }) {
   return { squads, cursor: page.cursor };
 }
 
-/** Custo: o mes mais recente guardado pelo job diario e o historico (ate 6 meses). */
-export async function costView(repo) {
+/**
+ * Custo: o mes mais recente guardado pelo job diario, o historico (ate 6 meses) e o orcamento mensal
+ * (o mesmo do AWS Budget, librax:monthlyBudgetUsd; null sem ele).
+ */
+export async function costView(repo, { budgetUsd = null } = {}) {
   const items = await repo.listOpsLatest('COST#', 6);
   const months = items.map(({ key, byService, ...rest }) => rest);
-  return { latest: items[0] ? (({ key, ...rest }) => rest)(items[0]) : null, months };
+  return { latest: items[0] ? (({ key, ...rest }) => rest)(items[0]) : null, months, budgetUsd };
 }

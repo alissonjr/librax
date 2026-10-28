@@ -38,7 +38,7 @@ CACHE_REVALIDA='no-cache'
 # Soma da concorrência reservada das Lambdas da API com librax:lambdaReservedConcurrency ligado
 # (RESERVED_CONCURRENCY_TOTAL em infra/lib/cost-guards.ts; o teste confere que os dois batem). A AWS
 # exige 100 execuções sem reserva na conta, então a cota precisa ser pelo menos a soma mais 100.
-RESERVA_LAMBDA=179
+RESERVA_LAMBDA=180
 LAMBDA_SEM_RESERVA=100
 COTA_LAMBDA_PEDIR=1000
 # CI/CD (infra/lib/ci-stack.ts; o teste confere que os nomes batem)

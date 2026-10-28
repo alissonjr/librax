@@ -15,6 +15,8 @@
 
 import webpush from 'web-push';
 import { sendReminders } from '../usecases/sendReminders.js';
+import { quietly, recordReminders } from '../usecases/opsMetrics.js';
+import { opsToday } from '../domain/opsMetrics.js';
 import { repo } from './_repo.js';
 import { makeSesMailer, withSenderName } from '../adapters/sesMailer.js';
 
@@ -63,13 +65,16 @@ export async function handler() {
   const pushOn = await vapidReady;
   if (!pushOn) console.warn('[reminders] sem chaves VAPID no SSM: so e-mail (lancar-cloudshell.sh --com-notificacoes)');
 
+  const now = new Date();
   const report = await sendReminders(repo, {
-    now: new Date(),
+    now,
     push: pushOn ? push : null,
     mail: makeMailer(),
     appUrl: process.env.APP_URL,
     log: (msg, data) => console.warn('[reminders]', msg, data),
   });
   console.log('[reminders]', JSON.stringify(report));
+  // Painel (tela Operacao): entregues e falhas do dia; contador nunca derruba a rodada
+  await quietly('lembretes', () => recordReminders(repo, { day: opsToday(now), report }));
   return report;
 }

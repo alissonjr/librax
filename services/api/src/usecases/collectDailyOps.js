@@ -1,6 +1,6 @@
 import { addDays, parseIsoDate } from '../lib/dates.js';
 import { opsKey, opsExpiry, DAY_RETENTION_DAYS, OPS_TIME_ZONE } from '../domain/opsMetrics.js';
-import { utcOffsetMinutes } from '../domain/reminders.js';
+import { ALL_BUCKETS, utcOffsetMinutes } from '../domain/reminders.js';
 import { costWindow, buildCostReport } from '../domain/costReport.js';
 
 // Job diario do painel de administracao (handlers/opsDaily.js): traz do CloudWatch os erros do
@@ -76,4 +76,23 @@ export async function collectMonthCost(repo, costs, { now }) {
   const report = buildCostReport(window, services, { currency, asOf: now.toISOString() });
   await repo.setOpsFields(opsKey.cost(window.month), report);
   return report;
+}
+
+/**
+ * Retrato das pessoas com lembrete ligado (NOTIF com horario, uma Query por fuso no GSI6) e quantas
+ * pediram e-mail, gravado em OPS / DAY#<dia> como `reminders` (SET: rodar de novo so regrava).
+ * @returns {Promise<{enabled: number, email: number}>}
+ */
+export async function collectReminderPeople(repo, { day }) {
+  let enabled = 0;
+  let email = 0;
+  for (const bucket of ALL_BUCKETS) {
+    for (const notif of await repo.listNotifCandidates(bucket)) {
+      enabled += 1;
+      if (notif.emailOptIn) email += 1;
+    }
+  }
+  const reminders = { enabled, email };
+  await repo.setOpsFields(opsKey.day(day), { reminders }, { expiresAt: opsExpiry(day, DAY_RETENTION_DAYS) });
+  return reminders;
 }

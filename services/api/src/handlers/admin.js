@@ -2,7 +2,8 @@
  * Handlers do painel de administracao (docs/painel-admin.md). Todas as rotas so leem.
  *
  * GET /v1/admin/me                    quem esta logado (o site usa para decidir se abre)
- * GET /v1/admin/overview              operacao: ativos, contas novas, licoes, erros e desistencias
+ * GET /v1/admin/overview?days=7|30|90  operacao: ativos, contas novas, licoes, erros, desistencias e
+ *                                     lembretes, com o mesmo periodo anterior para comparar
  * GET /v1/admin/content               unidades e sinais: validado, fonte, video, avatar, o que falta
  * GET /v1/admin/accounts?q=<termo>    busca por e-mail (comeco) ou sub
  * GET /v1/admin/accounts?cursor=&limit=  sem `q`: todas as contas, uma pagina por vez (so Cognito)
@@ -11,6 +12,14 @@
  * GET /v1/admin/cost                  custo do mes (guardado uma vez por dia pelo job opsDaily)
  * GET /v1/admin/usage                 uso anonimo: ativos, retencao, funil, licoes e notas (TELAGG)
  * GET /v1/admin/feedback?rating=&cursor=&limit=  notas do app, da mais nova para a mais velha
+ *
+ * Acoes sobre uma conta (outra Lambda, `adminActionsRouter`, a unica do painel que escreve):
+ * POST   /v1/admin/accounts/{userId}/disable  desativa o login e encerra as sessoes
+ * POST   /v1/admin/accounts/{userId}/enable   reativa
+ * DELETE /v1/admin/accounts/{userId}          exclui a conta e os dados (pedido pela LGPD), com o
+ *                                             e-mail da conta no corpo como confirmacao
+ * Nunca na propria conta de quem esta no painel. Cada acao vai para o log com quem fez, o que fez e o
+ * id da conta (sem e-mail).
  *
  * Tres travas: o autorizador JWT so aceita o id token do app client do painel, cada handler
  * confere o grupo `admin` no token (`requireAdmin`, 403 para os outros) e a conta precisa ter o
@@ -29,11 +38,13 @@
  */
 
 import { opsOverview, accountSummary, listSquads, costView } from '../usecases/admin.js';
+import { deleteAccount } from '../usecases/deleteAccount.js';
 import { usageOverview, feedbackPage } from '../usecases/telemetry.js';
 import { isUserId, parseAccountQuery, groupsOf, isFederated, makeMfaGate } from '../domain/admin.js';
 import { labelsFromReport } from '../content/contentReport.js';
+import { OVERVIEW_DAYS, OVERVIEW_PERIODS } from '../domain/opsMetrics.js';
 import contentStatus from '../content/contentStatus.js';
-import { claims, ok, fail, ApiError, wrap, requireAdmin } from './_http.js';
+import { claims, ok, fail, ApiError, wrap, requireAdmin, body } from './_http.js';
 import { repo as dynamoRepo } from './_repo.js';
 import { CognitoDirectory, makeCognitoClient } from '../adapters/cognitoDirectory.js';
 
@@ -52,7 +63,9 @@ export function decodeCursor(raw) {
   }
 }
 
-export function makeAdminHandlers({ repo, directory, mfa, content = contentStatus, now = () => new Date(), log = console.log }) {
+export function makeAdminHandlers({
+  repo, directory, mfa, content = contentStatus, now = () => new Date(), log = console.log, budgetUsd = null,
+}) {
   if (mfa !== false && typeof mfa !== 'function') {
     throw new Error('makeAdminHandlers: passe `mfa` (conferencia do autenticador) ou `false` (so no ambiente local)');
   }
@@ -89,7 +102,12 @@ export function makeAdminHandlers({ repo, directory, mfa, content = contentStatu
     groups: groupsOf(claims(event)),
   }));
 
-  const adminOverviewHandler = admin('overview', () => opsOverview(repo, { now: now(), labels }));
+  const adminOverviewHandler = admin('overview', (event) => {
+    const raw = query(event).days;
+    const days = raw === undefined ? OVERVIEW_DAYS : Number(raw);
+    if (!OVERVIEW_PERIODS.includes(days)) throw new ApiError(400, 'BAD_DAYS', `days deve ser ${OVERVIEW_PERIODS.join(', ')}`);
+    return opsOverview(repo, { now: now(), labels, days });
+  });
 
   const adminContentHandler = admin('content', () => content);
 
@@ -143,7 +161,7 @@ export function makeAdminHandlers({ repo, directory, mfa, content = contentStatu
     return { squads: page.squads, cursor: encodeCursor(page.cursor) };
   });
 
-  const adminCostHandler = admin('cost', () => costView(repo));
+  const adminCostHandler = admin('cost', () => costView(repo, { budgetUsd }));
 
   const adminUsageHandler = admin('usage', () => usageOverview(repo, { now: now(), labels }));
 
@@ -178,6 +196,58 @@ export function makeAdminHandlers({ repo, directory, mfa, content = contentStatu
     'GET /v1/admin/feedback': adminFeedbackHandler,
   };
 
+  // --- acoes sobre uma conta (Lambda librax-admin-actions) ---
+
+  async function targetAccount(event, adminId) {
+    const uid = event.pathParameters?.userId;
+    if (!isUserId(uid)) throw new ApiError(400, 'BAD_USER_ID', 'userId deve ser o sub do Cognito');
+    if (uid === adminId) throw new ApiError(400, 'SELF', 'Nao da para agir na propria conta pelo painel');
+    const account = await directory.get(uid);
+    if (!account?.username) throw new ApiError(404, 'ACCOUNT_NOT_FOUND', 'Conta nao encontrada');
+    return account;
+  }
+  const audit = (adminId, action, userId, extra = {}) =>
+    log('[admin-acao]', JSON.stringify({ adminId, action, userId, ...extra }));
+
+  const disableAccountHandler = admin('accounts.disable', async (event, adminId) => {
+    const account = await targetAccount(event, adminId);
+    await directory.disableUser(account.username);
+    audit(adminId, 'disable', account.userId);
+    return { ok: true, enabled: false };
+  });
+
+  const enableAccountHandler = admin('accounts.enable', async (event, adminId) => {
+    const account = await targetAccount(event, adminId);
+    await directory.enableUser(account.username);
+    audit(adminId, 'enable', account.userId);
+    return { ok: true, enabled: true };
+  });
+
+  const deleteAccountHandler = admin('accounts.delete', async (event, adminId) => {
+    const account = await targetAccount(event, adminId);
+    // Confirmacao: o e-mail da conta (ou o id, se ela nao tiver e-mail), digitado no painel
+    const confirm = String(body(event, { maxBytes: 1024 })?.confirm ?? '').trim().toLowerCase();
+    if (confirm !== String(account.email ?? account.userId).toLowerCase()) {
+      throw new ApiError(400, 'CONFIRM_MISMATCH', 'Digite o e-mail da conta para confirmar');
+    }
+    const report = await deleteAccount(repo, { userId: account.userId, username: account.username, directory });
+    audit(adminId, 'delete', account.userId, { report });
+    return { ok: true };
+  });
+
+  const actionRoutes = {
+    'POST /v1/admin/accounts/{userId}/disable': disableAccountHandler,
+    'POST /v1/admin/accounts/{userId}/enable': enableAccountHandler,
+    'DELETE /v1/admin/accounts/{userId}': deleteAccountHandler,
+  };
+
+  /** A Lambda das acoes (com permissao de escrita), separada da de leitura. */
+  async function adminActionsRouter(event) {
+    const route = actionRoutes[event?.routeKey];
+    if (!route) return fail('NOT_FOUND', 'Rota inexistente', 404);
+    return route(event);
+  }
+
   /** Uma Lambda para todas as rotas do painel (pelo `routeKey` do API Gateway). */
   async function adminRouter(event) {
     const route = routes[event?.routeKey];
@@ -197,13 +267,16 @@ export function makeAdminHandlers({ repo, directory, mfa, content = contentStatu
     adminFeedbackHandler,
     adminRouter,
     routeKeys: Object.keys(routes),
+    adminActionsRouter,
+    actionRouteKeys: Object.keys(actionRoutes),
   };
 }
 
 const directory = new CognitoDirectory(makeCognitoClient(), process.env.USER_POOL_ID);
 
-export const { adminRouter } = makeAdminHandlers({
+export const { adminRouter, adminActionsRouter } = makeAdminHandlers({
   repo: dynamoRepo,
   directory,
   mfa: makeMfaGate((username) => directory.totpEnabled(username)),
+  budgetUsd: Number(process.env.MONTHLY_BUDGET_USD) > 0 ? Number(process.env.MONTHLY_BUDGET_USD) : null,
 });

@@ -18,7 +18,14 @@ export interface DayRow {
   api5xx: number | null;
   lambdaErrors: number | null;
   apiRequests: number | null;
+  /** Lembretes do dia: notificações entregues, e-mails enviados e envios que deram erro. */
+  remindersPush: number;
+  remindersEmail: number;
+  remindersFailed: number;
 }
+
+/** Dias que a tela de Operação aceita (GET /v1/admin/overview?days=). */
+export type OverviewDays = 7 | 30 | 90;
 
 export interface PeriodRow {
   activeUsers: number;
@@ -94,7 +101,15 @@ export interface Overview {
     lessonsCompleted: number;
     lessonAbandons: number;
     serverErrors: number;
+    /** Média de pessoas ativas por dia no período (dá para comparar entre períodos). */
+    activeAvg: number;
+    remindersSent: number;
+    remindersFailed: number;
   };
+  /** Os mesmos totais nos dias antes do período; null sem dado lá. */
+  previous: { activeAvg: number; newAccounts: number; lessonsCompleted: number; lessonAbandons: number } | null;
+  /** Pessoas com lembrete ligado e com e-mail, no último retrato do job diário (null antes do primeiro). */
+  reminders: { day: string; enabled: number; email: number } | null;
   days: DayRow[];
   weeks: Array<PeriodRow & { week: string }>;
   months: Array<PeriodRow & { month: string }>;
@@ -146,6 +161,8 @@ export interface ContentStatus {
 
 export interface Account {
   userId: string | null;
+  /** Nome no User Pool (o sub nas contas de e-mail, google_<id> nas do Google). */
+  username?: string | null;
   email: string | null;
   emailVerified: boolean;
   name: string | null;
@@ -225,4 +242,6 @@ export interface CostMonth {
 export interface CostView {
   latest: (CostMonth & { byService: Array<{ service: string; amount: number }> }) | null;
   months: CostMonth[];
+  /** Orçamento mensal (o do AWS Budget, librax:monthlyBudgetUsd); null sem ele. */
+  budgetUsd?: number | null;
 }

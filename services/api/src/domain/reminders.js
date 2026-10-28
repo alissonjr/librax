@@ -91,10 +91,13 @@ export function offsetBucket(now, timeZone) {
  * folga para fusos de meia hora e para a troca de horario de verao. A decisao final e
  * sempre de decideReminder, com o fuso exato.
  */
+/** Baldes de fuso (deslocamento inteiro de UTC) em que um NOTIF ligado pode estar: de -12 a +14. */
+export const ALL_BUCKETS = Array.from({ length: 27 }, (_, i) => i - 12);
+
 export function candidateBuckets(now) {
   const h = now.getUTCHours();
   const out = [];
-  for (let b = -12; b <= 14; b += 1) {
+  for (const b of ALL_BUCKETS) {
     const local = (((h + b) % 24) + 24) % 24;
     if (local >= QUIET_END_HOUR - 1 && local <= QUIET_START_HOUR) out.push(b);
   }

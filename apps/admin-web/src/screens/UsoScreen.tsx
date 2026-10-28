@@ -4,6 +4,7 @@ import { Card, Chip, Loaded, PageHeader, StatTile, useLoad } from '../components
 import { useApi } from '../lib/context';
 import { fmtDateTime, fmtDay, fmtDec, fmtInt, fmtMonth, fmtPct, fmtWeek } from '../lib/format';
 import type { FeedbackItem, FunnelKey, Usage } from '../lib/usageTypes';
+import { feedbackKey, markRead, readKeys } from '../lib/feedbackRead';
 import './uso.css';
 
 /*
@@ -274,6 +275,8 @@ export function FeedbackList() {
   const api = useApi();
   const [rating, setRating] = useState('');
   const [items, setItems] = useState<FeedbackItem[]>([]);
+  // Lidos neste navegador (lib/feedbackRead.ts): o comentário novo ganha o selo e some ao marcar
+  const [read, setRead] = useState<Set<string>>(readKeys);
   const [cursor, setCursor] = useState<string | null>(null);
   const [state, setState] = useState<'loading' | 'idle' | 'error'>('loading');
   const [error, setError] = useState('');
@@ -297,7 +300,14 @@ export function FeedbackList() {
   }, [rating]);
 
   return (
-    <Card title="Comentários">
+    <Card
+      title="Comentários"
+      actions={items.some((f) => !read.has(feedbackKey(f))) ? (
+        <button type="button" className="btn btn--secondary" onClick={() => setRead(markRead(items))}>
+          Marcar todos como lidos
+        </button>
+      ) : undefined}
+    >
       <div className="filters" role="group" aria-label="Filtro dos comentários">
         <label className="field">
           <span className="field-label">Nota</span>
@@ -313,6 +323,7 @@ export function FeedbackList() {
             <li key={`${f.at}-${f.rating}-${f.text.length}`} className="uso-comment">
               <div className="uso-comment-head">
                 <Chip tone={f.rating >= 4 ? 'ok' : f.rating === 3 ? 'neutral' : 'warn'} icon="star">{`${f.rating} de 5`}</Chip>
+                {!read.has(feedbackKey(f)) && <Chip tone="info" icon="mail">novo</Chip>}
                 <span className="uso-comment-meta">
                   {[
                     fmtDateTime(f.at),
@@ -325,6 +336,11 @@ export function FeedbackList() {
               </div>
               {/* texto simples: o React escapa tudo; nunca vira HTML */}
               {f.text ? <p className="uso-comment-text">{f.text}</p> : <p className="uso-comment-text uso-comment-text--empty">Sem comentário, só a nota.</p>}
+              {!read.has(feedbackKey(f)) && (
+                <button type="button" className="btn btn--ghost uso-comment-read" onClick={() => setRead(markRead([f]))}>
+                  Marcar como lido
+                </button>
+              )}
             </li>
           ))}
         </ol>
@@ -339,7 +355,7 @@ export function FeedbackList() {
       {state === 'idle' && cursor && (
         <button type="button" className="btn btn--secondary" onClick={() => void load(cursor)}>Carregar mais</button>
       )}
-      <p className="note">As pessoas são avisadas para não escrever dados pessoais. Os comentários somem sozinhos 12 meses depois de enviados.</p>
+      <p className="note">As pessoas são avisadas para não escrever dados pessoais. Os comentários somem sozinhos 12 meses depois de enviados. O "lido" fica guardado neste navegador.</p>
     </Card>
   );
 }

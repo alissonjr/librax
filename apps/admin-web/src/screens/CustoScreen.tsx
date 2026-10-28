@@ -1,4 +1,4 @@
-import { BarChart, RankList } from '../components/Chart';
+import { BarChart, Meter, RankList } from '../components/Chart';
 import { Card, Chip, Loaded, PageHeader, StatTile, useLoad } from '../components/ui';
 import { useApi } from '../lib/context';
 import { fmtDateTime, fmtMonth, fmtUsd } from '../lib/format';
@@ -39,7 +39,28 @@ export function CustoView({ c }: { c: CostView }) {
           hint={m.complete ? 'mês fechado' : `projeção de ${m.daysElapsed} de ${m.daysInMonth} dias`}
         />
         <StatTile label="Gasto até agora" value={fmtUsd(m.total, m.currency)} hint={`de ${m.start} até ${m.end} (exclusive)`} />
+        {c.budgetUsd ? (
+          <StatTile
+            label="Orçamento do mês"
+            value={fmtUsd(c.budgetUsd, m.currency)}
+            hint={`a previsão usa ${Math.round((m.projectedTotal / c.budgetUsd) * 100)}% dele`}
+          />
+        ) : null}
       </div>
+      {c.budgetUsd ? (
+        <Card title="Previsão contra o orçamento">
+          <Meter
+            value={Math.min(m.projectedTotal, c.budgetUsd)}
+            max={c.budgetUsd}
+            tone={m.projectedTotal >= c.budgetUsd ? 'error' : 'neutral'}
+            label={`${fmtUsd(m.projectedTotal, m.currency)} de ${fmtUsd(c.budgetUsd, m.currency)}`}
+          />
+          <p className="note">
+            {fmtUsd(m.projectedTotal, m.currency)} previstos de {fmtUsd(c.budgetUsd, m.currency)}. O AWS Budget avisa por e-mail
+            em 80% e 100% do orçamento (librax:monthlyBudgetUsd).
+          </p>
+        </Card>
+      ) : null}
       <Card
         title="Por serviço"
         actions={<Chip tone="info" icon="schedule">atualizado {fmtDateTime(m.asOf)}</Chip>}

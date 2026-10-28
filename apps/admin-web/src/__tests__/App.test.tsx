@@ -32,7 +32,7 @@ function renderApp(api: AdminApi, s: AdminAuth, path = '/') {
 
 const forbidden = (): AdminApi => {
   const err = () => Promise.reject(new ApiError(403, 'ADMIN_ONLY', 'Acesso restrito ao grupo admin'));
-  return { me: err, overview: err, content: err, searchAccounts: err, listAccounts: err, account: err, squads: err, cost: err, usage: err, feedback: err };
+  return { me: err, overview: err, content: err, searchAccounts: err, listAccounts: err, account: err, disableAccount: err, enableAccount: err, deleteAccount: err, squads: err, cost: err, usage: err, feedback: err };
 };
 
 describe('acesso', () => {
@@ -101,11 +101,11 @@ describe('acesso', () => {
     expect(screen.getByRole('heading', { name: 'Entrar no painel' })).toBeInTheDocument();
   });
 
-  it('admin: barra com as sete seções e selo de só leitura', async () => {
+  it('admin: barra com as sete seções e selo do acesso', async () => {
     renderApp(mockApi(), session());
     const nav = await screen.findByRole('navigation', { name: 'Seções do painel' });
     expect(within(nav).getAllByRole('link').map((a) => a.textContent?.trim())).toEqual(['Operação', 'Uso', 'Câmera', 'Conteúdo', 'Contas', 'Squads', 'Custo']);
-    expect(screen.getByText('só leitura')).toBeInTheDocument();
+    expect(screen.getByText('admin com autenticador')).toBeInTheDocument();
     expect(screen.getByText('dono@exemplo.com')).toBeInTheDocument();
   });
 

@@ -542,9 +542,40 @@ describe('Exclusao de conta (LGPD)', () => {
     expect(del.Resource).toEqual({ 'Fn::GetAtt': [expect.stringMatching(/^LibraxUserPool/), 'Arn'] });
 
     const policies = Object.values(template.findResources('AWS::IAM::Policy'));
+    // a exclusao pela propria pessoa e a do painel (pedido pela LGPD); a Lambda de leitura do painel nao
     const withDelete = policies.filter((p) => JSON.stringify(p.Properties.PolicyDocument).includes('cognito-idp:AdminDeleteUser'));
-    expect(withDelete).toHaveLength(1);
+    expect(withDelete).toHaveLength(2);
     expect(policyActionsOf(template, 'librax-admin')).not.toContain('cognito-idp:AdminDeleteUser');
+  });
+
+  test('acoes do painel numa Lambda propria: so estas acoes do Cognito, so no proprio User Pool', () => {
+    const { template } = synth(withDomain);
+    const cognitoActions = policyActionsOf(template, 'librax-admin-actions').filter((a) => a.startsWith('cognito-idp:')).sort();
+    expect(cognitoActions).toEqual([
+      'cognito-idp:AdminDeleteUser', 'cognito-idp:AdminDisableUser', 'cognito-idp:AdminEnableUser',
+      'cognito-idp:AdminGetUser', 'cognito-idp:AdminUserGlobalSignOut', 'cognito-idp:ListUsers',
+    ]);
+    const st = statementsOf(template, 'librax-admin-actions').find((s) => [s.Action].flat().includes('cognito-idp:AdminDisableUser'));
+    expect(st.Resource).toEqual({ 'Fn::GetAtt': [expect.stringMatching(/^LibraxUserPool/), 'Arn'] });
+    // a Lambda de leitura do painel continua sem escrever: nem no Cognito nem na tabela
+    const leitura = policyActionsOf(template, 'librax-admin');
+    for (const a of ['cognito-idp:AdminDisableUser', 'cognito-idp:AdminEnableUser', 'cognito-idp:AdminUserGlobalSignOut']) {
+      expect(leitura).not.toContain(a);
+    }
+    expect(leitura.filter((a) => /dynamodb:(Put|Update|Delete|BatchWrite)/.test(a))).toEqual([]);
+    // as tres rotas vao para ela, com o autorizador do painel
+    const [actionsId] = Object.entries(template.findResources('AWS::Lambda::Function'))
+      .find(([, r]) => r.Properties.FunctionName === 'librax-admin-actions')!;
+    const routes = Object.values(template.findResources('AWS::ApiGatewayV2::Route'))
+      .map((r) => r.Properties.RouteKey as string)
+      .filter((k) => k.startsWith('POST /v1/admin') || k.startsWith('DELETE /v1/admin'))
+      .sort();
+    expect(routes).toEqual([
+      'DELETE /v1/admin/accounts/{userId}',
+      'POST /v1/admin/accounts/{userId}/disable',
+      'POST /v1/admin/accounts/{userId}/enable',
+    ]);
+    expect(actionsId).toMatch(/^AdminActionsFn/);
   });
 });
 

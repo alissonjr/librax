@@ -9,12 +9,17 @@
  *
  * Requer `cognito-idp:ListUsers` no User Pool, e `cognito-idp:AdminGetUser` para `totpEnabled` (o
  * painel exige o aplicativo autenticador de quem e admin). A exclusao de conta (DELETE /v1/users/me)
- * usa so `deleteUser`, com `cognito-idp:AdminDeleteUser` numa Lambda propria.
+ * usa so `deleteUser`, com `cognito-idp:AdminDeleteUser` numa Lambda propria. As acoes do painel
+ * (desativar, reativar e excluir) ficam noutra Lambda, a unica com AdminDisableUser,
+ * AdminEnableUser e AdminUserGlobalSignOut.
  */
 
 import {
   AdminDeleteUserCommand,
+  AdminDisableUserCommand,
+  AdminEnableUserCommand,
   AdminGetUserCommand,
+  AdminUserGlobalSignOutCommand,
   CognitoIdentityProviderClient,
   ListUsersCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
@@ -36,6 +41,8 @@ export function accountFromCognito(user) {
   const created = user.UserCreateDate;
   return {
     userId: attrs.sub ?? null,
+    // nome no User Pool (o sub nas contas de e-mail, google_<id> nas do Google): o que as acoes pedem
+    username: user.Username ?? null,
     email: attrs.email ?? null,
     emailVerified: attrs.email_verified === 'true',
     name: attrs.given_name ?? attrs.name ?? null,
@@ -113,5 +120,19 @@ export class CognitoDirectory {
       if (e?.name === 'UserNotFoundException') return false;
       throw e;
     }
+  }
+
+  /**
+   * Desativa a conta (o login para de funcionar) e encerra as sessoes: os refresh tokens deixam de
+   * valer, e o id token que ja estava aberto vence em ate 1 hora.
+   */
+  async disableUser(username) {
+    await this._client.send(new AdminDisableUserCommand({ UserPoolId: this._userPoolId, Username: username }));
+    await this._client.send(new AdminUserGlobalSignOutCommand({ UserPoolId: this._userPoolId, Username: username }));
+  }
+
+  /** Reativa a conta desativada: o login volta a funcionar, com a mesma senha. */
+  async enableUser(username) {
+    await this._client.send(new AdminEnableUserCommand({ UserPoolId: this._userPoolId, Username: username }));
   }
 }

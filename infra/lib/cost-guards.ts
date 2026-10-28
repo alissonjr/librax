@@ -72,6 +72,7 @@ export const RESERVED_CONCURRENCY: Record<string, number> = {
   'librax-report-device': 5,
   'librax-get-progress': 5,
   'librax-admin': 5,
+  'librax-admin-actions': 1,
   'librax-telemetry': 5,
 };
 

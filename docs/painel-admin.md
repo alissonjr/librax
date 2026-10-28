@@ -1,7 +1,8 @@
 # Painel de administração
 
-> Status: **primeira etapa, só leitura** (out/2026). Nada foi publicado: a infra está no CDK e passa no
-> `cdk synth`, mas o deploy é do dono da conta.
+> Status: **leitura e ações de conta** (out/2026). As telas só leem; a única escrita é desativar, reativar ou
+> excluir uma conta (pedido pela LGPD), numa Lambda própria (`librax-admin-actions`), com confirmação e registro
+> de quem fez. O deploy é do dono da conta.
 
 Um lugar para ver a operação do Librax e o que o app tem na nuvem, sem abrir o console da AWS. Fica em
 `https://app.<domínio>/admin/`, no mesmo CloudFront do app, e só abre para contas no grupo `admin` do Cognito.
@@ -21,13 +22,13 @@ Código:
 
 | Tela | O que tem | De onde vem |
 |---|---|---|
-| **Operação** | pessoas ativas por dia (30 dias), semana (12) e mês (12); contas novas; lições concluídas; lições onde mais desistem e mais erram; lições puladas pelo nivelamento (por lição, com as desfeitas); erros por tipo de exercício; sinais mais errados; erros do servidor por dia e por Lambda | contadores agregados (seção 3) e o job diário |
-| **Uso** | dados de uso anônimos de todo mundo, com e sem conta: ativos por dia, semana e mês separados em sem conta e com conta; D1 e D7 por dia de chegada; funil (abriu, boas-vindas, 1a lição, 5 lições, conta); lições mais abertas, onde saem (e em que exercício); até onde chegam no curso; aparelhos; idioma e meta das boas-vindas; prática; notas do app (média, por estrela, por semana e os comentários paginados, com filtro por nota) | itens `TELAGG` e `FBLIST` (seção 3a), `GET /v1/admin/usage` e `GET /v1/admin/feedback` |
+| **Operação** | no topo, **o que pede atenção** (avaliações de 1 ou 2 estrelas não lidas, erros do servidor no último dia trazido do CloudWatch, custo previsto a partir de 80% do orçamento, lição com 30% ou mais de saídas, letras e sinais difíceis na câmera, lembretes que falharam na semana) ou "Tudo certo"; período de 7, 30 ou 90 dias, com a variação contra o mesmo tanto de dias antes (média de ativas por dia, contas novas, lições); pessoas ativas por dia, semana (12) e mês (12); **lembretes** (pessoas com lembrete ligado e com e-mail, enviados e falhas por dia); contas novas; lições concluídas; lições onde mais desistem e mais erram; lições puladas pelo nivelamento (por lição, com as desfeitas); erros por tipo de exercício; sinais mais errados; erros do servidor por dia e por Lambda | contadores agregados (seção 3) e o job diário |
+| **Uso** | dados de uso anônimos de todo mundo, com e sem conta: ativos por dia, semana e mês separados em sem conta e com conta; D1 e D7 por dia de chegada; funil (abriu, boas-vindas, 1a lição, 5 lições, conta); lições mais abertas, onde saem (e em que exercício); até onde chegam no curso; aparelhos; idioma e meta das boas-vindas; prática; notas do app (média, por estrela, por semana e os comentários paginados, com filtro por nota, o selo "novo" e "Marcar como lido", guardado neste navegador) | itens `TELAGG` e `FBLIST` (seção 3a), `GET /v1/admin/usage` e `GET /v1/admin/feedback` |
 | **Câmera** | letras e sinais do mais difícil para o mais fácil nos mesmos 30 dias (taxa de pulo, depois média de tentativas até acertar), com nível, filtro de letras ou sinais e as leituras trocadas mais comuns (K lida como H) | item `CAMERA` do dia (seção 3), pela mesma rota da Operação |
 | **Conteúdo** | as 14 unidades e os 255 sinais: validado (`validated`), origem (`source`), vídeo, avatar e o que falta em cada sinal, com filtros | `services/api/src/content/contentStatus.js`, gerado do bundle do app por `npm run catalog` |
-| **Contas** | todas as contas, 25 por página (Anterior e Próxima, na ordem do Cognito, que não ordena por data), e busca pelo começo do e-mail ou pelo id; resumo com perfil, progresso (lição concluída ou "pulada pelo nivelamento"), liga, squads e última atividade | Cognito (`ListUsers`) e a partição `USER#<id>` |
+| **Contas** | todas as contas, 25 por página (Anterior e Próxima, na ordem do Cognito, que não ordena por data), e busca pelo começo do e-mail ou pelo id; resumo com perfil, progresso (lição concluída ou "pulada pelo nivelamento"), liga, squads e última atividade; ações de desativar, reativar e excluir (seção 1a) | Cognito (`ListUsers`) e a partição `USER#<id>` |
 | **Squads** | nome, tipo, tamanho e criação, da mais nova para a mais velha | registro `SQUADINDEX` e o META de cada squad |
-| **Custo** | gasto estimado do mês e o detalhe por serviço; meses anteriores | Cost Explorer, uma vez por dia |
+| **Custo** | gasto estimado do mês, o orçamento mensal (o mesmo do AWS Budget) e quanto a previsão usa dele; o detalhe por serviço; meses anteriores | Cost Explorer, uma vez por dia; orçamento de `librax:monthlyBudgetUsd` |
 
 Definições usadas nas telas:
 
@@ -64,6 +65,28 @@ Definições da tela Uso:
   desiste antes delas não aparece.
 - **Até onde chegam**: códigos que já concluíram cada lição, desde que os dados de uso começaram.
 - **Nota**: uma por código; quem manda de novo troca a anterior (totais descontados). Comentário é texto simples.
+
+## 1a. Ações sobre uma conta
+
+Na conta aberta em **Contas**, o quadro **Ações na conta** tem:
+
+- **Desativar a conta**: o login para de funcionar e as sessões abertas são encerradas (o app aberto para em até 1
+  hora, quando o id token vence). Os dados ficam. Para abuso ou conta comprometida.
+- **Reativar a conta**: o login volta, com a mesma senha e o mesmo progresso.
+- **Excluir a conta e os dados**: o mesmo da exclusão pela própria pessoa (`usecases/deleteAccount.js`: squads,
+  ligas, a partição `USER#<id>` e o usuário no Cognito). Para pedidos de exclusão pela LGPD que chegam por e-mail.
+  Só libera com o e-mail da conta digitado (o servidor confere de novo).
+
+As três passam pelas mesmas travas das leituras (grupo `admin` e aplicativo autenticador), nunca valem para a
+própria conta de quem está no painel e ficam no log da Lambda `librax-admin-actions` como `[admin-acao]`, com quem
+fez, o que fez e o id da conta (sem e-mail). Só essa Lambda tem `AdminDisableUser`, `AdminEnableUser`,
+`AdminUserGlobalSignOut` e escrita na tabela; a `librax-admin` continua só lendo.
+
+| Método | Rota | O que faz |
+|---|---|---|
+| POST | `/v1/admin/accounts/{userId}/disable` | desativa e encerra as sessões |
+| POST | `/v1/admin/accounts/{userId}/enable` | reativa |
+| DELETE | `/v1/admin/accounts/{userId}` | exclui a conta e os dados; corpo `{ "confirm": "<e-mail da conta>" }` |
 
 ## 2. Acesso: três travas
 

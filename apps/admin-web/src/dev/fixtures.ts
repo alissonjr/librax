@@ -60,14 +60,14 @@ export function sampleCamera(): CameraView {
   };
 }
 
-export function sampleOverview(today = '2026-10-23'): Overview {
+export function sampleOverview(today = '2026-10-23', size = 30): Overview {
   const rnd = seeded(43);
   const end = Date.parse(`${today}T12:00:00Z`);
-  const days = Array.from({ length: 30 }, (_, i) => {
-    const day = iso(end - (29 - i) * DAY_MS);
+  const days = Array.from({ length: size }, (_, i) => {
+    const day = iso(end - (size - 1 - i) * DAY_MS);
     const weekend = [0, 6].includes(new Date(`${day}T12:00:00Z`).getUTCDay());
-    const active = Math.round((weekend ? 28 : 40) + i * 0.9 + rnd() * 12);
-    const collected = i < 29;
+    const active = Math.round((weekend ? 28 : 40) + i * (27 / size) + rnd() * 12);
+    const collected = i < size - 1;
     const errors = collected ? (rnd() < 0.7 ? 0 : Math.ceil(rnd() * 4)) : null;
     return {
       day,
@@ -80,8 +80,13 @@ export function sampleOverview(today = '2026-10-23'): Overview {
       api5xx: errors,
       lambdaErrors: collected ? 0 : null,
       apiRequests: collected ? active * 30 : null,
+      remindersPush: Math.round(6 + rnd() * 5),
+      remindersEmail: Math.round(1 + rnd() * 3),
+      remindersFailed: rnd() < 0.85 ? 0 : 1,
     };
   });
+  const sum = (f: 'activeUsers' | 'newAccounts' | 'lessonsCompleted' | 'lessonAbandons' | 'remindersPush' | 'remindersEmail' | 'remindersFailed') =>
+    days.reduce((a, d) => a + d[f], 0);
   const weeks = Array.from({ length: 12 }, (_, i) => ({
     week: `2026-w${String(32 + i).padStart(2, '0')}`,
     activeUsers: Math.round(60 + i * 9 + rnd() * 15),
@@ -109,14 +114,25 @@ export function sampleOverview(today = '2026-10-23'): Overview {
     today,
     range: { from: days[0].day, to: today },
     totals: {
-      activeToday: days[29].activeUsers,
+      activeToday: days[size - 1].activeUsers,
       activeWeek: weeks[11].activeUsers,
       activeMonth: months[4].activeUsers,
-      newAccounts: days.reduce((a, d) => a + d.newAccounts, 0),
-      lessonsCompleted: days.reduce((a, d) => a + d.lessonsCompleted, 0),
-      lessonAbandons: days.reduce((a, d) => a + d.lessonAbandons, 0),
+      newAccounts: sum('newAccounts'),
+      lessonsCompleted: sum('lessonsCompleted'),
+      lessonAbandons: sum('lessonAbandons'),
       serverErrors: days.reduce((a, d) => a + (d.serverErrors ?? 0), 0),
+      activeAvg: sum('activeUsers') / size,
+      remindersSent: sum('remindersPush') + sum('remindersEmail'),
+      remindersFailed: sum('remindersFailed'),
     },
+    // período anterior um pouco menor: o app está crescendo
+    previous: {
+      activeAvg: (sum('activeUsers') / size) * 0.86,
+      newAccounts: Math.round(sum('newAccounts') * 0.8),
+      lessonsCompleted: Math.round(sum('lessonsCompleted') * 0.9),
+      lessonAbandons: Math.round(sum('lessonAbandons') * 1.1),
+    },
+    reminders: { day: days[size - 2].day, enabled: 64, email: 12 },
     days,
     weeks,
     months,
@@ -146,7 +162,7 @@ export function sampleOverview(today = '2026-10-23'): Overview {
     ],
     camera: sampleCamera(),
     serverErrors: {
-      collectedThrough: days[28].day,
+      collectedThrough: days[size - 2].day,
       byFunction: [{ name: 'librax-complete-lesson', errors: 3 }, { name: 'librax-get-league', errors: 1 }],
     },
   };
@@ -237,4 +253,5 @@ export const sampleCost: CostView = {
     { month: '2026-09', start: '2026-09-01', end: '2026-10-01', complete: true, daysElapsed: 30, daysInMonth: 30, currency: 'USD', total: 4.12, projectedTotal: 4.12, asOf: '2026-10-01T03:30:09.000Z' },
     { month: '2026-08', start: '2026-08-01', end: '2026-09-01', complete: true, daysElapsed: 31, daysInMonth: 31, currency: 'USD', total: 2.3, projectedTotal: 2.3, asOf: '2026-09-01T03:30:11.000Z' },
   ],
+  budgetUsd: 10,
 };

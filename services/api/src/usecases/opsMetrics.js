@@ -5,6 +5,7 @@ import {
   lessonAbandonWrites,
   newAccountWrites,
   placementWrites,
+  reminderWrites,
 } from '../domain/opsMetrics.js';
 
 /**
@@ -51,6 +52,11 @@ export async function recordLessonAbandon(repo, { userId, lessonId, today, exerc
 /** Marca do teste de nivelamento que mudou o progresso (usecases/placement.js). Nao marca atividade. */
 export async function recordPlacement(repo, { lessonId, today, placement }) {
   await apply(repo, placementWrites({ lessonId, today, placement }));
+}
+
+/** Rodada da Lambda de lembrete: entregues e falhas no dia de Brasilia (usecases/sendReminders.js). */
+export async function recordReminders(repo, { day, report }) {
+  await apply(repo, reminderWrites({ day, report }));
 }
 
 /** Conta nova (gatilho PostConfirmation do Cognito), no dia de Brasilia. */

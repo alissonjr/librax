@@ -470,6 +470,15 @@ export class LibraxStack extends cdk.Stack {
       description: 'Painel de administracao (so leitura, grupo admin): operacao, conteudo, contas, squads, custo',
       memorySize: 512,
       timeout: Duration.seconds(15),
+      // O orcamento do mes vai na tela Custo, ao lado da previsao (librax:monthlyBudgetUsd)
+      environment: { USER_POOL_ID: userPool.userPoolId, MONTHLY_BUDGET_USD: String(config.budget.monthlyUsd) },
+    });
+    // Acoes do painel sobre uma conta (desativar, reativar, excluir pela LGPD): Lambda propria, a unica
+    // do painel com escrita; a de leitura (adminFn) continua so lendo
+    const adminActionsFn = makeFn('AdminActionsFn', 'admin.js', 'adminActionsRouter', {
+      functionName: 'librax-admin-actions',
+      description: 'Painel: desativar, reativar e excluir conta (grupo admin, com o autenticador)',
+      timeout: Duration.seconds(30),  // excluir conta grande: varias paginas de SRS e tentativas
       environment: { USER_POOL_ID: userPool.userPoolId },
     });
     // Conta nova (gatilho PostConfirmation do Cognito): so soma nos contadores do painel
@@ -553,6 +562,17 @@ export class LibraxStack extends cdk.Stack {
     // (AdminGetUser: UserMFASettingList), so neste User Pool
     adminFn.addToRolePolicy(new iam.PolicyStatement({
       actions: ['cognito-idp:ListUsers', 'cognito-idp:AdminGetUser'],
+      resources: [userPool.userPoolArn],
+    }));
+
+    // Acoes do painel: as mesmas leituras da busca e do segundo fator, mais desativar, reativar,
+    // encerrar sessoes e excluir, so neste User Pool; na tabela, o mesmo que a exclusao de conta
+    table.grantReadWriteData(adminActionsFn);
+    adminActionsFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: [
+        'cognito-idp:ListUsers', 'cognito-idp:AdminGetUser', 'cognito-idp:AdminDisableUser',
+        'cognito-idp:AdminEnableUser', 'cognito-idp:AdminUserGlobalSignOut', 'cognito-idp:AdminDeleteUser',
+      ],
       resources: [userPool.userPoolArn],
     }));
 
@@ -1050,7 +1070,7 @@ export class LibraxStack extends cdk.Stack {
     addRoute(M.DELETE, '/v1/telemetry/{id}',                          telemetryFn, publicRoute);
     addRoute(M.POST,   '/v1/feedback',                                telemetryFn, publicRoute);
 
-    // Painel de administracao (so leitura): mesma Lambda, autorizador do app client do painel
+    // Painel de administracao: leituras numa Lambda, acoes sobre conta noutra, autorizador do app client do painel
     for (const routePath of [
       '/v1/admin/me',
       '/v1/admin/overview',
@@ -1064,6 +1084,9 @@ export class LibraxStack extends cdk.Stack {
     ]) {
       addRoute(M.GET, routePath, adminFn, adminAuthorizer);
     }
+    addRoute(M.POST,   '/v1/admin/accounts/{userId}/disable', adminActionsFn, adminAuthorizer);
+    addRoute(M.POST,   '/v1/admin/accounts/{userId}/enable',  adminActionsFn, adminAuthorizer);
+    addRoute(M.DELETE, '/v1/admin/accounts/{userId}',         adminActionsFn, adminAuthorizer);
 
     // Limite por rota (RouteSettings do estagio; o HttpStage do CDK so tem o global). O estagio
     // depende das rotas: o API Gateway recusa RouteSettings de rota que ainda nao existe.
@@ -1143,11 +1166,11 @@ export class LibraxStack extends cdk.Stack {
     // mes (Cost Explorer, US$ 0,01 por chamada). Sem nova tentativa: cada uma pagaria de novo; o
     // alarme de erros avisa se falhar, e da para refazer o dia a mao ({ "day": "AAAA-MM-DD" }).
     const opsDailyName = 'librax-ops-daily';
-    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, postConfirmationFn, customMessageFn, preSignUpFn, telemetryFn, getProgressFn];
+    const watchedFns = [...allLambdas, closeLeagueFn, reminderFn, adminFn, adminActionsFn, postConfirmationFn, customMessageFn, preSignUpFn, telemetryFn, getProgressFn];
     const opsDailyFn = makeFn('OpsDailyFn', 'opsDaily.js', 'handler', {
       functionName: opsDailyName,
       timeout: Duration.minutes(2),
-      description: 'Painel de administracao: erros do dia (CloudWatch) e custo do mes (Cost Explorer)',
+      description: 'Painel de administracao: erros do dia (CloudWatch), custo do mes (Cost Explorer) e lembretes ligados',
       environment: {
         API_ID: httpApi.apiId,
         API_STAGE: apiStage.stageName,
@@ -1155,6 +1178,12 @@ export class LibraxStack extends cdk.Stack {
       },
     });
     table.grantWriteData(opsDailyFn);
+    // Quantas pessoas estao com lembrete ligado: uma Query por fuso no indice dos lembretes (GSI6),
+    // sem ler o resto da tabela
+    opsDailyFn.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['dynamodb:Query'],
+      resources: [`${table.tableArn}/index/GSI6`],
+    }));
     opsDailyFn.addToRolePolicy(new iam.PolicyStatement({
       // as duas APIs so aceitam recurso `*`
       actions: ['cloudwatch:GetMetricData', 'ce:GetCostAndUsage'],

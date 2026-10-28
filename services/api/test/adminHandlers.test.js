@@ -46,9 +46,9 @@ function fakeDirectory(accounts = []) {
   };
 }
 
-function setup({ repo = new InMemoryRepo(), accounts = [], logs = [], mfa = async () => true } = {}) {
+function setup({ repo = new InMemoryRepo(), accounts = [], logs = [], mfa = async () => true, budgetUsd = null } = {}) {
   const directory = fakeDirectory(accounts);
-  const h = makeAdminHandlers({ repo, directory, mfa, now, log: (...args) => logs.push(args.join(' ')) });
+  const h = makeAdminHandlers({ repo, directory, mfa, now, budgetUsd, log: (...args) => logs.push(args.join(' ')) });
   return { ...h, repo, directory, logs };
 }
 
@@ -135,7 +135,7 @@ test('GET /v1/admin/overview traz a camera de todas as pessoas com glosa e tipo 
   assert.equal(JSON.stringify(body.camera).includes(PERSON), false);
 });
 
-test('a tela de operacao nao faz Scan: so Querys na particao OPS', async () => {
+test('a tela de operacao nao faz Scan: so Querys na particao OPS (o periodo e o anterior)', async () => {
   const repo = new InMemoryRepo();
   const used = [];
   for (const m of ['listOpsRange', 'listOpsLatest']) {
@@ -148,10 +148,40 @@ test('a tela de operacao nao faz Scan: so Querys na particao OPS', async () => {
   const { adminRouter } = setup({ repo });
   await adminRouter(event({ routeKey: 'GET /v1/admin/overview' }));
   assert.deepEqual(used, [
-    ['listOpsRange', 'DAY#2026-09-24', 'DAY#2026-10-23#~'],
+    ['listOpsRange', 'DAY#2026-08-25', 'DAY#2026-10-23#~'],
     ['listOpsLatest', 'WEEK#', 12],
     ['listOpsLatest', 'MONTH#', 12],
   ]);
+});
+
+test('operacao: 7, 30 ou 90 dias, comparando com o mesmo periodo antes, e os lembretes', async () => {
+  const repo = new InMemoryRepo();
+  // periodo atual de 7 dias: 2026-10-17 a 2026-10-23; anterior: 2026-10-10 a 2026-10-16
+  await repo.addOpsCounters('DAY#2026-10-20', { activeUsers: 10, lessonsCompleted: 6, newAccounts: 2, remindersPush: 3, remindersEmail: 1, remindersFailed: 1 });
+  await repo.addOpsCounters('DAY#2026-10-22', { activeUsers: 4, lessonsCompleted: 2 });
+  await repo.addOpsCounters('DAY#2026-10-12', { activeUsers: 7, lessonsCompleted: 4, newAccounts: 1 });
+  await repo.setOpsFields('DAY#2026-10-21', { reminders: { enabled: 5, email: 2 } });
+  await repo.setOpsFields('DAY#2026-10-18', { reminders: { enabled: 3, email: 1 } });
+  const { adminRouter } = setup({ repo });
+
+  const o = parse(await adminRouter(event({ routeKey: 'GET /v1/admin/overview', query: { days: '7' } })));
+  assert.equal(o.days.length, 7);
+  assert.equal(o.range.from, '2026-10-17');
+  assert.equal(o.totals.activeAvg, 2);
+  assert.equal(o.totals.lessonsCompleted, 8);
+  assert.equal(o.totals.remindersSent, 4);
+  assert.equal(o.totals.remindersFailed, 1);
+  assert.deepEqual(o.previous, { activeAvg: 1, newAccounts: 1, lessonsCompleted: 4, lessonAbandons: 0 });
+  assert.deepEqual(o.reminders, { day: '2026-10-21', enabled: 5, email: 2 });
+  assert.equal(o.days.find((d) => d.day === '2026-10-20').remindersPush, 3);
+
+  const longo = parse(await adminRouter(event({ routeKey: 'GET /v1/admin/overview', query: { days: '90' } })));
+  assert.equal(longo.days.length, 90);
+  assert.equal(longo.previous, null);
+
+  for (const days of ['0', '14', 'x']) {
+    assert.equal((await adminRouter(event({ routeKey: 'GET /v1/admin/overview', query: { days } }))).statusCode, 400);
+  }
 });
 
 // --- conteudo ---
@@ -285,8 +315,9 @@ test('GET /v1/admin/cost devolve o ultimo mes guardado e o historico', async () 
     month: '2026-10', total: 1.5, projectedTotal: 2.1, complete: false,
     byService: [{ service: 'Amazon DynamoDB', amount: 1 }, { service: 'AWS Lambda', amount: 0.5 }],
   });
-  const { adminRouter } = setup({ repo });
+  const { adminRouter } = setup({ repo, budgetUsd: 10 });
   const body = parse(await adminRouter(event({ routeKey: 'GET /v1/admin/cost' })));
+  assert.equal(body.budgetUsd, 10);
   assert.equal(body.latest.month, '2026-10');
   assert.equal(body.latest.byService.length, 2);
   assert.deepEqual(body.months.map((m) => m.month), ['2026-10', '2026-09']);
@@ -295,7 +326,7 @@ test('GET /v1/admin/cost devolve o ultimo mes guardado e o historico', async () 
 
 test('GET /v1/admin/cost antes do primeiro job: latest null', async () => {
   const { adminRouter } = setup();
-  assert.deepEqual(parse(await adminRouter(event({ routeKey: 'GET /v1/admin/cost' }))), { latest: null, months: [] });
+  assert.deepEqual(parse(await adminRouter(event({ routeKey: 'GET /v1/admin/cost' }))), { latest: null, months: [], budgetUsd: null });
 });
 
 // --- diretorio do Cognito ---
@@ -326,7 +357,7 @@ test('CognitoDirectory filtra por comeco do e-mail ou por sub e nao devolve atri
   assert.equal(calls[0].name, 'ListUsersCommand');
   assert.deepEqual(calls[0].input, { UserPoolId: 'us-east-1_pool', Filter: 'email ^= "ana"', Limit: 10 });
   assert.deepEqual(acc, {
-    userId: PERSON, email: 'ana@exemplo.com', emailVerified: true, name: null, provider: 'Google',
+    userId: PERSON, username: 'google_123', email: 'ana@exemplo.com', emailVerified: true, name: null, provider: 'Google',
     status: 'EXTERNAL_PROVIDER', enabled: true, createdAt: '2026-10-01T10:00:00.000Z',
   });
   await dir.get(PERSON);
@@ -457,4 +488,79 @@ test('CognitoDirectory.totpEnabled le o UserMFASettingList pelo AdminGetUser', a
   assert.deepEqual(calls[0].input, { UserPoolId: 'us-east-1_pool', Username: 'com-app' });
   const down = new CognitoDirectory({ send: async () => { throw Object.assign(new Error('x'), { name: 'InternalErrorException' }); } }, 'p');
   await assert.rejects(() => down.totpEnabled('u1'), /x/);
+});
+
+// --- acoes sobre uma conta ---
+
+function actionDirectory(accounts) {
+  const base = fakeDirectory(accounts);
+  const done = [];
+  return {
+    ...base,
+    done,
+    async disableUser(username) { done.push(['disable', username]); },
+    async enableUser(username) { done.push(['enable', username]); },
+    async deleteUser(username) { done.push(['delete', username]); return true; },
+  };
+}
+
+function actions({ accounts = [], repo = new InMemoryRepo(), adminSub = ADMIN } = {}) {
+  const directory = actionDirectory(accounts);
+  const logs = [];
+  const h = makeAdminHandlers({ repo, directory, mfa: async () => true, now, log: (...a) => logs.push(a.join(' ')) });
+  const call = (routeKey, userId, bodyObj) =>
+    h.adminActionsRouter({
+      ...event({ routeKey, pathParameters: { userId }, sub: adminSub }),
+      body: bodyObj === undefined ? undefined : JSON.stringify(bodyObj),
+    });
+  return { ...h, directory, logs, call, repo };
+}
+
+const conta = { userId: PERSON, username: 'google_42', email: 'ana@exemplo.com', provider: 'Google', enabled: true };
+
+test('desativar e reativar: pelo username do Cognito, com registro de quem fez', async () => {
+  const { call, directory, logs } = actions({ accounts: [conta] });
+  const off = await call('POST /v1/admin/accounts/{userId}/disable', PERSON);
+  assert.equal(off.statusCode, 200);
+  assert.deepEqual(parse(off), { ok: true, enabled: false });
+  await call('POST /v1/admin/accounts/{userId}/enable', PERSON);
+  assert.deepEqual(directory.done, [['disable', 'google_42'], ['enable', 'google_42']]);
+  const auditoria = logs.filter((l) => l.startsWith('[admin-acao]'));
+  assert.equal(auditoria.length, 2);
+  assert.ok(auditoria[0].includes(`"userId":"${PERSON}"`) && auditoria[0].includes('"action":"disable"'));
+  assert.ok(logs.every((l) => !l.includes('ana@')), 'sem e-mail no log');
+});
+
+test('excluir: so com o e-mail da conta digitado; apaga os dados e o usuario no Cognito', async () => {
+  const repo = new InMemoryRepo();
+  await repo.seedProfile({ userId: PERSON, xpTotal: 40 });
+  const { call, directory } = actions({ accounts: [conta], repo });
+
+  const errado = await call('DELETE /v1/admin/accounts/{userId}', PERSON, { confirm: 'outra@exemplo.com' });
+  assert.equal(errado.statusCode, 400);
+  assert.equal(JSON.parse(errado.body).error.code, 'CONFIRM_MISMATCH');
+  assert.ok(await repo.getProfile(PERSON));
+
+  const res = await call('DELETE /v1/admin/accounts/{userId}', PERSON, { confirm: ' Ana@Exemplo.com ' });
+  assert.equal(res.statusCode, 200);
+  assert.equal(await repo.getProfile(PERSON), null);
+  assert.deepEqual(directory.done, [['delete', 'google_42']]);
+});
+
+test('acoes: nunca na propria conta, conta inexistente e quem nao e admin', async () => {
+  const propria = actions({ accounts: [{ ...conta, userId: ADMIN }] });
+  const self = await propria.call('POST /v1/admin/accounts/{userId}/disable', ADMIN);
+  assert.equal(JSON.parse(self.body).error.code, 'SELF');
+
+  const { call } = actions({ accounts: [] });
+  assert.equal((await call('POST /v1/admin/accounts/{userId}/disable', PERSON)).statusCode, 404);
+  assert.equal((await call('POST /v1/admin/accounts/{userId}/disable', 'nao-e-sub')).statusCode, 400);
+  assert.equal((await call('GET /v1/admin/accounts', PERSON)).statusCode, 404, 'rota de leitura nao vale aqui');
+
+  const h = actions({ accounts: [conta] });
+  const semGrupo = await h.adminActionsRouter({
+    ...event({ routeKey: 'POST /v1/admin/accounts/{userId}/disable', pathParameters: { userId: PERSON }, sub: ADMIN, groups: '[]' }),
+  });
+  assert.equal(semGrupo.statusCode, 403);
+  assert.deepEqual(h.directory.done, []);
 });

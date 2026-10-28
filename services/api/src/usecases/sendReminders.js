@@ -24,7 +24,9 @@ import { renderEmail, normalizeLang } from '../email/render.js';
  * @param {(msg: string, data?: object) => void} [deps.log]
  */
 export async function sendReminders(repo, { now, push, mail = null, appUrl = null, log = () => {} }) {
-  const report = { evaluated: 0, sent: 0, skipped: {} };
+  // sent: pessoas lembradas; pushDelivered e emailSent: por canal; failed: envio que deu erro (o
+  // painel conta os tres por dia, domain/opsMetrics.js reminderWrites)
+  const report = { evaluated: 0, sent: 0, pushDelivered: 0, emailSent: 0, failed: 0, skipped: {} };
   const skip = (reason) => {
     report.skipped[reason] = (report.skipped[reason] ?? 0) + 1;
   };
@@ -51,10 +53,12 @@ export async function sendReminders(repo, { now, push, mail = null, appUrl = nul
         try {
           await push.send(sub, payload);
           delivered += 1;
+          report.pushDelivered += 1;
         } catch (err) {
           if (err.statusCode === 404 || err.statusCode === 410) {
             await repo.deletePushSubscription(userId, sub.subscriptionId);
           } else {
+            report.failed += 1;
             log('push falhou', { userId, statusCode: err.statusCode ?? null });
           }
         }
@@ -72,7 +76,9 @@ export async function sendReminders(repo, { now, push, mail = null, appUrl = nul
           });
           await mail.send({ to: notif.email, ...email });
           delivered += 1;
+          report.emailSent += 1;
         } catch (err) {
+          report.failed += 1;
           log('e-mail falhou', { userId, name: err.name });
         }
       }

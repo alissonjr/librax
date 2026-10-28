@@ -11,7 +11,7 @@ export function mockApi(): AdminApi {
   const squads = sampleSquads();
   return {
     me: () => wait({ userId: '11111111-1111-4111-8111-111111111111', email: 'dono@exemplo.com', groups: ['admin'] }),
-    overview: () => wait(sampleOverview()),
+    overview: (days) => wait(sampleOverview(undefined, days ?? 30)),
     content: () => wait(sampleContent),
     searchAccounts: (q) => wait({ accounts: 'ana@exemplo.com'.startsWith(q.toLowerCase()) || q === SAMPLE_USER ? [sampleAccount.account!] : [] }),
     listAccounts: (cursor) => {
@@ -21,6 +21,9 @@ export function mockApi(): AdminApi {
       return wait({ accounts: all.slice(start, next), cursor: next < all.length ? String(next) : null });
     },
     account: () => wait(sampleAccount),
+    disableAccount: () => wait({ ok: true as const, enabled: false }),
+    enableAccount: () => wait({ ok: true as const, enabled: true }),
+    deleteAccount: () => wait({ ok: true as const }),
     squads: (cursor) => wait(cursor ? { squads: squads.slice(4), cursor: null } : { squads: squads.slice(0, 4), cursor: 'c1' }),
     cost: () => wait(sampleCost),
     usage: () => wait(sampleUsage()),

@@ -22,6 +22,8 @@ export function ContasScreen() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<'list' | 'search' | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  /** Resultado da última ação (conta excluída), embaixo da lista. */
+  const [notice, setNotice] = useState<string | null>(null);
   // Listagem: o Cognito só anda para a frente (PaginationToken), então guardamos o cursor de cada
   // página já vista para o "Anterior". pages[i] = cursor que abre a página i (a primeira é null).
   const [pages, setPages] = useState<(string | null)[]>([null]);
@@ -87,7 +89,7 @@ export function ContasScreen() {
     <>
       <PageHeader title="Contas">
         Todas as contas, {ACCOUNTS_PER_PAGE} por página, na ordem do Cognito. Para achar uma conta, busque pelo começo do
-        e-mail ou pelo id (sub do Cognito). Só leitura.
+        e-mail ou pelo id (sub do Cognito). Na conta aberta dá para desativar, reativar ou excluir (pedido pela LGPD).
       </PageHeader>
       <div className="stack">
         <Card>
@@ -139,7 +141,20 @@ export function ContasScreen() {
             </nav>
           )}
         </Card>
-        {selected && <div ref={detailRef}><AccountDetail key={selected} userId={selected} /></div>}
+        {notice && <p className="state" role="status"><Chip tone="ok" icon="check">Feito</Chip> {notice}</p>}
+        {selected && (
+          <div ref={detailRef}>
+            <AccountDetail
+              key={selected}
+              userId={selected}
+              onDeleted={() => {
+                setSelected(null);
+                setNotice('Conta excluída, com os dados dela.');
+                void loadPage(0, null);
+              }}
+            />
+          </div>
+        )}
       </div>
     </>
   );
@@ -151,13 +166,113 @@ function providerLabel(p: string) {
   return p === 'email' ? 'e-mail e senha' : p;
 }
 
-function AccountDetail({ userId }: { userId: string }) {
+function AccountDetail({ userId, onDeleted }: { userId: string; onDeleted: () => void }) {
   const api = useApi();
   const [load, reload] = useLoad(() => api.account(userId), [userId]);
   return (
     <Loaded load={load} onRetry={reload}>
-      {(s) => <AccountView s={s} />}
+      {(s) => (
+        <div className="stack">
+          <AccountView s={s} />
+          {s.account && <AccountActions userId={userId} account={s.account} onChanged={reload} onDeleted={onDeleted} />}
+        </div>
+      )}
     </Loaded>
+  );
+}
+
+type Pending = 'disable' | 'enable' | 'delete' | null;
+
+/**
+ * Desativar, reativar e excluir (pedido pela LGPD). Cada uma pede confirmação; excluir pede o e-mail
+ * da conta digitado. Nunca aparece na própria conta de quem está no painel (o servidor recusa também).
+ */
+export function AccountActions({ userId, account, onChanged, onDeleted }: {
+  userId: string;
+  account: Account;
+  onChanged: () => void;
+  onDeleted: () => void;
+}) {
+  const api = useApi();
+  const [me] = useLoad(() => api.me());
+  const [pending, setPending] = useState<Pending>(null);
+  const [typed, setTyped] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const confirmText = account.email ?? userId;
+
+  if (me.state !== 'ready' || me.data.userId === userId) return null;
+
+  async function run() {
+    if (!pending) return;
+    setBusy(true);
+    setError(null);
+    try {
+      if (pending === 'disable') await api.disableAccount(userId);
+      else if (pending === 'enable') await api.enableAccount(userId);
+      else await api.deleteAccount(userId, typed);
+      const was = pending;
+      setPending(null);
+      setTyped('');
+      if (was === 'delete') onDeleted();
+      else onChanged();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const close = () => { setPending(null); setTyped(''); setError(null); };
+
+  return (
+    <Card title="Ações na conta">
+      {!pending && (
+        <div className="account-actions">
+          {account.enabled ? (
+            <button type="button" className="btn btn--secondary" onClick={() => setPending('disable')}>
+              <Icon name="lock" /> Desativar a conta
+            </button>
+          ) : (
+            <button type="button" className="btn btn--secondary" onClick={() => setPending('enable')}>
+              <Icon name="restart_alt" /> Reativar a conta
+            </button>
+          )}
+          <button type="button" className="btn btn--danger" onClick={() => setPending('delete')}>
+            <Icon name="delete" /> Excluir a conta e os dados
+          </button>
+        </div>
+      )}
+      {pending && (
+        <div className="account-confirm" role="group" aria-label="Confirmar ação">
+          <p>
+            {pending === 'disable' && 'A pessoa não consegue mais entrar, e as sessões abertas são encerradas (o app aberto para em até 1 hora). Os dados ficam, e dá para reativar depois.'}
+            {pending === 'enable' && 'A pessoa volta a entrar normalmente, com a mesma senha e o mesmo progresso.'}
+            {pending === 'delete' && 'Apaga para sempre o progresso, as squads, a liga e o login desta pessoa. Use para pedidos de exclusão pela LGPD. Não dá para desfazer.'}
+          </p>
+          {pending === 'delete' && (
+            <label className="field field--grow">
+              <span className="field-label">Digite {account.email ? 'o e-mail da conta' : 'o id da conta'} para confirmar</span>
+              <input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={confirmText} autoComplete="off" />
+            </label>
+          )}
+          {error && <p className="state state--error" role="alert"><Chip tone="error" icon="warning">Erro</Chip> {error}</p>}
+          <div className="account-actions">
+            <button type="button" className="btn btn--secondary" onClick={close} disabled={busy}>Cancelar</button>
+            <button
+              type="button"
+              className={pending === 'enable' ? 'btn btn--primary' : 'btn btn--danger'}
+              onClick={() => void run()}
+              disabled={busy || (pending === 'delete' && typed.trim().toLowerCase() !== confirmText.toLowerCase())}
+              aria-busy={busy || undefined}
+            >
+              {busy ? 'Enviando...' : pending === 'disable' ? 'Desativar' : pending === 'enable' ? 'Reativar' : 'Excluir para sempre'}
+            </button>
+          </div>
+        </div>
+      )}
+      <p className="note">Cada ação fica registrada com quem fez, o que fez e o id da conta.</p>
+    </Card>
   );
 }
 

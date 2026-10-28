@@ -123,6 +123,18 @@ test('rodar de novo no mesmo dia regrava (sem somar) e preserva os contadores do
   assert.equal(day.activeUsers, 7);
 });
 
+test('job grava quantas pessoas estao com lembrete ligado e quantas com e-mail', async () => {
+  const repo = new InMemoryRepo();
+  const at = new Date('2026-10-23T03:30:00Z');
+  await repo.saveNotifState('a', { reminderHour: 19, timezone: 'America/Sao_Paulo', emailOptIn: true }, at);
+  await repo.saveNotifState('b', { reminderHour: 8, timezone: 'Asia/Tokyo', emailOptIn: false }, at);
+  await repo.saveNotifState('c', { reminderHour: null, timezone: 'America/Sao_Paulo', emailOptIn: false }, at);
+  const { handler } = makeOpsDailyHandler({ repo, cloud: fakeCloud(), costs: fakeCosts(), config, now: () => at });
+  const report = await quiet(() => handler({ skipCost: true }));
+  assert.deepEqual(report.reminders, { enabled: 2, email: 1 });
+  assert.deepEqual((await repo.getOpsItem('DAY#2026-10-22')).reminders, { enabled: 2, email: 1 });
+});
+
 test('dia manual e skipCost: refaz um dia sem pagar o Cost Explorer', async () => {
   const repo = new InMemoryRepo();
   const costs = fakeCosts();

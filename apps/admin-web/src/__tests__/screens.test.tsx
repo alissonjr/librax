@@ -138,7 +138,7 @@ describe('Conteúdo', () => {
 });
 
 describe('Contas', () => {
-  it('busca e mostra o resumo, sem nenhum botão de ação', async () => {
+  it('busca e mostra o resumo, sem botão de ação no resumo (as ações ficam no quadro próprio)', async () => {
     const api = mockApi();
     const account = vi.spyOn(api, 'account');
     withApi(api, <ContasScreen />);
@@ -155,8 +155,9 @@ describe('Contas', () => {
     expect(skipped).toHaveTextContent('pulada pelo nivelamento');
     expect(skipped).toHaveTextContent('2 out');
     expect(screen.getByText('de 57, 1 pulada pelo nivelamento')).toBeInTheDocument();
-    const labels = screen.getAllByRole('button').map((b) => b.textContent ?? '');
-    expect(labels.some((l) => /excluir|apagar|validar|editar|banir/i.test(l))).toBe(false);
+    const resumo = screen.getByLabelText('Resumo da conta');
+    const labels = within(resumo).queryAllByRole('button').map((b) => b.textContent ?? '');
+    expect(labels.some((l) => /excluir|apagar|validar|editar|banir|desativar/i.test(l))).toBe(false);
   });
 
   it('abre com todas as contas em páginas, sem precisar buscar', async () => {

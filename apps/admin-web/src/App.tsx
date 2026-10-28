@@ -182,7 +182,7 @@ function Shell({ me, onLogout }: { me: Me; onLogout: () => void }) {
           ))}
         </nav>
         <div className="side-foot">
-          <Chip tone="info" icon="visibility">só leitura</Chip>
+          <Chip tone="info" icon="shield">admin com autenticador</Chip>
           <span className="who" title={me.email ?? me.userId}>{me.email ?? me.userId}</span>
           <div className="side-actions">
             <button type="button" className="btn btn--ghost" onClick={() => setTheme(nextTheme(theme))} aria-label={`${THEME_LABEL[theme]}. Trocar tema`}>

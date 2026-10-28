@@ -162,6 +162,16 @@ a:hover { text-decoration-thickness: 2px; }
 .stat-hint { font: var(--lx-typography-caption); color: var(--lx-text-tertiary); }
 
 .note, .count { margin: 0; font: var(--lx-typography-body-sm); color: var(--lx-text-tertiary); }
+/* Ações na conta (Contas) e o quadro "O que pede atenção" (Operação) */
+.account-actions { display: flex; flex-wrap: wrap; gap: var(--lx-space-3); }
+.account-confirm { display: flex; flex-direction: column; gap: var(--lx-space-3); }
+.account-confirm p { margin: 0; }
+.account-confirm .field { flex: none; max-width: 480px; }
+.attention { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--lx-space-3); }
+.attention li { display: flex; align-items: center; gap: var(--lx-space-3); flex-wrap: wrap; }
+.attention a { color: var(--lx-text-primary); }
+.attention-ok { margin: 0; display: flex; align-items: center; gap: var(--lx-space-3); color: var(--lx-text-secondary); }
+.period { margin-bottom: var(--lx-space-4); }
 /* Anterior / Página N / Próxima embaixo da lista de contas */
 .pager { display: flex; align-items: center; justify-content: space-between; gap: var(--lx-space-3); margin-top: var(--lx-space-4); }
 .empty { margin: 0; color: var(--lx-text-secondary); }
@@ -222,6 +232,12 @@ a:hover { text-decoration-thickness: 2px; }
   width: 100%;
 }
 .btn--ghost:hover { background: var(--lx-bg-sunken); color: var(--lx-text-primary); }
+/* Ação que apaga ou bloqueia: cor de erro, sempre com texto que diz o que faz */
+.btn--danger {
+  background: var(--lx-feedback-error-soft);
+  color: var(--lx-feedback-error-on-soft);
+  border: var(--lx-border-width-thick) solid var(--lx-feedback-error-strong);
+}
 
 .filters, .search { display: flex; flex-wrap: wrap; gap: var(--lx-space-3); align-items: flex-end; }
 .field { display: flex; flex-direction: column; gap: var(--lx-space-1); min-width: 180px; }

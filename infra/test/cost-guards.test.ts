@@ -297,9 +297,11 @@ describe('Cognito: segundo fator e protecao', () => {
       .flatMap(([, p]) => p.Properties.PolicyDocument.Statement);
     const st = statements.find((s: { Action: string | string[] }) => [s.Action].flat().includes('cognito-idp:AdminGetUser'));
     expect(JSON.stringify(st.Resource)).toContain('LibraxUserPool');
-    // nenhuma outra Lambda le o usuario
+    // nenhuma outra Lambda le o usuario, fora a das acoes do painel (mesmo envelope com o segundo fator)
+    const [, actionsFn] = ofType(template, 'AWS::Lambda::Function').find(([, f]) => f.Properties.FunctionName === 'librax-admin-actions')!;
+    const actionsRoleId = actionsFn.Properties.Role['Fn::GetAtt'][0];
     const others = ofType(template, 'AWS::IAM::Policy')
-      .filter(([, p]) => !p.Properties.Roles.some((r: { Ref: string }) => r.Ref === roleId))
+      .filter(([, p]) => !p.Properties.Roles.some((r: { Ref: string }) => r.Ref === roleId || r.Ref === actionsRoleId))
       .flatMap(([, p]) => p.Properties.PolicyDocument.Statement)
       .flatMap((s: { Action: string | string[] }) => [s.Action].flat());
     expect(others).not.toContain('cognito-idp:AdminGetUser');

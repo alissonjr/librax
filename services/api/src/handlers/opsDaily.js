@@ -3,9 +3,10 @@
  * painel de administracao (usecases/collectDailyOps.js):
  *   1. erros do servidor do dia que acabou (CloudWatch: 5xx e 4xx da API, erros por Lambda,
  *      throttling da Lambda e do DynamoDB) em OPS / DAY#<dia>;
- *   2. gasto do mes por servico (Cost Explorer, uma chamada) em OPS / COST#<mes>.
+ *   2. gasto do mes por servico (Cost Explorer, uma chamada) em OPS / COST#<mes>;
+ *   3. quantas pessoas estao com lembrete ligado (e com e-mail), no mesmo OPS / DAY#<dia>.
  *
- * As duas partes sao independentes (uma falha nao impede a outra) e regravam o mesmo item, entao
+ * As partes sao independentes (uma falha nao impede a outra) e regravam o mesmo item, entao
  * rodar de novo nao soma nada. Para refazer um dia a mao: { "day": "2026-10-22" }; para nao
  * consultar o Cost Explorer (US$ 0,01 por chamada): { "skipCost": true }.
  *
@@ -18,7 +19,7 @@
 import { addDays } from '../lib/dates.js';
 import { isRealDate } from '../domain/lessonCompletion.js';
 import { opsToday } from '../domain/opsMetrics.js';
-import { collectCloudMetrics, collectMonthCost } from '../usecases/collectDailyOps.js';
+import { collectCloudMetrics, collectMonthCost, collectReminderPeople } from '../usecases/collectDailyOps.js';
 import { CloudWatchMetrics, makeCloudWatchClient } from '../adapters/cloudWatchMetrics.js';
 import { CostExplorerCosts, makeCostExplorerClient } from '../adapters/costExplorer.js';
 import { repo as dynamoRepo } from './_repo.js';
@@ -28,9 +29,10 @@ export function makeOpsDailyHandler({ repo, cloud, costs, config, now = () => ne
     const at = now();
     const day = isRealDate(event?.day) ? event.day : addDays(opsToday(at), -1);
 
-    const [metrics, cost] = await Promise.allSettled([
+    const [metrics, cost, reminders] = await Promise.allSettled([
       collectCloudMetrics(repo, cloud, { ...config, day, collectedAt: at.toISOString() }),
       event?.skipCost ? Promise.resolve(null) : collectMonthCost(repo, costs, { now: at }),
+      collectReminderPeople(repo, { day }),
     ]);
 
     const report = {
@@ -39,11 +41,13 @@ export function makeOpsDailyHandler({ repo, cloud, costs, config, now = () => ne
       cost: cost.status === 'fulfilled'
         ? cost.value && { month: cost.value.month, total: cost.value.total, projectedTotal: cost.value.projectedTotal }
         : { error: String(cost.reason?.message ?? cost.reason) },
+      reminders: reminders.status === 'fulfilled' ? reminders.value : { error: String(reminders.reason?.message ?? reminders.reason) },
     };
     console.log('[opsDaily]', JSON.stringify(report));
     // falha conta no alarme de erros das Lambdas; a outra parte ja foi gravada
     if (metrics.status === 'rejected') throw metrics.reason;
     if (cost.status === 'rejected') throw cost.reason;
+    if (reminders.status === 'rejected') throw reminders.reason;
     return report;
   }
   return { handler };

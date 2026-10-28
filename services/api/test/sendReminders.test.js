@@ -48,6 +48,9 @@ test('envia push para quem esta no horario e grava o estado', async () => {
   const r = await sendReminders(repo, { now, push });
 
   assert.equal(r.sent, 1);
+  assert.equal(r.pushDelivered, 1);
+  assert.equal(r.emailSent, 0);
+  assert.equal(r.failed, 0);
   assert.equal(push.sent.length, 1);
   assert.equal(push.sent[0].payload.title, 'Libras te espera');
   assert.equal(push.sent[0].payload.url, '/?origem=lembrete');
@@ -76,6 +79,17 @@ test('pula quem ja estudou hoje e quem esta em outro horario', async () => {
   assert.equal(r.sent, 0);
   assert.equal(r.skipped.ALREADY_STUDIED, 1);
   assert.equal(r.skipped.NOT_DUE, 1);
+});
+
+test('falha de envio conta no relatorio; inscricao expirada nao conta como falha', async () => {
+  const repo = new InMemoryRepo();
+  await seedUser(repo, 'u1');
+  const r = await sendReminders(repo, { now, push: fakePush({ failWith: 500 }), log: () => {} });
+  assert.equal(r.failed, 1);
+  assert.equal(r.pushDelivered, 0);
+  const expirada = new InMemoryRepo();
+  await seedUser(expirada, 'u2');
+  assert.equal((await sendReminders(expirada, { now, push: fakePush({ failWith: 410 }) })).failed, 0);
 });
 
 test('inscricao expirada (410) e removida', async () => {
