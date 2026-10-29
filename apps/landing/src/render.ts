@@ -112,13 +112,11 @@ export function renderPage(locale: Locale): string {
     unidades: N.curso.unidades,
     licoes: N.curso.licoes,
     sinais: N.curso.sinais,
-    animacoes: N.offline.animacoes,
     letras: N.letras.letras_estaticas,
     letrasMov: list(N.letras.letras_movimento_camera),
     numerosCamera: list(N.numeros_camera.numeros),
     sinaisCamera: N.sinais_movimento.sinais_camera,
     sinaisTreino: N.sinais_movimento.sinais_no_treino - N.sinais_movimento.sinais_camera,
-    testes: n(N.testes_app),
   };
   const f = (s: string, extra: Record<string, string | number> = {}) => esc(fill(s, { ...vals, ...extra }));
   // Canais diferentes, sem contar duas vezes quem aparece no alfabeto e nos sinais
@@ -138,13 +136,10 @@ export function renderPage(locale: Locale): string {
     </details>`;
 
   const navItems: [string, string][] = [
-    ['recursos', c.nav.features],
     ['licoes', c.nav.lessons],
     ['privacidade', c.nav.privacy],
-    ['offline', c.nav.offline],
     ['numeros', c.nav.numbers],
     ['instalar', c.nav.install],
-    ['sobre', c.nav.about],
     ['duvidas', c.nav.faq],
   ];
 
@@ -160,10 +155,8 @@ export function renderPage(locale: Locale): string {
 
   const featureCards = c.features.items
     .map(
-      (it) => `<li class="card feature">
-        <span class="feature-icon">${icon(it.icon as IconName, { filled: true })}</span>
-        <span class="chip">${f(it.badge)}</span>
-        <h3>${esc(it.title)}</h3>
+      (it) => `<li class="feature">
+        <h3>${icon(it.icon as IconName, { filled: true })}${esc(it.title)}</h3>
         <p>${f(it.text)}</p>
       </li>`,
     )
@@ -196,10 +189,6 @@ export function renderPage(locale: Locale): string {
             : icon(privacyIcons[i], { filled: true, cls: 'flow-icon' });
       return `<li class="flow-step"><span class="flow-art">${art}</span><span class="flow-text"><strong>${esc(s.title)}</strong> ${esc(s.text)}</span></li>`;
     })
-    .join('');
-
-  const offlineSteps = c.offline.steps
-    .map((s, i) => `<li class="track-step"><span class="track-node" aria-hidden="true">${i + 1}</span><div><h3>${esc(s.title)}</h3><p>${f(s.text)}</p></div></li>`)
     .join('');
 
   const T = N.treino;
@@ -301,7 +290,6 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
   <div class="wrap">
     <header class="section-head">
       <h2 id="recursos-title">${esc(c.features.title)}</h2>
-      <p class="lead">${esc(c.features.lead)}</p>
     </header>
     <ul class="features" role="list">${featureCards}</ul>
     <div class="topics">
@@ -318,10 +306,6 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
       <p class="lead">${esc(c.lessons.lead)}</p>
     </header>
     <ol class="lesson-steps" role="list">${lessonSteps}</ol>
-    <div class="topics">
-      <h3 class="eyebrow">${esc(c.lessons.typesTitle)}</h3>
-      <ul class="chips" role="list">${c.lessons.types.map((t) => `<li class="chip">${esc(t)}</li>`).join('')}</ul>
-    </div>
   </div>
 </section>
 
@@ -330,7 +314,6 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
     <header class="section-head">
       <h2 id="privacidade-title">${esc(c.privacy.title)}</h2>
       <p class="lead">${esc(c.privacy.lead)}</p>
-      <p class="note">${icon('shield', { filled: true })}${esc(c.privacy.note)}</p>
     </header>
     <div class="flow">
       <div class="flow-device">
@@ -345,25 +328,7 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
   </div>
 </section>
 
-<section class="section section-alt" id="offline" aria-labelledby="offline-title">
-  <div class="wrap offline-grid">
-    <div>
-      <header class="section-head">
-        <h2 id="offline-title">${esc(c.offline.title)}</h2>
-        <p class="lead">${esc(c.offline.lead)}</p>
-      </header>
-      <ol class="track" role="list">${offlineSteps}</ol>
-    </div>
-    <aside class="card offline-card" aria-labelledby="offline-card-title">
-      <span class="chip chip-hand">${icon('cloud_off', { filled: true })}${esc(c.nav.offline)}</span>
-      <h3 id="offline-card-title">${esc(c.offline.cardTitle)}</h3>
-      <ul class="checks" role="list">${c.offline.can.map((t) => `<li>${icon('check_circle', { filled: true })}${esc(t)}</li>`).join('')}</ul>
-      <p class="note">${esc(c.offline.cardNote)}</p>
-    </aside>
-  </div>
-</section>
-
-<section class="section numbers" id="numeros" aria-labelledby="numeros-title">
+<section class="section section-alt numbers" id="numeros" aria-labelledby="numeros-title">
   <div class="wrap">
     <header class="section-head">
       <h2 id="numeros-title">${esc(c.numbers.title)}</h2>
@@ -375,7 +340,6 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
       <div class="card stat stat-hero">
         <p class="stat-value">${n(N.letras.acerto_pct, 1)}<small>%</small></p>
         <p class="stat-label">${esc(c.numbers.accuracy)}</p>
-        <span class="chip chip-stage">${icon('check_circle', { filled: true })}${esc(c.numbers.fixedTest)}</span>
       </div>
       <div class="card stat">
         <p class="stat-value stat-value-md">${f(c.numbers.lettersCount, { n: N.letras.letras_estaticas })}</p>
@@ -410,7 +374,7 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
   </div>
 </section>
 
-<section class="section section-alt" id="instalar" aria-labelledby="instalar-title">
+<section class="section" id="instalar" aria-labelledby="instalar-title">
   <div class="wrap install-grid">
     <div>
       <header class="section-head">
@@ -423,6 +387,7 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
         </div>
         ${installPanels}
       </div>
+      <p class="note">${icon('cloud_off', { filled: true })}${esc(c.install.offline)}</p>
       <div class="cta-row">
         <a class="btn btn-primary" href="${appLink('', locale)}">${esc(c.install.cta)}${icon('arrow_forward')}</a>
       </div>
@@ -445,31 +410,26 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
   </div>
 </section>
 
-<section class="section" id="sobre" aria-labelledby="sobre-title">
+<section class="section section-alt" id="sobre" aria-labelledby="sobre-title">
   <div class="wrap">
     <header class="section-head">
-      <h2 id="sobre-title">${esc(c.project.title)}</h2>
-      <p class="lead">${esc(c.project.lead)}</p>
+      <h2 id="sobre-title">${esc(c.about.title)}</h2>
     </header>
-    <ul class="project" role="list">
-      ${c.project.items.map((it, i) => `<li class="card"><span class="feature-icon">${icon((['check_circle', 'shield', 'description'] as IconName[])[i], { filled: true })}</span><h3>${esc(it.title)}</h3><p>${f(it.text)}</p></li>`).join('')}
-    </ul>
     <article class="card author" aria-labelledby="autor-nome">
-      <img class="author-photo" src="/img/autor/alisson-240.webp" srcset="/img/autor/alisson-240.webp 1x, /img/autor/alisson-480.webp 2x" width="120" height="120" alt="${esc(c.project.author.photoAlt)}" loading="lazy" decoding="async">
+      <img class="author-photo" src="/img/autor/alisson-240.webp" srcset="/img/autor/alisson-240.webp 1x, /img/autor/alisson-480.webp 2x" width="120" height="120" alt="${esc(c.about.photoAlt)}" loading="lazy" decoding="async">
       <div class="author-body">
-        <p class="author-kicker">${esc(c.project.author.title)}</p>
-        <h3 id="autor-nome">${esc(c.project.author.name)}</h3>
-        <p class="author-role">${esc(c.project.author.role)}</p>
-        <p>${esc(c.project.author.bio)}</p>
-        <ul class="author-links" role="list" aria-label="${esc(c.project.author.links)}">
-          ${AUTHOR_LINKS.map(([label, href]) => `<li><a class="chip" href="${href}" target="_blank" rel="noopener noreferrer">${esc(label === 'site' ? c.project.author.site : label)}</a></li>`).join('')}
+        <h3 id="autor-nome">${esc(c.about.name)}</h3>
+        <p class="author-role">${esc(c.about.role)}</p>
+        <p>${esc(c.about.bio)}</p>
+        <ul class="author-links" role="list" aria-label="${esc(c.about.links)}">
+          ${AUTHOR_LINKS.map(([label, href]) => `<li><a class="chip" href="${href}" target="_blank" rel="noopener noreferrer">${esc(label === 'site' ? c.about.site : label)}</a></li>`).join('')}
         </ul>
       </div>
     </article>
   </div>
 </section>
 
-<section class="section section-alt" id="duvidas" aria-labelledby="duvidas-title">
+<section class="section" id="duvidas" aria-labelledby="duvidas-title">
   <div class="wrap">
     <header class="section-head">
       <h2 id="duvidas-title">${esc(c.faq.title)}</h2>
@@ -484,7 +444,6 @@ ${locale === 'pt-BR' ? `<script>${rootRedirectScript()}</script>\n` : ''}<title>
   <div class="wrap footer-grid">
     <div class="footer-brand">
       ${wordmark(26)}
-      <p>${esc(c.footer.tagline)}</p>
       <p class="footer-libras">${esc(c.footer.libras)}</p>
     </div>
     <nav aria-label="${esc(c.footer.app)}">
