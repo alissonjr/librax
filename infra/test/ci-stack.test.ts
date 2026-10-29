@@ -251,14 +251,18 @@ describe('nomes iguais no CDK, no script e no buildspec', () => {
     expect(`^refs/tags/${re.slice(1)}`).toBe(CI_TAG_REF_PATTERN);
   });
 
-  test('o buildspec existe no caminho do projeto e chama o lancamento com --ci depois dos testes', () => {
+  test('o buildspec existe no caminho do projeto: confere a tag, instala e publica com --ci, sem os testes', () => {
     const buildspec = readFileSync(path.join(RAIZ, CI_BUILDSPEC_PATH), 'utf8');
     const fases = buildspec.slice(buildspec.indexOf('\nphases:'));
-    const testes = fases.indexOf('- bash infra/ci/ci.sh testar');
+    const tag = fases.indexOf('- bash infra/ci/ci.sh conferir-tag');
+    const instalar = fases.indexOf('- bash infra/ci/ci.sh instalar');
     const deploy = fases.indexOf('- bash infra/scripts/lancar-cloudshell.sh --ci');
-    expect(fases.indexOf('- bash infra/ci/ci.sh conferir-tag')).toBeGreaterThan(0);
-    expect(testes).toBeGreaterThan(0);
-    expect(deploy).toBeGreaterThan(testes);
+    expect(tag).toBeGreaterThan(0);
+    expect(instalar).toBeGreaterThan(tag);
+    expect(deploy).toBeGreaterThan(instalar);
+    // as suites rodam no computador antes do main e da tag (ci.sh testar), nao no CodeBuild
+    expect(fases).not.toContain('ci.sh testar');
+    expect(fases).not.toContain('pre_build');
     expect(buildspec).toMatch(/nodejs: 22/);
   });
 

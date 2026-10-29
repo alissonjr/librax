@@ -1,9 +1,12 @@
 # CI/CD do Librax (publicar com uma tag)
 
 Depois do primeiro lançamento ([`lancamento.md`](lancamento.md)), publicar uma versão nova não precisa mais do
-CloudShell. Você cria uma tag de versão no Git (por exemplo `v1.2.0`) e envia para o GitHub. A AWS percebe,
-roda **todos os testes** do projeto e, só se todos passarem, publica a stack, o app, o painel e a landing,
-exatamente como o script do CloudShell faz. No fim chega um e-mail dizendo se deu certo.
+CloudShell. Você cria uma tag de versão no Git (por exemplo `v1.2.0`) e envia para o GitHub. A AWS percebe e
+publica a stack, o app, o painel e a landing, exatamente como o script do CloudShell faz. No fim chega um e-mail
+dizendo se deu certo.
+
+Os testes **não rodam na AWS**: rodam no computador, ao fim de cada mudança antes de ir para o `main`, e de novo
+antes de criar a tag (`bash infra/ci/ci.sh testar`, todas as suítes). Repetir no CodeBuild só gastava minutos.
 
 Tudo roda dentro da AWS, no **CodeBuild** (o serviço de builds da AWS), sem GitHub Actions e sem servidor
 próprio. Um push comum no `main` não publica nada, e pull requests não rodam nada: só tags `vX.Y.Z`.
@@ -23,16 +26,15 @@ O CodeBuild dá **100 minutos de build por mês de graça**, sem prazo para acab
 com o GitHub, a regra que manda o e-mail, o parâmetro do SSM (nível padrão) e os logs (guardados por 2 semanas,
 poucos MB por build).
 
-Cada versão leva por volta de **18 minutos**: 1 de preparo da máquina, 3 a 5 de `npm ci` nos cinco pacotes,
-3 a 4 de testes, 2 a 3 de build do app (com os modelos de ML e o avatar VLibras), 3 a 6 do deploy da stack e 1 a
-2 de upload. Quando a mudança mexe no CloudFront, o deploy pode levar mais 10 minutos. Build que falha nos testes
-para antes do deploy e gasta uns 8 minutos.
+Cada versão leva por volta de **14 minutos**: 1 de preparo da máquina, 3 a 5 de `npm ci` nos cinco pacotes,
+2 a 3 de build do app (com os modelos de ML e o avatar VLibras), 3 a 6 do deploy da stack e 1 a 2 de upload.
+Quando a mudança mexe no CloudFront, o deploy pode levar mais 10 minutos.
 
-| Versões por mês | Minutos (18 por versão) | Custo | Se cada versão levar 30 minutos |
+| Versões por mês | Minutos (14 por versão) | Custo | Se cada versão levar 25 minutos |
 |---|---|---|---|
-| 5 | 90 | US$ 0,00 (dentro dos 100 grátis) | 150 min: US$ 0,25 |
-| 10 | 180 | US$ 0,40 | 300 min: US$ 1,00 |
-| 20 | 360 | US$ 1,30 | 600 min: US$ 2,50 |
+| 5 | 70 | US$ 0,00 (dentro dos 100 grátis) | 125 min: US$ 0,13 |
+| 10 | 140 | US$ 0,20 | 250 min: US$ 0,75 |
+| 20 | 280 | US$ 0,90 | 500 min: US$ 2,00 |
 
 O AWS Budget mensal do Librax já inclui esse gasto. Contas criadas depois de julho de 2025 entram no plano novo do
 nível gratuito da AWS: confira em **Faturamento e Gerenciamento de Custos > Nível gratuito** (Billing and Cost
@@ -78,10 +80,12 @@ O e-mail que recebe o resultado dos builds é o mesmo dos alarmes. Não há assi
 
 ## Publicar uma versão
 
-Com a mudança já no `main` do GitHub, no seu computador:
+Com a mudança já no `main` do GitHub, no seu computador. Primeiro todas as suítes (a AWS não roda os testes;
+uma suíte vermelha para aqui, antes da tag):
 
 ```bash
 git checkout main && git pull
+bash infra/ci/ci.sh instalar && bash infra/ci/ci.sh testar
 git tag v1.0.0
 git push origin v1.0.0
 ```
@@ -95,10 +99,7 @@ O que acontece, em ordem (cada etapa só começa se a anterior deu certo):
 
 1. Confere que o build veio de uma tag de versão.
 2. Instala as dependências (`npm ci`) de `services/api`, `apps/landing`, `apps/admin-web`, `infra` e `apps/web-poc`.
-3. Roda os testes: `services/api` (`node --test`), `apps/landing` e `apps/admin-web` (vitest), `infra` (vitest e
-   `tsc`), `apps/web-poc` (conteúdo das lições, `tsc -b` e vitest). **Qualquer teste vermelho para tudo aqui,
-   antes de publicar.**
-4. Publica com `lancar-cloudshell.sh --ci`: lê os valores do SSM, confere a conta, a zona, o certificado e o DNS,
+3. Publica com `lancar-cloudshell.sh --ci`: lê os valores do SSM, confere a conta, a zona, o certificado e o DNS,
    faz o deploy da `LibraxStack`, o build e o upload do app e do painel e publica a landing.
 
 No fim chega no e-mail dos alarmes uma mensagem "Librax CI/CD: SUCCEEDED na versão v1.0.0" (publicado), ou
@@ -108,8 +109,8 @@ No fim chega no e-mail dos alarmes uma mensagem "Librax CI/CD: SUCCEEDED na vers
 
 - **CodeBuild > Projetos de build > librax-lancamento > Histórico de build** (**Build projects > librax-lancamento
   > Build history**). Clique no build: a aba **Logs de build** (**Build logs**) mostra a saída inteira, e
-  **Detalhes da fase** (**Phase details**) mostra em que etapa parou (`INSTALL` é dependências, `PRE_BUILD` são os
-  testes, `BUILD` é a publicação).
+  **Detalhes da fase** (**Phase details**) mostra em que etapa parou (`INSTALL` é a tag e as dependências, `BUILD`
+  é a publicação).
 - O link do log também vem no e-mail do resultado.
 - Os mesmos logs ficam em **CloudWatch > Grupos de logs > /aws/codebuild/librax-lancamento** (**Log groups**) por 2
   semanas.
@@ -151,7 +152,6 @@ O e-mail diz `FAILED`. Abra o log (acima) e veja a última mensagem começando c
 
 | Onde parou ou o que diz | O que fazer |
 |---|---|
-| `PRE_BUILD` (testes) | nada foi publicado. Corrija no `main` e envie uma versão nova (`v1.0.1`) |
 | "Este build não veio de uma tag de versão" | o build foi iniciado sem a tag; use [Rodar de novo](#rodar-de-novo) com a tag |
 | "Não consegui ler /librax/cdk-context no SSM" ou "Falta no /librax/cdk-context do SSM" | rode o lançamento completo uma vez no CloudShell (`bash infra/scripts/lancar-cloudshell.sh`): ele regrava o parâmetro |
 | Erro no download do VLibras ou dos modelos de ML | falha passageira dos servidores; [rode de novo](#rodar-de-novo) |

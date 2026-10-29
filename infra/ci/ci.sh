@@ -5,7 +5,8 @@
 #   bash infra/ci/ci.sh instalar       npm ci em cada pacote
 #   bash infra/ci/ci.sh testar         todas as suítes de teste; para na primeira que falhar
 #
-# O "testar" também roda fora da AWS, no seu computador, antes de criar a tag:
+# O "testar" roda no seu computador, não no CodeBuild: ao fim de cada mudança, antes do main, e de novo
+# antes de criar a tag (o buildspec só confere a tag, instala e publica):
 #   bash infra/ci/ci.sh instalar && bash infra/ci/ci.sh testar
 set -Eeuo pipefail
 

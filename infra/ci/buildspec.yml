@@ -1,9 +1,11 @@
 # CI/CD do Librax no CodeBuild (projeto librax-lancamento, infra/lib/ci-stack.ts; guia em docs/ci-cd.md).
 #
-# Roda só com o push de uma tag de versão (v1.2.3). Ordem: confere a tag, instala as dependências,
-# roda todas as suítes de teste e, só se todas passarem, publica com o mesmo script do CloudShell
-# (lancar-cloudshell.sh --ci: deploy da LibraxStack, build e upload do app, do painel e da landing).
-# Se uma fase falha, as seguintes não rodam: teste vermelho nunca chega ao deploy.
+# Roda só com o push de uma tag de versão (v1.2.3). Ordem: confere a tag, instala as dependências e
+# publica com o mesmo script do CloudShell (lancar-cloudshell.sh --ci: deploy da LibraxStack, build e
+# upload do app, do painel e da landing). Se uma fase falha, as seguintes não rodam.
+#
+# As suítes de teste não rodam aqui: rodam no computador de quem desenvolve, ao fim de cada mudança antes
+# do main e de novo antes da tag (bash infra/ci/ci.sh testar). Repetir aqui só gastava minutos de build.
 version: 0.2
 
 env:
@@ -24,9 +26,6 @@ phases:
     commands:
       - bash infra/ci/ci.sh conferir-tag
       - bash infra/ci/ci.sh instalar
-  pre_build:
-    commands:
-      - bash infra/ci/ci.sh testar
   build:
     commands:
       - bash infra/scripts/lancar-cloudshell.sh --ci

@@ -356,11 +356,12 @@ app juntos, na rodada completa.
 ## Publicar atualizações
 
 **Com o CI/CD (recomendado):** configure uma vez com `bash infra/scripts/lancar-cloudshell.sh --configurar-ci` e,
-daí em diante, publique do seu computador com uma tag de versão. A AWS roda todos os testes e só publica se todos
-passarem; o resultado chega no e-mail dos alarmes. Passo a passo, custo, logs e como voltar uma versão em
-[`ci-cd.md`](ci-cd.md):
+daí em diante, publique do seu computador com uma tag de versão, depois de rodar todas as suítes no computador
+(a AWS não roda os testes, só publica); o resultado chega no e-mail dos alarmes. Passo a passo, custo, logs e
+como voltar uma versão em [`ci-cd.md`](ci-cd.md):
 
 ```bash
+bash infra/ci/ci.sh instalar && bash infra/ci/ci.sh testar
 git tag v1.0.0 && git push origin v1.0.0
 ```
 
