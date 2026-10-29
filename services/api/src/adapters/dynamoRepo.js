@@ -3,7 +3,8 @@
  *
  * Tabela single-table `librax` (SPEC 02 secao 3 / SPEC 04 secao 1):
  *   PK + SK primarios; GSI1 (SRS por dueAt); GSI2 (liga do usuario e ligas da semana);
- *   GSI3 (squads do usuario); GSI4 (squads publicas); GSI5 (indice de convite);
+ *   GSI3 (squads do usuario); GSI4 (squads publicas e, noutra particao, o ranking global de XP
+ *   no item do perfil); GSI5 (indice de convite);
  *   GSI6 (lembretes por balde de fuso). TTL no atributo `expiresAt`.
  *   Painel de administracao: contadores em OPS / <chave> e o registro SQUADINDEX (ver
  *   domain/opsMetrics.js e docs/painel-admin.md).
@@ -14,6 +15,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { offsetBucket } from '../domain/reminders.js';
 import { freshPeriods } from '../domain/opsMetrics.js';
+import { isListedInGlobalRanking, rankingXp } from '../domain/ranking.js';
 import {
   DynamoDBDocumentClient,
   GetCommand,
@@ -45,6 +47,16 @@ const OPS_PK = 'OPS';
 const SQUAD_INDEX_PK = 'SQUADINDEX';
 const squadIndexKey = (squadId, createdAt) => ({ PK: SQUAD_INDEX_PK, SK: `SQUAD#${createdAt ?? '-'}#${squadId}` });
 
+/**
+ * Ranking global de todos os tempos no GSI4, no proprio item do perfil (esparso: so quem nao saiu
+ * dele): `RANK#ALL` / `XP#<xpTotal com 10 digitos>`. Particao diferente da das squads publicas
+ * (`SQUADS_PUBLIC`), no mesmo indice e sem indice novo. A exclusao de conta apaga o perfil e a
+ * entrada sai junto.
+ */
+const RANKING_PK = 'RANK#ALL';
+const rankingSk = (xp) => `XP#${String(rankingXp(xp)).padStart(10, '0')}`;
+const profileKey = (userId) => ({ PK: `USER#${userId}`, SK: 'PROFILE' });
+
 /** Cria um client configurado para producao (regiao via env AWS_REGION). */
 export function makeDynamoClient(options = {}) {
   const raw = new DynamoDBClient(options);
@@ -70,14 +82,180 @@ export class DynamoRepo {
     return Item ? this._stripKeys(Item) : null;
   }
 
+  /**
+   * Grava o perfil campo a campo (SET), menos o nome e a escolha do ranking global: so o PUT
+   * /v1/users/me/profile muda os dois (updateProfileSettings), entao uma licao concluida no meio
+   * da troca nao volta o nome antigo nem poe de volta no ranking quem saiu. O nome so entra no
+   * perfil novo (if_not_exists). Na mesma escrita refaz a entrada do ranking global com o XP novo,
+   * condicional a pessoa nao ter saido dele; quem saiu fica sem a entrada.
+   */
   async saveProfile(profile) {
-    const { userId } = profile;
-    await this._db.send(
-      new PutCommand({
+    const { userId, displayName = null, showInGlobalRanking: _choice, ...fields } = profile;
+    const names = { '#displayName': 'displayName' };
+    const values = { ':uid': userId, ':dn': displayName };
+    const sets = ['userId = :uid', '#displayName = if_not_exists(#displayName, :dn)'];
+    Object.entries(fields)
+      .filter(([, v]) => v !== undefined)
+      .forEach(([k, v], i) => {
+        names[`#f${i}`] = k;
+        values[`:f${i}`] = v;
+        sets.push(`#f${i} = :f${i}`);
+      });
+    const update = (UpdateExpression, extra = {}) =>
+      new UpdateCommand({
         TableName: TABLE,
-        Item: { PK: `USER#${userId}`, SK: 'PROFILE', ...profile },
+        Key: profileKey(userId),
+        UpdateExpression,
+        ExpressionAttributeNames: { ...names, ...extra.names },
+        ExpressionAttributeValues: { ...values, ...extra.values },
+        ...(extra.condition ? { ConditionExpression: extra.condition } : {}),
+      });
+    try {
+      await this._db.send(
+        update(`SET ${[...sets, 'GSI4PK = :rank', 'GSI4SK = :rankSk'].join(', ')}`, {
+          names: { '#show': 'showInGlobalRanking' },
+          values: { ':rank': RANKING_PK, ':rankSk': rankingSk(fields.xpTotal), ':false': false },
+          condition: 'attribute_not_exists(#show) OR #show <> :false',
+        }),
+      );
+    } catch (e) {
+      if (!isConditionFailure(e)) throw e;
+      await this._db.send(update(`SET ${sets.join(', ')} REMOVE GSI4PK, GSI4SK`));
+    }
+  }
+
+  /**
+   * Cria o perfil so se ainda nao existe (PUT /v1/users/me/profile antes da primeira licao): uma
+   * migracao do convidado rodando ao mesmo tempo nunca tem o XP coberto por um perfil zerado.
+   * @returns {Promise<boolean>} true se criou
+   */
+  async createProfile(profile) {
+    try {
+      await this._db.send(
+        new PutCommand({
+          TableName: TABLE,
+          Item: {
+            ...profileKey(profile.userId),
+            ...profile,
+            ...(isListedInGlobalRanking(profile) ? { GSI4PK: RANKING_PK, GSI4SK: rankingSk(profile.xpTotal) } : {}),
+          },
+          ConditionExpression: 'attribute_not_exists(PK)',
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (isConditionFailure(e)) return false;
+      throw e;
+    }
+  }
+
+  /**
+   * Nome e escolha do ranking global (PUT /v1/users/me/profile): SET so dos campos dados. `listed`
+   * (a escolha final) poe a entrada do ranking, com o XP lido so se ela ainda nao tinha chave (a
+   * licao mantem a chave em dia), ou tira as duas chaves do indice.
+   */
+  async updateProfileSettings(userId, changes, { listed = true, xpTotal = 0 } = {}) {
+    const names = {};
+    const values = {};
+    const sets = [];
+    for (const [k, v] of Object.entries(changes)) {
+      names[`#${k}`] = k;
+      values[`:${k}`] = v;
+      sets.push(`#${k} = :${k}`);
+    }
+    if (listed) {
+      values[':rank'] = RANKING_PK;
+      values[':rankSk'] = rankingSk(xpTotal);
+      sets.push('GSI4PK = :rank', 'GSI4SK = if_not_exists(GSI4SK, :rankSk)');
+    }
+    await this._db.send(
+      new UpdateCommand({
+        TableName: TABLE,
+        Key: profileKey(userId),
+        UpdateExpression: `SET ${sets.join(', ')}${listed ? '' : ' REMOVE GSI4PK, GSI4SK'}`,
+        ConditionExpression: 'attribute_exists(PK)',
+        ExpressionAttributeNames: names,
+        ExpressionAttributeValues: values,
       }),
     );
+  }
+
+  // -----------------------------------------------------------------------
+  // RANKING GLOBAL DE TODOS OS TEMPOS
+  // USER#<id> / PROFILE; GSI4: RANK#ALL / XP#<xpTotal com 10 digitos> (esparso)
+  // -----------------------------------------------------------------------
+
+  async hasGlobalRankingEntry(userId) {
+    const { Item } = await this._db.send(
+      new GetCommand({ TableName: TABLE, Key: profileKey(userId), ProjectionExpression: 'GSI4PK' }),
+    );
+    return Item?.GSI4PK === RANKING_PK;
+  }
+
+  /**
+   * Entrada que faltava no ranking (perfil gravado antes dele). Condicional ao perfil existir e a
+   * pessoa nao ter saido; a chave com o XP so entra se ainda nao existe (uma licao no meio ja a
+   * gravou com o XP novo).
+   * @returns {Promise<boolean>} false se nao ha perfil ou a pessoa saiu do ranking
+   */
+  async addGlobalRankingEntry(userId, xpTotal = 0) {
+    try {
+      await this._db.send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key: profileKey(userId),
+          UpdateExpression: 'SET GSI4PK = :rank, GSI4SK = if_not_exists(GSI4SK, :rankSk)',
+          ConditionExpression: 'attribute_exists(PK) AND (attribute_not_exists(#show) OR #show <> :false)',
+          ExpressionAttributeNames: { '#show': 'showInGlobalRanking' },
+          ExpressionAttributeValues: { ':rank': RANKING_PK, ':rankSk': rankingSk(xpTotal), ':false': false },
+        }),
+      );
+      return true;
+    } catch (e) {
+      if (isConditionFailure(e)) return false;
+      throw e;
+    }
+  }
+
+  /** Os `limit` de maior XP, do maior para o menor (uma Query no GSI4, sem Scan). */
+  async listGlobalRanking(limit) {
+    const { Items = [] } = await this._db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        IndexName: 'GSI4',
+        KeyConditionExpression: 'GSI4PK = :pk',
+        ExpressionAttributeValues: { ':pk': RANKING_PK },
+        ProjectionExpression: 'PK, userId, displayName, GSI4SK',
+        ScanIndexForward: false,
+        Limit: limit,
+      }),
+    );
+    return Items.map((i) => ({
+      userId: i.userId ?? i.PK.slice(5),
+      displayName: i.displayName ?? null,
+      xp: Number(i.GSI4SK.slice(3)),
+    }));
+  }
+
+  /** Quantas entradas tem XP estritamente maior que `xp` (Select COUNT, todas as paginas). */
+  async countGlobalRankingAbove(xp) {
+    let total = 0;
+    let ExclusiveStartKey;
+    do {
+      const page = await this._db.send(
+        new QueryCommand({
+          TableName: TABLE,
+          IndexName: 'GSI4',
+          KeyConditionExpression: 'GSI4PK = :pk AND GSI4SK > :sk',
+          ExpressionAttributeValues: { ':pk': RANKING_PK, ':sk': rankingSk(xp) },
+          Select: 'COUNT',
+          ExclusiveStartKey,
+        }),
+      );
+      total += page.Count ?? 0;
+      ExclusiveStartKey = page.LastEvaluatedKey;
+    } while (ExclusiveStartKey);
+    return total;
   }
 
   // -----------------------------------------------------------------------
@@ -508,6 +686,27 @@ export class DynamoRepo {
       }
       throw e;
     }
+  }
+
+  /** Nome novo no MEMBER# (troca de nome no perfil); membro que ja saiu nao vira item solto. */
+  async setSquadMemberName(squadId, userId, displayName) {
+    await this._setNameIfExists({ PK: `SQUAD#${squadId}`, SK: `MEMBER#${userId}` }, displayName);
+  }
+
+  async _setNameIfExists(Key, displayName) {
+    await this._db
+      .send(
+        new UpdateCommand({
+          TableName: TABLE,
+          Key,
+          UpdateExpression: 'SET displayName = :dn',
+          ConditionExpression: 'attribute_exists(PK)',
+          ExpressionAttributeValues: { ':dn': displayName },
+        }),
+      )
+      .catch((e) => {
+        if (!isConditionFailure(e)) throw e;
+      });
   }
 
   /** Troca so o papel no MEMBER# e no vinculo USER#/SQUAD# (promote, demote, transfer). */
@@ -1021,6 +1220,11 @@ export class DynamoRepo {
       if (reasons[1]?.Code === 'ConditionalCheckFailed') return { status: 'full', leagueId };
       throw e;
     }
+  }
+
+  /** Nome novo em `LEAGUE#<id> / USER#<id>` (troca de nome no perfil); quem saiu fica de fora. */
+  async setLeagueMemberName(leagueId, userId, displayName) {
+    await this._setNameIfExists({ PK: `LEAGUE#${leagueId}`, SK: `USER#${userId}` }, displayName);
   }
 
   /** Vaga da pessoa na semana (`USER#<id> / LEAGUEWEEK#<semana>`), leitura consistente. */
@@ -1666,7 +1870,8 @@ export class DynamoRepo {
   /**
    * Apaga todos os itens `USER#<id>` (perfil, progresso, SRS, XP do dia, conquistas, vinculos de
    * squad, estado e vagas de liga, tentativas, Web Push, lembretes, atividade), 25 por BatchWrite.
-   * As entradas dos indices (GSI1 do SRS, GSI6 dos lembretes) saem com os itens. O que o
+   * As entradas dos indices (GSI1 do SRS, GSI4 do ranking global no perfil, GSI6 dos lembretes)
+   * saem com os itens. O que o
    * BatchWrite devolver sem processar e reenviado algumas vezes; se ainda sobrar, falha e a nova
    * tentativa da pessoa apaga o resto.
    * @returns {Promise<number>} itens apagados

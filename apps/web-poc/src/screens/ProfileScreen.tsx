@@ -163,7 +163,7 @@ export function ProfileScreen({
       )}
 
       {/* Insígnia de liga */}
-      {onOpenLeague && <LeagueShortcut userId={userId} repo={repo} onOpen={onOpenLeague} variant="profile" />}
+      {onOpenLeague && <LeagueShortcut onOpen={onOpenLeague} variant="profile" />}
 
       {/* Course progress */}
       <div className="profile-card animate__animated animate__fadeInUp animate__faster" style={{ animationDelay: '320ms' }}>

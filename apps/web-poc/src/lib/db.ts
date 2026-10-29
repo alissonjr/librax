@@ -22,8 +22,8 @@ export function upgradeLibraxDb(db: IDBPDatabase<unknown>, oldVersion = 0) {
   }
 
   if (oldVersion < 2) {
-    // Ligas semanais no modo local/demo (src/lib/leagueLocal.ts): liga atual do usuario e
-    // XP do periodo por membro (mesmo par PK/SK do DynamoDB: LEAGUE#<id> / USER#<id>).
+    // Ligas do antigo modo local/demo. Hoje as ligas ficam no servidor (src/lib/league.ts): os
+    // stores seguem só porque fazem parte da versão 2 do banco.
     db.createObjectStore('league_state', { keyPath: 'userId' });
     db.createObjectStore('league_members', { keyPath: ['leagueId', 'userId'] });
   }

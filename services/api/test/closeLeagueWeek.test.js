@@ -177,3 +177,20 @@ test('depois do fechamento, a licao concluida soma XP na liga da semana nova', a
   assert.equal(await repo.getLeagueMemberXp('safira-2026-w44', 'u01'), 10);
   assert.equal(await repo.getLeagueMemberXp('ouro-2026-w43', 'u01'), 300);
 });
+
+test('quem segue para a semana seguinte leva o nome da liga que fechou', async () => {
+  const repo = new InMemoryRepo();
+  await repo.joinLeague(ouroW43, 'u01', { displayName: 'Ana' });
+  await repo.joinLeague(ouroW43, 'u02');
+  await repo.incrementLeagueXp(ouroW43.leagueId, 'u01', 50);
+  await repo.incrementLeagueXp(ouroW43.leagueId, 'u02', 40);
+
+  await closeLeagueWeek(repo, { periodStart: W43, closedAt });
+
+  const { leagueId } = await repo.getUserLeague('u01');
+  const names = Object.fromEntries((await repo.listLeagueMembers(leagueId)).map((m) => [m.userId, m.displayName ?? null]));
+  assert.equal(names.u01, 'Ana');
+  assert.equal(names.u02 ?? null, null);
+  // o resultado gravado nao leva o nome
+  assert.equal('displayName' in (await repo.getLeagueState('u01')).lastResult, false);
+});

@@ -73,7 +73,7 @@ Tabela única `librax`. Chaves: `PK` (partition) e `SK` (sort). GSIs para os ace
 
 | Entidade | PK | SK | Atributos | 
 |---|---|---|---|
-| Perfil | `USER#<id>` | `PROFILE` | displayName, locale, timezone, xpTotal, streak, lastActiveDay, dailyGoalXp |
+| Perfil | `USER#<id>` | `PROFILE` | displayName, showInGlobalRanking, locale, timezone, xpTotal, streak, lastActiveDay, dailyGoalXp; **GSI4** (só quem não saiu do ranking global): `RANK#ALL` / `XP#<xpTotal>` |
 | Progresso de lição | `USER#<id>` | `PROG#<lessonId>` | status, bestScore, completedAt |
 | Item SRS | `USER#<id>` | `SRS#<signId>` | strength, dueAt, lastReviewedAt; **GSI1**: `USER#<id>` / `DUE#<dueAt>` |
 | Log de ofensiva | `USER#<id>` | `DAY#<yyyy-mm-dd>` | (presença = estudou no dia) |
@@ -127,6 +127,8 @@ Justificativa: (a) MVP é gratuito, então não há motivo de monetização para
 - ~30 usuários por liga/tier; ranking por `xpPeriod` da semana.
 - **EventBridge Scheduler** dispara Lambda no fim da semana para fechar liga (promove/rebaixa, reseta período, monta novas ligas).
 - Sem necessidade de "amigos": competição social leve.
+- **Ranking global** (todos os tempos, `GET /v1/ranking/global`): todo mundo pelo XP total do perfil, os 50 primeiros e a posição de quem chama (empate divide a posição). A entrada fica no próprio perfil, no GSI4 que já existia (`RANK#ALL` / `XP#<xpTotal com 10 dígitos>`, partição separada das squads públicas), e é refeita a cada lição. Nos rankings aparece o nome escolhido no onboarding, que o app manda em `PUT /v1/users/me/profile` (e que vai também para a liga da semana e as squads); quem não escolheu aparece sem nome, nunca com o id.
+- **Sair do ranking global**: `showInGlobalRanking: false` no mesmo `PUT` tira a entrada (a pessoa continua na liga da semana e nas squads); o padrão é aparecer. Excluir a conta apaga o perfil e a entrada sai junto.
 
 ## 6. Repetição espaçada (SRS)
 - Item por `(usuário, sinal)` na tabela (`SRS#<signId>`).

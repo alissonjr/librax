@@ -478,3 +478,99 @@
 }
 :root[data-reduced-motion="true"] .league-sheet,
 :root[data-reduced-motion="true"] .league-sheet-badge { transition: opacity var(--lx-motion-duration-fast) var(--lx-motion-easing-standard); transform: none; }
+
+/* ---------- aba Social: ligas fixas e privadas ---------- */
+.social-section-title { font: var(--lx-typography-title-sm); color: var(--lx-text-primary); margin: var(--lx-space-2) 0 var(--lx-space-2); }
+.social-stack, .social-private-list { display: flex; flex-direction: column; gap: var(--lx-space-3); }
+.social-private-list { margin-top: var(--lx-space-3); }
+.social-private-actions { display: flex; flex-wrap: wrap; gap: var(--lx-space-2); margin-top: var(--lx-space-3); }
+.social-private-actions .btn { flex: 1 1 auto; }
+.social-private-guest { margin-top: var(--lx-space-3); font: var(--lx-typography-body-sm); color: var(--lx-text-secondary); }
+.social-invite-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--lx-space-2);
+  margin-top: var(--lx-space-3);
+  padding: var(--lx-space-3);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-feedback-info-soft);
+  color: var(--lx-feedback-info-on-soft);
+  font: var(--lx-typography-body-sm);
+}
+.social-invite-banner > span { flex: 1; min-width: 0; }
+.social-lead { font: var(--lx-typography-body); color: var(--lx-text-secondary); }
+
+/* Convite para criar conta e sem conexão (ligas só existem com conta e online) */
+.social-invite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--lx-space-3);
+  padding: var(--lx-space-8) var(--lx-space-2) 0;
+}
+.social-invite-icon { width: var(--lx-size-icon-hero); height: var(--lx-size-icon-hero); color: var(--lx-text-brand); }
+.social-invite-title { font: var(--lx-typography-title); color: var(--lx-text-primary); }
+.social-invite-text { font: var(--lx-typography-body); color: var(--lx-text-secondary); max-width: 36ch; }
+.social-invite-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--lx-space-2); margin-top: var(--lx-space-2); }
+
+/* Liga geral: a sua posição quando fica fora do top */
+.social-you-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--lx-space-3) var(--lx-space-4);
+  border-radius: var(--lx-radius-md);
+  background: var(--lx-feedback-info-soft);
+  color: var(--lx-feedback-info-on-soft);
+  font: var(--lx-typography-label);
+}
+
+/* Liga privada: convite, abas e gestão */
+.private-invite {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lx-space-3);
+  padding: var(--lx-space-4);
+  border-radius: var(--lx-radius-lg);
+  border: var(--lx-border-width-thin) solid var(--lx-border-default);
+  background: var(--lx-bg-surface);
+}
+.private-invite--new { border-color: var(--lx-border-focus); }
+.private-invite-title { font: var(--lx-typography-title-sm); color: var(--lx-text-primary); }
+.private-invite-code { display: flex; align-items: center; justify-content: space-between; gap: var(--lx-space-2); }
+.private-invite-code-value { font: var(--lx-typography-numeric); letter-spacing: 0.2em; color: var(--lx-text-primary); }
+.private-invite-actions { display: flex; flex-wrap: wrap; gap: var(--lx-space-2); }
+.private-invite-actions .btn { flex: 1 1 auto; }
+/* Abas Semana e Total: mesmo seletor do modo livre (freeMode.css) */
+.private-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lx-space-1);
+  margin-top: var(--lx-space-2);
+  padding: var(--lx-space-1);
+  border-radius: var(--lx-radius-full);
+  background: var(--lx-bg-sunken);
+}
+.private-tab {
+  min-height: var(--lx-size-touch-min);
+  padding: 0 var(--lx-space-4);
+  border: 0;
+  border-radius: var(--lx-radius-full);
+  background: transparent;
+  color: var(--lx-text-secondary);
+  font: var(--lx-typography-label);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.private-tab[aria-checked="true"] { background: var(--lx-feedback-info-soft); color: var(--lx-text-brand); }
+.private-tab:focus-visible {
+  outline: var(--lx-border-width-focus-ring) solid var(--lx-border-focus);
+  outline-offset: var(--lx-border-width-focus-offset);
+}
+.private-tab-hint { font: var(--lx-typography-body-sm); }
+.private-manage { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--lx-space-2); margin-top: var(--lx-space-4); }
+.private-danger { color: var(--lx-feedback-error-text); }
+.private-form { display: flex; flex-direction: column; gap: var(--lx-space-3); padding-top: var(--lx-space-4); }
+.private-form-label { font: var(--lx-typography-label); color: var(--lx-text-primary); }
+.private-form-error { font: var(--lx-typography-body-sm); color: var(--lx-feedback-error-text); }

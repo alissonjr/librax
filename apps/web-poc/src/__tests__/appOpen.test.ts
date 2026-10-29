@@ -1,26 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
-  APP_REOPEN_HOURS, brokenStreakOnOpen, evaluateAppOpen, onAppReopen, STREAK_BROKEN_MIN,
+  APP_REOPEN_HOURS, brokenStreakOnOpen, evaluateAppOpen, leagueResultOnOpen, onAppReopen, STREAK_BROKEN_MIN,
 } from '../lib/appOpen';
-import { markLeagueResultSeen, periodStartOf, type LeagueState } from '../lib/leagueLocal';
 import { getToday } from '../lib/today';
 
 const HOUR = 60 * 60 * 1000;
-const WEEK = 7 * 24 * HOUR;
 
-/** Repositório mínimo das ligas e do perfil, em memória. */
-function fakeRepo(state: LeagueState | null, profile: Record<string, unknown> | null) {
-  let league = state;
-  const xp = new Map<string, number>();
-  return {
-    getLeagueState: async () => league,
-    saveLeagueState: async (s: LeagueState) => { league = s; },
-    getLeagueMemberXp: async (leagueId: string, userId: string) => xp.get(`${leagueId}/${userId}`) ?? 0,
-    setLeagueMemberXp: async (leagueId: string, userId: string, v: number) => { xp.set(`${leagueId}/${userId}`, v); },
-    getDayXp: async () => 0,
-    getProfile: async () => profile,
-    current: () => league,
-  };
+/** Repositório mínimo do perfil, em memória. */
+function fakeRepo(profile: Record<string, unknown> | null) {
+  return { getProfile: async () => profile };
 }
 
 function daysAgo(n: number): string {
@@ -57,44 +45,23 @@ describe('sequência quebrada na abertura (spec-02 12.10, passo 2)', () => {
 });
 
 describe('evaluateAppOpen', () => {
-  const now = Date.now();
-  const lastWeek = periodStartOf(now) - WEEK;
-
-  it('semana encerrada: fecha a liga e devolve o resultado ainda não visto', async () => {
-    const repo = fakeRepo({ userId: 'u', tier: 'bronze', periodStart: lastWeek }, null);
-    const steps = await evaluateAppOpen(repo, 'u', now);
-    expect(steps.leagueResult?.periodStart).toBe(lastWeek);
-    expect(steps.leagueResult?.fromTier).toBe('bronze');
-    // A avaliação não marca como visto: isso acontece quando o sheet aparece
-    const again = await evaluateAppOpen(repo, 'u', now);
-    expect(again.leagueResult?.periodStart).toBe(lastWeek);
-  });
-
-  it('resultado já visto ou pessoa sem liga: nada da liga (e não inscreve ninguém)', async () => {
-    const seen = fakeRepo({ userId: 'u', tier: 'bronze', periodStart: lastWeek }, null);
-    await evaluateAppOpen(seen, 'u', now);
-    markLeagueResultSeen(lastWeek);
-    expect((await evaluateAppOpen(seen, 'u', now)).leagueResult).toBeNull();
-
-    const none = fakeRepo(null, null);
-    expect((await evaluateAppOpen(none, 'u', now)).leagueResult).toBeNull();
-    expect(none.current()).toBeNull();
-  });
-
-  it('junta liga e sequência; antes do onboarding não mostra nada', async () => {
-    const repo = fakeRepo(
-      { userId: 'u', tier: 'prata', periodStart: lastWeek },
-      { streak: 7, lastActiveDay: daysAgo(4) },
-    );
-    const steps = await evaluateAppOpen(repo, 'u', now);
-    expect(steps.leagueResult).not.toBeNull();
-    expect(steps.brokenStreak).toBe(7);
+  it('sequência quebrada; antes do onboarding não mostra nada (a liga vem do servidor depois)', async () => {
+    const repo = fakeRepo({ streak: 7, lastActiveDay: daysAgo(4) });
+    expect(await evaluateAppOpen(repo, 'u')).toEqual({ brokenStreak: 7 });
 
     localStorage.setItem('librax_streakBrokenShownDate', getToday());
-    expect((await evaluateAppOpen(repo, 'u', now)).brokenStreak).toBe(0);
+    expect((await evaluateAppOpen(repo, 'u')).brokenStreak).toBe(0);
 
     localStorage.clear();
-    expect(await evaluateAppOpen(repo, 'u', now)).toEqual({ leagueResult: null, brokenStreak: 0 });
+    expect(await evaluateAppOpen(repo, 'u')).toEqual({ brokenStreak: 0 });
+  });
+
+  it('resultado da liga na abertura: sem boas-vindas ou sem conta, nada', async () => {
+    localStorage.clear();
+    expect(await leagueResultOnOpen()).toBeNull();
+    localStorage.setItem('librax_displayName', 'Ana');
+    // Sem sessão (testes sem Cognito): convidado, sem liga
+    expect(await leagueResultOnOpen()).toBeNull();
   });
 });
 

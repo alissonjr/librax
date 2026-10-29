@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
 import { LeagueBadge } from './LeagueBadge';
-import { TIER_NAMES, type LeagueResult } from '../lib/leagueLocal';
+import { TIER_NAMES, type LeagueResult } from '../lib/league';
 import { launchConfetti } from '../lib/confetti';
 import { Haptics } from '../lib/haptics';
 import { Sfx } from '../lib/sound';

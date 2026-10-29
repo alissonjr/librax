@@ -1425,8 +1425,11 @@ mesma da proposta, porque o código cita os itens por número (por exemplo, "se�
 3. **Ligas**: as 7 ligas (Bronze, Prata, Ouro, Safira, Rubi, Ametista, Diamante) ficam nos tokens (`league.*`,
    com contraste verificado). A `LeagueScreen` e o `LeagueResultSheet` usam insígnias com forma própria
    (`src/components/LeagueBadge.tsx`), zonas com seta e texto e a pessoa destacada com contorno completo.
-   Enquanto não há API de ligas, o domínio roda no aparelho com concorrentes simulados de forma determinística
-   por semana (`src/lib/leagueLocal.ts`, modo local/demo). Os nomes passam pela mesma validação do item 2.
+   As ligas vêm do servidor (`src/lib/league.ts`), só com pessoas de verdade e só com conta; sem conta, a tela
+   convida a criar uma. Liga com menos de 30 pessoas mostra quem tem e avisa que enche durante a semana.
+   A aba Social também tem a liga geral (XP total, `src/screens/GlobalRankingScreen.tsx`, com "Aparecer na liga
+   geral" em Configurações) e as ligas privadas (squads privadas do servidor, com código de 6 letras, link
+   `/convite/<código>`, Compartilhar e WhatsApp; `src/lib/social.ts`). Os nomes passam pela mesma validação do item 2.
 4. **Som padrão**: perguntar no onboarding, junto com a tela de motivo, sem presumir nada pela resposta "sou
    surdo(a)". Sem escolha, o som fica desligado; o interruptor "Sons" fica sempre visível em Configurações >
    Preferências. Sistema em `src/lib/sound.ts` (Web Audio, buffers prontos no primeiro toque, `audioSession`

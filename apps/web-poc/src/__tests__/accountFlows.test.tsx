@@ -19,12 +19,19 @@ vi.mock('../lib/vlibras', () => ({
   setVlibrasSpeed: () => {},
 }));
 
+// O resultado da liga vem do servidor depois da abertura (lib/appOpen.ts): aqui, o que o teste mandar
+const leagueOpen = vi.hoisted(() => ({ result: null as unknown }));
+vi.mock('../lib/appOpen', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/appOpen')>()),
+  leagueResultOnOpen: async () => leagueOpen.result,
+}));
+
 import { routes, ROUTER_FUTURE } from '../router';
 import { SessionProvider, useSession } from '../hooks/useSession';
 import { IdbRepo } from '../lib/idbRepo';
 import { upgradeLibraxDb } from '../lib/db';
 import { getToday } from '../lib/today';
-import type { LeagueResult } from '../lib/leagueLocal';
+import type { LeagueResult } from '../lib/league';
 import { initInstall, loadInviteState, recordInviteShown, resetInstallForTests } from '../lib/install';
 import { UA, firePromptEvent, setDevice, setDisplayMode } from './installTestUtils';
 import { PRIVACY_POLICY_VERSION } from '../lib/usageNotice';
@@ -44,9 +51,10 @@ async function renderAt(entries: string[], opts: {
   const db = await openDB(`librax-flows-${Date.now()}-${Math.random()}`, 1, { upgrade: upgradeLibraxDb });
   const repo = new IdbRepo(db, 'user-test');
   await repo.saveProfile({ userId: 'user-test', xpTotal: 0, streak: 0, achievements: [], lessonsCompleted: opts.lessonsCompleted ?? 0 });
+  leagueOpen.result = opts.leagueResult ?? null;
   const router = createMemoryRouter(routes, { initialEntries: entries, initialIndex: entries.length - 1, future: ROUTER_FUTURE });
   render(
-    <SessionProvider repo={repo} userId="user-test" brokenStreak={opts.brokenStreak ?? 0} leagueResult={opts.leagueResult ?? null}>
+    <SessionProvider repo={repo} userId="user-test" brokenStreak={opts.brokenStreak ?? 0}>
       <Probe />
       <RouterProvider router={router} future={{ v7_startTransition: true }} />
     </SessionProvider>,
@@ -60,7 +68,7 @@ const path = (router: ReturnType<typeof createMemoryRouter>) => router.state.loc
 beforeAll(async () => {
   initInstall();
   await Promise.all([
-    import('../lib/content'), import('../lib/leagueLocal'), import('../components/LeagueResultSheet'),
+    import('../lib/content'), import('../lib/league'), import('../components/LeagueResultSheet'),
     import('../screens/CourseMapScreen'), import('../screens/LessonCompletionScreen'), import('../screens/AuthScreen'),
     import('../screens/AuthCallbackScreen'), import('../screens/ProfileScreen'), import('../screens/SettingsScreen'),
     import('../screens/LeagueScreen'), import('../screens/StreakScreen'),
@@ -89,7 +97,7 @@ afterEach(() => {
 
 describe('AppOpenFlow (spec-02 12.10)', () => {
   const result: LeagueResult = {
-    periodStart: Date.UTC(2026, 9, 12), fromTier: 'bronze', toTier: 'bronze', outcome: 'stayed', rank: 12, total: 30, xp: 80,
+    period: '2026-w42', periodStart: Date.UTC(2026, 9, 12), fromTier: 'bronze', toTier: 'bronze', outcome: 'stayed', rank: 12, total: 30, xp: 80,
   };
 
   it('resultado da liga primeiro, depois a sequência quebrada, um de cada vez', async () => {
@@ -98,7 +106,7 @@ describe('AppOpenFlow (spec-02 12.10)', () => {
     expect(await screen.findByRole('heading', { name: 'Você ficou na liga!' })).toBeInTheDocument();
     expect(screen.queryByText('Sua sequência de 5 dias acabou')).not.toBeInTheDocument();
     // Visto ao exibir, não ao fechar
-    expect(localStorage.getItem('librax_leagueResultSeen')).toBe(String(result.periodStart));
+    expect(localStorage.getItem('librax_leagueResultSeen')).toBe(result.period);
 
     await userEvent.click(screen.getByRole('button', { name: 'Fechar' }));
     expect(await screen.findByRole('heading', { name: 'Sua sequência de 5 dias acabou' })).toBeInTheDocument();

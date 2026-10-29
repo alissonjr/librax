@@ -55,10 +55,11 @@ export async function placeInLeague(repo, input) {
 
 /**
  * Resultado de cada membro da liga `league` (META) com o dominio: o mesmo calculo do
- * fechamento semanal, com leagueId, period e periodStart da liga.
+ * fechamento semanal, com leagueId, period e periodStart da liga. `members`: os membros ja
+ * lidos (o fechamento tambem usa os nomes deles), para nao ler duas vezes.
  */
-export async function leagueResultsOf(repo, league) {
-  const members = await repo.listLeagueMembers(league.leagueId);
+export async function leagueResultsOf(repo, league, members = null) {
+  members ??= await repo.listLeagueMembers(league.leagueId);
   return leagueResults(
     members.map((m) => ({ userId: m.userId, xpPeriod: m.xpPeriod ?? 0 })),
     league.tier,

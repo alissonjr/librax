@@ -1,6 +1,7 @@
 import { newProfile } from '../domain/profile.js';
 import { offsetBucket } from '../domain/reminders.js';
 import { freshPeriods } from '../domain/opsMetrics.js';
+import { isListedInGlobalRanking, rankingXp } from '../domain/ranking.js';
 
 /** Item do painel como o DynamoRepo devolve: com a chave e sem o TTL. */
 const opsView = ({ expiresAt, ...item }) => structuredClone(item);
@@ -15,6 +16,7 @@ const opsView = ({ expiresAt, ...item }) => structuredClone(item);
 export class InMemoryRepo {
   constructor() {
     this._profiles = new Map(); // userId -> profile
+    this._ranking = new Set(); // userIds com entrada no ranking global (GSI4 RANK#ALL no perfil, no DynamoRepo)
     this._progress = new Map(); // `${userId}#${lessonId}` -> progress
     this._srs = new Map(); // `${userId}#${signId}` -> item
     this._dayXp = new Map(); // `${userId}#${day}` -> number
@@ -50,8 +52,69 @@ export class InMemoryRepo {
   async getProfile(userId) {
     return this._profiles.get(userId) ?? null;
   }
+  /**
+   * Como no DynamoRepo: nao troca o nome nem a escolha do ranking global ja gravados (so o
+   * updateProfileSettings muda os dois; o nome so entra no perfil novo) e refaz a entrada do
+   * ranking global com o XP novo, se a pessoa nao saiu dele.
+   */
   async saveProfile(profile) {
+    const current = this._profiles.get(profile.userId);
+    const { displayName = null, showInGlobalRanking: _choice, ...fields } = profile;
+    const next = { ...current, ...fields };
+    next.displayName = current && 'displayName' in current ? current.displayName : displayName;
+    this._profiles.set(profile.userId, next);
+    this._refreshRanking(profile.userId);
+  }
+  /** Cria o perfil so se ainda nao existe (escrita condicional no DynamoRepo); true se criou. */
+  async createProfile(profile) {
+    if (this._profiles.has(profile.userId)) return false;
     this._profiles.set(profile.userId, { ...profile });
+    this._refreshRanking(profile.userId);
+    return true;
+  }
+  /**
+   * Nome e escolha do ranking global (PUT /v1/users/me/profile), so os campos dados. `listed`:
+   * a escolha final, que poe ou tira a entrada do ranking.
+   */
+  async updateProfileSettings(userId, changes, { listed = true } = {}) {
+    const profile = this._profiles.get(userId);
+    if (!profile) throw new Error(`perfil inexistente: ${userId}`);
+    Object.assign(profile, changes);
+    if (listed) this._ranking.add(userId);
+    else this._ranking.delete(userId);
+  }
+
+  // --- ranking global de todos os tempos (GSI4 RANK#ALL / XP#<xp> no DynamoRepo) ---
+  _refreshRanking(userId) {
+    if (isListedInGlobalRanking(this._profiles.get(userId))) this._ranking.add(userId);
+    else this._ranking.delete(userId);
+  }
+  async hasGlobalRankingEntry(userId) {
+    return this._ranking.has(userId);
+  }
+  /** Entrada que faltava (perfil gravado antes do ranking); false se nao ha perfil ou a pessoa saiu. */
+  async addGlobalRankingEntry(userId) {
+    const profile = this._profiles.get(userId);
+    if (!profile || !isListedInGlobalRanking(profile)) return false;
+    this._ranking.add(userId);
+    return true;
+  }
+  /** Os `limit` de maior XP, do maior para o menor. */
+  async listGlobalRanking(limit) {
+    return [...this._ranking]
+      .map((userId) => {
+        const p = this._profiles.get(userId);
+        return { userId, displayName: p?.displayName ?? null, xp: rankingXp(p?.xpTotal) };
+      })
+      .sort((a, b) => b.xp - a.xp || (a.userId < b.userId ? -1 : 1))
+      .slice(0, limit);
+  }
+  /** Quantas entradas tem XP estritamente maior que `xp`. */
+  async countGlobalRankingAbove(xp) {
+    const min = rankingXp(xp);
+    let n = 0;
+    for (const userId of this._ranking) if (rankingXp(this._profiles.get(userId)?.xpTotal) > min) n += 1;
+    return n;
   }
 
   // --- progresso de licao ---
@@ -194,6 +257,11 @@ export class InMemoryRepo {
     if (!this._userSquads.has(userId)) this._userSquads.set(userId, new Set());
     this._userSquads.get(userId).add(squadId);
     return true;
+  }
+  /** Nome novo no membro (troca de nome no perfil); membro que ja saiu fica como esta. */
+  async setSquadMemberName(squadId, userId, displayName) {
+    const member = this._members.get(`${squadId}#${userId}`);
+    if (member) member.displayName = displayName;
   }
   /** Troca so o papel (promote, demote, transfer), sem regravar a contribuicao. */
   async setMemberRole(squadId, userId, role) {
@@ -392,6 +460,10 @@ export class InMemoryRepo {
       this._userLeague.set(userId, { leagueId: league.leagueId, period: league.period });
     }
     return { status: 'joined', leagueId: league.leagueId };
+  }
+  /** Nome novo na linha da pessoa na liga (troca de nome no perfil); quem nao esta nela fica de fora. */
+  async setLeagueMemberName(leagueId, userId, displayName) {
+    if (this._leagueMembers.get(leagueId)?.has(userId)) this._leagueNames.set(`${leagueId}#${userId}`, displayName);
   }
   async getLeaguePlacement(userId, period) {
     const p = this._leaguePlacement.get(`${userId}#${period}`);
@@ -669,10 +741,12 @@ export class InMemoryRepo {
     this._push.delete(userId);
     for (const map of [this._profiles, this._leagueState, this._leagueSeen, this._notif, this._activity, this._devices]) dropUser(map);
     this._userLeague.delete(userId); // no DynamoRepo sai com os membros da liga (GSI2)
+    this._ranking.delete(userId); // no DynamoRepo a entrada do ranking global sai com o perfil
     return n;
   }
 
   // --- helpers de seed (so para testes / dev) ---
+  /** Perfil como os gravados antes do ranking global: sem a entrada do ranking. */
   async seedProfile(overrides) {
     const p = newProfile(overrides.userId, overrides);
     this._profiles.set(p.userId, p);

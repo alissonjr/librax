@@ -439,6 +439,60 @@ export async function fetchAccountProgress(): Promise<AccountProgress | null> {
   }
 }
 
+/** Resposta de uma chamada com conta fora da fila (ligas, ranking, perfil). */
+export type ApiCall<T> =
+  | { kind: 'ok'; data: T }
+  | { kind: 'guest' }
+  | { kind: 'offline' }
+  | { kind: 'error'; status: number; code: string | null };
+
+/** Espera de uma chamada com conta: passou disso, conta como sem rede. */
+export const API_CALL_TIMEOUT_MS = 10_000;
+
+/**
+ * Chamada à API com a sessão da conta, fora da fila offline. Sem sessão: `guest`; sem rede ou sem
+ * resposta a tempo: `offline`; resposta de erro: `error`, com o `code` do corpo quando vem. Com
+ * `flush`, espera a fila sair antes (o ranking já conta a lição que acabou de ser feita).
+ */
+export async function callApi<T>(
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  path: string,
+  opts: { body?: unknown; flush?: boolean } = {},
+): Promise<ApiCall<T>> {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return { kind: 'offline' };
+  if (opts.flush) await flushOutbox().catch(() => {});
+  const session = await deps.getSession().catch(() => null);
+  if (!session) return { kind: 'guest' };
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), API_CALL_TIMEOUT_MS);
+  try {
+    const res = await deps.fetch(`${deps.apiBase}${path}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${session.token}`,
+        ...(opts.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      },
+      ...(opts.body !== undefined ? { body: JSON.stringify(opts.body) } : {}),
+      signal: ctrl.signal,
+    });
+    const data = await res.json().catch(() => null);
+    if (res.ok) return { kind: 'ok', data: data as T };
+    // Corpo de erro da API: { error: { code, message } } (services/api/src/handlers/_http.js)
+    const code = (data as { error?: { code?: unknown } } | null)?.error?.code;
+    return { kind: 'error', status: res.status, code: typeof code === 'string' ? code : null };
+  } catch {
+    return { kind: 'offline' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** sub da conta com sessão (o userId no servidor), ou null sem conta. */
+export async function sessionUserId(): Promise<string | null> {
+  const session = await deps.getSession().catch(() => null);
+  return session?.userId ?? null;
+}
+
 /** Resultado da exclusão no servidor; só `deleted` libera a limpeza do aparelho. */
 export type DeleteAccountOutcome = 'deleted' | 'offline' | 'error';
 

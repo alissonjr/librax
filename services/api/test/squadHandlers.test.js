@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { makeSquadHandlers } from '../src/handlers/squads.js';
 import * as squadHandlers from '../src/handlers/squads.js';
 import { InMemoryRepo } from '../src/adapters/inMemoryRepo.js';
+import { makeProfileHandlers } from '../src/handlers/profile.js';
 
 // Rotas de squad (SPEC 04 secao 2) na borda HTTP: auth pelo sub do JWT, erros de dominio
 // viram status HTTP com o mesmo codigo da spec. Repo em memoria injetado.
@@ -248,7 +249,8 @@ test('get: squad publica mostra o ranking para quem nao e membro (preview), sem 
 
   assert.deepEqual(Object.keys(body.squad).sort(), PUBLIC_FIELDS);
   assert.equal(body.membersVisible, true);
-  assert.deepEqual(body.members, [{ userId: 'u1', role: 'admin', xpWeeklyContrib: 20 }]);
+  // sem nome escolhido ainda: o nome vem null, nunca o id no lugar
+  assert.deepEqual(body.members, [{ userId: 'u1', displayName: null, role: 'admin', xpWeeklyContrib: 20 }]);
   assert.equal(body.userMembership, null);
 });
 
@@ -289,4 +291,24 @@ test('squadId fora do formato (espaco, barra, longo demais): 400 BAD_SQUAD_ID an
     assert.equal(res.statusCode, 400, String(squadId));
     assert.equal(parse(res).error.code, 'BAD_SQUAD_ID');
   }
+});
+
+test('get: membro ve o nome, a contribuicao da semana e a de sempre de cada um', async () => {
+  const repo = new InMemoryRepo();
+  await repo.seedProfile({ userId: 'u1', displayName: 'Ana' });
+  const h = makeSquadHandlers({ repo, now, genId: () => 's1', rng: () => 0 });
+  const created = parse(await h.createSquadHandler(event({ body: { name: 'Liga da turma', type: 'private' } })));
+  await h.joinSquadHandler(event({ sub: 'u2', body: { inviteCode: created.inviteCode } }));
+  await repo.incrementSquadXp('s1', 'u1', 30, { period: '2026-w43' });
+  // u2 escolhe o nome depois de entrar: o PUT do perfil leva o nome para a squad
+  await makeProfileHandlers({ repo, now }).updateProfileHandler(event({ sub: 'u2', body: { displayName: 'Bia' } }));
+
+  const body = parse(await h.getSquadHandler(event({ sub: 'u2', pathParameters: { squadId: 's1' } })));
+  assert.deepEqual(
+    body.members.map(({ userId, displayName, xpWeeklyContrib, xpAllTimeContrib }) => ({ userId, displayName, xpWeeklyContrib, xpAllTimeContrib })),
+    [
+      { userId: 'u1', displayName: 'Ana', xpWeeklyContrib: 30, xpAllTimeContrib: 30 },
+      { userId: 'u2', displayName: 'Bia', xpWeeklyContrib: 0, xpAllTimeContrib: 0 },
+    ],
+  );
 });

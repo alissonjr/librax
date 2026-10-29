@@ -54,11 +54,14 @@ export async function closeLeagueWeek(repo, input) {
         continue;
       }
 
+      const members = await repo.listLeagueMembers(league.leagueId);
       const results = await leagueResultsOf(repo, {
         ...league,
         period: league.period ?? period,
         periodStart: league.periodStart ?? formatIsoDate(periodStart),
-      });
+      }, members);
+      // quem segue para a semana nova leva o nome da liga que fechou (ranking com nome)
+      const names = new Map(members.map((m) => [m.userId, m.displayName ?? null]));
       const counts = { promoted: 0, relegated: 0, stayed: 0 };
 
       for (const result of results) {
@@ -72,6 +75,7 @@ export async function closeLeagueWeek(repo, input) {
             tier: effective.toTier,
             periodStart: next,
             preferGroup: league.group ?? 1,
+            displayName: names.get(result.userId) ?? null,
           });
           report.carried += 1;
         }

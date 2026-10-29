@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ComponentType } from 'react';
 import {
-  Navigate, Outlet, ScrollRestoration, useLocation, useNavigate, useParams, useRouteError,
+  Navigate, Outlet, ScrollRestoration, useLocation, useNavigate, useParams, useRouteError, useSearchParams,
   type RouteObject,
 } from 'react-router-dom';
 import { isOnboarded } from './lib/auth';
@@ -9,6 +9,7 @@ import { shouldOfferAccount, useAccount } from './lib/account';
 import { Flags } from './lib/flags';
 import { getToday } from './lib/today';
 import { reportLessonAbandon } from './lib/sync';
+import { INVITE_CODE_LENGTH, normalizeInviteCode, savePendingInvite } from './lib/social';
 import { flushTelemetry, trackLessonAbandon, trackLessonOpen } from './lib/telemetry';
 import { course } from './lib/course';
 import { isLessonOpen, loadCourseProgress } from './lib/progress';
@@ -75,6 +76,9 @@ const CameraStatsScreen = lazyScreen(() => import('./screens/CameraStatsScreen')
 const CameraScreen = lazyScreen(() => import('./screens/CameraScreen'), 'CameraScreen');
 const FreeModeScreen = lazyScreen(() => import('./screens/FreeModeScreen'), 'FreeModeScreen');
 const LeagueScreen = lazyScreen(() => import('./screens/LeagueScreen'), 'LeagueScreen');
+const GlobalRankingScreen = lazyScreen(() => import('./screens/GlobalRankingScreen'), 'GlobalRankingScreen');
+const PrivateLeagueScreen = lazyScreen(() => import('./screens/PrivateLeagueScreen'), 'PrivateLeagueScreen');
+const PrivateLeagueFormScreen = lazyScreen(() => import('./screens/PrivateLeagueFormScreen'), 'PrivateLeagueFormScreen');
 const PlacementScreen = lazyScreen(() => import('./screens/PlacementScreen'), 'PlacementScreen');
 const AuthScreen = lazyScreen(() => import('./screens/AuthScreen'), 'AuthScreen');
 const LegalScreen = lazyScreen(() => import('./screens/LegalScreen'), 'LegalScreen');
@@ -245,10 +249,90 @@ function SpellChallengeRoute() {
   return <SpellChallengeScreen userId={userId} repo={repo} onBack={() => nav.back(ROUTES.practice)} />;
 }
 
-function SocialRoute() {
-  const { repo, userId } = useSession();
+/** Criar conta ou entrar a partir das ligas: volta para a mesma tela depois. */
+function useAccountFrom() {
   const navigate = useNavigate();
-  return <SocialScreen userId={userId} repo={repo} onOpenLeague={() => navigate(ROUTES.league)} />;
+  const { pathname, search } = useLocation();
+  return (mode: 'register' | 'login') =>
+    navigate(mode === 'login' ? ROUTES.login : ROUTES.register, { state: { returnTo: pathname + search } });
+}
+
+function SocialRoute() {
+  const navigate = useNavigate();
+  const onAccount = useAccountFrom();
+  return (
+    <SocialScreen
+      onOpenLeague={() => navigate(ROUTES.league)}
+      onOpenGlobal={() => navigate(ROUTES.globalLeague)}
+      onOpenPrivate={id => navigate(ROUTES.privateLeague(id))}
+      onCreatePrivate={() => navigate(ROUTES.privateNew)}
+      onJoinPrivate={code => navigate(code ? `${ROUTES.privateJoin}?codigo=${encodeURIComponent(code)}` : ROUTES.privateJoin)}
+      onAccount={onAccount}
+    />
+  );
+}
+
+function GlobalLeagueRoute() {
+  const navigate = useNavigate();
+  const nav = useAppNavigation();
+  const onAccount = useAccountFrom();
+  return (
+    <GlobalRankingScreen
+      onBack={() => nav.back(ROUTES.social)}
+      onAccount={onAccount}
+      onOpenSettings={() => navigate(ROUTES.settings)}
+    />
+  );
+}
+
+function PrivateFormRoute({ mode }: { mode: 'create' | 'join' }) {
+  const navigate = useNavigate();
+  const nav = useAppNavigation();
+  const onAccount = useAccountFrom();
+  const [params] = useSearchParams();
+  return (
+    <PrivateLeagueFormScreen
+      mode={mode}
+      initialCode={params.get('codigo') ?? ''}
+      onBack={() => nav.back(ROUTES.social)}
+      onAccount={onAccount}
+      // Troca o formulário pela liga: voltar dela leva à aba Social
+      onDone={league => navigate(ROUTES.privateLeague(league.squadId), { replace: true, state: { justCreated: mode === 'create' } })}
+    />
+  );
+}
+
+function PrivateLeagueRoute() {
+  const { id = '' } = useParams();
+  const location = useLocation();
+  const nav = useAppNavigation();
+  const { showNotice } = useSession();
+  const justCreated = (location.state as { justCreated?: boolean } | null)?.justCreated === true;
+  return (
+    <PrivateLeagueScreen
+      leagueId={id}
+      justCreated={justCreated}
+      onBack={() => nav.back(ROUTES.social)}
+      onGone={() => nav.backTo(ROUTES.social)}
+      showNotice={showNotice}
+    />
+  );
+}
+
+/**
+ * /convite/<código>: guarda o código (sobrevive às boas-vindas e à criação da conta) e abre a
+ * tela de entrar na liga com ele. Sem boas-vindas feitas, o convite aparece depois na aba Social.
+ */
+function InviteRoute() {
+  const { code = '' } = useParams();
+  const normalized = normalizeInviteCode(code);
+  if (normalized.length === INVITE_CODE_LENGTH) savePendingInvite(normalized);
+  return (
+    <Navigate
+      to={normalized.length === INVITE_CODE_LENGTH ? `${ROUTES.privateJoin}?codigo=${normalized}` : ROUTES.social}
+      replace
+    />
+  );
 }
 
 function ProfileRoute() {
@@ -388,16 +472,16 @@ function AchievementsRoute() {
 }
 
 function LeagueRoute() {
-  const { repo, userId, dismissLeagueResult } = useSession();
+  const { dismissLeagueResult } = useSession();
   const nav = useAppNavigation();
+  const onAccount = useAccountFrom();
   // A LeagueScreen mostra o resultado pendente sozinha: o AppOpenFlow não repete
   useEffect(() => dismissLeagueResult(), [dismissLeagueResult]);
   return (
     <LeagueScreen
-      userId={userId}
-      repo={repo}
       onBack={() => nav.back(ROUTES.social)}
       onStudy={() => nav.backTo(ROUTES.learn)}
+      onAccount={onAccount}
     />
   );
 }
@@ -710,6 +794,8 @@ export const routes: RouteObject[] = [
       // Política e Termos: fora do onboarding, para abrirem por link direto
       { path: 'privacidade', element: <LegalRoute doc="privacy" /> },
       { path: 'termos', element: <LegalRoute doc="terms" /> },
+      // Convite de liga privada: guarda o código antes das boas-vindas, para não se perder
+      { path: 'convite/:code', element: <InviteRoute /> },
       {
         element: <RequireOnboarded />,
         children: [
@@ -725,6 +811,10 @@ export const routes: RouteObject[] = [
             ],
           },
           { path: 'social/liga', element: <LeagueRoute /> },
+          { path: 'social/geral', element: <GlobalLeagueRoute /> },
+          { path: 'social/ligas/nova', element: <PrivateFormRoute mode="create" /> },
+          { path: 'social/ligas/entrar', element: <PrivateFormRoute mode="join" /> },
+          { path: 'social/ligas/:id', element: <PrivateLeagueRoute /> },
           { path: 'praticar/soletrar', element: <SpellChallengeRoute /> },
           { path: 'sequencia', element: <StreakRoute /> },
           { path: 'conquistas', element: <AchievementsRoute /> },

@@ -123,6 +123,8 @@ describe('API Gateway: limite global e por rota', () => {
       ThrottlingBurstLimit: API_STAGE_THROTTLE.burstLimit,
     });
     expect(stage.Properties.RouteSettings['POST /v1/guest/migrate']).toEqual({ ThrottlingRateLimit: 1, ThrottlingBurstLimit: 5 });
+    // a posicao no ranking global conta todo mundo acima no indice: limite proprio
+    expect(stage.Properties.RouteSettings['GET /v1/ranking/global']).toEqual({ ThrottlingRateLimit: 5, ThrottlingBurstLimit: 10 });
     expect(Object.keys(stage.Properties.RouteSettings).sort()).toEqual(Object.keys(ROUTE_THROTTLES).sort());
     // cada rota com limite existe e o estagio so e criado depois dela (o API Gateway recusa rota inexistente)
     const routes = ofType(template, 'AWS::ApiGatewayV2::Route');
@@ -154,6 +156,8 @@ describe('Lambda: concorrencia reservada opcional', () => {
     const r = reservas(template);
     expect(r).toEqual(RESERVED_CONCURRENCY);
     expect(r['librax-migrate-guest']).toBe(2);
+    expect(r['librax-update-profile']).toBe(5);
+    expect(r['librax-global-ranking']).toBe(10);
     for (const name of ['librax-post-confirmation', 'librax-custom-message', 'librax-pre-signup', 'librax-close-league', 'librax-reminders', 'librax-ops-daily']) {
       expect(r[name]).toBeUndefined();
     }

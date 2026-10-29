@@ -49,7 +49,7 @@ export async function createSquad(repo, input) {
   };
 
   await repo.putSquad(squad);
-  await repo.putMember(squad.squadId, userId, { role: 'admin', joinedAt: now });
+  await repo.putMember(squad.squadId, userId, { role: 'admin', joinedAt: now, ...(await memberName(repo, userId)) });
   await repo.indexInvite(inviteCode, squad.squadId);
   return squad;
 }
@@ -76,7 +76,8 @@ export async function joinSquad(repo, input) {
 
   // reserva a vaga antes (ADD condicional ao limite) e devolve se a pessoa ja tinha entrado
   if (!(await repo.changeSquadMemberCount(squadId, 1))) fail('SQUAD_FULL');
-  if (!(await repo.putMember(squadId, userId, { role: 'member', joinedAt: input.now ?? null }))) {
+  const member = { role: 'member', joinedAt: input.now ?? null, ...(await memberName(repo, userId)) };
+  if (!(await repo.putMember(squadId, userId, member))) {
     await repo.changeSquadMemberCount(squadId, -1);
     fail('ALREADY_MEMBER');
   }
@@ -200,6 +201,15 @@ export async function regenerateInviteCode(repo, input) {
   await repo.updateSquadFields(squadId, { inviteCode });
   if (squad.inviteCode) await repo.removeInvite(squad.inviteCode);
   return { inviteCode };
+}
+
+/**
+ * Nome do perfil para guardar no membro (o ranking da squad le dali); sem nome, fica de fora e o
+ * PUT /v1/users/me/profile preenche depois.
+ */
+async function memberName(repo, userId) {
+  const displayName = (await repo.getProfile(userId))?.displayName ?? null;
+  return displayName ? { displayName } : {};
 }
 
 async function requireSquad(repo, squadId) {

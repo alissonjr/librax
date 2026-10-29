@@ -20,6 +20,7 @@ import { PlacementSettingItem } from '../components/PlacementEntry';
 import { DEFAULT_DAILY_GOAL, loadDailyGoal, saveDailyGoal } from '../lib/dailyGoal';
 import { prepareDataReset } from '../lib/telemetry';
 import { UsageSettingItem } from '../components/UsageSettingItem';
+import { GlobalRankingSettingItem } from '../components/GlobalRankingSettingItem';
 import { ReminderSettings } from '../components/ReminderSettings';
 
 interface Props {
@@ -166,6 +167,7 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
                   <span className="settings-item-value settings-item-value--wrap">{account.email ?? t('account.statusSignedIn')}</span>
                 </div>
               </div>
+              <GlobalRankingSettingItem onFail={() => onNotice?.('social.offlineTitle')} />
               <button
                 className="settings-item settings-item--btn"
                 onClick={() => setConfirmSignOut(true)}

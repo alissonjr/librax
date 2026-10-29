@@ -25,6 +25,8 @@ export const API_STAGE_THROTTLE = { rateLimit: 50, burstLimit: 200 };
  * - lesson/complete e practice/review: as escritas do dia a dia;
  * - squads/join: tentativa de codigo de convite (forca bruta);
  * - criar squad e excluir conta: raras e com varias escritas;
+ * - ranking global: a posicao de quem chama e uma contagem no indice que le todo mundo acima dela
+ *   (paginada), entao o custo de cada leitura cresce com o numero de pessoas no ranking;
  * - dados de uso anonimos e nota do app: rotas publicas (sem login). O lote de uso vai no fim da licao e
  *   quando o app sai da tela (uns 5 por pessoa por dia; 10 mil pessoas por dia dao menos de 1 por
  *   segundo na media); apagar a copia e mandar a nota sao raros. 429 so adia: o app guarda e tenta
@@ -37,6 +39,7 @@ export const ROUTE_THROTTLES: Record<string, { rateLimit: number; burstLimit: nu
   'POST /v1/squads/join': { rateLimit: 5, burstLimit: 10 },
   'POST /v1/squads': { rateLimit: 2, burstLimit: 5 },
   'DELETE /v1/users/me': { rateLimit: 1, burstLimit: 5 },
+  'GET /v1/ranking/global': { rateLimit: 5, burstLimit: 10 },
   'POST /v1/telemetry': { rateLimit: 10, burstLimit: 30 },
   'DELETE /v1/telemetry/{id}': { rateLimit: 1, burstLimit: 5 },
   'POST /v1/feedback': { rateLimit: 1, burstLimit: 5 },
@@ -71,6 +74,8 @@ export const RESERVED_CONCURRENCY: Record<string, number> = {
   'librax-delete-account': 2,
   'librax-report-device': 5,
   'librax-get-progress': 5,
+  'librax-update-profile': 5,
+  'librax-global-ranking': 10,
   'librax-admin': 5,
   'librax-admin-actions': 1,
   'librax-telemetry': 5,

@@ -517,6 +517,62 @@ describe('Progresso da conta (entrar no comeco do app ou num aparelho novo)', ()
   });
 });
 
+describe('Nome do perfil e ranking global', () => {
+  const ROUTES: Array<[string, string, string]> = [
+    ['PUT /v1/users/me/profile', 'librax-update-profile', 'index.updateProfileHandler'],
+    ['GET /v1/ranking/global', 'librax-global-ranking', 'index.getGlobalRankingHandler'],
+  ];
+
+  test('rotas no autorizador JWT do app, cada uma com a sua Lambda', () => {
+    const { template } = synth(withDomain);
+    const authorizers = template.findResources('AWS::ApiGatewayV2::Authorizer');
+    const [appAuthId] = Object.entries(authorizers).find(([, r]) => r.Properties.Name === 'CognitoAuth')!;
+    const routes = Object.values(template.findResources('AWS::ApiGatewayV2::Route')).map((r) => r.Properties);
+    for (const [routeKey, functionName, handler] of ROUTES) {
+      const route = routes.find((r) => r.RouteKey === routeKey);
+      expect(route?.AuthorizationType, routeKey).toBe('JWT');
+      expect(route.AuthorizerId).toEqual({ Ref: appAuthId });
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: functionName,
+        Handler: handler,
+        Runtime: 'nodejs22.x',
+        Environment: { Variables: Match.objectLike({ LIBRAX_TABLE: Match.anyValue() }) },
+      });
+    }
+  });
+
+  test('as duas leem e escrevem so na tabela (o ranking grava a entrada que faltar), sem outra acao', () => {
+    const { template } = synth(withDomain);
+    for (const [, functionName] of ROUTES) {
+      const actions = policyActionsOf(template, functionName);
+      expect(actions).toEqual(expect.arrayContaining(['dynamodb:GetItem', 'dynamodb:UpdateItem', 'dynamodb:Query']));
+      expect(actions.every((a) => a.startsWith('dynamodb:'))).toBe(true);
+    }
+  });
+
+  test('ranking no GSI4 que ja existia: chaves e projecao sem mudanca (nada de indice novo)', () => {
+    const { template } = synth(withDomain);
+    const [table] = Object.values(template.findResources('AWS::DynamoDB::Table'));
+    const gsi4 = table.Properties.GlobalSecondaryIndexes.find((g: { IndexName: string }) => g.IndexName === 'GSI4');
+    expect(gsi4).toEqual({
+      IndexName: 'GSI4',
+      KeySchema: [{ AttributeName: 'GSI4PK', KeyType: 'HASH' }, { AttributeName: 'GSI4SK', KeyType: 'RANGE' }],
+      Projection: { ProjectionType: 'ALL' },
+    });
+  });
+
+  test('as duas entram no job diario do painel (erros por funcao)', () => {
+    const { template } = synth(withDomain);
+    const fns = Object.entries(template.findResources('AWS::Lambda::Function'));
+    const [, ops] = fns.find(([, f]) => f.Properties.FunctionName === 'librax-ops-daily')!;
+    const names = JSON.stringify(ops.Properties.Environment.Variables.FUNCTION_NAMES);
+    for (const [, functionName] of ROUTES) {
+      const [id] = fns.find(([, f]) => f.Properties.FunctionName === functionName)!;
+      expect(names).toContain(`{"Ref":"${id}"}`);
+    }
+  });
+});
+
 describe('Exclusao de conta (LGPD)', () => {
   test('DELETE /v1/users/me com o autorizador JWT do app, Lambda propria e o User Pool no ambiente', () => {
     const { template } = synth(withDomain);

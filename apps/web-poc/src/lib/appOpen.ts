@@ -2,7 +2,7 @@ import { daysBetween } from '@apilib/dates.js';
 import { isOnboarded } from './auth';
 import { Flags } from './flags';
 import { getToday } from './today';
-import type { LeagueRepo, LeagueResult } from './leagueLocal';
+import type { LeagueResult } from './league';
 
 /**
  * AppOpenFlow (spec-02 12.10): o que aparece ao abrir o app ou ao voltar a ele depois de horas,
@@ -10,6 +10,8 @@ import type { LeagueRepo, LeagueResult } from './leagueLocal';
  *   1. LeagueResultSheet, se a semana da liga encerrou e o resultado ainda não foi visto;
  *   2. StreakBrokenSheet, se a sequência quebrou (3 dias ou mais) e o aviso não saiu hoje;
  *   3. nada: o mapa fica interativo direto.
+ * O resultado da liga vem do servidor (lib/league.ts, pendingLeagueResult) depois da abertura, sem
+ * segurar o boot; aqui fica só o que o aparelho sabe na hora.
  * "Abrir o app" no web: carregar a página ou voltar a uma aba que ficou oculta por
  * APP_REOPEN_HOURS horas ou mais (visibilitychange). Voltar antes disso não reabre o fluxo.
  */
@@ -47,46 +49,40 @@ export function brokenStreakOnOpen(
   return streak;
 }
 
-const loadLeagues = () => import('./leagueLocal');
+const loadLeagues = () => import('./league');
 
 /** Começa a baixar o módulo de ligas junto com a abertura do banco local (sem somar espera no boot). */
 export function preloadAppOpen(): void {
   void loadLeagues().catch(() => {});
 }
 
+/**
+ * Resultado da liga ainda não visto, lido do servidor depois da abertura (sem conta, sem rede ou
+ * antes das boas-vindas: null). O "já visto" é gravado quando o sheet aparece.
+ */
+export async function leagueResultOnOpen(): Promise<LeagueResult | null> {
+  if (!isOnboarded()) return null;
+  try {
+    const { pendingLeagueResult } = await loadLeagues();
+    return await pendingLeagueResult();
+  } catch {
+    return null;
+  }
+}
+
 export interface AppOpenSteps {
-  leagueResult: LeagueResult | null;
   brokenStreak: number;
 }
 
-type OpenRepo = LeagueRepo & { getProfile(userId: string): Promise<unknown> };
-
-/**
- * Avalia os passos do AppOpenFlow. Só lê e aplica a virada de semana da liga; as flags de
- * "já visto" (leagueResultSeen, streakBrokenShownDate) são gravadas quando o sheet aparece.
- */
+/** Avalia a sequência quebrada na abertura; a flag de "já visto" é gravada quando o sheet aparece. */
 export async function evaluateAppOpen(
-  repo: OpenRepo,
+  repo: { getProfile(userId: string): Promise<unknown> },
   userId: string,
-  nowMs: number = Date.now(),
 ): Promise<AppOpenSteps> {
-  if (!isOnboarded()) return { leagueResult: null, brokenStreak: 0 };
-
-  let leagueResult: LeagueResult | null = null;
-  try {
-    // Sem liga ainda, não inscreve: quem nunca participou não tem resultado (spec-02 12.7).
-    // Módulo de ligas sob demanda: fica fora do pedaço inicial
-    const { syncLeague, leagueResultSeen } = await loadLeagues();
-    const league = await syncLeague(repo, userId, nowMs, { enroll: false });
-    const last = league?.lastResult;
-    if (last && last.periodStart !== leagueResultSeen()) leagueResult = last;
-  } catch {
-    /* falha ao ler a liga não impede abrir o app */
-  }
-
+  if (!isOnboarded()) return { brokenStreak: 0 };
   const profile = (await repo.getProfile(userId)) as StreakProfile | null;
   const brokenStreak = brokenStreakOnOpen(profile, getToday(), Flags.streakBrokenShownDate());
-  return { leagueResult, brokenStreak };
+  return { brokenStreak };
 }
 
 /**

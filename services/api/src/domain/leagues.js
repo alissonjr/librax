@@ -1,7 +1,7 @@
 // Ligas semanais (SPEC 02 secao 5.5 / frontend 12.7).
 // Ranking por xpPeriod desc; top N promove, bottom M rebaixa.
-// O app roda estas mesmas funcoes no modo local (apps/web-poc/src/lib/leagueLocal.ts); as
-// ligas, as zonas por liga e o formato do leagueId abaixo seguem o que o app ja usa.
+// O app le a liga pronta do servidor (apps/web-poc/src/lib/league.ts, GET /v1/league/current) e
+// mostra as mesmas ligas e zonas calculadas aqui.
 
 import { parseIsoDate } from '../lib/dates.js';
 
@@ -153,7 +153,7 @@ export function isPeriodKey(value) {
 
 /**
  * Visao da liga para a LeagueScreen, no formato do `LeagueView` do app
- * (apps/web-poc/src/lib/leagueLocal.ts), com `mode: 'server'` e sem membros simulados.
+ * (apps/web-poc/src/lib/league.ts), com `mode: 'server'`.
  * Sem liga na semana (`leagueId` null): `enrolled: false`, ranking vazio e `you: null`, com a
  * liga em que a pessoa vai entrar na proxima licao (`tier`).
  * `pendingResult` e o ultimo resultado ainda nao visto (`seenPeriod` menor que a semana dele).

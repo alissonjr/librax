@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSession } from '../hooks/useSession';
 import { useAppNavigation } from '../hooks/useAppNavigation';
@@ -35,12 +35,20 @@ export function AppOpenFlow() {
   const afterSheet = useAfterSheet();
   const { leagueResult, brokenStreak } = session;
 
-  const step = leagueResult ? 'league' : brokenStreak > 0 ? 'streak' : null;
+  // O resultado da liga chega do servidor depois da abertura: os outros sheets esperam essa busca
+  // (session.leagueChecked). Se ele chegar com o aviso da sequência já na tela (volta ao app depois
+  // de horas), espera esse fechar em vez de trocar um sheet pelo outro
+  const streakShown = useRef(false);
+  const waiting = !session.leagueChecked && !leagueResult;
+  const step = streakShown.current && brokenStreak > 0 ? 'streak'
+    : leagueResult ? 'league'
+      : brokenStreak > 0 && !waiting ? 'streak' : null;
+  streakShown.current = step === 'streak';
   const [prompt, setPrompt] = useState(loadFeedbackPrompt);
   // Aberto fica aberto até a pessoa fechar (o "Obrigado" aparece depois de marcar como respondida)
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const installStep = session.suggestInstall && installMode !== null && pathname === ROUTES.learn;
-  const wantFeedback = step === null && !installStep && pathname === ROUTES.learn
+  const installStep = !waiting && session.suggestInstall && installMode !== null && pathname === ROUTES.learn;
+  const wantFeedback = !waiting && step === null && !installStep && pathname === ROUTES.learn
     && shouldAskFeedback(prompt, session.lessonsCompleted) && !usageNoticePending();
 
   useEffect(() => {
@@ -49,7 +57,7 @@ export function AppOpenFlow() {
 
   useEffect(() => {
     if (step === 'league' && leagueResult) {
-      void import('../lib/leagueLocal').then(m => m.markLeagueResultSeen(leagueResult.periodStart));
+      void import('../lib/league').then(m => m.markLeagueResultSeen(leagueResult));
     }
     if (step === 'streak') Flags.setStreakBrokenShownDate(getToday());
   }, [step, leagueResult]);

@@ -448,14 +448,14 @@ stack (valores em `infra/lib/cost-guards.ts`); todas mudam no lugar, sem recriar
 
 | Trava | O que faz |
 |---|---|
-| Limite por rota da API | `POST /v1/guest/migrate` 1 por segundo (rajada 5), `lesson/complete` e `practice/review` 20 (rajada 40), `squads/join` 5 (10), criar squad 2 (5), excluir conta 1 (5); as rotas públicas do uso anônimo: `POST /v1/telemetry` 10 (30), apagar o código e mandar a nota 1 (5). Acima disso a API responde 429 e o app tenta de novo depois. O limite geral continua 50 por segundo, com rajada de 200 (antes 100) para o pico da hora do lembrete |
+| Limite por rota da API | `POST /v1/guest/migrate` 1 por segundo (rajada 5), `lesson/complete` e `practice/review` 20 (rajada 40), `squads/join` 5 (10), criar squad 2 (5), excluir conta 1 (5), ranking global 5 (10); as rotas públicas do uso anônimo: `POST /v1/telemetry` 10 (30), apagar o código e mandar a nota 1 (5). Acima disso a API responde 429 e o app tenta de novo depois. O limite geral continua 50 por segundo, com rajada de 200 (antes 100) para o pico da hora do lembrete |
 | Teto da tabela | o DynamoDB sob demanda aceita até 500 leituras e 200 escritas por segundo; acima disso recusa em vez de cobrar, e o alarme `librax-dynamodb-throttles` avisa |
 | Versões antigas no S3 | os quatro buckets apagam versões antigas depois de 30 dias e envios incompletos depois de 7 |
 | Alarme de download | `librax-app-download` avisa quando o CloudFront do app entrega mais de 5 GB numa hora (uma instalação nova baixa de 30 a 45 MB); mude com `-c librax:appDownloadAlarmGbPerHour=10` |
 | Previsão do orçamento | o AWS Budget também avisa quando a previsão do mês passa do valor |
 | Anomalia de custo | resumo diário por e-mail (o dos alarmes) de gasto fora do padrão acima de 20% do orçamento (US$ 2 com o padrão). Só cabe um monitor de serviços por conta e a AWS costuma criar um ao ativar o Cost Explorer: o script usa o que existir ou cria (`librax:costAnomalyAlerts`). Com o Cost Explorer desligado, fica para a próxima rodada |
 | User Pool protegido | o User Pool (as contas) não pode ser apagado nem pelo CloudFormation nem pelo console sem antes desligar a proteção |
-| Concorrência reservada (opcional) | cada Lambda da API ganha um teto de cópias simultâneas (2 para o `guest/migrate`, de 5 a 20 para as outras, 180 no total) e um abuso numa rota não toma a conta inteira |
+| Concorrência reservada (opcional) | cada Lambda da API ganha um teto de cópias simultâneas (2 para o `guest/migrate`, de 5 a 20 para as outras, 195 no total) e um abuso numa rota não toma a conta inteira |
 
 **Concorrência reservada.** Fica desligada por padrão: com a cota de 10 de uma conta nova, qualquer reserva faz o
 deploy falhar (a AWS exige 100 execuções sem reserva). Depois que a AWS liberar a cota de 1000

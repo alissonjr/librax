@@ -165,9 +165,17 @@ export function squadForWeek(squad, period) {
   return out;
 }
 
-/** Membro como a API devolve na semana `period`. */
+/**
+ * Membro como a API devolve na semana `period`: sempre com o nome (null se a pessoa ainda nao
+ * escolheu), a contribuicao da semana e a de sempre.
+ */
 export function memberForWeek(member, period) {
-  const out = { ...member, xpWeeklyContrib: currentWeekXp(member.xpWeeklyContrib, member.xpWeekPeriod, period) };
+  const out = {
+    ...member,
+    displayName: member.displayName ?? null,
+    xpWeeklyContrib: currentWeekXp(member.xpWeeklyContrib, member.xpWeekPeriod, period),
+    xpAllTimeContrib: member.xpAllTimeContrib ?? 0,
+  };
   for (const k of WEEK_FIELDS) delete out[k];
   return out;
 }

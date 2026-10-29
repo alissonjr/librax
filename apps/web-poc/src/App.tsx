@@ -10,8 +10,8 @@ import { retryAccountRestore } from './lib/accountRestore';
 import { setTelemetryContext, startTelemetry } from './lib/telemetry';
 import { refreshTelemetryProgress } from './lib/telemetryProgress';
 import { evaluateAppOpen, preloadAppOpen } from './lib/appOpen';
+import { forgetAccountSocial, syncDisplayName } from './lib/social';
 import { setSplashLabel, splashStep } from './lib/splash';
-import type { LeagueResult } from './lib/leagueLocal';
 import { newProfile } from '@domain/profile.js';
 import { useT } from './i18n';
 import { SessionProvider } from './hooks/useSession';
@@ -21,7 +21,6 @@ interface Boot {
   repo: IdbRepo;
   userId: string;
   brokenStreak: number;
-  leagueResult: LeagueResult | null;
 }
 
 /**
@@ -52,12 +51,12 @@ async function boot(): Promise<Boot> {
   void refreshTelemetryProgress(repo, userId);
   startTelemetry();
 
-  // AppOpenFlow (spec-02 12.10): resultado da liga e sequência quebrada, nessa ordem
-  const { leagueResult, brokenStreak } = await evaluateAppOpen(repo, userId);
+  // AppOpenFlow (spec-02 12.10): a sequência quebrada; o resultado da liga chega do servidor depois
+  const { brokenStreak } = await evaluateAppOpen(repo, userId);
   // Tela de abertura: banco local e perfil prontos
   splashStep('storage');
 
-  return { repo, userId, brokenStreak, leagueResult };
+  return { repo, userId, brokenStreak };
 }
 
 export function App() {
@@ -75,6 +74,16 @@ export function App() {
   useEffect(() => {
     if (account.status === 'signedIn') void reportDevice(lang);
   }, [account.status, lang]);
+
+  // Com conta: o nome escolhido no app vai para o servidor (é o que as ligas mostram). Ao sair, o
+  // aparelho esquece o que era da conta (nome enviado, escolha da liga geral, liga guardada)
+  useEffect(() => {
+    if (account.status === 'signedIn') void syncDisplayName();
+    if (account.status === 'guest') {
+      forgetAccountSocial();
+      void import('./lib/league').then(m => m.forgetLeague());
+    }
+  }, [account.status]);
 
   // Com conta e a notificação ligada: renova a inscrição deste navegador e conta a abertura do app
   // (sem lembrete nas 3 horas seguintes; aberto pelo lembrete, conta como interação; lib/reminders.ts)
@@ -108,7 +117,6 @@ export function App() {
       repo={state.repo}
       userId={state.userId}
       brokenStreak={state.brokenStreak}
-      leagueResult={state.leagueResult}
     >
       <RouterProvider router={router} future={{ v7_startTransition: true }} />
     </SessionProvider>

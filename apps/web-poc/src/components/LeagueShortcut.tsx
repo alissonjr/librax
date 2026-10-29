@@ -2,45 +2,58 @@ import { useEffect, useState } from 'react';
 import { useT } from '../i18n';
 import { Icon } from './Icon';
 import { LeagueBadge } from './LeagueBadge';
-import { syncLeague, isoWeek, TIER_NAMES, type LeagueRepo, type TierId } from '../lib/leagueLocal';
+import { useAccount } from '../lib/account';
+import { fetchLeague, TIER_NAMES, type TierId } from '../lib/league';
 import '../styles/league.css';
 
 interface Props {
-  userId: string;
-  repo: LeagueRepo;
   onOpen: () => void;
   /** 'social': card da aba Social (seção Ligas). 'profile': insígnia de liga no Perfil. */
   variant: 'social' | 'profile';
 }
 
+type Shortcut =
+  | { kind: 'loading' }
+  | { kind: 'guest' }
+  | { kind: 'offline' }
+  | { kind: 'league'; tier: TierId; week: number; enrolled: boolean };
+
 /**
  * Atalho para a LeagueScreen (spec-02 12.7, "Acesso"): card na aba Social e insígnia no Perfil.
- * Mostra a liga atual (forma, cor e nome) ou o convite para entrar na primeira liga.
+ * Mostra a liga da semana (forma, cor e nome), o convite para entrar na primeira ou, sem conta, o
+ * convite para criar uma.
  */
-export function LeagueShortcut({ userId, repo, onOpen, variant }: Props) {
+export function LeagueShortcut({ onOpen, variant }: Props) {
   const { t } = useT();
-  const [league, setLeague] = useState<{ tier: TierId; week: number } | null | undefined>(undefined);
+  const account = useAccount();
+  const [state, setState] = useState<Shortcut>({ kind: 'loading' });
 
   useEffect(() => {
+    if (account.status === 'checking') return;
+    if (account.status !== 'signedIn') {
+      setState({ kind: 'guest' });
+      return;
+    }
     let alive = true;
-    syncLeague(repo, userId, Date.now(), { enroll: false })
-      .then(s => {
-        if (alive) setLeague(s ? { tier: s.tier, week: isoWeek(s.periodStart).week } : null);
-      })
-      .catch(() => {
-        if (alive) setLeague(null);
-      });
+    fetchLeague().then(load => {
+      if (!alive) return;
+      if (load.kind === 'ok') {
+        setState({ kind: 'league', tier: load.view.tier, week: load.view.week, enrolled: load.view.enrolled });
+      } else setState({ kind: load.kind });
+    });
     return () => {
       alive = false;
     };
-  }, [repo, userId]);
+  }, [account.status]);
 
-  const name = league ? t('league.tierName', { name: TIER_NAMES[league.tier] }) : t('league.title');
-  const sub = league === undefined
-    ? t('common.loading')
-    : league
-      ? t('league.weekLong', { n: league.week })
-      : t('league.shortcutNone');
+  const league = state.kind === 'league' && state.enrolled ? state : null;
+  const name = league ? t('league.tierName', { name: TIER_NAMES[league.tier] }) : t('league.weeklyTitle');
+  const sub =
+    state.kind === 'loading' ? t('common.loading')
+      : state.kind === 'guest' ? t('league.shortcutGuest')
+        : state.kind === 'offline' ? t('league.shortcutOffline')
+          : league ? t('league.weekLong', { n: league.week })
+            : t('league.shortcutNone');
 
   return (
     <button className={`league-shortcut league-shortcut--${variant}`} onClick={onOpen}>

@@ -1,5 +1,5 @@
-import type { TierId } from '../lib/leagueLocal';
-import { TIER_NAMES } from '../lib/leagueLocal';
+import type { TierId } from '../lib/league';
+import { TIER_NAMES } from '../lib/league';
 import { useT } from '../i18n';
 
 /**

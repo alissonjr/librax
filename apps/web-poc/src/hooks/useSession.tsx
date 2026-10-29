@@ -5,11 +5,11 @@ import { getToday } from '../lib/today';
 import { Flags } from '../lib/flags';
 import { enqueueLessonCompletion, flushOutbox } from '../lib/sync';
 import { loadInviteState, recordInviteShown, shouldSuggestInstall } from '../lib/install';
-import { evaluateAppOpen, onAppReopen } from '../lib/appOpen';
+import { evaluateAppOpen, leagueResultOnOpen, onAppReopen } from '../lib/appOpen';
 import { placedLessonIds } from '../lib/placement';
 import { flushTelemetry, track, trackLessonComplete } from '../lib/telemetry';
 import { refreshTelemetryProgress } from '../lib/telemetryProgress';
-import type { LeagueResult } from '../lib/leagueLocal';
+import type { LeagueResult } from '../lib/league';
 import type { IdbRepo } from '../lib/idbRepo';
 import type { LessonSessionResult } from '../screens/LessonScreen';
 import type { CompletionData } from '../screens/LessonCompletionScreen';
@@ -39,6 +39,11 @@ interface SessionValue {
   /** AppOpenFlow (spec-02 12.10), passo 1: resultado da liga ainda não visto. */
   leagueResult: LeagueResult | null;
   dismissLeagueResult: () => void;
+  /**
+   * A busca do resultado da liga na abertura terminou (ou passou LEAGUE_CHECK_WAIT_MS): só então
+   * os outros sheets da abertura aparecem, para a liga continuar vindo primeiro.
+   */
+  leagueChecked: boolean;
   /** AppOpenFlow, passo 2: sequência perdida detectada ao abrir o app (0 = nada a mostrar). */
   brokenStreak: number;
   dismissBrokenStreak: () => void;
@@ -62,18 +67,20 @@ interface ProviderProps {
   repo: IdbRepo;
   userId: string;
   brokenStreak: number;
-  leagueResult?: LeagueResult | null;
   children: ReactNode;
 }
 
+/** Espera máxima pelo resultado da liga antes dos outros sheets da abertura. */
+export const LEAGUE_CHECK_WAIT_MS = 3000;
+
 export function SessionProvider({
-  repo, userId, brokenStreak: initialBroken, leagueResult: initialLeague = null, children,
+  repo, userId, brokenStreak: initialBroken, children,
 }: ProviderProps) {
   const [completion, setCompletion] = useState<CompletionData | null>(null);
   const [unitCompletion, setUnitCompletion] = useState<UnitCompletionData | null>(null);
   const [courseCompletion, setCourseCompletion] = useState<CourseCompletionData | null>(null);
   const [brokenStreak, setBrokenStreak] = useState(initialBroken);
-  const [leagueResult, setLeagueResult] = useState<LeagueResult | null>(initialLeague);
+  const [leagueResult, setLeagueResult] = useState<LeagueResult | null>(null);
   const [installInvite, setInstallInvite] = useState(loadInviteState);
   const [lessonsCompleted, setLessonsCompleted] = useState(0);
   const [installNow, setInstallNow] = useState(Date.now);
@@ -87,13 +94,32 @@ export function SessionProvider({
     return () => { alive = false; };
   }, [repo, userId]);
 
+  // Resultado da liga: vem do servidor depois da abertura (sem conta ou sem rede, nada aparece).
+  // Os outros sheets esperam a resposta, mas nunca mais que LEAGUE_CHECK_WAIT_MS
+  const [leagueChecked, setLeagueChecked] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    const timer = setTimeout(() => setLeagueChecked(true), LEAGUE_CHECK_WAIT_MS);
+    void leagueResultOnOpen().then(r => {
+      if (!alive) return;
+      if (r) setLeagueResult(r);
+      setLeagueChecked(true);
+    });
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+  }, []);
+
   // Voltar ao app depois de horas conta como nova abertura: reavalia o AppOpenFlow
   useEffect(() => onAppReopen(() => {
     setInstallNow(Date.now());
     evaluateAppOpen(repo, userId).then(steps => {
-      if (steps.leagueResult) setLeagueResult(steps.leagueResult);
       if (steps.brokenStreak > 0) setBrokenStreak(steps.brokenStreak);
     }).catch(() => {});
+    void leagueResultOnOpen().then(r => {
+      if (r) setLeagueResult(r);
+    });
   }), [repo, userId]);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -214,10 +240,10 @@ export function SessionProvider({
   const dismissNotice = useCallback(() => setNotice(null), []);
 
   const value = useMemo<SessionValue>(() => ({
-    repo, userId, completion, unitCompletion, courseCompletion, leagueResult, dismissLeagueResult,
+    repo, userId, completion, unitCompletion, courseCompletion, leagueResult, dismissLeagueResult, leagueChecked,
     brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, lessonsCompleted, finishLesson,
     notice, showNotice, dismissNotice,
-  }), [repo, userId, completion, unitCompletion, courseCompletion, leagueResult, dismissLeagueResult,
+  }), [repo, userId, completion, unitCompletion, courseCompletion, leagueResult, dismissLeagueResult, leagueChecked,
     brokenStreak, dismissBrokenStreak, suggestInstall, markInstallSuggested, lessonsCompleted, finishLesson,
     notice, showNotice, dismissNotice]);
 

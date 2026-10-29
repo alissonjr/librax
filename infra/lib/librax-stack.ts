@@ -164,7 +164,8 @@ export class LibraxStack extends cdk.Stack {
       sortKey:      { name: 'GSI3SK', type: dynamodb.AttributeType.STRING },
     });
 
-    // GSI4: squads publicas ordenadas por xpWeekly (PK=SQUADS_PUBLIC, SK=XP#...)
+    // GSI4: squads publicas ordenadas por xpWeekly (PK=SQUADS_PUBLIC, SK=XP#...) e, noutra particao,
+    // o ranking global no item do perfil (PK=RANK#ALL, SK=XP#<xpTotal>); esparso, projecao ALL
     table.addGlobalSecondaryIndex({
       indexName: 'GSI4',
       partitionKey: { name: 'GSI4PK', type: dynamodb.AttributeType.STRING },
@@ -452,6 +453,17 @@ export class LibraxStack extends cdk.Stack {
       description: 'Progresso da conta (licoes, revisoes, XP por dia e conquistas) para o app; so le',
     });
 
+    // Nome dos rankings e escolha do ranking global (o nome vai tambem para a liga e as squads)
+    const updateProfileFn = makeFn('UpdateProfileFn', 'profile.js', 'updateProfileHandler', {
+      functionName: 'librax-update-profile',
+      description: 'Nome de quem estuda (liga, squads e ranking global) e a escolha de aparecer no ranking global',
+    });
+    // Ranking global de todos os tempos (GSI4 RANK#ALL); grava so a entrada que faltar no perfil antigo
+    const globalRankingFn = makeFn('GlobalRankingFn', 'ranking.js', 'getGlobalRankingHandler', {
+      functionName: 'librax-global-ranking',
+      description: 'Ranking global por XP total: os 50 primeiros e a posicao de quem chama',
+    });
+
     const closeLeagueFn = makeFn('CloseLeagueFn', 'closeLeague.js', 'handler', {
       functionName: 'librax-close-league',
       timeout: Duration.minutes(5),  // operacao batch pode demorar mais
@@ -552,6 +564,7 @@ export class LibraxStack extends cdk.Stack {
       getLeagueFn, leagueResultSeenFn,
       subscribePushFn, unsubscribePushFn, notificationPrefsFn,
       deleteAccountFn, reportDeviceFn,
+      updateProfileFn, globalRankingFn,
     ];
     for (const fn of allLambdas) {
       table.grantReadWriteData(fn);
@@ -1070,6 +1083,8 @@ export class LibraxStack extends cdk.Stack {
     addRoute(M.DELETE, '/v1/users/me',                                deleteAccountFn);
     addRoute(M.POST,   '/v1/users/me/devices',                        reportDeviceFn);
     addRoute(M.GET,    '/v1/users/me/progress',                       getProgressFn);
+    addRoute(M.PUT,    '/v1/users/me/profile',                        updateProfileFn);
+    addRoute(M.GET,    '/v1/ranking/global',                          globalRankingFn);
     addRoute(M.GET,    '/v1/league/current',                          getLeagueFn);
     addRoute(M.POST,   '/v1/league/result-seen',                      leagueResultSeenFn);
     addRoute(M.POST,   '/v1/push/subscriptions',                      subscribePushFn);

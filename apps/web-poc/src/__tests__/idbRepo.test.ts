@@ -158,33 +158,12 @@ describe('no-ops de squads', () => {
   });
 });
 
-describe('ligas (modo local)', () => {
-  // Quarta-feira, 21/10/2026 12:00 UTC: semana que começa na segunda 19/10 (ISO 2026-W43)
-  const NOW = Date.UTC(2026, 9, 21, 12);
-
-  it('getUserLeague inscreve na Bronze da semana', async () => {
-    expect(await repo.getUserLeague('user-test', NOW)).toEqual({ leagueId: 'bronze-2026-w43' });
-    const state = await repo.getLeagueState('user-test');
-    expect(state?.tier).toBe('bronze');
-  });
-
-  it('incrementLeagueXp acumula o XP do periodo', async () => {
-    await repo.incrementLeagueXp('bronze-2026-w43', 'user-test', 10);
-    await repo.incrementLeagueXp('bronze-2026-w43', 'user-test', 15);
-    expect(await repo.getLeagueMemberXp('bronze-2026-w43', 'user-test')).toBe(25);
-  });
-
-  it('completeLesson faz o fan-out do XP para a liga da semana', async () => {
+describe('ligas (no servidor)', () => {
+  it('o aparelho não guarda liga: a lição entra nela pela fila de envio', async () => {
+    expect(await repo.getUserLeague()).toBeNull();
     const content = { lessons: { 'u1-l1': { id: 'u1-l1', xpReward: 10 } }, achievementRules: [] };
     await completeLesson(repo, content, { userId: 'user-test', lessonId: 'u1-l1', score: 1, today: '2026-10-21', reviewed: [] });
-    const league = await repo.getUserLeague('user-test');
-    expect(league).not.toBeNull();
-    expect(await repo.getLeagueMemberXp(league!.leagueId, 'user-test')).toBe(10);
-  });
-
-  it('clearAllData apaga as ligas', async () => {
-    await repo.getUserLeague('user-test', NOW);
-    await repo.clearAllData();
-    expect(await repo.getLeagueState('user-test')).toBeNull();
+    expect(await repo.getUserLeague()).toBeNull();
+    expect(((await repo.getProfile('user-test')) as { xpTotal: number }).xpTotal).toBe(10);
   });
 });

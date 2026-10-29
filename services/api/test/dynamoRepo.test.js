@@ -450,3 +450,138 @@ test('listDayXp le todas as paginas de USER#<id> / DAY#<dia>', async () => {
   assert.equal(db.calls[0].input.ExpressionAttributeValues[':prefix'], 'DAY#');
   assert.deepEqual(db.calls[1].input.ExclusiveStartKey, { PK: 'USER#u1', SK: 'DAY#2026-10-20' });
 });
+
+// --- perfil e ranking global (GSI4 RANK#ALL / XP#<xp> no item do perfil) ---
+
+const conditionFailure = () => {
+  const err = new Error('condicao');
+  err.name = 'ConditionalCheckFailedException';
+  return err;
+};
+
+test('saveProfile: SET campo a campo, sem o nome nem a escolha, e a entrada do ranking com o XP', async () => {
+  const db = fakeClient();
+  await new DynamoRepo(db).saveProfile({
+    userId: 'u1', displayName: 'velho', showInGlobalRanking: true, xpTotal: 1234, streak: 2, lastActiveDay: undefined,
+  });
+  const [{ name, input }] = db.calls;
+  assert.equal(name, 'UpdateCommand');
+  assert.deepEqual(input.Key, { PK: 'USER#u1', SK: 'PROFILE' });
+  assert.match(input.UpdateExpression, /#displayName = if_not_exists\(#displayName, :dn\)/);
+  assert.match(input.UpdateExpression, /GSI4PK = :rank, GSI4SK = :rankSk/);
+  assert.equal(input.ExpressionAttributeValues[':rank'], 'RANK#ALL');
+  assert.equal(input.ExpressionAttributeValues[':rankSk'], 'XP#0000001234');
+  assert.equal(input.ConditionExpression, 'attribute_not_exists(#show) OR #show <> :false');
+  const written = Object.values(input.ExpressionAttributeNames);
+  assert.ok(written.includes('xpTotal') && written.includes('streak'));
+  assert.ok(!written.includes('lastActiveDay')); // undefined fica de fora
+  assert.equal(Object.values(input.ExpressionAttributeNames).filter((n) => n === 'showInGlobalRanking').length, 1); // so na condicao
+  assert.ok(!/#show =/.test(input.UpdateExpression));
+});
+
+test('saveProfile: quem saiu do ranking grava sem a entrada (REMOVE das chaves do GSI4)', async () => {
+  const db = fakeClient((name, input) => {
+    if (input.ConditionExpression) throw conditionFailure();
+    return {};
+  });
+  await new DynamoRepo(db).saveProfile({ userId: 'u1', xpTotal: 10 });
+  assert.equal(db.calls.length, 2);
+  const { input } = db.calls[1];
+  assert.match(input.UpdateExpression, /REMOVE GSI4PK, GSI4SK$/);
+  assert.ok(!input.UpdateExpression.includes(':rank'));
+  assert.equal(input.ConditionExpression, undefined);
+  assert.equal(input.ExpressionAttributeNames['#show'], undefined); // nome sem uso e recusado
+});
+
+test('createProfile: Put condicional com a entrada do ranking; existente devolve false', async () => {
+  const db = fakeClient();
+  assert.equal(await new DynamoRepo(db).createProfile({ userId: 'u1', xpTotal: 0, displayName: null }), true);
+  const { input } = db.calls[0];
+  assert.equal(input.ConditionExpression, 'attribute_not_exists(PK)');
+  assert.equal(input.Item.GSI4PK, 'RANK#ALL');
+  assert.equal(input.Item.GSI4SK, 'XP#0000000000');
+
+  const busy = fakeClient(() => {
+    throw conditionFailure();
+  });
+  assert.equal(await new DynamoRepo(busy).createProfile({ userId: 'u1', xpTotal: 0 }), false);
+});
+
+test('updateProfileSettings: SET so dos campos dados; entra ou sai do ranking pela escolha final', async () => {
+  const db = fakeClient();
+  const repo = new DynamoRepo(db);
+  await repo.updateProfileSettings('u1', { displayName: 'Bia' }, { listed: true, xpTotal: 42 });
+  await repo.updateProfileSettings('u1', { showInGlobalRanking: false }, { listed: false, xpTotal: 42 });
+
+  const [on, off] = db.calls.map((c) => c.input);
+  assert.equal(on.UpdateExpression, 'SET #displayName = :displayName, GSI4PK = :rank, GSI4SK = if_not_exists(GSI4SK, :rankSk)');
+  assert.equal(on.ExpressionAttributeValues[':rankSk'], 'XP#0000000042');
+  assert.equal(on.ConditionExpression, 'attribute_exists(PK)');
+  assert.equal(off.UpdateExpression, 'SET #showInGlobalRanking = :showInGlobalRanking REMOVE GSI4PK, GSI4SK');
+  assert.equal(off.ExpressionAttributeValues[':rank'], undefined);
+});
+
+test('hasGlobalRankingEntry e addGlobalRankingEntry (condicional a nao ter saido)', async () => {
+  const db = fakeClient((name) => (name === 'GetCommand' ? { Item: { GSI4PK: 'RANK#ALL' } } : {}));
+  const repo = new DynamoRepo(db);
+  assert.equal(await repo.hasGlobalRankingEntry('u1'), true);
+  assert.equal(db.calls[0].input.ProjectionExpression, 'GSI4PK');
+  assert.equal(await repo.addGlobalRankingEntry('u1', 7), true);
+  const { input } = db.calls[1];
+  assert.equal(input.UpdateExpression, 'SET GSI4PK = :rank, GSI4SK = if_not_exists(GSI4SK, :rankSk)');
+  assert.match(input.ConditionExpression, /attribute_exists\(PK\) AND \(attribute_not_exists\(#show\) OR #show <> :false\)/);
+
+  assert.equal(await new DynamoRepo(fakeClient(() => ({}))).hasGlobalRankingEntry('u1'), false);
+  const out = fakeClient(() => {
+    throw conditionFailure();
+  });
+  assert.equal(await new DynamoRepo(out).addGlobalRankingEntry('u1', 7), false);
+});
+
+test('listGlobalRanking: Query no GSI4 do maior para o menor XP, XP lido da chave', async () => {
+  const db = fakeClient(() => ({
+    Items: [
+      { PK: 'USER#u2', userId: 'u2', displayName: 'Bia', GSI4SK: 'XP#0000000300' },
+      { PK: 'USER#u1', GSI4SK: 'XP#0000000010' },
+    ],
+  }));
+  const rows = await new DynamoRepo(db).listGlobalRanking(50);
+  const { input } = db.calls[0];
+  assert.equal(input.IndexName, 'GSI4');
+  assert.equal(input.KeyConditionExpression, 'GSI4PK = :pk');
+  assert.equal(input.ExpressionAttributeValues[':pk'], 'RANK#ALL');
+  assert.equal(input.ScanIndexForward, false);
+  assert.equal(input.Limit, 50);
+  assert.deepEqual(rows, [
+    { userId: 'u2', displayName: 'Bia', xp: 300 },
+    { userId: 'u1', displayName: null, xp: 10 },
+  ]);
+});
+
+test('countGlobalRankingAbove: Select COUNT com XP estritamente maior, todas as paginas', async () => {
+  let page = 0;
+  const db = fakeClient(() => (page++ === 0 ? { Count: 1000, LastEvaluatedKey: { k: 1 } } : { Count: 7 }));
+  assert.equal(await new DynamoRepo(db).countGlobalRankingAbove(25), 1007);
+  const [first, second] = db.calls.map((c) => c.input);
+  assert.equal(first.Select, 'COUNT');
+  assert.equal(first.KeyConditionExpression, 'GSI4PK = :pk AND GSI4SK > :sk');
+  assert.equal(first.ExpressionAttributeValues[':sk'], 'XP#0000000025');
+  assert.deepEqual(second.ExclusiveStartKey, { k: 1 });
+});
+
+test('setSquadMemberName e setLeagueMemberName: SET condicional, quem saiu nao vira item solto', async () => {
+  const db = fakeClient((name, input) => {
+    if (input.Key.PK.startsWith('LEAGUE#')) throw conditionFailure();
+    return {};
+  });
+  const repo = new DynamoRepo(db);
+  await repo.setSquadMemberName('s1', 'u1', 'Bia');
+  await repo.setLeagueMemberName('bronze-2026-w43', 'u1', 'Bia'); // condicao falhou: ignora
+  const [squad, league] = db.calls.map((c) => c.input);
+  assert.deepEqual(squad.Key, { PK: 'SQUAD#s1', SK: 'MEMBER#u1' });
+  assert.deepEqual(league.Key, { PK: 'LEAGUE#bronze-2026-w43', SK: 'USER#u1' });
+  for (const i of [squad, league]) {
+    assert.equal(i.UpdateExpression, 'SET displayName = :dn');
+    assert.equal(i.ConditionExpression, 'attribute_exists(PK)');
+  }
+});

@@ -12,6 +12,13 @@ export const ROUTES = {
   spellChallenge: '/praticar/soletrar',
   social: '/social',
   league: '/social/liga',
+  /** Liga geral: todo mundo com conta, pelo XP total. */
+  globalLeague: '/social/geral',
+  /** Ligas privadas (squads privadas do servidor): criar, entrar com código e ver uma. */
+  privateNew: '/social/ligas/nova',
+  privateJoin: '/social/ligas/entrar',
+  /** Link de convite compartilhado: /convite/<código> leva a entrar na liga. */
+  invite: '/convite',
   profile: '/perfil',
   camera: '/camera',
   /** Modo livre da câmera: soletrar o que quiser (screens/FreeModeScreen.tsx). */
@@ -29,6 +36,7 @@ export const ROUTES = {
   courseDone: '/curso/concluido',
   // Teste de nivelamento (opcional): convite no fim do onboarding, no mapa e nas Configurações
   placement: '/nivelamento',
+  privateLeague: (id: string) => `/social/ligas/${encodeURIComponent(id)}`,
   lesson: (id: string) => `/licao/${encodeURIComponent(id)}`,
   lessonDone: (id: string) => `/licao/${encodeURIComponent(id)}/concluida`,
   unitDone: (id: string) => `/unidade/${encodeURIComponent(id)}/concluida`,

@@ -257,3 +257,19 @@ test('regenerateInviteCode: so admin', async () => {
     /NOT_ADMIN/,
   );
 });
+
+// --- nome do perfil no membro (ranking da squad e liga privada no app) ---
+
+test('createSquad e joinSquad guardam o nome do perfil no membro; sem nome fica de fora', async () => {
+  const repo = new InMemoryRepo();
+  await repo.seedProfile({ userId: 'u1', displayName: 'Ana' });
+  await repo.seedProfile({ userId: 'u2', displayName: 'Bia' });
+  await repo.seedProfile({ userId: 'u3' });
+  const squad = await createSquad(repo, { userId: 'u1', isGuest: false, name: 'Turma', type: 'private', genId: () => 's1', rng: rng0 });
+  await joinSquad(repo, { userId: 'u2', isGuest: false, code: squad.inviteCode });
+  await joinSquad(repo, { userId: 'u3', isGuest: false, code: squad.inviteCode });
+
+  assert.equal((await repo.getMember('s1', 'u1')).displayName, 'Ana');
+  assert.equal((await repo.getMember('s1', 'u2')).displayName, 'Bia');
+  assert.equal('displayName' in (await repo.getMember('s1', 'u3')), false);
+});

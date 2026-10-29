@@ -14,6 +14,7 @@ import {
   TIERS,
   PROMOTE,
   RELEGATE,
+  LEAGUE_SIZE,
 } from '../src/domain/leagues.js';
 
 // SPEC 02 secao 5.5 / frontend 12.7: ranking por xpPeriod desc; top 3 promovem,
@@ -123,13 +124,9 @@ test('leagueResults: na Bronze ninguem desce e na Diamante ninguem sobe', () => 
   assert.equal(diamante.find((r) => r.userId === 'u01').toTier, 'diamante');
 });
 
-test('coerencia com o app: mesmas ligas e zonas que apps/web-poc/src/lib/leagueLocal.ts', () => {
-  const src = readFileSync(new URL('../../../apps/web-poc/src/lib/leagueLocal.ts', import.meta.url), 'utf8');
-  assert.match(src, /import \{ rankLeague, closeLeague \} from '@domain\/leagues\.js'/);
+test('coerencia com o app: mesmas ligas e o mesmo tamanho de liga que apps/web-poc/src/lib/league.ts', () => {
+  const src = readFileSync(new URL('../../../apps/web-poc/src/lib/league.ts', import.meta.url), 'utf8');
   const tiers = /export const TIERS = \[([^\]]*)\]/.exec(src)[1].match(/'([^']+)'/g).map((t) => t.slice(1, -1));
   assert.deepEqual(tiers, TIERS);
-  assert.equal(Number(/export const PROMOTE = (\d+)/.exec(src)[1]), PROMOTE);
-  assert.equal(Number(/export const RELEGATE = (\d+)/.exec(src)[1]), RELEGATE);
-  assert.match(src, /promote: tierAbove\(tier\) \? PROMOTE : 0/);
-  assert.match(src, /relegate: tierBelow\(tier\) \? RELEGATE : 0/);
+  assert.equal(Number(/export const LEAGUE_SIZE = (\d+)/.exec(src)[1]), LEAGUE_SIZE);
 });

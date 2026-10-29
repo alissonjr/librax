@@ -12,8 +12,8 @@ const NOON_MS = 12 * 60 * 60 * 1000;
 /**
  * Liga da semana para o fan-out de XP. No servidor (repo com `getLeaguePlacement`, ou seja
  * InMemoryRepo e DynamoRepo) a pessoa entra na liga certa aqui (ensureLeague). O app tambem
- * roda este usecase no modo local (apps/web-poc, IdbRepo), cujo `getUserLeague` ja coloca a
- * pessoa na liga local; para ele, vale o `getUserLeague` como antes.
+ * roda este usecase no aparelho (apps/web-poc, IdbRepo), cujo `getUserLeague` devolve null: a
+ * liga fica so no servidor e a licao chega nela pela fila de envio.
  */
 function weekLeague(repo, { userId, nowMs, displayName }) {
   if (typeof repo.getLeaguePlacement !== 'function') return repo.getUserLeague(userId);
