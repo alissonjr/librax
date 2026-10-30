@@ -1,5 +1,5 @@
 import { callApi, sessionUserId, type ApiCall } from './sync';
-import { getDisplayName } from './auth';
+import { getDisplayName, setDisplayName } from './auth';
 
 /**
  * Liga geral e ligas privadas, lidas do servidor (só com conta).
@@ -46,39 +46,91 @@ export async function fetchGlobalRanking(): Promise<Load<GlobalRanking>> {
 
 const NAME_SENT_KEY = 'librax_nameSent';
 const SHOW_GLOBAL_KEY = 'librax_showInGlobalRanking';
+/** Nome trocado em Configurações que ainda não chegou ao servidor (sem rede na hora). */
+const NAME_PENDING_KEY = 'librax_namePending';
+
+/** Tamanho do nome depois da limpeza (o mesmo das boas-vindas e do servidor, domain/profile.js). */
+export const DISPLAY_NAME_MAX = 30;
+
+/** Nome como o servidor guarda: sem espaços nas pontas nem repetidos. Vazio: null. */
+export function cleanName(raw: string): string | null {
+  const name = raw.replace(/\s+/g, ' ').trim();
+  return name && [...name].length <= DISPLAY_NAME_MAX ? name : null;
+}
+
+function readKey(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeKey(key: string, value: string | null): void {
+  try {
+    if (value === null) localStorage.removeItem(key);
+    else localStorage.setItem(key, value);
+  } catch {
+    /* sem localStorage: manda de novo na próxima vez, o servidor só regrava */
+  }
+}
+
+type ProfileReply = { displayName?: unknown; showInGlobalRanking?: unknown };
+
+/** Guarda o que o servidor respondeu: o nome que vale para a conta e a escolha da liga geral. */
+function rememberProfile(data: ProfileReply | null | undefined, fallbackName: string): void {
+  const name = typeof data?.displayName === 'string' && data.displayName ? data.displayName : fallbackName;
+  if (name !== getDisplayName()) setDisplayName(name);
+  writeKey(NAME_SENT_KEY, name);
+  if (typeof data?.showInGlobalRanking === 'boolean') writeKey(SHOW_GLOBAL_KEY, String(data.showInGlobalRanking));
+}
 
 /**
- * Manda o nome escolhido no app para o servidor (o ranking mostra esse nome), uma vez por nome:
- * ao entrar na conta e na abertura do app com conta, se o nome mudou desde o último envio.
+ * Envio automático do nome (na abertura com conta e ao entrar), uma vez por nome. Se a conta já
+ * tem um nome, o da conta vale (`keepExistingName`) e vem para o aparelho: entrar num aparelho novo
+ * nunca troca o nome escolhido antes. Um nome trocado em Configurações sem rede vai agora e grava.
  */
 export async function syncDisplayName(): Promise<void> {
   const name = getDisplayName()?.trim();
   if (!name) return;
-  let sent: string | null = null;
-  try {
-    sent = localStorage.getItem(NAME_SENT_KEY);
-  } catch {
-    /* sem localStorage: manda de novo, o servidor só regrava */
-  }
-  if (sent === name) return;
-  const res = await callApi<{ showInGlobalRanking?: unknown }>('PUT', '/v1/users/me/profile', { body: { displayName: name } });
+  const pending = readKey(NAME_PENDING_KEY) === name;
+  if (!pending && readKey(NAME_SENT_KEY) === name) return;
+  const res = await callApi<ProfileReply>('PUT', '/v1/users/me/profile', {
+    body: pending ? { displayName: name } : { displayName: name, keepExistingName: true },
+  });
+  if (res.kind !== 'ok') return;
+  if (pending) writeKey(NAME_PENDING_KEY, null);
+  rememberProfile(res.data, name);
+}
+
+export type RenameResult = 'saved' | 'local' | 'pending';
+
+/**
+ * Troca o nome (Configurações). Vale na hora neste aparelho; com conta, vai para o servidor, que
+ * leva o nome novo para as ligas. Sem conta: 'local'. Sem rede: 'pending' (vai na próxima abertura).
+ */
+export async function renameDisplayName(raw: string): Promise<RenameResult | null> {
+  const name = cleanName(raw);
+  if (!name) return null;
+  setDisplayName(name);
+  // Sem conta, fica só no aparelho (nada pendente: ao entrar numa conta, o nome dela vale)
+  if (!(await sessionUserId())) return 'local';
+  const res = await callApi<ProfileReply>('PUT', '/v1/users/me/profile', { body: { displayName: name } });
+  if (res.kind === 'guest') return 'local';
   if (res.kind === 'ok') {
-    try {
-      localStorage.setItem(NAME_SENT_KEY, name);
-      // A resposta traz a escolha da conta: num aparelho novo, o interruptor já começa certo
-      if (typeof res.data?.showInGlobalRanking === 'boolean') {
-        localStorage.setItem(SHOW_GLOBAL_KEY, String(res.data.showInGlobalRanking));
-      }
-    } catch {
-      /* idem */
-    }
+    writeKey(NAME_PENDING_KEY, null);
+    rememberProfile(res.data, name);
+    return 'saved';
   }
+  writeKey(NAME_PENDING_KEY, name);
+  return 'pending';
 }
 
 /** Saída da conta: a próxima conta recebe o nome de novo e a escolha da liga geral volta ao padrão. */
 export function forgetAccountSocial(): void {
   try {
     localStorage.removeItem(NAME_SENT_KEY);
+    localStorage.removeItem(NAME_PENDING_KEY);
     localStorage.removeItem(SHOW_GLOBAL_KEY);
   } catch {
     /* sem localStorage */
@@ -87,11 +139,7 @@ export function forgetAccountSocial(): void {
 
 /** Escolha guardada neste aparelho (o servidor é quem vale; começa ligada, como lá). */
 export function showInGlobalRanking(): boolean {
-  try {
-    return localStorage.getItem(SHOW_GLOBAL_KEY) !== 'false';
-  } catch {
-    return true;
-  }
+  return readKey(SHOW_GLOBAL_KEY) !== 'false';
 }
 
 /** Aparecer ou não na liga geral. Devolve o valor que ficou no servidor, ou null se não deu. */

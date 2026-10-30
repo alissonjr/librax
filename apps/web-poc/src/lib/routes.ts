@@ -27,6 +27,8 @@ export const ROUTES = {
   achievements: '/conquistas',
   settings: '/configuracoes',
   cameraStats: '/configuracoes/camera',
+  /** Trocar o nome (o que aparece nas ligas). */
+  name: '/configuracoes/nome',
   login: '/entrar',
   register: '/criar-conta',
   authCallback: '/auth/callback',

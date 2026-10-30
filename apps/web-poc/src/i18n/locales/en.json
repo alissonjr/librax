@@ -1239,5 +1239,14 @@
     "offlineTitle": "No connection",
     "offlineText": "Leagues need the internet. Check your connection and try again.",
     "retry": "Try again"
+  },
+  "nameScreen": {
+    "title": "Your name",
+    "label": "Name or nickname",
+    "hint": "This is the name other people see in the leagues. Up to 30 characters.",
+    "save": "Save",
+    "saved": "Name changed",
+    "savedLocal": "Name changed on this device",
+    "savedPending": "Name changed. It will reach the leagues when you are back online."
   }
 }

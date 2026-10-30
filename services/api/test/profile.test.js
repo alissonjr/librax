@@ -60,6 +60,24 @@ test('parseProfileUpdate: pelo menos um campo, cada um no tipo certo', () => {
   assert.equal(parseProfileUpdate({ displayName: '' }).error, 'INVALID_NAME');
   assert.equal(parseProfileUpdate({ displayName: null }).error, 'INVALID_NAME');
   assert.equal(parseProfileUpdate({ showInGlobalRanking: 'no' }).error, 'INVALID_RANKING_CHOICE');
+  assert.deepEqual(parseProfileUpdate({ displayName: 'Bia', keepExistingName: true }), {
+    ok: true, changes: { displayName: 'Bia' }, keepExistingName: true,
+  });
+  assert.equal(parseProfileUpdate({ displayName: 'Bia', keepExistingName: 'sim' }).error, 'INVALID_KEEP_NAME');
+});
+
+test('envio automatico (keepExistingName): so preenche quando a conta nao tem nome', async () => {
+  const repo = new InMemoryRepo();
+  const h = makeProfileHandlers({ repo, now: () => thu43 });
+  // conta sem nome: o do aparelho entra
+  const first = await h.updateProfileHandler(event({ body: { displayName: 'Ana', keepExistingName: true } }));
+  assert.deepEqual(parse(first), { displayName: 'Ana', showInGlobalRanking: true });
+  // a pessoa troca em Configuracoes: sempre grava
+  await h.updateProfileHandler(event({ body: { displayName: 'Ana Paula' } }));
+  // outro aparelho manda o nome das boas-vindas: o da conta vale e volta na resposta
+  const other = await h.updateProfileHandler(event({ body: { displayName: 'Aninha', keepExistingName: true } }));
+  assert.deepEqual(parse(other), { displayName: 'Ana Paula', showInGlobalRanking: true });
+  assert.equal((await repo.getProfile('u1')).displayName, 'Ana Paula');
 });
 
 // --- usecase ---

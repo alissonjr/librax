@@ -75,6 +75,7 @@ const SettingsScreen = lazyScreen(() => import('./screens/SettingsScreen'), 'Set
 const CameraStatsScreen = lazyScreen(() => import('./screens/CameraStatsScreen'), 'CameraStatsScreen');
 const CameraScreen = lazyScreen(() => import('./screens/CameraScreen'), 'CameraScreen');
 const FreeModeScreen = lazyScreen(() => import('./screens/FreeModeScreen'), 'FreeModeScreen');
+const NameScreen = lazyScreen(() => import('./screens/NameScreen'), 'NameScreen');
 const LeagueScreen = lazyScreen(() => import('./screens/LeagueScreen'), 'LeagueScreen');
 const GlobalRankingScreen = lazyScreen(() => import('./screens/GlobalRankingScreen'), 'GlobalRankingScreen');
 const PrivateLeagueScreen = lazyScreen(() => import('./screens/PrivateLeagueScreen'), 'PrivateLeagueScreen');
@@ -499,6 +500,21 @@ function SettingsRoute() {
       onOpenAccount={mode => navigate(mode === 'login' ? ROUTES.login : ROUTES.register)}
       onOpenCameraStats={() => navigate(ROUTES.cameraStats)}
       onOpenPlacement={() => navigate(ROUTES.placement)}
+      onEditName={() => navigate(ROUTES.name)}
+    />
+  );
+}
+
+function NameRoute() {
+  const { showNotice } = useSession();
+  const nav = useAppNavigation();
+  return (
+    <NameScreen
+      onBack={() => nav.back(ROUTES.settings)}
+      onSaved={notice => {
+        showNotice(notice);
+        nav.back(ROUTES.settings);
+      }}
     />
   );
 }
@@ -820,6 +836,7 @@ export const routes: RouteObject[] = [
           { path: 'conquistas', element: <AchievementsRoute /> },
           { path: 'configuracoes', element: <SettingsRoute /> },
           { path: 'configuracoes/camera', element: <CameraStatsRoute /> },
+          { path: 'configuracoes/nome', element: <NameRoute /> },
           { path: 'nivelamento', element: <PlacementRoute /> },
           { path: 'licao/:id', element: <LessonRoute /> },
           { path: 'licao/:id/concluida', element: <LessonDoneRoute /> },

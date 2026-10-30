@@ -35,6 +35,8 @@ interface Props {
   onOpenCameraStats?: () => void;
   /** Teste de nivelamento (lib/placement.ts): fazer, enquanto vale, ou desfazer. */
   onOpenPlacement?: () => void;
+  /** Trocar o nome (screens/NameScreen.tsx): o que aparece nas ligas. */
+  onEditName?: () => void;
 }
 
 const GOAL_OPTIONS = [
@@ -44,7 +46,7 @@ const GOAL_OPTIONS = [
   { value: 50, key: 'settings.goalIntensivo' },
 ];
 
-export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, onOpenCameraStats, onOpenPlacement }: Props) {
+export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, onOpenCameraStats, onOpenPlacement, onEditName }: Props) {
   const { t, lang, setLang } = useT();
   const account = useAccount();
   const signedIn = account.status === 'signedIn';
@@ -151,13 +153,24 @@ export function SettingsScreen({ userId, repo, onBack, onOpenAccount, onNotice, 
       <div className="settings-body">
         <div className="settings-group">
           <p className="settings-group-label">{t('settings.account')}</p>
-          <div className="settings-item">
-            <Icon name="person" className="settings-item-icon" />
-            <div className="settings-item-text">
-              <span className="settings-item-label">{t('settings.name')}</span>
-              <span className="settings-item-value">{name}</span>
+          {onEditName ? (
+            <button className="settings-item settings-item--btn" onClick={onEditName}>
+              <Icon name="person" className="settings-item-icon" />
+              <div className="settings-item-text">
+                <span className="settings-item-label">{t('settings.name')}</span>
+                <span className="settings-item-value">{name}</span>
+              </div>
+              <Icon name="chevron_right" className="settings-item-arrow" />
+            </button>
+          ) : (
+            <div className="settings-item">
+              <Icon name="person" className="settings-item-icon" />
+              <div className="settings-item-text">
+                <span className="settings-item-label">{t('settings.name')}</span>
+                <span className="settings-item-value">{name}</span>
+              </div>
             </div>
-          </div>
+          )}
           {signedIn ? (
             <>
               <div className="settings-item">

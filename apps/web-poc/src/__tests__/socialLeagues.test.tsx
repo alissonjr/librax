@@ -6,9 +6,10 @@ import { MemoryRouter, Route, Routes, useParams } from 'react-router-dom';
 import { __resetAccountForTests } from '../lib/account';
 import { __resetSyncForTests, configureSync } from '../lib/sync';
 import {
-  inviteLink, normalizeInviteCode, pendingInvite, savePendingInvite, syncDisplayName, whatsappLink,
+  inviteLink, normalizeInviteCode, pendingInvite, renameDisplayName, savePendingInvite, syncDisplayName, whatsappLink,
   type PrivateLeagueDetail,
 } from '../lib/social';
+import { NameScreen } from '../screens/NameScreen';
 import { SocialScreen } from '../screens/SocialScreen';
 import { GlobalRankingScreen } from '../screens/GlobalRankingScreen';
 import { PrivateLeagueScreen, privateRows } from '../screens/PrivateLeagueScreen';
@@ -112,7 +113,9 @@ describe('nome no servidor', () => {
     api['PUT /v1/users/me/profile'] = (_m, body) => ({ json: { ...(body as object), showInGlobalRanking: true } });
     await syncDisplayName();
     await syncDisplayName();
-    expect(calls.filter(c => c.method === 'PUT')).toEqual([{ method: 'PUT', path: '/v1/users/me/profile', body: { displayName: 'Ana' } }]);
+    expect(calls.filter(c => c.method === 'PUT')).toEqual([
+      { method: 'PUT', path: '/v1/users/me/profile', body: { displayName: 'Ana', keepExistingName: true } },
+    ]);
     localStorage.setItem('librax_displayName', 'Ana Paula');
     await syncDisplayName();
     expect(calls.filter(c => c.method === 'PUT')).toHaveLength(2);
@@ -124,6 +127,75 @@ describe('nome no servidor', () => {
     expect(showInGlobalRanking()).toBe(true);
     await syncDisplayName();
     expect(showInGlobalRanking()).toBe(false);
+  });
+});
+
+describe('troca de nome', () => {
+  const profileApi = () => {
+    let server: string | null = null;
+    api['PUT /v1/users/me/profile'] = (_m, body) => {
+      const b = body as { displayName: string; keepExistingName?: boolean };
+      if (!(b.keepExistingName && server)) server = b.displayName;
+      return { json: { displayName: server, showInGlobalRanking: true } };
+    };
+    return { set: (n: string) => { server = n; }, get: () => server };
+  };
+
+  it('entrar num aparelho novo: o nome da conta vale e vem para o aparelho', async () => {
+    const server = profileApi();
+    server.set('Ana Paula');
+    await syncDisplayName();
+    expect(localStorage.getItem('librax_displayName')).toBe('Ana Paula');
+    expect(server.get()).toBe('Ana Paula');
+  });
+
+  it('trocar em Configurações grava na conta, mesmo que ela já tenha nome', async () => {
+    const server = profileApi();
+    server.set('Ana');
+    expect(await renameDisplayName('  Ana   Clara ')).toBe('saved');
+    expect(server.get()).toBe('Ana Clara');
+    expect(localStorage.getItem('librax_displayName')).toBe('Ana Clara');
+    // Já enviado: a abertura seguinte não manda de novo
+    const before = calls.length;
+    await syncDisplayName();
+    expect(calls.length).toBe(before);
+  });
+
+  it('sem rede, fica pendente e grava na próxima abertura (sem perder para o nome antigo)', async () => {
+    const server = profileApi();
+    server.set('Ana');
+    configureSync({ fetch: (async () => { throw new TypeError('Failed to fetch'); }) as unknown as typeof fetch });
+    expect(await renameDisplayName('Aninha')).toBe('pending');
+    serve();
+    profileApi().set('Ana');
+    await syncDisplayName();
+    const put = calls.filter(c => c.method === 'PUT').at(-1)!;
+    expect(put.body).toEqual({ displayName: 'Aninha' });
+    expect(localStorage.getItem('librax_displayName')).toBe('Aninha');
+  });
+
+  it('sem conta, troca só no aparelho', async () => {
+    configureSync({ getSession: async () => null });
+    expect(await renameDisplayName('Bia')).toBe('local');
+    expect(localStorage.getItem('librax_displayName')).toBe('Bia');
+    expect(calls).toHaveLength(0);
+    expect(await renameDisplayName('   ')).toBeNull();
+  });
+
+  it('tela: só salva com nome novo e válido, e avisa', async () => {
+    profileApi();
+    const onSaved = vi.fn();
+    render(<NameScreen onBack={vi.fn()} onSaved={onSaved} />);
+    const input = screen.getByLabelText('Nome ou apelido');
+    const save = screen.getByRole('button', { name: 'Salvar' });
+    expect(input).toHaveValue('Ana');
+    expect(save).toBeDisabled();
+    await userEvent.clear(input);
+    expect(save).toBeDisabled();
+    await userEvent.type(input, 'Ana Paula');
+    await userEvent.click(save);
+    await waitFor(() => expect(onSaved).toHaveBeenCalledWith('nameScreen.saved'));
+    expect(screen.getByText(/aparece para outras pessoas nas ligas/)).toBeInTheDocument();
   });
 });
 

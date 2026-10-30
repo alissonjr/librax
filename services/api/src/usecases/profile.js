@@ -11,18 +11,30 @@ import { periodKey, periodStartOf } from '../domain/leagues.js';
  * - Grava so os campos dados e poe ou tira a entrada do ranking global pela escolha final.
  * - Nome novo vai tambem para a linha da pessoa na liga da semana e em cada squad dela, que e de
  *   onde os rankings leem o nome. Repete mesmo sem mudanca: preenche linhas gravadas antes.
+ * - `keepExistingName` (envio automatico do app): com nome ja gravado, o da conta vale e o mandado
+ *   e ignorado. Assim, entrar num aparelho novo nunca troca o nome que a pessoa escolheu antes.
  *
  * @param {object} repo
- * @param {{userId: string, changes: {displayName?: string, showInGlobalRanking?: boolean}, nowMs: number}} input
+ * @param {{userId: string, changes: {displayName?: string, showInGlobalRanking?: boolean},
+ *   keepExistingName?: boolean, nowMs: number}} input
  * @returns {Promise<{displayName: string|null, showInGlobalRanking: boolean}>}
  */
 export async function updateProfile(repo, input) {
-  const { userId, changes, nowMs } = input;
+  const { userId, nowMs, keepExistingName = false } = input;
 
   let profile = await repo.getProfile(userId);
   if (!profile) {
     await repo.createProfile(newProfile(userId));
     profile = await repo.getProfile(userId);
+  }
+
+  let changes = input.changes;
+  if (keepExistingName && profile.displayName && changes.displayName !== undefined) {
+    const { displayName: _ignored, ...rest } = changes;
+    changes = rest;
+    if (Object.keys(changes).length === 0) {
+      return { displayName: profile.displayName, showInGlobalRanking: isListedInGlobalRanking(profile) };
+    }
   }
 
   const listed = isListedInGlobalRanking({ ...profile, ...changes });

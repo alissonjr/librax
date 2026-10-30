@@ -62,5 +62,8 @@ export function parseProfileUpdate(input) {
     changes.showInGlobalRanking = input.showInGlobalRanking;
   }
   if (Object.keys(changes).length === 0) return { ok: false, error: 'NO_CHANGES' };
-  return { ok: true, changes };
+  if (input.keepExistingName !== undefined && typeof input.keepExistingName !== 'boolean') {
+    return { ok: false, error: 'INVALID_KEEP_NAME' };
+  }
+  return { ok: true, changes, ...(input.keepExistingName === true ? { keepExistingName: true } : {}) };
 }

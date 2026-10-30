@@ -1239,5 +1239,14 @@
     "offlineTitle": "Sin conexión",
     "offlineText": "Las ligas necesitan internet. Revisa la conexión e inténtalo de nuevo.",
     "retry": "Intentar de nuevo"
+  },
+  "nameScreen": {
+    "title": "Tu nombre",
+    "label": "Nombre o apodo",
+    "hint": "Es el nombre que otras personas ven en las ligas. Hasta 30 caracteres.",
+    "save": "Guardar",
+    "saved": "Nombre cambiado",
+    "savedLocal": "Nombre cambiado en este dispositivo",
+    "savedPending": "Nombre cambiado. Llegará a las ligas cuando vuelva la conexión."
   }
 }

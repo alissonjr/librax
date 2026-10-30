@@ -1238,5 +1238,14 @@
     "offlineTitle": "Sem conexão",
     "offlineText": "As ligas precisam de internet. Confira a conexão e tente de novo.",
     "retry": "Tentar de novo"
+  },
+  "nameScreen": {
+    "title": "Seu nome",
+    "label": "Nome ou apelido",
+    "hint": "É o nome que aparece para outras pessoas nas ligas. Até 30 letras.",
+    "save": "Salvar",
+    "saved": "Nome trocado",
+    "savedLocal": "Nome trocado neste aparelho",
+    "savedPending": "Nome trocado. Ele chega às ligas quando a internet voltar."
   }
 }
