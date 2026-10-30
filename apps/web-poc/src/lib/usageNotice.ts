@@ -10,11 +10,12 @@ import { isOnboarded } from './auth';
  * O número fica aqui (e não lido do privacidade.md) para o texto da política não entrar no pedaço
  * inicial do app; o teste da política confere que os dois são iguais.
  */
-export const PRIVACY_POLICY_VERSION = '1.5';
+export const PRIVACY_POLICY_VERSION = '1.6';
 
 /**
  * Versão que trouxe os dados de uso anônimos: o aviso do mapa é sobre ela. Versões depois dela (1.5:
- * lembretes, que só valem com o consentimento dado ao ligar) não mostram o aviso de novo.
+ * lembretes, que só valem com o consentimento dado ao ligar; 1.6: o que outras pessoas veem nas
+ * ligas, que só existem com conta) não mostram o aviso de novo.
  */
 export const USAGE_NOTICE_VERSION = '1.4';
 

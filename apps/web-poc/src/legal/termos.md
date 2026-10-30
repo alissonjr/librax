@@ -1,6 +1,6 @@
 ---
-versao: 1.1
-vigencia: 2026-10-26
+versao: 1.2
+vigencia: 2026-10-29
 ---
 
 Estes Termos explicam as regras de uso do Librax. Ao usar o app, com ou sem conta, você concorda com eles. Leia também a [Política de Privacidade](/privacidade), que explica como tratamos os seus dados. Se não concordar, não use o Librax.
@@ -15,11 +15,11 @@ O Librax é para pessoas com 18 anos ou mais. Ao usar o app, você declara ter p
 
 ## 3. O que é o Librax
 
-O Librax é um app gratuito, aberto no navegador do celular, para adultos estudarem a Língua Brasileira de Sinais (Libras). Ele tem lições, exercícios, revisões, XP, sequência de dias, conquistas e uma liga semanal, além do reconhecimento de alguns sinais pela câmera.
+O Librax é um app gratuito, aberto no navegador do celular, para adultos estudarem a Língua Brasileira de Sinais (Libras). Ele tem lições, exercícios, revisões, XP, sequência de dias, conquistas e ligas (a liga da semana, a liga geral e as ligas privadas, que qualquer pessoa com conta pode criar e compartilhar por código), além do reconhecimento de alguns sinais pela câmera.
 
 Você pode usar como convidado, com o progresso guardado só no aparelho, ou criar uma conta para guardar o progresso no servidor e continuar em outro aparelho.
 
-O app está em desenvolvimento. Hoje, os outros participantes da liga semanal mostrados no app são simulados: o ranking com outras pessoas ainda não existe.
+As ligas só existem com conta e mostram o nome que você escolheu no app e o seu XP para outras pessoas, como explica a [Política de Privacidade](/privacidade). Na liga geral, você pode deixar de aparecer em Configurações.
 
 ## 4. Ferramenta de estudo, não curso completo
 
@@ -52,7 +52,7 @@ Ao usar o Librax, você se compromete a não:
 - usar o app para fins comerciais ou copiar o conteúdo do curso para oferecer em outro lugar sem autorização;
 - tentar invadir, sobrecarregar ou burlar a segurança do app e dos servidores, nem acessar dados de outras pessoas;
 - manipular XP, sequência, ligas ou conquistas com robôs, scripts ou falhas do app;
-- usar nome ofensivo, discriminatório ou que se passe por outra pessoa;
+- usar nome, de pessoa ou de liga privada, ofensivo, discriminatório ou que se passe por outra pessoa;
 - usar o app de forma contrária à lei ou a estes Termos.
 
 ## 9. Propriedade intelectual

@@ -57,7 +57,7 @@ describe('textos (src/legal)', () => {
   });
 
   it('a política conta o que vai nos dados de uso anônimos, por quanto tempo e como desligar e apagar', () => {
-    expect(LEGAL_DOCS.privacy.version).toBe('1.5');
+    expect(LEGAL_DOCS.privacy.version).toBe('1.6');
     // o número que o app usa para o aviso de uma vez é o mesmo do texto
     expect(PRIVACY_POLICY_VERSION).toBe(LEGAL_DOCS.privacy.version);
     // a frase antiga dizia que, sem conta, nada era recebido
@@ -91,6 +91,24 @@ describe('textos (src/legal)', () => {
     ]) {
       expect(privacidadeMd, fact).toContain(fact);
     }
+  });
+
+  it('a versão 1.6 conta o que outras pessoas veem nas ligas e como sair da liga geral', () => {
+    const titles = LEGAL_DOCS.privacy.blocks.flatMap(b => (b.type === 'subsection' ? [b.text] : []));
+    expect(titles).toContain('Ligas: o que outras pessoas veem');
+    for (const fact of [
+      'Nunca mostramos o e-mail',
+      'até 30',
+      'as 50 pessoas com mais XP',
+      'desligue "Aparecer na liga geral" em Configurações',
+      'só quem está na mesma liga',
+      'código ou o link de convite',
+    ]) {
+      expect(privacidadeMd, fact).toContain(fact);
+    }
+    // os termos não dizem mais que o ranking é simulado
+    expect(termosMd).not.toMatch(/simulad/);
+    expect(termosMd).toContain('ligas privadas');
   });
 
   it('os termos dizem que é ferramenta de estudo, que o reconhecimento pode errar e pedem 18 anos', () => {
@@ -127,7 +145,7 @@ describe('LegalScreen', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Política de Privacidade' })).toBeInTheDocument();
     const meta = screen.getByRole('list', { name: 'Sobre este documento' });
     expect(meta).toHaveTextContent(`Versão ${LEGAL_DOCS.privacy.version}`);
-    expect(meta).toHaveTextContent('Em vigor desde 27 de outubro de 2026');
+    expect(meta).toHaveTextContent('Em vigor desde 29 de outubro de 2026');
     expect(meta).not.toHaveTextContent('Rascunho');
 
     const toc = screen.getByRole('navigation', { name: 'Nesta página' });
@@ -158,7 +176,7 @@ describe('LegalScreen', () => {
     render(<I18nProvider><LegalScreen doc="terms" onBack={onBack} /></I18nProvider>);
     expect(screen.getByRole('heading', { level: 1, name: 'Terms of Use' })).toBeInTheDocument();
     expect(screen.getByText('This document is available in Portuguese only.')).toBeInTheDocument();
-    expect(screen.getByText(/Effective since October 26, 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Effective since October 29, 2026/)).toBeInTheDocument();
     screen.getByRole('button', { name: 'Back' }).click();
     expect(onBack).toHaveBeenCalled();
   });

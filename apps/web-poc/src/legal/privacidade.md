@@ -1,6 +1,6 @@
 ---
-versao: 1.5
-vigencia: 2026-10-27
+versao: 1.6
+vigencia: 2026-10-29
 ---
 
 Esta política explica, em linguagem simples, quais dados o Librax usa, para quê, onde eles ficam, por quanto tempo e como você exerce seus direitos pela Lei Geral de Proteção de Dados (LGPD, Lei nº 13.709/2018). Ela vale junto com os [Termos de Uso](/termos).
@@ -10,6 +10,7 @@ Esta política explica, em linguagem simples, quais dados o Librax usa, para qu�
 - **A imagem da câmera nunca sai do seu aparelho.** O reconhecimento dos sinais roda no próprio celular. Nem a imagem nem os pontos da sua mão são enviados para nós.
 - **Sem conta, o seu progresso fica só neste navegador.** O app envia apenas dados de uso anônimos: métricas para calibrar o algoritmo e os exercícios, sem identificar você (item 6). Dá para desligar em Configurações.
 - **Com conta, guardamos seu e-mail, o nome que você informou e o seu progresso no curso**, para você não perder o que aprendeu e poder continuar em outro aparelho.
+- **Com conta, o nome que você escolheu no app e o seu XP aparecem para outras pessoas nas ligas** (item 5, "Ligas"). O e-mail nunca aparece, e dá para sair da liga geral em Configurações.
 - **Os servidores ficam nos Estados Unidos**, na Amazon Web Services (AWS).
 - **Não vendemos dados, não mostramos anúncios e não usamos ferramentas de análise ou de rastreamento de terceiros.**
 - Você pode ver, exportar, corrigir e excluir os seus dados no próprio app, em Configurações.
@@ -25,7 +26,7 @@ Os pedidos do item 13 são feitos no próprio app, como explicado lá.
 Enquanto você usa o Librax sem conta, os dados abaixo ficam guardados no navegador do seu aparelho (no armazenamento local do site e no cache do app). Nós não temos acesso a eles. Os dados de uso anônimos do item 6 são outra coisa: métricas que o app envia, sem identificar você.
 
 - o nome ou apelido que você digita nas boas-vindas;
-- o seu progresso: XP, sequência de dias, lições concluídas, conquistas, as revisões programadas de cada sinal e a liga da semana;
+- o seu progresso: XP, sequência de dias, lições concluídas, conquistas e as revisões programadas de cada sinal;
 - a lição em andamento, para você continuar de onde parou se a página recarregar;
 - o desempenho da câmera: quantas tentativas e quantos pulos cada letra ou sinal teve nos exercícios com câmera e qual letra ou sinal a câmera leu no lugar. São só números, sem imagem, e você vê e apaga tudo em Configurações, "Desempenho da câmera". Se você tiver conta, os números de cada lição também vão para o servidor junto com ela (item 5); apagar no aparelho não muda os totais já somados lá, que não identificam você;
 - suas preferências: idioma, tema, sons e avisos que você já viu;
@@ -56,6 +57,7 @@ A conta é opcional. Ao criar uma, guardamos os dados abaixo.
 
 - O e-mail e a confirmação de que ele é seu.
 - O nome que você informou no cadastro ou, se entrar com o Google, o seu primeiro nome na conta Google.
+- O nome ou apelido que você escolheu nas boas-vindas do app, que é o nome mostrado nas ligas.
 - A senha, se você usar e-mail e senha. Ela não é enviada nem guardada como texto: o login usa um protocolo seguro (SRP), e o servidor guarda só um verificador.
 - Se você entrar com o Google, o vínculo com a sua conta Google. Do Google guardamos só o e-mail, a confirmação de que ele é válido, o primeiro nome e o identificador da conta. Se você já tinha conta com e-mail e senha confirmada no mesmo endereço, o Google passa a entrar nessa mesma conta, sem criar outra.
 
@@ -78,12 +80,22 @@ Ligados ao identificador da sua conta:
 - XP, sequência de dias, lições concluídas, conquistas e a meta diária;
 - quais sinais você revisou, como foi cada revisão e quando é a próxima;
 - o XP de cada dia e o grupo da liga semanal com o seu XP da semana;
+- as ligas privadas em que você está, com o seu papel (quem criou ou participante), o seu XP da semana e o XP desde que você entrou;
+- se você aparece ou não na liga geral;
 - o último dia, semana e mês em que você usou o app, para contar as pessoas ativas sem contar ninguém duas vezes;
 - um registro de cada lição enviada, para a mesma lição não ser somada duas vezes. Ele é apagado sozinho em 60 dias.
 
 O progresso vai para o servidor quando você conclui uma lição (ou assim que houver internet). Quando você entra na conta pela primeira vez, o progresso feito como convidado neste aparelho é levado para ela.
 
 Com conta, o app também envia quantas respostas e quantos erros você teve em cada tipo de exercício da lição e, se você sair no meio, em que exercício parou. Junto com a lição concluída vai também o desempenho da câmera só daquela lição: quantas vezes cada letra ou sinal foi acertado ou pulado, quantas tentativas precisou e qual letra ou sinal do curso a câmera leu no lugar. São só contagens, sem imagem, vídeo ou texto. As lições feitas como convidado levam esses números quando você entra na conta. Esses números só entram nos totais do item 6 e não ficam ligados à sua conta.
+
+### Ligas: o que outras pessoas veem
+
+As ligas só existem com conta e mostram o nome que você escolheu no app e o seu XP. Nunca mostramos o e-mail, o progresso no curso nem qualquer outro dado da conta. Escolha um nome com que você se sinta à vontade; pode ser um apelido.
+
+- **Liga da semana**: as pessoas do mesmo grupo (até 30) veem o seu nome e o seu XP da semana. Você entra no grupo ao concluir a primeira lição da semana.
+- **Liga geral**: quem tem conta vê as 50 pessoas com mais XP desde o começo, com nome e XP total, e a própria posição. Você aparece nela desde que cria a conta. Para sair, desligue "Aparecer na liga geral" em Configurações: o seu nome sai da lista na hora e só volta se você ligar de novo.
+- **Ligas privadas**: só quem está na mesma liga vê o seu nome, o seu XP da semana e o XP desde que você entrou. Entra quem tem o código ou o link de convite. Quem criou a liga pode gerar outro código e apagar a liga, e você pode sair quando quiser.
 
 ## 6. Números da operação e dados de uso anônimos
 
@@ -130,6 +142,7 @@ Essa transferência é necessária para prestar o serviço que você pede ao cri
 ## 10. Para que usamos os dados e com qual base legal
 
 - **Criar e manter a sua conta, guardar e sincronizar o progresso, calcular XP, sequência e liga, e enviar o código de confirmação**: execução do contrato que são os Termos de Uso (art. 7º, V, da LGPD).
+- **Mostrar o seu nome e o seu XP nas ligas** (item 5): execução do contrato, porque as ligas fazem parte do app (Termos, item 3). Na liga geral, você pode sair a qualquer momento em Configurações.
 - **Totais da operação, segurança, prevenção de abuso e registros técnicos**: legítimo interesse (art. 7º, IX), sempre com o mínimo de dados e sem identificar você nos totais.
 - **Dados de uso anônimos, nota e comentário**: legítimo interesse (art. 7º, IX) em calibrar o algoritmo e os exercícios, com o mínimo de dados, sem identificar você e com a opção de desligar a qualquer momento.
 - **Lista de aparelhos da conta e aviso de acesso num aparelho novo**: legítimo interesse na segurança da sua conta (art. 7º, IX), com os dados mínimos do item 5.
@@ -173,7 +186,7 @@ Pela LGPD (art. 18), você pode pedir:
 Os pedidos são feitos no próprio app:
 
 - **Exportar meus dados** (Configurações) baixa um arquivo com o perfil, as revisões e o desempenho da câmera guardados neste aparelho.
-- **Excluir conta e dados** (Configurações) apaga, na hora e para sempre, a sua conta, o seu login e tudo o que está guardado no servidor (perfil, progresso, revisões, XP, conquistas, participação em ligas e a lista de aparelhos), além dos dados deste aparelho. Se faltar internet ou o servidor falhar, nada é apagado e o app pede para tentar de novo. Sem conta, o mesmo botão apaga os dados deste aparelho.
+- **Excluir conta e dados** (Configurações) apaga, na hora e para sempre, a sua conta, o seu login e tudo o que está guardado no servidor (perfil, progresso, revisões, XP, conquistas, participação em ligas e a lista de aparelhos). Nas ligas privadas com outras pessoas, você sai delas e quem está há mais tempo passa a cuidar da liga; a liga em que só você estava é apagada, além dos dados deste aparelho. Se faltar internet ou o servidor falhar, nada é apagado e o app pede para tentar de novo. Sem conta, o mesmo botão apaga os dados deste aparelho.
 - **Excluir conta e dados** e **Enviar dados de uso anônimos** (desligar) também pedem ao servidor para apagar os dados de uso anônimos e a nota enviados deste aparelho. Sem internet, o app tenta de novo na próxima abertura.
 
 Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD), em [gov.br/anpd](https://www.gov.br/anpd).
