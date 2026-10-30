@@ -1163,7 +1163,8 @@
     "guestText": "La liga de la semana reúne hasta 30 personas que estudian al mismo ritmo. Quien queda arriba sube de liga el lunes. Para entrar, crea una cuenta: tu progreso va contigo.",
     "fillingNote": "Tu liga tiene {n} personas por ahora. Se llena a medida que más gente estudia esta semana.",
     "shortcutGuest": "Crea una cuenta para entrar en las ligas",
-    "shortcutOffline": "Sin conexión ahora"
+    "shortcutOffline": "Sin conexión ahora",
+    "smallLeagueNote": "Tu liga tiene {n} personas por ahora. Con {min} o más, los primeros suben de liga el lunes; hasta entonces, nadie sube ni baja."
   },
   "routeError": {
     "retry": "Intentar de nuevo",

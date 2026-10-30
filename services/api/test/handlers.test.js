@@ -300,7 +300,10 @@ test('preferencias: opt-out do e-mail apaga o endereco guardado', async () => {
 
 async function seedOuroW43(repo) {
   const l = { leagueId: 'ouro-2026-w43', tier: 'ouro', period: '2026-w43', periodStart: '2026-10-19' };
-  for (const [userId, xp] of [['u1', 50], ['u2', 30], ['u3', 20], ['u4', 10]]) {
+  // 10 pessoas: o minimo para alguem subir ou descer (MIN_MEMBERS_TO_MOVE)
+  const members = [['u1', 50], ['u2', 30], ['u3', 20], ['u4', 10]];
+  for (let i = 5; i <= 10; i++) members.push([`u${i}`, 5]);
+  for (const [userId, xp] of members) {
     await repo.joinLeague(l, userId);
     await repo.incrementLeagueXp(l.leagueId, userId, xp);
   }

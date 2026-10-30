@@ -135,12 +135,23 @@ describe('LeagueScreen', () => {
     expect(calls[0]).toMatchObject({ method: 'GET', url: '/api/v1/league/current' });
   });
 
-  it('liga com pouca gente: mostra quem tem e avisa que ela enche durante a semana', async () => {
-    league = view({ tier: 'bronze', promote: 3, relegate: 0, rows: rows(4, 0) });
+  it('liga com menos de 10 pessoas: mostra quem tem e avisa que ninguém sobe nem desce ainda', async () => {
+    const few = rows(4, 0).map(r => ({ ...r, zone: 'stay' as const }));
+    league = view({ tier: 'bronze', promote: 0, relegate: 0, rows: few });
     render(<LeagueScreen onBack={vi.fn()} onAccount={vi.fn()} now={nowWed} />);
     const list = await screen.findByRole('list', { name: /ranking da semana/i });
     expect(within(list).getAllByRole('listitem').filter(li => !li.getAttribute('aria-hidden'))).toHaveLength(4);
-    expect(screen.getByText('Sua liga tem 4 pessoas por enquanto. Ela enche conforme mais gente estuda nesta semana.')).toBeInTheDocument();
+    expect(screen.getByText(/Sua liga tem 4 pessoas por enquanto. Com 10 ou mais, os primeiros sobem/)).toBeInTheDocument();
+    // Sem "Top 0 sobem" nem zonas
+    expect(screen.queryByText(/sobem para a Liga/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Zona de promoção')).not.toBeInTheDocument();
+  });
+
+  it('liga com 10 a 29 pessoas: zonas normais e o aviso de que ela enche durante a semana', async () => {
+    league = view({ rows: rows(12, 0) });
+    render(<LeagueScreen onBack={vi.fn()} onAccount={vi.fn()} now={nowWed} />);
+    expect(await screen.findByText('Top 3 sobem para a Liga Ouro')).toBeInTheDocument();
+    expect(screen.getByText('Sua liga tem 12 pessoas por enquanto. Ela enche conforme mais gente estuda nesta semana.')).toBeInTheDocument();
   });
 
   it('sem conexão: pede para tentar de novo e tenta', async () => {

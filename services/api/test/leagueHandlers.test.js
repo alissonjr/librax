@@ -8,7 +8,7 @@ import { completeLesson } from '../src/usecases/completeLesson.js';
 import { closeLeagueWeek } from '../src/usecases/closeLeagueWeek.js';
 
 // GET /v1/league/current e POST /v1/league/result-seen: a liga da semana no formato que a
-// LeagueScreen usa (LeagueView de apps/web-poc/src/lib/leagueLocal.ts), com o ranking, o tempo
+// LeagueScreen usa (LeagueView de apps/web-poc/src/lib/league.ts), com o ranking, o tempo
 // ate o fechamento e o resultado da semana anterior ainda nao visto.
 
 const content = { lessons: { 'u1-l1': { id: 'u1-l1', xpReward: 10 } }, achievementRules: [] };
@@ -61,11 +61,12 @@ test('league/current: ranking da liga da semana no formato da LeagueView', async
   assert.equal(view.periodStart, W43);
   assert.equal(view.periodEnd, W44);
   assert.equal(view.msUntilClose, W44 - thu43.getTime());
-  assert.equal(view.promote, 3);
-  assert.equal(view.relegate, 0); // Bronze nao rebaixa
+  // 2 pessoas: abaixo de 10 ninguem sobe nem desce, e a tela sabe disso pelos zeros
+  assert.equal(view.promote, 0);
+  assert.equal(view.relegate, 0);
   assert.deepEqual(view.rows, [
-    { userId: 'u2', name: 'Bia', xpPeriod: 30, rank: 1, zone: 'promotion', isYou: false, simulated: false },
-    { userId: 'u1', name: null, xpPeriod: 10, rank: 2, zone: 'promotion', isYou: true, simulated: false },
+    { userId: 'u2', name: 'Bia', xpPeriod: 30, rank: 1, zone: 'stay', isYou: false, simulated: false },
+    { userId: 'u1', name: null, xpPeriod: 10, rank: 2, zone: 'stay', isYou: true, simulated: false },
   ]);
   assert.deepEqual(view.you, view.rows[1]);
   assert.equal(view.pendingResult, null);
@@ -86,7 +87,8 @@ test('league/current sem licao na semana: sem liga, mas com a liga em que vai en
 
 test('resultado da semana anterior aparece ate ser marcado como visto', async () => {
   const repo = new InMemoryRepo();
-  for (const u of ['u1', 'u2', 'u3', 'u4', 'u5']) await study(repo, u, u === 'u1' ? 5 : 1);
+  const people = Array.from({ length: 10 }, (_, i) => `u${i + 1}`);
+  for (const u of people) await study(repo, u, u === 'u1' ? 5 : 1);
   await closeLeagueWeek(repo, { periodStart: W43, closedAt: '2026-10-26T00:05:00.000Z' });
   const mon = () => new Date('2026-10-26T12:00:00Z');
   const h = makeLeagueHandlers({ repo, now: mon });
@@ -103,7 +105,7 @@ test('resultado da semana anterior aparece ate ser marcado como visto', async ()
     toTier: 'prata',
     outcome: 'promoted',
     rank: 1,
-    total: 5,
+    total: 10,
     xp: 50,
   });
 
@@ -119,7 +121,7 @@ test('resultado da semana anterior aparece ate ser marcado como visto', async ()
 
 test('fechamento ainda nao rodou: a leitura ja mostra o resultado e a liga de destino, sem gravar', async () => {
   const repo = new InMemoryRepo();
-  for (const u of ['u1', 'u2']) await study(repo, u, u === 'u1' ? 2 : 1);
+  for (let i = 1; i <= 10; i++) await study(repo, `u${i}`, i === 1 ? 2 : 1);
   const h = makeLeagueHandlers({ repo, now: () => new Date('2026-10-26T00:01:00Z') });
 
   const view = parse(await h.getCurrentLeagueHandler(event()));
@@ -128,6 +130,18 @@ test('fechamento ainda nao rodou: a leitura ja mostra o resultado e a liga de de
   assert.equal(view.tier, 'prata');
   assert.equal(view.pendingResult.outcome, 'promoted');
   assert.equal(await repo.getLeagueState('u1'), null); // leitura nao grava
+});
+
+test('liga com menos de 10 pessoas: o fechamento nao muda ninguem de liga', async () => {
+  const repo = new InMemoryRepo();
+  for (const u of ['u1', 'u2', 'u3']) await study(repo, u, u === 'u1' ? 5 : 1);
+  await closeLeagueWeek(repo, { periodStart: W43, closedAt: '2026-10-26T00:05:00.000Z' });
+  const h = makeLeagueHandlers({ repo, now: () => new Date('2026-10-26T12:00:00Z') });
+
+  const view = parse(await h.getCurrentLeagueHandler(event()));
+  assert.equal(view.tier, 'bronze');
+  assert.equal(view.pendingResult.outcome, 'stayed');
+  assert.equal(view.pendingResult.rank, 1);
 });
 
 test('result-seen valida a semana', async () => {

@@ -1163,7 +1163,8 @@
     "guestText": "The weekly league brings together up to 30 people who study at a similar pace. Those at the top move up on Monday. To join, create an account: your progress comes along.",
     "fillingNote": "Your league has {n} people for now. It fills up as more people study this week.",
     "shortcutGuest": "Create an account to join the leagues",
-    "shortcutOffline": "No connection right now"
+    "shortcutOffline": "No connection right now",
+    "smallLeagueNote": "Your league has {n} people for now. With {min} or more, the top people move up on Monday; until then, nobody moves up or down."
   },
   "routeError": {
     "retry": "Try again",

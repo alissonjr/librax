@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
@@ -43,6 +43,13 @@ async function renderAt(entries: string[]) {
   );
   return router;
 }
+
+// Telas sob demanda: transforma os módulos antes, para o findBy não estourar em máquina ocupada
+beforeAll(async () => {
+  await Promise.all([
+    import('../screens/PracticeScreen'), import('../screens/FreeModeScreen'), import('../screens/CameraScreen'),
+  ]);
+});
 
 beforeEach(() => {
   window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;

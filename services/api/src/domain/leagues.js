@@ -9,6 +9,11 @@ export const PROMOTE = 3;
 export const RELEGATE = 10;
 /** Tamanho maximo de um grupo de liga (mesma semana e liga); acima disso abre `-g<n>`. */
 export const LEAGUE_SIZE = 30;
+/**
+ * Abaixo disso ninguem sobe nem desce na semana: no comeco do beta, com pouca gente, a turma fica
+ * junta na mesma liga em vez de se espalhar pelas divisoes (decisao de 2026-10-30).
+ */
+export const MIN_MEMBERS_TO_MOVE = 10;
 const DEFAULTS = { promote: PROMOTE, relegate: RELEGATE };
 
 /** Ligas em ordem crescente (mesma lista do app). */
@@ -32,8 +37,13 @@ export function tierBelow(tier) {
   return i > 0 ? TIERS[i - 1] : null;
 }
 
-/** Zonas da liga: Bronze nao rebaixa (e a primeira) e Diamante nao promove (e a ultima). */
-export function zoneOptsForTier(tier) {
+/**
+ * Zonas da liga: Bronze nao rebaixa (e a primeira) e Diamante nao promove (e a ultima). Com menos
+ * de MIN_MEMBERS_TO_MOVE membros, nenhuma zona (ninguem muda de liga).
+ */
+export function zoneOptsForTier(tier, memberCount = LEAGUE_SIZE) {
+  tierIndex(tier);
+  if (memberCount < MIN_MEMBERS_TO_MOVE) return { promote: 0, relegate: 0 };
   return {
     promote: tierAbove(tier) ? PROMOTE : 0,
     relegate: tierBelow(tier) ? RELEGATE : 0,
@@ -132,7 +142,7 @@ export function closeLeague(members, opts = {}) {
  *   outcome: 'promoted'|'stayed'|'relegated', fromTier: string, toTier: string}>}
  */
 export function leagueResults(members, tier) {
-  const opts = zoneOptsForTier(tier);
+  const opts = zoneOptsForTier(tier, members.length);
   const { promoted, relegated } = closeLeague(members, opts);
   const up = new Set(promoted);
   const down = new Set(relegated);
@@ -167,7 +177,7 @@ export function buildLeagueView(input) {
   const periodStart = periodStartOf(nowMs);
   const periodEnd = nextPeriodStart(periodStart);
   const period = periodKey(periodStart);
-  const opts = zoneOptsForTier(tier);
+  const opts = zoneOptsForTier(tier, leagueId ? members.length : LEAGUE_SIZE);
   const names = new Map(members.map((m) => [m.userId, m.displayName ?? null]));
 
   const rows = leagueId

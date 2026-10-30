@@ -7,7 +7,7 @@ import { SocialAccountInvite, SocialOffline } from '../components/SocialAccountI
 import { getDisplayName } from '../lib/auth';
 import { useAccount } from '../lib/account';
 import {
-  fetchLeague, markLeagueResultSeen, tierAbove, tierBelow, timeLeft, LEAGUE_SIZE,
+  fetchLeague, markLeagueResultSeen, tierAbove, tierBelow, timeLeft, LEAGUE_MIN_TO_MOVE, LEAGUE_SIZE,
   TIERS, TIER_NAMES, type LeagueLoad, type LeagueResult, type LeagueView, type RankingRow, type TierId,
 } from '../lib/league';
 import '../styles/league.css';
@@ -261,10 +261,18 @@ export function LeagueScreen({ onBack, onStudy, onAccount, now = Date.now }: Pro
             </section>
 
             <TierLadder current={ranked.tier} />
-            <PromotionLegend view={ranked} />
+            {ranked.rows.length < LEAGUE_MIN_TO_MOVE ? (
+              // Pouca gente: ninguém muda de liga nesta semana (no lugar da legenda de subir e descer)
+              <p className="league-demo-note">
+                <Icon name="info" />
+                <span>{t('league.smallLeagueNote', { n: ranked.rows.length, min: LEAGUE_MIN_TO_MOVE })}</span>
+              </p>
+            ) : (
+              <PromotionLegend view={ranked} />
+            )}
             <RankingList view={ranked} />
 
-            {ranked.rows.length < LEAGUE_SIZE && (
+            {ranked.rows.length >= LEAGUE_MIN_TO_MOVE && ranked.rows.length < LEAGUE_SIZE && (
               <p className="league-demo-note">
                 <Icon name="info" />
                 <span>{t('league.fillingNote', { n: ranked.rows.length })}</span>

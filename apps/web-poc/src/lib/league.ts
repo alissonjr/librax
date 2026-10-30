@@ -26,6 +26,8 @@ export const TIER_NAMES: Record<TierId, string> = {
 
 /** Vagas de uma liga (services/api/src/domain/leagues.js). Abaixo disso, a liga ainda está enchendo. */
 export const LEAGUE_SIZE = 30;
+/** Com menos gente que isso na liga, ninguém sobe nem desce na semana (domain/leagues.js, MIN_MEMBERS_TO_MOVE). */
+export const LEAGUE_MIN_TO_MOVE = 10;
 
 export function tierIndex(tier: TierId): number {
   return TIERS.indexOf(tier);

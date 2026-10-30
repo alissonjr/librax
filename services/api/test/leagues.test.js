@@ -15,6 +15,7 @@ import {
   PROMOTE,
   RELEGATE,
   LEAGUE_SIZE,
+  MIN_MEMBERS_TO_MOVE,
 } from '../src/domain/leagues.js';
 
 // SPEC 02 secao 5.5 / frontend 12.7: ranking por xpPeriod desc; top 3 promovem,
@@ -81,6 +82,9 @@ test('Bronze nao rebaixa e Diamante nao promove', () => {
   assert.deepEqual(zoneOptsForTier('ouro'), { promote: 3, relegate: 10 });
   assert.deepEqual(zoneOptsForTier('diamante'), { promote: 0, relegate: 10 });
   assert.throws(() => zoneOptsForTier('gold'), /liga desconhecida/);
+  // Pouca gente: ninguem sobe nem desce
+  assert.deepEqual(zoneOptsForTier('ouro', 9), { promote: 0, relegate: 0 });
+  assert.deepEqual(zoneOptsForTier('ouro', 10), { promote: 3, relegate: 10 });
 });
 
 test('semana comeca segunda 00:00 UTC', () => {
@@ -115,6 +119,14 @@ test('leagueResults usa rankLeague/closeLeague com as zonas da liga', () => {
   );
 });
 
+test('leagueResults: liga com menos de 10 pessoas fecha sem ninguem mudar de liga', () => {
+  const results = leagueResults(makeMembers(9), 'prata');
+  assert.equal(results.length, 9);
+  assert.ok(results.every((r) => r.outcome === 'stayed' && r.toTier === 'prata'));
+  assert.equal(results[0].rank, 1);
+  assert.equal(leagueResults(makeMembers(10), 'prata').filter((r) => r.outcome === 'promoted').length, 3);
+});
+
 test('leagueResults: na Bronze ninguem desce e na Diamante ninguem sobe', () => {
   const bronze = leagueResults(makeMembers(30), 'bronze');
   assert.equal(bronze.filter((r) => r.outcome === 'relegated').length, 0);
@@ -129,4 +141,5 @@ test('coerencia com o app: mesmas ligas e o mesmo tamanho de liga que apps/web-p
   const tiers = /export const TIERS = \[([^\]]*)\]/.exec(src)[1].match(/'([^']+)'/g).map((t) => t.slice(1, -1));
   assert.deepEqual(tiers, TIERS);
   assert.equal(Number(/export const LEAGUE_SIZE = (\d+)/.exec(src)[1]), LEAGUE_SIZE);
+  assert.equal(Number(/export const LEAGUE_MIN_TO_MOVE = (\d+)/.exec(src)[1]), MIN_MEMBERS_TO_MOVE);
 });
