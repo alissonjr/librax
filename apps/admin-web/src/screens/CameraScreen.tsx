@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { RankList } from '../components/Chart';
+import { ExportCalibration } from '../components/ExportCalibration';
 import { Card, Chip, Loaded, PageHeader, StatTile, useLoad, type ChipTone } from '../components/ui';
 import { useApi } from '../lib/context';
 import { fmtDay, fmtDec, fmtInt, fmtPct } from '../lib/format';
@@ -29,6 +30,7 @@ export function CameraScreen() {
       <PageHeader title="Câmera">
         Últimos 30 dias, somando todas as pessoas com conta: onde o reconhecimento ou a descrição do sinal falham.
       </PageHeader>
+      <ExportCalibration />
       <Loaded load={load} onRetry={reload}>
         {(o) => <CameraView camera={o.camera} range={o.range} />}
       </Loaded>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BarChart, RankList } from '../components/Chart';
 import { Card, Chip, Loaded, PageHeader, StatTile, useLoad } from '../components/ui';
 import { useApi } from '../lib/context';
+import { ExportCalibration } from '../components/ExportCalibration';
 import { fmtDateTime, fmtDay, fmtDec, fmtInt, fmtMonth, fmtPct, fmtWeek } from '../lib/format';
 import type { FeedbackItem, FunnelKey, Usage } from '../lib/usageTypes';
 import { feedbackKey, markRead, readKeys } from '../lib/feedbackRead';
@@ -37,6 +38,7 @@ export function UsoScreen() {
       <PageHeader title="Uso">
         Dados de uso anônimos do app, com e sem conta, nos últimos 30 dias. Servem para calibrar o algoritmo e os exercícios e não identificam ninguém.
       </PageHeader>
+      <ExportCalibration />
       <Loaded load={load} onRetry={reload}>
         {(u) => (
           <div className="stack">

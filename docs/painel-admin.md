@@ -68,6 +68,12 @@ Definições da tela Uso:
 - **Até onde chegam**: códigos que já concluíram cada lição, desde que os dados de uso começaram.
 - **Nota**: uma por código; quem manda de novo troca a anterior (totais descontados). Comentário é texto simples.
 
+**Dados para calibrar** (cartão no topo de Câmera e de Uso): o botão "Baixar arquivo" junta num JSON
+(`librax-calibracao-AAAA-MM-DD.json`) a Operação de 90 dias (lições, exercícios, sinais errados e a câmera por letra e
+sinal, com as leituras trocadas), o Uso consolidado, todas as notas com comentário (página por página) e o catálogo do
+curso. É montado no navegador com as mesmas rotas de leitura (`src/lib/exportData.ts`): nenhuma rota nova, nenhum
+e-mail, nome ou id de conta no arquivo. Serve para levar os números para a calibração do reconhecimento e dos exercícios.
+
 ## 1a. Ações sobre uma conta
 
 Na conta aberta em **Contas**, o quadro **Ações na conta** tem:
