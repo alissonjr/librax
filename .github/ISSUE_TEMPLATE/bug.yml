@@ -1,0 +1,77 @@
+name: Bug
+description: Algo no app, no site ou no painel não funciona como deveria
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar. Falha de segurança não vai aqui: veja a [política de segurança](https://github.com/alissonjr/librax/security/policy).
+        Não coloque e-mail, senha, código de login nem fotos de pessoas nesta issue.
+  - type: dropdown
+    id: onde
+    attributes:
+      label: Onde aconteceu
+      options:
+        - App (app.librax.online)
+        - Câmera e reconhecimento
+        - Conta, login ou sincronização
+        - Ligas, sequência ou XP
+        - Site (librax.online)
+        - Painel de administração
+        - App Android
+        - Ambiente local ou código do repositório
+        - Outro
+    validations:
+      required: true
+  - type: textarea
+    id: descricao
+    attributes:
+      label: O que aconteceu
+      description: Descreva o problema em poucas frases.
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Passos para repetir
+      placeholder: |
+        1. Abrir a lição ...
+        2. Tocar em ...
+        3. Ver ...
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que era esperado
+    validations:
+      required: true
+  - type: input
+    id: aparelho
+    attributes:
+      label: Aparelho, sistema e navegador
+      placeholder: "Ex.: iPhone 12, iOS 17.5, Safari / Moto G, Android 13, Chrome"
+    validations:
+      required: true
+  - type: dropdown
+    id: modo
+    attributes:
+      label: Como o app estava sendo usado
+      multiple: true
+      options:
+        - Como convidado (sem conta)
+        - Com conta
+        - Instalado na tela inicial
+        - Sem internet (offline)
+        - Não sei
+  - type: textarea
+    id: prints
+    attributes:
+      label: Prints ou vídeo
+      description: Se puder, anexe uma imagem da tela. Na câmera, evite mostrar o rosto.
+  - type: textarea
+    id: extra
+    attributes:
+      label: Mais alguma coisa
+      description: Mensagens de erro, se acontece sempre ou às vezes, desde quando.

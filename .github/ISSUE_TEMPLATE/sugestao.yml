@@ -1,0 +1,48 @@
+name: Sugestão
+description: Ideia de recurso, melhoria, ou correção de sinal e texto do curso
+title: "Sugestão: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado pela ideia. Para mudanças grandes, combinar aqui antes de escrever o código evita retrabalho.
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo de sugestão
+      options:
+        - Recurso novo
+        - Melhoria em algo que já existe
+        - Sinal, glosa ou texto do curso
+        - Acessibilidade
+        - Documentação
+        - Outro
+    validations:
+      required: true
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qual problema isso resolve
+      description: O que hoje é difícil, falta ou está errado.
+    validations:
+      required: true
+  - type: textarea
+    id: solucao
+    attributes:
+      label: Como você imagina a solução
+      description: Para um sinal do curso, diga a unidade, a lição e o que está diferente.
+    validations:
+      required: true
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas que você considerou
+  - type: dropdown
+    id: ajudar
+    attributes:
+      label: Quer abrir o pull request?
+      options:
+        - Sim, quero implementar
+        - Talvez, com ajuda
+        - Não

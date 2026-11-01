@@ -2,6 +2,7 @@
   "name": "librax-admin-web",
   "private": true,
   "version": "0.1.0",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "description": "Painel de administracao do Librax (so leitura, grupo admin do Cognito). Ver docs/painel-admin.md.",
   "scripts": {
